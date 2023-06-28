@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Title</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/src/uikit-theme.less" />
+        <link rel="stylesheet" href="/src/styles.less" />        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script type="module" src="/src/main.ts" defer></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Welcome to sketch editor!</h1>
+      
+            <include src="./component/tauri_welcome.html" locals='{}'></include>
+
+            <ul uk-accordion>
+                <li class="uk-open">
+                    <a class="uk-accordion-title" href="#">Item 1</a>
+                    <div class="uk-accordion-content">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    </div>
+                </li>
+                <li>
+                    <a class="uk-accordion-title" href="#">Item 2</a>
+                    <div class="uk-accordion-content">
+                        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor reprehenderit.</p>
+                    </div>
+                </li>
+                <li>
+                    <a class="uk-accordion-title" href="#">Item 3</a>
+                    <div class="uk-accordion-content">
+                        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat proident.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>
