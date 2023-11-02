@@ -1,19 +1,19 @@
 <extends src="window.html">
     <block name="window">
-            <nav class="uk-navbar-container uk-navbar-transparent">
-                    <div class="uk-navbar uk-margin-small-top">
+        <nav class="uk-navbar-container uk-navbar-transparent" data-uk-sticky>
+            <div class="uk-navbar uk-margin-small-top">
+                <div class="uk-navbar-left uk-margin-small-left">
+                    <include src="./component/menu/menu.html"></include>
+                    <include src="./component/tab-bar/tab-bar.html"></include>
+                </div>
 
-                        <div class="uk-navbar-left uk-margin-small-left">
-                            <include src="./component/menu/menu.html"></include>
-                            <include src="./component/tab-bar/tab-bar.html"></include>
-                        </div>
+                <div class="uk-navbar-right uk-margin-small-right">
+                    <include src="./component/undo-redo/undo-redo.html"></include>
+                    <include src="./component/search/search.html"></include>
+                </div>
 
-                        <div class="uk-navbar-right uk-margin-small-right">
-                            <include src="./component/undo-redo/undo-redo.html"></include>
-                            <include src="./component/search/search.html"></include>
-                        </div>
-
-                    </div>
-            </nav>
+            </div>
+        </nav>
+        <include src="./component/content-pane/content-pane.html"></include>
     </block>
 </extends>

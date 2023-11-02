@@ -34,8 +34,8 @@ class TabBar extends HTMLElement {
 
     private resetButton() {
         const resetButton = document.createElement('button');
-        resetButton.classList.add('tab', 'uk-button',  'uk-button-secondary');
-        resetButton.textContent = 'reset'
+        resetButton.classList.add('tab', 'uk-button-small',  'uk-button-secondary', 'uk-margin-left');
+        resetButton.textContent = '\u21bb';
         resetButton.onclick = (_) => {
             this.tabIndex = 0;
             this.tabs.forEach(tab => tab.remove());
