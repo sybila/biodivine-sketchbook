@@ -1,5 +1,5 @@
 const SAVE_KEY = 'tabs';
-class TabSwitcher extends HTMLElement {
+class TabBar extends HTMLElement {
     tabs: HTMLButtonElement[] = [];
     tabIndex = 0;
     shadow;
@@ -7,7 +7,7 @@ class TabSwitcher extends HTMLElement {
 
     constructor() {
         super();
-        const template = document.getElementById('tab-switcher')!;
+        const template = document.getElementById('tab-bar')!;
         // @ts-ignore
         const content = template.content;
         this.shadow = this.attachShadow({mode: 'open'});
@@ -67,7 +67,8 @@ class TabSwitcher extends HTMLElement {
     private createTab(index: number, title: string, classList: string[]) {
         const newTabButton = document.createElement('button');
         newTabButton.classList.add(...classList);
-        newTabButton.onauxclick = (_) => {
+        newTabButton.onauxclick = (e) => {
+            if (e.button === 2) return // only on middle click
             this.tabs = this.tabs.filter((tab) => tab !== newTabButton);
             newTabButton.remove();
             this.saveTabs();
@@ -89,4 +90,4 @@ class TabSwitcher extends HTMLElement {
     }
 }
 
-customElements.define('tab-switcher', TabSwitcher);
+customElements.define('tab-bar', TabBar);
