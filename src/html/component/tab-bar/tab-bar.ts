@@ -75,6 +75,12 @@ class TabBar extends HTMLElement {
             console.log(`closed tab ${index}`);
         };
         newTabButton.onclick = (_) => {
+            this.tabs.forEach((tab) => {
+                tab.classList.remove('uk-button-primary');
+                tab.classList.add('uk-button-secondary')
+            });
+            newTabButton.classList.remove('uk-button-secondary')
+            newTabButton.classList.add('uk-button-primary');
             const tabIndex =  +newTabButton.dataset.index!;
             this.dispatchEvent(new CustomEvent('switch-tab', {
                 detail: {

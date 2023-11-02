@@ -20,7 +20,11 @@ class RootComponent extends HTMLElement {
 
     private switchTab() {
         this.addEventListener('switch-tab', (e) => {
-            console.log(e);
+            this.shadow.querySelector('content-pane')!.dispatchEvent(new CustomEvent('switch-tab', {
+                detail: {
+                    content: ( e as CustomEvent).detail.content
+                },
+            }));
         })
     }
 }

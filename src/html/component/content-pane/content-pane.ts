@@ -1,5 +1,6 @@
 class ContentPane extends HTMLElement {
     shadow;
+    heading;
 
     constructor() {
         super();
@@ -12,15 +13,16 @@ class ContentPane extends HTMLElement {
         linkElem.setAttribute('rel', 'stylesheet');
         linkElem.setAttribute('href', 'component/content-pane/content-pane.less');
         this.shadow.appendChild(linkElem);
-        this.switchTab();
+        this.heading = document.createElement('h1');
+        this.heading.classList.add('uk-heading-large', 'uk-text-success');
+        this.shadow.appendChild(this.heading)
     }
 
     connectedCallback() {
-    }
-
-    private switchTab() {
         this.addEventListener('switch-tab', (e) => {
-            console.log(e);
+            const message = (e as CustomEvent).detail.content;
+            console.log('message recieved', message);
+            this.heading.innerText = message;
         })
     }
 
