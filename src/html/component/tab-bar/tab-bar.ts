@@ -76,6 +76,13 @@ class TabBar extends HTMLElement {
         };
         newTabButton.onclick = (_) => {
             const tabIndex =  +newTabButton.dataset.index!;
+            this.dispatchEvent(new CustomEvent('switch-tab', {
+                detail: {
+                    content: `Contents of tab ${tabIndex}`
+                },
+                bubbles: true,
+                composed: true
+            }));
             console.log(`clicked tab ${tabIndex}`)
         }
         newTabButton.dataset.index = index.toString();
