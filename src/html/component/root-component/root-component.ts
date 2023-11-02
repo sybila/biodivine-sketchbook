@@ -3,8 +3,7 @@ class RootComponent extends HTMLElement {
 
     constructor() {
         super();
-        const template = document.getElementById('root-component')!;
-        // @ts-ignore
+        const template = document.getElementById('root-component')! as HTMLTemplateElement;
         const content = template.content;
         this.shadow = this.attachShadow({mode: 'open'});
         this.shadow.appendChild(content.cloneNode(true));

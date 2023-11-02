@@ -49,7 +49,7 @@ export default defineConfig(async () => ({
       {
         find: '../../images',
         replacement: '',
-        customResolver(updatedId, importer, _resolveOptions) {
+        customResolver(updatedId, importer) {
           // don't replace if importer is not our my-uikit.less
           if (importer === undefined || basename(importer) !== 'uikit-theme.less') {
             return '../../images';

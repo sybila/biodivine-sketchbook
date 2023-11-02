@@ -4,8 +4,7 @@ class ContentPane extends HTMLElement {
 
     constructor() {
         super();
-        const template = document.getElementById('content-pane')!;
-        // @ts-ignore
+        const template = document.getElementById('content-pane')! as HTMLTemplateElement;
         const content = template.content;
         this.shadow = this.attachShadow({mode: 'open'});
         this.shadow.appendChild(content.cloneNode(true));

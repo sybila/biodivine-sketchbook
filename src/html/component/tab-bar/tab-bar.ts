@@ -7,8 +7,7 @@ class TabBar extends HTMLElement {
 
     constructor() {
         super();
-        const template = document.getElementById('tab-bar')!;
-        // @ts-ignore
+        const template = document.getElementById('tab-bar')! as HTMLTemplateElement;
         const content = template.content;
         this.shadow = this.attachShadow({mode: 'open'});
         this.shadow.appendChild(content.cloneNode(true));
@@ -36,7 +35,7 @@ class TabBar extends HTMLElement {
         const resetButton = document.createElement('button');
         resetButton.classList.add('tab', 'uk-button-small',  'uk-button-secondary', 'uk-margin-left');
         resetButton.textContent = '\u21bb';
-        resetButton.onclick = (_) => {
+        resetButton.onclick = () => {
             this.tabIndex = 0;
             this.tabs.forEach(tab => tab.remove());
             this.tabs = [];
@@ -74,7 +73,7 @@ class TabBar extends HTMLElement {
             this.saveTabs();
             console.log(`closed tab ${index}`);
         };
-        newTabButton.onclick = (_) => {
+        newTabButton.onclick = () => {
             this.tabs.forEach((tab) => {
                 tab.classList.remove('uk-button-primary');
                 tab.classList.add('uk-button-secondary')
