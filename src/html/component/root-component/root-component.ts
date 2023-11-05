@@ -18,6 +18,7 @@ class RootComponent extends HTMLElement {
   }
 
   private pinPane (): void {
+    console.log('pin')
     this.panes[this.dynamicPane.tabId] = this.dynamicPane
     const nextPane = this.panes.slice(this.dynamicPane.tabId).find((p) => p !== undefined)
     if (nextPane !== undefined) {
