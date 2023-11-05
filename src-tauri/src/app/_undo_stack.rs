@@ -1,5 +1,5 @@
+use crate::app::event::UserAction;
 use crate::debug;
-use crate::gui::events::GuiEvent;
 use std::collections::VecDeque;
 
 pub const DEFAULT_EVENT_LIMIT: usize = 1 << 16; // ~64k
@@ -12,14 +12,14 @@ pub const DEFAULT_PAYLOAD_LIMIT: usize = 1 << 28; // 256MB
 /// a part of the undo/redo stack, but there are other ways for triggering those.
 #[derive(Clone, Eq, PartialEq)]
 pub struct UndoStackEntry {
-    perform_action: GuiEvent,
-    reverse_action: GuiEvent,
+    perform_action: UserAction,
+    reverse_action: UserAction,
 }
 
 impl UndoStackEntry {
     /// The sum of payload sizes for the underlying UI actions.
     pub fn payload_size(&self) -> usize {
-        self.perform_action.payload_size() + self.reverse_action.payload_size()
+        self.perform_action.event.payload_size() + self.reverse_action.event.payload_size()
     }
 }
 
@@ -58,6 +58,13 @@ impl UndoStack {
         }
     }
 
+    /// Remove all elements from the [UndoStack].
+    pub fn clear(&mut self) {
+        self.current_payload_size = 0;
+        self.undo_stack.clear();
+        self.redo_stack.clear();
+    }
+
     /// The number of events that can be un-done.
     pub fn undo_len(&self) -> usize {
         self.undo_stack.len()
@@ -74,28 +81,28 @@ impl UndoStack {
     /// Returns `true` if the events were successfully saved, or `false` if an error occurred,
     /// e.g. due to excessive payload size.
     #[must_use]
-    pub fn do_action(&mut self, perform: GuiEvent, reverse: GuiEvent) -> bool {
+    pub fn do_action(&mut self, perform: UserAction, reverse: UserAction) -> bool {
         // Items from `redo_stack` are no longer relevant since the
         self.redo_stack.clear();
 
         // Drop events that are over limit (first event limit, then payload limit).
         while self.undo_stack.len() >= self.event_limit {
             let Some(event) = self.drop_undo_event() else {
-                break;  // The stack is empty.
+                break; // The stack is empty.
             };
             debug!(
-                "Event count exceeded. Dropping event: `{}`.",
-                event.perform_action.action()
+                "Event count exceeded. Dropping event: `{:?}`.",
+                event.perform_action.event.full_path
             );
         }
-        let additional_payload = perform.payload_size() + reverse.payload_size();
+        let additional_payload = perform.event.payload_size() + reverse.event.payload_size();
         while self.current_payload_size + additional_payload >= self.payload_limit {
             let Some(event) = self.drop_undo_event() else {
-                break;  // The stack is empty.
+                break; // The stack is empty.
             };
             debug!(
-                "Payload size exceeded. Dropping event: `{}`.",
-                event.perform_action.action()
+                "Payload size exceeded. Dropping event: `{:?}`.",
+                event.perform_action.event.full_path
             );
         }
 
@@ -132,7 +139,7 @@ impl UndoStack {
     /// `Self::redo_action`. Returns `None` if there is no action to undo, or the "reverse"
     /// `GuiEvent` originally supplied to `Self::do_action`.
     #[must_use]
-    pub fn undo_action(&mut self) -> Option<GuiEvent> {
+    pub fn undo_action(&mut self) -> Option<UserAction> {
         let Some(entry) = self.undo_stack.pop_back() else {
             return None;
         };
@@ -147,7 +154,7 @@ impl UndoStack {
     /// `Self::undo_action`. Returns `None` if there is no action to redo, or the "perform"
     /// `GuiEvent` originally supplied to `Self::do_action`.
     #[must_use]
-    pub fn redo_action(&mut self) -> Option<GuiEvent> {
+    pub fn redo_action(&mut self) -> Option<UserAction> {
         let Some(entry) = self.redo_stack.pop_back() else {
             return None;
         };
@@ -175,14 +182,14 @@ impl Default for UndoStack {
 
 #[cfg(test)]
 mod tests {
-    use crate::gui::events::GuiEvent;
-    use crate::gui::undo_stack::UndoStack;
+    use crate::app::_undo_stack::UndoStack;
+    use crate::app::event::{Event, UserAction};
 
     #[test]
     pub fn test_normal_behaviour() {
         let mut stack = UndoStack::default();
-        let e1 = GuiEvent::with_action(&[], "action 1");
-        let e2 = GuiEvent::with_action(&[], "action 2");
+        let e1: UserAction = Event::build(&[], Some("payload 1")).into();
+        let e2: UserAction = Event::build(&[], Some("payload 2")).into();
 
         // We can do a bunch of events and undo/redo them.
         assert!(stack.do_action(e1.clone(), e2.clone()));
@@ -209,12 +216,11 @@ mod tests {
 
     #[test]
     pub fn test_basic_limits() {
-        let e1 = GuiEvent::with_action(&[], "action 1");
-        let e2 = GuiEvent::with_action(&[], "action 2");
-        let e3 =
-            GuiEvent::with_action_and_payload(&["path".to_string()], "action 3", "some payload");
+        let e1: UserAction = Event::build(&[], None).into();
+        let e2: UserAction = Event::build(&[], None).into();
+        let e3: UserAction = Event::build(&["path"], Some("payload 3")).into();
 
-        let mut stack = UndoStack::new(4, 2 * e3.payload_size() + 1);
+        let mut stack = UndoStack::new(4, 2 * e3.event.payload_size() + 1);
 
         // Test that the even limit is respected. We should be able to fit 4 events.
         assert!(stack.do_action(e2.clone(), e1.clone()));
@@ -250,10 +256,9 @@ mod tests {
 
     #[test]
     pub fn test_extreme_limits() {
-        let e1 = GuiEvent::with_action(&[], "action 1");
-        let e2 = GuiEvent::with_action(&[], "action 2");
-        let e3 =
-            GuiEvent::with_action_and_payload(&["path".to_string()], "action 3", "some payload");
+        let e1: UserAction = Event::build(&[], None).into();
+        let e2: UserAction = Event::build(&[], None).into();
+        let e3: UserAction = Event::build(&["path"], Some("payload 3")).into();
 
         let mut stack = UndoStack::new(0, 1024);
         // Cannot perform action because the stack size is zero.
