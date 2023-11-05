@@ -1,22 +1,13 @@
 class SearchBar extends HTMLElement {
-    shadow;
+  shadow
 
-    constructor() {
-        super();
-        const template = document.getElementById('search')! as HTMLTemplateElement;
-        const content = template.content;
-        this.shadow = this.attachShadow({mode: 'open'});
-        this.shadow.appendChild(content.cloneNode(true));
-        const linkElem = document.createElement('link');
-        linkElem.setAttribute('rel', 'stylesheet');
-        linkElem.setAttribute('href', 'component/search/search.less');
-        this.shadow.appendChild(linkElem);
-    }
-
-    connectedCallback() {
-
-    }
-
+  constructor () {
+    super()
+    const template = document.getElementById('search') as HTMLTemplateElement
+    const content = template.content
+    this.shadow = this.attachShadow({ mode: 'open' })
+    this.shadow.appendChild(content.cloneNode(true))
+  }
 }
 
-customElements.define('search-bar', SearchBar);
+customElements.define('search-bar', SearchBar)
