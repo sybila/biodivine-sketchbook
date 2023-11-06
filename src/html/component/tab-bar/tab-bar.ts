@@ -1,42 +1,29 @@
+import { html, css, LitElement, type TemplateResult, unsafeCSS } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
+import style_less from './tab-bar.less'
+
 const SAVE_KEY = 'tabs'
-class TabBar extends HTMLElement {
-  tabs: HTMLButtonElement[] = []
+
+@customElement('tab-bar')
+class TabBar extends LitElement {
+  static styles = css`${unsafeCSS(style_less)}`
+
+  @state() declare tabs: HTMLButtonElement[]
   tabIndex = 0
-  shadow
 
   constructor () {
     super()
-    const template = document.getElementById('tab-bar') as HTMLTemplateElement
-    const content = template.content
-    this.shadow = this.attachShadow({ mode: 'open' })
-    this.shadow.appendChild(content.cloneNode(true))
-  }
-
-  connectedCallback (): void {
+    this.tabs = []
     this.loadTabs()
-    this.addTab()
-    this.resetButton()
+    if (this.tabs.length === 0) {
+      this.reset()
+    }
   }
 
   private addTab (): void {
-    const addTabButton = this.shadow.querySelector('.new-tab-button')
-    addTabButton?.addEventListener('click', () => {
-      this.tabIndex++
-      this.createTab(this.tabIndex, `Tab ${this.tabIndex}`, ['tab', 'uk-button', 'uk-button-secondary'])
-    })
-  }
-
-  private resetButton (): void {
-    const resetButton = document.createElement('button')
-    resetButton.classList.add('tab', 'uk-button-small', 'uk-button-secondary', 'uk-margin-left')
-    resetButton.textContent = '\u21bb'
-    resetButton.onclick = () => {
-      this.tabIndex = 0
-      this.tabs.forEach(tab => { tab.remove() })
-      this.tabs = []
-      localStorage.removeItem(SAVE_KEY)
-    }
-    this.shadow.querySelector('.tabs')?.appendChild(resetButton)
+    this.tabIndex++
+    this.createTab(this.tabIndex, `Tab ${this.tabIndex}`, ['tab', 'uk-button', 'uk-button-secondary'])
+    console.log(`tab ${this.tabIndex} added`)
   }
 
   private saveTabs (): void {
@@ -64,15 +51,12 @@ class TabBar extends HTMLElement {
     newTabButton.onclick = this.switchTab(newTabButton)
     newTabButton.dataset.index = index.toString()
     newTabButton.textContent = title
-    this.tabs.push(newTabButton)
+    this.tabs = this.tabs.concat(newTabButton)
 
     this.saveTabs()
-
-    const addTabButton = this.shadow.querySelector('.new-tab-button')
-    this.shadow.querySelector('.tabs')?.insertBefore(newTabButton, addTabButton)
   }
 
-  private switchTab (newTabButton: HTMLButtonElement) {
+  switchTab (newTabButton: HTMLButtonElement) {
     return () => {
       this.tabs.forEach((tab) => {
         tab.classList.remove('uk-button-primary')
@@ -91,6 +75,22 @@ class TabBar extends HTMLElement {
       console.log(`clicked tab ${tabIndex}`)
     }
   }
-}
 
-customElements.define('tab-bar', TabBar)
+  private reset (): void {
+    this.tabIndex = 0
+    this.tabs.forEach(tab => { tab.remove() })
+    this.tabs = []
+    this.addTab()
+    localStorage.removeItem(SAVE_KEY)
+  }
+
+  render (): TemplateResult {
+    return html`
+      <div class="tabs">
+        ${this.tabs}
+        <button class="uk-button uk-button-default uk-button-small new-tab-button" @click=${this.addTab}><span class="plus-symbol">+</span></button>
+        <button class="uk-button-small uk-button-secondary uk-margin-left" @click=${this.reset}>\u21bb</button>
+      </div>
+    `
+  }
+}

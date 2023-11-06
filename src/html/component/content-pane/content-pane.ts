@@ -1,28 +1,14 @@
-class ContentPane extends HTMLElement {
-  private readonly _shadow
-  private readonly _heading
+import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import style_less from './content-pane.less'
+
+@customElement('content-pane')
+export class ContentPane extends LitElement {
+  static styles = css`${unsafeCSS(style_less)}`
+
+  private readonly _heading = document.createElement('h1')
   private _tabId = -1
-  private isPinned
-
-  constructor () {
-    super()
-    const template = document.getElementById('content-pane') as HTMLTemplateElement
-    const content = template.content
-    this._shadow = this.attachShadow({ mode: 'open' })
-    this._shadow.appendChild(content.cloneNode(true))
-    this._shadow.appendChild(this.createPinButton())
-    this._heading = document.createElement('h1')
-    this._heading.classList.add('uk-heading-large', 'uk-text-success')
-    this._shadow.appendChild(this._heading)
-    this.isPinned = false
-  }
-
-  connectedCallback (): void {
-    this.addEventListener('switch-tab', (e) => {
-      this._tabId = (e as CustomEvent).detail.tabId
-      this._heading.innerText = `Content of tab ${this._tabId}`
-    })
-  }
+  private isPinned = false
 
   private createPinButton (): HTMLButtonElement {
     const button = document.createElement('button')
@@ -55,6 +41,19 @@ class ContentPane extends HTMLElement {
   get tabId (): number {
     return this._tabId
   }
-}
 
-customElements.define('content-pane', ContentPane)
+  protected render (): TemplateResult {
+    this.addEventListener('switch-tab', (e) => {
+      this._tabId = (e as CustomEvent).detail.tabId
+      this._heading.innerText = `Content of tab ${this._tabId}`
+    })
+    const pinButton = this.createPinButton()
+    this._heading.classList.add('uk-heading-large', 'uk-text-success')
+    return html`
+      <div class="content-pane uk-container uk-container-expand uk-margin-top">
+        ${pinButton}
+        ${this._heading}
+      </div>
+    `
+  }
+}

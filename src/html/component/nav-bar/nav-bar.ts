@@ -1,18 +1,33 @@
-class NavBar extends HTMLElement {
-  shadow
+import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import style_less from './nav-bar.less?inline'
+import '../menu/menu'
+import '../tab-bar/tab-bar'
+import '../undo-redo/undo-redo'
+import '../search/search'
 
-  constructor () {
-    super()
-    const template = document.getElementById('nav-bar') as HTMLTemplateElement
-    const content = template.content
-    this.shadow = this.attachShadow({ mode: 'open' })
-    this.shadow.appendChild(content.cloneNode(true))
+@customElement('nav-bar')
+class NavBar extends LitElement {
+  static styles = css`${unsafeCSS(style_less)}`
 
-    const linkElem = document.createElement('link')
-    linkElem.setAttribute('rel', 'stylesheet')
-    linkElem.setAttribute('href', 'component/nav-bar/nav-bar.less')
-    this.shadow.appendChild(linkElem)
+  render (): TemplateResult {
+    return html`
+      <div class="nav-bar uk-container uk-container-expand uk-margin-remove uk-padding-remove-horizontal uk-flex-nowrap">
+        <nav class="uk-navbar-container uk-navbar-transparent uk-flex-nowrap">
+          <div class="uk-navbar uk-margin-small-top uk-flex-nowrap">
+            <div class="uk-navbar-left uk-flex-nowrap">
+              <hamburger-menu></hamburger-menu>
+              <tab-bar></tab-bar>
+            </div>
+
+            <div class="uk-navbar-right uk-flex-nowrap">
+              <undo-redo></undo-redo>
+              <search-bar></search-bar>
+            </div>
+
+          </div>
+        </nav>
+      </div>
+    `
   }
 }
-
-customElements.define('nav-bar', NavBar)
