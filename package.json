@@ -15,6 +15,7 @@
     "uikit": "^3.17.8"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.0.0",
     "@tauri-apps/cli": "^1.4.0",
     "@types/node": "^20.3.2",
     "@types/rollup-plugin-less": "^1.1.4",
