@@ -1,43 +1,36 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import style_less from './content-pane.less?inline'
+import { type TabData } from '../../util/tab-data'
+import UIkit from 'uikit'
+import Icons from 'uikit/dist/js/uikit-icons'
+
+UIkit.use(Icons)
 
 @customElement('content-pane')
 export class ContentPane extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
-  private _tabId = -1
-  @state() private isPinned = false
-  @state() private content = ''
-
-  constructor () {
-    super()
-    this.addEventListener('switch-tab', (e) => {
-      this._tabId = (e as CustomEvent).detail.tabId
-      this.content = `Content of tab ${this._tabId}`
-    })
-  }
+  @property() declare private readonly tab: TabData
 
   private pin (): void {
-    this.isPinned = !this.isPinned
-    this.dispatchEvent(new CustomEvent(this.isPinned ? 'pin-pane' : 'unpin-pane', {
+    this.dispatchEvent(new CustomEvent(this.tab.pinned ? 'unpin-tab' : 'pin-tab', {
       detail: {
-        tabId: this._tabId
+        tabId: this.tab.id
       },
       bubbles: true,
       composed: true
     }))
   }
 
-  get tabId (): number {
-    return this._tabId
-  }
-
   protected render (): TemplateResult {
     return html`
             <div class="content-pane uk-container uk-container-expand uk-margin-top">
-                <button class="uk-button uk-button-small uk-button-secondary pin-button" @click="${this.pin}">${this.isPinned ? 'unpin' : 'pin'}</button>
-                <h1 class="uk-heading-large uk-text-success">${this.content}</h1>
+                <button class="uk-button uk-button-small uk-button-secondary pin-button" @click="${this.pin}">${this.tab.pinned ? 'unpin' : 'pin'}</button>
+                <span class="uk-margin-small-right uk-icon" uk-icon="lock"></span>
+                <span uk-icon="icon: home; ratio: 2"></span>
+                <span uk-icon="icon: settings; ratio: 2"></span>
+                <h1 class="uk-heading-large uk-text-success">${this.tab.data}</h1>
             </div>
         `
   }

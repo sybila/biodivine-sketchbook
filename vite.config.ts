@@ -45,26 +45,32 @@ export default defineConfig(async () => ({
     See https://stackoverflow.com/questions/71519410/how-can-vite-be-configured-to-load-relative-images-in-stylesheets-imported-from
   */
   resolve: {
-    alias: [
-      {
-        find: '../../images',
-        replacement: '',
-        customResolver(updatedId, importer) {
-          // don't replace if importer is not our my-uikit.less
-          if (importer === undefined || basename(importer) !== 'uikit-theme.less') {
-            return '../../images';
-          }
-
-          return fileURLToPath(
-            new URL(
-              './node_modules/uikit/src/images' + updatedId,
-              import.meta.url
-            )
-          );
-        },
-      },
-    ],
+    // alias: [
+    //   {
+    //     find: '../../images',
+    //     replacement: '',
+    //     customResolver(updatedId, importer) {
+    //       // don't replace if importer is not our my-uikit.less
+    //       if (importer === undefined || basename(importer) !== 'uikit-theme.less') {
+    //         return '../../images';
+    //       }
+    //
+    //       return fileURLToPath(
+    //         new URL(
+    //           './node_modules/uikit/src/images' + updatedId,
+    //           import.meta.url
+    //         )
+    //       );
+    //     },
+    //   },
+    // ],
+    alias: {
+      '../../images/backgrounds': 'uikit/src/images/backgrounds',
+      '../../images/components': 'uikit/src/images/components',
+      '../../images/icons': 'uikit/src/images/icons'
+    }
   },
+
   css: {
     preprocessorOptions: {
       less: {
