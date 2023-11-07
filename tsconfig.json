@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],

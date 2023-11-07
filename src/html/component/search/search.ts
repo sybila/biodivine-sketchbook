@@ -1,6 +1,6 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import style_less from './search.less'
+import style_less from './search.less?inline'
 
 @customElement('search-bar')
 class SearchBar extends LitElement {

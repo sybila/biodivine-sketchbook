@@ -1,6 +1,6 @@
 import { html, css, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import style_less from './tab-bar.less'
+import style_less from './tab-bar.less?inline'
 
 const SAVE_KEY = 'tabs'
 
@@ -8,12 +8,11 @@ const SAVE_KEY = 'tabs'
 class TabBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
-  @state() declare tabs: HTMLButtonElement[]
-  tabIndex = 0
+  @state() private tabs: HTMLButtonElement[] = []
+  private currentIndex = 0
 
   constructor () {
     super()
-    this.tabs = []
     this.loadTabs()
     if (this.tabs.length === 0) {
       this.reset()
@@ -21,9 +20,9 @@ class TabBar extends LitElement {
   }
 
   private addTab (): void {
-    this.tabIndex++
-    this.createTab(this.tabIndex, `Tab ${this.tabIndex}`, ['tab', 'uk-button', 'uk-button-secondary'])
-    console.log(`tab ${this.tabIndex} added`)
+    this.currentIndex++
+    this.createTab(this.currentIndex, `Tab ${this.currentIndex}`, ['tab', 'uk-button', 'uk-button-secondary'])
+    console.log(`tab ${this.currentIndex} added`)
   }
 
   private saveTabs (): void {
@@ -39,10 +38,8 @@ class TabBar extends LitElement {
     const tabData = JSON.parse(localStorage.getItem(SAVE_KEY) ?? '[]')
     tabData.forEach((data: { classList: string[], textContent: string, index: string }) => {
       this.createTab(+data.index, data.textContent, data.classList)
-      this.tabIndex = Math.max(this.tabIndex, +data.index)
+      this.currentIndex = Math.max(this.currentIndex, +data.index)
     })
-    console.log('tabs loaded')
-    console.log('index: ', this.tabIndex)
   }
 
   private createTab (index: number, title: string, classList: string[]): void {
@@ -64,20 +61,19 @@ class TabBar extends LitElement {
       })
       newTabButton.classList.remove('uk-button-secondary')
       newTabButton.classList.add('uk-button-primary')
-      const tabIndex = +(newTabButton.dataset.index ?? 0)
+      const currentIndex = +(newTabButton.dataset.index ?? 0)
       this.dispatchEvent(new CustomEvent('switch-tab', {
         detail: {
-          tabId: tabIndex
+          tabId: currentIndex
         },
         bubbles: true,
         composed: true
       }))
-      console.log(`clicked tab ${tabIndex}`)
     }
   }
 
   private reset (): void {
-    this.tabIndex = 0
+    this.currentIndex = 0
     this.tabs.forEach(tab => { tab.remove() })
     this.tabs = []
     this.addTab()
