@@ -1,30 +1,44 @@
-class ContentPane extends HTMLElement {
-    shadow;
-    heading;
+import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
+import style_less from './content-pane.less?inline'
 
-    constructor() {
-        super();
-        const template = document.getElementById('content-pane')! as HTMLTemplateElement;
-        const content = template.content;
-        this.shadow = this.attachShadow({mode: 'open'});
-        this.shadow.appendChild(content.cloneNode(true));
-        const linkElem = document.createElement('link');
-        linkElem.setAttribute('rel', 'stylesheet');
-        linkElem.setAttribute('href', 'component/content-pane/content-pane.less');
-        this.shadow.appendChild(linkElem);
-        this.heading = document.createElement('h1');
-        this.heading.classList.add('uk-heading-large', 'uk-text-success');
-        this.shadow.appendChild(this.heading)
-    }
+@customElement('content-pane')
+export class ContentPane extends LitElement {
+  static styles = css`${unsafeCSS(style_less)}`
 
-    connectedCallback() {
-        this.addEventListener('switch-tab', (e) => {
-            const message = (e as CustomEvent).detail.content;
-            console.log('message recieved', message);
-            this.heading.innerText = message;
-        })
-    }
+  private _tabId = -1
+  @state() private isPinned = false
+  @state() private content = ''
 
+  constructor () {
+    super()
+    this.addEventListener('switch-tab', (e) => {
+      this._tabId = (e as CustomEvent).detail.tabId
+      this.content = `Content of tab ${this._tabId}`
+    })
+  }
+
+  private pin (): void {
+    this.isPinned = !this.isPinned
+    this.dispatchEvent(new CustomEvent(this.isPinned ? 'pin-pane' : 'unpin-pane', {
+      detail: {
+        tabId: this._tabId
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  get tabId (): number {
+    return this._tabId
+  }
+
+  protected render (): TemplateResult {
+    return html`
+            <div class="content-pane uk-container uk-container-expand uk-margin-top">
+                <button class="uk-button uk-button-small uk-button-secondary pin-button" @click="${this.pin}">${this.isPinned ? 'unpin' : 'pin'}</button>
+                <h1 class="uk-heading-large uk-text-success">${this.content}</h1>
+            </div>
+        `
+  }
 }
-
-customElements.define('content-pane', ContentPane);

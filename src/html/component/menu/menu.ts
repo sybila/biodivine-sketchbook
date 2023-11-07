@@ -1,22 +1,14 @@
-class Menu extends HTMLElement {
-    shadow;
+import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import style_less from './menu.less?inline'
 
-    constructor() {
-        super();
-        const template = document.getElementById('menu')! as HTMLTemplateElement;
-        const content = template.content;
-        this.shadow = this.attachShadow({mode: 'open'});
-        this.shadow.appendChild(content.cloneNode(true));
-        const linkElem = document.createElement('link');
-        linkElem.setAttribute('rel', 'stylesheet');
-        linkElem.setAttribute('href', 'component/menu/menu.less');
-        this.shadow.appendChild(linkElem);
-    }
+@customElement('hamburger-menu')
+class Menu extends LitElement {
+  static styles = css`${unsafeCSS(style_less)}`
 
-    connectedCallback() {
-
-    }
-
+  render (): TemplateResult {
+    return html`
+      <button class="uk-button uk-button-small uk-button-secondary hamburger-menu">☰</button>
+    `
+  }
 }
-
-customElements.define('hamburger-menu', Menu);

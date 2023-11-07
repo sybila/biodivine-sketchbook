@@ -1,22 +1,16 @@
-class SearchBar extends HTMLElement {
-    shadow;
+import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import style_less from './search.less?inline'
 
-    constructor() {
-        super();
-        const template = document.getElementById('search')! as HTMLTemplateElement;
-        const content = template.content;
-        this.shadow = this.attachShadow({mode: 'open'});
-        this.shadow.appendChild(content.cloneNode(true));
-        const linkElem = document.createElement('link');
-        linkElem.setAttribute('rel', 'stylesheet');
-        linkElem.setAttribute('href', 'component/search/search.less');
-        this.shadow.appendChild(linkElem);
-    }
+@customElement('search-bar')
+class SearchBar extends LitElement {
+  static styles = css`${unsafeCSS(style_less)}`
 
-    connectedCallback() {
-
-    }
-
+  render (): TemplateResult {
+    return html`
+      <form class="uk-search uk-search-default" aria-label="Search">
+        <input class="uk-search-input" type="search" placeholder="Search..." aria-label="">
+      </form>
+    `
+  }
 }
-
-customElements.define('search-bar', SearchBar);
