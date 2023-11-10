@@ -3,17 +3,15 @@ import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import style_less from './tab-bar.less?inline'
 import { type TabData } from '../../util/tab-data'
+import { fas, type IconName } from '@fortawesome/free-solid-svg-icons'
+import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
+library.add(fas)
 
 @customElement('tab-bar')
 class TabBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   @property() tabs: TabData[] = []
-
-  private addTab (): void {
-    this.dispatchEvent(new Event('add-tab', { bubbles: true, composed: true }))
-    this.requestUpdate()
-  }
 
   switchTab (tabId: number) {
     return () => {
@@ -28,23 +26,18 @@ class TabBar extends LitElement {
     }
   }
 
-  private reset (): void {
-    this.dispatchEvent(new Event('reset', { bubbles: true, composed: true }))
-    this.requestUpdate()
-  }
-
   render (): TemplateResult {
     return html`
-      <div class="tabs">
+      <div class="tabs uk-flex uk-flex-row">
         ${map(this.tabs, (tab) => html`
-            <button class="tab uk-button ${tab.active ? 'uk-button-primary' : 'uk-button-secondary'}" 
+            <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'uk-button-primary' : 'uk-button-secondary'}" 
                     @click=${this.switchTab(tab.id)} 
                     ${tab.pinned ? 'disabled' : ''}>
-                ${tab.name}
+                ${tab.pinned ? icon(findIconDefinition({ prefix: 'fas', iconName: 'lock' })).node : ''}
+                ${icon(findIconDefinition({ prefix: 'fas', iconName: `${tab.icon as IconName}` })).node}
+                <span class="tab-name">${tab.name}</span>
             </button>
         `)}
-        <button class="uk-button uk-button-default uk-button-small new-tab-button" @click=${this.addTab}><span class="plus-symbol">+</span></button>
-        <button class="uk-button-small uk-button-secondary uk-margin-left" @click=${this.reset}>\u21bb</button>
       </div>
     `
   }

@@ -1,16 +1,27 @@
 @import "uikit/src/less/uikit.theme.less";
 
-.plus-symbol {
-  color: white;
+.svg-inline--fa {
+  min-height: 1em;
+  height: 1em;
 }
 
-.tabs {
-  display: flex;
+.tab {
+  flex: auto;
+  padding: 0.5em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  outline: #2f2f2f solid 2px;
+}
+.tab-name {
+  margin: 0 0.3em;
+  min-width: 0;
 }
 
-.new-tab-button {
-  margin-top: auto;
-  align-self: stretch;
-  justify-self: stretch;
+@media only screen and (max-width: 50em) {
+  .tab-name {
+    display: none;
+  }
+  .tab {
+    padding: 1em;
+  }
 }
-

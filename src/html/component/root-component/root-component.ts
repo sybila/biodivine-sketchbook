@@ -4,54 +4,38 @@ import { map } from 'lit/directives/map.js'
 import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
-import { TabData } from '../../util/tab-data'
+import { type TabData } from '../../util/tab-data'
+import { tabList } from '../../util/config'
 
 const SAVE_KEY = 'tab-data'
 
 @customElement('root-component')
 class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @state() tabs: TabData[] = []
-  currentIndex = 0
+  @state() tabs: TabData[] = tabList
   constructor () {
     super()
     this.loadTabs()
     this.addEventListener('switch-tab', this.switchTab)
     this.addEventListener('pin-tab', this.pinTab)
     this.addEventListener('unpin-tab', this.pinTab)
-    this.addEventListener('add-tab', this.addTab)
-    this.addEventListener('reset', this.reset)
-  }
-
-  private addTab (): void {
-    this.currentIndex++
-    this.tabs = this.tabs.concat(TabData.create({
-      id: this.currentIndex,
-      name: `Tab ${this.currentIndex}`,
-      data: `Contents of tab ${this.currentIndex}`
-    }))
-    this.saveTabs()
   }
 
   private saveTabs (): void {
     const tabData = this.tabs.map((tab) => ({
-      data: tab.data,
-      name: tab.name,
       id: tab.id,
-      active: tab.active
+      active: tab.active,
+      pinned: tab.pinned
     }))
     localStorage.setItem(SAVE_KEY, JSON.stringify(tabData))
   }
 
   private loadTabs (): void {
     const tabData = JSON.parse(localStorage.getItem(SAVE_KEY) ?? '[]')
-    this.tabs = tabData.map((data: { id: number, name: string, data: string, active: boolean }) => {
-      this.currentIndex = Math.max(this.currentIndex, +data.id)
-      return TabData.create({
-        id: data.id,
-        name: data.name,
-        data: data.data,
-        active: data.active
+    tabData.forEach((data: { id: number, active: boolean, pinned: boolean }) => {
+      this.tabs[data.id] = this.tabs[data.id].copy({
+        active: data.active,
+        pinned: data.pinned
       })
     })
     console.log(this.tabs)
@@ -62,9 +46,9 @@ class RootComponent extends LitElement {
     if (tabId === undefined) return
     const tabIndex = this.tabs.findIndex((tab) => tab.id === tabId)
     if (tabIndex === -1) return
-    this.tabs[tabIndex] = this.tabs[tabIndex].copy({ pinned: e.type === 'pin-tab' })
-    console.log('tab pin:', this.tabs[tabIndex], e.type)
-    this.requestUpdate()
+    const updatedTabs = this.tabs.slice()
+    updatedTabs[tabIndex] = updatedTabs[tabIndex].copy({ pinned: e.type === 'pin-tab' })
+    this.tabs = updatedTabs
     this.saveTabs()
   }
 
@@ -80,20 +64,14 @@ class RootComponent extends LitElement {
     this.saveTabs()
   }
 
-  private reset (): void {
-    this.currentIndex = 0
-    this.tabs = []
-    this.addTab()
-    localStorage.removeItem(SAVE_KEY)
-  }
-
   render (): TemplateResult {
+    const visibleTabs = this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
     return html`
-      <div class="uk-container-expand">
+      <div class="root-component">
         <nav-bar .tabs=${this.tabs}></nav-bar>
-          <div class="uk-flex uk-flex-row">
-              ${map(this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active), (tab) => html`
-                  <content-pane .tab=${tab}></content-pane>
+          <div class="content uk-flex uk-flex-row uk-flex-stretch uk-flex-wrap-stretch">
+              ${map(visibleTabs, (tab) => html`
+                  <content-pane class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}></content-pane>
               `)}
           </div>
       </div>
