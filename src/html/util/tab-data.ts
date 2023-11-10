@@ -6,4 +6,5 @@ export class TabData extends Data {
   pinned: boolean = false
   data: string = 'unknown'
   active: boolean = false
+  icon: string = 'question'
 }

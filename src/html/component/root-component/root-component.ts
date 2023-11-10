@@ -71,7 +71,7 @@ class RootComponent extends LitElement {
         <nav-bar .tabs=${this.tabs}></nav-bar>
           <div class="content uk-flex uk-flex-row uk-flex-stretch uk-flex-wrap-stretch">
               ${map(visibleTabs, (tab) => html`
-                  <content-pane class="uk-width-1-${visibleTabs.length}" .tab=${tab}></content-pane>
+                  <content-pane class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}></content-pane>
               `)}
           </div>
       </div>
