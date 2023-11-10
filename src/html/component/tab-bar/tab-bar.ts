@@ -28,14 +28,14 @@ class TabBar extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="tabs uk-flex">
+      <div class="tabs uk-flex uk-flex-row">
         ${map(this.tabs, (tab) => html`
-            <button class="tab uk-button uk-padding-small uk-padding-remove-vertical ${tab.active ? 'uk-button-primary' : 'uk-button-secondary'}" 
+            <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'uk-button-primary' : 'uk-button-secondary'}" 
                     @click=${this.switchTab(tab.id)} 
                     ${tab.pinned ? 'disabled' : ''}>
+                ${tab.pinned ? icon(findIconDefinition({ prefix: 'fas', iconName: 'lock' })).node : ''}
                 ${icon(findIconDefinition({ prefix: 'fas', iconName: 'ghost' })).node}
                 <span class="tab-name">${tab.name}</span>
-                ${tab.pinned ? icon(findIconDefinition({ prefix: 'fas', iconName: 'lock' })).node : ''}
             </button>
         `)}
       </div>
