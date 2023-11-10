@@ -1,14 +1,16 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import style_less from './nav-bar.less?inline'
 import '../menu/menu'
 import '../tab-bar/tab-bar'
 import '../undo-redo/undo-redo'
 import '../search/search'
+import { type TabData } from '../../util/tab-data'
 
 @customElement('nav-bar')
 class NavBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
+  @property() tabs: TabData[] = []
 
   render (): TemplateResult {
     return html`
@@ -17,7 +19,7 @@ class NavBar extends LitElement {
           <div class="uk-navbar uk-margin-small-top uk-flex-nowrap">
             <div class="uk-navbar-left uk-flex-nowrap">
               <hamburger-menu></hamburger-menu>
-              <tab-bar></tab-bar>
+              <tab-bar .tabs=${this.tabs}></tab-bar>
             </div>
 
             <div class="uk-navbar-right uk-flex-nowrap">

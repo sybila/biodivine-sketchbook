@@ -8,7 +8,7 @@ class UndoRedo extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="uk-flex-nowrap">
+      <div class="undo-redo uk-flex-nowrap">
         <button class="uk-button uk-button-secondary uk-button-small">&#8249;</button>
         <button class="uk-button uk-button-secondary uk-button-small" disabled>&#8250;</button>
       </div>
