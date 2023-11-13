@@ -1,0 +1,23 @@
+@import "uikit/src/less/uikit.theme.less";
+
+.menu-icon {
+  max-height: 1em;
+}
+
+.float-menu {
+  position: absolute;
+  /* This is to accommodate longer hints */
+  /* Ensure hint is in the middle */
+  text-align: center;
+  /* Ensures the zoom is properly applied when needed */
+  transform-origin: 0 0;
+  /* We don't animate other stuff because that needs to be in sync with the graph */
+  transition: opacity 0.3s;
+}
+
+.hint {
+  font-weight: bold;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  text-shadow: 0 2px 5px #d0d0d0;
+}
