@@ -1,5 +1,5 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './node-menu.less?inline'
 import { library, icon, findIconDefinition } from '@fortawesome/fontawesome-svg-core'
 import { faPen, faTrash, faCalculator } from '@fortawesome/free-solid-svg-icons'
@@ -13,6 +13,7 @@ class NodeMenu extends LitElement {
   @property() visible = false
   @property() position: Position = { x: 0, y: 0 }
   @property() zoom = 1.0
+  @state() hint = ''
 
   buttons = [
     {
@@ -32,22 +33,22 @@ class NodeMenu extends LitElement {
   render (): TemplateResult {
     return html`
         ${this.visible && html`
-        <div id="node-menu" class="float-menu" style="
-                                                    left: ${this.position.x}px; 
-                                                    top: ${this.position.y + (70 * this.zoom)}px; 
-                                                    transform: scale(${this.zoom * 0.75}) translate(-50%, -50%)">
-            <div class="uk-flex uk-flex-column">
+        <div class="float-menu" style="left: ${this.position.x}px; 
+                                       top: ${this.position.y + (70 * this.zoom)}px; 
+                                       transform: scale(${this.zoom * 0.75}) translate(-50%, -50%)">
+            <div class="button-row uk-flex uk-flex-row">
                 ${map(this.buttons, (buttonData) => {
                   buttonData.icon.classList.add('menu-icon')
                     return html`
-                    <button id="node-menu-edit-name" class="">
+                    <div class="float-button" 
+                       @mouseover=${() => { this.hint = buttonData.label }} 
+                       @mouseout=${() => { this.hint = '' }}>
                         ${buttonData.icon}
-                        <span>${buttonData.label}</span>
-                    </button>
+                    </div>
                 `
 })}
             </div>
-<!--            <span class="hint">Hint</span>-->
+            <span class="hint">${this.hint}</span>
         </div>`
         }
     `

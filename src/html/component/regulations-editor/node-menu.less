@@ -2,22 +2,45 @@
 
 .menu-icon {
   max-height: 1em;
+  color: #2f2f2f;
 }
 
 .float-menu {
   position: absolute;
   /* This is to accommodate longer hints */
+  width: 12em;
+  height: 5em;
   /* Ensure hint is in the middle */
   text-align: center;
   /* Ensures the zoom is properly applied when needed */
   transform-origin: 0 0;
   /* We don't animate other stuff because that needs to be in sync with the graph */
   transition: opacity 0.3s;
-}
 
-.hint {
-  font-weight: bold;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  text-shadow: 0 2px 5px #d0d0d0;
+  .float-button {
+    width: 24px;
+    height: 24px;
+    padding: 12px;
+    border-radius: 24px;
+    transition: 0.3s;
+  }
+
+  .float-button:hover {
+    background-color: #CFD8DC;
+  }
+
+  .button-row {
+    height: 48px;
+    width: 153px;
+    margin: 0 auto;
+    border-radius: 24px;
+    background-color: #ECEFF1;
+  }
+
+  .hint {
+    font-weight: bold;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    text-shadow: 0 2px 5px #d0d0d0;
+  }
 }
