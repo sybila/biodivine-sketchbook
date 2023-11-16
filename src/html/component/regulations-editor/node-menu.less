@@ -9,18 +9,18 @@
   position: absolute;
   /* This is to accommodate longer hints */
   width: 12em;
-  height: 5em;
+  height: 4em;
   /* Ensure hint is in the middle */
   text-align: center;
   /* Ensures the zoom is properly applied when needed */
   transform-origin: 0 0;
   /* We don't animate other stuff because that needs to be in sync with the graph */
   transition: opacity 0.3s;
+  pointer-events: none;
 
   .float-button {
-    width: 24px;
-    height: 24px;
-    padding: 12px;
+    width: 2em;
+    height: 2em;
     border-radius: 24px;
     transition: 0.3s;
   }
@@ -30,11 +30,12 @@
   }
 
   .button-row {
-    height: 48px;
-    width: 153px;
+    width: 6em;
+    height: 2em;
     margin: 0 auto;
     border-radius: 24px;
     background-color: #ECEFF1;
+    pointer-events: all;
   }
 
   .hint {
