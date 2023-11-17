@@ -2,12 +2,21 @@ import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './node-menu.less?inline'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faArrowRightArrowLeft, faCalculator, faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowTrendDown,
+  faArrowTrendUp,
+  faCalculator,
+  faEye,
+  faEyeSlash,
+  faPen,
+  faRightLeft,
+  faTrash
+} from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
-import { ElementType } from './element-type'
+import { ElementType, Monotonicity } from './element-type'
 
-library.add(faPen, faTrash, faCalculator, faEye, faArrowRightArrowLeft)
+library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash)
 
 @customElement('node-menu')
 class NodeMenu extends LitElement {
@@ -15,37 +24,105 @@ class NodeMenu extends LitElement {
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
   @property() zoom = 1.0
-  @state() hint = ''
+  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity } | undefined
+  @state() selectedButton: IButton | undefined = undefined
 
   nodeButtons: IButton[] = [
     {
-      icon: icon(findIconDefinition({ prefix: 'fas', iconName: 'pen' })).node[0],
-      label: 'Edit name (E)'
+      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'pen' })).node[0],
+      label: () => 'Edit name (E)',
+      click: () => {}
     },
     {
-      icon: icon(findIconDefinition({ prefix: 'fas', iconName: 'calculator' })).node[0],
-      label: 'Edit update function (F)'
+      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'calculator' })).node[0],
+      label: () => 'Edit update function (F)',
+      click: () => {}
     },
     {
-      icon: icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
-      label: 'Remove (⌫)'
+      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
+      label: () => 'Remove (⌫)',
+      click: this.removeElement
     }
   ]
 
   edgeButtons: IButton[] = [
     {
-      icon: icon(findIconDefinition({ prefix: 'fas', iconName: 'eye' })).node[0],
-      label: 'Toggle observability (O)'
+      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: ((this.data?.observable) === true) ? 'eye-slash' : 'eye' })).node[0],
+      label: () =>
+        this.data === null || this.data?.observable === null
+          ? 'Toggle observability (O)'
+          : ((this.data?.observable) === true) ? 'Observability off (O)' : 'Observability on (O)',
+      click: () => {
+        this.dispatchEvent(new CustomEvent('update-edge', {
+          detail: {
+            edgeId: this.data?.id,
+            observable: !(this.data?.observable ?? false),
+            monotonicity: this.data?.monotonicity
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
     },
     {
-      icon: icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-right-arrow-left' })).node[0],
-      label: 'Toggle monotonicity (M)'
+      icon: () => icon(findIconDefinition({
+        prefix: 'fas',
+        iconName: this.data?.monotonicity === Monotonicity.INHIBITION
+          ? 'right-left'
+          : this.data?.monotonicity === Monotonicity.ACTIVATION ? 'arrow-trend-down' : 'arrow-trend-up'
+      })).node[0],
+      label: () => {
+        switch (this.data?.monotonicity) {
+          case Monotonicity.OFF:
+            return 'Make activating (M)'
+          case Monotonicity.ACTIVATION:
+            return 'Make inhibiting (M)'
+          case Monotonicity.INHIBITION:
+            return 'Monotonicity off (M)'
+          default:
+            return 'Toggle monotonicity (M)'
+        }
+      },
+      click: () => {
+        let monotonicity
+        switch (this.data?.monotonicity) {
+          case Monotonicity.OFF:
+            monotonicity = Monotonicity.ACTIVATION
+            break
+          case Monotonicity.ACTIVATION:
+            monotonicity = Monotonicity.INHIBITION
+            break
+          default:
+            monotonicity = Monotonicity.OFF
+            break
+        }
+        this.dispatchEvent(new CustomEvent('update-edge', {
+          detail: {
+            edgeId: this.data?.id,
+            observable: (this.data?.observable ?? true),
+            monotonicity
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
     },
     {
-      icon: icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
-      label: 'Remove (⌫)'
+      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
+      label: () => 'Remove (⌫)',
+      click: this.removeElement
     }
   ]
+
+  private removeElement (): void {
+    this.dispatchEvent(new CustomEvent('remove-element', {
+      detail: {
+        id: this.data?.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
 
   render (): TemplateResult {
     let buttons: IButton[]
@@ -70,42 +147,27 @@ class NodeMenu extends LitElement {
                                        transform: scale(${this.zoom})">
             <div class="button-row uk-flex uk-flex-row">
                 ${map(buttons, (buttonData) => {
-                  buttonData.icon.classList.add('menu-icon')
+                  const icon = buttonData.icon()
+                    icon.classList.add('menu-icon')
                     return html`
-                    <div class="float-button" 
-                       @mouseover=${() => { this.hint = buttonData.label }} 
-                       @mouseout=${() => { this.hint = '' }}>
-                        ${buttonData.icon}
-                    </div>
+                    <span class="float-button"
+                         @mouseover=${() => { this.selectedButton = buttonData }} 
+                         @mouseout=${() => { this.selectedButton = undefined }} 
+                         @click=${buttonData.click}>
+                        ${icon}
+                    </span>
                 `
 })}
             </div>
-            <span class="hint">${this.hint}</span>
-        </div>
-        <!--        <div id="edge-menu" class="float-menu invisible">-->
-        <!--            <div class="button-row">-->
-        <!--                <img alt="Toggle observability (O)" id="edge-menu-observability" class="button" src="img/visibility_off-24px.svg"-->
-        <!--                     src-on="img/visibility_off-24px.svg" src-off="img/visibility_on-24px.svg"-->
-        <!--                     alt-on="Observability off (O)" alt-off="Observability on (O)"-->
-        <!--                     state=""-->
-        <!--                >-->
-        <!--                <img alt="Toggle monotonicity (M)" id="edge-menu-monotonicity" class="button" src="img/trending_up-24px.svg"-->
-        <!--                     src-unspecified="img/trending_up-24px.svg" alt-unspecified="Make activating (M)"-->
-        <!--                     src-activation="img/trending_down-24px.svg" alt-activation="Make inhibiting (M)"-->
-        <!--                     src-inhibition="img/swap_vert-24px.svg" alt-inhibition="Monotonicity off (M)"-->
-        <!--                     state=""-->
-        <!--                >-->
-        <!--                <img alt="Remove (⌫)" id="edge-menu-remove" class="button" src="img/delete-24px.svg">-->
-        <!--            </div>-->
-        <!--            <br>-->
-        <!--            <span class="hint invisible">Hint</span>-->
-        <!--        </div>-->`
+            <span class="hint">${this.selectedButton?.label()}</span>
+        </div>`
         }
     `
   }
 }
 
 interface IButton {
-  icon: Element
-  label: string
+  icon: () => Element
+  label: () => string
+  click: (event: MouseEvent) => void
 }

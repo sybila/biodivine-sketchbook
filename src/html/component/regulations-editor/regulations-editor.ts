@@ -13,7 +13,7 @@ import dagre from 'cytoscape-dagre'
 import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
 import './node-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
-import { ElementType } from './element-type'
+import { ElementType, Monotonicity } from './element-type'
 
 @customElement('regulations-editor')
 class RegulationsEditor extends LitElement {
@@ -28,18 +28,21 @@ class RegulationsEditor extends LitElement {
 
   editorElement
   cy: Core | undefined
-  edgehandles: EdgeHandlesInstance | undefined
+  edgeHandles: EdgeHandlesInstance | undefined
   _lastClickTimestamp
   @state() _nodes: NodeDefinition[] = []
   @state() _edges: EdgeDefinition[] = []
   @state() menuType = ElementType.NONE
   @state() menuPosition = { x: 0, y: 0 }
   @state() menuZoom = 1.0
+  @state() menuData = undefined
 
   constructor () {
     super()
     cytoscape.use(dagre)
     cytoscape.use(edgeHandles)
+    this.addEventListener('update-edge', this.updateEdge)
+    this.addEventListener('remove-element', this.removeElement)
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -49,7 +52,7 @@ class RegulationsEditor extends LitElement {
   firstUpdated (): void {
     // this._nodes.push({ data: { id: 'test', label: 'test' } })
     this.cy = cytoscape(initOptions(this.editorElement, this._nodes, this._edges))
-    this.edgehandles = this.cy.edgehandles(edgeOptions)
+    this.edgeHandles = this.cy.edgehandles(edgeOptions)
     this.dummyData()
 
     this.cy.on('zoom', () => {
@@ -85,31 +88,31 @@ class RegulationsEditor extends LitElement {
     this.addNode('SBF', 'SBF', [281, 138])
     this.addNode('HCM1', 'HCM1', [305, 217])
     this.addNode('SFF', 'SFF', [186, 302])
-    this.ensureRegulation({ source: 'MBF', target: 'YOX1', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SBF', target: 'YOX1', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'YOX1', target: 'CLN3', observable: true, monotonicity: 'inhibition' })
-    this.ensureRegulation({ source: 'YHP1', target: 'CLN3', observable: true, monotonicity: 'inhibition' })
-    this.ensureRegulation({ source: 'ACE2', target: 'CLN3', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SWI5', target: 'CLN3', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'MBF', target: 'YHP1', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SBF', target: 'YHP1', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SFF', target: 'ACE2', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SFF', target: 'SWI5', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'CLN3', target: 'MBF', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'MBF', target: 'SBF', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'YOX1', target: 'SBF', observable: true, monotonicity: 'inhibition' })
-    this.ensureRegulation({ source: 'YHP1', target: 'SBF', observable: true, monotonicity: 'inhibition' })
-    this.ensureRegulation({ source: 'CLN3', target: 'SBF', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'MBF', target: 'HCM1', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SBF', target: 'HCM1', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'SBF', target: 'SFF', observable: true, monotonicity: 'activation' })
-    this.ensureRegulation({ source: 'HCM1', target: 'SFF', observable: true, monotonicity: 'activation' })
+    this.ensureRegulation({ source: 'MBF', target: 'YOX1', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SBF', target: 'YOX1', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'YOX1', target: 'CLN3', observable: true, monotonicity: Monotonicity.INHIBITION })
+    this.ensureRegulation({ source: 'YHP1', target: 'CLN3', observable: true, monotonicity: Monotonicity.INHIBITION })
+    this.ensureRegulation({ source: 'ACE2', target: 'CLN3', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SWI5', target: 'CLN3', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'MBF', target: 'YHP1', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SBF', target: 'YHP1', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SFF', target: 'ACE2', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SFF', target: 'SWI5', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'CLN3', target: 'MBF', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'MBF', target: 'SBF', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'YOX1', target: 'SBF', observable: true, monotonicity: Monotonicity.INHIBITION })
+    this.ensureRegulation({ source: 'YHP1', target: 'SBF', observable: true, monotonicity: Monotonicity.INHIBITION })
+    this.ensureRegulation({ source: 'CLN3', target: 'SBF', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'MBF', target: 'HCM1', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SBF', target: 'HCM1', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'SBF', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION })
+    this.ensureRegulation({ source: 'HCM1', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION })
   }
 
   render (): TemplateResult {
     return html`
         ${this.editorElement}
-        <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}></node-menu>
+        <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
     `
   }
 
@@ -129,7 +132,7 @@ class RegulationsEditor extends LitElement {
     }
     const zoom = this.cy?.zoom()
     const position = node.renderedPosition()
-    this.toggleMenu(ElementType.NODE, position, zoom)
+    this.toggleMenu(ElementType.NODE, position, zoom, node.data())
   }
 
   _renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
@@ -185,9 +188,9 @@ class RegulationsEditor extends LitElement {
 
   toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
     this.menuType = type
-    // element.classList.remove('invisible')
     this.menuPosition = position ?? { x: 0, y: 0 }
     this.menuZoom = zoom
+    this.menuData = data
     console.log(data)
     // if (data !== undefined) {
     //   element.observabilityButton.updateState(data)
@@ -251,12 +254,27 @@ class RegulationsEditor extends LitElement {
   //     // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
   //   })
   // }
+
+  updateEdge (event: Event): void {
+    const e = (event as CustomEvent)
+    this.cy?.$id(e.detail.edgeId)
+      .data('observable', e.detail.observable)
+      .data('monotonicity', e.detail.monotonicity)
+    this.menuData = this.cy?.$id(e.detail.edgeId).data()
+  }
+
+  removeElement (event: Event): void {
+    const e = (event as CustomEvent)
+    console.log(e)
+    this.cy?.$id(e.detail.id).remove()
+    this.toggleMenu(ElementType.NONE)
+  }
 }
 
 interface IRegulation {
   source: string
   target: string
   observable: boolean
-  monotonicity: string
+  monotonicity: Monotonicity
 
 }
