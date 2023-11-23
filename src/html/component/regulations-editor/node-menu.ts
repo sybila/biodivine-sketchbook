@@ -62,6 +62,7 @@ class NodeMenu extends LitElement {
           bubbles: true,
           composed: true
         }))
+        if (this.data !== undefined) this.data = { ...this.data, observable: !(this.data?.observable ?? false) }
       }
     },
     {
@@ -86,16 +87,17 @@ class NodeMenu extends LitElement {
       click: () => {
         let monotonicity
         switch (this.data?.monotonicity) {
-          case Monotonicity.OFF:
-            monotonicity = Monotonicity.ACTIVATION
-            break
           case Monotonicity.ACTIVATION:
             monotonicity = Monotonicity.INHIBITION
             break
-          default:
+          case Monotonicity.INHIBITION:
             monotonicity = Monotonicity.OFF
             break
+          default:
+            monotonicity = Monotonicity.ACTIVATION
+            break
         }
+        if (this.data !== undefined) this.data = { ...this.data, monotonicity }
         this.dispatchEvent(new CustomEvent('update-edge', {
           detail: {
             edgeId: this.data?.id,

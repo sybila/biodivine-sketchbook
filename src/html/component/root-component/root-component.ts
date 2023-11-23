@@ -38,7 +38,6 @@ class RootComponent extends LitElement {
         pinned: data.pinned
       })
     })
-    console.log(this.tabs)
   }
 
   private pinTab (e: Event): void {

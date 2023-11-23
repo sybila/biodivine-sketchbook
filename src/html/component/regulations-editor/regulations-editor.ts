@@ -1,16 +1,10 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import style_less from './regulations-editor.less?inline'
-import cytoscape, {
-  type Core,
-  type EdgeDefinition,
-  type EdgeSingular,
-  type NodeDefinition,
-  type NodeSingular,
-  type Position
-} from 'cytoscape'
+import cytoscape, { type Core, type EdgeSingular, type NodeSingular, type Position } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
+import dblclick from 'cytoscape-dblclick'
 import './node-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, Monotonicity } from './element-type'
@@ -21,7 +15,6 @@ const SAVE_EDGES = 'edges'
 @customElement('regulations-editor')
 class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  static doubleClickDelay = 100
 
   @query('#node-menu')
     nodeMenu!: HTMLElement
@@ -33,17 +26,19 @@ class RegulationsEditor extends LitElement {
   cy: Core | undefined
   edgeHandles: EdgeHandlesInstance | undefined
   _lastClickTimestamp
-  @state() _nodes: NodeDefinition[] = []
-  @state() _edges: EdgeDefinition[] = []
+  @state() _nodes: INodeData[] = []
+  @state() _edges: IEdgeData[] = []
   @state() menuType = ElementType.NONE
   @state() menuPosition = { x: 0, y: 0 }
   @state() menuZoom = 1.0
   @state() menuData = undefined
+  @state() drawMode = false
 
   constructor () {
     super()
     cytoscape.use(dagre)
     cytoscape.use(edgeHandles)
+    cytoscape.use(dblclick)
     this.addEventListener('update-edge', this.updateEdge)
     this.addEventListener('remove-element', this.removeElement)
 
@@ -52,13 +47,34 @@ class RegulationsEditor extends LitElement {
     this._lastClickTimestamp = 0
   }
 
-  firstUpdated (): void {
-    // this._nodes.push({ data: { id: 'test', label: 'test' } })
-    this.cy = cytoscape(initOptions(this.editorElement, this._nodes, this._edges))
-    this.edgeHandles = this.cy.edgehandles(edgeOptions)
-    if (!this.loadCachedNodes() || !this.loadCachedEdges()) this.loadDummyData()
+  render (): TemplateResult {
+    return html`
+        <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset (debug)</button>
+        <button @click=${this.toggleDraw} class="uk-button uk-button-secondary uk-button-small uk-margin-medium-top uk-position-absolute uk-position-z-index-high">add edge</button>
+        ${this.editorElement}
+        <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
+    `
+  }
 
-    // this.cy.on('add remove position', this.saveState)
+  toggleDraw (): void {
+    if (this.drawMode) {
+      this.edgeHandles?.disableDrawMode()
+    } else {
+      this.edgeHandles?.enableDrawMode()
+    }
+    this.drawMode = !this.drawMode
+  }
+
+  firstUpdated (): void {
+    this.init()
+    if (!this.loadCachedNodes() || !this.loadCachedEdges()) this.loadDummyData()
+  }
+
+  init (): void {
+    this.cy = cytoscape(initOptions(this.editorElement))
+    this.edgeHandles = this.cy.edgehandles(edgeOptions)
+
+    this.cy.on('add remove position', this.saveState)
 
     this.cy.on('zoom', () => {
       this._renderMenuForSelectedNode()
@@ -68,12 +84,71 @@ class RegulationsEditor extends LitElement {
       this._renderMenuForSelectedNode()
       this._renderMenuForSelectedEdge()
     })
-    this.cy.on('click', () => {
-      const now = (new Date()).getTime()
-      if ((this._lastClickTimestamp !== 0) && this._lastClickTimestamp !== undefined && now - this._lastClickTimestamp < RegulationsEditor.doubleClickDelay) {
-        // LiveModel.addVariable([e.position.x, e.position.y])
-      }
-      this._lastClickTimestamp = now
+    this.cy.on('dblclick ', (e) => {
+      const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
+      this.addNode(name, name, e.position)
+    })
+    this.cy.on('mouseover', 'node', function (e) {
+      e.target.addClass('hover')
+    })
+    // this.addEventListener('mousemove', () => {
+    //   this.cy?.forceRender()
+    // })
+
+    // this.cy.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
+    //   const { position } = event
+    //
+    //   // edge complete handler
+    // })
+
+    this.cy.on('mouseover', 'node', (e) => {
+      e.target.addClass('hover')
+      // node.addClass('hover')
+      // this._modelEditor.hoverVariable(id, true)
+    })
+    this.cy.on('mouseout', 'node', (e) => {
+      e.target.removeClass('hover')
+      // this._modelEditor.hoverVariable(id, false)
+    })
+    this.cy.on('select', 'node', (e) => {
+      // deselect any previous selection - we don't support multiselection yet
+      // this.cy?.$(':selected').forEach((selected) => {
+      //   if (selected.data().id !== id) {
+      //     selected.unselect()
+      //   }
+      // })
+      this._renderMenuForSelectedNode(e.target)
+      // this._modelEditor.selectVariable(id, true)
+    })
+    this.cy.on('unselect', 'node', () => {
+      this.toggleMenu(ElementType.NONE)
+      // this._modelEditor.selectVariable(id, false)
+    })
+    // node.on('click', () => {
+    //   this._lastClickTimestamp = 0 // ensure that we cannot double-click inside the node
+    // })
+    this.cy.on('drag', (e) => {
+      if ((e.target as NodeSingular).selected()) this._renderMenuForSelectedNode(e.target)
+      this._renderMenuForSelectedEdge()
+    })
+
+    this.cy.on('select', 'edge', (e) => {
+      this._renderMenuForSelectedEdge(e.target)
+    })
+    this.cy.on('unselect', 'edge', () => {
+      this.toggleMenu(ElementType.NONE) // hide menu
+    })
+    this.cy.on('mouseover', 'edge', (e) => {
+      e.target.addClass('hover')
+      // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, true);
+    })
+    this.cy.on('mouseout', 'edge', (e) => {
+      e.target.removeClass('hover')
+      // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
+    })
+
+    this.cy.on('ehcomplete ', () => {
+      this.edgeHandles?.disableDrawMode()
     })
 
     this.cy.ready(() => {
@@ -85,29 +160,17 @@ class RegulationsEditor extends LitElement {
 
   loadDummyData (): void {
     console.log('loading dummy data')
-    this.cy?.nodes().remove()
+    this.cy?.remove('node')
     this.cy?.edges().remove()
     this.addNodes(dummyData.nodes)
     this.addEdges(dummyData.edges)
     this.saveState()
-  }
 
-  render (): TemplateResult {
-    return html`
-        <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset</button>
-
-        ${this.editorElement}
-        <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
-    `
-  }
-
-  _findRegulationEdge (regulatorId: string, targetId: string): EdgeSingular | undefined {
-    const edge = this.cy?.edges('[source = "' + regulatorId + '"][target = "' + targetId + '"]')
-    if (edge?.length === 1) {
-      return edge[0]
-    } else {
-      return undefined
-    }
+    this.cy?.ready(() => {
+      this.cy?.center()
+      this.cy?.fit()
+      this.cy?.resize()
+    })
   }
 
   _renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
@@ -135,40 +198,10 @@ class RegulationsEditor extends LitElement {
   }
 
   addNode (id: string, name: string, position = { x: 0, y: 0 }): void {
-    const node = this.cy?.add({
+    this.cy?.add({
       data: { id, name },
-      position
+      position: { ...position }
     })
-    node?.on('mouseover', () => {
-      node.addClass('hover')
-      // this._modelEditor.hoverVariable(id, true)
-    })
-    node?.on('mouseout', () => {
-      node.removeClass('hover')
-      // this._modelEditor.hoverVariable(id, false)
-    })
-    node?.on('select', () => {
-      // deselect any previous selection - we don't support multiselection yet
-      this.cy?.$(':selected').forEach((selected) => {
-        if (selected.data().id !== id) {
-          selected.unselect()
-        }
-      })
-      this._renderMenuForSelectedNode(node)
-      // this._modelEditor.selectVariable(id, true)
-    })
-    node?.on('unselect', () => {
-      this.toggleMenu(ElementType.NONE)
-      // this._modelEditor.selectVariable(id, false)
-    })
-    node?.on('click', () => {
-      this._lastClickTimestamp = 0 // ensure that we cannot double-click inside the node
-    })
-    node?.on('drag', () => {
-      if (node.selected()) this._renderMenuForSelectedNode(node)
-      this._renderMenuForSelectedEdge()
-    })
-    console.log(node)
   }
 
   toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
@@ -193,7 +226,7 @@ class RegulationsEditor extends LitElement {
     //   }
     // } else {
     // Edge does not exist - create a new one
-    const edge = this.cy?.add({
+    this.cy?.add({
       group: 'edges',
       data: {
         source: regulation.source,
@@ -202,39 +235,7 @@ class RegulationsEditor extends LitElement {
         monotonicity: regulation.monotonicity
       }
     })
-    edge?.on('select', () => {
-      this._renderMenuForSelectedEdge(edge)
-    })
-    edge?.on('unselect', () => {
-      this.toggleMenu(ElementType.NONE) // hide menu
-    })
-    edge?.on('mouseover', () => {
-      edge.addClass('hover')
-      // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, true);
-    })
-    edge?.on('mouseout', () => {
-      edge.removeClass('hover')
-      // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
-    })
-    // }
   }
-
-  // _initEdge (edge): void {
-  //   edge.on('select', () => {
-  //     this._renderMenuForSelectedEdge(edge)
-  //   })
-  //   edge.on('unselect', () => {
-  //    UI.toggleEdgeMenu(); // hide menu
-  //   })
-  //   edge.on('mouseover', () => {
-  //     edge.addClass('hover')
-  //     // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, true);
-  //   })
-  //   edge.on('mouseout', () => {
-  //     edge.removeClass('hover')
-  //     // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
-  //   })
-  // }
 
   updateEdge (event: Event): void {
     const e = (event as CustomEvent)
@@ -268,12 +269,14 @@ class RegulationsEditor extends LitElement {
         monotonicity: edge.data().monotonicity as Monotonicity
       }
     })
-    console.log(nodes)
-    if (nodes.length > 0) localStorage.setItem(SAVE_NODES, JSON.stringify(nodes))
-    if (edges.length > 0) localStorage.setItem(SAVE_EDGES, JSON.stringify(edges))
-    // console.log(JSON.stringify(nodes))
-    console.log(localStorage.getItem(SAVE_EDGES))
-    // console.log(edges)
+    if (nodes.length > 0) {
+      this._nodes = nodes
+      localStorage.setItem(SAVE_NODES, JSON.stringify(nodes))
+    }
+    if (edges.length > 0) {
+      this._edges = edges
+      localStorage.setItem(SAVE_EDGES, JSON.stringify(edges))
+    }
   }
 
   loadCachedNodes (): boolean {

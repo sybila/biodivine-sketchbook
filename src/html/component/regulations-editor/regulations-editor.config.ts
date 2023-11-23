@@ -1,9 +1,9 @@
-import { type CytoscapeOptions, type EdgeDefinition, type NodeDefinition } from 'cytoscape'
+import { type CytoscapeOptions } from 'cytoscape'
 
 export const edgeOptions = {
-  // preview: true, // whether to show added edges preview before releasing selection
-  hoverDelay: 150, // time spent hovering over a target node before it is considered selected
-  // handleNodes: 'node', // selector/filter function for whether edges can be made from a given node
+  preview: true, // whether to show added edges preview before releasing selection
+  // hoverDelay: 150, // time spent hovering over a target node before it is considered selected
+  handleNodes: 'node', // selector/filter function for whether edges can be made from a given node
   snap: false,
   snapThreshold: 50,
   snapFrequency: 15,
@@ -38,10 +38,9 @@ export const edgeOptions = {
   //   }
   // }
 }
-export const initOptions = (container: HTMLElement, nodes: NodeDefinition[], edges: EdgeDefinition[]): CytoscapeOptions => {
+export const initOptions = (container: HTMLElement): CytoscapeOptions => {
   const addBoxSvg = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#ffffff" d="M4 4h16v16H4z"/><path fill="#6a7ea5" d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
   return {
-    elements: { nodes, edges },
     wheelSensitivity: 0.5,
     container,
     // Some sensible default auto-layout algorithm
@@ -119,6 +118,14 @@ export const initOptions = (container: HTMLElement, nodes: NodeDefinition[], edg
           'line-dash-pattern': [8, 3]
         }
       },
+      { // When the edge has unspecified monotonicity, show it as grey with normal arrow
+        selector: 'edge',
+        style: {
+          'line-color': '#797979',
+          'target-arrow-color': '#797979',
+          'target-arrow-shape': 'triangle'
+        }
+      },
       { // When the edge is an activation, show it as green with normal arrow
         selector: 'edge[monotonicity="activation"]',
         style: {
@@ -135,14 +142,6 @@ export const initOptions = (container: HTMLElement, nodes: NodeDefinition[], edg
           'target-arrow-shape': 'tee'
         }
       },
-      { // When the edge has unspecified monotonicity, show it as grey with normal arrow
-        selector: 'edge[monotonicity="unspecified"]',
-        style: {
-          'line-color': '#797979',
-          'target-arrow-color': '#797979',
-          'target-arrow-shape': 'triangle'
-        }
-      },
       { // A selected edge should be drawn with an overlay
         selector: 'edge:selected',
         style: {
@@ -155,6 +154,7 @@ export const initOptions = (container: HTMLElement, nodes: NodeDefinition[], edg
           width: '32px',
           height: '32px',
           'background-opacity': 0,
+          'background-color': 'red',
           'background-image': () => 'data:image/svg+xml;utf8,' + encodeURIComponent(addBoxSvg),
           'background-width': '32px',
           'background-height': '32px',

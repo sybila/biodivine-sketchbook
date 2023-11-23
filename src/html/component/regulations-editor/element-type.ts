@@ -5,7 +5,7 @@ export enum ElementType {
 }
 
 export enum Monotonicity {
-  UNKNOWN = 'unknown',
+  UNSPECIFIED = 'unspecified',
   ACTIVATION = 'activation',
   INHIBITION = 'inhibition',
   OFF = 'off'
