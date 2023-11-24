@@ -7,12 +7,19 @@ license = ""
 repository = ""
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [build-dependencies]
 tauri-build = { version = "1.4", features = [] }
 
+[[bin]]
+name = "cli-test"
+path = "src/bin/cli-test.rs"
+
 [dependencies]
+biodivine-lib-bdd = ">=0.5.2, <1.0.0"
+biodivine-lib-param-bn = ">=0.4.7, <1.0.0"
+biodivine-hctl-model-checker = ">=0.2.0, <1.0.0"
+lazy_static = "1.4.0"
+regex = "1.10.2"
 tauri = { version = "1.4", features = ["shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
