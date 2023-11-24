@@ -40,7 +40,7 @@ export default defineConfig(async () => ({
     }
   },
 
-  /* 
+  /*
     This is a workaround for correctly showing images imported from UIKit.
     See https://stackoverflow.com/questions/71519410/how-can-vite-be-configured-to-load-relative-images-in-stylesheets-imported-from
   */
@@ -48,7 +48,7 @@ export default defineConfig(async () => ({
     alias: [
       {
         find: '../../images',
-        replacement: '',
+        replacement: 'uikit/src/images',
         customResolver(updatedId, importer) {
           // don't replace if importer is not our my-uikit.less
           if (importer === undefined || basename(importer) !== 'uikit-theme.less') {
@@ -64,5 +64,21 @@ export default defineConfig(async () => ({
         },
       },
     ],
+
+    // alias: {
+    //   '../../images/backgrounds': 'uikit/src/images/backgrounds',
+    //   '../../images/components': 'uikit/src/images/components',
+    //   '../../images/icons': 'uikit/src/images/icons'
+    // }
   },
+
+  css: {
+    preprocessorOptions: {
+      less: {
+        math: "always",
+        relativeUrls: true,
+        javascriptEnabled: true
+      },
+    },
+  }
 }));
