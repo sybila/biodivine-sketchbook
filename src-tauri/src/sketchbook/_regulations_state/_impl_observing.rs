@@ -89,7 +89,7 @@ impl RegulationsState {
         }
         self.regulations
             .iter()
-            .find(|r| r.regulator == *regulator && r.target == *target)
+            .find(|r| r.get_regulator() == regulator && r.get_target() == target)
             .ok_or(format!(
                 "Regulation between {regulator} and {target} does not exist."
             ))
@@ -127,8 +127,8 @@ impl RegulationsState {
         let mut regulators: Vec<&VarId> = self
             .regulations
             .iter()
-            .filter(|r| r.target == *target)
-            .map(|r| &r.regulator)
+            .filter(|r| r.get_target() == target)
+            .map(|r| r.get_regulator())
             .collect();
         regulators.sort();
         Ok(regulators)
@@ -145,8 +145,8 @@ impl RegulationsState {
         let mut targets: Vec<&VarId> = self
             .regulations
             .iter()
-            .filter(|r| r.regulator == *regulator)
-            .map(|r| &r.target)
+            .filter(|r| r.get_regulator() == regulator)
+            .map(|r| r.get_target())
             .collect();
         targets.sort();
         Ok(targets)

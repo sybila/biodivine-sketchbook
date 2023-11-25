@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Layout, LayoutId, RegulationSign, Regulation, RegulationsState, VarId, Variable,
+    Layout, LayoutId, Regulation, RegulationSign, RegulationsState, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -83,12 +83,12 @@ impl RegulationsState {
         self.assert_valid_variable(&regulator)?;
         self.assert_valid_variable(&target)?;
         self.assert_no_regulation(&regulator, &target)?;
-        self.regulations.insert(Regulation {
+        self.regulations.insert(Regulation::new(
             regulator,
             target,
             observable,
             regulation_sign,
-        });
+        ));
         Ok(())
     }
 
@@ -113,8 +113,7 @@ impl RegulationsState {
     pub fn set_var_name(&mut self, var_id: &VarId, name: &str) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
         let variable = self.variables.get_mut(var_id).unwrap();
-        let mut name_string = name.to_string();
-        std::mem::swap(&mut name_string, &mut variable.name);
+        variable.set_name(name);
         Ok(())
     }
 
@@ -184,7 +183,7 @@ impl RegulationsState {
     fn remove_all_regulations_var(&mut self, variable: &VarId) -> Result<(), String> {
         self.assert_valid_variable(variable)?;
         self.regulations
-            .retain(|r| r.regulator != *variable && r.target != *variable);
+            .retain(|r| r.get_regulator() != variable && r.get_target() != variable);
         Ok(())
     }
 }
@@ -407,7 +406,7 @@ impl RegulationsState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::layout::{LayoutId, NodePosition};
+    use crate::sketchbook::layout::NodePosition;
     use crate::sketchbook::RegulationsState;
 
     /// Test manually creating `RegulationsState` and mutating it by adding/removing variables

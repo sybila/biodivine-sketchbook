@@ -1,6 +1,16 @@
-use crate::sketchbook::{Identifier, VarId};
+use crate::sketchbook::Identifier;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
+
+/// A type-safe (string-based) identifier of a `Variable` inside `RegulationsState`.
+///
+/// **Warning:** Do not mix identifiers between different networks/graphs. Generally, be careful
+/// to only use `VarIds` currently valid for the network.
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub struct VarId {
+    id: Identifier,
+}
 
 impl VarId {
     /// Construct new instances of `VarId`s from string.

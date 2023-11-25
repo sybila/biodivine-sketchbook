@@ -70,9 +70,7 @@ impl RegulationsState {
     /// **(internal)** Static utility method to convert regulation sign given by `Monotonicity`
     /// used by `lib_param_bn` into the type `RegulationSign` used here.
     /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign`.
-    fn sign_from_monotonicity(
-        monotonicity: Option<Lib_Pbn_Monotonicity>,
-    ) -> RegulationSign {
+    fn sign_from_monotonicity(monotonicity: Option<Lib_Pbn_Monotonicity>) -> RegulationSign {
         match monotonicity {
             Some(m) => match m {
                 Lib_Pbn_Monotonicity::Activation => RegulationSign::Activation,
@@ -85,7 +83,7 @@ impl RegulationsState {
     /// **(internal)** Static utility method to convert regulation sign from the type `RegulationSign` used here
     /// into the type `Monotonicity` used in `lib_param_bn`.
     /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign` and `Unknown` is used instead.
-    fn sign_to_monotonicity(regulation_sign: RegulationSign) -> Option<Lib_Pbn_Monotonicity> {
+    fn sign_to_monotonicity(regulation_sign: &RegulationSign) -> Option<Lib_Pbn_Monotonicity> {
         match regulation_sign {
             RegulationSign::Activation => Some(Lib_Pbn_Monotonicity::Activation),
             RegulationSign::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),

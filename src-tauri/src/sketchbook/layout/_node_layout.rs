@@ -1,5 +1,14 @@
-use crate::sketchbook::layout::{NodeLayout, NodePosition};
+use crate::sketchbook::layout::NodePosition;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
+
+/// Layout information for a particular `Variable`'s node.
+/// Currently, only the position is stored.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NodeLayout {
+    position: NodePosition,
+    // todo: add other data (visibility, colour, shape, ...)
+}
 
 impl NodeLayout {
     /// Create a new layout data for a node of the regulatory graph.

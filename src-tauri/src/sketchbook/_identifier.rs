@@ -1,5 +1,5 @@
-use crate::sketchbook::Identifier;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
@@ -9,6 +9,13 @@ const ID_REGEX_STR: &str = r"^[a-zA-Z_][a-zA-Z0-9_]*$";
 lazy_static! {
     /// A regular expression that matches the identifiers allowed.
     static ref ID_REGEX: Regex = Regex::new(ID_REGEX_STR).unwrap();
+}
+
+/// A type-safe identifier that can be used for IDs of various objects, such as of variables
+/// (see `VarId`) or layouts (see `LayoutId`). Corresponds to a C-like identifier, or SBML's SId.
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub struct Identifier {
+    id: String,
 }
 
 impl Identifier {

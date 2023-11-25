@@ -1,4 +1,5 @@
-use crate::sketchbook::{RegulationSign, Regulation, VarId};
+use crate::sketchbook::VarId;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
 use regex::Regex;
@@ -25,8 +26,57 @@ lazy_static! {
     ).unwrap();
 }
 
+/// Possible variants of (non)-monotonous effects of a `Regulation`.
+/// `Activation` means positive and `Inhibition` means negative monotonicity, `Dual` means both
+/// positive and negative effect, `Unknown` for unknown effect.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum RegulationSign {
+    Activation,
+    Inhibition,
+    Dual,
+    Unknown,
+}
+
+/// Describes an interaction between two variables, `regulator` and `target`.
+/// Every regulation can be *monotonous* and can be set as *observable*:
+///
+///  - Monotonicity is either *positive* or *negative* and signifies that the influence of the
+/// `regulator` on the `target` has to *increase* or *decrease* the `target` value respectively.
+///  - If observability is set to `true`, the `regulator` *must* have influence on the outcome
+///  of the `target` update function in *some* context. If set to false, this is not enforced
+///  (i.e. the `regulator` *can* have an influence on the `target`, but it is not required).
+///
+/// Regulations can be represented as strings in the
+/// form `"regulator_name 'relationship' target_name"`. The 'relationship' starts with `-`, which
+/// is followed by `>` for activation (positive monotonicity), `|` for inhibition (negative
+/// monotonicity), `D` for dual effect (non-monotonic) or `?` for unspecified monotonicity.
+/// Finally, an additional `?` at the end of 'relationship' signifies a non-observable
+/// (non-essential) regulation.
+/// Together, this gives the following options:  `->, ->?, -|, -|?, -D, -D?, -?, -??`.
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct Regulation {
+    regulator: VarId,
+    target: VarId,
+    observable: bool,
+    regulation_sign: RegulationSign,
+}
+
 /// Serialization utility methods.
 impl Regulation {
+    pub fn new(
+        regulator: VarId,
+        target: VarId,
+        observable: bool,
+        regulation_sign: RegulationSign,
+    ) -> Regulation {
+        Regulation {
+            regulator,
+            target,
+            observable,
+            regulation_sign,
+        }
+    }
+
     /// Try to read all available information about a regulation from a given string
     /// in the standard format.
     ///
@@ -65,18 +115,18 @@ impl Regulation {
     }
 
     /// Return the sign of the regulation.
-    pub fn get_sign(&self) -> RegulationSign {
-        self.regulation_sign
+    pub fn get_sign(&self) -> &RegulationSign {
+        &self.regulation_sign
     }
 
     /// Get the `VarId` of the regulator.
-    pub fn get_regulator(&self) -> VarId {
-        self.regulator.clone()
+    pub fn get_regulator(&self) -> &VarId {
+        &self.regulator
     }
 
     /// Get the `VarId` of the target.
-    pub fn get_target(&self) -> VarId {
-        self.target.clone()
+    pub fn get_target(&self) -> &VarId {
+        &self.target
     }
 }
 
@@ -100,7 +150,7 @@ impl Display for Regulation {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{RegulationSign, Regulation, VarId};
+    use crate::sketchbook::{Regulation, RegulationSign, VarId};
 
     #[test]
     fn regulation_conversion() {
