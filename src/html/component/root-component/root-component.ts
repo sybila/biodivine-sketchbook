@@ -48,6 +48,7 @@ class RootComponent extends LitElement {
     const updatedTabs = this.tabs.slice()
     updatedTabs[tabIndex] = updatedTabs[tabIndex].copy({ pinned: e.type === 'pin-tab' })
     this.tabs = updatedTabs
+    this.adjustRegEgitor()
     this.saveTabs()
   }
 
@@ -59,12 +60,27 @@ class RootComponent extends LitElement {
         active: tab.id === tabId
       })
     )
+    this.adjustRegEgitor()
     this.requestUpdate()
     this.saveTabs()
   }
 
+  private adjustRegEgitor (): void {
+    this.shadowRoot?.querySelector('content-pane')
+      ?.shadowRoot?.querySelector('regulations-editor')
+      ?.dispatchEvent(new CustomEvent('adjust-graph', {
+        detail: {
+          tabCount: this.visibleTabs().length
+        }
+      }))
+  }
+
+  private visibleTabs (): TabData[] {
+    return this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
+  }
+
   render (): TemplateResult {
-    const visibleTabs = this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
+    const visibleTabs = this.visibleTabs()
     return html`
       <div class="root-component">
         <nav-bar .tabs=${this.tabs}></nav-bar>

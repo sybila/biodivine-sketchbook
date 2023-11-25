@@ -42,6 +42,11 @@ class NodeMenu extends LitElement {
       icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
       label: () => 'Remove (⌫)',
       click: this.removeElement
+    },
+    {
+      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
+      label: () => 'Add Edge (A)',
+      click: this.removeElement
     }
   ]
 

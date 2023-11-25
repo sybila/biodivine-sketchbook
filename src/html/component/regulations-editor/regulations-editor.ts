@@ -25,7 +25,7 @@ class RegulationsEditor extends LitElement {
   editorElement
   cy: Core | undefined
   edgeHandles: EdgeHandlesInstance | undefined
-  _lastClickTimestamp
+  lastTabCount = 1
   @state() _nodes: INodeData[] = []
   @state() _edges: IEdgeData[] = []
   @state() menuType = ElementType.NONE
@@ -41,16 +41,16 @@ class RegulationsEditor extends LitElement {
     cytoscape.use(dblclick)
     this.addEventListener('update-edge', this.updateEdge)
     this.addEventListener('remove-element', this.removeElement)
+    this.addEventListener('adjust-graph', this.pan)
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
-    this._lastClickTimestamp = 0
   }
 
   render (): TemplateResult {
     return html`
         <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset (debug)</button>
-        <button @click=${this.toggleDraw} class="uk-button uk-button-secondary uk-button-small uk-margin-medium-top uk-position-absolute uk-position-z-index-high">add edge</button>
+        <button @click=${this.pan} class="uk-button uk-button-secondary uk-button-small uk-margin-medium-top uk-position-absolute uk-position-z-index-high">add edge</button>
         ${this.editorElement}
         <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
     `
@@ -77,12 +77,12 @@ class RegulationsEditor extends LitElement {
     this.cy.on('add remove position', this.saveState)
 
     this.cy.on('zoom', () => {
-      this._renderMenuForSelectedNode()
-      this._renderMenuForSelectedEdge()
+      this.renderMenuForSelectedNode()
+      this.renderMenuForSelectedEdge()
     })
     this.cy.on('pan', () => {
-      this._renderMenuForSelectedNode()
-      this._renderMenuForSelectedEdge()
+      this.renderMenuForSelectedNode()
+      this.renderMenuForSelectedEdge()
     })
     this.cy.on('dblclick ', (e) => {
       const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
@@ -117,7 +117,7 @@ class RegulationsEditor extends LitElement {
       //     selected.unselect()
       //   }
       // })
-      this._renderMenuForSelectedNode(e.target)
+      this.renderMenuForSelectedNode(e.target)
       // this._modelEditor.selectVariable(id, true)
     })
     this.cy.on('unselect', 'node', () => {
@@ -128,12 +128,12 @@ class RegulationsEditor extends LitElement {
     //   this._lastClickTimestamp = 0 // ensure that we cannot double-click inside the node
     // })
     this.cy.on('drag', (e) => {
-      if ((e.target as NodeSingular).selected()) this._renderMenuForSelectedNode(e.target)
-      this._renderMenuForSelectedEdge()
+      if ((e.target as NodeSingular).selected()) this.renderMenuForSelectedNode(e.target)
+      this.renderMenuForSelectedEdge()
     })
 
     this.cy.on('select', 'edge', (e) => {
-      this._renderMenuForSelectedEdge(e.target)
+      this.renderMenuForSelectedEdge(e.target)
     })
     this.cy.on('unselect', 'edge', () => {
       this.toggleMenu(ElementType.NONE) // hide menu
@@ -149,11 +149,12 @@ class RegulationsEditor extends LitElement {
 
     this.cy.on('ehcomplete ', () => {
       this.edgeHandles?.disableDrawMode()
+      this.toggleDraw()
     })
 
     this.cy.ready(() => {
       this.cy?.center()
-      this.cy?.fit()
+      this.cy?.fit(undefined, 50)
       this.cy?.resize()
     })
   }
@@ -168,12 +169,20 @@ class RegulationsEditor extends LitElement {
 
     this.cy?.ready(() => {
       this.cy?.center()
-      this.cy?.fit()
+      this.cy?.fit(undefined, 50)
       this.cy?.resize()
     })
   }
 
-  _renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
+  pan (event: Event): void {
+    const tabCount = (event as CustomEvent).detail.tabCount
+    if (tabCount === this.lastTabCount) return
+    const toLeft = this.lastTabCount < tabCount
+    this.lastTabCount = tabCount
+    this.cy?.panBy({ x: (toLeft ? -1 : 1) * (this.cy?.width() / (tabCount * 2)), y: 0 })
+  }
+
+  renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
     if (node === undefined) {
       node = this.cy?.nodes(':selected').first()
       if (node === undefined || node.length === 0) return // nothing selected
@@ -183,7 +192,7 @@ class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.NODE, position, zoom, node.data())
   }
 
-  _renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
+  renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
     if (edge === undefined) {
       edge = this.cy?.edges(':selected').first()
       if (edge === undefined || edge.length === 0) return // nothing selected

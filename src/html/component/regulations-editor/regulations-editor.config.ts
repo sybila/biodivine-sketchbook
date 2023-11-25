@@ -51,7 +51,7 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
       refresh: 20,
       fit: true,
       name: 'cose',
-      padding: 250,
+      padding: 100,
       nodeRepulsion: () => 100000,
       nodeDimensionsIncludeLabels: true
     },
