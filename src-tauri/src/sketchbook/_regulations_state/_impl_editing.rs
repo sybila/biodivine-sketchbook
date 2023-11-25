@@ -190,23 +190,13 @@ impl RegulationsState {
 
 /// Several utility methods to manipulate with layouts.
 impl RegulationsState {
-    /// Add a new empty `Layout` with given `layout_id` and `name` to this `RegulationsState`.
-    ///
-    /// Returns `Err` if `layout_id` is already being used for some other `Layout` in
-    /// this `RegulationsState`.
-    fn add_empty_layout(&mut self, layout_id: LayoutId, name: &str) -> Result<(), String> {
-        self.assert_no_layout(&layout_id)?;
-        self.layouts.insert(layout_id, Layout::new(name));
-        Ok(())
-    }
-
     /// Add a new `Layout` with given `layout_id` and `name` to this `RegulationsState`. The layout
-    /// will contain nodes for same variables as layout `template_layout_id`, but all of them at a
-    /// default position.
+    /// will contain nodes for the same variables as layout `template_layout_id`, but all of them
+    /// located at a default position.
     ///
     /// Returns `Err` if `layout_id` is already being used for some other `Layout` in
     /// this `RegulationsState`, or if `template_layout_id` does not exist.
-    pub fn add_layout_from_vars(
+    pub fn add_layout_simple(
         &mut self,
         layout_id: LayoutId,
         name: &str,
@@ -267,7 +257,7 @@ impl RegulationsState {
     /// Update position of a node for variable `var_id` in layout `layout_id`.
     ///
     /// Returns `Err` in case one of the ids is not a valid for this `RegulationsState`.
-    fn update_node_position(
+    pub fn update_node_position(
         &mut self,
         layout_id: &LayoutId,
         var_id: &VarId,
@@ -308,21 +298,6 @@ impl RegulationsState {
             layout.add_default_node(var_id.clone())?;
         }
         Ok(())
-    }
-
-    /// **(internal)** Utility method to remove a variable node from a given layout.
-    fn remove_from_layout(&mut self, var_id: &VarId, layout_id: &LayoutId) -> Result<(), String> {
-        self.assert_valid_variable(var_id)?;
-        self.assert_valid_layout(layout_id)?;
-
-        let layout = self.layouts.get_mut(layout_id).unwrap();
-        layout.remove_node(var_id)
-    }
-
-    /// **(internal)** Utility method to remove a variable node from a default layout.
-    fn remove_from_default_layout(&mut self, var_id: &VarId) -> Result<(), String> {
-        let default_layout_id = RegulationsState::get_default_layout_id();
-        self.remove_from_layout(var_id, &default_layout_id)
     }
 
     /// **(internal)** Utility method to remove a variable node from all layouts.
@@ -499,7 +474,7 @@ mod tests {
         // add layouts (one as vars with default nodes, and other as direct copy)
         let new_id_1 = reg_state.generate_layout_id("new_layout");
         reg_state
-            .add_layout_from_vars(new_id_1.clone(), "new_layout", &default_layout_id)
+            .add_layout_simple(new_id_1.clone(), "new_layout", &default_layout_id)
             .unwrap();
         let position = reg_state.get_node_position(&new_id_1, &var_id).unwrap();
         assert_eq!(position, &NodePosition(0., 0.));
