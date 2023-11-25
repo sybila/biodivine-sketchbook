@@ -48,7 +48,7 @@ class RootComponent extends LitElement {
     const updatedTabs = this.tabs.slice()
     updatedTabs[tabIndex] = updatedTabs[tabIndex].copy({ pinned: e.type === 'pin-tab' })
     this.tabs = updatedTabs
-    this.adjustRegEgitor()
+    this.adjustRegEditor()
     this.saveTabs()
   }
 
@@ -60,12 +60,12 @@ class RootComponent extends LitElement {
         active: tab.id === tabId
       })
     )
-    this.adjustRegEgitor()
+    this.adjustRegEditor()
     this.requestUpdate()
     this.saveTabs()
   }
 
-  private adjustRegEgitor (): void {
+  private adjustRegEditor (): void {
     this.shadowRoot?.querySelector('content-pane')
       ?.shadowRoot?.querySelector('regulations-editor')
       ?.dispatchEvent(new CustomEvent('adjust-graph', {

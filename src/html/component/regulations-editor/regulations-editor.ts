@@ -8,6 +8,7 @@ import dblclick from 'cytoscape-dblclick'
 import './node-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, Monotonicity } from './element-type'
+import { dialog } from '@tauri-apps/api'
 
 const SAVE_NODES = 'nodes'
 const SAVE_EDGES = 'edges'
@@ -40,8 +41,10 @@ class RegulationsEditor extends LitElement {
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
     this.addEventListener('update-edge', this.updateEdge)
-    this.addEventListener('remove-element', this.removeElement)
     this.addEventListener('adjust-graph', this.pan)
+    this.addEventListener('add-edge', this.addEdge)
+    this.addEventListener('mousemove', this.hoverFix)
+    this.addEventListener('remove-element', (e) => { void (async () => { await this.removeElement(e) })() })
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -50,19 +53,25 @@ class RegulationsEditor extends LitElement {
   render (): TemplateResult {
     return html`
         <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset (debug)</button>
-        <button @click=${this.pan} class="uk-button uk-button-secondary uk-button-small uk-margin-medium-top uk-position-absolute uk-position-z-index-high">add edge</button>
         ${this.editorElement}
         <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
     `
   }
 
-  toggleDraw (): void {
-    if (this.drawMode) {
-      this.edgeHandles?.disableDrawMode()
-    } else {
-      this.edgeHandles?.enableDrawMode()
-    }
-    this.drawMode = !this.drawMode
+  hoverFix (): void {
+    // TODO
+  }
+
+  addEdge (event: Event): void {
+    this.cy?.nodes().deselect()
+    this.toggleMenu(ElementType.NONE)
+    const nodeID = (event as CustomEvent).detail.id
+
+    // start attribute wrongly typed - added weird typecast to avoid tslint error
+    this.edgeHandles?.start((this.cy?.nodes(`#${nodeID}`) as unknown as string))
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    this.cy.renderer().hoverData.capture = true
   }
 
   firstUpdated (): void {
@@ -84,22 +93,14 @@ class RegulationsEditor extends LitElement {
       this.renderMenuForSelectedNode()
       this.renderMenuForSelectedEdge()
     })
-    this.cy.on('dblclick ', (e) => {
+    this.cy.on('dblclick', (e) => {
+      if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
       const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
       this.addNode(name, name, e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {
       e.target.addClass('hover')
     })
-    // this.addEventListener('mousemove', () => {
-    //   this.cy?.forceRender()
-    // })
-
-    // this.cy.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
-    //   const { position } = event
-    //
-    //   // edge complete handler
-    // })
 
     this.cy.on('mouseover', 'node', (e) => {
       e.target.addClass('hover')
@@ -147,9 +148,8 @@ class RegulationsEditor extends LitElement {
       // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
     })
 
-    this.cy.on('ehcomplete ', () => {
-      this.edgeHandles?.disableDrawMode()
-      this.toggleDraw()
+    this.cy.on('mousemove', (e) => {
+      console.log(e)
     })
 
     this.cy.ready(() => {
@@ -254,10 +254,14 @@ class RegulationsEditor extends LitElement {
     this.menuData = this.cy?.$id(e.detail.edgeId).data()
   }
 
-  removeElement (event: Event): void {
-    const e = (event as CustomEvent)
-    console.log(e)
-    this.cy?.$id(e.detail.id).remove()
+  async removeElement (event: Event): Promise<void> {
+    if (!await dialog.confirm('Are you sure?', {
+      type: 'warning',
+      okLabel: 'Delete',
+      cancelLabel: 'Keep',
+      title: 'Delete'
+    })) return
+    this.cy?.$id((event as CustomEvent).detail.id).remove()
     this.toggleMenu(ElementType.NONE)
   }
 
