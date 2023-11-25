@@ -4,7 +4,7 @@ use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
 /// **(internal)** A regex string of an identifier which we currently allow to appear.
-const ID_REGEX_STR: &str = r"^[a-zA-Z0-9_]+$";
+const ID_REGEX_STR: &str = r"^[a-zA-Z_][a-zA-Z0-9_]*$";
 
 lazy_static! {
     /// A regular expression that matches the identifiers allowed.
@@ -14,7 +14,7 @@ lazy_static! {
 impl Identifier {
     /// Construct new instances of `Identifier`s.
     ///
-    /// Returns `Err` if the identifier does not match the ID regex: `[a-zA-Z0-9_]+`.
+    /// Returns `Err` if the identifier is not a valid C-like identifier.
     pub(crate) fn new(identifier: &str) -> Result<Identifier, String> {
         if Self::is_valid_identifier(identifier) {
             Ok(Self {

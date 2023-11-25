@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Layout, LayoutId, Monotonicity, Regulation, RegulationsState, VarId, Variable,
+    Layout, LayoutId, RegulationSign, Regulation, RegulationsState, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -78,7 +78,7 @@ impl RegulationsState {
         regulator: VarId,
         target: VarId,
         observable: bool,
-        monotonicity: Option<Monotonicity>,
+        regulation_sign: RegulationSign,
     ) -> Result<(), String> {
         self.assert_valid_variable(&regulator)?;
         self.assert_valid_variable(&target)?;
@@ -87,7 +87,7 @@ impl RegulationsState {
             regulator,
             target,
             observable,
-            monotonicity,
+            regulation_sign,
         });
         Ok(())
     }
@@ -98,10 +98,10 @@ impl RegulationsState {
     /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
     /// are not valid variable IDs, or when the regulation between the two variables already exists.
     pub fn add_regulation_by_str(&mut self, regulation_str: &str) -> Result<(), String> {
-        let (reg, monotonicity, observable, tar) = Regulation::try_from_string(regulation_str)?;
+        let (reg, regulation_sign, observable, tar) = Regulation::try_from_string(regulation_str)?;
         let regulator = VarId::new(reg.as_str())?;
         let target = VarId::new(tar.as_str())?;
-        self.add_regulation(regulator, target, observable, monotonicity)
+        self.add_regulation(regulator, target, observable, regulation_sign)
     }
 
     /// Set the name of a network variable given by id `var_id`.

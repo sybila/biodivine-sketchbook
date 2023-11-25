@@ -1,4 +1,4 @@
-use crate::sketchbook::{Monotonicity, Regulation, VarId};
+use crate::sketchbook::{RegulationSign, Regulation, VarId};
 use std::fmt::{Display, Error, Formatter};
 
 use regex::Regex;
@@ -6,11 +6,11 @@ use regex::Regex;
 /// **(internal)** A regex string of an identifier which we currently allow to appear.
 /// This regex does not enforce beginning/ending as it is used inside of larger regulation
 /// regex.
-const ID_REGEX_STR: &str = r"[a-zA-Z0-9_]+";
+const ID_REGEX_STR: &str = r"[a-zA-Z_][a-zA-Z0-9_]*";
 
-/// **(internal)** Regex which matches the regulation arrow string with `monotonicity`
+/// **(internal)** Regex which matches the regulation arrow string with `regulation_sign`
 /// and `observable` groups.
-const REGULATION_ARROW_REGEX_STR: &str = r"-(?P<monotonicity>[|>?])(?P<observable>\??)";
+const REGULATION_ARROW_REGEX_STR: &str = r"-(?P<regulation_sign>[|>?D])(?P<observable>\??)";
 
 lazy_static! {
     /// **(internal)** A regex which reads one line specifying a regulation.
@@ -31,23 +31,24 @@ impl Regulation {
     /// in the standard format.
     ///
     /// The returned data correspond to the items as they appear in the string, i.e. `regulator`,
-    /// `monotonicity`, `observability` and `target`. If the string is not valid, returns `None`.
+    /// `regulation_sign`, `observability` and `target`. If the string is not valid, returns `None`.
     pub fn try_from_string(
         regulation: &str,
-    ) -> Result<(String, Option<Monotonicity>, bool, String), String> {
+    ) -> Result<(String, RegulationSign, bool, String), String> {
         REGULATION_REGEX
             .captures(regulation.trim())
             .map(|captures| {
-                let monotonicity = match &captures["monotonicity"] {
-                    "?" => None,
-                    "|" => Some(Monotonicity::Inhibition),
-                    ">" => Some(Monotonicity::Activation),
+                let regulation_sign = match &captures["regulation_sign"] {
+                    "|" => RegulationSign::Inhibition,
+                    ">" => RegulationSign::Activation,
+                    "D" => RegulationSign::Dual,
+                    "?" => RegulationSign::Unknown,
                     _ => unreachable!("Nothing else matches this group."),
                 };
                 let observable = captures["observable"].is_empty();
                 (
                     captures["regulator"].to_string(),
-                    monotonicity,
+                    regulation_sign,
                     observable,
                     captures["target"].to_string(),
                 )
@@ -63,9 +64,9 @@ impl Regulation {
         self.observable
     }
 
-    /// Return monotonicity of the regulation (if specified).
-    pub fn get_monotonicity(&self) -> Option<Monotonicity> {
-        self.monotonicity
+    /// Return the sign of the regulation.
+    pub fn get_sign(&self) -> RegulationSign {
+        self.regulation_sign
     }
 
     /// Get the `VarId` of the regulator.
@@ -81,59 +82,64 @@ impl Regulation {
 
 impl Display for Regulation {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        let monotonicity = match self.get_monotonicity() {
-            None => "?",
-            Some(Monotonicity::Activation) => ">",
-            Some(Monotonicity::Inhibition) => "|",
+        let regulation_sign = match self.get_sign() {
+            RegulationSign::Unknown => "?",
+            RegulationSign::Activation => ">",
+            RegulationSign::Inhibition => "|",
+            RegulationSign::Dual => "D",
         };
         let observability = if self.is_observable() { "" } else { "?" };
 
         write!(
             f,
             "{} -{}{} {}",
-            self.regulator, monotonicity, observability, self.target
+            self.regulator, regulation_sign, observability, self.target
         )
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{Monotonicity, Regulation, VarId};
+    use crate::sketchbook::{RegulationSign, Regulation, VarId};
 
     #[test]
     fn regulation_conversion() {
         let regulation_strings = vec![
-            "a -?? b", "b -? c", "c ->? d", "d -> e", "e -|? f", "f -| g",
+            "a -?? b", "b -? c", "c ->? d", "d -> e", "e -|? f", "f -| g", "g -D? h", "h -D i",
         ];
 
-        let regulators = vec!["a", "b", "c", "d", "e", "f"];
-        let targets = vec!["b", "c", "d", "e", "f", "g"];
-        let observability = vec![false, true, false, true, false, true];
-        let monotonicity = vec![
-            None,
-            None,
-            Some(Monotonicity::Activation),
-            Some(Monotonicity::Activation),
-            Some(Monotonicity::Inhibition),
-            Some(Monotonicity::Inhibition),
+        let regulators = vec!["a", "b", "c", "d", "e", "f", "g", "h"];
+        let targets = vec!["b", "c", "d", "e", "f", "g", "h", "i"];
+        let observability = vec![false, true, false, true, false, true, false, true];
+        let regulation_sign = vec![
+            RegulationSign::Unknown,
+            RegulationSign::Unknown,
+            RegulationSign::Activation,
+            RegulationSign::Activation,
+            RegulationSign::Inhibition,
+            RegulationSign::Inhibition,
+            RegulationSign::Dual,
+            RegulationSign::Dual,
         ];
 
         for i in 0..regulation_strings.len() {
-            let (r, m, o, t) = Regulation::try_from_string(regulation_strings[i.clone()]).unwrap();
+            let (r, s, o, t) = Regulation::try_from_string(regulation_strings[i.clone()]).unwrap();
             assert_eq!(&r, regulators[i.clone()]);
             assert_eq!(&t, targets[i.clone()]);
-            assert_eq!(m, monotonicity[i.clone()]);
+            assert_eq!(s, regulation_sign[i.clone()]);
             assert_eq!(o, observability[i.clone()]);
 
             let regulation = Regulation {
                 regulator: VarId::new(r.as_str()).unwrap(),
                 target: VarId::new(t.as_str()).unwrap(),
                 observable: o,
-                monotonicity: m,
+                regulation_sign: s,
             };
             assert_eq!(regulation.to_string().as_str(), regulation_strings[i]);
         }
 
         assert!(Regulation::try_from_string("a --> b").is_err());
+        assert!(Regulation::try_from_string("-a -> b").is_err());
+        assert!(Regulation::try_from_string("a - b").is_err());
     }
 }

@@ -7,7 +7,7 @@ impl Variable {
         Variable {
             name: name_str.to_string(),
         }
-        // todo: perform some check on the name string?
+        // todo: perform some check on the name string - at least disallow newlines
     }
 
     /// Human-readable name of this variable.

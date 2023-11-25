@@ -17,7 +17,7 @@ mod _impl_var_id;
 mod _impl_variable;
 
 /// A type-safe identifier that can be used for IDs of various objects, such as of variables
-/// (see `VarId`) or layouts (see `LayoutId`).
+/// (see `VarId`) or layouts (see `LayoutId`). Corresponds to a C-like identifier, or SBML's SId.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Identifier {
     id: String,
@@ -40,12 +40,15 @@ pub struct Variable {
     name: String,
 }
 
-/// Possible monotonous effects of a `Regulation`.
-/// Activation means positive and inhibition means negative monotonicity.
+/// Possible variants of (non)-monotonous effects of a `Regulation`.
+/// `Activation` means positive and `Inhibition` means negative monotonicity, `Dual` means both
+/// positive and negative effect, `Unknown` for unknown effect.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum Monotonicity {
+pub enum RegulationSign {
     Activation,
     Inhibition,
+    Dual,
+    Unknown,
 }
 
 /// Describes an interaction between two variables, `regulator` and `target`.
@@ -60,15 +63,16 @@ pub enum Monotonicity {
 /// Regulations can be represented as strings in the
 /// form `"regulator_name 'relationship' target_name"`. The 'relationship' starts with `-`, which
 /// is followed by `>` for activation (positive monotonicity), `|` for inhibition (negative
-/// monotonicity) or `?` for unspecified monotonicity. Finally, an additional `?` at the end
-/// of 'relationship' signifies a non-observable regulation. Together, this gives the
-/// following options:  `->, ->?, -|, -|?, -?, -??`.
+/// monotonicity), `D` for dual effect (non-monotonic) or `?` for unspecified monotonicity.
+/// Finally, an additional `?` at the end of 'relationship' signifies a non-observable
+/// (non-essential) regulation.
+/// Together, this gives the following options:  `->, ->?, -|, -|?, -D, -D?, -?, -??`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Regulation {
     regulator: VarId,
     target: VarId,
     observable: bool,
-    monotonicity: Option<Monotonicity>,
+    regulation_sign: RegulationSign,
 }
 
 /// Object representing the state of the Regulations editor.

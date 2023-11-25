@@ -193,7 +193,7 @@ mod tests {
         // To string
         let reg_state_string = reg_state.to_string();
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"observable\":true,\"monotonicity\":\"Activation\"}],\"layouts\":{\"default_layout\":{\"name\":\"default_layout\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"observable\":true,\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default_layout\":{\"name\":\"default_layout\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
             reg_state_string
         );
 

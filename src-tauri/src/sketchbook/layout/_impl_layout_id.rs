@@ -6,7 +6,7 @@ use std::str::FromStr;
 impl LayoutId {
     /// Construct new instances of `LayoutId`s from string.
     ///
-    /// Returns `Err` if the string is not an identifier (it must match `[a-zA-Z0-9_]+`).
+    /// Returns `Err` if the string is not a valid identifier (it must be a C-like identifier).
     ///
     /// This does not ensure that the generated ID is unique and usable for given context.
     /// Parent classes (like `RegulationsState`) allow to generate unique `VarIds` safely.

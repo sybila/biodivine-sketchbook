@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 package-lock.json
+Cargo.lock
 
 # Editor directories and files
 .vscode/*
@@ -24,5 +25,3 @@ package-lock.json
 *.njsproj
 *.sln
 *.sw?
-
-src-tauri/Cargo.lock
