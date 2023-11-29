@@ -25,14 +25,23 @@ class NodeMenu extends LitElement {
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
   @property() zoom = 1.0
-  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity } | undefined
+  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity, name: string } | undefined
   @state() selectedButton: IButton | undefined = undefined
 
   nodeButtons: IButton[] = [
     {
       icon: () => icon(faPen).node[0],
       label: () => 'Edit name (E)',
-      click: () => {}
+      click: () => {
+        this.dispatchEvent(new CustomEvent('rename-node', {
+          detail: {
+            id: this.data?.id,
+            name: this.data?.name
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
     },
     {
       icon: () => icon(faPlus).node[0],

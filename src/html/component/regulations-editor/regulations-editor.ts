@@ -9,6 +9,8 @@ import './node-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, Monotonicity } from './element-type'
 import { dialog } from '@tauri-apps/api'
+import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
+import { type Event as TauriEvent } from '@tauri-apps/api/event'
 
 const SAVE_NODES = 'nodes'
 const SAVE_EDGES = 'edges'
@@ -41,10 +43,11 @@ class RegulationsEditor extends LitElement {
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
     this.addEventListener('update-edge', this.updateEdge)
-    this.addEventListener('adjust-graph', this.pan)
+    this.addEventListener('adjust-graph', this.adjustPan)
     this.addEventListener('add-edge', this.addEdge)
     this.addEventListener('mousemove', this.hoverFix)
     this.addEventListener('remove-element', (e) => { void (async () => { await this.removeElement(e) })() })
+    this.addEventListener('rename-node', (e) => { void (async () => { await this.renameNode(e) })() })
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -148,9 +151,9 @@ class RegulationsEditor extends LitElement {
       // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
     })
 
-    this.cy.on('mousemove', (e) => {
-      console.log(e)
-    })
+    // this.cy.on('mousemove', (e) => {
+    //   console.log(e)
+    // })
 
     this.cy.ready(() => {
       this.cy?.center()
@@ -174,7 +177,52 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  pan (event: Event): void {
+  async renameNode (event: Event): Promise<void> {
+    this.toggleMenu(ElementType.NONE)
+    const nodeId = (event as CustomEvent).detail.id
+    const nodeName = (event as CustomEvent).detail.name
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    const webview = new WebviewWindow('renameDialog', {
+      url: 'src/html/component/rename-dialog/rename-dialog.html',
+      title: 'Edit node',
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      height: 200,
+      width: 400,
+      x: pos.x + size.width / 2 - 200,
+      y: pos.y + size.height / 2 - 100
+    })
+    await webview.once('window_loaded', () => {
+      void (async () => {
+        await webview.emit('edit_node_update', {
+          id: nodeId,
+          name: nodeName
+        })
+      })
+    })
+    await webview.listen('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+      // avoid overwriting existing nodes
+      if (nodeId !== event.payload.id && this.cy?.$id(event.payload.id) !== undefined) return
+      const node = this.cy?.$id(nodeId)
+      if (node === undefined) return
+      const position = node.position()
+      const edges = this._edges.filter((edge) => edge.source === nodeId || edge.target === nodeId)
+      node.remove()
+      this.addNode(event.payload.id, event.payload.name, position)
+      edges.forEach((edge) => {
+        if (edge.source === nodeId) {
+          this.ensureRegulation({ ...edge, source: event.payload.id })
+        } else {
+          this.ensureRegulation({ ...edge, target: event.payload.id })
+        }
+      })
+    })
+  }
+
+  adjustPan (event: Event): void {
     const tabCount = (event as CustomEvent).detail.tabCount
     if (tabCount === this.lastTabCount) return
     const toLeft = this.lastTabCount < tabCount
@@ -255,7 +303,7 @@ class RegulationsEditor extends LitElement {
   }
 
   async removeElement (event: Event): Promise<void> {
-    if (!await dialog.confirm('Are you sure?', {
+    if (!await dialog.ask('Are you sure?', {
       type: 'warning',
       okLabel: 'Delete',
       cancelLabel: 'Keep',
