@@ -171,7 +171,7 @@ class NodeMenu extends LitElement {
         <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
                                        top: ${this.position.y + 58 + yOffset}px; 
                                        transform: scale(${this.zoom})">
-            <div class="button-row uk-flex uk-flex-row">
+            <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
                 ${map(buttons, (buttonData) => {
                   const icon = buttonData.icon()
                     icon.classList.add('menu-icon')
