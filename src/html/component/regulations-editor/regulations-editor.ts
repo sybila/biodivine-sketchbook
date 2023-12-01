@@ -11,6 +11,7 @@ import { ElementType, Monotonicity } from './element-type'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
+import UIkit from 'uikit'
 
 const SAVE_NODES = 'nodes'
 const SAVE_EDGES = 'edges'
@@ -203,9 +204,12 @@ class RegulationsEditor extends LitElement {
         })
       })
     })
-    await webview.listen('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+    await webview.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
       // avoid overwriting existing nodes
-      if (nodeId !== event.payload.id && this.cy?.$id(event.payload.id) !== undefined) return
+      if (nodeId !== event.payload.id && (this.cy?.$id(event.payload.id) !== undefined && this.cy?.$id(event.payload.id).length > 0)) {
+        UIkit.notification(`Node with id '${event.payload.id}' already exists!`)
+        return
+      }
       const node = this.cy?.$id(nodeId)
       if (node === undefined) return
       const position = node.position()

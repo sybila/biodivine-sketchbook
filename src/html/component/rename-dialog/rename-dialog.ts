@@ -21,7 +21,22 @@ class RenameDialog extends LitElement {
     })
   }
 
-  private async sendToParent (): Promise<void> {
+  private async handleSubmit (event: Event): Promise<void> {
+    event.preventDefault()
+    if (this.nodeId === '' || this.name === '') {
+      this.nameField?.classList.remove('uk-form-danger')
+      this.nodeIdField?.classList.remove('uk-form-danger')
+      if (this.nodeId === '') {
+        this.nodeIdField?.classList.add('uk-form-danger')
+        console.log('id empty')
+      }
+      if (this.name === '') {
+        this.nameField?.classList.add('uk-form-danger')
+        console.log('name empty')
+      }
+
+      return
+    }
     await emit('edit_node_dialog', {
       id: this.nodeId,
       name: this.name
@@ -39,12 +54,24 @@ class RenameDialog extends LitElement {
 
   render (): TemplateResult {
     return html`
-        <div class="uk-flex uk-flex-column">
-            <div class="uk-h2">Edit node</div>
-            <input class="uk-input" @input="${this.handleIdUpdate}" id="nodeID" type="text" placeholder="ID" value="" />
-            <input class="uk-input" @input="${this.handleNameUpdate}" id="name" type="text" placeholder="Name" value="" />
-            <button class="uk-button" @click="${this.sendToParent}">Submit</button>
-        </div>
+            <form class="uk-form-horizontal">
+<!--                <div class="uk-h2">Edit node</div>-->
+                <div class="uk-margin-small">
+                    <label class="uk-form-label" for="form-horizontal-text">Node ID</label>
+                    <div class="uk-form-controls">
+                        <input class="uk-input" @input="${this.handleIdUpdate}" id="nodeID" type="text" placeholder="ID" value="" />
+                    </div>
+                </div>
+                <div class="uk-margin-small">
+                    <label class="uk-form-label" for="form-horizontal-text">Node Name</label>
+                    <div class="uk-flex uk-flex-row">
+                        <input class="uk-input" @input="${this.handleNameUpdate}" id="name" type="text" placeholder="Name" value="" />
+                    </div>
+                </div>
+                
+            
+            <button class="uk-button uk-width-1-1" @click="${this.handleSubmit}">Submit</button>
+            </form>
     `
   }
 }
