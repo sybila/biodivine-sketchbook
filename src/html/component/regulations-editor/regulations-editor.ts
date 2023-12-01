@@ -8,6 +8,10 @@ import dblclick from 'cytoscape-dblclick'
 import './node-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, Monotonicity } from './element-type'
+import { dialog } from '@tauri-apps/api'
+import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
+import { type Event as TauriEvent } from '@tauri-apps/api/event'
+import UIkit from 'uikit'
 
 const SAVE_NODES = 'nodes'
 const SAVE_EDGES = 'edges'
@@ -25,7 +29,7 @@ class RegulationsEditor extends LitElement {
   editorElement
   cy: Core | undefined
   edgeHandles: EdgeHandlesInstance | undefined
-  _lastClickTimestamp
+  lastTabCount = 1
   @state() _nodes: INodeData[] = []
   @state() _edges: IEdgeData[] = []
   @state() menuType = ElementType.NONE
@@ -40,29 +44,38 @@ class RegulationsEditor extends LitElement {
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
     this.addEventListener('update-edge', this.updateEdge)
-    this.addEventListener('remove-element', this.removeElement)
+    this.addEventListener('adjust-graph', this.adjustPan)
+    this.addEventListener('add-edge', this.addEdge)
+    this.addEventListener('mousemove', this.hoverFix)
+    this.addEventListener('remove-element', (e) => { void (async () => { await this.removeElement(e) })() })
+    this.addEventListener('rename-node', (e) => { void (async () => { await this.renameNode(e) })() })
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
-    this._lastClickTimestamp = 0
   }
 
   render (): TemplateResult {
     return html`
         <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset (debug)</button>
-        <button @click=${this.toggleDraw} class="uk-button uk-button-secondary uk-button-small uk-margin-medium-top uk-position-absolute uk-position-z-index-high">add edge</button>
         ${this.editorElement}
         <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
     `
   }
 
-  toggleDraw (): void {
-    if (this.drawMode) {
-      this.edgeHandles?.disableDrawMode()
-    } else {
-      this.edgeHandles?.enableDrawMode()
-    }
-    this.drawMode = !this.drawMode
+  hoverFix (): void {
+    // TODO
+  }
+
+  addEdge (event: Event): void {
+    this.cy?.nodes().deselect()
+    this.toggleMenu(ElementType.NONE)
+    const nodeID = (event as CustomEvent).detail.id
+
+    // start attribute wrongly typed - added weird typecast to avoid tslint error
+    this.edgeHandles?.start((this.cy?.nodes(`#${nodeID}`) as unknown as string))
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    this.cy.renderer().hoverData.capture = true
   }
 
   firstUpdated (): void {
@@ -77,29 +90,21 @@ class RegulationsEditor extends LitElement {
     this.cy.on('add remove position', this.saveState)
 
     this.cy.on('zoom', () => {
-      this._renderMenuForSelectedNode()
-      this._renderMenuForSelectedEdge()
+      this.renderMenuForSelectedNode()
+      this.renderMenuForSelectedEdge()
     })
     this.cy.on('pan', () => {
-      this._renderMenuForSelectedNode()
-      this._renderMenuForSelectedEdge()
+      this.renderMenuForSelectedNode()
+      this.renderMenuForSelectedEdge()
     })
-    this.cy.on('dblclick ', (e) => {
+    this.cy.on('dblclick', (e) => {
+      if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
       const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
       this.addNode(name, name, e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {
       e.target.addClass('hover')
     })
-    // this.addEventListener('mousemove', () => {
-    //   this.cy?.forceRender()
-    // })
-
-    // this.cy.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
-    //   const { position } = event
-    //
-    //   // edge complete handler
-    // })
 
     this.cy.on('mouseover', 'node', (e) => {
       e.target.addClass('hover')
@@ -117,7 +122,7 @@ class RegulationsEditor extends LitElement {
       //     selected.unselect()
       //   }
       // })
-      this._renderMenuForSelectedNode(e.target)
+      this.renderMenuForSelectedNode(e.target)
       // this._modelEditor.selectVariable(id, true)
     })
     this.cy.on('unselect', 'node', () => {
@@ -128,12 +133,12 @@ class RegulationsEditor extends LitElement {
     //   this._lastClickTimestamp = 0 // ensure that we cannot double-click inside the node
     // })
     this.cy.on('drag', (e) => {
-      if ((e.target as NodeSingular).selected()) this._renderMenuForSelectedNode(e.target)
-      this._renderMenuForSelectedEdge()
+      if ((e.target as NodeSingular).selected()) this.renderMenuForSelectedNode(e.target)
+      this.renderMenuForSelectedEdge()
     })
 
     this.cy.on('select', 'edge', (e) => {
-      this._renderMenuForSelectedEdge(e.target)
+      this.renderMenuForSelectedEdge(e.target)
     })
     this.cy.on('unselect', 'edge', () => {
       this.toggleMenu(ElementType.NONE) // hide menu
@@ -147,13 +152,13 @@ class RegulationsEditor extends LitElement {
       // ModelEditor.hoverRegulation(edge.data().source, edge.data().target, false);
     })
 
-    this.cy.on('ehcomplete ', () => {
-      this.edgeHandles?.disableDrawMode()
-    })
+    // this.cy.on('mousemove', (e) => {
+    //   console.log(e)
+    // })
 
     this.cy.ready(() => {
       this.cy?.center()
-      this.cy?.fit()
+      this.cy?.fit(undefined, 50)
       this.cy?.resize()
     })
   }
@@ -168,12 +173,68 @@ class RegulationsEditor extends LitElement {
 
     this.cy?.ready(() => {
       this.cy?.center()
-      this.cy?.fit()
+      this.cy?.fit(undefined, 50)
       this.cy?.resize()
     })
   }
 
-  _renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
+  async renameNode (event: Event): Promise<void> {
+    this.toggleMenu(ElementType.NONE)
+    const nodeId = (event as CustomEvent).detail.id
+    const nodeName = (event as CustomEvent).detail.name
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    const webview = new WebviewWindow('renameDialog', {
+      url: 'src/html/component/rename-dialog/rename-dialog.html',
+      title: 'Edit node',
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      height: 200,
+      width: 400,
+      x: pos.x + size.width / 2 - 200,
+      y: pos.y + size.height / 2 - 100
+    })
+    await webview.once('window_loaded', () => {
+      void (async () => {
+        await webview.emit('edit_node_update', {
+          id: nodeId,
+          name: nodeName
+        })
+      })
+    })
+    await webview.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+      // avoid overwriting existing nodes
+      if (nodeId !== event.payload.id && (this.cy?.$id(event.payload.id) !== undefined && this.cy?.$id(event.payload.id).length > 0)) {
+        UIkit.notification(`Node with id '${event.payload.id}' already exists!`)
+        return
+      }
+      const node = this.cy?.$id(nodeId)
+      if (node === undefined) return
+      const position = node.position()
+      const edges = this._edges.filter((edge) => edge.source === nodeId || edge.target === nodeId)
+      node.remove()
+      this.addNode(event.payload.id, event.payload.name, position)
+      edges.forEach((edge) => {
+        if (edge.source === nodeId) {
+          this.ensureRegulation({ ...edge, source: event.payload.id })
+        } else {
+          this.ensureRegulation({ ...edge, target: event.payload.id })
+        }
+      })
+    })
+  }
+
+  adjustPan (event: Event): void {
+    const tabCount = (event as CustomEvent).detail.tabCount
+    if (tabCount === this.lastTabCount) return
+    const toLeft = this.lastTabCount < tabCount
+    this.lastTabCount = tabCount
+    this.cy?.panBy({ x: (toLeft ? -1 : 1) * (this.cy?.width() / (tabCount * 2)), y: 0 })
+  }
+
+  renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
     if (node === undefined) {
       node = this.cy?.nodes(':selected').first()
       if (node === undefined || node.length === 0) return // nothing selected
@@ -183,7 +244,7 @@ class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.NODE, position, zoom, node.data())
   }
 
-  _renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
+  renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
     if (edge === undefined) {
       edge = this.cy?.edges(':selected').first()
       if (edge === undefined || edge.length === 0) return // nothing selected
@@ -245,10 +306,14 @@ class RegulationsEditor extends LitElement {
     this.menuData = this.cy?.$id(e.detail.edgeId).data()
   }
 
-  removeElement (event: Event): void {
-    const e = (event as CustomEvent)
-    console.log(e)
-    this.cy?.$id(e.detail.id).remove()
+  async removeElement (event: Event): Promise<void> {
+    if (!await dialog.ask('Are you sure?', {
+      type: 'warning',
+      okLabel: 'Delete',
+      cancelLabel: 'Keep',
+      title: 'Delete'
+    })) return
+    this.cy?.$id((event as CustomEvent).detail.id).remove()
     this.toggleMenu(ElementType.NONE)
   }
 
