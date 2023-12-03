@@ -104,6 +104,17 @@ impl RegulationsState {
             .ok_or(format!("Layout with ID {id} does not exist."))
     }
 
+    /// Return a valid layout's `LayoutId` corresponding to the Id given by a `String`.
+    ///
+    /// Return `Err` if such variable does not exist (and the ID is invalid).
+    pub fn get_layout_id(&self, id: &str) -> Result<LayoutId, String> {
+        let layout_id = LayoutId::from_str(id)?;
+        if self.is_valid_layout_id(&layout_id) {
+            return Ok(layout_id);
+        }
+        Err(format!("Layout with ID {id} does not exist."))
+    }
+
     /// Shorthand for getting a string name of a layout.
     pub fn get_layout_name(&self, id: &LayoutId) -> Result<&String, String> {
         Ok(self.get_layout(id)?.get_layout_name())

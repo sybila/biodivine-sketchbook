@@ -61,7 +61,7 @@ pub struct Regulation {
     regulation_sign: RegulationSign,
 }
 
-/// Serialization utility methods.
+/// Methods for safely generating new `Regulations`.
 impl Regulation {
     pub fn new(
         regulator: VarId,
@@ -77,16 +77,30 @@ impl Regulation {
         }
     }
 
+    /// Try to read the regulation from a given string in the standard format.
+    /// Returns error if the string is invalid.
+    pub fn try_from_string(regulation_str: &str) -> Result<Regulation, String> {
+        let (regulator, regulation_sign, observable, target) =
+            Regulation::try_components_from_string(regulation_str)?;
+
+        Ok(Regulation {
+            regulator: VarId::new(regulator.as_str())?,
+            target: VarId::new(target.as_str())?,
+            regulation_sign,
+            observable,
+        })
+    }
+
     /// Try to read all available information about a regulation from a given string
     /// in the standard format.
     ///
     /// The returned data correspond to the items as they appear in the string, i.e. `regulator`,
     /// `regulation_sign`, `observability` and `target`. If the string is not valid, returns `None`.
-    pub fn try_from_string(
-        regulation: &str,
+    pub fn try_components_from_string(
+        regulation_str: &str,
     ) -> Result<(String, RegulationSign, bool, String), String> {
         REGULATION_REGEX
-            .captures(regulation.trim())
+            .captures(regulation_str.trim())
             .map(|captures| {
                 let regulation_sign = match &captures["regulation_sign"] {
                     "|" => RegulationSign::Inhibition,
@@ -103,7 +117,7 @@ impl Regulation {
                     captures["target"].to_string(),
                 )
             })
-            .ok_or(format!("Regulation string is invalid: {regulation}"))
+            .ok_or(format!("Regulation string is invalid: {regulation_str}"))
     }
 }
 
@@ -130,6 +144,29 @@ impl Regulation {
     }
 }
 
+/// Methods for editing `Regulations`.
+impl Regulation {
+    /// Directly swap original regulator with a given one.
+    pub fn swap_regulator(&mut self, new_regulator: VarId) {
+        self.regulator = new_regulator;
+    }
+
+    /// Directly swap original target with a given one.
+    pub fn swap_target(&mut self, new_target: VarId) {
+        self.target = new_target;
+    }
+
+    /// Directly swap original sign with a given one.
+    pub fn swap_sign(&mut self, new_sign: RegulationSign) {
+        self.regulation_sign = new_sign;
+    }
+
+    /// Directly swap original observability with a given one.
+    pub fn swap_observability(&mut self, new_observability: bool) {
+        self.observable = new_observability;
+    }
+}
+
 impl Display for Regulation {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         let regulation_sign = match self.get_sign() {
@@ -150,7 +187,7 @@ impl Display for Regulation {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{Regulation, RegulationSign, VarId};
+    use crate::sketchbook::{Regulation, RegulationSign};
 
     #[test]
     fn regulation_conversion() {
@@ -173,19 +210,13 @@ mod tests {
         ];
 
         for i in 0..regulation_strings.len() {
-            let (r, s, o, t) = Regulation::try_from_string(regulation_strings[i.clone()]).unwrap();
-            assert_eq!(&r, regulators[i.clone()]);
-            assert_eq!(&t, targets[i.clone()]);
-            assert_eq!(s, regulation_sign[i.clone()]);
-            assert_eq!(o, observability[i.clone()]);
-
-            let regulation = Regulation {
-                regulator: VarId::new(r.as_str()).unwrap(),
-                target: VarId::new(t.as_str()).unwrap(),
-                observable: o,
-                regulation_sign: s,
-            };
+            let regulation = Regulation::try_from_string(regulation_strings[i.clone()]).unwrap();
             assert_eq!(regulation.to_string().as_str(), regulation_strings[i]);
+
+            assert_eq!(regulation.regulator.as_str(), regulators[i.clone()]);
+            assert_eq!(regulation.target.as_str(), targets[i.clone()]);
+            assert_eq!(regulation.regulation_sign, regulation_sign[i.clone()]);
+            assert_eq!(regulation.observable, observability[i.clone()]);
         }
 
         assert!(Regulation::try_from_string("a --> b").is_err());

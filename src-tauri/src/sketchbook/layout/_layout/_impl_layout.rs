@@ -95,6 +95,18 @@ impl Layout {
         }
         Ok(())
     }
+
+    /// Set the id of variable with `original_id` to `new_id`.
+    pub fn change_node_id(&mut self, original_id: &VarId, new_id: VarId) -> Result<(), String> {
+        if let Some(node_layout) = self.nodes.remove(original_id) {
+            self.nodes.insert(new_id.clone(), node_layout);
+        } else {
+            return Err(format!(
+                "Variable {original_id} doesn't have a layout information to remove."
+            ));
+        }
+        Ok(())
+    }
 }
 
 /// Methods for observing instances of `RegulationsState` (various getters, etc.).

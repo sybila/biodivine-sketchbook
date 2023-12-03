@@ -98,9 +98,11 @@ impl RegulationsState {
     /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
     /// are not valid variable IDs, or when the regulation between the two variables already exists.
     pub fn add_regulation_by_str(&mut self, regulation_str: &str) -> Result<(), String> {
-        let (reg, regulation_sign, observable, tar) = Regulation::try_from_string(regulation_str)?;
+        let (reg, regulation_sign, observable, tar) =
+            Regulation::try_components_from_string(regulation_str)?;
         let regulator = VarId::new(reg.as_str())?;
         let target = VarId::new(tar.as_str())?;
+        // all validity checks inside
         self.add_regulation(regulator, target, observable, regulation_sign)
     }
 
@@ -125,6 +127,56 @@ impl RegulationsState {
         self.set_var_name(&var_id, name)
     }
 
+    /// Set the id of variable with `original_id` to `new_id`.
+    ///
+    /// Note that this operation may be costly as it affects several components of the state.
+    pub fn set_var_id(&mut self, original_id: &VarId, new_id: VarId) -> Result<(), String> {
+        self.assert_valid_variable(original_id)?;
+        self.assert_no_variable(&new_id)?;
+
+        // all changes must be done directly, not through some helper fns, because the state
+        // might not be consistent inbetween various deletions
+
+        // 1) change id in variables list
+        if let Some(variable) = self.variables.remove(original_id) {
+            self.variables.insert(new_id.clone(), variable);
+        }
+
+        // 2) change id in each regulation
+        let regs_to_update: Vec<Regulation> = self
+            .regulations
+            .iter()
+            .filter(|reg| reg.get_regulator() == original_id || reg.get_target() == original_id)
+            .cloned()
+            .collect();
+        for reg in regs_to_update {
+            self.regulations.remove(&reg);
+            let mut updated_reg = reg.clone();
+            if reg.get_regulator() == original_id {
+                updated_reg.swap_regulator(new_id.clone());
+            }
+            if reg.get_target() == original_id {
+                updated_reg.swap_target(new_id.clone());
+            }
+            self.regulations.insert(updated_reg);
+        }
+
+        // 3) change var id in each layout
+        for layout in self.layouts.values_mut() {
+            layout.change_node_id(original_id, new_id.clone())?;
+        }
+        Ok(())
+    }
+
+    /// Set the id of variable given by string `original_id` to `new_id`.
+    ///
+    /// Note that this operation may be costly as it affects several components.
+    pub fn set_var_id_by_str(&mut self, original_id: &str, new_id: &str) -> Result<(), String> {
+        let original_id = VarId::new(original_id)?;
+        let new_id = VarId::new(new_id)?;
+        self.set_var_id(&original_id, new_id)
+    }
+
     /// Remove the network variable with given `var_id` from this `RegulationsState`. This also
     /// removes the variable from all `Layouts` and removes all `Regulations` where this
     /// variable figures.
@@ -138,7 +190,6 @@ impl RegulationsState {
         if self.variables.remove(var_id).is_none() {
             panic!("Error when removing variable {var_id} from the variable map.")
         }
-
         Ok(())
     }
 
@@ -171,10 +222,8 @@ impl RegulationsState {
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
     /// variables does not exist.
     pub fn remove_regulation_by_str(&mut self, regulation_str: &str) -> Result<(), String> {
-        let (reg, _, _, tar) = Regulation::try_from_string(regulation_str)?;
-        let regulator = VarId::new(reg.as_str())?;
-        let target = VarId::new(tar.as_str())?;
-        self.remove_regulation(&regulator, &target)
+        let regulation = Regulation::try_from_string(regulation_str)?;
+        self.remove_regulation(regulation.get_regulator(), regulation.get_target())
     }
 
     /// **(internal)** Remove all `Regulations` where `variable` figures (as either regulator or
@@ -323,17 +372,6 @@ impl RegulationsState {
         }
     }
 
-    /// **(internal)** Utility method to ensure there is a regulation between the two variables.
-    fn assert_valid_regulation(&self, regulator: &VarId, target: &VarId) -> Result<(), String> {
-        if self.get_regulation(regulator, target).is_err() {
-            Err(format!(
-                "Invalid regulation: regulation between {regulator} and {target} does not exist."
-            ))
-        } else {
-            Ok(())
-        }
-    }
-
     /// **(internal)** Utility method to ensure there is no variable with given Id yet.
     fn assert_no_variable(&self, var_id: &VarId) -> Result<(), String> {
         if self.get_var_name(var_id).is_err() {
@@ -382,42 +420,63 @@ impl RegulationsState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::RegulationsState;
+    use crate::sketchbook::{RegulationSign, RegulationsState};
+
+    /// Test generating new default variant of the `RegulationsState`.
+    #[test]
+    fn test_new_default() {
+        let reg_state = RegulationsState::new();
+        assert_eq!(reg_state.num_vars(), 0);
+        assert_eq!(reg_state.num_regulations(), 0);
+        assert_eq!(reg_state.num_layouts(), 1);
+
+        let default_layout_id = RegulationsState::get_default_layout_id();
+        assert_eq!(
+            reg_state
+                .get_layout_name(&default_layout_id)
+                .unwrap()
+                .as_str(),
+            RegulationsState::get_default_layout_name(),
+        )
+    }
+
+    /// Test generating new `RegulationsState` from a set of variables.
+    #[test]
+    fn test_new_from_vars() {
+        let var_id_name_pairs = vec![("a_id", "a_name"), ("a_id", "b_name")];
+        assert!(RegulationsState::new_from_vars(var_id_name_pairs).is_err());
+
+        let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
+        let reg_state = RegulationsState::new_from_vars(var_id_name_pairs).unwrap();
+        assert_eq!(reg_state.num_vars(), 2);
+        assert_eq!(reg_state.num_regulations(), 0);
+        assert!(reg_state.is_valid_var_id_str("a_id"));
+        assert!(reg_state.is_valid_var_id_str("b_id"));
+        assert!(!reg_state.is_valid_var_id_str("c_id"));
+    }
 
     /// Test manually creating `RegulationsState` and mutating it by adding/removing variables
-    /// or regulations.
+    /// or regulations. We are only adding valid regulations/variables here, invalid insertions are
+    /// covered by other tests.
     #[test]
     fn test_manually_editing() {
         let mut reg_state = RegulationsState::new();
-        assert_eq!(reg_state.num_vars(), 0);
 
         // add variables a, b, c
         reg_state.add_var_by_str("a", "a_name").unwrap();
         reg_state.add_var_by_str("b", "b_name").unwrap();
-        // same names should not be an issue
-        reg_state.add_var_by_str("c", "a_name").unwrap();
+        reg_state.add_var_by_str("c", "c_name").unwrap();
         assert_eq!(reg_state.num_vars(), 3);
-        // adding same ID again should cause error
-        assert!(reg_state.add_var_by_str("a", "a_name").is_err());
 
         // add regulations a -> a, a -> b, b -> c, c -> a
         reg_state.add_regulation_by_str("a -> a").unwrap();
         reg_state.add_regulation_by_str("a -> b").unwrap();
         reg_state.add_regulation_by_str("b -> c").unwrap();
         reg_state.add_regulation_by_str("c -> a").unwrap();
-        // adding same reg again or with invalid var should cause error
-        assert!(reg_state.add_regulation_by_str("a -> a").is_err());
-        assert!(reg_state.add_regulation_by_str("a -| a").is_err());
-        assert!(reg_state.add_regulation_by_str("X -> a").is_err());
-        assert!(reg_state.add_regulation_by_str("a -@ a").is_err());
         assert_eq!(reg_state.num_regulations(), 4);
 
-        // rename variable
-        let var_a = reg_state.get_var_id("a").unwrap();
-        reg_state.set_var_name(&var_a, "new_name").unwrap();
-        assert_eq!(reg_state.get_var_name(&var_a).unwrap(), "new_name");
-
         // remove variable and check that all its regulations disappear, try re-adding it then
+        let var_a = reg_state.get_var_id("a").unwrap();
         reg_state.remove_var(&var_a).unwrap();
         assert!(reg_state.get_var_name(&var_a).is_err());
         let var_b = reg_state.get_var_id("b").unwrap();
@@ -433,18 +492,117 @@ mod tests {
         assert_eq!(reg_state.num_regulations(), 1);
     }
 
+    /// Test adding invalid variables.
     #[test]
-    fn test_new_from_vars() {
-        let var_id_name_pairs = vec![("a_id", "a_name"), ("a_id", "b_name")];
-        assert!(RegulationsState::new_from_vars(var_id_name_pairs).is_err());
+    fn test_add_invalid_vars() {
+        let mut reg_state = RegulationsState::new();
+        reg_state.add_var_by_str("a", "a_name").unwrap();
 
-        let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
-        let reg_state = RegulationsState::new_from_vars(var_id_name_pairs).unwrap();
+        // same names should not be an issue
+        reg_state.add_var_by_str("b", "a_name").unwrap();
         assert_eq!(reg_state.num_vars(), 2);
-        assert_eq!(reg_state.num_regulations(), 0);
-        assert!(reg_state.is_valid_var_id_str("a_id"));
-        assert!(reg_state.is_valid_var_id_str("b_id"));
-        assert!(!reg_state.is_valid_var_id_str("c_id"));
+
+        // adding same ID again should cause error
+        assert!(reg_state.add_var_by_str("a", "whatever").is_err());
+        // adding invalid ID string should cause error
+        assert!(reg_state.add_var_by_str("a ", "whatever2").is_err());
+        assert!(reg_state.add_var_by_str("(", "whatever3").is_err());
+        assert!(reg_state.add_var_by_str("aa+a", "whatever4").is_err());
+
+        assert_eq!(reg_state.num_vars(), 2);
+    }
+
+    /// Test adding invalid regulations.
+    #[test]
+    fn test_add_invalid_regs() {
+        let mut reg_state = RegulationsState::new();
+        reg_state.add_var_by_str("a", "a_name").unwrap();
+        reg_state.add_var_by_str("b", "b_name").unwrap();
+        let var_a = reg_state.get_var_id("a").unwrap();
+        let var_b = reg_state.get_var_id("b").unwrap();
+
+        // add one valid regulation a -> b
+        reg_state.add_regulation_by_str("a -> b").unwrap();
+
+        // adding reg between the same two vars again should cause an error
+        assert!(reg_state.add_regulation_by_str("a -> b").is_err());
+        assert!(reg_state.add_regulation_by_str("a -| b").is_err());
+        assert!(reg_state
+            .add_regulation(var_a, var_b, false, RegulationSign::Dual)
+            .is_err());
+
+        // adding reg with invalid vars or invalid format should cause error
+        assert!(reg_state.add_regulation_by_str("a -> a b").is_err());
+        assert!(reg_state.add_regulation_by_str("X -> a").is_err());
+        assert!(reg_state.add_regulation_by_str("a -@ a").is_err());
+
+        // check that nothing really got added
+        assert_eq!(reg_state.num_regulations(), 1);
+    }
+
+    /// Test that changing variable's name works correctly.
+    #[test]
+    fn test_var_name_change() {
+        let mut reg_state = RegulationsState::new();
+        reg_state.add_var_by_str("a", "a_name").unwrap();
+        reg_state.add_var_by_str("b", "b_name").unwrap();
+        let var_a = reg_state.get_var_id("a").unwrap();
+
+        // setting random unique name
+        reg_state.set_var_name(&var_a, "new_name").unwrap();
+        assert_eq!(reg_state.get_var_name(&var_a).unwrap(), "new_name");
+
+        // setting already existing name should also work
+        reg_state.set_var_name(&var_a, "b_name").unwrap();
+        assert_eq!(reg_state.get_var_name(&var_a).unwrap(), "b_name");
+    }
+
+    /// Test that changing variable's ID works correctly.
+    #[test]
+    fn test_var_id_change() {
+        let mut reg_state = RegulationsState::new();
+        let var_a = reg_state.generate_var_id("a");
+        reg_state.add_var(var_a.clone(), "a_name").unwrap();
+        let var_b = reg_state.generate_var_id("b");
+        reg_state.add_var(var_b.clone(), "b_name").unwrap();
+
+        // add regulations a -> a, a -> b, b -> a, b -> b
+        reg_state.add_regulation_by_str("a -> a").unwrap();
+        reg_state.add_regulation_by_str("a -> b").unwrap();
+        reg_state.add_regulation_by_str("b -> a").unwrap();
+        reg_state.add_regulation_by_str("b -> b").unwrap();
+
+        // add layout
+        let default_layout_id = RegulationsState::get_default_layout_id();
+        let new_layout_id = reg_state.generate_layout_id("layout2");
+        reg_state
+            .add_layout_copy(new_layout_id.clone(), "layout2", &default_layout_id)
+            .unwrap();
+
+        // change var id of variable a, check that it correctly changed everywhere
+        let new_var = reg_state.generate_var_id("c");
+        reg_state.set_var_id(&var_a, new_var.clone()).unwrap();
+
+        // 1) variable map changed correctly
+        assert!(!reg_state.is_valid_var_id(&var_a));
+        assert!(reg_state.is_valid_var_id(&new_var));
+
+        // 2) regulations changed correctly
+        assert_eq!(reg_state.num_regulations(), 4);
+        assert!(reg_state.get_regulation(&new_var, &new_var).is_ok());
+        assert!(reg_state.get_regulation(&new_var, &var_b).is_ok());
+        assert!(reg_state.get_regulation(&var_b, &new_var).is_ok());
+        assert!(reg_state.get_regulation(&var_b, &var_b).is_ok());
+
+        // 3) layouts changed correctly
+        // we check the layout objects directly, because RegulationState shorthands would fail
+        // automatically because the variable is no longer valid for the RegulationState
+        let layout1 = reg_state.get_layout(&default_layout_id).unwrap();
+        let layout2 = reg_state.get_layout(&new_layout_id).unwrap();
+        assert!(layout1.get_node_position(&var_a).is_err());
+        assert!(layout2.get_node_position(&var_a).is_err());
+        assert!(layout1.get_node_position(&new_var).is_ok());
+        assert!(layout2.get_node_position(&new_var).is_ok());
     }
 
     #[test]
