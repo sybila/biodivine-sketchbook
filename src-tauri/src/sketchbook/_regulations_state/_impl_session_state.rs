@@ -1,25 +1,31 @@
 use crate::app::event::{Event, StateChange, UserAction};
 use crate::app::state::{Consumed, SessionState};
 use crate::app::{AeonError, DynError};
-use crate::sketchbook::{RegulationsState, VarId};
+use crate::sketchbook::RegulationsState;
 use serde_json::json;
 
 /// TODO: expand this.
 /// List of events we will need, with their path, payload format, and path to the corresponding
-/// front-end event. Payloads are single string values,
-/// or a json object with multiple fields.
-/// ["variable", "add"]; payload = var_id; `add-variable`
+/// event for front-end. Payloads are single string values, or a json object with multiple string
+/// fields.
+/// ["variable", "add"]; payload = {"id": var_id, "name": name}; `add-variable`
 /// ["variable", "remove"]; payload = var_id, `remove-variable`
 /// ["variable", "set_name"]; payload = {"id": var_id, "new_name": new_name}; `set-name`
 /// ["variable", "set_id"],; payload = {"original_id": original_id, "new_id": new_id}; `set-id`
+/// ["regulation", "add-by-str"]; payload = regulation_str; `add-regulation-by-str`
+/// ["regulation", "add"]; payload = {"regulator": reg_id, "target": target_id, "sign": sign, "observable": observ}; `add-regulation`
+/// ["regulation", "remove"]; payload = {"regulator": reg_id, "target": target_id}, `remove-regulation`
+/// ["layout", "add"]; payload = {"id": layout_id, "name": name}; `add-layout`
+/// ["layout", "set_name"]; payload = {"id": layout_id, "new_name": new_name}; `set-layout-name`
+/// ["layout", "update_position"]; payload = {"layout_id": layout_id, "var_id": var_id, "new_x": x_val, "new_y": y_val}; `update-position`
 
 /// Functionality and shorthands related for the `SessionState` trait.
 impl RegulationsState {
     /// Shorthand to get and clone a payload of an action. Errors if payload is empty.
     /// The `component` specifies which part of the state should be mentioned in the error.
     /// In future we may consider moving this elsewhere.
-    fn clone_payload(action: &UserAction, component: &str) -> Result<String, DynError> {
-        let var_name = action
+    fn clone_payload_str(action: &UserAction, component: &str) -> Result<String, DynError> {
+        let payload = action
             .event
             .payload
             .clone()
@@ -27,7 +33,17 @@ impl RegulationsState {
                 "Event to `{component}` cannot carry empty payload."
             ))?
             .clone();
-        Ok(var_name)
+        Ok(payload)
+    }
+
+    /// Shorthand to get a given field from json object. Errors if no such field or bad format.
+    fn get_from_json(json_payload: &serde_json::Value, field_name: &str) -> Result<String, String> {
+        let value = json_payload[field_name]
+            .as_str()
+            .ok_or(format!("Payload {json_payload} is invalid"))?
+            .trim_matches('\"')
+            .to_string();
+        Ok(value)
     }
 
     /// Shorthand to get and clone a full path of an action.
@@ -45,12 +61,7 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Consume events related to `variables` component of this `RegulationsState`. Currently
-    /// involves:
-    ///     > `add`, payload = var_id
-    ///     > `remove`, payload = var_id
-    ///     > `set_name`, payload = json{"id": var_id, "new_name": new_name}
-    ///     > `set_id`, payload = json{"original_id": original_id, "new_id": new_id}
+    /// Consume events related to `variables` component of this `RegulationsState`.
     fn consume_variable_event(
         &mut self,
         path: &[&str],
@@ -62,18 +73,24 @@ impl RegulationsState {
 
         match path.first() {
             Some(&"add") => {
-                let var_name = Self::clone_payload(action, component_name)?;
-                self.add_var_by_str(var_name.as_str(), var_name.as_str())?;
+                // get payload components
+                let payload = Self::clone_payload_str(action, component_name)?;
+                let payload_json :serde_json::Value = serde_json::from_str(payload.as_str())?;
+                let var_id_str = Self::get_from_json(&payload_json, "id")?;
+                let name = Self::get_from_json(&payload_json, "name")?;
 
+                // perform the action, prepare the state-change variant
+                self.add_var_by_str(var_id_str.as_str(), name.as_str())?;
                 let state_change =
-                    StateChange::from(Event::build(&["add-variable"], Some(var_name.as_str())));
+                    StateChange::from(Event::build(&["add-variable"], Some(&payload)));
 
+                // prepare the reverse action
                 let mut reverse_path = Self::clone_path(action);
                 reverse_path.remove(reverse_path.len() - 1);
                 reverse_path.push("remove".to_string());
                 let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
                 let reverse_action =
-                    UserAction::from(Event::build(&reverse_path, Some(var_name.as_str())));
+                    UserAction::from(Event::build(&reverse_path, Some(var_id_str.as_str())));
 
                 Ok(Consumed::Reversible(
                     state_change,
@@ -81,31 +98,26 @@ impl RegulationsState {
                 ))
             }
             Some(&"remove") => {
-                let var_name = Self::clone_payload(action, component_name)?;
-                self.remove_var_by_str(var_name.as_str())?;
-
+                let var_id_str = Self::clone_payload_str(action, component_name)?;
+                self.remove_var_by_str(var_id_str.as_str())?;
                 let state_change =
-                    StateChange::from(Event::build(&["remove-variable"], Some(var_name.as_str())));
+                    StateChange::from(Event::build(&["remove-variable"], Some(var_id_str.as_str())));
                 Ok(Consumed::Irreversible(state_change))
             }
             Some(&"set_name") => {
-                let payload = Self::clone_payload(action, component_name)?;
-                let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-                let var_id = self.get_var_id(
-                    payload_json["id"]
-                        .as_str()
-                        .ok_or(format!("Payload {payload} is invalid"))?
-                        .trim_matches('\"'),
-                )?;
-                let new_name = payload_json["new_name"]
-                    .as_str()
-                    .ok_or(format!("Payload {payload} is invalid"))?
-                    .trim_matches('\"');
+                // get payload components
+                let payload = Self::clone_payload_str(action, component_name)?;
+                let payload_json :serde_json::Value = serde_json::from_str(payload.as_str())?;
+                let var_id_str = Self::get_from_json(&payload_json, "id")?;
+                let var_id = self.get_var_id(var_id_str.as_str())?;
+                let new_name = Self::get_from_json(&payload_json, "new_name")?;
                 let original_name = self.get_var_name(&var_id)?.to_string();
 
-                self.set_var_name(&var_id, new_name)?;
+                // perform the action, prepare the state-change variant
+                self.set_var_name(&var_id, new_name.as_str())?;
                 let state_change = StateChange::from(Event::build(&["set-name"], Some(&payload)));
 
+                // prepare the reverse action
                 let mut reverse_action = action.clone();
                 reverse_action.event.payload = Some(
                     json!({
@@ -121,24 +133,17 @@ impl RegulationsState {
                 ))
             }
             Some(&"set_id") => {
-                let payload = Self::clone_payload(action, component_name)?;
-                let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-                let original_id = self.get_var_id(
-                    payload_json["original_id"]
-                        .as_str()
-                        .ok_or(format!("Payload {payload} is invalid"))?
-                        .trim_matches('\"'),
-                )?;
-                let new_id = VarId::new(
-                    payload_json["new_id"]
-                        .as_str()
-                        .ok_or(format!("Payload {payload} is invalid"))?
-                        .trim_matches('\"'),
-                )?;
+                // get payload components
+                let payload = Self::clone_payload_str(action, component_name)?;
+                let payload_json :serde_json::Value = serde_json::from_str(payload.as_str())?;
+                let original_id = Self::get_from_json(&payload_json, "original_id")?;
+                let new_id = Self::get_from_json(&payload_json, "new_id")?;
 
-                self.set_var_id(&original_id, new_id.clone())?;
+                // perform the action, prepare the state-change variant
+                self.set_var_id_by_str(&original_id, &new_id)?;
                 let state_change = StateChange::from(Event::build(&["set-id"], Some(&payload)));
 
+                // prepare the reverse action
                 let mut reverse_action = action.clone();
                 reverse_action.event.payload = Some(
                     json!({
@@ -241,7 +246,15 @@ mod tests {
         assert_eq!(reg_state.num_vars(), 1);
 
         // test variable add event
-        let event = Event::build(&["regulations_state", "variable", "add"], Some("b"));
+        let payload = json!({
+            "id": "b",
+            "name": "b-name",
+        })
+            .to_string();
+        let event = Event::build(
+            &["regulations_state", "variable", "add"],
+            Some(payload.as_str()),
+        );
         let action = UserAction::from(event);
         let result = reg_state
             .consume_event(&["variable", "add"], &action)
