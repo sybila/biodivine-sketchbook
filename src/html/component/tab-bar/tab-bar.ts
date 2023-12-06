@@ -5,7 +5,7 @@ import style_less from './tab-bar.less?inline'
 import { type TabData } from '../../util/tab-data'
 import { fas, type IconName } from '@fortawesome/free-solid-svg-icons'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
-import { aeon_state } from '../../../aeon_events'
+import { aeonState } from '../../../aeon_events'
 library.add(fas)
 
 @customElement('tab-bar')
@@ -16,7 +16,7 @@ class TabBar extends LitElement {
 
   switchTab (tabId: number) {
     return () => {
-      aeon_state.tab_bar.active.emitValue(tabId)      
+      aeonState.tab_bar.active.emitValue(tabId)
     }
   }
 

@@ -6,29 +6,27 @@ import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
 import { tabList } from '../../util/config'
-import { aeon_state } from '../../../aeon_events'
-
-const SAVE_KEY = 'tab-data'
+import { aeonState } from '../../../aeon_events'
 
 @customElement('root-component')
 class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @state() tabs: TabData[] = tabList
   constructor () {
-    super()    
-    aeon_state.tab_bar.active.addEventListener(this.#onSwitched.bind(this))
-    aeon_state.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))    
+    super()
+    aeonState.tab_bar.active.addEventListener(this.#onSwitched.bind(this))
+    aeonState.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))
   }
 
-  #onPinned (pinned: number[]): void {    
-    this.tabs = this.tabs.map((tab) => 
+  #onPinned (pinned: number[]): void {
+    this.tabs = this.tabs.map((tab) =>
       tab.copy({
         pinned: pinned.includes(tab.id)
       })
     )
   }
 
-  #onSwitched (tabId: number) {          
+  #onSwitched (tabId: number): void {
     this.tabs = this.tabs.map((tab) =>
       tab.copy({
         active: tab.id === tabId

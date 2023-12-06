@@ -5,7 +5,7 @@ import { type TabData } from '../../util/tab-data'
 import { library, icon, findIconDefinition } from '@fortawesome/fontawesome-svg-core'
 import '../regulations-editor/regulations-editor'
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons'
-import { aeon_state } from '../../../aeon_events'
+import { aeonState } from '../../../aeon_events'
 library.add(faLock, faLockOpen)
 
 @customElement('content-pane')
@@ -16,10 +16,10 @@ export class ContentPane extends LitElement {
 
   private pin (): void {
     if (this.tab.pinned) {
-      aeon_state.tab_bar.unpin(this.tab.id)
+      aeonState.tab_bar.unpin(this.tab.id)
     } else {
-      aeon_state.tab_bar.pin(this.tab.id)
-    }    
+      aeonState.tab_bar.pin(this.tab.id)
+    }
   }
 
   protected render (): TemplateResult {
