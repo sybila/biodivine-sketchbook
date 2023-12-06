@@ -6,6 +6,7 @@ import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
 import { tabList } from '../../util/config'
+import { aeon_state } from '../../../aeon_events'
 
 const SAVE_KEY = 'tab-data'
 
@@ -14,53 +15,25 @@ class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @state() tabs: TabData[] = tabList
   constructor () {
-    super()
-    this.loadTabs()
-    this.addEventListener('switch-tab', this.switchTab)
-    this.addEventListener('pin-tab', this.pinTab)
-    this.addEventListener('unpin-tab', this.pinTab)
+    super()    
+    aeon_state.tab_bar.active.addEventListener(this.#onSwitched.bind(this))
+    aeon_state.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))    
   }
 
-  private saveTabs (): void {
-    const tabData = this.tabs.map((tab) => ({
-      id: tab.id,
-      active: tab.active,
-      pinned: tab.pinned
-    }))
-    localStorage.setItem(SAVE_KEY, JSON.stringify(tabData))
-  }
-
-  private loadTabs (): void {
-    const tabData = JSON.parse(localStorage.getItem(SAVE_KEY) ?? '[]')
-    tabData.forEach((data: { id: number, active: boolean, pinned: boolean }) => {
-      this.tabs[data.id] = this.tabs[data.id].copy({
-        active: data.active,
-        pinned: data.pinned
+  #onPinned (pinned: number[]): void {    
+    this.tabs = this.tabs.map((tab) => 
+      tab.copy({
+        pinned: pinned.includes(tab.id)
       })
-    })
+    )
   }
 
-  private pinTab (e: Event): void {
-    const tabId = (e as CustomEvent).detail.tabId
-    if (tabId === undefined) return
-    const tabIndex = this.tabs.findIndex((tab) => tab.id === tabId)
-    if (tabIndex === -1) return
-    const updatedTabs = this.tabs.slice()
-    updatedTabs[tabIndex] = updatedTabs[tabIndex].copy({ pinned: e.type === 'pin-tab' })
-    this.tabs = updatedTabs
-    this.saveTabs()
-  }
-
-  private switchTab (e: Event): void {
-    const tabId = (e as CustomEvent).detail.tabId
-    if (tabId === undefined) return
+  #onSwitched (tabId: number) {          
     this.tabs = this.tabs.map((tab) =>
       tab.copy({
         active: tab.id === tabId
       })
     )
-    this.requestUpdate()
-    this.saveTabs()
   }
 
   render (): TemplateResult {

@@ -5,6 +5,7 @@ import { type TabData } from '../../util/tab-data'
 import { library, icon, findIconDefinition } from '@fortawesome/fontawesome-svg-core'
 import '../regulations-editor/regulations-editor'
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons'
+import { aeon_state } from '../../../aeon_events'
 library.add(faLock, faLockOpen)
 
 @customElement('content-pane')
@@ -14,13 +15,11 @@ export class ContentPane extends LitElement {
   @property() declare private readonly tab: TabData
 
   private pin (): void {
-    this.dispatchEvent(new CustomEvent(this.tab.pinned ? 'unpin-tab' : 'pin-tab', {
-      detail: {
-        tabId: this.tab.id
-      },
-      bubbles: true,
-      composed: true
-    }))
+    if (this.tab.pinned) {
+      aeon_state.tab_bar.unpin(this.tab.id)
+    } else {
+      aeon_state.tab_bar.pin(this.tab.id)
+    }    
   }
 
   protected render (): TemplateResult {

@@ -1,3 +1,7 @@
+/*
+
+THIS IS DISABLED FOR NOW, BECAUSE WE DON'T REALLY NEED IT SO FAR.
+
 use crate::app::event::UserAction;
 use crate::app::state::{Consumed, DynSessionState, SessionState};
 use crate::app::{AeonError, DynError};
@@ -66,3 +70,4 @@ mod tests {
         assert_eq!("Unknown path segment `state_4`.", format!("{}", result));
     }
 }
+*/
