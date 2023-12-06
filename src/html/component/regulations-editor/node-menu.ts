@@ -9,6 +9,7 @@ import {
   faEye,
   faEyeSlash,
   faPen,
+  faPlus,
   faRightLeft,
   faTrash
 } from '@fortawesome/free-solid-svg-icons'
@@ -16,7 +17,7 @@ import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
 import { ElementType, Monotonicity } from './element-type'
 
-library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash)
+library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
 @customElement('node-menu')
 class NodeMenu extends LitElement {
@@ -24,22 +25,44 @@ class NodeMenu extends LitElement {
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
   @property() zoom = 1.0
-  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity } | undefined
+  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity, name: string } | undefined
   @state() selectedButton: IButton | undefined = undefined
 
   nodeButtons: IButton[] = [
     {
-      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'pen' })).node[0],
+      icon: () => icon(faPen).node[0],
       label: () => 'Edit name (E)',
-      click: () => {}
+      click: () => {
+        this.dispatchEvent(new CustomEvent('rename-node', {
+          detail: {
+            id: this.data?.id,
+            name: this.data?.name
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
     },
     {
-      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'calculator' })).node[0],
+      icon: () => icon(faPlus).node[0],
+      label: () => 'Add Edge (A)',
+      click: () => {
+        this.dispatchEvent(new CustomEvent('add-edge', {
+          detail: {
+            id: this.data?.id
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
+    },
+    {
+      icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
       click: () => {}
     },
     {
-      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
+      icon: () => icon(faTrash).node[0],
       label: () => 'Remove (⌫)',
       click: this.removeElement
     }
@@ -47,7 +70,7 @@ class NodeMenu extends LitElement {
 
   edgeButtons: IButton[] = [
     {
-      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: ((this.data?.observable) === true) ? 'eye-slash' : 'eye' })).node[0],
+      icon: () => icon(this.data?.observable === true ? faEyeSlash : faEye).node[0],
       label: () =>
         this.data === null || this.data?.observable === null
           ? 'Toggle observability (O)'
@@ -66,12 +89,13 @@ class NodeMenu extends LitElement {
       }
     },
     {
-      icon: () => icon(findIconDefinition({
-        prefix: 'fas',
-        iconName: this.data?.monotonicity === Monotonicity.INHIBITION
-          ? 'right-left'
-          : this.data?.monotonicity === Monotonicity.ACTIVATION ? 'arrow-trend-down' : 'arrow-trend-up'
-      })).node[0],
+      icon: () => icon(findIconDefinition(
+        this.data?.monotonicity === Monotonicity.INHIBITION
+          ? faRightLeft
+          : this.data?.monotonicity === Monotonicity.ACTIVATION
+            ? faArrowTrendDown
+            : faArrowTrendUp
+      )).node[0],
       label: () => {
         switch (this.data?.monotonicity) {
           case Monotonicity.OFF:
@@ -110,7 +134,7 @@ class NodeMenu extends LitElement {
       }
     },
     {
-      icon: () => icon(findIconDefinition({ prefix: 'fas', iconName: 'trash' })).node[0],
+      icon: () => icon(faTrash).node[0],
       label: () => 'Remove (⌫)',
       click: this.removeElement
     }
@@ -147,7 +171,7 @@ class NodeMenu extends LitElement {
         <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
                                        top: ${this.position.y + 58 + yOffset}px; 
                                        transform: scale(${this.zoom})">
-            <div class="button-row uk-flex uk-flex-row">
+            <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
                 ${map(buttons, (buttonData) => {
                   const icon = buttonData.icon()
                     icon.classList.add('menu-icon')

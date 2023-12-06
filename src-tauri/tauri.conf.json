@@ -19,6 +19,10 @@
       },
       "dialog": {
         "all": true
+      },
+      "window": {
+        "create": true,
+        "close": true
       }
     },
     "bundle": {
@@ -42,7 +46,7 @@
         "fullscreen": false,
         "resizable": true,
         "title": "aeon-sketch-editor",
-        "width": 800,
+        "width": 900,
         "height": 600,
         "url": "src/html/sketch-editor.html"
       }
