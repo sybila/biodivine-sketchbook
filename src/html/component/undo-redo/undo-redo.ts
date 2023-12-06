@@ -1,5 +1,5 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 import style_less from './undo-redo.less?inline'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
