@@ -5,7 +5,7 @@ import cytoscape, { type Core, type EdgeSingular, type NodeSingular, type Positi
 import dagre from 'cytoscape-dagre'
 import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
 import dblclick from 'cytoscape-dblclick'
-import './node-menu'
+import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, Monotonicity } from './element-type'
 import { dialog } from '@tauri-apps/api'
@@ -19,8 +19,9 @@ const SAVE_EDGES = 'edges'
 @customElement('regulations-editor')
 class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
+  dialogs: string[] = []
 
-  @query('#node-menu')
+  @query('#float-menu')
     nodeMenu!: HTMLElement
 
   @query('#edge-menu')
@@ -58,7 +59,7 @@ class RegulationsEditor extends LitElement {
     return html`
         <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset (debug)</button>
         ${this.editorElement}
-        <node-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></node-menu>
+        <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></float-menu>
     `
   }
 
@@ -184,9 +185,11 @@ class RegulationsEditor extends LitElement {
     const nodeName = (event as CustomEvent).detail.name
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
-    const webview = new WebviewWindow('renameDialog', {
+    if (this.dialogs.includes(nodeId)) return
+    this.dialogs.push(nodeId)
+    const webview = new WebviewWindow(`renameDialog${nodeId}/////${nodeName}`, {
       url: 'src/html/component/rename-dialog/rename-dialog.html',
-      title: 'Edit node',
+      title: `Edit node (${nodeId} / ${nodeName})`,
       alwaysOnTop: true,
       maximizable: false,
       minimizable: false,
@@ -205,6 +208,7 @@ class RegulationsEditor extends LitElement {
       })
     })
     await webview.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+      this.dialogs.splice(this.dialogs.indexOf(nodeId))
       // avoid overwriting existing nodes
       if (nodeId !== event.payload.id && (this.cy?.$id(event.payload.id) !== undefined && this.cy?.$id(event.payload.id).length > 0)) {
         UIkit.notification(`Node with id '${event.payload.id}' already exists!`)
@@ -267,6 +271,7 @@ class RegulationsEditor extends LitElement {
 
   toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
     this.menuType = type
+    if (this.menuType === ElementType.NONE) this.cy?.nodes().deselect()
     this.menuPosition = position ?? { x: 0, y: 0 }
     this.menuZoom = zoom
     this.menuData = data

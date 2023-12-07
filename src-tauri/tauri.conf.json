@@ -42,15 +42,6 @@
     },
     "windows": [
       {
-        "label": "signpost",
-        "fullscreen": false,
-        "resizable": true,
-        "title": "aeon-signpost",
-        "width": 800,
-        "height": 600,
-        "url": "src/html/signpost.html"
-      },
-      {
         "label": "editor",
         "fullscreen": false,
         "resizable": true,

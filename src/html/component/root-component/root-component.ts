@@ -66,7 +66,6 @@ class RootComponent extends LitElement {
   }
 
   private adjustRegEditor (): void {
-    console.log(window.outerWidth)
     if (window.outerWidth <= 800) return
     this.shadowRoot?.querySelector('content-pane')
       ?.shadowRoot?.querySelector('regulations-editor')

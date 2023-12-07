@@ -1,6 +1,6 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import style_less from './node-menu.less?inline'
+import style_less from './float-menu.less?inline'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
 import {
   faArrowTrendDown,
@@ -15,12 +15,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
-import { ElementType, Monotonicity } from './element-type'
+import { ElementType, Monotonicity } from '../element-type'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
-@customElement('node-menu')
-class NodeMenu extends LitElement {
+@customElement('float-menu')
+class FloatMenu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
