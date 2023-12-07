@@ -22,7 +22,9 @@
       },
       "window": {
         "create": true,
-        "close": true
+        "close": true,
+        "setSize": true,
+        "setFocus": true
       }
     },
     "bundle": {

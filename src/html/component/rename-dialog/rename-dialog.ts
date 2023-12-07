@@ -1,8 +1,8 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import style_less from './rename-dialog.less?inline'
-import { emit } from '@tauri-apps/api/event'
-import { appWindow } from '@tauri-apps/api/window'
+import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
+import { appWindow, PhysicalSize } from '@tauri-apps/api/window'
 
 @customElement('rename-dialog')
 class RenameDialog extends LitElement {
@@ -12,10 +12,16 @@ class RenameDialog extends LitElement {
   nodeId = ''
   name = ''
 
-  firstUpdated (): void {
-    [this.nodeId, this.name] = appWindow.label.slice(12).split('/////', 2)
-    if (this.nodeIdField !== undefined) this.nodeIdField.value = this.nodeId
-    if (this.nameField !== undefined) this.nameField.value = this.name
+  async firstUpdated (): Promise<void> {
+    await once('edit_node_update', (event: TauriEvent<{ id: string, name: string }>) => {
+      this.nodeId = event.payload.id
+      this.name = event.payload.name
+      if (this.nodeIdField !== undefined) this.nodeIdField.value = this.nodeId
+      if (this.nameField !== undefined) this.nameField.value = this.name
+    })
+    await emit('loaded', {})
+    this.nodeIdField?.focus()
+    await appWindow.setSize(new PhysicalSize(window.outerWidth, (document.querySelector('html')?.offsetHeight ?? 200)))
   }
 
   private async handleSubmit (event: Event): Promise<void> {

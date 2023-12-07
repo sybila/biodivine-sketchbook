@@ -19,7 +19,7 @@ const SAVE_EDGES = 'edges'
 @customElement('regulations-editor')
 class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  dialogs: string[] = []
+  dialogs: Record<string, WebviewWindow | undefined> = {}
 
   @query('#float-menu')
     nodeMenu!: HTMLElement
@@ -48,8 +48,8 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('adjust-graph', this.adjustPan)
     this.addEventListener('add-edge', this.addEdge)
     this.addEventListener('mousemove', this.hoverFix)
-    this.addEventListener('remove-element', (e) => { void (async () => { await this.removeElement(e) })() })
-    this.addEventListener('rename-node', (e) => { void (async () => { await this.renameNode(e) })() })
+    this.addEventListener('remove-element', (e) => { void this.removeElement(e) })
+    this.addEventListener('rename-node', (e) => { void this.renameNode(e) })
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -73,7 +73,7 @@ class RegulationsEditor extends LitElement {
     const nodeID = (event as CustomEvent).detail.id
 
     // start attribute wrongly typed - added weird typecast to avoid tslint error
-    this.edgeHandles?.start((this.cy?.nodes(`#${nodeID}`) as unknown as string))
+    this.edgeHandles?.start((this.cy?.$id(nodeID) as unknown as string))
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     this.cy.renderer().hoverData.capture = true
@@ -185,30 +185,32 @@ class RegulationsEditor extends LitElement {
     const nodeName = (event as CustomEvent).detail.name
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
-    if (this.dialogs.includes(nodeId)) return
-    this.dialogs.push(nodeId)
-    const webview = new WebviewWindow(`renameDialog${nodeId}/////${nodeName}`, {
+    if (this.dialogs[nodeId] !== undefined) {
+      await this.dialogs[nodeId]?.setFocus()
+      return
+    }
+    const renameDialog = new WebviewWindow(`renameDialog${Math.floor(Math.random() * 1000000)}`, {
       url: 'src/html/component/rename-dialog/rename-dialog.html',
       title: `Edit node (${nodeId} / ${nodeName})`,
       alwaysOnTop: true,
       maximizable: false,
       minimizable: false,
       skipTaskbar: true,
-      height: 200,
+      resizable: false,
+      height: 100,
       width: 400,
-      x: pos.x + size.width / 2 - 200,
-      y: pos.y + size.height / 2 - 100
+      x: pos.x + (size.width / 2) - 200,
+      y: pos.y + size.height / 4
     })
-    await webview.once('window_loaded', () => {
-      void (async () => {
-        await webview.emit('edit_node_update', {
-          id: nodeId,
-          name: nodeName
-        })
+    this.dialogs[nodeId] = renameDialog
+    void renameDialog.once('loaded', () => {
+      void renameDialog.emit('edit_node_update', {
+        id: nodeId,
+        name: nodeName
       })
     })
-    await webview.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
-      this.dialogs.splice(this.dialogs.indexOf(nodeId))
+    void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+      this.dialogs[nodeId] = undefined
       // avoid overwriting existing nodes
       if (nodeId !== event.payload.id && (this.cy?.$id(event.payload.id) !== undefined && this.cy?.$id(event.payload.id).length > 0)) {
         UIkit.notification(`Node with id '${event.payload.id}' already exists!`)
@@ -228,6 +230,7 @@ class RegulationsEditor extends LitElement {
         }
       })
     })
+    void renameDialog.onCloseRequested(() => { this.dialogs[nodeId] = undefined })
   }
 
   adjustPan (event: Event): void {
@@ -318,7 +321,9 @@ class RegulationsEditor extends LitElement {
       cancelLabel: 'Keep',
       title: 'Delete'
     })) return
-    this.cy?.$id((event as CustomEvent).detail.id).remove()
+    const nodeId = (event as CustomEvent).detail.id
+    void this.dialogs[nodeId]?.close()
+    this.cy?.$id(nodeId).remove()
     this.toggleMenu(ElementType.NONE)
   }
 
