@@ -31,8 +31,7 @@ impl RegulationsState {
             .clone()
             .ok_or(format!(
                 "Event to `{component}` cannot carry empty payload."
-            ))?
-            .clone();
+            ))?;
         Ok(payload)
     }
 
@@ -113,6 +112,10 @@ impl RegulationsState {
                 let new_name = Self::get_from_json(&payload_json, "new_name")?;
                 let original_name = self.get_var_name(&var_id)?.to_string();
 
+                if new_name == original_name {
+                    return Ok(Consumed::NoChange)
+                }
+
                 // perform the action, prepare the state-change variant
                 self.set_var_name(&var_id, new_name.as_str())?;
                 let state_change = StateChange::from(Event::build(&["set-name"], Some(&payload)));
@@ -138,6 +141,10 @@ impl RegulationsState {
                 let payload_json :serde_json::Value = serde_json::from_str(payload.as_str())?;
                 let original_id = Self::get_from_json(&payload_json, "original_id")?;
                 let new_id = Self::get_from_json(&payload_json, "new_id")?;
+
+                if original_id == new_id {
+                    return Ok(Consumed::NoChange)
+                }
 
                 // perform the action, prepare the state-change variant
                 self.set_var_id_by_str(&original_id, &new_id)?;

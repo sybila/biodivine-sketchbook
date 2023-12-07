@@ -17,10 +17,11 @@ mod _impl_serde;
 /// **(internal)** Implementation of the [SessionState] trait.
 mod _impl_session_state;
 
-/// Object representing the state of the Regulations editor.
+/// Object representing the state of the Regulations editor, which includes variables, regulations,
+/// and layout information.
 ///
-/// Holds similar information as `RegulatoryGraph` in `lib-param-bn`, but is suitable for
-/// editing. Further, the information regarding the layout is carried.
+/// `RegulationsState` can be observed/edited using its classical Rust API, as well as through the
+/// external events (as it implements the `SessionState` event).
 #[derive(Clone, Debug)]
 pub struct RegulationsState {
     variables: HashMap<VarId, Variable>,
