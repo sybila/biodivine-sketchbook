@@ -1,19 +1,6 @@
 <extends src="window.html">
     <block name="window">
-        <include src="./component/root-component/root-component.html"></include>
+        <script type="module" src="./component/root-component/root-component.ts"></script>
         <root-component></root-component>
-        <div style="text-align: center; margin: 10px;">
-            <button id="undo">Undo</button>
-            <button id="redo">Redo</button>
-        </div>
-        <div style="text-align: center; margin: 10px;">
-            <button id="counter-down">Down</button>
-            <span id="counter" style="margin: 10px;">0</span>
-            <button id="counter-up">Up</button>
-        </div>
-        <div style="text-align: center; margin: 10px;">
-            <label style="margin: 10px;">Text:</label>
-            <input id="text" type="text"/>
-        </div>
     </block>
 </extends>

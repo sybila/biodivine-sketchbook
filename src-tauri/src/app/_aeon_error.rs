@@ -30,6 +30,11 @@ impl AeonError {
         }
     }
 
+    /// The same as [Self::new], but returns [DynError] instead.
+    pub fn dyn_new(description: impl Into<String>) -> DynError {
+        Box::new(Self::new(description, None))
+    }
+
     /// Create a new instance of [AeonError], convert it to [DynError] and return it as
     /// the specified [Result] type.
     ///

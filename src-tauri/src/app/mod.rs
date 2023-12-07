@@ -2,16 +2,20 @@ use std::error::Error;
 
 mod _aeon_app;
 mod _aeon_error;
-mod _undo_stack;
 pub mod event;
 pub mod state;
 
 pub use _aeon_app::AeonApp;
 pub use _aeon_error::AeonError;
-pub use _undo_stack::UndoStack;
 
-pub const EVENT_USER_ACTION: &str = "aeon-user-action";
-pub const EVENT_STATE_CHANGE: &str = "aeon-state-change";
+/// Label for frontend events that are changing the app state.
+pub const AEON_ACTION: &str = "aeon-action";
+
+/// Label for backend events that are notifying about a state change.
+pub const AEON_VALUE: &str = "aeon-value";
+
+/// Label for frontend events that are requesting a value retransmission.
+pub const AEON_REFRESH: &str = "aeon-refresh";
 
 /// A [DynError] is a "generic" heap-allocated trait object which implements [std::error::Error].
 ///

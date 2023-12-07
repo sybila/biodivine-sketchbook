@@ -1,13 +1,12 @@
 use crate::app::event::UserAction;
-use crate::app::state::{Consumed, DynSessionState, MapState, SessionState};
-use crate::app::{AeonApp, AeonError, DynError, UndoStack, EVENT_STATE_CHANGE};
-use crate::debug;
-use std::ops::DerefMut;
+use crate::app::state::DynSession;
+use crate::app::{AeonApp, AeonError, DynError, AEON_VALUE};
+use std::collections::HashMap;
+use std::ops::{Deref, DerefMut};
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{Manager, Window};
 
-/// [AppState] is a special wrapper around [MapState] which implements the "top level"
-/// container for the whole application state.
+/// [AppState] implements mapping between session IDs and session objects.
 ///
 /// Specifically, it ensures:
 ///  - Synchronization by locking the app state.
@@ -16,190 +15,96 @@ use tauri::Manager;
 ///
 /// As such, [AppState] does not actually implement the [SessionState] trait.
 pub struct AppState {
-    state: Mutex<(MapState, UndoStack)>,
+    // Assigns a state object to every session.
+    session_state: Mutex<HashMap<String, DynSession>>,
+    // Assigns a session ID to every window.
+    window_to_session: Mutex<HashMap<String, String>>,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         AppState {
-            state: Mutex::new((MapState::default(), UndoStack::default())),
+            session_state: Mutex::new(HashMap::new()),
+            window_to_session: Mutex::new(HashMap::new()),
         }
     }
 }
 
 impl AppState {
-    pub fn window_created(&self, label: &str, state: impl Into<DynSessionState>) {
-        let mut guard = self.state.lock().unwrap_or_else(|_e| {
+    pub fn session_created(&self, id: &str, session: impl Into<DynSession>) {
+        let mut guard = self.session_state.lock().unwrap_or_else(|_e| {
             panic!("Main application state is poisoned. Cannot recover.");
         });
-        let (windows, _stack) = guard.deref_mut();
-        if windows.state.contains_key(label) {
+        let session_map = guard.deref_mut();
+        if session_map.contains_key(id) {
             // TODO: This should be a normal error.
-            panic!("Window already exists");
+            panic!("Session already exists.");
         }
-        windows.state.insert(label.to_string(), state.into());
+        session_map.insert(id.to_string(), session.into());
     }
 
-    pub fn undo(&self, app: &AeonApp) -> Result<(), DynError> {
+    pub fn window_created(&self, id: &str, session_id: &str) {
+        let mut guard = self.window_to_session.lock().unwrap_or_else(|_e| {
+            panic!("Main application state is poisoned. Cannot recover.");
+        });
+        let map = guard.deref_mut();
+        if map.contains_key(id) {
+            // TODO: This should be a normal error.
+            panic!("Window already exists.");
+        }
+        map.insert(id.to_string(), session_id.to_string());
+    }
+
+    pub fn get_session_id(&self, window: &Window) -> String {
+        let guard = self.window_to_session.lock().unwrap_or_else(|_e| {
+            panic!("Main application state is poisoned. Cannot recover.");
+        });
+        let map = guard.deref();
+        map.get(window.label()).cloned().unwrap_or_else(|| {
+            panic!("Unknown window label {}.", window.label());
+        })
+    }
+
+    pub fn consume_event(
+        &self,
+        app: &AeonApp,
+        session_id: &str,
+        action: &UserAction,
+    ) -> Result<(), DynError> {
         let mut guard = self
-            .state
+            .session_state
             .lock()
             .unwrap_or_else(|_e| panic!("Main application state is poisoned. Cannot recover."));
-        let (windows, stack) = guard.deref_mut();
-        let mut event = match stack.undo_action() {
-            Some(reverse) => reverse,
-            None => {
-                debug!("Cannot undo.");
-                return Ok(());
-            }
-        };
-        let state_change = loop {
-            let path = event
-                .event
-                .full_path
-                .iter()
-                .map(|it| it.as_str())
-                .collect::<Vec<_>>();
-            let result = windows.consume_event(&path, &event);
-            match result {
-                Err(error) => {
-                    debug!("Event error: `{:?}`.", error);
-                    return Err(error);
-                }
-                Ok(Consumed::NoChange) => {
-                    debug!("No change.");
-                    return Ok(());
-                }
-                // TODO: We should treat this error differently.
-                Ok(Consumed::InputError(error)) => {
-                    debug!("User input error: `{:?}`.", error);
-                    return Err(error);
-                }
-                Ok(Consumed::Irreversible(_)) => {
-                    // TODO: This probably shouldn't happen here.
-                    panic!("Irreversible action as a result of undo.")
-                }
-                Ok(Consumed::Reversible(state, _)) => {
-                    debug!("Reversible state change: `{:?}`.", state);
-                    break state;
-                }
-                Ok(Consumed::Restart(action)) => {
-                    event = action;
-                }
-            }
-        };
-        if let Err(e) = app.tauri.emit_all(EVENT_STATE_CHANGE, state_change.event) {
+        let session = guard.deref_mut().get_mut(session_id).unwrap_or_else(|| {
+            panic!("Unknown session id {}.", session_id);
+        });
+        let state_change = session.perform_action(action)?;
+        if let Err(e) = app.tauri.emit_all(AEON_VALUE, state_change.events) {
             return AeonError::throw_with_source("Error sending state event.", e);
         }
+
         Ok(())
     }
 
-    pub fn redo(&self, app: &AeonApp) -> Result<(), DynError> {
+    pub fn refresh(
+        &self,
+        app: &AeonApp,
+        session_id: &str,
+        full_path: &[String],
+    ) -> Result<(), DynError> {
         let mut guard = self
-            .state
+            .session_state
             .lock()
             .unwrap_or_else(|_e| panic!("Main application state is poisoned. Cannot recover."));
-        let (windows, stack) = guard.deref_mut();
-        let mut event = match stack.redo_action() {
-            Some(perform) => perform,
-            None => {
-                debug!("Cannot redo.");
-                return Ok(());
-            }
-        };
-        let state_change = loop {
-            let path = event
-                .event
-                .full_path
-                .iter()
-                .map(|it| it.as_str())
-                .collect::<Vec<_>>();
-            let result = windows.consume_event(&path, &event);
-            match result {
-                Err(error) => {
-                    debug!("Event error: `{:?}`.", error);
-                    return Err(error);
-                }
-                Ok(Consumed::NoChange) => {
-                    debug!("No change.");
-                    return Ok(());
-                }
-                // TODO: We should treat this error differently.
-                Ok(Consumed::InputError(error)) => {
-                    debug!("User input error: `{:?}`.", error);
-                    return Err(error);
-                }
-                Ok(Consumed::Irreversible(_)) => {
-                    // TODO: This probably shouldn't happen here.
-                    panic!("Irreversible action as a result of redo.")
-                }
-                Ok(Consumed::Reversible(state, _)) => {
-                    debug!("Reversible state change: `{:?}`.", state);
-                    break state;
-                }
-                Ok(Consumed::Restart(action)) => {
-                    event = action;
-                }
-            }
-        };
-        if let Err(e) = app.tauri.emit_all(EVENT_STATE_CHANGE, state_change.event) {
+        let session = guard.deref_mut().get_mut(session_id).unwrap_or_else(|| {
+            panic!("Unknown session id {}.", session_id);
+        });
+        let at_path = full_path.iter().map(|it| it.as_str()).collect::<Vec<_>>();
+        let state_change = session.refresh(full_path, &at_path)?;
+        if let Err(e) = app.tauri.emit_all(AEON_VALUE, vec![state_change]) {
             return AeonError::throw_with_source("Error sending state event.", e);
         }
-        Ok(())
-    }
 
-    pub fn consume_event(&self, app: &AeonApp, mut event: UserAction) -> Result<(), DynError> {
-        let mut guard = self
-            .state
-            .lock()
-            .unwrap_or_else(|_e| panic!("Main application state is poisoned. Cannot recover."));
-        let (windows, stack) = guard.deref_mut();
-        let state_change = loop {
-            let path = event
-                .event
-                .full_path
-                .iter()
-                .map(|it| it.as_str())
-                .collect::<Vec<_>>();
-            let result = windows.consume_event(&path, &event);
-            match result {
-                Err(error) => {
-                    debug!("Event error: `{:?}`.", error);
-                    return Err(error);
-                }
-                Ok(Consumed::NoChange) => {
-                    debug!("No change.");
-                    return Ok(());
-                }
-                // TODO: We should treat this error differently.
-                Ok(Consumed::InputError(error)) => {
-                    debug!("User input error: `{:?}`.", error);
-                    return Err(error);
-                }
-                Ok(Consumed::Irreversible(state)) => {
-                    debug!("Irreversible state change: `{:?}`.", state);
-                    stack.clear();
-                    break state;
-                }
-                Ok(Consumed::Reversible(state, (perform, reverse))) => {
-                    debug!("Reversible state change: `{:?}`.", state);
-                    if !stack.do_action(perform, reverse) {
-                        // TODO:
-                        //  This is a warning, because the state has been applied at
-                        //  this point, but we should think a bit more about how this
-                        //  should be ideally handled.
-                        stack.clear();
-                    }
-                    break state;
-                }
-                Ok(Consumed::Restart(action)) => {
-                    event = action;
-                }
-            }
-        };
-        if let Err(e) = app.tauri.emit_all(EVENT_STATE_CHANGE, state_change.event) {
-            return AeonError::throw_with_source("Error sending state event.", e);
-        }
         Ok(())
     }
 }

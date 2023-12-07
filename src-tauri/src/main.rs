@@ -2,19 +2,37 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use aeon_sketchbook::app::event::{Event, UserAction};
-use aeon_sketchbook::app::state::{AppState, AtomicState, DynSessionState, MapState};
-use aeon_sketchbook::app::{AeonApp, EVENT_USER_ACTION};
+use aeon_sketchbook::app::state::editor::EditorSession;
+use aeon_sketchbook::app::state::{AppState, DynSession};
+use aeon_sketchbook::app::{AeonApp, AEON_ACTION, AEON_REFRESH};
 use aeon_sketchbook::debug;
-use tauri::Manager;
+use serde::{Deserialize, Serialize};
+use tauri::{command, Manager, State, Window};
+
+#[command]
+fn get_session_id(window: Window, state: State<AppState>) -> String {
+    state.get_session_id(&window)
+}
+
+#[derive(Serialize, Deserialize)]
+struct AeonAction {
+    session: String,
+    events: Vec<Event>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct AeonRefresh {
+    session: String,
+    path: Vec<String>,
+}
 
 fn main() {
-    let editor_state: Vec<(&str, DynSessionState)> = vec![
-        ("counter", Box::new(AtomicState::from(0))),
-        ("text", Box::new(AtomicState::from("".to_string()))),
-    ];
-    let editor_state: DynSessionState = Box::new(MapState::from_iter(editor_state));
+    // Initialize empty app state.
     let state = AppState::default();
-    state.window_created("editor", editor_state);
+    let session: DynSession = Box::new(EditorSession::new("editor-1"));
+    state.session_created("editor-1", session);
+    state.window_created("editor", "editor-1");
+
     tauri::Builder::default()
         .manage(state)
         .setup(|app| {
@@ -23,44 +41,56 @@ fn main() {
                 tauri: handle.clone(),
             };
             let aeon = aeon_original.clone();
-            app.listen_global(EVENT_USER_ACTION, move |e| {
+            app.listen_global(AEON_ACTION, move |e| {
                 let Some(payload) = e.payload() else {
                     // TODO: This should be an error.
                     panic!("No payload in user action.");
                 };
                 debug!("Received user action: `{}`.", payload);
-                let event: UserAction = match serde_json::from_str::<Event>(payload) {
-                    Ok(event) => event.into(),
+                let event: AeonAction = match serde_json::from_str::<AeonAction>(payload) {
+                    Ok(action) => action,
                     Err(e) => {
                         // TODO: This should be a normal error.
                         panic!("Payload deserialize error {:?}.", e);
                     }
                 };
                 let state = aeon.tauri.state::<AppState>();
-                let result = state.consume_event(&aeon, event);
+                let session_id = event.session.clone();
+                let action = UserAction {
+                    events: event.events,
+                };
+                let result = state.consume_event(&aeon, session_id.as_str(), &action);
                 if let Err(e) = result {
                     // TODO: This should be a normal error.
                     panic!("Event error: {:?}", e);
                 }
             });
             let aeon = aeon_original.clone();
-            app.listen_global("undo", move |_e| {
+            app.listen_global(AEON_REFRESH, move |e| {
+                let Some(payload) = e.payload() else {
+                    // TODO: This should be an error.
+                    panic!("No payload in user action.");
+                };
+                debug!("Received user action: `{}`.", payload);
+                let event: AeonRefresh = match serde_json::from_str::<AeonRefresh>(payload) {
+                    Ok(action) => action,
+                    Err(e) => {
+                        // TODO: This should be a normal error.
+                        panic!("Payload deserialize error {:?}.", e);
+                    }
+                };
                 let state = aeon.tauri.state::<AppState>();
-                if let Err(e) = state.undo(&aeon) {
+                let session_id = event.session.clone();
+                let path = event.path;
+                let result = state.refresh(&aeon, session_id.as_str(), &path);
+                if let Err(e) = result {
                     // TODO: This should be a normal error.
-                    panic!("Undo error: {:?}", e);
-                }
-            });
-            let aeon = aeon_original.clone();
-            app.listen_global("redo", move |_e| {
-                let state = aeon.tauri.state::<AppState>();
-                if let Err(e) = state.redo(&aeon) {
-                    // TODO: This should be a normal error.
-                    panic!("Redo error: {:?}", e);
+                    panic!("Event error: {:?}", e);
                 }
             });
             Ok(())
         })
+        .invoke_handler(tauri::generate_handler![get_session_id])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
