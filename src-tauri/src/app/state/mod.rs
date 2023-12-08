@@ -1,5 +1,5 @@
 use crate::app::event::{Event, StateChange, UserAction};
-use crate::app::DynError;
+use crate::app::{AeonError, DynError};
 
 mod _consumed;
 mod _state_app;
@@ -25,6 +25,46 @@ pub trait SessionState {
 
     /// "Read" session state into an event without modifying it.
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError>;
+}
+
+trait SessionHelper {
+    /// A utility function which checks if `at_path` starts with a specific first segment.
+    /// If yes, returns the remaining part of the path.
+    fn starts_with<'a, 'b>(prefix: &str, at_path: &'a [&'b str]) -> Option<&'a [&'b str]> {
+        if let Some(x) = at_path.get(0) {
+            if x == &prefix {
+                Some(&at_path[1..])
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    /// A utility function which checks if `at_path` is exactly
+    fn matches(expected: &[&str], at_path: &[&str]) -> bool {
+        if expected.len() != at_path.len() {
+            return false;
+        }
+
+        for (a, b) in expected.iter().zip(at_path) {
+            if a != b {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    /// A utility function which emits a generic "invalid path" error.
+    fn invalid_path_error<T>(at_path: &[&str]) -> Result<T, DynError> {
+        AeonError::throw(format!(
+            "`{}` cannot process path `{:?}`.",
+            std::any::type_name::<Self>(),
+            at_path
+        ))
+    }
 }
 
 pub trait Session: SessionState {
