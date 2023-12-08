@@ -38,6 +38,11 @@ interface AeonState {
     unpin: (id: number) => void
   }
 
+  model: {
+    variable_created: Observable<string>
+    add_variable: (id: string) => void
+  }
+
 }
 
 /** A function that is notified when a state value changes. */
@@ -54,6 +59,87 @@ type OnStateValue<T> = (value: T) => void
 interface AeonEvent {
   path: string[]
   payload: string | null
+}
+
+/**
+ * One observable event. This does not necessarily maps to a single state item.
+ */
+class Observable<T> {
+  path: string[]
+  listeners: Array<OnStateValue<T>> = []
+
+  constructor (path: string[]) {
+    this.path = path
+    aeonEvents.setEventListener(path, this.#acceptPayload.bind(this))
+  }
+
+  /**
+   * Register a listener to this specific observable state item.
+   *
+   * The listener is notified right away with the current value of the state item.
+   *
+   * @param listener The listener function which should be invoked when the value
+   * of this state item changes.
+   * @returns `true` if the listener was added, `false` if it was already registered.
+   */
+  addEventListener (listener: OnStateValue<T>): boolean {
+    if (this.listeners.includes(listener)) {
+      return false
+    }
+    this.listeners.push(listener)
+    return true
+  }
+
+  /**
+     * Unregister a listener previously added through `addEventListener`.
+     *
+     * @param listener The listener to be unregistered.
+     * @returns `true` if the listener was removed, `false` if it was not registered.
+     */
+  removeEventListener (listener: OnStateValue<T>): boolean {
+    const index = this.listeners.indexOf(listener)
+    if (index > -1) {
+      this.listeners.splice(index, 1)
+      return true
+    }
+    return false
+  }
+
+  /**
+   * Accept a payload value coming from the backend.
+   * @param payload The actual JSON-encoded payload value.
+   */
+  #acceptPayload (payload: string | null): void {
+    payload = payload ?? 'null'
+    try {
+      const value = JSON.parse(payload)
+      for (const listener of this.listeners) {
+        this.#notifyListener(listener, value)
+      }
+    } catch (error) {
+      const path = JSON.stringify(this.path)
+      dialog.message(
+                `Cannot dispatch event ${path} with payload ${payload}: ${String(error)}`,
+                { title: 'Internal app error', type: 'error' }
+      ).catch((e) => {
+        console.error(e)
+      })
+    }
+  }
+
+  #notifyListener (listener: OnStateValue<T>, value: T): void {
+    try {
+      listener(value)
+    } catch (error) {
+      const path = JSON.stringify(this.path)
+      dialog.message(
+                `Cannot handle event ${path} with value ${String(value)}: ${String(value)}`,
+                { title: 'Internal app error', type: 'error' }
+      ).catch((e) => {
+        console.error(e)
+      })
+    }
+  }
 }
 
 /**
@@ -359,6 +445,15 @@ export const aeonState: AeonState = {
         value.splice(index, 1)
         this.pinned.emitValue(value)
       }
+    }
+  },
+  model: {
+    variable_created: new Observable<string>(['model', 'variable', 'add']),
+    add_variable (id: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', 'add'],
+        payload: id
+      })
     }
   }
 }
