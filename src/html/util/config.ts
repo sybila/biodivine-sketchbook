@@ -8,7 +8,8 @@ export const tabList: TabData[] = [
     id: index++,
     name: 'Regulations',
     data: html`<regulations-editor></regulations-editor>`,
-    icon: 'r'
+    icon: 'r',
+    active: true
   }),
   TabData.create({
     id: index++,
