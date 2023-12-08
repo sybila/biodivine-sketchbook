@@ -1,6 +1,6 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import style_less from './node-menu.less?inline'
+import style_less from './float-menu.less?inline'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
 import {
   faArrowTrendDown,
@@ -15,12 +15,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
-import { ElementType, Monotonicity } from './element-type'
+import { ElementType, Monotonicity } from '../element-type'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
-@customElement('node-menu')
-class NodeMenu extends LitElement {
+@customElement('float-menu')
+class FloatMenu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
@@ -28,33 +28,55 @@ class NodeMenu extends LitElement {
   @property() data: { id: string, observable: boolean, monotonicity: Monotonicity, name: string } | undefined
   @state() selectedButton: IButton | undefined = undefined
 
+  connectedCallback (): void {
+    super.connectedCallback()
+    document.addEventListener('keydown', this._handleKeyDown.bind(this))
+  }
+
+  private _handleKeyDown (event: KeyboardEvent): void {
+    switch (this.type) {
+      case ElementType.NODE:
+        switch (event.key.toUpperCase()) {
+          case 'E':
+            this.renameNode()
+            break
+          case 'A':
+            this.addEdge()
+            break
+          case 'F':
+            break
+          case 'DELETE':
+          case 'BACKSPACE':
+            this.removeElement()
+            break
+        }
+        break
+      case ElementType.EDGE:
+        switch (event.key.toUpperCase()) {
+          case 'O':
+            this.toggleObservability()
+            break
+          case 'M':
+            this.toggleMonotonicity()
+            break
+          case 'DELETE':
+          case 'BACKSPACE':
+            this.removeElement()
+            break
+        }
+    }
+  }
+
   nodeButtons: IButton[] = [
     {
       icon: () => icon(faPen).node[0],
       label: () => 'Edit name (E)',
-      click: () => {
-        this.dispatchEvent(new CustomEvent('rename-node', {
-          detail: {
-            id: this.data?.id,
-            name: this.data?.name
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
+      click: this.renameNode
     },
     {
       icon: () => icon(faPlus).node[0],
       label: () => 'Add Edge (A)',
-      click: () => {
-        this.dispatchEvent(new CustomEvent('add-edge', {
-          detail: {
-            id: this.data?.id
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
+      click: this.addEdge
     },
     {
       icon: () => icon(faCalculator).node[0],
@@ -75,18 +97,7 @@ class NodeMenu extends LitElement {
         this.data === null || this.data?.observable === null
           ? 'Toggle observability (O)'
           : ((this.data?.observable) === true) ? 'Observability off (O)' : 'Observability on (O)',
-      click: () => {
-        this.dispatchEvent(new CustomEvent('update-edge', {
-          detail: {
-            edgeId: this.data?.id,
-            observable: !(this.data?.observable ?? false),
-            monotonicity: this.data?.monotonicity
-          },
-          bubbles: true,
-          composed: true
-        }))
-        if (this.data !== undefined) this.data = { ...this.data, observable: !(this.data?.observable ?? false) }
-      }
+      click: this.toggleObservability
     },
     {
       icon: () => icon(findIconDefinition(
@@ -108,30 +119,7 @@ class NodeMenu extends LitElement {
             return 'Toggle monotonicity (M)'
         }
       },
-      click: () => {
-        let monotonicity
-        switch (this.data?.monotonicity) {
-          case Monotonicity.ACTIVATION:
-            monotonicity = Monotonicity.INHIBITION
-            break
-          case Monotonicity.INHIBITION:
-            monotonicity = Monotonicity.OFF
-            break
-          default:
-            monotonicity = Monotonicity.ACTIVATION
-            break
-        }
-        if (this.data !== undefined) this.data = { ...this.data, monotonicity }
-        this.dispatchEvent(new CustomEvent('update-edge', {
-          detail: {
-            edgeId: this.data?.id,
-            observable: (this.data?.observable ?? true),
-            monotonicity
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
+      click: this.toggleMonotonicity
     },
     {
       icon: () => icon(faTrash).node[0],
@@ -142,6 +130,65 @@ class NodeMenu extends LitElement {
 
   private removeElement (): void {
     this.dispatchEvent(new CustomEvent('remove-element', {
+      detail: {
+        id: this.data?.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private toggleObservability (): void {
+    this.dispatchEvent(new CustomEvent('update-edge', {
+      detail: {
+        edgeId: this.data?.id,
+        observable: !(this.data?.observable ?? false),
+        monotonicity: this.data?.monotonicity
+      },
+      bubbles: true,
+      composed: true
+    }))
+    if (this.data !== undefined) this.data = { ...this.data, observable: !(this.data?.observable ?? false) }
+  }
+
+  private toggleMonotonicity (): void {
+    let monotonicity
+    switch (this.data?.monotonicity) {
+      case Monotonicity.ACTIVATION:
+        monotonicity = Monotonicity.INHIBITION
+        break
+      case Monotonicity.INHIBITION:
+        monotonicity = Monotonicity.OFF
+        break
+      default:
+        monotonicity = Monotonicity.ACTIVATION
+        break
+    }
+    if (this.data !== undefined) this.data = { ...this.data, monotonicity }
+    this.dispatchEvent(new CustomEvent('update-edge', {
+      detail: {
+        edgeId: this.data?.id,
+        observable: (this.data?.observable ?? true),
+        monotonicity
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private renameNode (): void {
+    this.dispatchEvent(new CustomEvent('rename-node', {
+      detail: {
+        id: this.data?.id,
+        name: this.data?.name
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private addEdge (): void {
+    this.dispatchEvent(new CustomEvent('add-edge', {
       detail: {
         id: this.data?.id
       },
