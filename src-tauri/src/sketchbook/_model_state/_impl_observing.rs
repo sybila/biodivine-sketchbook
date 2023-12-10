@@ -1,6 +1,6 @@
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{
-    Layout, LayoutId, LayoutIterator, Regulation, RegulationIterator, RegulationsState, VarId,
+    Layout, LayoutId, LayoutIterator, Regulation, RegulationIterator, ModelState, VarId,
     VariableIterator,
 };
 use std::str::FromStr;
@@ -8,19 +8,19 @@ use std::str::FromStr;
 /// Id (and name) of the initial default layout.
 const DEFAULT_LAYOUT_ID: &str = "default_layout";
 
-/// Some basic utility methods for inspecting the `RegulationsState`.
-impl RegulationsState {
-    /// The number of variables in this `RegulationsState`.
+/// Some basic utility methods for inspecting the `ModelState`.
+impl ModelState {
+    /// The number of variables in this `ModelState`.
     pub fn num_vars(&self) -> usize {
         self.variables.len()
     }
 
-    /// The number of layouts in this `RegulationsState`.
+    /// The number of layouts in this `ModelState`.
     pub fn num_layouts(&self) -> usize {
         self.layouts.len()
     }
 
-    /// The number of regulations in this `RegulationsState`.
+    /// The number of regulations in this `ModelState`.
     pub fn num_regulations(&self) -> usize {
         self.regulations.len()
     }
@@ -178,12 +178,12 @@ impl RegulationsState {
         self.layouts.keys()
     }
 
-    /// Static fn to get `LayoutId` of the default layout (same for all `RegulationStates`).
+    /// Static fn to get `LayoutId` of the default layout (same for all `ModelStates`).
     pub fn get_default_layout_id() -> LayoutId {
         LayoutId::new(DEFAULT_LAYOUT_ID).unwrap()
     }
 
-    /// Static fn to get name of the default layout (same for all `RegulationStates`).
+    /// Static fn to get name of the default layout (same for all `ModelStates`).
     pub fn get_default_layout_name() -> &'static str {
         DEFAULT_LAYOUT_ID
     }

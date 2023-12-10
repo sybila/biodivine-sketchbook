@@ -4,6 +4,7 @@ use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
+use crate::sketchbook::ModelState;
 
 /// The state of one editor session.
 ///
@@ -14,6 +15,7 @@ pub struct EditorSession {
     id: String,
     undo_stack: UndoStack,
     tab_bar: TabBarState,
+    model: ModelState,
 }
 
 impl EditorSession {
@@ -22,6 +24,7 @@ impl EditorSession {
             id: id.to_string(),
             undo_stack: UndoStack::default(),
             tab_bar: TabBarState::default(),
+            model: ModelState::default(),
         }
     }
 
@@ -187,6 +190,8 @@ impl SessionState for EditorSession {
             self.undo_stack.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
             self.tab_bar.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("model", at_path) {
+            self.model.perform_event(event, at_path)
         } else {
             Self::invalid_path_error(at_path)
         }
@@ -197,6 +202,8 @@ impl SessionState for EditorSession {
             self.undo_stack.refresh(full_path, at_path)
         } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
             self.tab_bar.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("model", at_path) {
+            self.model.refresh(full_path, at_path)
         } else {
             Self::invalid_path_error(at_path)
         }

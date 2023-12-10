@@ -1,8 +1,8 @@
-use crate::sketchbook::{LayoutId, RegulationsState, VarId};
+use crate::sketchbook::{LayoutId, ModelState, VarId};
 
-/// Methods for safely generating valid instances of identifiers for the current `RegulationsState`.
-impl RegulationsState {
-    /// Generate valid `VarId` that's currently not used by any variable in this `RegulationsState`.
+/// Methods for safely generating valid instances of identifiers for the current `ModelState`.
+impl ModelState {
+    /// Generate valid `VarId` that's currently not used by any variable in this `ModelState`.
     ///
     /// First, the variable's name or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
@@ -39,7 +39,7 @@ impl RegulationsState {
         VarId::new(format!("{}_{}", transformed_name, self.num_vars()).as_str()).unwrap()
     }
 
-    /// Generate valid `LayoutId` that's currently not used by layouts in this `RegulationsState`.
+    /// Generate valid `LayoutId` that's currently not used by layouts in this `ModelState`.
     ///
     /// First, the variable's name or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
@@ -89,7 +89,7 @@ impl RegulationsState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::LayoutId;
-    use crate::sketchbook::{RegulationsState, VarId};
+    use crate::sketchbook::{ModelState, VarId};
 
     #[test]
     fn test_id_transformation() {
@@ -98,8 +98,8 @@ mod tests {
         // string slice that is not a valid identifier as it contains various invalid characters
         let string2 = "i<d ??_12)&3    ";
 
-        let transformed1 = RegulationsState::transform_to_id(string1);
-        let transformed2 = RegulationsState::transform_to_id(string2);
+        let transformed1 = ModelState::transform_to_id(string1);
+        let transformed2 = ModelState::transform_to_id(string2);
         assert_eq!(transformed1, transformed2);
         assert_eq!(transformed1, "id_123".to_string());
     }
@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn test_var_id_generating() {
         let reg_state =
-            RegulationsState::new_from_vars(vec![("a", "name"), ("b", "name"), ("c", "name")])
+            ModelState::new_from_vars(vec![("a", "name"), ("b", "name"), ("c", "name")])
                 .unwrap();
         assert_eq!(reg_state.num_vars(), 3);
 
@@ -136,9 +136,9 @@ mod tests {
 
     #[test]
     fn test_layout_id_generating() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let layout_id = LayoutId::new("l_0").unwrap();
-        let default_layout_id = RegulationsState::get_default_layout_id();
+        let default_layout_id = ModelState::get_default_layout_id();
         reg_state
             .add_layout_copy(layout_id, "name", &default_layout_id)
             .unwrap();

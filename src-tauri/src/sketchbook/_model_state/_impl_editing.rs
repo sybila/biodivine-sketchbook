@@ -1,34 +1,34 @@
 use crate::sketchbook::{
-    Layout, LayoutId, Regulation, RegulationSign, RegulationsState, VarId, Variable,
+    Layout, LayoutId, Regulation, RegulationSign, ModelState, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
-/// Methods for safely constructing or mutating instances of `RegulationsState`.
+/// Methods for safely constructing or mutating instances of `ModelState`.
 ///
 /// These methods focus on general manipulating with variables/regulations.
 /// See below for API focusing on layout manipulation.
-impl RegulationsState {
-    /// Create a new `RegulationsState` that does not contain any `Variables` or `Regulations`.
+impl ModelState {
+    /// Create a new `ModelState` that does not contain any `Variables` or `Regulations`.
     /// It contains a single empty default `Layout`.
-    pub fn new() -> RegulationsState {
-        let default_layout_id = RegulationsState::get_default_layout_id();
-        let default_layout = Layout::new(RegulationsState::get_default_layout_name());
-        RegulationsState {
+    pub fn new() -> ModelState {
+        let default_layout_id = ModelState::get_default_layout_id();
+        let default_layout = Layout::new(ModelState::get_default_layout_name());
+        ModelState {
             variables: HashMap::new(),
             regulations: HashSet::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
         }
     }
 
-    /// Create new `RegulationsState` using provided variable name-ID pairs, both strings.
+    /// Create new `ModelState` using provided variable name-ID pairs, both strings.
     /// Result will contain no `Regulations`, and a single default `Layout`.
     ///
     /// The IDs must be unique valid identifiers.
     /// The names might be same as the IDs. It also might be empty or non-unique.
     ///
     /// Return `Err` in case the IDs are not unique.
-    pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<RegulationsState, String> {
-        let mut reg_state = RegulationsState::new();
+    pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<ModelState, String> {
+        let mut reg_state = ModelState::new();
 
         let var_id_set = variables.iter().map(|pair| pair.0).collect::<HashSet<_>>();
         if var_id_set.len() != variables.len() {
@@ -45,7 +45,7 @@ impl RegulationsState {
         Ok(reg_state)
     }
 
-    /// Add a new variable with given `var_id` and `name` to this `RegulationsState`.
+    /// Add a new variable with given `var_id` and `name` to this `ModelState`.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -58,7 +58,7 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Add a new variable with given `id` and `name` to this `RegulationsState`.
+    /// Add a new variable with given `id` and `name` to this `ModelState`.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -69,7 +69,7 @@ impl RegulationsState {
         self.add_var(var_id, name)
     }
 
-    /// Add a new `Regulation` to this `RegulationsState`.
+    /// Add a new `Regulation` to this `ModelState`.
     ///
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
     /// variables already exists.
@@ -92,8 +92,8 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Add a new `Regulation` to this `RegulationsState` using a string representation. The
-    /// variables in the given string must be valid ID strings for this `RegulationsState`.
+    /// Add a new `Regulation` to this `ModelState` using a string representation. The
+    /// variables in the given string must be valid ID strings for this `ModelState`.
     ///
     /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
     /// are not valid variable IDs, or when the regulation between the two variables already exists.
@@ -177,7 +177,7 @@ impl RegulationsState {
         self.set_var_id(&original_id, new_id)
     }
 
-    /// Remove the network variable with given `var_id` from this `RegulationsState`. This also
+    /// Remove the network variable with given `var_id` from this `ModelState`. This also
     /// removes the variable from all `Layouts` and removes all `Regulations` where this
     /// variable figures.
     ///
@@ -193,7 +193,7 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Remove the network variable with given `id` from this `RegulationsState`. This also
+    /// Remove the network variable with given `id` from this `ModelState`. This also
     /// removes the variable from all `Layouts` and removes all `Regulations` where this
     /// variable figures.
     ///
@@ -203,7 +203,7 @@ impl RegulationsState {
         self.remove_var(&var_id)
     }
 
-    /// Remove a `Regulation` pointing from `regulator` to `target` from this `RegulationsState`.
+    /// Remove a `Regulation` pointing from `regulator` to `target` from this `ModelState`.
     ///
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
     /// variables does not exist.
@@ -216,8 +216,8 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Remove a `Regulation` given by `regulation_str` from this `RegulationsState`. The
-    /// variables in the `regulation_str` must be valid ID strings for this `RegulationsState`.
+    /// Remove a `Regulation` given by `regulation_str` from this `ModelState`. The
+    /// variables in the `regulation_str` must be valid ID strings for this `ModelState`.
     ///
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
     /// variables does not exist.
@@ -227,7 +227,7 @@ impl RegulationsState {
     }
 
     /// **(internal)** Remove all `Regulations` where `variable` figures (as either regulator or
-    /// target) from this `RegulationsState`.
+    /// target) from this `ModelState`.
     /// Returns `Err` when the variable is invalid.
     fn remove_all_regulations_var(&mut self, variable: &VarId) -> Result<(), String> {
         self.assert_valid_variable(variable)?;
@@ -238,13 +238,13 @@ impl RegulationsState {
 }
 
 /// Several utility methods to manipulate with layouts.
-impl RegulationsState {
-    /// Add a new `Layout` with given `layout_id` and `name` to this `RegulationsState`. The layout
+impl ModelState {
+    /// Add a new `Layout` with given `layout_id` and `name` to this `ModelState`. The layout
     /// will contain nodes for the same variables as layout `template_layout_id`, but all of them
     /// located at a default position.
     ///
     /// Returns `Err` if `layout_id` is already being used for some other `Layout` in
-    /// this `RegulationsState`, or if `template_layout_id` does not exist.
+    /// this `ModelState`, or if `template_layout_id` does not exist.
     pub fn add_layout_simple(
         &mut self,
         layout_id: LayoutId,
@@ -260,11 +260,11 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Add a new `Layout` with given `layout_id` and `name` to this `RegulationsState`. The layout
+    /// Add a new `Layout` with given `layout_id` and `name` to this `ModelState`. The layout
     /// will be a direct copy of another existing layout given by id `template_layout_id`.
     ///
     /// Returns `Err` if `layout_id` is already being used for some other `Layout` in
-    /// this `RegulationsState`, or if `template_layout_id` does not exist.
+    /// this `ModelState`, or if `template_layout_id` does not exist.
     pub fn add_layout_copy(
         &mut self,
         layout_id: LayoutId,
@@ -280,13 +280,13 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Remove a `Layout` with given `layout_id` from this `RegulationsState`. Default layout
+    /// Remove a `Layout` with given `layout_id` from this `ModelState`. Default layout
     /// can not be deleted.
     ///
-    /// Returns `Err` in case the `id` is not a valid identifier in this `RegulationsState`.
+    /// Returns `Err` in case the `id` is not a valid identifier in this `ModelState`.
     fn remove_layout(&mut self, layout_id: &LayoutId) -> Result<(), String> {
         self.assert_valid_layout(layout_id)?;
-        if *layout_id == RegulationsState::get_default_layout_id() {
+        if *layout_id == ModelState::get_default_layout_id() {
             return Err("Default layout can not be deleted.".to_string());
         }
         if self.layouts.remove(layout_id).is_none() {
@@ -295,9 +295,9 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Remove a `Layout` with given `id` from this `RegulationsState`.
+    /// Remove a `Layout` with given `id` from this `ModelState`.
     ///
-    /// Returns `Err` in case the `id` is not a valid identifier in this `RegulationsState`.
+    /// Returns `Err` in case the `id` is not a valid identifier in this `ModelState`.
     pub fn remove_layout_by_str(&mut self, id: &str) -> Result<(), String> {
         let layout_id = LayoutId::new(id)?;
         self.remove_layout(&layout_id)
@@ -305,7 +305,7 @@ impl RegulationsState {
 
     /// Update position of a node for variable `var_id` in layout `layout_id`.
     ///
-    /// Returns `Err` in case one of the ids is not a valid for this `RegulationsState`.
+    /// Returns `Err` in case one of the ids is not a valid for this `ModelState`.
     pub fn update_node_position(
         &mut self,
         layout_id: &LayoutId,
@@ -336,7 +336,7 @@ impl RegulationsState {
     /// **(internal)** Shorthand method for adding a variable node to a default layout.
     /// The node is inserted to a default position x=0,y=0.
     fn insert_to_default_layout(&mut self, var_id: VarId) -> Result<(), String> {
-        let default_layout_id = RegulationsState::get_default_layout_id();
+        let default_layout_id = ModelState::get_default_layout_id();
         self.insert_to_layout(var_id, &default_layout_id)
     }
 
@@ -360,7 +360,7 @@ impl RegulationsState {
 
 /// Several utility methods to assert (non-)existence of variables/regulations/layouts in the
 /// current state.
-impl RegulationsState {
+impl ModelState {
     /// **(internal)** Utility method to ensure there is no regulation between the two variables yet.
     fn assert_no_regulation(&self, regulator: &VarId, target: &VarId) -> Result<(), String> {
         if self.get_regulation(regulator, target).is_err() {
@@ -420,34 +420,34 @@ impl RegulationsState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{RegulationSign, RegulationsState};
+    use crate::sketchbook::{RegulationSign, ModelState};
 
-    /// Test generating new default variant of the `RegulationsState`.
+    /// Test generating new default variant of the `ModelState`.
     #[test]
     fn test_new_default() {
-        let reg_state = RegulationsState::new();
+        let reg_state = ModelState::new();
         assert_eq!(reg_state.num_vars(), 0);
         assert_eq!(reg_state.num_regulations(), 0);
         assert_eq!(reg_state.num_layouts(), 1);
 
-        let default_layout_id = RegulationsState::get_default_layout_id();
+        let default_layout_id = ModelState::get_default_layout_id();
         assert_eq!(
             reg_state
                 .get_layout_name(&default_layout_id)
                 .unwrap()
                 .as_str(),
-            RegulationsState::get_default_layout_name(),
+            ModelState::get_default_layout_name(),
         )
     }
 
-    /// Test generating new `RegulationsState` from a set of variables.
+    /// Test generating new `ModelState` from a set of variables.
     #[test]
     fn test_new_from_vars() {
         let var_id_name_pairs = vec![("a_id", "a_name"), ("a_id", "b_name")];
-        assert!(RegulationsState::new_from_vars(var_id_name_pairs).is_err());
+        assert!(ModelState::new_from_vars(var_id_name_pairs).is_err());
 
         let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
-        let reg_state = RegulationsState::new_from_vars(var_id_name_pairs).unwrap();
+        let reg_state = ModelState::new_from_vars(var_id_name_pairs).unwrap();
         assert_eq!(reg_state.num_vars(), 2);
         assert_eq!(reg_state.num_regulations(), 0);
         assert!(reg_state.is_valid_var_id_str("a_id"));
@@ -455,12 +455,12 @@ mod tests {
         assert!(!reg_state.is_valid_var_id_str("c_id"));
     }
 
-    /// Test manually creating `RegulationsState` and mutating it by adding/removing variables
+    /// Test manually creating `ModelState` and mutating it by adding/removing variables
     /// or regulations. We are only adding valid regulations/variables here, invalid insertions are
     /// covered by other tests.
     #[test]
     fn test_manually_editing() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
 
         // add variables a, b, c
         reg_state.add_var_by_str("a", "a_name").unwrap();
@@ -495,7 +495,7 @@ mod tests {
     /// Test adding invalid variables.
     #[test]
     fn test_add_invalid_vars() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         reg_state.add_var_by_str("a", "a_name").unwrap();
 
         // same names should not be an issue
@@ -515,7 +515,7 @@ mod tests {
     /// Test adding invalid regulations.
     #[test]
     fn test_add_invalid_regs() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         reg_state.add_var_by_str("a", "a_name").unwrap();
         reg_state.add_var_by_str("b", "b_name").unwrap();
         let var_a = reg_state.get_var_id("a").unwrap();
@@ -543,7 +543,7 @@ mod tests {
     /// Test that changing variable's name works correctly.
     #[test]
     fn test_var_name_change() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         reg_state.add_var_by_str("a", "a_name").unwrap();
         reg_state.add_var_by_str("b", "b_name").unwrap();
         let var_a = reg_state.get_var_id("a").unwrap();
@@ -560,7 +560,7 @@ mod tests {
     /// Test that changing variable's ID works correctly.
     #[test]
     fn test_var_id_change() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_a = reg_state.generate_var_id("a");
         reg_state.add_var(var_a.clone(), "a_name").unwrap();
         let var_b = reg_state.generate_var_id("b");
@@ -573,7 +573,7 @@ mod tests {
         reg_state.add_regulation_by_str("b -> b").unwrap();
 
         // add layout
-        let default_layout_id = RegulationsState::get_default_layout_id();
+        let default_layout_id = ModelState::get_default_layout_id();
         let new_layout_id = reg_state.generate_layout_id("layout2");
         reg_state
             .add_layout_copy(new_layout_id.clone(), "layout2", &default_layout_id)
@@ -595,8 +595,8 @@ mod tests {
         assert!(reg_state.get_regulation(&var_b, &var_b).is_ok());
 
         // 3) layouts changed correctly
-        // we check the layout objects directly, because RegulationState shorthands would fail
-        // automatically because the variable is no longer valid for the RegulationState
+        // we check the layout objects directly, because ModelState shorthands would fail
+        // automatically because the variable is no longer valid for the ModelState
         let layout1 = reg_state.get_layout(&default_layout_id).unwrap();
         let layout2 = reg_state.get_layout(&new_layout_id).unwrap();
         assert!(layout1.get_node_position(&var_a).is_err());
@@ -608,12 +608,12 @@ mod tests {
     #[test]
     fn test_layout_manipulation() {
         let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
-        let mut reg_state = RegulationsState::new_from_vars(var_id_name_pairs).unwrap();
+        let mut reg_state = ModelState::new_from_vars(var_id_name_pairs).unwrap();
         assert_eq!(reg_state.num_layouts(), 1);
 
         // check default layout
-        let default_layout_id = RegulationsState::get_default_layout_id();
-        let default_layout_name = RegulationsState::get_default_layout_name();
+        let default_layout_id = ModelState::get_default_layout_id();
+        let default_layout_name = ModelState::get_default_layout_name();
         let default_layout = reg_state.get_layout(&default_layout_id).unwrap();
         assert!(reg_state.is_valid_layout_id(&default_layout_id));
         assert_eq!(default_layout.get_num_nodes(), 2);

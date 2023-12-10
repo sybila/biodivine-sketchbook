@@ -1,4 +1,4 @@
-use crate::sketchbook::{Layout, LayoutId, RegulationsState, VarId, Variable};
+use crate::sketchbook::{Layout, LayoutId, ModelState, VarId, Variable};
 
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -6,12 +6,12 @@ use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use std::fmt;
 
-impl Serialize for RegulationsState {
+impl Serialize for ModelState {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("RegulationsState", 3)?;
+        let mut state = serializer.serialize_struct("ModelState", 3)?;
 
         // Serialize `variables` as a map with String keys
         let variables_map: HashMap<String, &Variable> = self
@@ -36,7 +36,7 @@ impl Serialize for RegulationsState {
     }
 }
 
-impl<'de> Deserialize<'de> for RegulationsState {
+impl<'de> Deserialize<'de> for ModelState {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -78,16 +78,16 @@ impl<'de> Deserialize<'de> for RegulationsState {
             }
         }
 
-        struct RegulationsStateVisitor;
+        struct ModelStateVisitor;
 
-        impl<'de> Visitor<'de> for RegulationsStateVisitor {
-            type Value = RegulationsState;
+        impl<'de> Visitor<'de> for ModelStateVisitor {
+            type Value = ModelState;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("struct RegulationsState")
+                formatter.write_str("struct ModelState")
             }
 
-            fn visit_map<V>(self, mut map: V) -> Result<RegulationsState, V::Error>
+            fn visit_map<V>(self, mut map: V) -> Result<ModelState, V::Error>
             where
                 V: MapAccess<'de>,
             {
@@ -140,7 +140,7 @@ impl<'de> Deserialize<'de> for RegulationsState {
                 let regulations =
                     regulations.ok_or_else(|| de::Error::missing_field("regulations"))?;
                 let layouts = layouts.ok_or_else(|| de::Error::missing_field("layouts"))?;
-                Ok(RegulationsState {
+                Ok(ModelState {
                     variables,
                     regulations,
                     layouts,
@@ -149,19 +149,19 @@ impl<'de> Deserialize<'de> for RegulationsState {
         }
 
         const FIELDS: &[&str] = &["variables", "regulations", "layouts"];
-        deserializer.deserialize_struct("RegulationsState", FIELDS, RegulationsStateVisitor)
+        deserializer.deserialize_struct("ModelState", FIELDS, ModelStateVisitor)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{RegulationsState, VarId};
+    use crate::sketchbook::{ModelState, VarId};
     use std::str::FromStr;
 
     #[test]
-    fn test_regulations_state_serde() {
-        // test on very simple `RegulationsState` with one var and no regulations
-        let mut reg_state = RegulationsState::new();
+    fn test_model_state_serde() {
+        // test on very simple `ModelState` with one var and no regulations
+        let mut reg_state = ModelState::new();
         let var_id = VarId::new("a").unwrap();
         reg_state.add_var(var_id, "a").unwrap();
 
@@ -175,17 +175,17 @@ mod tests {
         assert_eq!(reg_state.to_string(), reg_state_serialized);
 
         // Deserialization (and `from_str`)
-        let reg_state_v2: RegulationsState = serde_json::from_str(&reg_state_serialized).unwrap();
+        let reg_state_v2: ModelState = serde_json::from_str(&reg_state_serialized).unwrap();
         assert_eq!(reg_state, reg_state_v2);
         assert_eq!(
             reg_state,
-            RegulationsState::from_str(&reg_state_serialized).unwrap()
+            ModelState::from_str(&reg_state_serialized).unwrap()
         );
     }
 
     #[test]
     fn test_from_to_string() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id = VarId::new("a").unwrap();
         reg_state.add_var(var_id, "a").unwrap();
         reg_state.add_regulation_by_str("a -> a").unwrap();
@@ -198,7 +198,7 @@ mod tests {
         );
 
         // From String
-        let reg_state_v2 = RegulationsState::from_str(&reg_state_string).unwrap();
+        let reg_state_v2 = ModelState::from_str(&reg_state_string).unwrap();
         assert_eq!(reg_state, reg_state_v2);
     }
 }

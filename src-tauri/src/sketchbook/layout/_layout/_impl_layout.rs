@@ -109,7 +109,7 @@ impl Layout {
     }
 }
 
-/// Methods for observing instances of `RegulationsState` (various getters, etc.).
+/// Methods for observing instances of `ModelState` (various getters, etc.).
 impl Layout {
     /// Layout information regarding the node for a particular variable.
     pub fn get_node(&self, variable: &VarId) -> Result<&NodeLayout, String> {

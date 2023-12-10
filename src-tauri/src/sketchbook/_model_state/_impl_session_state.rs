@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::RegulationsState;
+use crate::sketchbook::ModelState;
 use serde_json::json;
 
 /// TODO: expand this and move to the relevant file.
@@ -22,7 +22,7 @@ use serde_json::json;
 /// ["layout", "update_position"]; payload = {"layout_id": layout_id, "var_id": var_id, "new_x": x_val, "new_y": y_val}; `update-position`
 
 /// Functionality and shorthands related for the `SessionState` trait.
-impl RegulationsState {
+impl ModelState {
     /// Shorthand to get and clone a payload of an event. Errors if payload is empty.
     /// The `component` specifies which part of the state should be mentioned in the error.
     /// In future we may consider moving this elsewhere.
@@ -60,13 +60,13 @@ impl RegulationsState {
         Ok(())
     }
 
-    /// Perform events related to `variables` component of this `RegulationsState`.
+    /// Perform events related to `variables` component of this `ModelState`.
     fn perform_variable_event(
         &mut self,
         event: &Event,
         path: &[&str],
     ) -> Result<Consumed, DynError> {
-        let component_name = "RegulationState/variable";
+        let component_name = "model/variable";
         Self::assert_path_length(path, 1, component_name)?;
 
         match path.first() {
@@ -165,19 +165,19 @@ impl RegulationsState {
                 })
             }
             _ => AeonError::throw(format!(
-                "`RegulationState/variable` cannot consume a path `{:?}`.",
+                "`model/variable` cannot consume a path `{:?}`.",
                 path
             )),
         }
     }
 
-    /// Perform events related to `regulations` component of this `RegulationsState`.
+    /// Perform events related to `regulations` component of this `ModelState`.
     fn perform_regulation_event(
         &mut self,
         event: &Event,
         path: &[&str],
     ) -> Result<Consumed, DynError> {
-        let component_name = "RegulationState/regulation";
+        let component_name = "model/regulation";
         Self::assert_path_length(path, 1, component_name)?;
 
         match path.first() {
@@ -228,15 +228,15 @@ impl RegulationsState {
                 todo!()
             }
             _ => AeonError::throw(format!(
-                "`RegulationState/regulation` cannot consume a path `{:?}`.",
+                "`model/regulation` cannot consume a path `{:?}`.",
                 path
             )),
         }
     }
 
-    /// Perform events related to `layouts` component of this `RegulationsState`.
+    /// Perform events related to `layouts` component of this `ModelState`.
     fn perform_layout_event(&mut self, event: &Event, path: &[&str]) -> Result<Consumed, DynError> {
-        let component_name = "RegulationState/layout";
+        let component_name = "model/layout";
         Self::assert_path_length(path, 1, component_name)?;
 
         match path.first() {
@@ -285,32 +285,32 @@ impl RegulationsState {
                 todo!()
             }
             _ => AeonError::throw(format!(
-                "`RegulationState/layout` cannot consume a path `{:?}`.",
+                "`model/layout` cannot consume a path `{:?}`.",
                 path
             )),
         }
     }
 }
 
-impl SessionState for RegulationsState {
+impl SessionState for ModelState {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
-        Self::assert_path_length(at_path, 2, "RegulationState")?;
+        Self::assert_path_length(at_path, 2, "model")?;
 
         match at_path.first() {
             Some(&"variable") => self.perform_variable_event(event, &at_path[1..]),
             Some(&"regulation") => self.perform_regulation_event(event, &at_path[1..]),
             Some(&"layout") => self.perform_layout_event(event, &at_path[1..]),
             _ => AeonError::throw(format!(
-                "`RegulationState` cannot consume a path `{:?}`.",
+                "`ModelState` cannot consume a path `{:?}`.",
                 at_path
             )),
         }
     }
 
-    /// TODO: how to do this - return whole `RegulationsState`, individual components, or allow both?
+    /// TODO: change this to make it a valid getter event API
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         if !at_path.is_empty() {
-            let msg = format!("`RegulationsState` cannot consume a path `{:?}`.", at_path);
+            let msg = format!("`ModelState` cannot consume a path `{:?}`.", at_path);
             return AeonError::throw(msg);
         }
         Ok(Event {
@@ -325,14 +325,14 @@ mod tests {
     use crate::app::event::Event;
     use crate::app::state::{Consumed, SessionState};
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{RegulationsState, VarId};
+    use crate::sketchbook::{ModelState, VarId};
     use serde_json::json;
 
     /// Check that after applying the reverse event of `result` to the `reg_state` with relative
     /// path `at_path`, we receive precisely `reg_state_orig`.
     fn check_reverse(
-        mut reg_state: RegulationsState,
-        reg_state_orig: RegulationsState,
+        mut reg_state: ModelState,
+        reg_state_orig: ModelState,
         result: Consumed,
         at_path: &[&str],
     ) {
@@ -351,7 +351,7 @@ mod tests {
 
     #[test]
     fn test_add_var_event() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id_a = reg_state.generate_var_id("a");
         reg_state.add_var(var_id_a, "a").unwrap();
         let reg_state_orig = reg_state.clone();
@@ -363,7 +363,7 @@ mod tests {
             "name": "b-name",
         })
         .to_string();
-        let full_path = ["regulations_state", "variable", "add"];
+        let full_path = ["model", "variable", "add"];
         let event = Event::build(&full_path, Some(payload.as_str()));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -375,7 +375,7 @@ mod tests {
 
     #[test]
     fn test_remove_var_event() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id_a = reg_state.generate_var_id("a");
         reg_state.add_var(var_id_a, "a").unwrap();
         reg_state.add_regulation_by_str("a -> a").unwrap();
@@ -383,7 +383,7 @@ mod tests {
         assert_eq!(reg_state.num_regulations(), 1);
 
         // test variable remove event
-        let full_path = ["regulations_state", "variable", "remove"];
+        let full_path = ["model", "variable", "remove"];
         let event = Event::build(&full_path, Some("a"));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -397,7 +397,7 @@ mod tests {
 
     #[test]
     fn test_set_var_name_event() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id = reg_state.generate_var_id("a");
         let original_name = "a_name";
         let new_name = "new_name";
@@ -411,7 +411,7 @@ mod tests {
             "new_name": new_name,
         })
         .to_string();
-        let full_path = ["regulations_state", "variable", "set_name"];
+        let full_path = ["model", "variable", "set_name"];
         let event = Event::build(&full_path, Some(payload.as_str()));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -422,7 +422,7 @@ mod tests {
 
     #[test]
     fn test_set_var_id_event() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id = reg_state.generate_var_id("a");
         reg_state.add_var(var_id.clone(), "a_name").unwrap();
         let reg_state_orig = reg_state.clone();
@@ -434,7 +434,7 @@ mod tests {
             "new_id": new_id.as_str(),
         })
         .to_string();
-        let full_path = ["regulations_state", "variable", "set_id"];
+        let full_path = ["model", "variable", "set_id"];
         let event = Event::build(&full_path, Some(payload.as_str()));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -446,26 +446,26 @@ mod tests {
 
     #[test]
     fn test_invalid_var_events() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id = reg_state.generate_var_id("a");
         reg_state.add_var(var_id.clone(), "a-name").unwrap();
         let reg_state_orig = reg_state.clone();
 
         // adding variable `a` again
-        let full_path = ["regulations_state", "variable", "add"];
+        let full_path = ["model", "variable", "add"];
         let event = Event::build(&full_path, Some("a"));
         assert!(reg_state.perform_event(&event, &full_path[1..]).is_err());
         assert_eq!(reg_state, reg_state_orig);
 
         // removing variable with wrong id
-        let full_path = ["regulations_state", "variable", "remove"];
+        let full_path = ["model", "variable", "remove"];
         let event = Event::build(&full_path, Some("b"));
         assert!(reg_state.perform_event(&event, &full_path[1..]).is_err());
         assert_eq!(reg_state, reg_state_orig);
 
         // variable rename event with wrong id
         let payload = json!({"id": "b", "new_name": "x",}).to_string();
-        let full_path = ["regulations_state", "variable", "set_name"];
+        let full_path = ["model", "variable", "set_name"];
         let event = Event::build(&full_path, Some(payload.as_str()));
         assert!(reg_state.perform_event(&event, &full_path[1..]).is_err());
         assert_eq!(reg_state, reg_state_orig);
@@ -473,7 +473,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_str_event() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id_a = reg_state.generate_var_id("a");
         reg_state.add_var(var_id_a, "a").unwrap();
         let var_id_a = reg_state.generate_var_id("b");
@@ -481,7 +481,7 @@ mod tests {
         let reg_state_orig = reg_state.clone();
 
         // test regulation add event
-        let full_path = ["regulations_state", "regulation", "add_by_str"];
+        let full_path = ["model", "regulation", "add_by_str"];
         let event = Event::build(&full_path, Some("a -> b"));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -496,7 +496,7 @@ mod tests {
 
     #[test]
     fn test_remove_reg_str_event() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id_a = reg_state.generate_var_id("a");
         reg_state.add_var(var_id_a, "a").unwrap();
         let var_id_a = reg_state.generate_var_id("b");
@@ -505,7 +505,7 @@ mod tests {
         let reg_state_orig = reg_state.clone();
 
         // test regulation add event
-        let full_path = ["regulations_state", "regulation", "remove_by_str"];
+        let full_path = ["model", "regulation", "remove_by_str"];
         let event = Event::build(&full_path, Some("a -> b"));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -520,8 +520,8 @@ mod tests {
 
     #[test]
     fn test_change_position_event() {
-        let mut reg_state = RegulationsState::new();
-        let layout_id = RegulationsState::get_default_layout_id();
+        let mut reg_state = ModelState::new();
+        let layout_id = ModelState::get_default_layout_id();
         let var_id = reg_state.generate_var_id("a");
         reg_state.add_var(var_id.clone(), "a_name").unwrap();
         let reg_state_orig = reg_state.clone();
@@ -534,7 +534,7 @@ mod tests {
             "new_y": 0.4,
         })
         .to_string();
-        let full_path = ["regulations_state", "layout", "update_position"];
+        let full_path = ["model", "layout", "update_position"];
         let event = Event::build(&full_path, Some(payload.as_str()));
         let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
 

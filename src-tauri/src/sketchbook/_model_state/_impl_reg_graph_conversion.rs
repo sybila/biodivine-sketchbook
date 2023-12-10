@@ -1,11 +1,11 @@
-use crate::sketchbook::{RegulationSign, RegulationsState, VarId};
+use crate::sketchbook::{RegulationSign, ModelState, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
-/// Methods for converting between `RegulationsState` and `RegulatoryGraph` (from the lib-param-bn).
-impl RegulationsState {
-    /// Convert the `RegulationsState` (the current state of the regulation graph) into the
-    /// corresponding `RegulatoryGraph` object. Sorted variable IDs of the `RegulationsState` are
+/// Methods for converting between `ModelState` and `RegulatoryGraph` (from the lib-param-bn).
+impl ModelState {
+    /// Convert the `ModelState` (the current state of the regulation graph) into the
+    /// corresponding `RegulatoryGraph` object. Sorted variable IDs of the `ModelState` are
     /// used for variable names in `RegulatoryGraph`.
     ///
     /// Note that we can convert the resulting `RegulatoryGraph` back, but the conversion loses
@@ -30,7 +30,7 @@ impl RegulationsState {
                     r.get_regulator().as_str(),
                     r.get_target().as_str(),
                     r.is_observable(),
-                    RegulationsState::sign_to_monotonicity(r.get_sign()),
+                    ModelState::sign_to_monotonicity(r.get_sign()),
                 )
                 .unwrap();
             // we can use unwrap, cause the regulation will always be unique and correctly added
@@ -38,13 +38,13 @@ impl RegulationsState {
         reg_graph
     }
 
-    /// Convert the `RegulatoryGraph` into the corresponding `RegulationsState` object. A name
+    /// Convert the `RegulatoryGraph` into the corresponding `ModelState` object. A name
     /// of the variable used in `RegulatoryGraph` (which should be unique) is used as both its ID
-    /// and name in the resulting `RegulationsState`.
+    /// and name in the resulting `ModelState`.
     ///
-    /// Note that only the default layout (all nodes at 0,0) is created for the `RegulationsState`.
-    pub fn from_reg_graph(reg_graph: RegulatoryGraph) -> Result<RegulationsState, String> {
-        let mut reg_state = RegulationsState::new();
+    /// Note that only the default layout (all nodes at 0,0) is created for the `ModelState`.
+    pub fn from_reg_graph(reg_graph: RegulatoryGraph) -> Result<ModelState, String> {
+        let mut reg_state = ModelState::new();
 
         // variables
         for v in reg_graph.variables() {
@@ -61,7 +61,7 @@ impl RegulationsState {
                 VarId::new(name_regulator.as_str())?,
                 VarId::new(name_target.as_str())?,
                 r.is_observable(),
-                RegulationsState::sign_from_monotonicity(r.get_monotonicity()),
+                ModelState::sign_from_monotonicity(r.get_monotonicity()),
             )?;
         }
         Ok(reg_state)
@@ -96,12 +96,12 @@ impl RegulationsState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{RegulationsState, VarId};
+    use crate::sketchbook::{ModelState, VarId};
     use biodivine_lib_param_bn::RegulatoryGraph;
 
     #[test]
     fn test_to_reg_graph() {
-        let mut reg_state = RegulationsState::new();
+        let mut reg_state = ModelState::new();
         let var_id_a = VarId::new("a").unwrap();
         let var_id_b = VarId::new("b").unwrap();
         reg_state.add_var(var_id_a, "a").unwrap();
@@ -117,7 +117,7 @@ mod tests {
             vec![reg_graph.find_variable("b").unwrap()]
         );
 
-        let reg_state_back = RegulationsState::from_reg_graph(reg_graph).unwrap();
+        let reg_state_back = ModelState::from_reg_graph(reg_graph).unwrap();
         assert_eq!(reg_state, reg_state_back);
     }
 
@@ -127,7 +127,7 @@ mod tests {
         reg_graph.add_string_regulation("a -> b").unwrap();
         reg_graph.add_string_regulation("b -> a").unwrap();
 
-        let reg_state = RegulationsState::from_reg_graph(reg_graph.clone()).unwrap();
+        let reg_state = ModelState::from_reg_graph(reg_graph.clone()).unwrap();
         assert_eq!(reg_state.num_vars(), 2);
 
         let reg_graph_back = reg_state.to_reg_graph();

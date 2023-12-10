@@ -1,4 +1,4 @@
-use aeon_sketchbook::sketchbook::RegulationsState;
+use aeon_sketchbook::sketchbook::ModelState;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
 fn main() {
@@ -6,7 +6,7 @@ fn main() {
     r.add_string_regulation("a -> b").unwrap();
     r.add_string_regulation("b -| a").unwrap();
 
-    let reg_state = RegulationsState::from_reg_graph(r);
+    let reg_state = ModelState::from_reg_graph(r);
     match reg_state {
         Ok(r) => println!("{}", r),
         Err(e) => println!("{}", e),

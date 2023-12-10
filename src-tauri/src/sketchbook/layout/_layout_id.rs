@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
-/// A type-safe (string-based) identifier of a `Layout` inside `RegulationsState`.
+/// A type-safe (string-based) identifier of a `Layout` inside `ModelState`.
 ///
 /// **Warning:** Do not mix identifiers between different networks/graphs. Generally, be careful
 /// to only use `LayoutId` currently valid for the network.
@@ -18,7 +18,7 @@ impl LayoutId {
     /// Returns `Err` if the string is not a valid identifier (it must be a C-like identifier).
     ///
     /// This does not ensure that the generated ID is unique and usable for given context.
-    /// Parent classes (like `RegulationsState`) allow to generate unique `VarIds` safely.
+    /// Parent classes (like `ModelState`) allow to generate unique `VarIds` safely.
     pub(crate) fn new(identifier: &str) -> Result<LayoutId, String> {
         Ok(LayoutId {
             id: Identifier::new(identifier)?,

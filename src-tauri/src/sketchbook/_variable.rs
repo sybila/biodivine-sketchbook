@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-/// A type safe object for a Boolean variable of a `RegulationsState`.
+/// A type safe object for a Boolean variable of a `ModelState`.
 ///
 /// Currently, it only stores the variable's `name`.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
