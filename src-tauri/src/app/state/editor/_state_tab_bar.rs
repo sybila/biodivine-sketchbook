@@ -1,6 +1,6 @@
 use crate::app::event::Event;
-use crate::app::state::{AtomicState, Consumed, SessionState};
-use crate::app::{AeonError, DynError};
+use crate::app::state::{AtomicState, Consumed, SessionHelper, SessionState};
+use crate::app::DynError;
 
 #[derive(Default)]
 pub struct TabBarState {
@@ -8,28 +8,26 @@ pub struct TabBarState {
     pinned: AtomicState<Vec<u32>>,
 }
 
+impl SessionHelper for TabBarState {}
+
 impl SessionState for TabBarState {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
-        if at_path.is_empty() {
-            return AeonError::throw("`TabBar` cannot process an empty path.");
-        }
-
-        match at_path[0] {
-            "active" => self.active.perform_event(event, &at_path[1..]),
-            "pinned" => self.pinned.perform_event(event, &at_path[1..]),
-            it => AeonError::throw(format!("Unknown path in `TabBar`: `{}`", it)),
+        if let Some(at_path) = Self::starts_with("active", at_path) {
+            self.active.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("pinned", at_path) {
+            self.pinned.perform_event(event, at_path)
+        } else {
+            Self::invalid_path_error(at_path)
         }
     }
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
-        if at_path.is_empty() {
-            return AeonError::throw("`TabBar` cannot process an empty path.");
-        }
-
-        match at_path[0] {
-            "active" => self.active.refresh(full_path, &at_path[1..]),
-            "pinned" => self.pinned.refresh(full_path, &at_path[1..]),
-            it => AeonError::throw(format!("Unknown path in `TabBar`: `{}`", it)),
+        if let Some(at_path) = Self::starts_with("active", at_path) {
+            self.active.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("pinned", at_path) {
+            self.pinned.refresh(full_path, at_path)
+        } else {
+            Self::invalid_path_error(at_path)
         }
     }
 }

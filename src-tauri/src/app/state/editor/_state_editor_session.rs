@@ -1,7 +1,7 @@
 use crate::app::event::{Event, StateChange, UserAction};
 use crate::app::state::_undo_stack::UndoStack;
 use crate::app::state::editor::TabBarState;
-use crate::app::state::{Consumed, Session, SessionState};
+use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
 
@@ -179,28 +179,26 @@ impl Session for EditorSession {
     }
 }
 
+impl SessionHelper for EditorSession {}
+
 impl SessionState for EditorSession {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
-        if at_path.is_empty() {
-            return AeonError::throw("`EditorSession` cannot process an empty path.");
-        }
-
-        match at_path[0] {
-            "undo_stack" => self.undo_stack.perform_event(event, &at_path[1..]),
-            "tab_bar" => self.tab_bar.perform_event(event, &at_path[1..]),
-            it => AeonError::throw(format!("Unknown path in `EditorSession`: `{}`", it)),
+        if let Some(at_path) = Self::starts_with("undo_stack", at_path) {
+            self.undo_stack.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
+            self.tab_bar.perform_event(event, at_path)
+        } else {
+            Self::invalid_path_error(at_path)
         }
     }
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
-        if at_path.is_empty() {
-            return AeonError::throw("`EditorSession` cannot process an empty path.");
-        }
-
-        match at_path[0] {
-            "undo_stack" => self.undo_stack.refresh(full_path, &at_path[1..]),
-            "tab_bar" => self.tab_bar.refresh(full_path, &at_path[1..]),
-            it => AeonError::throw(format!("Unknown path in `EditorSession`: `{}`", it)),
+        if let Some(at_path) = Self::starts_with("undo_stack", at_path) {
+            self.undo_stack.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
+            self.tab_bar.refresh(full_path, at_path)
+        } else {
+            Self::invalid_path_error(at_path)
         }
     }
 }
