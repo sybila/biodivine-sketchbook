@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Layout, LayoutId, Regulation, RegulationSign, ModelState, VarId, Variable,
+    Layout, LayoutId, ModelState, Regulation, RegulationSign, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -420,7 +420,7 @@ impl ModelState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{RegulationSign, ModelState};
+    use crate::sketchbook::{ModelState, RegulationSign};
 
     /// Test generating new default variant of the `ModelState`.
     #[test]

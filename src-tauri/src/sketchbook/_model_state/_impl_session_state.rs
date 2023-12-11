@@ -1,25 +1,11 @@
 use crate::app::event::Event;
-use crate::app::state::{Consumed, SessionState};
+use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::ModelState;
 use serde_json::json;
 
-/// TODO: expand this and move to the relevant file.
-/// List of events we'll need, with their path, payload format, and path to the corresponding
-/// event for front-end. Payloads are single string values, or a json object with multiple string
-/// fields.
-/// ["variable", "add"]; payload = {"id": var_id, "name": name}; `add-variable`
-/// ["variable", "remove"]; payload = var_id, `remove-variable`
-/// ["variable", "set_name"]; payload = {"id": var_id, "new_name": new_name}; `set-name`
-/// ["variable", "set_id"],; payload = {"original_id": original_id, "new_id": new_id}; `set-id`
-/// ["regulation", "add"]; payload = {"regulator": reg_id, "target": target_id, "sign": sign, "observable": observ}; `add-regulation`
-/// ["regulation", "remove"]; payload = {"regulator": reg_id, "target": target_id}, `remove-regulation`
-/// ["regulation", "add_by_str"]; payload = regulation_str; `add-regulation-str`
-/// ["regulation", "remove_by_str"]; payload = regulation_str; `remove-regulation-str`
-/// ["layout", "add"]; payload = {"id": layout_id, "name": name}; `add-layout`
-/// ["layout", "set_name"]; payload = {"id": layout_id, "new_name": new_name}; `set-layout-name`
-/// ["layout", "update_position"]; payload = {"layout_id": layout_id, "var_id": var_id, "new_x": x_val, "new_y": y_val}; `update-position`
+impl SessionHelper for ModelState {}
 
 /// Functionality and shorthands related for the `SessionState` trait.
 impl ModelState {
@@ -60,114 +46,110 @@ impl ModelState {
         Ok(())
     }
 
+    fn throw_path_error<T>(path: &[&str], component: &str) -> Result<T, DynError> {
+        AeonError::throw(format!("`{component}` cannot consume a path `{:?}`.", path))
+    }
+
     /// Perform events related to `variables` component of this `ModelState`.
     fn perform_variable_event(
         &mut self,
         event: &Event,
-        path: &[&str],
+        at_path: &[&str],
     ) -> Result<Consumed, DynError> {
         let component_name = "model/variable";
-        Self::assert_path_length(path, 1, component_name)?;
 
-        match path.first() {
-            Some(&"add") => {
-                // get payload components
-                let payload = Self::clone_payload_str(event, component_name)?;
-                let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-                let var_id_str = Self::str_from_json(&payload_json, "id")?;
-                let name = Self::str_from_json(&payload_json, "name")?;
+        if Self::starts_with("add", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
+            let var_id_str = Self::str_from_json(&payload_json, "id")?;
+            let name = Self::str_from_json(&payload_json, "name")?;
 
-                // perform the event, prepare the state-change variant
-                self.add_var_by_str(var_id_str.as_str(), name.as_str())?;
-                let state_change = Event::build(&["add-variable"], Some(&payload));
+            // perform the event, prepare the state-change variant
+            self.add_var_by_str(var_id_str.as_str(), name.as_str())?;
+            let state_change = event.clone();
 
-                // prepare the reverse event
-                let mut reverse_path = event.path.clone();
-                reverse_path.remove(reverse_path.len() - 1);
-                reverse_path.push("remove".to_string());
-                let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
-                let reverse_event = Event::build(&reverse_path, Some(var_id_str.as_str()));
+            // prepare the reverse event
+            let mut reverse_path = event.path.clone();
+            reverse_path.remove(reverse_path.len() - 1);
+            reverse_path.push("remove".to_string());
+            let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
+            let reverse_event = Event::build(&reverse_path, Some(var_id_str.as_str()));
 
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
-                })
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else if Self::starts_with("remove", at_path).is_some() {
+            let var_id_str = Self::clone_payload_str(event, component_name)?;
+            self.remove_var_by_str(var_id_str.as_str())?;
+            let state_change = event.clone();
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: true,
+            })
+        } else if Self::starts_with("set_name", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
+            let var_id_str = Self::str_from_json(&payload_json, "id")?;
+            let var_id = self.get_var_id(var_id_str.as_str())?;
+            let new_name = Self::str_from_json(&payload_json, "new_name")?;
+            let original_name = self.get_var_name(&var_id)?.to_string();
+
+            if new_name == original_name {
+                return Ok(Consumed::NoChange);
             }
-            Some(&"remove") => {
-                let var_id_str = Self::clone_payload_str(event, component_name)?;
-                self.remove_var_by_str(var_id_str.as_str())?;
-                let state_change = Event::build(&["remove-variable"], Some(var_id_str.as_str()));
-                Ok(Consumed::Irreversible {
-                    state_change,
-                    reset: true,
+
+            // perform the event, prepare the state-change variant
+            self.set_var_name(&var_id, new_name.as_str())?;
+            let state_change = event.clone();
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(
+                json!({
+                    "id": var_id.as_str(),
+                    "new_name": original_name,
                 })
+                .to_string(),
+            );
+
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else if Self::starts_with("set_id", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
+            let original_id = Self::str_from_json(&payload_json, "original_id")?;
+            let new_id = Self::str_from_json(&payload_json, "new_id")?;
+
+            if original_id == new_id {
+                return Ok(Consumed::NoChange);
             }
-            Some(&"set_name") => {
-                // get payload components
-                let payload = Self::clone_payload_str(event, component_name)?;
-                let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-                let var_id_str = Self::str_from_json(&payload_json, "id")?;
-                let var_id = self.get_var_id(var_id_str.as_str())?;
-                let new_name = Self::str_from_json(&payload_json, "new_name")?;
-                let original_name = self.get_var_name(&var_id)?.to_string();
 
-                if new_name == original_name {
-                    return Ok(Consumed::NoChange);
-                }
+            // perform the event, prepare the state-change variant
+            self.set_var_id_by_str(&original_id, &new_id)?;
+            let state_change = event.clone();
 
-                // perform the event, prepare the state-change variant
-                self.set_var_name(&var_id, new_name.as_str())?;
-                let state_change = Event::build(&["set-name"], Some(&payload));
-
-                // prepare the reverse event
-                let mut reverse_event = event.clone();
-                reverse_event.payload = Some(
-                    json!({
-                        "id": var_id.as_str(),
-                        "new_name": original_name,
-                    })
-                    .to_string(),
-                );
-
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(
+                json!({
+                    "original_id": new_id.as_str(),
+                    "new_id": original_id.as_str(),
                 })
-            }
-            Some(&"set_id") => {
-                // get payload components
-                let payload = Self::clone_payload_str(event, component_name)?;
-                let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-                let original_id = Self::str_from_json(&payload_json, "original_id")?;
-                let new_id = Self::str_from_json(&payload_json, "new_id")?;
+                .to_string(),
+            );
 
-                if original_id == new_id {
-                    return Ok(Consumed::NoChange);
-                }
-
-                // perform the event, prepare the state-change variant
-                self.set_var_id_by_str(&original_id, &new_id)?;
-                let state_change = Event::build(&["set-id"], Some(&payload));
-
-                // prepare the reverse event
-                let mut reverse_event = event.clone();
-                reverse_event.payload = Some(
-                    json!({
-                        "original_id": new_id.as_str(),
-                        "new_id": original_id.as_str(),
-                    })
-                    .to_string(),
-                );
-
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
-                })
-            }
-            _ => AeonError::throw(format!(
-                "`model/variable` cannot consume a path `{:?}`.",
-                path
-            )),
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else {
+            Self::throw_path_error(at_path, component_name)
         }
     }
 
@@ -175,119 +157,141 @@ impl ModelState {
     fn perform_regulation_event(
         &mut self,
         event: &Event,
-        path: &[&str],
+        at_path: &[&str],
     ) -> Result<Consumed, DynError> {
         let component_name = "model/regulation";
-        Self::assert_path_length(path, 1, component_name)?;
 
-        match path.first() {
-            Some(&"add_by_str") => {
-                // get payload components
-                let payload = Self::clone_payload_str(event, component_name)?;
+        if Self::starts_with("add_by_str", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
 
-                // perform the event, prepare the state-change variant
-                self.add_regulation_by_str(payload.as_str())?;
-                let state_change = Event::build(&["add-regulation-str"], Some(&payload));
+            // perform the event, prepare the state-change variant
+            self.add_regulation_by_str(payload.as_str())?;
+            let state_change = event.clone();
 
-                // prepare the reverse event
-                let mut reverse_path = event.path.clone();
-                reverse_path.remove(reverse_path.len() - 1);
-                reverse_path.push("remove_by_str".to_string());
-                let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
-                let reverse_event = Event::build(&reverse_path, Some(payload.as_str()));
+            // prepare the reverse event
+            let mut reverse_path = event.path.clone();
+            reverse_path.remove(reverse_path.len() - 1);
+            reverse_path.push("remove_by_str".to_string());
+            let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
+            let reverse_event = Event::build(&reverse_path, Some(payload.as_str()));
 
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else if Self::starts_with("remove_by_str", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
+
+            // perform the event, prepare the state-change variant
+            self.remove_regulation_by_str(payload.as_str())?;
+            let state_change = event.clone();
+
+            // prepare the reverse event
+            let mut reverse_path = event.path.clone();
+            reverse_path.remove(reverse_path.len() - 1);
+            reverse_path.push("add_by_str".to_string());
+            let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
+            let reverse_event = Event::build(&reverse_path, Some(payload.as_str()));
+
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else if Self::starts_with("add", at_path).is_some() {
+            todo!()
+        } else if Self::starts_with("remove", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
+            let regulator = Self::str_from_json(&payload_json, "regulator")?;
+            let regulator_id = self.get_var_id(&regulator)?;
+            let target = Self::str_from_json(&payload_json, "target")?;
+            let target_id = self.get_var_id(&target)?;
+
+            let original_regulation = self.get_regulation(&regulator_id, &target_id)?.clone();
+
+            // perform the event, prepare the state-change variant
+            self.remove_regulation(&regulator_id, &target_id)?;
+            let state_change = event.clone();
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.path.remove(reverse_event.path.len() - 1);
+            reverse_event.path.push("add".to_string());
+            reverse_event.payload = Some(
+                json!({
+                    "regulator": regulator_id.as_str(),
+                    "target": target_id.as_str(),
+                    "sign": original_regulation.get_sign().to_string(),
+                    "observable": original_regulation.is_observable(),
                 })
-            }
-            Some(&"remove_by_str") => {
-                // get payload components
-                let payload = Self::clone_payload_str(event, component_name)?;
+                .to_string(),
+            );
 
-                // perform the event, prepare the state-change variant
-                self.remove_regulation_by_str(payload.as_str())?;
-                let state_change = Event::build(&["remove-regulation-str"], Some(&payload));
-
-                // prepare the reverse event
-                let mut reverse_path = event.path.clone();
-                reverse_path.remove(reverse_path.len() - 1);
-                reverse_path.push("add_by_str".to_string());
-                let reverse_path: Vec<&str> = reverse_path.iter().map(|s| s.as_str()).collect();
-                let reverse_event = Event::build(&reverse_path, Some(payload.as_str()));
-
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
-                })
-            }
-            Some(&"add") => {
-                todo!()
-            }
-            Some(&"remove") => {
-                todo!()
-            }
-            _ => AeonError::throw(format!(
-                "`model/regulation` cannot consume a path `{:?}`.",
-                path
-            )),
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else if Self::starts_with("set_sign", at_path).is_some() {
+            todo!()
+        } else {
+            Self::throw_path_error(at_path, component_name)
         }
     }
 
     /// Perform events related to `layouts` component of this `ModelState`.
-    fn perform_layout_event(&mut self, event: &Event, path: &[&str]) -> Result<Consumed, DynError> {
+    fn perform_layout_event(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+    ) -> Result<Consumed, DynError> {
         let component_name = "model/layout";
-        Self::assert_path_length(path, 1, component_name)?;
 
-        match path.first() {
-            Some(&"update_position") => {
-                // get payload components
-                let payload = Self::clone_payload_str(event, component_name)?;
-                let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-                let layout_id_str = Self::str_from_json(&payload_json, "layout_id")?;
-                let layout_id = self.get_layout_id(layout_id_str.as_str())?;
-                let var_id_str = Self::str_from_json(&payload_json, "var_id")?;
-                let var_id = self.get_var_id(var_id_str.as_str())?;
-                let new_x = Self::float_from_json(&payload_json, "new_x")?;
-                let new_y = Self::float_from_json(&payload_json, "new_y")?;
-                let new_position = NodePosition(new_x, new_y);
-                let original_position = self.get_node_position(&layout_id, &var_id)?.clone();
+        if Self::starts_with("update_position", at_path).is_some() {
+            // get payload components
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
+            let layout_id_str = Self::str_from_json(&payload_json, "layout_id")?;
+            let layout_id = self.get_layout_id(layout_id_str.as_str())?;
+            let var_id_str = Self::str_from_json(&payload_json, "var_id")?;
+            let var_id = self.get_var_id(var_id_str.as_str())?;
+            let new_x = Self::float_from_json(&payload_json, "new_x")?;
+            let new_y = Self::float_from_json(&payload_json, "new_y")?;
+            let new_position = NodePosition(new_x, new_y);
+            let original_position = self.get_node_position(&layout_id, &var_id)?.clone();
 
-                if new_position == original_position {
-                    return Ok(Consumed::NoChange);
-                }
+            if new_position == original_position {
+                return Ok(Consumed::NoChange);
+            }
 
-                // perform the event, prepare the state-change variant
-                self.update_node_position(&layout_id, &var_id, new_x, new_y)?;
-                let state_change = Event::build(&["set-position"], Some(&payload));
+            // perform the event, prepare the state-change variant
+            self.update_node_position(&layout_id, &var_id, new_x, new_y)?;
+            let state_change = event.clone();
 
-                // prepare the reverse event
-                let mut reverse_event = event.clone();
-                reverse_event.payload = Some(
-                    json!({
-                        "layout_id": layout_id_str,
-                        "var_id": var_id_str,
-                        "new_x": original_position.0,
-                        "new_y": original_position.1,
-                    })
-                    .to_string(),
-                );
-
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(
+                json!({
+                    "layout_id": layout_id_str,
+                    "var_id": var_id_str,
+                    "new_x": original_position.0,
+                    "new_y": original_position.1,
                 })
-            }
-            Some(&"add") => {
-                todo!()
-            }
-            Some(&"remove") => {
-                todo!()
-            }
-            _ => AeonError::throw(format!(
-                "`model/layout` cannot consume a path `{:?}`.",
-                path
-            )),
+                .to_string(),
+            );
+
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+        } else if Self::starts_with("add", at_path).is_some() {
+            todo!()
+        } else if Self::starts_with("remove", at_path).is_some() {
+            todo!()
+        } else {
+            Self::throw_path_error(at_path, component_name)
         }
     }
 }
@@ -300,10 +304,7 @@ impl SessionState for ModelState {
             Some(&"variable") => self.perform_variable_event(event, &at_path[1..]),
             Some(&"regulation") => self.perform_regulation_event(event, &at_path[1..]),
             Some(&"layout") => self.perform_layout_event(event, &at_path[1..]),
-            _ => AeonError::throw(format!(
-                "`ModelState` cannot consume a path `{:?}`.",
-                at_path
-            )),
+            _ => Self::invalid_path_error(at_path),
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::sketchbook::VarId;
+use crate::sketchbook::{RegulationSign, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -24,17 +24,6 @@ lazy_static! {
             ID_REGEX_STR,
         ).as_str()
     ).unwrap();
-}
-
-/// Possible variants of (non)-monotonous effects of a `Regulation`.
-/// `Activation` means positive and `Inhibition` means negative monotonicity, `Dual` means both
-/// positive and negative effect, `Unknown` for unknown effect.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum RegulationSign {
-    Activation,
-    Inhibition,
-    Dual,
-    Unknown,
 }
 
 /// Describes an interaction between two variables, `regulator` and `target`.
@@ -169,12 +158,7 @@ impl Regulation {
 
 impl Display for Regulation {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        let regulation_sign = match self.get_sign() {
-            RegulationSign::Unknown => "?",
-            RegulationSign::Activation => ">",
-            RegulationSign::Inhibition => "|",
-            RegulationSign::Dual => "D",
-        };
+        let regulation_sign = self.get_sign().to_string();
         let observability = if self.is_observable() { "" } else { "?" };
 
         write!(

@@ -1,6 +1,6 @@
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{
-    Layout, LayoutId, LayoutIterator, Regulation, RegulationIterator, ModelState, VarId,
+    Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, VarId,
     VariableIterator,
 };
 use std::str::FromStr;

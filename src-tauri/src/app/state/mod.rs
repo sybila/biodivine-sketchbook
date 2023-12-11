@@ -27,11 +27,11 @@ pub trait SessionState {
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError>;
 }
 
-trait SessionHelper {
+pub trait SessionHelper {
     /// A utility function which checks if `at_path` starts with a specific first segment.
     /// If yes, returns the remaining part of the path.
     fn starts_with<'a, 'b>(prefix: &str, at_path: &'a [&'b str]) -> Option<&'a [&'b str]> {
-        if let Some(x) = at_path.get(0) {
+        if let Some(x) = at_path.first() {
             if x == &prefix {
                 Some(&at_path[1..])
             } else {

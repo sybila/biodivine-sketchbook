@@ -38,11 +38,51 @@ interface AeonState {
     unpin: (id: number) => void
   }
 
+  /** The state of the main model. */
   model: {
-    variable_created: Observable<string>
-    add_variable: (id: string) => void
-  }
+    // TODO: expend, modify, and polish this
 
+    /** Variable-related */
+
+    /** Variable is created. */
+    variable_created: Observable<string>
+    add_variable: (var_id: string, var_name: string) => void
+    /** Variable is removed. */
+    variable_removed: Observable<string>
+    remove_variable: (var_id: string) => void
+    /** Variable is renamed. */
+    variable_name_changed: Observable<string>
+    set_variable_name: (var_id: string, new_name: string) => void
+    /** Variable id is changed. */
+    variable_id_changed: Observable<string>
+    set_variable_id: (original_id: string, new_id: string) => void
+
+    /** Regulation-related */
+
+    /** Regulation specified by all the components, or its string encoding, is created. */
+    regulation_created: Observable<string>
+    add_regulation: (regulator_id: string, target_id: string, sign: string, observable: boolean) => void
+    add_regulation_by_str: (regulation_str: string) => void
+    /** Regulation specified by its regulator&target pair, or its string encoding, is removed. */
+    regulation_removed: Observable<string>
+    remove_regulation: (regulator_id: string, target_id: string) => void
+    remove_regulation_by_str: (regulation_str: string) => void
+    /** Sign of the regulation specified by regulator&target is changed. */
+    regulation_sign_changed: Observable<string>
+    set_regulation_sign: (regulator_id: string, target_id: string, sign: string) => void
+
+    /** Layout-related */
+
+    /** Layout is created. */
+    layout_created: Observable<string>
+    add_layout: (layout_id: string, layout_name: string) => void
+    /** Layout is removed. */
+    layout_removed: Observable<string>
+    remove_layout: (layout_id: string) => void
+    /** Position of a node in a layout is changed. */
+    node_position_changed: Observable<string>
+    change_node_position: (layout_id: string, var_id: string, new_x: string, new_y: string) => void
+  }
 }
 
 /** A function that is notified when a state value changes. */
@@ -449,11 +489,100 @@ export const aeonState: AeonState = {
   },
   model: {
     variable_created: new Observable<string>(['model', 'variable', 'add']),
-    add_variable (id: string): void {
+    variable_removed: new Observable<string>(['model', 'variable', 'remove']),
+    variable_name_changed: new Observable<string>(['model', 'variable', 'set_name']),
+    variable_id_changed: new Observable<string>(['model', 'variable', 'set_id']),
+
+    regulation_created: new Observable<string>(['model', 'regulation', 'add']),
+    regulation_removed: new Observable<string>(['model', 'regulation', 'remove']),
+    regulation_sign_changed: new Observable<string>(['model', 'regulation', 'set_sign']),
+
+    layout_created: new Observable<string>(['model', 'layout', 'add']),
+    layout_removed: new Observable<string>(['model', 'layout', 'remove']),
+    node_position_changed: new Observable<string>(['model', 'layout', 'update_position']),
+
+    add_variable(var_id: string, var_name: string): void {
       aeonEvents.emitAction({
         path: ['model', 'variable', 'add'],
-        payload: id
+        payload: JSON.stringify({"id": var_id, "name": var_name}),
       })
-    }
-  }
+    },
+    remove_variable(var_id: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', 'remove'],
+        payload: var_id,
+      })
+    },
+    set_variable_name(var_id: string, new_name: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', 'set_name'],
+        payload: JSON.stringify({"id": var_id, "new_name": new_name}),
+      })
+    },
+    set_variable_id(original_id: string, new_id: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', 'set_id'],
+        payload: JSON.stringify({"original_id": original_id, "new_id": new_id}),
+      })
+    },
+
+    add_regulation(regulator_id: string, target_id: string, sign: string, observable: boolean): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', 'add'],
+        payload: JSON.stringify({
+          "regulator": regulator_id,
+          "target": target_id,
+          "sign": sign,
+          "observable": observable
+        }),
+      })
+    },
+    add_regulation_by_str(regulation_str: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', 'add_by_str'],
+        payload: regulation_str,
+      })
+    },
+    remove_regulation(regulator_id: string, target_id: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', 'remove'],
+        payload: JSON.stringify({"regulator": regulator_id, "target": target_id}),
+      })
+    },
+    remove_regulation_by_str(regulation_str: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', 'remove_by_str'],
+        payload: regulation_str,
+      })
+    },
+    set_regulation_sign(regulator_id: string, target_id: string, sign: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', 'set_sign'],
+        payload: JSON.stringify({"regulator": regulator_id, "target": target_id, "sign": sign}),
+      })
+    },
+    add_layout(layout_id: string, layout_name: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'layout', 'add'],
+        payload: JSON.stringify({"id": layout_id, "name": layout_name}),
+      })
+    },
+    remove_layout(layout_id: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'layout', 'remove'],
+        payload: layout_id,
+      })
+    },
+    change_node_position(layout_id: string, var_id: string, new_x: string, new_y: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'layout', 'update_position'],
+        payload: JSON.stringify({
+          "layout_id": layout_id,
+          "var_id": var_id,
+          "new_x": new_x,
+          "new_y": new_y,
+        }),
+      })
+    },
+  },
 }

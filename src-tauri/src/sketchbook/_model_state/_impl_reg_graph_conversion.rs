@@ -1,4 +1,4 @@
-use crate::sketchbook::{RegulationSign, ModelState, VarId};
+use crate::sketchbook::{ModelState, RegulationSign, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
