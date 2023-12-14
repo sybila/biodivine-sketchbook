@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import style_less from './tab-bar.less?inline'
 import { type TabData } from '../../util/tab-data'
-import { fas, type IconName } from '@fortawesome/free-solid-svg-icons'
+import { faLock, fas, type IconName } from '@fortawesome/free-solid-svg-icons'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
 import { aeonState } from '../../../aeon_events'
-library.add(fas)
+library.add(faLock, fas)
 
 @customElement('tab-bar')
 class TabBar extends LitElement {
@@ -26,7 +26,7 @@ class TabBar extends LitElement {
         ${map(this.tabs, (tab) => html`
             <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'uk-button-primary' : 'uk-button-secondary'}" 
                     @click=${this.switchTab(tab.id)}>
-                ${tab.pinned ? icon(findIconDefinition({ prefix: 'fas', iconName: 'lock' })).node : ''}
+                ${tab.pinned ? icon(faLock).node : ''}
                 ${icon(findIconDefinition({ prefix: 'fas', iconName: `${tab.icon as IconName}` })).node}
                 <span class="tab-name">${tab.name}</span>
             </button>
