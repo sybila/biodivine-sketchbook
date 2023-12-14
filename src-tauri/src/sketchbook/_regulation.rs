@@ -1,4 +1,4 @@
-use crate::sketchbook::{RegulationSign, VarId};
+use crate::sketchbook::{Observability, RegulationSign, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -11,7 +11,7 @@ const ID_REGEX_STR: &str = r"[a-zA-Z_][a-zA-Z0-9_]*";
 
 /// **(internal)** Regex which matches the regulation arrow string with `regulation_sign`
 /// and `observable` groups.
-const REGULATION_ARROW_REGEX_STR: &str = r"-(?P<regulation_sign>[|>?D])(?P<observable>\??)";
+const REGULATION_ARROW_REGEX_STR: &str = r"-(?P<regulation_sign>[|>?D])(?P<observable>X|\?|)";
 
 lazy_static! {
     /// **(internal)** A regex which reads one line specifying a regulation.
@@ -29,24 +29,30 @@ lazy_static! {
 /// Describes an interaction between two variables, `regulator` and `target`.
 /// Every regulation can be *monotonous* and can be set as *observable*:
 ///
-///  - Monotonicity is either *positive* or *negative* and signifies that the influence of the
-/// `regulator` on the `target` has to *increase* or *decrease* the `target` value respectively.
-///  - If observability is set to `true`, the `regulator` *must* have influence on the outcome
-///  of the `target` update function in *some* context. If set to false, this is not enforced
-///  (i.e. the `regulator` *can* have an influence on the `target`, but it is not required).
+/// Monotonicity is *positive*, *negative*, *dual*, or *unknown*. The monotonicity signifies how
+/// the presence of the `regulator` affects the value of the `target`:
+///  - if the regulation is *positive*, it might only *increase* the `target` value
+///  - if the regulation is *negative*, it might only *decrease* the `target` value
+///  - if the regulation is *dual*, it might both *increase* or *decrease* the `target` value (in
+///  different contexts)
+///
+/// If observability is set to `True`, the `regulator` *must* have influence on the outcome
+/// of the `target` update function in *some* context. If set to `False`, this regulation must have
+/// no effect. If it is `Unknown`, the observability is not enforced (i.e. the `regulator` *can*
+/// have an influence on the `target`, but it is not required).
 ///
 /// Regulations can be represented as strings in the
 /// form `"regulator_name 'relationship' target_name"`. The 'relationship' starts with `-`, which
 /// is followed by `>` for activation (positive monotonicity), `|` for inhibition (negative
 /// monotonicity), `D` for dual effect (non-monotonic) or `?` for unspecified monotonicity.
-/// Finally, an additional `?` at the end of 'relationship' signifies a non-observable
-/// (non-essential) regulation.
+/// Finally, an additional `X`, `?` at the end of 'relationship' signifies that the the regulation
+/// is non-observable (non-essential) or the observability is unknown, respectively.
 /// Together, this gives the following options:  `->, ->?, -|, -|?, -D, -D?, -?, -??`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Regulation {
     regulator: VarId,
     target: VarId,
-    observable: bool,
+    observable: Observability,
     regulation_sign: RegulationSign,
 }
 
@@ -55,7 +61,7 @@ impl Regulation {
     pub fn new(
         regulator: VarId,
         target: VarId,
-        observable: bool,
+        observable: Observability,
         regulation_sign: RegulationSign,
     ) -> Regulation {
         Regulation {
@@ -87,7 +93,7 @@ impl Regulation {
     /// `regulation_sign`, `observability` and `target`. If the string is not valid, returns `None`.
     pub fn try_components_from_string(
         regulation_str: &str,
-    ) -> Result<(String, RegulationSign, bool, String), String> {
+    ) -> Result<(String, RegulationSign, Observability, String), String> {
         REGULATION_REGEX
             .captures(regulation_str.trim())
             .map(|captures| {
@@ -98,7 +104,12 @@ impl Regulation {
                     "?" => RegulationSign::Unknown,
                     _ => unreachable!("Nothing else matches this group."),
                 };
-                let observable = captures["observable"].is_empty();
+                let observable = match &captures["observable"] {
+                    "" => Observability::True,
+                    "X" => Observability::False,
+                    "?" => Observability::Unknown,
+                    _ => unreachable!("Nothing else matches this group."),
+                };
                 (
                     captures["regulator"].to_string(),
                     regulation_sign,
@@ -114,7 +125,12 @@ impl Regulation {
 impl Regulation {
     /// Check if the regulation is marked as observable.
     pub fn is_observable(&self) -> bool {
-        self.observable
+        self.observable == Observability::True
+    }
+
+    /// Check if the regulation is marked as observable.
+    pub fn get_observability(&self) -> &Observability {
+        &self.observable
     }
 
     /// Return the sign of the regulation.
@@ -151,7 +167,7 @@ impl Regulation {
     }
 
     /// Directly swap original observability with a given one.
-    pub fn swap_observability(&mut self, new_observability: bool) {
+    pub fn swap_observability(&mut self, new_observability: Observability) {
         self.observable = new_observability;
     }
 }
@@ -159,7 +175,11 @@ impl Regulation {
 impl Display for Regulation {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         let regulation_sign = self.get_sign().to_string();
-        let observability = if self.is_observable() { "" } else { "?" };
+        let observability = match self.get_observability() {
+            Observability::True => "",
+            Observability::False => "N",
+            Observability::Unknown => "?",
+        };
 
         write!(
             f,
@@ -171,7 +191,7 @@ impl Display for Regulation {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{Regulation, RegulationSign};
+    use crate::sketchbook::{Observability, Regulation, RegulationSign};
 
     #[test]
     fn regulation_conversion() {
@@ -181,7 +201,16 @@ mod tests {
 
         let regulators = vec!["a", "b", "c", "d", "e", "f", "g", "h"];
         let targets = vec!["b", "c", "d", "e", "f", "g", "h", "i"];
-        let observability = vec![false, true, false, true, false, true, false, true];
+        let observability = vec![
+            Observability::Unknown,
+            Observability::True,
+            Observability::Unknown,
+            Observability::True,
+            Observability::Unknown,
+            Observability::True,
+            Observability::Unknown,
+            Observability::True
+        ];
         let regulation_sign = vec![
             RegulationSign::Unknown,
             RegulationSign::Unknown,

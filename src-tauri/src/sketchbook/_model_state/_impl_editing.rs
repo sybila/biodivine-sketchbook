@@ -1,6 +1,4 @@
-use crate::sketchbook::{
-    Layout, LayoutId, ModelState, Regulation, RegulationSign, VarId, Variable,
-};
+use crate::sketchbook::{Layout, LayoutId, ModelState, Regulation, RegulationSign, VarId, Variable, Observability};
 use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
@@ -77,7 +75,7 @@ impl ModelState {
         &mut self,
         regulator: VarId,
         target: VarId,
-        observable: bool,
+        observable: Observability,
         regulation_sign: RegulationSign,
     ) -> Result<(), String> {
         self.assert_valid_variable(&regulator)?;
@@ -420,7 +418,7 @@ impl ModelState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{ModelState, RegulationSign};
+    use crate::sketchbook::{ModelState, Observability, RegulationSign};
 
     /// Test generating new default variant of the `ModelState`.
     #[test]
@@ -528,7 +526,7 @@ mod tests {
         assert!(reg_state.add_regulation_by_str("a -> b").is_err());
         assert!(reg_state.add_regulation_by_str("a -| b").is_err());
         assert!(reg_state
-            .add_regulation(var_a, var_b, false, RegulationSign::Dual)
+            .add_regulation(var_a, var_b, Observability::Unknown, RegulationSign::Dual)
             .is_err());
 
         // adding reg with invalid vars or invalid format should cause error

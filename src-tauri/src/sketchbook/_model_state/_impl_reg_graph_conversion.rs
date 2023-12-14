@@ -1,4 +1,4 @@
-use crate::sketchbook::{ModelState, RegulationSign, VarId};
+use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
@@ -60,7 +60,7 @@ impl ModelState {
             reg_state.add_regulation(
                 VarId::new(name_regulator.as_str())?,
                 VarId::new(name_target.as_str())?,
-                r.is_observable(),
+                ModelState::observability_from_bool(r.is_observable()),
                 ModelState::sign_from_monotonicity(r.get_monotonicity()),
             )?;
         }
@@ -80,8 +80,8 @@ impl ModelState {
         }
     }
 
-    /// **(internal)** Static utility method to convert regulation sign from the type `RegulationSign` used here
-    /// into the type `Monotonicity` used in `lib_param_bn`.
+    /// **(internal)** Static utility method to convert regulation sign from the type
+    /// `RegulationSign` used here into the type `Monotonicity` used in `lib_param_bn`.
     /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign` and `Unknown` is used instead.
     fn sign_to_monotonicity(regulation_sign: &RegulationSign) -> Option<Lib_Pbn_Monotonicity> {
         match regulation_sign {
@@ -90,6 +90,16 @@ impl ModelState {
             RegulationSign::Unknown => None,
             // todo: fix
             RegulationSign::Dual => None,
+        }
+    }
+
+    /// **(internal)** Static utility method to convert `Observability` from boolean.
+    /// TODO: note that `lib-param-bn` currently cannot distinguish between `False` and `Unknown` variants of `Observability`.
+    fn observability_from_bool(observability: bool) -> Observability {
+        match observability {
+            true => Observability::True,
+            // todo: fix, this is how it works now in `lib-param-bn`
+            false => Observability::Unknown,
         }
     }
 }
