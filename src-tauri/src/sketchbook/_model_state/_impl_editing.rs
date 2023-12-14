@@ -224,6 +224,28 @@ impl ModelState {
         self.remove_regulation(regulation.get_regulator(), regulation.get_target())
     }
 
+    /// Shorthand to change sign of a `Regulation` pointing from `regulator` to `target`.
+    /// Currently it basically removes the regulation, and adds a new one with the new sign.
+    ///
+    /// Returns `Err` when one of the variables is invalid
+    pub fn change_regulation_sign(
+        &mut self,
+        regulator: &VarId,
+        target: &VarId,
+        new_sign: &RegulationSign
+    ) -> Result<(), String> {
+        // all validity checks are performed inside
+        let regulation = self.get_regulation(regulator, target)?.clone();
+        self.remove_regulation(regulation.get_regulator(), regulation.get_target())?;
+        self.add_regulation(
+            regulator.clone(),
+            target.clone(),
+            regulation.get_observability().clone(),
+            new_sign.clone()
+        )?;
+        Ok(())
+    }
+
     /// **(internal)** Remove all `Regulations` where `variable` figures (as either regulator or
     /// target) from this `ModelState`.
     /// Returns `Err` when the variable is invalid.

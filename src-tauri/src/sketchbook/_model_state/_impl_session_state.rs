@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::ModelState;
+use crate::sketchbook::{ModelState, Observability, RegulationData, RegulationSign, VariableData};
 use serde_json::json;
 
 impl SessionHelper for ModelState {}
@@ -59,11 +59,11 @@ impl ModelState {
         let component_name = "model/variable";
 
         if Self::starts_with("add", at_path).is_some() {
-            // get payload components
+            // get payload components (json for VariableData containing "id", and "name")
             let payload = Self::clone_payload_str(event, component_name)?;
-            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
-            let var_id_str = Self::str_from_json(&payload_json, "id")?;
-            let name = Self::str_from_json(&payload_json, "name")?;
+            let variable_data: VariableData = serde_json::from_str(payload.as_str())?;
+            let var_id_str = variable_data.id;
+            let name = variable_data.name;
 
             // perform the event, prepare the state-change variant
             self.add_var_by_str(var_id_str.as_str(), name.as_str())?;
@@ -81,6 +81,7 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else if Self::starts_with("remove", at_path).is_some() {
+            // get payload components (just one value for id)
             let var_id_str = Self::clone_payload_str(event, component_name)?;
             self.remove_var_by_str(var_id_str.as_str())?;
             let state_change = event.clone();
@@ -89,7 +90,7 @@ impl ModelState {
                 reset: true,
             })
         } else if Self::starts_with("set_name", at_path).is_some() {
-            // get payload components
+            // get payload components (json containing "id", and "new_name")
             let payload = Self::clone_payload_str(event, component_name)?;
             let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
             let var_id_str = Self::str_from_json(&payload_json, "id")?;
@@ -120,7 +121,7 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else if Self::starts_with("set_id", at_path).is_some() {
-            // get payload components
+            // get payload components (json containing "original_id", and "new_id")
             let payload = Self::clone_payload_str(event, component_name)?;
             let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
             let original_id = Self::str_from_json(&payload_json, "original_id")?;
@@ -162,7 +163,7 @@ impl ModelState {
         let component_name = "model/regulation";
 
         if Self::starts_with("add_by_str", at_path).is_some() {
-            // get payload components
+            // get payload components (just one string value in format like "->?")
             let payload = Self::clone_payload_str(event, component_name)?;
 
             // perform the event, prepare the state-change variant
@@ -181,7 +182,7 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else if Self::starts_with("remove_by_str", at_path).is_some() {
-            // get payload components
+            // get payload components (just one string value in format like "->?")
             let payload = Self::clone_payload_str(event, component_name)?;
 
             // perform the event, prepare the state-change variant
@@ -200,9 +201,38 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else if Self::starts_with("add", at_path).is_some() {
-            todo!()
+            // get payload components (json for RegulationData containing "regulator", "target",
+            // "sign", "observable")
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let regulation_data: RegulationData = serde_json::from_str(payload.as_str())?;
+            let regulator_id = self.get_var_id(&regulation_data.regulator)?;
+            let target_id = self.get_var_id(&regulation_data.target)?;
+            let sign: RegulationSign = regulation_data.sign;
+            let observable: Observability = regulation_data.observable;
+
+            // perform the event, prepare the state-change variant
+            self.add_regulation(regulator_id, target_id, observable, sign)?;
+            let state_change = event.clone();
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.path.remove(reverse_event.path.len() - 1);
+            reverse_event.path.push("remove".to_string());
+            reverse_event.payload = Some(
+                json!({
+                    "regulator": regulation_data.regulator.as_str(),
+                    "target": regulation_data.target.as_str(),
+                })
+                    .to_string(),
+            );
+
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
+
         } else if Self::starts_with("remove", at_path).is_some() {
-            // get payload components
+            // get payload components (json containing "regulator", "target")
             let payload = Self::clone_payload_str(event, component_name)?;
             let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
             let regulator = Self::str_from_json(&payload_json, "regulator")?;
@@ -210,7 +240,8 @@ impl ModelState {
             let target = Self::str_from_json(&payload_json, "target")?;
             let target_id = self.get_var_id(&target)?;
 
-            let original_regulation = self.get_regulation(&regulator_id, &target_id)?.clone();
+            let orig_regulation = self.get_regulation(&regulator_id, &target_id)?.clone();
+            let orig_regulation_data = RegulationData::new_from_reg(&orig_regulation);
 
             // perform the event, prepare the state-change variant
             self.remove_regulation(&regulator_id, &target_id)?;
@@ -220,22 +251,47 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.path.remove(reverse_event.path.len() - 1);
             reverse_event.path.push("add".to_string());
-            reverse_event.payload = Some(
-                json!({
-                    "regulator": regulator_id.as_str(),
-                    "target": target_id.as_str(),
-                    "sign": original_regulation.get_sign().to_string(),
-                    "observable": original_regulation.is_observable(),
-                })
-                .to_string(),
-            );
+            reverse_event.payload = Some(serde_json::to_string(&orig_regulation_data)?);
 
             Ok(Consumed::Reversible {
                 state_change,
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else if Self::starts_with("set_sign", at_path).is_some() {
-            todo!()
+            // get payload components (json containing "regulator", "target", "new_sign")
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
+            let regulator = Self::str_from_json(&payload_json, "regulator")?;
+            let regulator_id = self.get_var_id(&regulator)?;
+            let target = Self::str_from_json(&payload_json, "target")?;
+            let target_id = self.get_var_id(&target)?;
+            let sign_str = Self::str_from_json(&payload_json, "target")?;
+            let sign: RegulationSign = serde_json::from_str(&sign_str)?;
+
+            let orig_sign = self
+                .get_regulation(&regulator_id, &target_id)?
+                .get_sign()
+                .clone();
+
+            // perform the event, prepare the state-change variant
+            self.change_regulation_sign(&regulator_id, &target_id, &sign)?;
+            let state_change = event.clone();
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(
+                json!({
+                    "regulator": regulator_id.as_str(),
+                    "target": target_id.as_str(),
+                    "new_sign": serde_json::to_string(&orig_sign)?,
+                })
+                    .to_string(),
+            );
+
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
         } else {
             Self::throw_path_error(at_path, component_name)
         }
@@ -250,7 +306,7 @@ impl ModelState {
         let component_name = "model/layout";
 
         if Self::starts_with("update_position", at_path).is_some() {
-            // get payload components
+            // get payload components (json containing "layout_id", "var_id", "new_x" and "new_y")
             let payload = Self::clone_payload_str(event, component_name)?;
             let payload_json: serde_json::Value = serde_json::from_str(payload.as_str())?;
             let layout_id_str = Self::str_from_json(&payload_json, "layout_id")?;
@@ -310,9 +366,8 @@ impl SessionState for ModelState {
 
     /// TODO: change this to make it a valid getter event API
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
-        if !at_path.is_empty() {
-            let msg = format!("`ModelState` cannot consume a path `{:?}`.", at_path);
-            return AeonError::throw(msg);
+        if at_path.is_empty() {
+            return Self::invalid_path_error(at_path)
         }
         Ok(Event {
             path: full_path.to_vec(),

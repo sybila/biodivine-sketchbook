@@ -10,6 +10,8 @@ mod _model_state;
 mod _regulation;
 /// **(internal)** Utility methods for `RegulationSign`.
 mod _regulation_sign;
+/// **(internal)** Simplified structs (and utilities) for sending data to front-end.
+mod _simplified_structs;
 /// **(internal)** Utility methods for `VarId`.
 mod _var_id;
 /// **(internal)** Utility methods for `Variable`.
@@ -23,6 +25,7 @@ pub use _model_state::ModelState;
 pub use _observability::Observability;
 pub use _regulation::Regulation;
 pub use _regulation_sign::RegulationSign;
+pub use _simplified_structs::{RegulationData, VariableData};
 pub use _var_id::VarId;
 pub use _variable::Variable;
 
