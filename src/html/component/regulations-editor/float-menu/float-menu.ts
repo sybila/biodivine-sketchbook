@@ -44,6 +44,7 @@ class FloatMenu extends LitElement {
             this.addEdge()
             break
           case 'F':
+            this.updateFunction()
             break
           case 'DELETE':
           case 'BACKSPACE':
@@ -81,7 +82,7 @@ class FloatMenu extends LitElement {
     {
       icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
-      click: () => {}
+      click: this.updateFunction
     },
     {
       icon: () => icon(faTrash).node[0],
@@ -191,6 +192,16 @@ class FloatMenu extends LitElement {
     this.dispatchEvent(new CustomEvent('add-edge', {
       detail: {
         id: this.data?.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private updateFunction (): void {
+    this.dispatchEvent(new CustomEvent('update-function', {
+      detail: {
+        nodeId: this.data?.id
       },
       bubbles: true,
       composed: true
