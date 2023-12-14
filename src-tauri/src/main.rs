@@ -1,18 +1,96 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-pub mod gui;
-pub mod logging;
+use aeon_sketchbook::app::event::{Event, UserAction};
+use aeon_sketchbook::app::state::editor::EditorSession;
+use aeon_sketchbook::app::state::{AppState, DynSession};
+use aeon_sketchbook::app::{AeonApp, AEON_ACTION, AEON_REFRESH};
+use aeon_sketchbook::debug;
+use serde::{Deserialize, Serialize};
+use tauri::{command, Manager, State, Window};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+#[command]
+fn get_session_id(window: Window, state: State<AppState>) -> String {
+    state.get_session_id(&window)
+}
+
+#[derive(Serialize, Deserialize)]
+struct AeonAction {
+    session: String,
+    events: Vec<Event>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct AeonRefresh {
+    session: String,
+    path: Vec<String>,
 }
 
 fn main() {
+    // Initialize empty app state.
+    let state = AppState::default();
+    let session: DynSession = Box::new(EditorSession::new("editor-1"));
+    state.session_created("editor-1", session);
+    state.window_created("editor", "editor-1");
+
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .manage(state)
+        .setup(|app| {
+            let handle = app.handle();
+            let aeon_original = AeonApp {
+                tauri: handle.clone(),
+            };
+            let aeon = aeon_original.clone();
+            app.listen_global(AEON_ACTION, move |e| {
+                let Some(payload) = e.payload() else {
+                    // TODO: This should be an error.
+                    panic!("No payload in user action.");
+                };
+                debug!("Received user action: `{}`.", payload);
+                let event: AeonAction = match serde_json::from_str::<AeonAction>(payload) {
+                    Ok(action) => action,
+                    Err(e) => {
+                        // TODO: This should be a normal error.
+                        panic!("Payload deserialize error {:?}.", e);
+                    }
+                };
+                let state = aeon.tauri.state::<AppState>();
+                let session_id = event.session.clone();
+                let action = UserAction {
+                    events: event.events,
+                };
+                let result = state.consume_event(&aeon, session_id.as_str(), &action);
+                if let Err(e) = result {
+                    // TODO: This should be a normal error.
+                    panic!("Event error: {:?}", e);
+                }
+            });
+            let aeon = aeon_original.clone();
+            app.listen_global(AEON_REFRESH, move |e| {
+                let Some(payload) = e.payload() else {
+                    // TODO: This should be an error.
+                    panic!("No payload in user action.");
+                };
+                debug!("Received user action: `{}`.", payload);
+                let event: AeonRefresh = match serde_json::from_str::<AeonRefresh>(payload) {
+                    Ok(action) => action,
+                    Err(e) => {
+                        // TODO: This should be a normal error.
+                        panic!("Payload deserialize error {:?}.", e);
+                    }
+                };
+                let state = aeon.tauri.state::<AppState>();
+                let session_id = event.session.clone();
+                let path = event.path;
+                let result = state.refresh(&aeon, session_id.as_str(), &path);
+                if let Err(e) = result {
+                    // TODO: This should be a normal error.
+                    panic!("Event error: {:?}", e);
+                }
+            });
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![get_session_id])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
