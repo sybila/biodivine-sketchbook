@@ -20,6 +20,7 @@ class RootComponent extends LitElement {
     aeonState.tab_bar.active.addEventListener(this.#onSwitched.bind(this))
     aeonState.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))
     this.addEventListener('update-data', this.updateData)
+    this.addEventListener('update-function', this.focusFunction)
     this.data = dummyData
   }
 
@@ -47,11 +48,23 @@ class RootComponent extends LitElement {
 
   private adjustRegEditor (): void {
     if (window.outerWidth <= 800) return
-    this.shadowRoot?.querySelector('content-pane')
+    this.shadowRoot?.querySelector('#regulations')
       ?.shadowRoot?.querySelector('regulations-editor')
       ?.dispatchEvent(new CustomEvent('adjust-graph', {
         detail: {
           tabCount: this.visibleTabs().length
+        }
+      }))
+  }
+
+  private focusFunction (event: Event): void {
+    aeonState.tab_bar.active.emitValue(1)
+    console.log(this.shadowRoot?.querySelector('#functions')?.shadowRoot?.querySelector('functions-editor'))
+    this.shadowRoot?.querySelector('#functions')
+      ?.shadowRoot?.querySelector('functions-editor')
+      ?.dispatchEvent(new CustomEvent('focus-function', {
+        detail: {
+          nodeId: (event as CustomEvent).detail.nodeId
         }
       }))
   }
@@ -66,8 +79,8 @@ class RootComponent extends LitElement {
       <div class="root-component">
         <nav-bar .tabs=${this.tabs}></nav-bar>
         <div class="content uk-flex uk-flex-row uk-flex-stretch uk-flex-wrap-stretch">
-          ${map(visibleTabs, (tab) => html`
-            <content-pane class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
+          ${map(this.tabs, (tab) => html`
+            <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}" class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
                           .data=${this.data}></content-pane>
           `)}
         </div>

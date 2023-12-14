@@ -56,6 +56,7 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('rename-node', (e) => {
       void this.renameNode(e)
     })
+    this.addEventListener('update-function', () => { this.toggleMenu(ElementType.NONE) })
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
