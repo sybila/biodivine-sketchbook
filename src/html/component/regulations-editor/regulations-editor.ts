@@ -1,5 +1,5 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, query, state } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './regulations-editor.less?inline'
 import cytoscape, { type Core, type EdgeSingular, type NodeSingular, type Position } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
@@ -7,11 +7,14 @@ import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
 import dblclick from 'cytoscape-dblclick'
 import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
-import { ElementType, Monotonicity } from './element-type'
+import { ElementType, type Monotonicity } from './element-type'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import UIkit from 'uikit'
+import { type IEdgeData, type INodeData } from './graph-interfaces'
+import { dummyData } from '../../util/dummy-data'
+import { ContentData } from '../../util/tab-data'
 
 const SAVE_NODES = 'nodes'
 const SAVE_EDGES = 'edges'
@@ -31,8 +34,7 @@ class RegulationsEditor extends LitElement {
   cy: Core | undefined
   edgeHandles: EdgeHandlesInstance | undefined
   lastTabCount = 1
-  @state() _nodes: INodeData[] = []
-  @state() _edges: IEdgeData[] = []
+  @property() contentData = ContentData.create()
   @state() menuType = ElementType.NONE
   @state() menuPosition = { x: 0, y: 0 }
   @state() menuZoom = 1.0
@@ -48,8 +50,12 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('adjust-graph', this.adjustPan)
     this.addEventListener('add-edge', this.addEdge)
     this.addEventListener('mousemove', this.hoverFix)
-    this.addEventListener('remove-element', (e) => { void this.removeElement(e) })
-    this.addEventListener('rename-node', (e) => { void this.renameNode(e) })
+    this.addEventListener('remove-element', (e) => {
+      void this.removeElement(e)
+    })
+    this.addEventListener('rename-node', (e) => {
+      void this.renameNode(e)
+    })
 
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -57,9 +63,13 @@ class RegulationsEditor extends LitElement {
 
   render (): TemplateResult {
     return html`
-        <button @click=${this.loadDummyData} class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">reset (debug)</button>
-        ${this.editorElement}
-        <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom} .data=${this.menuData}></float-menu>
+      <button @click=${this.loadDummyData}
+              class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">
+        reset (debug)
+      </button>
+      ${this.editorElement}
+      <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
+                  .data=${this.menuData}></float-menu>
     `
   }
 
@@ -88,7 +98,7 @@ class RegulationsEditor extends LitElement {
     this.cy = cytoscape(initOptions(this.editorElement))
     this.edgeHandles = this.cy.edgehandles(edgeOptions)
 
-    this.cy.on('add remove position', this.saveState)
+    this.cy.on('add remove position ehcomplete', this.saveState)
 
     this.cy.on('zoom', () => {
       this.renderMenuForSelectedNode()
@@ -102,6 +112,7 @@ class RegulationsEditor extends LitElement {
       if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
       const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
       this.addNode(name, name, e.position)
+      this.saveState()
     })
     this.cy.on('mouseover', 'node', function (e) {
       e.target.addClass('hover')
@@ -219,7 +230,7 @@ class RegulationsEditor extends LitElement {
       const node = this.cy?.$id(nodeId)
       if (node === undefined) return
       const position = node.position()
-      const edges = this._edges.filter((edge) => edge.source === nodeId || edge.target === nodeId)
+      const edges = this.contentData.edges.filter((edge) => edge.source === nodeId || edge.target === nodeId)
       node.remove()
       this.addNode(event.payload.id, event.payload.name, position)
       edges.forEach((edge) => {
@@ -229,8 +240,11 @@ class RegulationsEditor extends LitElement {
           this.ensureRegulation({ ...edge, target: event.payload.id })
         }
       })
+      this.saveState()
     })
-    void renameDialog.onCloseRequested(() => { this.dialogs[nodeId] = undefined })
+    void renameDialog.onCloseRequested(() => {
+      this.dialogs[nodeId] = undefined
+    })
   }
 
   adjustPan (event: Event): void {
@@ -281,7 +295,7 @@ class RegulationsEditor extends LitElement {
     this.saveState()
   }
 
-  ensureRegulation (regulation: IRegulation): void {
+  ensureRegulation (regulation: IEdgeData): void {
     // const currentEdge = this._findRegulationEdge(regulation.regulator, regulation.target)
     // if (currentEdge !== undefined) {
     //   // Edge exists - just make sure to update data
@@ -345,13 +359,20 @@ class RegulationsEditor extends LitElement {
       }
     })
     if (nodes.length > 0) {
-      this._nodes = nodes
       localStorage.setItem(SAVE_NODES, JSON.stringify(nodes))
     }
     if (edges.length > 0) {
-      this._edges = edges
       localStorage.setItem(SAVE_EDGES, JSON.stringify(edges))
     }
+    this.contentData = ContentData.create({ nodes, edges })
+    this.shadowRoot?.dispatchEvent(new CustomEvent('update-data', {
+      detail: {
+        nodes,
+        edges
+      },
+      composed: true,
+      bubbles: true
+    }))
   }
 
   loadCachedNodes (): boolean {
@@ -389,97 +410,4 @@ class RegulationsEditor extends LitElement {
       this.ensureRegulation(edge)
     })
   }
-}
-
-const dummyData: { nodes: INodeData[], edges: IEdgeData[] } = {
-  nodes: [
-    {
-      id: 'YOX1',
-      name: 'YOX1',
-      position: { x: 297, y: 175 }
-    },
-    {
-      id: 'CLN3',
-      name: 'CLN3',
-      position: { x: 128, y: 68 }
-    },
-    {
-      id: 'YHP1',
-      name: 'YHP1',
-      position: { x: 286, y: 254 }
-    },
-    {
-      id: 'ACE2',
-      name: 'ACE2',
-      position: { x: 74, y: 276 }
-    },
-    {
-      id: 'SWI5',
-      name: 'SWI5',
-      position: { x: 47, y: 207 }
-    },
-    {
-      id: 'MBF',
-      name: 'MBF',
-      position: { x: 219, y: 96 }
-    },
-    {
-      id: 'SBF',
-      name: 'SBF',
-      position: { x: 281, y: 138 }
-    },
-    {
-      id: 'HCM1',
-      name: 'HCM1',
-      position: { x: 305, y: 217 }
-    },
-    {
-      id: 'SFF',
-      name: 'SFF',
-      position: { x: 186, y: 302 }
-    }
-  ],
-  edges: [
-    { source: 'MBF', target: 'YOX1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SBF', target: 'YOX1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'YOX1', target: 'CLN3', observable: true, monotonicity: Monotonicity.INHIBITION, id: '' },
-    { source: 'YHP1', target: 'CLN3', observable: true, monotonicity: Monotonicity.INHIBITION, id: '' },
-    { source: 'ACE2', target: 'CLN3', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SWI5', target: 'CLN3', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'MBF', target: 'YHP1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SBF', target: 'YHP1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SFF', target: 'ACE2', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SFF', target: 'SWI5', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'CLN3', target: 'MBF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'MBF', target: 'SBF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'YOX1', target: 'SBF', observable: true, monotonicity: Monotonicity.INHIBITION, id: '' },
-    { source: 'YHP1', target: 'SBF', observable: true, monotonicity: Monotonicity.INHIBITION, id: '' },
-    { source: 'CLN3', target: 'SBF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'MBF', target: 'HCM1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SBF', target: 'HCM1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'SBF', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' },
-    { source: 'HCM1', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '' }
-  ]
-
-}
-
-interface IRegulation {
-  source: string
-  target: string
-  observable: boolean
-  monotonicity: Monotonicity
-}
-
-interface INodeData {
-  id: string
-  name: string
-  position: Position
-}
-
-interface IEdgeData {
-  id: string
-  source: string
-  target: string
-  observable: boolean
-  monotonicity: Monotonicity
 }
