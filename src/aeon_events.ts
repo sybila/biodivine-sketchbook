@@ -15,11 +15,11 @@ const AEON_REFRESH = 'aeon-refresh'
 interface AeonState {
 
   /** Access to the internal state of the undo-redo stack. */
-  undo_stack: {
+  undoStack: {
     /** True if the stack has actions that can be undone. */
-    can_undo: ObservableState<boolean>
+    canUndo: ObservableState<boolean>
     /** True if the stack has actions that can be redone. */
-    can_redo: ObservableState<boolean>
+    canRedo: ObservableState<boolean>
     /** Try to undo an action. Emits an error if no actions can be undone. */
     undo: () => void
     /** Try to redo an action. Emits an error if no actions can be redone. */
@@ -27,7 +27,7 @@ interface AeonState {
   }
 
   /** The state of the main navigation tab-bar. */
-  tab_bar: {
+  tabBar: {
     /** Integer ID of the currently active tab. */
     active: MutableObservableState<number>
     /** A *sorted* list of IDs of all pinned tabs. */
@@ -45,43 +45,43 @@ interface AeonState {
     /** Variable-related */
 
     /** Variable is created. */
-    variable_created: Observable<string>
-    add_variable: (var_id: string, var_name: string) => void
+    variableCreated: Observable<string>
+    addVariable: (varId: string, varName: string) => void
     /** Variable is removed. */
-    variable_removed: Observable<string>
-    remove_variable: (var_id: string) => void
+    variableRemoved: Observable<string>
+    removeVariable: (varId: string) => void
     /** Variable is renamed. */
-    variable_name_changed: Observable<string>
-    set_variable_name: (var_id: string, new_name: string) => void
+    variableNameChanged: Observable<string>
+    setVariableName: (varId: string, newName: string) => void
     /** Variable id is changed. */
-    variable_id_changed: Observable<string>
-    set_variable_id: (original_id: string, new_id: string) => void
+    variableIdChanged: Observable<string>
+    setVariableId: (originalId: string, newId: string) => void
 
     /** Regulation-related */
 
     /** Regulation specified by all the components, or its string encoding, is created. */
-    regulation_created: Observable<string>
-    add_regulation: (regulator_id: string, target_id: string, sign: string, observable: boolean) => void
-    add_regulation_by_str: (regulation_str: string) => void
+    regulationCreated: Observable<string>
+    addRegulation: (regulatorId: string, targetId: string, sign: string, observable: boolean) => void
+    addRegulationByStr: (regulationStr: string) => void
     /** Regulation specified by its regulator&target pair, or its string encoding, is removed. */
-    regulation_removed: Observable<string>
-    remove_regulation: (regulator_id: string, target_id: string) => void
-    remove_regulation_by_str: (regulation_str: string) => void
+    regulationRemoved: Observable<string>
+    removeRegulation: (regulatorId: string, targetId: string) => void
+    removeRegulationByStr: (regulationStr: string) => void
     /** Sign of the regulation specified by regulator&target is changed. */
-    regulation_sign_changed: Observable<string>
-    set_regulation_sign: (regulator_id: string, target_id: string, sign: string) => void
+    regulationSignChanged: Observable<string>
+    setRegulationSign: (regulatorId: string, targetId: string, sign: string) => void
 
     /** Layout-related */
 
     /** Layout is created. */
-    layout_created: Observable<string>
-    add_layout: (layout_id: string, layout_name: string) => void
+    layoutCreated: Observable<string>
+    addLayout: (layoutId: string, layoutName: string) => void
     /** Layout is removed. */
-    layout_removed: Observable<string>
-    remove_layout: (layout_id: string) => void
+    layoutRemoved: Observable<string>
+    removeLayout: (layoutId: string) => void
     /** Position of a node in a layout is changed. */
-    node_position_changed: Observable<string>
-    change_node_position: (layout_id: string, var_id: string, new_x: string, new_y: string) => void
+    nodePositionChanged: Observable<string>
+    changeNodePosition: (layoutId: string, varId: string, newX: string, newY: string) => void
   }
 }
 
@@ -192,12 +192,12 @@ class Observable<T> {
  */
 class ObservableState<T> {
   path: string[]
-  last_value: T
+  lastValue: T
   listeners: Array<OnStateValue<T>> = []
 
   constructor (path: string[], initial: T) {
     this.path = path
-    this.last_value = initial
+    this.lastValue = initial
     aeonEvents.setEventListener(path, this.#acceptPayload.bind(this))
   }
 
@@ -218,7 +218,7 @@ class ObservableState<T> {
     }
     this.listeners.push(listener)
     if (notifyNow) {
-      this.#notifyListener(listener, this.last_value)
+      this.#notifyListener(listener, this.lastValue)
     }
     return true
   }
@@ -249,7 +249,7 @@ class ObservableState<T> {
      * The last value that was emitted for this observable state.
      */
   value (): T {
-    return this.last_value
+    return this.lastValue
   }
 
   /**
@@ -260,7 +260,7 @@ class ObservableState<T> {
     payload = payload ?? 'null'
     try {
       const value = JSON.parse(payload)
-      this.last_value = value
+      this.lastValue = value
       for (const listener of this.listeners) {
         this.#notifyListener(listener, value)
       }
@@ -306,7 +306,7 @@ class MutableObservableState<T> extends ObservableState<T> {
 
   /**
      * Create a `set` event for the provided `value` and this observable item. Note that the event
-     * is not emitted automatically, but needs to be sent through the `aeon_events`. You can use
+     * is not emitted automatically, but needs to be sent through the `AeonEvents`. You can use
      * `this.emitValue` to create and emit the event as one action.
      *
      * The reason why you might want to create the event but not emit it is that events can be
@@ -451,9 +451,9 @@ export const aeonEvents = new AeonEvents(await invoke('get_session_id'))
  * A singleton state management object for the current Aeon session.
  */
 export const aeonState: AeonState = {
-  undo_stack: {
-    can_undo: new ObservableState<boolean>(['undo_stack', 'can_undo'], false),
-    can_redo: new ObservableState<boolean>(['undo_stack', 'can_redo'], false),
+  undoStack: {
+    canUndo: new ObservableState<boolean>(['undo_stack', 'can_undo'], false),
+    canRedo: new ObservableState<boolean>(['undo_stack', 'can_redo'], false),
     undo () {
       aeonEvents.emitAction({
         path: ['undo_stack', 'undo'],
@@ -467,7 +467,7 @@ export const aeonState: AeonState = {
       })
     }
   },
-  tab_bar: {
+  tabBar: {
     active: new MutableObservableState<number>(['tab_bar', 'active'], 0),
     pinned: new MutableObservableState<number[]>(['tab_bar', 'pinned'], []),
     pin (id: number): void {
@@ -488,101 +488,101 @@ export const aeonState: AeonState = {
     }
   },
   model: {
-    variable_created: new Observable<string>(['model', 'variable', 'add']),
-    variable_removed: new Observable<string>(['model', 'variable', 'remove']),
-    variable_name_changed: new Observable<string>(['model', 'variable', 'set_name']),
-    variable_id_changed: new Observable<string>(['model', 'variable', 'set_id']),
+    variableCreated: new Observable<string>(['model', 'variable', 'add']),
+    variableRemoved: new Observable<string>(['model', 'variable', 'remove']),
+    variableNameChanged: new Observable<string>(['model', 'variable', 'set_name']),
+    variableIdChanged: new Observable<string>(['model', 'variable', 'set_id']),
 
-    regulation_created: new Observable<string>(['model', 'regulation', 'add']),
-    regulation_removed: new Observable<string>(['model', 'regulation', 'remove']),
-    regulation_sign_changed: new Observable<string>(['model', 'regulation', 'set_sign']),
+    regulationCreated: new Observable<string>(['model', 'regulation', 'add']),
+    regulationRemoved: new Observable<string>(['model', 'regulation', 'remove']),
+    regulationSignChanged: new Observable<string>(['model', 'regulation', 'set_sign']),
 
-    layout_created: new Observable<string>(['model', 'layout', 'add']),
-    layout_removed: new Observable<string>(['model', 'layout', 'remove']),
-    node_position_changed: new Observable<string>(['model', 'layout', 'update_position']),
+    layoutCreated: new Observable<string>(['model', 'layout', 'add']),
+    layoutRemoved: new Observable<string>(['model', 'layout', 'remove']),
+    nodePositionChanged: new Observable<string>(['model', 'layout', 'update_position']),
 
-    add_variable(var_id: string, var_name: string): void {
+    addVariable (varId: string, varName: string): void {
       aeonEvents.emitAction({
         path: ['model', 'variable', 'add'],
-        payload: JSON.stringify({"id": var_id, "name": var_name}),
+        payload: JSON.stringify({ id: varId, name: varName })
       })
     },
-    remove_variable(var_id: string): void {
+    removeVariable (varId: string): void {
       aeonEvents.emitAction({
         path: ['model', 'variable', 'remove'],
-        payload: var_id,
+        payload: varId
       })
     },
-    set_variable_name(var_id: string, new_name: string): void {
+    setVariableName (varId: string, newName: string): void {
       aeonEvents.emitAction({
         path: ['model', 'variable', 'set_name'],
-        payload: JSON.stringify({"id": var_id, "new_name": new_name}),
+        payload: JSON.stringify({ id: varId, new_name: newName })
       })
     },
-    set_variable_id(original_id: string, new_id: string): void {
+    setVariableId (originalId: string, newId: string): void {
       aeonEvents.emitAction({
         path: ['model', 'variable', 'set_id'],
-        payload: JSON.stringify({"original_id": original_id, "new_id": new_id}),
+        payload: JSON.stringify({ original_id: originalId, new_id: newId })
       })
     },
 
-    add_regulation(regulator_id: string, target_id: string, sign: string, observable: boolean): void {
+    addRegulation (regulatorId: string, targetId: string, sign: string, observable: boolean): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'add'],
         payload: JSON.stringify({
-          "regulator": regulator_id,
-          "target": target_id,
-          "sign": sign,
-          "observable": observable
-        }),
+          regulator: regulatorId,
+          target: targetId,
+          sign,
+          observable
+        })
       })
     },
-    add_regulation_by_str(regulation_str: string): void {
+    addRegulationByStr (regulationStr: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'add_by_str'],
-        payload: regulation_str,
+        payload: regulationStr
       })
     },
-    remove_regulation(regulator_id: string, target_id: string): void {
+    removeRegulation (regulatorId: string, targetId: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'remove'],
-        payload: JSON.stringify({"regulator": regulator_id, "target": target_id}),
+        payload: JSON.stringify({ regulator: regulatorId, target: targetId })
       })
     },
-    remove_regulation_by_str(regulation_str: string): void {
+    removeRegulationByStr (regulationStr: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'remove_by_str'],
-        payload: regulation_str,
+        payload: regulationStr
       })
     },
-    set_regulation_sign(regulator_id: string, target_id: string, sign: string): void {
+    setRegulationSign (regulatorId: string, targetId: string, sign: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'set_sign'],
-        payload: JSON.stringify({"regulator": regulator_id, "target": target_id, "sign": sign}),
+        payload: JSON.stringify({ regulator: regulatorId, target: targetId, sign })
       })
     },
-    add_layout(layout_id: string, layout_name: string): void {
+    addLayout (layoutId: string, layoutName: string): void {
       aeonEvents.emitAction({
         path: ['model', 'layout', 'add'],
-        payload: JSON.stringify({"id": layout_id, "name": layout_name}),
+        payload: JSON.stringify({ id: layoutId, name: layoutName })
       })
     },
-    remove_layout(layout_id: string): void {
+    removeLayout (layoutId: string): void {
       aeonEvents.emitAction({
         path: ['model', 'layout', 'remove'],
-        payload: layout_id,
+        payload: layoutId
       })
     },
-    change_node_position(layout_id: string, var_id: string, new_x: string, new_y: string): void {
+    changeNodePosition (layoutId: string, varId: string, newX: string, newY: string): void {
       aeonEvents.emitAction({
         path: ['model', 'layout', 'update_position'],
         payload: JSON.stringify({
-          "layout_id": layout_id,
-          "var_id": var_id,
-          "new_x": new_x,
-          "new_y": new_y,
-        }),
+          layout_id: layoutId,
+          var_id: varId,
+          new_x: newX,
+          new_y: newY
+        })
       })
-    },
-  },
+    }
+  }
 }
