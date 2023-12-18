@@ -1,4 +1,5 @@
-use aeon_sketchbook::sketchbook::{ModelState, Regulation, RegulationData};
+use aeon_sketchbook::sketchbook::simplified_structs::RegulationData;
+use aeon_sketchbook::sketchbook::{ModelState, Regulation};
 use biodivine_lib_param_bn::RegulatoryGraph;
 
 fn main() {
@@ -13,6 +14,6 @@ fn main() {
     }
 
     let reg = Regulation::try_from_string("a->b").unwrap();
-    let regulation_data = RegulationData::new_from_reg(&reg);
+    let regulation_data = RegulationData::from_reg(&reg);
     println!("{}", serde_json::to_string(&regulation_data).unwrap());
 }

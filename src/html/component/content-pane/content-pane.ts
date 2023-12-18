@@ -19,9 +19,9 @@ export class ContentPane extends LitElement {
 
   private pin (): void {
     if (this.tab.pinned) {
-      aeonState.tab_bar.unpin(this.tab.id)
+      aeonState.tabBar.unpin(this.tab.id)
     } else {
-      aeonState.tab_bar.pin(this.tab.id)
+      aeonState.tabBar.pin(this.tab.id)
     }
   }
 

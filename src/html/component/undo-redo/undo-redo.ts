@@ -11,18 +11,18 @@ class UndoRedo extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   @state()
-  private can_undo: boolean = false
+  private canUndo: boolean = false
 
   @state()
-  private can_redo: boolean = false
+  private canRedo: boolean = false
 
   constructor () {
     super()
-    aeonState.undo_stack.can_undo.addEventListener((it) => {
-      this.can_undo = it
+    aeonState.undoStack.canUndo.addEventListener((it) => {
+      this.canUndo = it
     })
-    aeonState.undo_stack.can_redo.addEventListener((it) => {
-      this.can_redo = it
+    aeonState.undoStack.canRedo.addEventListener((it) => {
+      this.canRedo = it
     })
   }
 
@@ -30,9 +30,9 @@ class UndoRedo extends LitElement {
     return html`
       <div class="undo-redo uk-flex-nowrap">
         <button class="uk-button uk-button-secondary uk-button-small"
-                @click=${aeonState.undo_stack.undo} ?disabled=${!this.can_undo}>${icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-left' })).node}</button>
+                @click=${aeonState.undoStack.undo} ?disabled=${!this.canUndo}>${icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-left' })).node}</button>
         <button class="uk-button uk-button-secondary uk-button-small"
-                @click=${aeonState.undo_stack.redo} ?disabled=${!this.can_redo}>${icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-right' })).node}</button>
+                @click=${aeonState.undoStack.redo} ?disabled=${!this.canRedo}>${icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-right' })).node}</button>
       </div>
     `
   }

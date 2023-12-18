@@ -15,9 +15,8 @@ name = "cli-test"
 path = "src/bin/cli-test.rs"
 
 [dependencies]
-biodivine-lib-bdd = ">=0.5.2, <1.0.0"
-biodivine-lib-param-bn = ">=0.4.7, <1.0.0"
-biodivine-hctl-model-checker = ">=0.2.0, <1.0.0"
+biodivine-lib-bdd = ">=0.5.6, <1.0.0"
+biodivine-lib-param-bn = ">=0.5.0, <1.0.0"
 lazy_static = "1.4.0"
 regex = "1.10.2"
 tauri = { version = "1.4", features = [ "window-set-focus", "window-set-size", "window-close", "window-create", "dialog-all", "shell-open"] }

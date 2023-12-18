@@ -1,4 +1,6 @@
-use crate::sketchbook::{Layout, LayoutId, ModelState, Regulation, RegulationSign, VarId, Variable, Observability};
+use crate::sketchbook::{
+    Layout, LayoutId, ModelState, Observability, Regulation, RegulationSign, VarId, Variable,
+};
 use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
@@ -232,7 +234,7 @@ impl ModelState {
         &mut self,
         regulator: &VarId,
         target: &VarId,
-        new_sign: &RegulationSign
+        new_sign: &RegulationSign,
     ) -> Result<(), String> {
         // all validity checks are performed inside
         let regulation = self.get_regulation(regulator, target)?.clone();
@@ -240,8 +242,8 @@ impl ModelState {
         self.add_regulation(
             regulator.clone(),
             target.clone(),
-            regulation.get_observability().clone(),
-            new_sign.clone()
+            *regulation.get_observability(),
+            *new_sign,
         )?;
         Ok(())
     }
@@ -304,7 +306,7 @@ impl ModelState {
     /// can not be deleted.
     ///
     /// Returns `Err` in case the `id` is not a valid identifier in this `ModelState`.
-    fn remove_layout(&mut self, layout_id: &LayoutId) -> Result<(), String> {
+    pub fn remove_layout(&mut self, layout_id: &LayoutId) -> Result<(), String> {
         self.assert_valid_layout(layout_id)?;
         if *layout_id == ModelState::get_default_layout_id() {
             return Err("Default layout can not be deleted.".to_string());

@@ -17,8 +17,8 @@ class RootComponent extends LitElement {
 
   constructor () {
     super()
-    aeonState.tab_bar.active.addEventListener(this.#onSwitched.bind(this))
-    aeonState.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))
+    aeonState.tabBar.active.addEventListener(this.#onSwitched.bind(this))
+    aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     this.addEventListener('update-data', this.updateData)
     this.addEventListener('update-function', this.focusFunction)
     this.data = dummyData
@@ -58,7 +58,7 @@ class RootComponent extends LitElement {
   }
 
   private focusFunction (event: Event): void {
-    aeonState.tab_bar.active.emitValue(1)
+    aeonState.tabBar.active.emitValue(1)
     console.log(this.shadowRoot?.querySelector('#functions')?.shadowRoot?.querySelector('functions-editor'))
     this.shadowRoot?.querySelector('#functions')
       ?.shadowRoot?.querySelector('functions-editor')

@@ -16,7 +16,7 @@ class TabBar extends LitElement {
 
   switchTab (tabId: number) {
     return () => {
-      aeonState.tab_bar.active.emitValue(tabId)
+      aeonState.tabBar.active.emitValue(tabId)
     }
   }
 

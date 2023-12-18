@@ -209,7 +209,7 @@ mod tests {
             Observability::Unknown,
             Observability::True,
             Observability::Unknown,
-            Observability::True
+            Observability::True,
         ];
         let regulation_sign = vec![
             RegulationSign::Unknown,
