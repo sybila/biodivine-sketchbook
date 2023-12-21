@@ -54,10 +54,13 @@ class RegulationsEditor extends LitElement {
       void this.removeElement(e)
     })
     this.addEventListener('rename-node', (e) => {
-      void this.renameNode(e)
+      void this.renameNodeDialog(e)
     })
     this.addEventListener('update-function', () => { this.toggleMenu(ElementType.NONE) })
-
+    this.addEventListener('rename-variable', (event) => {
+      const detail = (event as CustomEvent).detail
+      this.renameNode(detail.nodeId, detail.nodeId, detail.nodeName)
+    })
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
   }
@@ -93,6 +96,7 @@ class RegulationsEditor extends LitElement {
   firstUpdated (): void {
     this.init()
     if (!this.loadCachedNodes() || !this.loadCachedEdges()) this.loadDummyData()
+    this.saveState()
   }
 
   init (): void {
@@ -191,7 +195,7 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  async renameNode (event: Event): Promise<void> {
+  async renameNodeDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
     const nodeId = (event as CustomEvent).detail.id
     const nodeName = (event as CustomEvent).detail.name
@@ -224,28 +228,32 @@ class RegulationsEditor extends LitElement {
     void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
       this.dialogs[nodeId] = undefined
       // avoid overwriting existing nodes
-      if (nodeId !== event.payload.id && (this.cy?.$id(event.payload.id) !== undefined && this.cy?.$id(event.payload.id).length > 0)) {
-        UIkit.notification(`Node with id '${event.payload.id}' already exists!`)
-        return
-      }
-      const node = this.cy?.$id(nodeId)
-      if (node === undefined) return
-      const position = node.position()
-      const edges = this.contentData.edges.filter((edge) => edge.source === nodeId || edge.target === nodeId)
-      node.remove()
-      this.addNode(event.payload.id, event.payload.name, position)
-      edges.forEach((edge) => {
-        if (edge.source === nodeId) {
-          this.ensureRegulation({ ...edge, source: event.payload.id })
-        } else {
-          this.ensureRegulation({ ...edge, target: event.payload.id })
-        }
-      })
-      this.saveState()
+      this.renameNode(nodeId, event.payload.id, event.payload.name)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[nodeId] = undefined
     })
+  }
+
+  renameNode (oldId: string, newId: string, newName: string): void {
+    if (oldId !== newId && (this.cy?.$id(newId) !== undefined && this.cy?.$id(newId).length > 0)) {
+      UIkit.notification(`Node with id '${newId}' already exists!`)
+      return
+    }
+    const node = this.cy?.$id(oldId)
+    if (node === undefined) return
+    const position = node.position()
+    const edges = this.contentData.edges.filter((edge) => edge.source === oldId || edge.target === oldId)
+    node.remove()
+    this.addNode(newId, newName, position)
+    edges.forEach((edge) => {
+      if (edge.source === oldId) {
+        this.ensureRegulation({ ...edge, source: newId })
+      } else {
+        this.ensureRegulation({ ...edge, target: newId })
+      }
+    })
+    this.saveState()
   }
 
   adjustPan (event: Event): void {
@@ -327,6 +335,7 @@ class RegulationsEditor extends LitElement {
       .data('observable', e.detail.observable)
       .data('monotonicity', e.detail.monotonicity)
     this.menuData = this.cy?.$id(e.detail.edgeId).data()
+    this.saveState()
   }
 
   async removeElement (event: Event): Promise<void> {
@@ -359,6 +368,10 @@ class RegulationsEditor extends LitElement {
         monotonicity: edge.data().monotonicity as Monotonicity
       }
     })
+    // sort the objects to keep lists in other tabs in stable order
+    nodes.sort((a, b) => (a.id > b.id ? 1 : -1))
+    edges.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+
     if (nodes.length > 0) {
       localStorage.setItem(SAVE_NODES, JSON.stringify(nodes))
     }

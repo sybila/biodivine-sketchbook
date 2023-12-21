@@ -19,8 +19,11 @@ class RootComponent extends LitElement {
     super()
     aeonState.tab_bar.active.addEventListener(this.#onSwitched.bind(this))
     aeonState.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))
+    aeonState.tab_bar.active.refresh()
+    aeonState.tab_bar.pinned.refresh()
     this.addEventListener('update-data', this.updateData)
     this.addEventListener('update-function', this.focusFunction)
+    this.addEventListener('rename-variable', this.renameVariable)
     this.data = dummyData
   }
 
@@ -46,8 +49,21 @@ class RootComponent extends LitElement {
     this.data = (event as CustomEvent).detail
   }
 
+  private renameVariable (event: Event): void {
+    const details = (event as CustomEvent).detail
+    this.shadowRoot?.querySelector('#regulations')
+      ?.shadowRoot?.querySelector('regulations-editor')
+      ?.dispatchEvent(new CustomEvent('rename-variable', {
+        detail: {
+          nodeId: details.nodeId,
+          nodeName: details.nodeName
+        }
+      }))
+  }
+
   private adjustRegEditor (): void {
     if (window.outerWidth <= 800) return
+    // a bit of messy solution but should eventually go through backend
     this.shadowRoot?.querySelector('#regulations')
       ?.shadowRoot?.querySelector('regulations-editor')
       ?.dispatchEvent(new CustomEvent('adjust-graph', {
@@ -59,7 +75,6 @@ class RootComponent extends LitElement {
 
   private focusFunction (event: Event): void {
     aeonState.tab_bar.active.emitValue(1)
-    console.log(this.shadowRoot?.querySelector('#functions')?.shadowRoot?.querySelector('functions-editor'))
     this.shadowRoot?.querySelector('#functions')
       ?.shadowRoot?.querySelector('functions-editor')
       ?.dispatchEvent(new CustomEvent('focus-function', {

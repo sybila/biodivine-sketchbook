@@ -1,4 +1,5 @@
 import { type CytoscapeOptions } from 'cytoscape'
+import { Monotonicity } from './element-type'
 
 export const edgeOptions = {
   preview: true, // whether to show added edges preview before releasing selection
@@ -21,11 +22,7 @@ export const edgeOptions = {
     return {
       data: {
         observable: true,
-        monotonicity: {
-          unspecified: 'unspecified',
-          activation: 'activation',
-          inhibition: 'inhibition'
-        }
+        monotonicity: Monotonicity.UNSPECIFIED
       }
     }
   }
@@ -79,14 +76,14 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
           'padding-bottom': '12'
         }
       },
-      { // When a node is highlighted by mouse, show it with a dashed blue border.
-        selector: 'node.hover',
-        style: {
-          'border-width': '2.0px',
-          'border-color': '#6a7ea5',
-          'border-style': 'dashed'
-        }
-      },
+      // { // When a node is highlighted by mouse, show it with a dashed blue border.
+      //   selector: 'node.hover',
+      //   style: {
+      //     'border-width': '2.0px',
+      //     'border-color': '#6a7ea5',
+      //     'border-style': 'dashed'
+      //   }
+      // },
       { // When a node is selected, show it with a thick blue border.
         selector: 'node:selected',
         style: {
@@ -107,10 +104,10 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
           'font-family': 'FiraMono'
         }
       },
-      {
-        selector: 'edge.hover',
-        style: { 'overlay-opacity': 0.1 }
-      },
+      // {
+      //   selector: 'edge.hover',
+      //   style: { 'overlay-opacity': 0.1 }
+      // },
       { // Show non-observable edges as dashed
         selector: 'edge[observable]',
         style: {

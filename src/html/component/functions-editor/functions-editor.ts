@@ -3,6 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import { ContentData } from '../../util/tab-data'
+import './function-tile/function-tile'
 
 @customElement('functions-editor')
 class FunctionsEditor extends LitElement {
@@ -21,13 +22,11 @@ class FunctionsEditor extends LitElement {
 
   protected render (): TemplateResult {
     return html`
-          <ul class="function-list uk-list uk-list-divider uk-text-center">
+          <div class="function-list uk-list uk-list-divider uk-text-center">
             ${map(this.contentData?.nodes, (node) => html`
-              <li class="${node.id === this.focusedFunctionId ? 'uk-background-primary' : ''} uk-margin-remove-top uk-padding-small">
-                ${node.id} / ${node.name}
-              </li>
+              <function-tile .variable="${node}" .regulations="${this.contentData.edges.filter(edge => edge.source === node.id)}"></function-tile>
             `)}
-          </ul>
+          </div>
     `
   }
 }

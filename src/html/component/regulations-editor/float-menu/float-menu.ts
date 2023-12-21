@@ -110,7 +110,7 @@ class FloatMenu extends LitElement {
       )).node[0],
       label: () => {
         switch (this.data?.monotonicity) {
-          case Monotonicity.OFF:
+          case Monotonicity.UNSPECIFIED:
             return 'Make activating (M)'
           case Monotonicity.ACTIVATION:
             return 'Make inhibiting (M)'
@@ -159,7 +159,7 @@ class FloatMenu extends LitElement {
         monotonicity = Monotonicity.INHIBITION
         break
       case Monotonicity.INHIBITION:
-        monotonicity = Monotonicity.OFF
+        monotonicity = Monotonicity.UNSPECIFIED
         break
       default:
         monotonicity = Monotonicity.ACTIVATION
