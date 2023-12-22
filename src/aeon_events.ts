@@ -57,7 +57,7 @@ interface AeonState {
     /** List of nodes in a given layout. */
     layoutNodesRefreshed: Observable<[LayoutNodeData]>
     /** Refresh the nodes in a given layout. */
-    refreshLayoutNodes: (layout_id: string) => void
+    refreshLayoutNodes: (layoutId: string) => void
 
     /** Variable-related setter events */
 
@@ -554,8 +554,8 @@ export const aeonState: AeonState = {
       aeonEvents.refresh(['model', 'get_layouts'])
     },
     layoutNodesRefreshed: new Observable<[LayoutNodeData]>(['model', 'get_layout_nodes']),
-    refreshLayoutNodes (layout_id: string): void {
-      aeonEvents.refresh(['model', 'get_layout_nodes', layout_id])
+    refreshLayoutNodes (layoutId: string): void {
+      aeonEvents.refresh(['model', 'get_layout_nodes', layoutId])
     },
 
     variableCreated: new Observable<VariableData>(['model', 'variable', 'add']),
