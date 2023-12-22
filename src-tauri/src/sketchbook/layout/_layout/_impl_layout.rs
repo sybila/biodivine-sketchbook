@@ -150,11 +150,8 @@ impl FromStr for Layout {
     type Err = String;
 
     /// Use json de-serialization to construct `Layout` from string.
-    fn from_str(s: &str) -> Result<Layout, <Layout as FromStr>::Err> {
-        match serde_json::from_str(s) {
-            Ok(layout) => Ok(layout),
-            Err(e) => Err(e.to_string()),
-        }
+    fn from_str(s: &str) -> Result<Layout, String> {
+        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }
 

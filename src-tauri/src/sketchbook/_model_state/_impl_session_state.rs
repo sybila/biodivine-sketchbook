@@ -8,6 +8,7 @@ use crate::sketchbook::simplified_structs::{
 use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
 
 use serde_json::json;
+use std::str::FromStr;
 
 impl SessionHelper for ModelState {}
 
@@ -42,7 +43,7 @@ impl ModelState {
 
         // get payload components (json for VariableData containing "id", and "name")
         let payload = Self::clone_payload_str(event, component_name)?;
-        let variable_data: VariableData = serde_json::from_str(payload.as_str())?;
+        let variable_data = VariableData::from_str(payload.as_str())?;
         let var_id_str = variable_data.id;
         let name = variable_data.name;
 
@@ -180,7 +181,7 @@ impl ModelState {
         // get payload components (json for RegulationData containing "regulator", "target",
         // "sign", "observable")
         let payload = Self::clone_payload_str(event, component_name)?;
-        let regulation_data: RegulationData = serde_json::from_str(payload.as_str())?;
+        let regulation_data = RegulationData::from_str(payload.as_str())?;
         let regulator_id = self.get_var_id(&regulation_data.regulator)?;
         let target_id = self.get_var_id(&regulation_data.target)?;
         let sign: RegulationSign = regulation_data.sign;
@@ -246,7 +247,7 @@ impl ModelState {
 
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_sign = *original_reg.get_sign();
-            let reg_data = RegulationData::from_reg(&original_reg);
+            let reg_data = RegulationData::from_reg(original_reg);
 
             if orig_sign == new_sign {
                 return Ok(Consumed::NoChange);
@@ -300,9 +301,9 @@ impl ModelState {
     fn perform_layout_add_event(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "model/layout";
 
-        // get payload components (json for LayoutData containing "id", and "name")
+        // get payload components (json for LayoutData)
         let payload = Self::clone_payload_str(event, component_name)?;
-        let layout_data: LayoutData = serde_json::from_str(payload.as_str())?;
+        let layout_data = LayoutData::from_str(payload.as_str())?;
         let layout_id_str = layout_data.id;
         let layout_id = self.generate_layout_id(&layout_id_str);
         let name = layout_data.name;
@@ -338,15 +339,21 @@ impl ModelState {
         if Self::starts_with("update_position", at_path).is_some() {
             // get payload components (json containing "var_id", "new_x" and "new_y")
             let payload = Self::clone_payload_str(event, component_name)?;
-            let new_node_data: LayoutNodeData = serde_json::from_str(payload.as_str())?;
+            let new_node_data = LayoutNodeData::from_str(payload.as_str())?;
             let var_id = self.get_var_id(new_node_data.variable.as_str())?;
             let new_x = new_node_data.px;
             let new_y = new_node_data.py;
             let new_position = NodePosition(new_x, new_y);
 
             let orig_pos = self.get_node_position(&layout_id, &var_id)?.clone();
-            let orig_pos_data = LayoutNodeData::new(layout_id.to_string(), var_id.to_string(), orig_pos.0, orig_pos.1);
-            let new_pos_data = LayoutNodeData::new(layout_id.to_string(), var_id.to_string(), new_x, new_y);
+            let orig_pos_data = LayoutNodeData::new(
+                layout_id.to_string(),
+                var_id.to_string(),
+                orig_pos.0,
+                orig_pos.1,
+            );
+            let new_pos_data =
+                LayoutNodeData::new(layout_id.to_string(), var_id.to_string(), new_x, new_y);
 
             if new_position == orig_pos {
                 return Ok(Consumed::NoChange);
@@ -355,8 +362,7 @@ impl ModelState {
             // perform the event, prepare the state-change variant (move ID from path to payload)
             self.update_node_position(&layout_id, &var_id, new_x, new_y)?;
             let state_change_path = ["model", "layout", "update_position"];
-            let state_change =
-                Event::build(&state_change_path, Some(&new_pos_data.to_string()));
+            let state_change = Event::build(&state_change_path, Some(&new_pos_data.to_string()));
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
@@ -374,7 +380,7 @@ impl ModelState {
             }
 
             let layout = self.get_layout(&layout_id)?;
-            let layout_data = LayoutData::from_layout(layout_id.to_string(), &layout);
+            let layout_data = LayoutData::from_layout(&layout_id, layout);
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.remove_layout(&layout_id)?;
@@ -451,7 +457,7 @@ impl ModelState {
         let layout_list: Vec<LayoutData> = self
             .layouts
             .iter()
-            .map(|(id, layout)| LayoutData::from_layout(id.to_string(), layout))
+            .map(|(id, layout)| LayoutData::from_layout(id, layout))
             .collect();
 
         Ok(Event {
@@ -473,7 +479,9 @@ impl ModelState {
 
         let node_list: Vec<LayoutNodeData> = layout
             .layout_nodes()
-            .map(|(var_id, node)| LayoutNodeData::from_node(layout_id.to_string(), var_id.to_string(), node))
+            .map(|(var_id, node)| {
+                LayoutNodeData::from_node(layout_id.to_string(), var_id.to_string(), node)
+            })
             .collect();
         Ok(Event {
             path: full_path.to_vec(),
@@ -515,11 +523,11 @@ mod tests {
     use crate::sketchbook::{ModelState, VarId};
     use serde_json::json;
 
-    /// Check that after applying the reverse event of `result` to the `reg_state` with relative
-    /// path `at_path`, we receive precisely `reg_state_orig`.
+    /// Check that after applying the reverse event of `result` to the `model` with relative
+    /// path `at_path`, we receive precisely `model_orig`.
     fn check_reverse(
-        mut reg_state: ModelState,
-        reg_state_orig: ModelState,
+        mut model: ModelState,
+        model_orig: ModelState,
         result: Consumed,
         at_path: &[&str],
     ) {
@@ -529,8 +537,8 @@ mod tests {
                 perform_reverse: (_, reverse),
                 ..
             } => {
-                reg_state.perform_event(&reverse, &at_path).unwrap();
-                assert_eq!(reg_state, reg_state_orig);
+                model.perform_event(&reverse, &at_path).unwrap();
+                assert_eq!(model, model_orig);
             }
             _ => panic!(),
         }
@@ -538,47 +546,42 @@ mod tests {
 
     #[test]
     fn test_add_var_event() {
-        let mut reg_state = ModelState::new();
-        let var_id_a = reg_state.generate_var_id("a");
-        reg_state.add_var(var_id_a, "a").unwrap();
-        let reg_state_orig = reg_state.clone();
-        assert_eq!(reg_state.num_vars(), 1);
+        let mut model = ModelState::new();
+        let var_id_a = model.generate_var_id("a");
+        model.add_var(var_id_a, "a").unwrap();
+        let model_orig = model.clone();
+        assert_eq!(model.num_vars(), 1);
 
         // test variable add event
         let var_data = VariableData::new("b".to_string(), "b".to_string());
         let payload = serde_json::to_string(&var_data).unwrap();
         let full_path = ["model", "variable", "add"];
         let event = Event::build(&full_path, Some(payload.as_str()));
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
         // check var was added
-        assert_eq!(reg_state.num_vars(), 2);
-        assert_eq!(reg_state.get_var_id("b").unwrap(), VarId::new("b").unwrap());
-        check_reverse(
-            reg_state,
-            reg_state_orig,
-            result,
-            &["variable", "b", "remove"],
-        );
+        assert_eq!(model.num_vars(), 2);
+        assert_eq!(model.get_var_id("b").unwrap(), VarId::new("b").unwrap());
+        check_reverse(model, model_orig, result, &["variable", "b", "remove"]);
     }
 
     #[test]
     fn test_remove_var_event() {
-        let mut reg_state = ModelState::new();
-        let var_id_a = reg_state.generate_var_id("a");
-        reg_state.add_var(var_id_a, "a").unwrap();
-        reg_state.add_regulation_by_str("a -> a").unwrap();
-        assert_eq!(reg_state.num_vars(), 1);
-        assert_eq!(reg_state.num_regulations(), 1);
+        let mut model = ModelState::new();
+        let var_id_a = model.generate_var_id("a");
+        model.add_var(var_id_a, "a").unwrap();
+        model.add_regulation_by_str("a -> a").unwrap();
+        assert_eq!(model.num_vars(), 1);
+        assert_eq!(model.num_regulations(), 1);
 
         // test variable remove event
         let full_path = ["model", "variable", "a", "remove"];
         let event = Event::build(&full_path, None);
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
         // check var was removed
-        assert_eq!(reg_state.num_vars(), 0);
-        assert_eq!(reg_state.num_regulations(), 0);
+        assert_eq!(model.num_vars(), 0);
+        assert_eq!(model.num_regulations(), 0);
 
         // assert that it is irreversible (at the moment)
         assert!(matches!(result, Consumed::Irreversible { .. }));
@@ -586,43 +589,43 @@ mod tests {
 
     #[test]
     fn test_set_var_name_event() {
-        let mut reg_state = ModelState::new();
-        let var_id = reg_state.generate_var_id("a");
+        let mut model = ModelState::new();
+        let var_id = model.generate_var_id("a");
         let original_name = "a_name";
-        reg_state.add_var(var_id.clone(), original_name).unwrap();
+        model.add_var(var_id.clone(), original_name).unwrap();
         let new_name = "new_name";
-        let reg_state_orig = reg_state.clone();
-        assert_eq!(reg_state.get_var_name(&var_id).unwrap(), original_name);
+        let model_orig = model.clone();
+        assert_eq!(model.get_var_name(&var_id).unwrap(), original_name);
 
         // test variable rename event
         let full_path = ["model", "variable", var_id.as_str(), "set_name"];
         let event = Event::build(&full_path, Some(new_name));
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
         // check var was renamed
-        assert_eq!(reg_state.get_var_name(&var_id).unwrap(), new_name);
-        check_reverse(reg_state, reg_state_orig, result, &full_path[1..]);
+        assert_eq!(model.get_var_name(&var_id).unwrap(), new_name);
+        check_reverse(model, model_orig, result, &full_path[1..]);
     }
 
     #[test]
     fn test_set_var_id_event() {
-        let mut reg_state = ModelState::new();
-        let var_id = reg_state.generate_var_id("a");
-        reg_state.add_var(var_id.clone(), "a_name").unwrap();
-        let reg_state_orig = reg_state.clone();
+        let mut model = ModelState::new();
+        let var_id = model.generate_var_id("a");
+        model.add_var(var_id.clone(), "a_name").unwrap();
+        let model_orig = model.clone();
 
         // test id change event
-        let new_id = reg_state.generate_var_id("b");
+        let new_id = model.generate_var_id("b");
         let full_path = ["model", "variable", var_id.as_str(), "set_id"];
         let event = Event::build(&full_path, Some(new_id.as_str()));
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
         // check id changed
-        assert!(!reg_state.is_valid_var_id(&var_id));
-        assert!(reg_state.is_valid_var_id(&new_id));
+        assert!(!model.is_valid_var_id(&var_id));
+        assert!(model.is_valid_var_id(&new_id));
         check_reverse(
-            reg_state,
-            reg_state_orig,
+            model,
+            model_orig,
             result,
             &["variable", new_id.as_str(), "set_id"],
         );
@@ -630,49 +633,49 @@ mod tests {
 
     #[test]
     fn test_invalid_var_events() {
-        let mut reg_state = ModelState::new();
-        let var_id = reg_state.generate_var_id("a");
-        reg_state.add_var(var_id.clone(), "a-name").unwrap();
-        let reg_state_orig = reg_state.clone();
+        let mut model = ModelState::new();
+        let var_id = model.generate_var_id("a");
+        model.add_var(var_id.clone(), "a-name").unwrap();
+        let model_orig = model.clone();
 
         // adding variable `a` again
         let full_path = ["model", "variable", "add"];
         let event = Event::build(&full_path, Some("a"));
-        assert!(reg_state.perform_event(&event, &full_path[1..]).is_err());
-        assert_eq!(reg_state, reg_state_orig);
+        assert!(model.perform_event(&event, &full_path[1..]).is_err());
+        assert_eq!(model, model_orig);
 
         // removing variable with wrong id
         let full_path = ["model", "variable", "b", "remove"];
         let event = Event::build(&full_path, None);
-        assert!(reg_state.perform_event(&event, &full_path[1..]).is_err());
-        assert_eq!(reg_state, reg_state_orig);
+        assert!(model.perform_event(&event, &full_path[1..]).is_err());
+        assert_eq!(model, model_orig);
 
         // variable rename event with wrong id
         let full_path = ["model", "variable", "b", "set_name"];
         let event = Event::build(&full_path, Some("new_name"));
-        assert!(reg_state.perform_event(&event, &full_path[1..]).is_err());
-        assert_eq!(reg_state, reg_state_orig);
+        assert!(model.perform_event(&event, &full_path[1..]).is_err());
+        assert_eq!(model, model_orig);
     }
 
     #[test]
     fn test_add_reg_event() {
-        let mut reg_state = ModelState::new();
-        let var_id_a = reg_state.generate_var_id("a");
-        reg_state.add_var(var_id_a.clone(), "a").unwrap();
-        let var_id_b = reg_state.generate_var_id("b");
-        reg_state.add_var(var_id_b.clone(), "b").unwrap();
-        let reg_state_orig = reg_state.clone();
+        let mut model = ModelState::new();
+        let var_id_a = model.generate_var_id("a");
+        model.add_var(var_id_a.clone(), "a").unwrap();
+        let var_id_b = model.generate_var_id("b");
+        model.add_var(var_id_b.clone(), "b").unwrap();
+        let model_orig = model.clone();
 
         // test regulation add event
         let full_path = ["model", "regulation", "add"];
         let regulation_data = RegulationData::try_from_reg_str("a -> b").unwrap();
         let event = Event::build(&full_path, Some(&regulation_data.to_string()));
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
-        assert_eq!(reg_state.num_regulations(), 1);
+        assert_eq!(model.num_regulations(), 1);
         check_reverse(
-            reg_state,
-            reg_state_orig,
+            model,
+            model_orig,
             result,
             &["regulation", var_id_a.as_str(), var_id_b.as_str(), "remove"],
         );
@@ -680,13 +683,13 @@ mod tests {
 
     #[test]
     fn test_remove_reg_event() {
-        let mut reg_state = ModelState::new();
-        let var_a = reg_state.generate_var_id("a");
-        reg_state.add_var(var_a.clone(), "a").unwrap();
-        let varb = reg_state.generate_var_id("b");
-        reg_state.add_var(varb.clone(), "b").unwrap();
-        reg_state.add_regulation_by_str("a -> b").unwrap();
-        let reg_state_orig = reg_state.clone();
+        let mut model = ModelState::new();
+        let var_a = model.generate_var_id("a");
+        model.add_var(var_a.clone(), "a").unwrap();
+        let varb = model.generate_var_id("b");
+        model.add_var(varb.clone(), "b").unwrap();
+        model.add_regulation_by_str("a -> b").unwrap();
+        let model_orig = model.clone();
 
         // test regulation add event
         let full_path = [
@@ -697,19 +700,19 @@ mod tests {
             "remove",
         ];
         let event = Event::build(&full_path, None);
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
-        assert_eq!(reg_state.num_regulations(), 0);
-        check_reverse(reg_state, reg_state_orig, result, &["regulation", "add"]);
+        assert_eq!(model.num_regulations(), 0);
+        check_reverse(model, model_orig, result, &["regulation", "add"]);
     }
 
     #[test]
     fn test_change_position_event() {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
         let layout_id = ModelState::get_default_layout_id();
-        let var_id = reg_state.generate_var_id("a");
-        reg_state.add_var(var_id.clone(), "a_name").unwrap();
-        let reg_state_orig = reg_state.clone();
+        let var_id = model.generate_var_id("a");
+        model.add_var(var_id.clone(), "a_name").unwrap();
+        let model_orig = model.clone();
 
         // test position change event
         let payload = json!({
@@ -721,15 +724,15 @@ mod tests {
         .to_string();
         let full_path = ["model", "layout", layout_id.as_str(), "update_position"];
         let event = Event::build(&full_path, Some(payload.as_str()));
-        let result = reg_state.perform_event(&event, &full_path[1..]).unwrap();
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
         // check position changed
         assert_eq!(
-            reg_state.get_node_position(&layout_id, &var_id).unwrap(),
+            model.get_node_position(&layout_id, &var_id).unwrap(),
             &NodePosition(2.5, 0.4)
         );
 
-        check_reverse(reg_state, reg_state_orig, result, &full_path[1..]);
+        check_reverse(model, model_orig, result, &full_path[1..]);
     }
 
     #[test]

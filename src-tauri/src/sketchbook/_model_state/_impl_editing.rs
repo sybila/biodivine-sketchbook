@@ -28,7 +28,7 @@ impl ModelState {
     ///
     /// Return `Err` in case the IDs are not unique.
     pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<ModelState, String> {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
 
         let var_id_set = variables.iter().map(|pair| pair.0).collect::<HashSet<_>>();
         if var_id_set.len() != variables.len() {
@@ -37,12 +37,12 @@ impl ModelState {
 
         for (id, var_name) in variables {
             let var_id = VarId::new(id)?;
-            reg_state
+            model
                 .variables
                 .insert(var_id.clone(), Variable::new(var_name));
-            reg_state.insert_to_default_layout(var_id)?;
+            model.insert_to_default_layout(var_id)?;
         }
-        Ok(reg_state)
+        Ok(model)
     }
 
     /// Add a new variable with given `var_id` and `name` to this `ModelState`.
@@ -447,17 +447,14 @@ mod tests {
     /// Test generating new default variant of the `ModelState`.
     #[test]
     fn test_new_default() {
-        let reg_state = ModelState::new();
-        assert_eq!(reg_state.num_vars(), 0);
-        assert_eq!(reg_state.num_regulations(), 0);
-        assert_eq!(reg_state.num_layouts(), 1);
+        let model = ModelState::new();
+        assert_eq!(model.num_vars(), 0);
+        assert_eq!(model.num_regulations(), 0);
+        assert_eq!(model.num_layouts(), 1);
 
         let default_layout_id = ModelState::get_default_layout_id();
         assert_eq!(
-            reg_state
-                .get_layout_name(&default_layout_id)
-                .unwrap()
-                .as_str(),
+            model.get_layout_name(&default_layout_id).unwrap().as_str(),
             ModelState::get_default_layout_name(),
         )
     }
@@ -469,12 +466,12 @@ mod tests {
         assert!(ModelState::new_from_vars(var_id_name_pairs).is_err());
 
         let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
-        let reg_state = ModelState::new_from_vars(var_id_name_pairs).unwrap();
-        assert_eq!(reg_state.num_vars(), 2);
-        assert_eq!(reg_state.num_regulations(), 0);
-        assert!(reg_state.is_valid_var_id_str("a_id"));
-        assert!(reg_state.is_valid_var_id_str("b_id"));
-        assert!(!reg_state.is_valid_var_id_str("c_id"));
+        let model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
+        assert_eq!(model.num_vars(), 2);
+        assert_eq!(model.num_regulations(), 0);
+        assert!(model.is_valid_var_id_str("a_id"));
+        assert!(model.is_valid_var_id_str("b_id"));
+        assert!(!model.is_valid_var_id_str("c_id"));
     }
 
     /// Test manually creating `ModelState` and mutating it by adding/removing variables
@@ -482,145 +479,145 @@ mod tests {
     /// covered by other tests.
     #[test]
     fn test_manually_editing() {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
 
         // add variables a, b, c
-        reg_state.add_var_by_str("a", "a_name").unwrap();
-        reg_state.add_var_by_str("b", "b_name").unwrap();
-        reg_state.add_var_by_str("c", "c_name").unwrap();
-        assert_eq!(reg_state.num_vars(), 3);
+        model.add_var_by_str("a", "a_name").unwrap();
+        model.add_var_by_str("b", "b_name").unwrap();
+        model.add_var_by_str("c", "c_name").unwrap();
+        assert_eq!(model.num_vars(), 3);
 
         // add regulations a -> a, a -> b, b -> c, c -> a
-        reg_state.add_regulation_by_str("a -> a").unwrap();
-        reg_state.add_regulation_by_str("a -> b").unwrap();
-        reg_state.add_regulation_by_str("b -> c").unwrap();
-        reg_state.add_regulation_by_str("c -> a").unwrap();
-        assert_eq!(reg_state.num_regulations(), 4);
+        model.add_regulation_by_str("a -> a").unwrap();
+        model.add_regulation_by_str("a -> b").unwrap();
+        model.add_regulation_by_str("b -> c").unwrap();
+        model.add_regulation_by_str("c -> a").unwrap();
+        assert_eq!(model.num_regulations(), 4);
 
         // remove variable and check that all its regulations disappear, try re-adding it then
-        let var_a = reg_state.get_var_id("a").unwrap();
-        reg_state.remove_var(&var_a).unwrap();
-        assert!(reg_state.get_var_name(&var_a).is_err());
-        let var_b = reg_state.get_var_id("b").unwrap();
-        assert!(reg_state.get_regulation(&var_a, &var_b).is_err());
-        assert_eq!(reg_state.num_regulations(), 1);
-        assert!(reg_state.add_var(var_a, "name_a").is_ok());
+        let var_a = model.get_var_id("a").unwrap();
+        model.remove_var(&var_a).unwrap();
+        assert!(model.get_var_name(&var_a).is_err());
+        let var_b = model.get_var_id("b").unwrap();
+        assert!(model.get_regulation(&var_a, &var_b).is_err());
+        assert_eq!(model.num_regulations(), 1);
+        assert!(model.add_var(var_a, "name_a").is_ok());
 
         // test removing a regulation and then re-adding it again
-        reg_state.remove_regulation_by_str("b -> c").unwrap();
-        let var_c = reg_state.get_var_id("c").unwrap();
-        assert!(reg_state.get_regulation(&var_b, &var_c).is_err());
-        assert!(reg_state.add_regulation_by_str("b -> c").is_ok());
-        assert_eq!(reg_state.num_regulations(), 1);
+        model.remove_regulation_by_str("b -> c").unwrap();
+        let var_c = model.get_var_id("c").unwrap();
+        assert!(model.get_regulation(&var_b, &var_c).is_err());
+        assert!(model.add_regulation_by_str("b -> c").is_ok());
+        assert_eq!(model.num_regulations(), 1);
     }
 
     /// Test adding invalid variables.
     #[test]
     fn test_add_invalid_vars() {
-        let mut reg_state = ModelState::new();
-        reg_state.add_var_by_str("a", "a_name").unwrap();
+        let mut model = ModelState::new();
+        model.add_var_by_str("a", "a_name").unwrap();
 
         // same names should not be an issue
-        reg_state.add_var_by_str("b", "a_name").unwrap();
-        assert_eq!(reg_state.num_vars(), 2);
+        model.add_var_by_str("b", "a_name").unwrap();
+        assert_eq!(model.num_vars(), 2);
 
         // adding same ID again should cause error
-        assert!(reg_state.add_var_by_str("a", "whatever").is_err());
+        assert!(model.add_var_by_str("a", "whatever").is_err());
         // adding invalid ID string should cause error
-        assert!(reg_state.add_var_by_str("a ", "whatever2").is_err());
-        assert!(reg_state.add_var_by_str("(", "whatever3").is_err());
-        assert!(reg_state.add_var_by_str("aa+a", "whatever4").is_err());
+        assert!(model.add_var_by_str("a ", "whatever2").is_err());
+        assert!(model.add_var_by_str("(", "whatever3").is_err());
+        assert!(model.add_var_by_str("aa+a", "whatever4").is_err());
 
-        assert_eq!(reg_state.num_vars(), 2);
+        assert_eq!(model.num_vars(), 2);
     }
 
     /// Test adding invalid regulations.
     #[test]
     fn test_add_invalid_regs() {
-        let mut reg_state = ModelState::new();
-        reg_state.add_var_by_str("a", "a_name").unwrap();
-        reg_state.add_var_by_str("b", "b_name").unwrap();
-        let var_a = reg_state.get_var_id("a").unwrap();
-        let var_b = reg_state.get_var_id("b").unwrap();
+        let mut model = ModelState::new();
+        model.add_var_by_str("a", "a_name").unwrap();
+        model.add_var_by_str("b", "b_name").unwrap();
+        let var_a = model.get_var_id("a").unwrap();
+        let var_b = model.get_var_id("b").unwrap();
 
         // add one valid regulation a -> b
-        reg_state.add_regulation_by_str("a -> b").unwrap();
+        model.add_regulation_by_str("a -> b").unwrap();
 
         // adding reg between the same two vars again should cause an error
-        assert!(reg_state.add_regulation_by_str("a -> b").is_err());
-        assert!(reg_state.add_regulation_by_str("a -| b").is_err());
-        assert!(reg_state
+        assert!(model.add_regulation_by_str("a -> b").is_err());
+        assert!(model.add_regulation_by_str("a -| b").is_err());
+        assert!(model
             .add_regulation(var_a, var_b, Observability::Unknown, RegulationSign::Dual)
             .is_err());
 
         // adding reg with invalid vars or invalid format should cause error
-        assert!(reg_state.add_regulation_by_str("a -> a b").is_err());
-        assert!(reg_state.add_regulation_by_str("X -> a").is_err());
-        assert!(reg_state.add_regulation_by_str("a -@ a").is_err());
+        assert!(model.add_regulation_by_str("a -> a b").is_err());
+        assert!(model.add_regulation_by_str("X -> a").is_err());
+        assert!(model.add_regulation_by_str("a -@ a").is_err());
 
         // check that nothing really got added
-        assert_eq!(reg_state.num_regulations(), 1);
+        assert_eq!(model.num_regulations(), 1);
     }
 
     /// Test that changing variable's name works correctly.
     #[test]
     fn test_var_name_change() {
-        let mut reg_state = ModelState::new();
-        reg_state.add_var_by_str("a", "a_name").unwrap();
-        reg_state.add_var_by_str("b", "b_name").unwrap();
-        let var_a = reg_state.get_var_id("a").unwrap();
+        let mut model = ModelState::new();
+        model.add_var_by_str("a", "a_name").unwrap();
+        model.add_var_by_str("b", "b_name").unwrap();
+        let var_a = model.get_var_id("a").unwrap();
 
         // setting random unique name
-        reg_state.set_var_name(&var_a, "new_name").unwrap();
-        assert_eq!(reg_state.get_var_name(&var_a).unwrap(), "new_name");
+        model.set_var_name(&var_a, "new_name").unwrap();
+        assert_eq!(model.get_var_name(&var_a).unwrap(), "new_name");
 
         // setting already existing name should also work
-        reg_state.set_var_name(&var_a, "b_name").unwrap();
-        assert_eq!(reg_state.get_var_name(&var_a).unwrap(), "b_name");
+        model.set_var_name(&var_a, "b_name").unwrap();
+        assert_eq!(model.get_var_name(&var_a).unwrap(), "b_name");
     }
 
     /// Test that changing variable's ID works correctly.
     #[test]
     fn test_var_id_change() {
-        let mut reg_state = ModelState::new();
-        let var_a = reg_state.generate_var_id("a");
-        reg_state.add_var(var_a.clone(), "a_name").unwrap();
-        let var_b = reg_state.generate_var_id("b");
-        reg_state.add_var(var_b.clone(), "b_name").unwrap();
+        let mut model = ModelState::new();
+        let var_a = model.generate_var_id("a");
+        model.add_var(var_a.clone(), "a_name").unwrap();
+        let var_b = model.generate_var_id("b");
+        model.add_var(var_b.clone(), "b_name").unwrap();
 
         // add regulations a -> a, a -> b, b -> a, b -> b
-        reg_state.add_regulation_by_str("a -> a").unwrap();
-        reg_state.add_regulation_by_str("a -> b").unwrap();
-        reg_state.add_regulation_by_str("b -> a").unwrap();
-        reg_state.add_regulation_by_str("b -> b").unwrap();
+        model.add_regulation_by_str("a -> a").unwrap();
+        model.add_regulation_by_str("a -> b").unwrap();
+        model.add_regulation_by_str("b -> a").unwrap();
+        model.add_regulation_by_str("b -> b").unwrap();
 
         // add layout
         let default_layout_id = ModelState::get_default_layout_id();
-        let new_layout_id = reg_state.generate_layout_id("layout2");
-        reg_state
+        let new_layout_id = model.generate_layout_id("layout2");
+        model
             .add_layout_copy(new_layout_id.clone(), "layout2", &default_layout_id)
             .unwrap();
 
         // change var id of variable a, check that it correctly changed everywhere
-        let new_var = reg_state.generate_var_id("c");
-        reg_state.set_var_id(&var_a, new_var.clone()).unwrap();
+        let new_var = model.generate_var_id("c");
+        model.set_var_id(&var_a, new_var.clone()).unwrap();
 
         // 1) variable map changed correctly
-        assert!(!reg_state.is_valid_var_id(&var_a));
-        assert!(reg_state.is_valid_var_id(&new_var));
+        assert!(!model.is_valid_var_id(&var_a));
+        assert!(model.is_valid_var_id(&new_var));
 
         // 2) regulations changed correctly
-        assert_eq!(reg_state.num_regulations(), 4);
-        assert!(reg_state.get_regulation(&new_var, &new_var).is_ok());
-        assert!(reg_state.get_regulation(&new_var, &var_b).is_ok());
-        assert!(reg_state.get_regulation(&var_b, &new_var).is_ok());
-        assert!(reg_state.get_regulation(&var_b, &var_b).is_ok());
+        assert_eq!(model.num_regulations(), 4);
+        assert!(model.get_regulation(&new_var, &new_var).is_ok());
+        assert!(model.get_regulation(&new_var, &var_b).is_ok());
+        assert!(model.get_regulation(&var_b, &new_var).is_ok());
+        assert!(model.get_regulation(&var_b, &var_b).is_ok());
 
         // 3) layouts changed correctly
         // we check the layout objects directly, because ModelState shorthands would fail
         // automatically because the variable is no longer valid for the ModelState
-        let layout1 = reg_state.get_layout(&default_layout_id).unwrap();
-        let layout2 = reg_state.get_layout(&new_layout_id).unwrap();
+        let layout1 = model.get_layout(&default_layout_id).unwrap();
+        let layout2 = model.get_layout(&new_layout_id).unwrap();
         assert!(layout1.get_node_position(&var_a).is_err());
         assert!(layout2.get_node_position(&var_a).is_err());
         assert!(layout1.get_node_position(&new_var).is_ok());
@@ -630,40 +627,40 @@ mod tests {
     #[test]
     fn test_layout_manipulation() {
         let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
-        let mut reg_state = ModelState::new_from_vars(var_id_name_pairs).unwrap();
-        assert_eq!(reg_state.num_layouts(), 1);
+        let mut model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
+        assert_eq!(model.num_layouts(), 1);
 
         // check default layout
         let default_layout_id = ModelState::get_default_layout_id();
         let default_layout_name = ModelState::get_default_layout_name();
-        let default_layout = reg_state.get_layout(&default_layout_id).unwrap();
-        assert!(reg_state.is_valid_layout_id(&default_layout_id));
+        let default_layout = model.get_layout(&default_layout_id).unwrap();
+        assert!(model.is_valid_layout_id(&default_layout_id));
         assert_eq!(default_layout.get_num_nodes(), 2);
         assert_eq!(default_layout.get_layout_name(), default_layout_name);
 
         // change default layout's nodes
-        let var_id = reg_state.get_var_id("a_id").unwrap();
-        reg_state
+        let var_id = model.get_var_id("a_id").unwrap();
+        model
             .update_node_position(&default_layout_id, &var_id, 2., 2.)
             .unwrap();
-        let position = reg_state
+        let position = model
             .get_node_position(&default_layout_id, &var_id)
             .unwrap();
         assert_eq!(position, &NodePosition(2., 2.));
 
         // add layouts (one as vars with default nodes, and other as direct copy)
-        let new_id_1 = reg_state.generate_layout_id("new_layout");
-        reg_state
+        let new_id_1 = model.generate_layout_id("new_layout");
+        model
             .add_layout_simple(new_id_1.clone(), "new_layout", &default_layout_id)
             .unwrap();
-        let position = reg_state.get_node_position(&new_id_1, &var_id).unwrap();
+        let position = model.get_node_position(&new_id_1, &var_id).unwrap();
         assert_eq!(position, &NodePosition(0., 0.));
 
-        let new_id_2 = reg_state.generate_layout_id("another_layout");
-        reg_state
+        let new_id_2 = model.generate_layout_id("another_layout");
+        model
             .add_layout_copy(new_id_2.clone(), "new_layout", &default_layout_id)
             .unwrap();
-        let position = reg_state.get_node_position(&new_id_2, &var_id).unwrap();
+        let position = model.get_node_position(&new_id_2, &var_id).unwrap();
         assert_eq!(position, &NodePosition(2., 2.));
     }
 }

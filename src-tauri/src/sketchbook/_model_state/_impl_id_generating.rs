@@ -106,57 +106,51 @@ mod tests {
 
     #[test]
     fn test_var_id_generating() {
-        let reg_state =
+        let model =
             ModelState::new_from_vars(vec![("a", "name"), ("b", "name"), ("c", "name")]).unwrap();
-        assert_eq!(reg_state.num_vars(), 3);
+        assert_eq!(model.num_vars(), 3);
 
         // name slice that is a valid identifier as is
         let var_name_1 = "d";
-        assert_eq!(
-            reg_state.generate_var_id(var_name_1),
-            VarId::new("d").unwrap()
-        );
+        assert_eq!(model.generate_var_id(var_name_1), VarId::new("d").unwrap());
 
         // name that is not a valid identifier as it contains various invalid characters
         let var_name_2 = "-d ??)&    ";
-        assert_eq!(
-            reg_state.generate_var_id(var_name_2),
-            VarId::new("d").unwrap()
-        );
+        assert_eq!(model.generate_var_id(var_name_2), VarId::new("d").unwrap());
 
         // name that is already used in the network
         let var_name_3 = "a";
         // result will contain an numerical index in the end
         assert_eq!(
-            reg_state.generate_var_id(var_name_3),
+            model.generate_var_id(var_name_3),
             VarId::new("a_0").unwrap()
         );
     }
 
     #[test]
     fn test_layout_id_generating() {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
         let layout_id = LayoutId::new("l_0").unwrap();
         let default_layout_id = ModelState::get_default_layout_id();
-        reg_state
+        model
             .add_layout_copy(layout_id, "name", &default_layout_id)
             .unwrap();
-        assert_eq!(reg_state.num_layouts(), 2);
+        assert_eq!(model.num_layouts(), 2);
 
         // expected result for all the following IDs will be the same
         let expected = LayoutId::new("l_1").unwrap();
 
         // name slice that is a valid identifier as is
         let name_1 = "l_1";
-        assert_eq!(reg_state.generate_layout_id(name_1), expected);
+        assert_eq!(model.generate_layout_id(name_1), expected);
 
         // name that is not a valid identifier as it contains various invalid characters
         let name_2 = "%%%%l_    1)";
-        assert_eq!(reg_state.generate_layout_id(name_2), expected);
+        assert_eq!(model.generate_layout_id(name_2), expected);
 
         // add new layout
         let layout_id = LayoutId::new("l").unwrap();
-        reg_state
+        model
             .add_layout_copy(layout_id, "name", &default_layout_id)
             .unwrap();
 
@@ -165,6 +159,6 @@ mod tests {
 
         let name_3 = "l";
         // search for unused index is incremental, starting at 0 (until valid index 1 is found)
-        assert_eq!(reg_state.generate_layout_id(name_3), expected);
+        assert_eq!(model.generate_layout_id(name_3), expected);
     }
 }

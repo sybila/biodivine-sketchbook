@@ -1,6 +1,7 @@
 use crate::sketchbook::Variable;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
+use std::str::FromStr;
 
 /// Structure for sending simplified data about `Variable` to frontend.
 /// Only contains some fields, in string format, to allow for simpler parsing and manipulation.
@@ -24,7 +25,17 @@ impl VariableData {
 }
 
 impl Display for VariableData {
+    /// Use json serialization to convert `VariableData` to string.
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", serde_json::to_string(self).unwrap())
+    }
+}
+
+impl FromStr for VariableData {
+    type Err = String;
+
+    /// Use json de-serialization to construct `Variable` from string.
+    fn from_str(s: &str) -> Result<VariableData, String> {
+        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }

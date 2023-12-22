@@ -161,44 +161,41 @@ mod tests {
     #[test]
     fn test_model_state_serde() {
         // test on very simple `ModelState` with one var and no regulations
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
         let var_id = VarId::new("a").unwrap();
-        reg_state.add_var(var_id, "a").unwrap();
+        model.add_var(var_id, "a").unwrap();
 
         // Serialization (and `to_string`)
-        let reg_state_serialized = serde_json::to_string(&reg_state).unwrap();
+        let model_serialized = serde_json::to_string(&model).unwrap();
         // this cant fail due to order of vars, since we only have one
         assert_eq!(
             "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[],\"layouts\":{\"default_layout\":{\"name\":\"default_layout\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
-            reg_state_serialized
+            model_serialized
         );
-        assert_eq!(reg_state.to_string(), reg_state_serialized);
+        assert_eq!(model.to_string(), model_serialized);
 
         // Deserialization (and `from_str`)
-        let reg_state_v2: ModelState = serde_json::from_str(&reg_state_serialized).unwrap();
-        assert_eq!(reg_state, reg_state_v2);
-        assert_eq!(
-            reg_state,
-            ModelState::from_str(&reg_state_serialized).unwrap()
-        );
+        let model_v2: ModelState = serde_json::from_str(&model_serialized).unwrap();
+        assert_eq!(model, model_v2);
+        assert_eq!(model, ModelState::from_str(&model_serialized).unwrap());
     }
 
     #[test]
     fn test_from_to_string() {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
         let var_id = VarId::new("a").unwrap();
-        reg_state.add_var(var_id, "a").unwrap();
-        reg_state.add_regulation_by_str("a -> a").unwrap();
+        model.add_var(var_id, "a").unwrap();
+        model.add_regulation_by_str("a -> a").unwrap();
 
         // To string
-        let reg_state_string = reg_state.to_string();
+        let model_string = model.to_string();
         assert_eq!(
             "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"observable\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default_layout\":{\"name\":\"default_layout\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
-            reg_state_string
+            model_string
         );
 
         // From String
-        let reg_state_v2 = ModelState::from_str(&reg_state_string).unwrap();
-        assert_eq!(reg_state, reg_state_v2);
+        let model_v2 = ModelState::from_str(&model_string).unwrap();
+        assert_eq!(model, model_v2);
     }
 }

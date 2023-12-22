@@ -44,27 +44,27 @@ impl ModelState {
     ///
     /// Note that only the default layout (all nodes at 0,0) is created for the `ModelState`.
     pub fn from_reg_graph(reg_graph: RegulatoryGraph) -> Result<ModelState, String> {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
 
         // variables
         for v in reg_graph.variables() {
             // name in the `RegulatoryGraph` is a unique valid identifier
             let name_in_graph = reg_graph.get_variable_name(v);
-            reg_state.add_var(VarId::new(name_in_graph.as_str())?, name_in_graph)?;
+            model.add_var(VarId::new(name_in_graph.as_str())?, name_in_graph)?;
         }
 
         // regulations
         for r in reg_graph.regulations() {
             let name_regulator = reg_graph.get_variable_name(r.get_regulator());
             let name_target = reg_graph.get_variable_name(r.get_target());
-            reg_state.add_regulation(
+            model.add_regulation(
                 VarId::new(name_regulator.as_str())?,
                 VarId::new(name_target.as_str())?,
                 ModelState::observability_from_bool(r.is_observable()),
                 ModelState::sign_from_monotonicity(r.get_monotonicity()),
             )?;
         }
-        Ok(reg_state)
+        Ok(model)
     }
 
     /// **(internal)** Static utility method to convert regulation sign given by `Monotonicity`
@@ -111,15 +111,15 @@ mod tests {
 
     #[test]
     fn test_to_reg_graph() {
-        let mut reg_state = ModelState::new();
+        let mut model = ModelState::new();
         let var_id_a = VarId::new("a").unwrap();
         let var_id_b = VarId::new("b").unwrap();
-        reg_state.add_var(var_id_a, "a").unwrap();
-        reg_state.add_var(var_id_b, "b").unwrap();
-        reg_state.add_regulation_by_str("a -> b").unwrap();
-        reg_state.add_regulation_by_str("b -> a").unwrap();
+        model.add_var(var_id_a, "a").unwrap();
+        model.add_var(var_id_b, "b").unwrap();
+        model.add_regulation_by_str("a -> b").unwrap();
+        model.add_regulation_by_str("b -> a").unwrap();
 
-        let reg_graph = reg_state.to_reg_graph();
+        let reg_graph = model.to_reg_graph();
 
         assert_eq!(reg_graph.num_vars(), 2);
         assert_eq!(
@@ -127,8 +127,8 @@ mod tests {
             vec![reg_graph.find_variable("b").unwrap()]
         );
 
-        let reg_state_back = ModelState::from_reg_graph(reg_graph).unwrap();
-        assert_eq!(reg_state, reg_state_back);
+        let model_back = ModelState::from_reg_graph(reg_graph).unwrap();
+        assert_eq!(model, model_back);
     }
 
     #[test]
@@ -137,10 +137,10 @@ mod tests {
         reg_graph.add_string_regulation("a -> b").unwrap();
         reg_graph.add_string_regulation("b -> a").unwrap();
 
-        let reg_state = ModelState::from_reg_graph(reg_graph.clone()).unwrap();
-        assert_eq!(reg_state.num_vars(), 2);
+        let model = ModelState::from_reg_graph(reg_graph.clone()).unwrap();
+        assert_eq!(model.num_vars(), 2);
 
-        let reg_graph_back = reg_state.to_reg_graph();
+        let reg_graph_back = model.to_reg_graph();
         assert_eq!(reg_graph, reg_graph_back);
     }
 }
