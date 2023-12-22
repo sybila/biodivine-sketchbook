@@ -46,12 +46,12 @@ interface AeonState {
     variableCreated: Observable<VariableData>
     /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
     addVariable: (varId: string, varName: string) => void
-    /** Id string of a newly variable is removed. */
-    variableRemoved: Observable<string>
+    /** VariableData of a removed variable. */
+    variableRemoved: Observable<VariableData>
     /** Remove a variable with given ID. */
     removeVariable: (varId: string) => void
-    /** Object with `id` of newly renamed variable and its `new_name`. */
-    variableNameChanged: Observable<object>
+    /** VariableData (with a new `name`) for a renamed variable. */
+    variableNameChanged: Observable<VariableData>
     /** Set a name of variable with given ID to a given new name. */
     setVariableName: (varId: string, newName: string) => void
     /** Object with `original_id` of a variable and its `new_id`. */
@@ -61,31 +61,31 @@ interface AeonState {
 
     /** Regulation-related */
 
-    /** RegulationData of a newly created regulation. */
+    /** RegulationData for a newly created regulation. */
     regulationCreated: Observable<RegulationData>
     /** Create new regulation specified by all of its four components. */
     addRegulation: (regulatorId: string, targetId: string, sign: string, observable: boolean) => void
-    /** Object with `regulator` and `target` of a newly removed regulation. */
-    regulationRemoved: Observable<object>
+    /** RegulationData of a removed regulation. */
+    regulationRemoved: Observable<RegulationData>
     /** Create regulation specified by its regulator and target. */
     removeRegulation: (regulatorId: string, targetId: string) => void
-    /** Object with `regulator` and `target` of a regulation and its `new_sign`. */
-    regulationSignChanged: Observable<object>
+    /** RegulationData (with a new `sign`) of a regulation that has its sign changed. */
+    regulationSignChanged: Observable<RegulationData>
     /** Set sign of a regulation specified by its regulator and target. */
     setRegulationSign: (regulatorId: string, targetId: string, newSign: string) => void
 
     /** Layout-related */
 
-    /** Create regulation specified by all of its four components. */
+    /** LayoutData for a newly created layout. */
     layoutCreated: Observable<LayoutData>
     /** Create a new layout with given ID and name. */
     addLayout: (layoutId: string, layoutName: string) => void
-    /** Id string of a newly removed layout. */
-    layoutRemoved: Observable<string>
+    /** LayoutData of a removed layout. */
+    layoutRemoved: Observable<LayoutData>
     /** Remove a layout with given ID. */
     removeLayout: (layoutId: string) => void
-    /** Object with `layout_id`, `var_id`, `px`, `py` describing position change of a variable in a layout. */
-    nodePositionChanged: Observable<object>
+    /** LayoutNodeData (with a new `px` and `py`) for a layout node that had its position changed. */
+    nodePositionChanged: Observable<LayoutNodeData>
     /** Change a position of a variable in a layout to new coordinates. */
     changeNodePosition: (layoutId: string, varId: string, newX: number, newY: number) => void
   }
@@ -107,8 +107,16 @@ interface RegulationData {
 
 /** An object representing basic information regarding a model layout. */
 interface LayoutData {
-  id: number
+  id: string
   name: string
+}
+
+/** An object representing basic information regarding a node in a layout. */
+interface LayoutNodeData {
+  layout: string
+  variable: string
+  px: number
+  py: number
 }
 
 /** A function that is notified when a state value changes. */
@@ -515,17 +523,17 @@ export const aeonState: AeonState = {
   },
   model: {
     variableCreated: new Observable<VariableData>(['model', 'variable', 'add']),
-    variableRemoved: new Observable<string>(['model', 'variable', 'remove']),
-    variableNameChanged: new Observable<object>(['model', 'variable', 'set_name']),
+    variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
+    variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
     variableIdChanged: new Observable<object>(['model', 'variable', 'set_id']),
 
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
-    regulationRemoved: new Observable<object>(['model', 'regulation', 'remove']),
-    regulationSignChanged: new Observable<object>(['model', 'regulation', 'set_sign']),
+    regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
+    regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
 
     layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
-    layoutRemoved: new Observable<string>(['model', 'layout', 'remove']),
-    nodePositionChanged: new Observable<object>(['model', 'layout', 'update_position']),
+    layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
+    nodePositionChanged: new Observable<LayoutNodeData>(['model', 'layout', 'update_position']),
 
     addVariable (varId: string, varName: string = ''): void {
       if (varName === '') {
@@ -592,7 +600,7 @@ export const aeonState: AeonState = {
     changeNodePosition (layoutId: string, varId: string, newX: number, newY: number): void {
       aeonEvents.emitAction({
         path: ['model', 'layout', layoutId, 'update_position'],
-        payload: JSON.stringify({ var_id: varId, px: newX, py: newY })
+        payload: JSON.stringify({ layout: layoutId, variable: varId, px: newX, py: newY })
       })
     }
   }

@@ -81,9 +81,10 @@ impl ModelState {
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
+            let var_data = VariableData::from_var(var_id.to_string(), self.get_variable(&var_id)?);
             self.remove_var(&var_id)?;
             let state_change_path = ["model", "variable", "remove"];
-            let state_change = Event::build(&state_change_path, Some(var_id.as_str()));
+            let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
 
             // todo make reversible in the future
             Ok(Consumed::Irreversible {
@@ -101,13 +102,9 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_name(&var_id, new_name.as_str())?;
+            let var_data = VariableData::from_var(var_id.to_string(), self.get_variable(&var_id)?);
             let state_change_path = ["model", "variable", "set_name"];
-            let state_change_payload = json!({
-                "id": var_id.as_str(),
-                "name": new_name,
-            });
-            let state_change =
-                Event::build(&state_change_path, Some(&state_change_payload.to_string()));
+            let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
@@ -225,24 +222,18 @@ impl ModelState {
                 return AeonError::throw(message);
             }
 
-            // save the original regulation data for reverse event
+            // save the original regulation data for state change and reverse event
             let original_reg = self.get_regulation(&regulator_id, &target_id)?.clone();
-            let original_reg_data = RegulationData::from_reg(&original_reg);
+            let reg_data = RegulationData::from_reg(&original_reg);
 
             // perform the event, prepare the state-change variant (move IDs from path to payload)
             self.remove_regulation(&regulator_id, &target_id)?;
             let state_change_path = ["model", "regulation", "remove"];
-            let state_change_payload = json!({
-                "regulator": regulator_id.as_str(),
-                "target": target_id.as_str(),
-            });
-            let state_change =
-                Event::build(&state_change_path, Some(&state_change_payload.to_string()));
+            let state_change = Event::build(&state_change_path, Some(&reg_data.to_string()));
 
-            // prepare the reverse event (path has no ids, instead all info carried by payload)
+            // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let reverse_path = ["model", "regulation", "add"];
-            let reverse_payload = serde_json::to_string(&original_reg_data)?;
-            let reverse_event = Event::build(&reverse_path, Some(&reverse_payload));
+            let reverse_event = Event::build(&reverse_path, Some(&reg_data.to_string()));
 
             Ok(Consumed::Reversible {
                 state_change,
@@ -253,7 +244,9 @@ impl ModelState {
             let sign_str = Self::clone_payload_str(event, component_name)?;
             let new_sign: RegulationSign = serde_json::from_str(&sign_str)?;
 
-            let orig_sign = *self.get_regulation(&regulator_id, &target_id)?.get_sign();
+            let original_reg = self.get_regulation(&regulator_id, &target_id)?;
+            let orig_sign = *original_reg.get_sign();
+            let reg_data = RegulationData::from_reg(&original_reg);
 
             if orig_sign == new_sign {
                 return Ok(Consumed::NoChange);
@@ -262,13 +255,7 @@ impl ModelState {
             // perform the event, prepare the state-change variant (move IDs from path to payload)
             self.change_regulation_sign(&regulator_id, &target_id, &new_sign)?;
             let state_change_path = ["model", "regulation", "set_sign"];
-            let state_change_payload = json!({
-                "regulator": regulator_id.as_str(),
-                "target": target_id.as_str(),
-                "new_sign": sign_str,
-            });
-            let state_change =
-                Event::build(&state_change_path, Some(&state_change_payload.to_string()));
+            let state_change = Event::build(&state_change_path, Some(&reg_data.to_string()));
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
@@ -321,7 +308,7 @@ impl ModelState {
         let name = layout_data.name;
 
         // perform the event, prepare the state-change variant (path and payload stay the same)
-        // todo: decide on a method how to add layouts - now it is just a copy of the first layout
+        // todo: decide on how to add layouts - now we just make a copy of the default layout
         self.add_layout_copy(layout_id, name.as_str(), &Self::get_default_layout_id())?;
         let state_change = event.clone();
 
@@ -352,13 +339,14 @@ impl ModelState {
             // get payload components (json containing "var_id", "new_x" and "new_y")
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_node_data: LayoutNodeData = serde_json::from_str(payload.as_str())?;
-            let var_id = self.get_var_id(new_node_data.var_id.as_str())?;
+            let var_id = self.get_var_id(new_node_data.variable.as_str())?;
             let new_x = new_node_data.px;
             let new_y = new_node_data.py;
             let new_position = NodePosition(new_x, new_y);
 
             let orig_pos = self.get_node_position(&layout_id, &var_id)?.clone();
-            let orig_pos_data = LayoutNodeData::new(var_id.to_string(), orig_pos.0, orig_pos.1);
+            let orig_pos_data = LayoutNodeData::new(layout_id.to_string(), var_id.to_string(), orig_pos.0, orig_pos.1);
+            let new_pos_data = LayoutNodeData::new(layout_id.to_string(), var_id.to_string(), new_x, new_y);
 
             if new_position == orig_pos {
                 return Ok(Consumed::NoChange);
@@ -367,18 +355,12 @@ impl ModelState {
             // perform the event, prepare the state-change variant (move ID from path to payload)
             self.update_node_position(&layout_id, &var_id, new_x, new_y)?;
             let state_change_path = ["model", "layout", "update_position"];
-            let state_change_payload = json!({
-                "layout_id": layout_id.as_str(),
-                "var_id": var_id.as_str(),
-                "px": new_x,
-                "py": new_y,
-            });
             let state_change =
-                Event::build(&state_change_path, Some(&state_change_payload.to_string()));
+                Event::build(&state_change_path, Some(&new_pos_data.to_string()));
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(serde_json::to_string(&orig_pos_data)?);
+            reverse_event.payload = Some(orig_pos_data.to_string());
 
             Ok(Consumed::Reversible {
                 state_change,
@@ -391,10 +373,13 @@ impl ModelState {
                 return AeonError::throw(message);
             }
 
+            let layout = self.get_layout(&layout_id)?;
+            let layout_data = LayoutData::from_layout(layout_id.to_string(), &layout);
+
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.remove_layout(&layout_id)?;
             let state_change_path = ["model", "layout", "remove"];
-            let state_change = Event::build(&state_change_path, Some(layout_id.as_str()));
+            let state_change = Event::build(&state_change_path, Some(&layout_data.to_string()));
 
             // todo make reversible in the future
             Ok(Consumed::Irreversible {
@@ -488,7 +473,7 @@ impl ModelState {
 
         let node_list: Vec<LayoutNodeData> = layout
             .layout_nodes()
-            .map(|(var_id, node)| LayoutNodeData::from_node(var_id.to_string(), node))
+            .map(|(var_id, node)| LayoutNodeData::from_node(layout_id.to_string(), var_id.to_string(), node))
             .collect();
         Ok(Event {
             path: full_path.to_vec(),
@@ -728,7 +713,8 @@ mod tests {
 
         // test position change event
         let payload = json!({
-            "var_id": var_id.as_str(),
+            "layout": layout_id.as_str(),
+            "variable": var_id.as_str(),
             "px": 2.5,
             "py": 0.4,
         })
@@ -796,6 +782,6 @@ mod tests {
             )
             .unwrap();
         let node_list: Vec<LayoutNodeData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
-        assert_eq!(node_list.first().unwrap().var_id, var_id.to_string());
+        assert_eq!(node_list.first().unwrap().variable, var_id.to_string());
     }
 }

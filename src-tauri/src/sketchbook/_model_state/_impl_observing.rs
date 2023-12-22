@@ -1,8 +1,5 @@
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{
-    Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, VarId,
-    VariableIterator,
-};
+use crate::sketchbook::{Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, VarId, VariableIterator, Variable};
 use std::str::FromStr;
 
 /// Id (and name) of the initial default layout.
@@ -64,9 +61,20 @@ impl ModelState {
         Err(format!("Variable with ID {id} does not exist."))
     }
 
-    /// Return a name of the variable corresponding to a given `VarId`.
+    /// Return a `Variable` corresponding to a given `VarId`.
     ///
-    /// Return `Err` if such variable does not exist (and the ID is invalid in this context).
+    /// Return `Err` if such variable does not exist (the ID is invalid in this context).
+    pub fn get_variable(&self, var_id: &VarId) -> Result<&Variable, String> {
+        let variable = self
+            .variables
+            .get(var_id)
+            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        Ok(variable)
+    }
+
+    /// Shortcut to return a name of the variable corresponding to a given `VarId`.
+    ///
+    /// Return `Err` if such variable does not exist (the ID is invalid in this context).
     pub fn get_var_name(&self, var_id: &VarId) -> Result<&str, String> {
         let variable = self
             .variables

@@ -2,23 +2,24 @@ use crate::sketchbook::layout::NodeLayout;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-/// Structure for sending simplified data about `Layout` to frontend.
-/// Only contains some fields, in string format, to allow for simpler parsing and manipulation.
+/// Structure for sending data about `NodeLayout` to frontend.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LayoutNodeData {
-    pub var_id: String,
+    pub layout: String,
+    pub variable: String,
     pub px: f32,
     pub py: f32,
 }
 
 impl LayoutNodeData {
-    pub fn new(var_id: String, px: f32, py: f32) -> LayoutNodeData {
-        LayoutNodeData { var_id, px, py }
+    pub fn new(layout_id: String, var_id: String, px: f32, py: f32) -> LayoutNodeData {
+        LayoutNodeData { layout: layout_id, variable: var_id, px, py }
     }
 
-    pub fn from_node(id: String, node: &NodeLayout) -> LayoutNodeData {
+    pub fn from_node(layout_id: String, var_id: String, node: &NodeLayout) -> LayoutNodeData {
         LayoutNodeData {
-            var_id: id,
+            layout: layout_id,
+            variable: var_id,
             px: node.get_px(),
             py: node.get_py(),
         }
