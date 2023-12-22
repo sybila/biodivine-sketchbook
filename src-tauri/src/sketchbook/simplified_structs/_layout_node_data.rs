@@ -1,3 +1,4 @@
+use crate::sketchbook::layout::NodeLayout;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -13,6 +14,14 @@ pub struct LayoutNodeData {
 impl LayoutNodeData {
     pub fn new(var_id: String, px: f32, py: f32) -> LayoutNodeData {
         LayoutNodeData { var_id, px, py }
+    }
+
+    pub fn from_node(id: String, node: &NodeLayout) -> LayoutNodeData {
+        LayoutNodeData {
+            var_id: id,
+            px: node.get_px(),
+            py: node.get_py(),
+        }
     }
 }
 

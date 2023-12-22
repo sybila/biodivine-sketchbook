@@ -11,7 +11,7 @@ use serde_json::json;
 
 impl SessionHelper for ModelState {}
 
-/// Functionality and shorthands related for the `SessionState` trait.
+/// Functionality and shorthands related to the `perform_event` method of the `SessionState` trait.
 impl ModelState {
     /// Shorthand to get and clone a payload of an event. Errors if payload is empty.
     /// The `component` specifies which part of the state should be mentioned in the error.
@@ -431,6 +431,72 @@ impl ModelState {
     }
 }
 
+/// Functionality and shorthands related to the `refresh` method of the `SessionState` trait.
+impl ModelState {
+    /// Get a list of all variables.
+    fn refresh_variables(&self, full_path: &[String]) -> Result<Event, DynError> {
+        let variable_list: Vec<VariableData> = self
+            .variables
+            .iter()
+            .map(|(id, data)| VariableData::from_var(id.to_string(), data))
+            .collect();
+
+        Ok(Event {
+            path: full_path.to_vec(),
+            payload: Some(serde_json::to_string(&variable_list)?),
+        })
+    }
+
+    /// Get a list of all regulations.
+    fn refresh_regulations(&self, full_path: &[String]) -> Result<Event, DynError> {
+        let regulation_list: Vec<RegulationData> = self
+            .regulations
+            .iter()
+            .map(RegulationData::from_reg)
+            .collect();
+
+        Ok(Event {
+            path: full_path.to_vec(),
+            payload: Some(serde_json::to_string(&regulation_list)?),
+        })
+    }
+
+    /// Get a list of all layouts (just basic information like IDs and names).
+    fn refresh_layouts(&self, full_path: &[String]) -> Result<Event, DynError> {
+        let layout_list: Vec<LayoutData> = self
+            .layouts
+            .iter()
+            .map(|(id, layout)| LayoutData::from_layout(id.to_string(), layout))
+            .collect();
+
+        Ok(Event {
+            path: full_path.to_vec(),
+            payload: Some(serde_json::to_string(&layout_list)?),
+        })
+    }
+
+    /// Get a list with all nodes in a specified layout.
+    fn refresh_layout_nodes(
+        &self,
+        full_path: &[String],
+        at_path: &[&str],
+    ) -> Result<Event, DynError> {
+        Self::assert_path_length(at_path, 1, "model/layout_nodes")?;
+        let layout_id_str = at_path.first().unwrap();
+        let layout_id = self.get_layout_id(layout_id_str)?;
+        let layout = self.get_layout(&layout_id)?;
+
+        let node_list: Vec<LayoutNodeData> = layout
+            .layout_nodes()
+            .map(|(var_id, node)| LayoutNodeData::from_node(var_id.to_string(), node))
+            .collect();
+        Ok(Event {
+            path: full_path.to_vec(),
+            payload: Some(serde_json::to_string(&node_list)?),
+        })
+    }
+}
+
 impl SessionState for ModelState {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         match at_path.first() {
@@ -441,15 +507,15 @@ impl SessionState for ModelState {
         }
     }
 
-    /// TODO: change this to make it a valid getter event API
+    /// TODO: add more options to refresh
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
-        if at_path.is_empty() {
-            return Self::invalid_path_error(at_path);
+        match at_path.first() {
+            Some(&"get_variables") => self.refresh_variables(full_path),
+            Some(&"get_regulations") => self.refresh_regulations(full_path),
+            Some(&"get_layouts") => self.refresh_layouts(full_path),
+            Some(&"get_layout_nodes") => self.refresh_layout_nodes(full_path, &at_path[1..]),
+            _ => Self::invalid_path_error(at_path),
         }
-        Ok(Event {
-            path: full_path.to_vec(),
-            payload: Some(self.to_string()),
-        })
     }
 }
 
@@ -458,7 +524,9 @@ mod tests {
     use crate::app::event::Event;
     use crate::app::state::{Consumed, SessionState};
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::simplified_structs::{RegulationData, VariableData};
+    use crate::sketchbook::simplified_structs::{
+        LayoutData, LayoutNodeData, RegulationData, VariableData,
+    };
     use crate::sketchbook::{ModelState, VarId};
     use serde_json::json;
 
@@ -676,5 +744,58 @@ mod tests {
         );
 
         check_reverse(reg_state, reg_state_orig, result, &full_path[1..]);
+    }
+
+    #[test]
+    fn test_refresh() {
+        let mut model = ModelState::new();
+        let layout_id = ModelState::get_default_layout_id().to_string();
+        let var_id = model.generate_var_id("a");
+        model.add_var(var_id.clone(), "a_name").unwrap();
+        model.add_regulation_by_str("a -> a").unwrap();
+
+        // test variable getter
+        let event = model
+            .refresh(
+                &["model".to_string(), "get_variables".to_string()],
+                &["get_variables"],
+            )
+            .unwrap();
+        let var_list: Vec<VariableData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
+        assert_eq!(var_list.len(), 1);
+
+        // test regulation getter
+        let event = model
+            .refresh(
+                &["model".to_string(), "get_regulations".to_string()],
+                &["get_regulations"],
+            )
+            .unwrap();
+        let reg_list: Vec<RegulationData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
+        assert_eq!(reg_list.len(), 1);
+
+        // test layout getter
+        let event = model
+            .refresh(
+                &["model".to_string(), "get_layouts".to_string()],
+                &["get_layouts"],
+            )
+            .unwrap();
+        let layout_list: Vec<LayoutData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
+        assert_eq!(layout_list.first().unwrap().id, layout_id.clone());
+
+        // test layout node getter
+        let event = model
+            .refresh(
+                &[
+                    "model".to_string(),
+                    "get_layout_nodes".to_string(),
+                    layout_id.clone(),
+                ],
+                &["get_layout_nodes", &layout_id],
+            )
+            .unwrap();
+        let node_list: Vec<LayoutNodeData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
+        assert_eq!(node_list.first().unwrap().var_id, var_id.to_string());
     }
 }

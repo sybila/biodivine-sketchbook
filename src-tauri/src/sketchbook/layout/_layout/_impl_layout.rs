@@ -1,4 +1,4 @@
-use crate::sketchbook::layout::{Layout, NodeLayout, NodePosition};
+use crate::sketchbook::layout::{Layout, LayoutNodeIterator, NodeLayout, NodePosition};
 use crate::sketchbook::VarId;
 
 use std::collections::HashMap;
@@ -131,6 +131,11 @@ impl Layout {
     /// Number of nodes in this layout.
     pub fn get_num_nodes(&self) -> usize {
         self.nodes.len()
+    }
+
+    /// Return an iterator over all nodes of this layout.
+    pub fn layout_nodes(&self) -> LayoutNodeIterator {
+        self.nodes.iter()
     }
 }
 

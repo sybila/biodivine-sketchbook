@@ -1,3 +1,4 @@
+use crate::sketchbook::layout::Layout;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -12,6 +13,13 @@ pub struct LayoutData {
 impl LayoutData {
     pub fn new(id: String, name: String) -> LayoutData {
         LayoutData { id, name }
+    }
+
+    pub fn from_layout(id: String, layout: &Layout) -> LayoutData {
+        LayoutData {
+            id,
+            name: layout.get_layout_name().to_string(),
+        }
     }
 }
 

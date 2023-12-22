@@ -1,3 +1,4 @@
+use crate::sketchbook::Variable;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -12,6 +13,13 @@ pub struct VariableData {
 impl VariableData {
     pub fn new(id: String, name: String) -> VariableData {
         VariableData { id, name }
+    }
+
+    pub fn from_var(id: String, variable: &Variable) -> VariableData {
+        VariableData {
+            id,
+            name: variable.get_name().to_string(),
+        }
     }
 }
 
