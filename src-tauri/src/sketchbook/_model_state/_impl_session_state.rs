@@ -483,8 +483,13 @@ impl ModelState {
                 LayoutNodeData::from_node(layout_id.to_string(), var_id.to_string(), node)
             })
             .collect();
+
+        // remove the id from the path
+        let mut result_path = full_path.to_vec();
+        result_path.pop();
+
         Ok(Event {
-            path: full_path.to_vec(),
+            path: result_path,
             payload: Some(serde_json::to_string(&node_list)?),
         })
     }

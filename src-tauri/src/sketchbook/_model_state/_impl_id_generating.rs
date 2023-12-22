@@ -7,7 +7,9 @@ impl ModelState {
     /// First, the variable's name or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
     ///
-    /// **Warning:** Do not use this to pre-generate more than one id, as it is deterministic.
+    /// **Warning:** Do not use this to pre-generate more than one id at a time, as the process
+    /// is deterministic and might generate same IDs. Always generate Id, add variable to model, and
+    /// then repeat.
     pub fn generate_var_id(&self, var_name: &str) -> VarId {
         // first try to generate the id using the given name
         if let Ok(var_id) = VarId::new(var_name) {
@@ -44,7 +46,9 @@ impl ModelState {
     /// First, the variable's name or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
     ///
-    /// **Warning:** Do not use this to pre-generate more than one id, as it is deterministic.
+    /// **Warning:** Do not use this to pre-generate more than one id at a time, as the process
+    /// is deterministic and might generate same IDs. Always generate Id, add variable to model, and
+    /// then repeat.
     pub fn generate_layout_id(&self, layout_name: &str) -> LayoutId {
         // first try to generate the id using the name
         if let Ok(layout_id) = LayoutId::new(layout_name) {

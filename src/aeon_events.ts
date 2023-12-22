@@ -40,7 +40,26 @@ interface AeonState {
 
   /** The state of the main model. */
   model: {
-    /** Variable-related */
+    /** Refresh events. */
+
+    /** List of model variables. */
+    variablesRefreshed: Observable<[VariableData]>
+    /** Refresh the variable. */
+    refreshVariables: () => void
+    /** List of model regulations. */
+    regulationsRefreshed: Observable<[RegulationData]>
+    /** Refresh the regulations. */
+    refreshRegulations: () => void
+    /** List of model layouts. */
+    layoutsRefreshed: Observable<[LayoutData]>
+    /** Refresh the layouts. */
+    refreshLayouts: () => void
+    /** List of nodes in a given layout. */
+    layoutNodesRefreshed: Observable<[LayoutNodeData]>
+    /** Refresh the nodes in a given layout. */
+    refreshLayoutNodes: (layout_id: string) => void
+
+    /** Variable-related setter events */
 
     /** VariableData for a newly created variable. */
     variableCreated: Observable<VariableData>
@@ -59,7 +78,7 @@ interface AeonState {
     /** Set an ID of variable with given original ID to a new id. */
     setVariableId: (originalId: string, newId: string) => void
 
-    /** Regulation-related */
+    /** Regulation-related setter events */
 
     /** RegulationData for a newly created regulation. */
     regulationCreated: Observable<RegulationData>
@@ -74,7 +93,7 @@ interface AeonState {
     /** Set sign of a regulation specified by its regulator and target. */
     setRegulationSign: (regulatorId: string, targetId: string, newSign: string) => void
 
-    /** Layout-related */
+    /** Layout-related setter events */
 
     /** LayoutData for a newly created layout. */
     layoutCreated: Observable<LayoutData>
@@ -522,6 +541,23 @@ export const aeonState: AeonState = {
     }
   },
   model: {
+    variablesRefreshed: new Observable<[VariableData]>(['model', 'get_variables']),
+    refreshVariables (): void {
+      aeonEvents.refresh(['model', 'get_variables'])
+    },
+    regulationsRefreshed: new Observable<[RegulationData]>(['model', 'get_regulations']),
+    refreshRegulations (): void {
+      aeonEvents.refresh(['model', 'get_regulations'])
+    },
+    layoutsRefreshed: new Observable<[LayoutData]>(['model', 'get_layouts']),
+    refreshLayouts (): void {
+      aeonEvents.refresh(['model', 'get_layouts'])
+    },
+    layoutNodesRefreshed: new Observable<[LayoutNodeData]>(['model', 'get_layout_nodes']),
+    refreshLayoutNodes (layout_id: string): void {
+      aeonEvents.refresh(['model', 'get_layout_nodes', layout_id])
+    },
+
     variableCreated: new Observable<VariableData>(['model', 'variable', 'add']),
     variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
     variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
