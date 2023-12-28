@@ -201,7 +201,7 @@ class FloatMenu extends LitElement {
   private updateFunction (): void {
     this.dispatchEvent(new CustomEvent('update-function', {
       detail: {
-        nodeId: this.data?.id
+        variableId: this.data?.id
       },
       bubbles: true,
       composed: true

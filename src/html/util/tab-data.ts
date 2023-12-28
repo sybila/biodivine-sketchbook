@@ -1,6 +1,6 @@
 import { Data } from 'dataclass'
 import { html, type TemplateResult } from 'lit'
-import { type IEdgeData, type INodeData } from '../component/regulations-editor/graph-interfaces'
+import { type IRegulationData, type IVariableData } from './data-interfaces'
 
 export class TabData extends Data {
   id: number = -1
@@ -12,6 +12,6 @@ export class TabData extends Data {
 }
 
 export class ContentData extends Data {
-  nodes: INodeData[] = []
-  edges: IEdgeData[] = []
+  variables: IVariableData[] = []
+  regulations: IRegulationData[] = []
 }

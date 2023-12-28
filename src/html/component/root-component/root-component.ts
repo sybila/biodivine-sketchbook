@@ -47,6 +47,7 @@ class RootComponent extends LitElement {
 
   updateData (event: Event): void {
     this.data = (event as CustomEvent).detail
+    console.log('data updated', this.data)
   }
 
   private renameVariable (event: Event): void {
@@ -55,7 +56,7 @@ class RootComponent extends LitElement {
       ?.shadowRoot?.querySelector('regulations-editor')
       ?.dispatchEvent(new CustomEvent('rename-variable', {
         detail: {
-          nodeId: details.nodeId,
+          variableId: details.variableId,
           nodeName: details.nodeName
         }
       }))
@@ -79,7 +80,7 @@ class RootComponent extends LitElement {
       ?.shadowRoot?.querySelector('functions-editor')
       ?.dispatchEvent(new CustomEvent('focus-function', {
         detail: {
-          nodeId: (event as CustomEvent).detail.nodeId
+          variableId: (event as CustomEvent).detail.variableId
         }
       }))
   }
