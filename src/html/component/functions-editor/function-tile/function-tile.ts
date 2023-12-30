@@ -5,6 +5,10 @@ import { map } from 'lit/directives/map.js'
 import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
 import { Monotonicity } from '../../regulations-editor/element-type'
 import { debounce } from 'lodash'
+import { icon, library } from '@fortawesome/fontawesome-svg-core'
+import { faTrash, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faTrash, faMagnifyingGlass)
 
 @customElement('function-tile')
 class FunctionTile extends LitElement {
@@ -111,37 +115,68 @@ class FunctionTile extends LitElement {
     }))
   }
 
+  private removeVariable (): void {
+    this.shadowRoot?.dispatchEvent(new CustomEvent('remove-element', {
+      detail: {
+        id: this.variable.id
+      },
+      composed: true,
+      bubbles: true
+    }))
+  }
+
+  private focusVariable (): void {
+    this.dispatchEvent(new CustomEvent('focus-variable', {
+      detail: {
+        variableId: this.variable.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   protected render (): TemplateResult {
     return html`
-          <div class="uk-flex uk-flex-column uk-margin-small-bottom">
-            <div class="uk-inline">
-              <span class="uk-form-icon" uk-icon="icon: user"></span>
-              <input class="uk-input uk-text-center" value="${this.variable.name}" @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}" />
+      <div class="uk-flex uk-flex-column uk-margin-small-bottom">
+        <div class="uk-flex uk-flex-row">
+          <input class="uk-input uk-text-center" value="${this.variable.name}"
+                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.focusVariable}">
+            ${icon(faMagnifyingGlass).node}
+          </button>
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+            ${icon(faTrash).node}
+          </button>
+        </div>
+        <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
+        ${map(this.regulations, (regulation) => html`
+          <div
+              class="uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap">
+            <div class="uk-width-1-6">${regulation.target}</div>
+            <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</div>
+            <div class="regulation-property ${regulation.observable ? '' : 'uk-text-muted'}"
+                 @click="${() => {
+                   this.toggleObservability(regulation)
+                 }}">
+              ${regulation.observable ? 'observable' : 'non-observable'}
             </div>
-            ${map(this.regulations, (regulation) => html`
-              <div class="uk-flex uk-flex-row uk-flex-around">
-                <span>${regulation.target}</span>
-                <span>${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</span>
-                <span class="${regulation.observable ? '' : 'uk-text-muted'}"
-                      @click="${() => { this.toggleObservability(regulation) }}">
-                  ${regulation.observable ? 'observable' : 'non-observable'}
-                </span>
-                <span class="${this.monotonicityClass(regulation.monotonicity)}"
-                      @click="${() => { this.toggleMonotonicity(regulation) }}">
-                  ${regulation.monotonicity}
-                </span>
-              </div>
-            `)}
-            <label>
-              function:
-              <input id="function-input"
-                     class="uk-input uk-text-center" 
-                     value="${this.variable.function}" 
-                     placeholder="$f_${this.variable.name}(...)"
-                     @input="${(e: InputEvent) => this.functionUpdated((e.target as HTMLInputElement).value)}" />
-            </label>
+            <div class="regulation-property ${this.monotonicityClass(regulation.monotonicity)}"
+                 @click="${() => {
+                   this.toggleMonotonicity(regulation)
+                 }}">
+              ${regulation.monotonicity}
+            </div>
           </div>
-          <hr>
+        `)}
+
+        <span class="uk-align-left uk-text-left uk-margin-remove">Update function:</span>
+        <input id="function-input"
+               class="uk-input uk-text-center"
+               value="${this.variable.function}"
+               placeholder="$f_${this.variable.name}(...)"
+               @input="${(e: InputEvent) => this.functionUpdated((e.target as HTMLInputElement).value)}"/>
+      </div>
+      <hr>
     `
   }
 }

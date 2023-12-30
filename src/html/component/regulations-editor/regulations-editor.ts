@@ -8,16 +8,12 @@ import dblclick from 'cytoscape-dblclick'
 import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, type Monotonicity } from './element-type'
-import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import UIkit from 'uikit'
 import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import { dummyData } from '../../util/dummy-data'
 import { ContentData } from '../../util/tab-data'
-
-const SAVE_VARIABLES = 'variables'
-const SAVE_REGULATIONS = 'regulations'
 
 @customElement('regulations-editor')
 class RegulationsEditor extends LitElement {
@@ -42,9 +38,9 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('update-edge', this.updateEdge)
     this.addEventListener('adjust-graph', this.adjustPan)
     this.addEventListener('add-edge', this.addEdge)
-    this.addEventListener('remove-element', (e) => {
-      void this.removeElement(e)
-    })
+    // this.addEventListener('remove-element', (e) => {
+    //   void this.removeElement(e)
+    // })
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
@@ -53,6 +49,7 @@ class RegulationsEditor extends LitElement {
       const detail = (event as CustomEvent).detail
       this.renameNode(detail.variableId, detail.variableId, detail.nodeName)
     })
+    this.addEventListener('focus-variable', this.focusVariable)
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
   }
@@ -69,8 +66,14 @@ class RegulationsEditor extends LitElement {
     this.addEdges(this.contentData.regulations)
     const elementID = this.menuData?.id ?? ''
     const type = this.menuType
+    if (type === ElementType.NONE) return
     this.toggleMenu(ElementType.NONE)
-    this.cy?.$id(elementID).select()
+    const elem = this.cy?.$id(elementID)
+    if (elem === undefined || elem.length === 0) {
+      void this.dialogs[elementID]?.close()
+      return
+    }
+    elem.select()
     if (type === ElementType.EDGE) {
       this.renderMenuForSelectedEdge(this.cy?.$id(elementID))
     }
@@ -91,7 +94,7 @@ class RegulationsEditor extends LitElement {
     `
   }
 
-  addEdge (event: Event): void {
+  private addEdge (event: Event): void {
     this.cy?.nodes().deselect()
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
@@ -103,13 +106,19 @@ class RegulationsEditor extends LitElement {
     this.cy.renderer().hoverData.capture = true
   }
 
+  private focusVariable (event: Event): void {
+    const node = this.cy?.$id((event as CustomEvent).detail.variableId)
+    this.cy?.center(node)
+  }
+
   firstUpdated (): void {
     this.init()
-    if (!this.loadCachedNodes() || !this.loadCachedEdges()) this.loadDummyData()
+    this.addNodes(this.contentData.variables)
+    this.addEdges(this.contentData.regulations)
     this.saveState()
   }
 
-  init (): void {
+  private init (): void {
     this.cy = cytoscape(initOptions(this.editorElement))
     this.edgeHandles = this.cy.edgehandles(edgeOptions)
 
@@ -171,7 +180,7 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  loadDummyData (): void {
+  private loadDummyData (): void {
     console.log('loading dummy data')
     this.cy?.remove('node')
     this.cy?.edges().remove()
@@ -186,7 +195,7 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  async renameNodeDialog (event: Event): Promise<void> {
+  private async renameNodeDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
     const nodeName = (event as CustomEvent).detail.name
@@ -226,7 +235,7 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  renameNode (oldId: string, newId: string, newName: string): void {
+  private renameNode (oldId: string, newId: string, newName: string): void {
     if (oldId !== newId && (this.cy?.$id(newId) !== undefined && this.cy?.$id(newId).length > 0)) {
       UIkit.notification(`Node with id '${newId}' already exists!`)
       return
@@ -247,7 +256,7 @@ class RegulationsEditor extends LitElement {
     this.saveState()
   }
 
-  adjustPan (event: Event): void {
+  private adjustPan (event: Event): void {
     const tabCount = (event as CustomEvent).detail.tabCount
     if (tabCount === this.lastTabCount) return
     const toLeft = this.lastTabCount < tabCount
@@ -255,7 +264,7 @@ class RegulationsEditor extends LitElement {
     this.cy?.panBy({ x: (toLeft ? -1 : 1) * (this.cy?.width() / (tabCount * 2)), y: 0 })
   }
 
-  renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
+  private renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
     if (node === undefined) {
       node = this.cy?.nodes(':selected').first()
       if (node === undefined || node.length === 0) return // nothing selected
@@ -265,7 +274,7 @@ class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.NODE, position, zoom, node.data())
   }
 
-  renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
+  private renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
     if (edge === undefined) {
       edge = this.cy?.edges(':selected').first()
       if (edge === undefined || edge.length === 0) return // nothing selected
@@ -279,14 +288,14 @@ class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.EDGE, position, zoom, edge.data())
   }
 
-  addNode (id: string, name: string, position = { x: 0, y: 0 }): void {
+  private addNode (id: string, name: string, position = { x: 0, y: 0 }): void {
     this.cy?.add({
       data: { id, name },
       position: { ...position }
     })
   }
 
-  toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
+  private toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
     this.menuType = type
     if (this.menuType === ElementType.NONE) {
       this.cy?.nodes().deselect()
@@ -297,7 +306,7 @@ class RegulationsEditor extends LitElement {
     this.menuData = data
   }
 
-  ensureRegulation (regulation: IRegulationData): void {
+  private ensureRegulation (regulation: IRegulationData): void {
     // const currentEdge = this._findRegulationEdge(regulation.regulator, regulation.target)
     // if (currentEdge !== undefined) {
     //   // Edge exists - just make sure to update data
@@ -319,7 +328,7 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  updateEdge (event: Event): void {
+  private updateEdge (event: Event): void {
     const e = (event as CustomEvent)
     this.cy?.$id(e.detail.edgeId)
       .data('observable', e.detail.observable)
@@ -328,21 +337,7 @@ class RegulationsEditor extends LitElement {
     this.saveState()
   }
 
-  async removeElement (event: Event): Promise<void> {
-    if (!await dialog.ask('Are you sure?', {
-      type: 'warning',
-      okLabel: 'Delete',
-      cancelLabel: 'Keep',
-      title: 'Delete'
-    })) return
-    const variableId = (event as CustomEvent).detail.id
-    void this.dialogs[variableId]?.close()
-    this.cy?.$id(variableId).remove()
-    this.toggleMenu(ElementType.NONE)
-    this.saveState()
-  }
-
-  saveState (): void {
+  private saveState (): void {
     const nodes = ((this.cy?.nodes()) ?? []).map((node): IVariableData => {
       return {
         id: node.data().id,
@@ -364,13 +359,6 @@ class RegulationsEditor extends LitElement {
     nodes.sort((a, b) => (a.id > b.id ? 1 : -1))
     edges.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
 
-    if (nodes.length > 0) {
-      localStorage.setItem(SAVE_VARIABLES, JSON.stringify(nodes))
-    }
-    if (edges.length > 0) {
-      localStorage.setItem(SAVE_REGULATIONS, JSON.stringify(edges))
-    }
-    this.contentData = ContentData.create({ variables: nodes, regulations: edges })
     this.shadowRoot?.dispatchEvent(new CustomEvent('update-data', {
       detail: {
         variables: nodes,
@@ -381,37 +369,13 @@ class RegulationsEditor extends LitElement {
     }))
   }
 
-  loadCachedNodes (): boolean {
-    try {
-      const parsed = (JSON.parse(localStorage.getItem(SAVE_VARIABLES) ?? '[]') as IVariableData[])
-      if (parsed.length === 0) return false
-      this.addNodes(parsed)
-    } catch (e) {
-      return false
-    }
-    console.log('nodes loaded')
-    return true
-  }
-
-  loadCachedEdges (): boolean {
-    try {
-      const parsed = (JSON.parse(localStorage.getItem(SAVE_REGULATIONS) ?? '[]') as IRegulationData[])
-      if (parsed.length === 0) return false
-      this.addEdges(parsed)
-    } catch (e) {
-      return false
-    }
-    console.log('edges loaded')
-    return true
-  }
-
-  addNodes (nodes: IVariableData[]): void {
+  private addNodes (nodes: IVariableData[]): void {
     nodes.forEach((node) => {
       this.addNode(node.id, node.name, node.position)
     })
   }
 
-  addEdges (edges: IRegulationData[]): void {
+  private addEdges (edges: IRegulationData[]): void {
     edges.forEach((edge) => {
       this.ensureRegulation(edge)
     })

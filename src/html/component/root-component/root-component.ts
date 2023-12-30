@@ -6,8 +6,12 @@ import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { ContentData, type TabData } from '../../util/tab-data'
 import { aeonState } from '../../../aeon_events'
-import { dummyData } from '../../util/dummy-data'
 import { tabList } from '../../util/config'
+import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
+import { dialog } from '@tauri-apps/api'
+
+const SAVE_VARIABLES = 'variables'
+const SAVE_REGULATIONS = 'regulations'
 
 @customElement('root-component')
 class RootComponent extends LitElement {
@@ -24,7 +28,10 @@ class RootComponent extends LitElement {
     this.addEventListener('update-data', this.updateData)
     this.addEventListener('update-function', this.focusFunction)
     this.addEventListener('rename-variable', this.renameVariable)
-    this.data = dummyData
+    this.addEventListener('focus-variable', this.focusVariable)
+    this.addEventListener('remove-element', (e) => { void this.removeVariable(e) })
+
+    this.data = this.data.copy({ regulations: this.loadCachedEdges(), variables: this.loadCachedNodes() })
   }
 
   #onPinned (pinned: number[]): void {
@@ -45,9 +52,26 @@ class RootComponent extends LitElement {
     this.adjustRegEditor()
   }
 
-  updateData (event: Event): void {
+  private updateData (event: Event): void {
     this.data = (event as CustomEvent).detail
+    if (this.data.variables.length > 0) {
+      localStorage.setItem(SAVE_VARIABLES, JSON.stringify(this.data.variables))
+    }
+    if (this.data.regulations.length > 0) {
+      localStorage.setItem(SAVE_REGULATIONS, JSON.stringify(this.data.regulations))
+    }
     console.log('data updated', this.data)
+  }
+
+  private focusVariable (event: Event): void {
+    // aeonState.tab_bar.active.emitValue(0)
+    this.shadowRoot?.querySelector('#regulations')
+      ?.shadowRoot?.querySelector('regulations-editor')
+      ?.dispatchEvent(new CustomEvent('focus-variable', {
+        detail: {
+          variableId: (event as CustomEvent).detail.variableId
+        }
+      }))
   }
 
   private renameVariable (event: Event): void {
@@ -60,6 +84,20 @@ class RootComponent extends LitElement {
           nodeName: details.nodeName
         }
       }))
+  }
+
+  private async removeVariable (event: Event): Promise<void> {
+    if (!await dialog.ask('Are you sure?', {
+      type: 'warning',
+      okLabel: 'Delete',
+      cancelLabel: 'Keep',
+      title: 'Delete'
+    })) return
+    const variableId = (event as CustomEvent).detail.id
+    this.data = ContentData.create({
+      variables: this.data.variables.filter((variable) => variable.id !== variableId),
+      regulations: this.data.regulations.filter((regulation) => regulation.source !== variableId && regulation.target !== variableId)
+    })
   }
 
   private adjustRegEditor (): void {
@@ -89,6 +127,26 @@ class RootComponent extends LitElement {
     return this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
   }
 
+  loadCachedNodes (): IVariableData[] {
+    try {
+      const parsed = (JSON.parse(localStorage.getItem(SAVE_VARIABLES) ?? '[]') as IVariableData[])
+      console.log('nodes loaded')
+      return parsed
+    } catch (e) {
+      return []
+    }
+  }
+
+  loadCachedEdges (): IRegulationData[] {
+    try {
+      const parsed = (JSON.parse(localStorage.getItem(SAVE_REGULATIONS) ?? '[]') as IRegulationData[])
+      console.log('edges loaded')
+      return parsed
+    } catch (e) {
+      return []
+    }
+  }
+
   render (): TemplateResult {
     const visibleTabs = this.visibleTabs()
     return html`
@@ -96,7 +154,8 @@ class RootComponent extends LitElement {
         <nav-bar .tabs=${this.tabs}></nav-bar>
         <div class="content uk-flex uk-flex-row uk-flex-stretch uk-flex-wrap-stretch">
           ${map(this.tabs, (tab) => html`
-            <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}" class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
+            <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
+                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
                           .data=${this.data}></content-pane>
           `)}
         </div>
