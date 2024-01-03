@@ -5,8 +5,8 @@ use std::str::FromStr;
 
 /// A type-safe (string-based) identifier of a `Layout` inside `ModelState`.
 ///
-/// **Warning:** Do not mix identifiers between different networks/graphs. Generally, be careful
-/// to only use `LayoutId` currently valid for the network.
+/// **Warning:** Do not mix identifiers between different models.
+/// Generally, be careful to only use `LayoutIds` that are currently valid for the network.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct LayoutId {
     id: Identifier,

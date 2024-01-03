@@ -1,10 +1,11 @@
-use crate::sketchbook::{Observability, Regulation, RegulationSign};
+use crate::sketchbook::{Observability, Regulation, RegulationSign, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
-/// Structure for sending simplified data about `Regulation` to frontend.
-/// Only contains some fields, in string format, to allow for simpler parsing and manipulation.
+/// Structure for sending simplified data about `Regulation` to the frontend.
+///
+/// All the fields of `VariableData` are simple strings or enums to allow for simpler (de)serialization.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegulationData {
     pub regulator: String,
@@ -15,16 +16,16 @@ pub struct RegulationData {
 
 impl RegulationData {
     pub fn new(
-        regulator: String,
-        target: String,
-        observable: Observability,
-        sign: RegulationSign,
+        regulator_id: &VarId,
+        target_id: &VarId,
+        observable: &Observability,
+        sign: &RegulationSign,
     ) -> RegulationData {
         RegulationData {
-            regulator,
-            target,
-            observable,
-            sign,
+            regulator: regulator_id.to_string(),
+            target: target_id.to_string(),
+            observable: *observable,
+            sign: *sign,
         }
     }
 

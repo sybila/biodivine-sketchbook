@@ -5,14 +5,14 @@ use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
 ///
-/// These methods focus on general manipulating with variables/regulations.
+/// These methods focus on general manipulation with variables/regulations.
 /// See below for API focusing on layout manipulation.
 impl ModelState {
-    /// Create a new `ModelState` that does not contain any `Variables` or `Regulations`.
+    /// Create a new `ModelState` that does not contain any `Variables` or `Regulations` yet.
     /// It contains a single empty default `Layout`.
     pub fn new() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
-        let default_layout = Layout::new(ModelState::get_default_layout_name());
+        let default_layout = Layout::new_empty(ModelState::get_default_layout_name());
         ModelState {
             variables: HashMap::new(),
             regulations: HashSet::new(),

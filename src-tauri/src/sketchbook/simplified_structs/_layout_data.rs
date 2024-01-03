@@ -3,8 +3,13 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
-/// Structure for sending simplified data about `Layout` to frontend.
-/// Only contains some fields, in string format, to allow for simpler parsing and manipulation.
+/// Structure for sending simplified general data about `Layout` to the frontend.
+///
+/// `LayoutData` does not have the exact same fields as `Layout` (for instance, there is an additional useful
+/// field `id` and the layout nodes are missing).
+/// All the fields of `LayoutData` are string to allow for simpler (de)serialization and manipulation.
+///
+/// See also [LayoutNodeData] for similar structure to carry data regarding `NodeLayouts`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LayoutData {
     pub id: String,
@@ -12,13 +17,15 @@ pub struct LayoutData {
 }
 
 impl LayoutData {
-    pub fn new(layout_id: &LayoutId, layout_name: &str) -> LayoutData {
+    /// Create new `LayoutData` object given a layout's name and id string slices.
+    pub fn new(layout_id: &str, layout_name: &str) -> LayoutData {
         LayoutData {
             id: layout_id.to_string(),
             name: layout_name.to_string(),
         }
     }
 
+    /// Create new `VariableData` object given a `variable` and its id.
     pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutData {
         LayoutData {
             id: layout_id.to_string(),

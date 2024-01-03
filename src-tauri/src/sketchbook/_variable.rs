@@ -7,6 +7,7 @@ use std::fmt::{Display, Error, Formatter};
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Variable {
     name: String,
+    // todo: add compartment and more
 }
 
 impl Variable {

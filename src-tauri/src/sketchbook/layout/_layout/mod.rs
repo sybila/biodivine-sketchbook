@@ -1,4 +1,4 @@
-use crate::sketchbook::layout::NodeLayout;
+use crate::sketchbook::layout::LayoutNode;
 use crate::sketchbook::VarId;
 use std::collections::HashMap;
 
@@ -12,6 +12,6 @@ mod _impl_layout_serde;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Layout {
     name: String,
-    nodes: HashMap<VarId, NodeLayout>,
+    nodes: HashMap<VarId, LayoutNode>,
     // todo: add compartments
 }

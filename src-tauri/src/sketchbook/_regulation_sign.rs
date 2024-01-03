@@ -2,8 +2,11 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
 /// Possible variants of (non)-monotonous effects of a `Regulation`.
-/// `Activation` means positive and `Inhibition` means negative monotonicity, `Dual` means both
-/// positive and negative effect, `Unknown` for unknown effect.
+///
+/// - `Activation` means positive monotonicity
+/// - `Inhibition` means negative monotonicity
+/// - `Dual` means both positive and negative effect
+/// - `Unknown` stands for unknown effect
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum RegulationSign {
     Activation,

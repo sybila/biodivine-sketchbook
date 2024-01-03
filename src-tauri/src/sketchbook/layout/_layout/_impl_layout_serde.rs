@@ -1,4 +1,4 @@
-use crate::sketchbook::layout::{Layout, NodeLayout};
+use crate::sketchbook::layout::{Layout, LayoutNode};
 use crate::sketchbook::VarId;
 
 use std::collections::HashMap;
@@ -19,7 +19,7 @@ impl Serialize for Layout {
         state.serialize_field("name", &self.name)?;
 
         // Serialize `nodes` as a map with String keys
-        let nodes_map: HashMap<String, &NodeLayout> =
+        let nodes_map: HashMap<String, &LayoutNode> =
             self.nodes.iter().map(|(k, v)| (k.to_string(), v)).collect();
         state.serialize_field("nodes", &nodes_map)?;
 
@@ -96,7 +96,7 @@ impl<'de> Deserialize<'de> for Layout {
                             if nodes.is_some() {
                                 return Err(de::Error::duplicate_field("nodes"));
                             }
-                            let n: HashMap<String, NodeLayout> = map.next_value()?;
+                            let n: HashMap<String, LayoutNode> = map.next_value()?;
                             nodes = Some(
                                 n.into_iter()
                                     .map(|(k, v)| {
@@ -104,7 +104,7 @@ impl<'de> Deserialize<'de> for Layout {
                                             .map_err(de::Error::custom)
                                             .map(|k_parsed| (k_parsed, v))
                                     })
-                                    .collect::<Result<HashMap<VarId, NodeLayout>, _>>()?,
+                                    .collect::<Result<HashMap<VarId, LayoutNode>, _>>()?,
                             );
                         }
                     }
@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn test_layout_serde() {
-        let mut layout = Layout::new("layout_name");
+        let mut layout = Layout::new_empty("layout_name");
         layout.add_node(VarId::new("v1").unwrap(), 1., 1.).unwrap();
 
         // Serialization

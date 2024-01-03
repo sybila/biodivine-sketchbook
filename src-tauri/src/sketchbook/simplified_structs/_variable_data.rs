@@ -1,10 +1,12 @@
-use crate::sketchbook::Variable;
+use crate::sketchbook::{VarId, Variable};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
-/// Structure for sending simplified data about `Variable` to frontend.
-/// Only contains some fields, in string format, to allow for simpler parsing and manipulation.
+/// Structure for sending data about `Variable` to the frontend.
+///
+/// `VariableData` does not have the exact same fields as `Variable` (for instance, there is an additional useful
+/// field `id`). All the fields of `VariableData` are string to allow for simpler (de)serialization and manipulation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct VariableData {
     pub id: String,
@@ -12,13 +14,18 @@ pub struct VariableData {
 }
 
 impl VariableData {
-    pub fn new(id: String, name: String) -> VariableData {
-        VariableData { id, name }
+    /// Create new `VariableData` object given a variable's `name` and `id` string slices.
+    pub fn new(id: &str, name: &str) -> VariableData {
+        VariableData {
+            id: id.to_string(),
+            name: name.to_string(),
+        }
     }
 
-    pub fn from_var(id: String, variable: &Variable) -> VariableData {
+    /// Create new `VariableData` object given a `variable` and its id.
+    pub fn from_var(var_id: &VarId, variable: &Variable) -> VariableData {
         VariableData {
-            id,
+            id: var_id.to_string(),
             name: variable.get_name().to_string(),
         }
     }

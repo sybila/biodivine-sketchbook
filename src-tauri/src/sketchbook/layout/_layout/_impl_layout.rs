@@ -1,4 +1,4 @@
-use crate::sketchbook::layout::{Layout, LayoutNodeIterator, NodeLayout, NodePosition};
+use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
 use crate::sketchbook::VarId;
 
 use std::collections::HashMap;
@@ -7,8 +7,8 @@ use std::str::FromStr;
 
 /// Methods for safely constructing or mutating instances of `Layout`.
 impl Layout {
-    /// Create new empty `Layout` with a given name.
-    pub fn new(name_str: &str) -> Layout {
+    /// Create new empty `Layout` (i.e., with no nodes) with a given name.
+    pub fn new_empty(name_str: &str) -> Layout {
         Layout {
             name: name_str.to_string(),
             nodes: HashMap::new(),
@@ -25,9 +25,9 @@ impl Layout {
     }
 
     /// Create new `Layout` with a given name, which will contain nodes for the same variables as
-    /// `template_layout` has, but all of them at a default position.
+    /// `template_layout` has, but all of the nodes will be located at a default position.
     pub fn new_from_another_default(name_str: &str, template_layout: &Layout) -> Layout {
-        let mut layout = Layout::new(name_str);
+        let mut layout = Layout::new_empty(name_str);
         for var_id in template_layout.nodes.keys() {
             // this will never fail if `template_layout` is a valid `Layout`
             layout.add_default_node(var_id.clone()).unwrap();
@@ -40,7 +40,7 @@ impl Layout {
         self.name = name_str.to_string();
     }
 
-    /// Add new node with layout data for a given variable. Currently, nodes only hold information
+    /// Add a new node for a given variable to this layout. Currently, nodes only hold information
     /// regarding a 2D position.
     ///
     /// You must ensure that the `variable` is valid before adding it to the layout.
@@ -50,11 +50,12 @@ impl Layout {
         if self.nodes.contains_key(&variable) {
             return Err(format!("Layout data for {variable} already exist."));
         }
-        self.nodes.insert(variable, NodeLayout::new(p_x, p_y));
+        self.nodes.insert(variable, LayoutNode::new(p_x, p_y));
         Ok(())
     }
 
-    /// Add new default node (at 0,0) for a given variable.
+    /// Add a new default node (at 0,0) for a given variable.
+    ///
     /// You must ensure that the `variable` is valid before adding it to the layout.
     ///
     /// Returns `Err` if there already is a node for this variable.
@@ -62,7 +63,7 @@ impl Layout {
         if self.nodes.contains_key(&variable) {
             return Err(format!("Layout data for {variable} already exist."));
         }
-        self.nodes.insert(variable, NodeLayout::default());
+        self.nodes.insert(variable, LayoutNode::default());
         Ok(())
     }
 
@@ -84,7 +85,7 @@ impl Layout {
         Ok(())
     }
 
-    /// Remove a node for given variable from this layout.
+    /// Remove a node for a given variable from this layout.
     ///
     /// Return `Err` if variable did not have a corresponding node in this layout.
     pub fn remove_node(&mut self, variable: &VarId) -> Result<(), String> {
@@ -96,7 +97,7 @@ impl Layout {
         Ok(())
     }
 
-    /// Set the id of variable with `original_id` to `new_id`.
+    /// Change id of a variable with `original_id` to `new_id`.
     pub fn change_node_id(&mut self, original_id: &VarId, new_id: VarId) -> Result<(), String> {
         if let Some(node_layout) = self.nodes.remove(original_id) {
             self.nodes.insert(new_id.clone(), node_layout);
@@ -112,7 +113,7 @@ impl Layout {
 /// Methods for observing instances of `ModelState` (various getters, etc.).
 impl Layout {
     /// Layout information regarding the node for a particular variable.
-    pub fn get_node(&self, variable: &VarId) -> Result<&NodeLayout, String> {
+    pub fn get_node(&self, variable: &VarId) -> Result<&LayoutNode, String> {
         self.nodes
             .get(variable)
             .ok_or(format!("No layout data for variable {variable}."))
@@ -157,13 +158,13 @@ impl FromStr for Layout {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::layout::{Layout, NodeLayout};
+    use crate::sketchbook::layout::{Layout, LayoutNode};
     use crate::sketchbook::VarId;
 
     #[test]
     fn test_layout_basics() {
         // playing with layout name
-        let mut layout = Layout::new("fancy_name");
+        let mut layout = Layout::new_empty("fancy_name");
         assert_eq!(layout.get_layout_name(), "fancy_name");
         layout.set_layout_name("name_v2");
         assert_eq!(layout.get_layout_name(), "name_v2");
@@ -173,8 +174,8 @@ mod tests {
         let var_id2 = VarId::new("v2").unwrap();
         let var_id1_again = VarId::new("v1").unwrap();
         let var_id3 = VarId::new("v3").unwrap();
-        let default_node = NodeLayout::default();
-        let node_ten_ten = NodeLayout::new(10., 10.);
+        let default_node = LayoutNode::default();
+        let node_ten_ten = LayoutNode::new(10., 10.);
 
         // add node v1, node v2, and try adding v1 again (should fail)
         layout.add_default_node(var_id1.clone()).unwrap();
@@ -196,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_new_layout_from() {
-        let mut layout = Layout::new("fancy_name");
+        let mut layout = Layout::new_empty("fancy_name");
         let var_id1 = VarId::new("v1").unwrap();
         layout.add_default_node(var_id1.clone()).unwrap();
 

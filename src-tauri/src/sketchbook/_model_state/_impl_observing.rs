@@ -5,7 +5,7 @@ use crate::sketchbook::{
 };
 use std::str::FromStr;
 
-/// Id (and name) of the initial default layout.
+/// Id (and also name) of the initial default layout.
 const DEFAULT_LAYOUT_ID: &str = "default_layout";
 
 /// Some basic utility methods for inspecting the `ModelState`.

@@ -29,14 +29,14 @@ lazy_static! {
 /// Describes an interaction between two variables, `regulator` and `target`.
 /// Every regulation can be *monotonous* and can be set as *observable*:
 ///
-/// Monotonicity is *positive*, *negative*, *dual*, or *unknown*. The monotonicity signifies how
+/// Monotonicity is `positive`, `negative`, `dual`, or `unknown`. The monotonicity signifies how
 /// the presence of the `regulator` affects the value of the `target`:
-///  - if the regulation is *positive*, it might only *increase* the `target` value
-///  - if the regulation is *negative*, it might only *decrease* the `target` value
-///  - if the regulation is *dual*, it might both *increase* or *decrease* the `target` value (in
+///  - if the regulation is `positive`, it might only *increase* the `target` value
+///  - if the regulation is `negative`, it might only *decrease* the `target` value
+///  - if the regulation is `dual`, it might both *increase* or *decrease* the `target` value (in
 ///  different contexts)
 ///
-/// If observability is set to `True`, the `regulator` *must* have influence on the outcome
+/// If observability is set to *true*, the `regulator` *must* have influence on the outcome
 /// of the `target` update function in *some* context. If set to `False`, this regulation must have
 /// no effect. If it is `Unknown`, the observability is not enforced (i.e. the `regulator` *can*
 /// have an influence on the `target`, but it is not required).
@@ -58,6 +58,7 @@ pub struct Regulation {
 
 /// Methods for safely generating new `Regulations`.
 impl Regulation {
+    /// Create new `Regulation` given all the components.
     pub fn new(
         regulator: VarId,
         target: VarId,
@@ -121,19 +122,21 @@ impl Regulation {
     }
 }
 
-/// Basic getters.
+/// Basic getters and other non-modifying methods.
 impl Regulation {
     /// Check if the regulation is marked as observable.
+    ///
+    /// Note that both negative or unknown observability results in `false`.
     pub fn is_observable(&self) -> bool {
         self.observable == Observability::True
     }
 
-    /// Check if the regulation is marked as observable.
+    /// Get the observability of the regulation.
     pub fn get_observability(&self) -> &Observability {
         &self.observable
     }
 
-    /// Return the sign of the regulation.
+    /// Get the sign of the regulation.
     pub fn get_sign(&self) -> &RegulationSign {
         &self.regulation_sign
     }
@@ -173,11 +176,12 @@ impl Regulation {
 }
 
 impl Display for Regulation {
+    /// Standard format that can be parsed back.
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         let regulation_sign = self.get_sign().to_string();
         let observability = match self.get_observability() {
             Observability::True => "",
-            Observability::False => "N",
+            Observability::False => "X",
             Observability::Unknown => "?",
         };
 

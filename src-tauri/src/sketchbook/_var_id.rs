@@ -5,8 +5,8 @@ use std::str::FromStr;
 
 /// A type-safe (string-based) identifier of a `Variable` inside `ModelState`.
 ///
-/// **Warning:** Do not mix identifiers between different networks/graphs. Generally, be careful
-/// to only use `VarIds` currently valid for the network.
+/// **Warning:** Do not mix identifiers between different models.
+/// Generally, be careful to only use `VarIds` that are currently valid for the network.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct VarId {
     id: Identifier,

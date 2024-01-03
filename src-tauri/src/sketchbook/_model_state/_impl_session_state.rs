@@ -82,7 +82,7 @@ impl ModelState {
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            let var_data = VariableData::from_var(var_id.to_string(), self.get_variable(&var_id)?);
+            let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
             self.remove_var(&var_id)?;
             let state_change_path = ["model", "variable", "remove"];
             let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
@@ -103,7 +103,7 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_name(&var_id, new_name.as_str())?;
-            let var_data = VariableData::from_var(var_id.to_string(), self.get_variable(&var_id)?);
+            let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
             let state_change_path = ["model", "variable", "set_name"];
             let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
 
@@ -429,7 +429,7 @@ impl ModelState {
         let variable_list: Vec<VariableData> = self
             .variables
             .iter()
-            .map(|(id, data)| VariableData::from_var(id.to_string(), data))
+            .map(|(id, data)| VariableData::from_var(id, data))
             .collect();
 
         Ok(Event {
@@ -505,7 +505,6 @@ impl SessionState for ModelState {
         }
     }
 
-    /// TODO: add more options to refresh
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         match at_path.first() {
             Some(&"get_variables") => self.refresh_variables(full_path),
@@ -558,7 +557,7 @@ mod tests {
         assert_eq!(model.num_vars(), 1);
 
         // test variable add event
-        let var_data = VariableData::new("b".to_string(), "b".to_string());
+        let var_data = VariableData::new("b", "b");
         let payload = serde_json::to_string(&var_data).unwrap();
         let full_path = ["model", "variable", "add"];
         let event = Event::build(&full_path, Some(payload.as_str()));
