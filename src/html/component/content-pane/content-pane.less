@@ -5,7 +5,6 @@
 }
 
 .content-pane {
-  outline: white solid 1px;
   height: 99%;
   padding: 0.5em;
 }
@@ -13,4 +12,22 @@
 .pin-button {
   position: absolute;
   z-index: 999;
+}
+
+@media (prefers-color-scheme: dark) {
+  .content-pane {
+    outline: white solid 1px;
+  }
+  .uk-button {
+    background: rgb(34, 34, 34);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .content-pane {
+    outline: gray solid 1px;
+  }
+  .uk-button {
+    background: rgb(222, 222, 222);
+  }
 }

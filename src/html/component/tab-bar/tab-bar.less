@@ -11,11 +11,14 @@
   padding: 0.5em;
   text-overflow: ellipsis;
   overflow: hidden;
-  outline: #2f2f2f solid 2px;
+  //outline: #2f2f2f solid 2px;
 }
 .tab-name {
   margin: 0 0.3em;
   min-width: 0;
+}
+.active {
+  background-color: rgb(30, 135, 240);
 }
 
 @media only screen and (max-width: 50em) {
@@ -24,5 +27,17 @@
   }
   .tab {
     padding: 1em;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .inactive {
+    background: rgb(34, 34, 34);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .inactive {
+    background: rgb(222, 222, 222);
   }
 }

@@ -141,17 +141,17 @@ class FunctionTile extends LitElement {
         <div class="uk-flex uk-flex-row">
           <input class="uk-input uk-text-center" value="${this.variable.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.focusVariable}">
+          <button class="uk-button uk-button-small" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}
           </button>
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+          <button class="uk-button uk-button-small" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>
         </div>
         <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
         ${map(this.regulations, (regulation) => html`
           <div
-              class="uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap">
+              class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap">
             <div class="uk-width-1-6">${regulation.target}</div>
             <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</div>
             <div class="regulation-property ${regulation.observable ? '' : 'uk-text-muted'}"
