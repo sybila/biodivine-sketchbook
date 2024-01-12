@@ -40,10 +40,12 @@ class FunctionTile extends LitElement {
   }
 
   private readonly nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('rename-variable', {
+    this.dispatchEvent(new CustomEvent('update-variable', {
       detail: {
-        variableId: this.variable.id,
-        nodeName: name
+        oldId: this.variable.id,
+        newId: this.variable.id,
+        name,
+        function: this.variable.function
       },
       bubbles: true,
       composed: true
@@ -55,8 +57,9 @@ class FunctionTile extends LitElement {
   private readonly functionUpdated = debounce((func: string) => {
     this.dispatchEvent(new CustomEvent('update-variable', {
       detail: {
-        variableId: this.variable.id,
-        variableName: this.variable.name,
+        oldId: this.variable.id,
+        newId: this.variable.id,
+        name: this.variable.name,
         function: func
       },
       bubbles: true,

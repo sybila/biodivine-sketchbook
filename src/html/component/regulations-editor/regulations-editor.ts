@@ -10,7 +10,6 @@ import { edgeOptions, initOptions } from './regulations-editor.config'
 import { ElementType, type Monotonicity } from './element-type'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
-import UIkit from 'uikit'
 import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import { dummyData } from '../../util/dummy-data'
 import { ContentData } from '../../util/tab-data'
@@ -45,10 +44,10 @@ class RegulationsEditor extends LitElement {
       void this.renameNodeDialog(e)
     })
     this.addEventListener('update-function', () => { this.toggleMenu(ElementType.NONE) })
-    this.addEventListener('rename-variable', (event) => {
-      const detail = (event as CustomEvent).detail
-      this.renameNode(detail.variableId, detail.variableId, detail.nodeName)
-    })
+    // this.addEventListener('rename-variable', (event) => {
+    //   const detail = (event as CustomEvent).detail
+    //   this.renameNode(detail.variableId, detail.variableId, detail.nodeName)
+    // })
     this.addEventListener('focus-variable', this.focusVariable)
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -199,6 +198,7 @@ class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
     const nodeName = (event as CustomEvent).detail.name
+    const variable = this.contentData.variables.find(variable => variable.id === variableId)
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[variableId] !== undefined) {
@@ -227,33 +227,20 @@ class RegulationsEditor extends LitElement {
     })
     void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
       this.dialogs[variableId] = undefined
-      // avoid overwriting existing nodes
-      this.renameNode(variableId, event.payload.id, event.payload.name)
+      this.dispatchEvent(new CustomEvent('update-variable', {
+        detail: {
+          oldId: variableId,
+          newId: event.payload.id,
+          name: event.payload.name,
+          function: variable?.function ?? ''
+        },
+        bubbles: true,
+        composed: true
+      }))
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[variableId] = undefined
     })
-  }
-
-  private renameNode (oldId: string, newId: string, newName: string): void {
-    if (oldId !== newId && (this.cy?.$id(newId) !== undefined && this.cy?.$id(newId).length > 0)) {
-      UIkit.notification(`Node with id '${newId}' already exists!`)
-      return
-    }
-    const node = this.cy?.$id(oldId)
-    if (node === undefined) return
-    const position = node.position()
-    const edges = this.contentData.regulations.filter((edge) => edge.source === oldId || edge.target === oldId)
-    node.remove()
-    this.addNode(newId, newName, position)
-    edges.forEach((edge) => {
-      if (edge.source === oldId) {
-        this.ensureRegulation({ ...edge, source: newId })
-      } else {
-        this.ensureRegulation({ ...edge, target: newId })
-      }
-    })
-    this.saveState()
   }
 
   private adjustPan (event: Event): void {

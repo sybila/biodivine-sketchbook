@@ -27,7 +27,7 @@ class RootComponent extends LitElement {
     aeonState.tab_bar.pinned.refresh()
     this.addEventListener('update-data', this.updateData)
     this.addEventListener('update-function', this.focusFunction)
-    this.addEventListener('rename-variable', this.renameVariable)
+    this.addEventListener('update-variable', this.updateVariable)
     this.addEventListener('focus-variable', this.focusVariable)
     this.addEventListener('remove-element', (e) => { void this.removeVariable(e) })
 
@@ -74,16 +74,32 @@ class RootComponent extends LitElement {
       }))
   }
 
-  private renameVariable (event: Event): void {
+  private updateVariable (event: Event): void {
     const details = (event as CustomEvent).detail
-    this.shadowRoot?.querySelector('#regulations')
-      ?.shadowRoot?.querySelector('regulations-editor')
-      ?.dispatchEvent(new CustomEvent('rename-variable', {
-        detail: {
-          variableId: details.variableId,
-          nodeName: details.nodeName
+    const variables = [...this.data.variables]
+    const regulations = [...this.data.regulations]
+    const variableIndex = variables.findIndex(variable => variable.id === details.oldId)
+    variables[variableIndex] = {
+      ...variables[variableIndex],
+      id: details.newId,
+      name: details.name,
+      function: details.function
+    }
+    if (details.oldId !== details.newId) {
+      this.data.regulations.forEach((_, i) => {
+        if (this.data.regulations[i].source === details.oldId) {
+          regulations[i].source = details.newId
         }
-      }))
+        if (this.data.regulations[i].target === details.oldId) {
+          regulations[i].target = details.newId
+        }
+      })
+    }
+
+    this.data = ContentData.create({
+      variables,
+      regulations
+    })
   }
 
   private async removeVariable (event: Event): Promise<void> {
