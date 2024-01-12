@@ -98,6 +98,12 @@ class RootComponent extends LitElement {
       variables: this.data.variables.filter((variable) => variable.id !== variableId),
       regulations: this.data.regulations.filter((regulation) => regulation.source !== variableId && regulation.target !== variableId)
     })
+
+    // TODO: fix duplicate deletion (make separate event for functions?)
+    this.data = ContentData.create({
+      variables: this.data.variables,
+      regulations: this.data.regulations.filter((regulation) => regulation.id !== variableId)
+    })
   }
 
   private adjustRegEditor (): void {
