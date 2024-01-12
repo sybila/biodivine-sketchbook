@@ -57,7 +57,7 @@ class FunctionsEditor extends LitElement {
             ${map(this.contentData?.variables, (node) => html`
               <function-tile id="${node.id}" 
                              .variable="${node}" 
-                             .regulations="${this.contentData.regulations.filter(edge => edge.source === node.id)}">
+                             .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}">
               </function-tile>
             `)}
           </div>

@@ -152,7 +152,7 @@ class FunctionTile extends LitElement {
         ${map(this.regulations, (regulation) => html`
           <div
               class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap">
-            <div class="uk-width-1-6">${regulation.target}</div>
+            <div class="uk-width-1-6">${regulation.source}</div>
             <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</div>
             <div class="regulation-property ${regulation.observable ? '' : 'uk-text-muted'}"
                  @click="${() => {
