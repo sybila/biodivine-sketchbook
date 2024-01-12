@@ -21,7 +21,7 @@ class FunctionTile extends LitElement {
 
   constructor () {
     super()
-    this.addEventListener('focus-function', () => this.functionInput?.focus())
+    this.addEventListener('focus-function-field', () => this.functionInput?.focus())
   }
 
   private getRegulationSymbol (observable: boolean, monotonicity: Monotonicity): string {
@@ -43,9 +43,8 @@ class FunctionTile extends LitElement {
     this.dispatchEvent(new CustomEvent('update-variable', {
       detail: {
         oldId: this.variable.id,
-        newId: this.variable.id,
-        name,
-        function: this.variable.function
+        ...this.variable,
+        name
       },
       bubbles: true,
       composed: true
@@ -57,9 +56,8 @@ class FunctionTile extends LitElement {
   private readonly functionUpdated = debounce((func: string) => {
     this.dispatchEvent(new CustomEvent('update-variable', {
       detail: {
+        ...this.variable,
         oldId: this.variable.id,
-        newId: this.variable.id,
-        name: this.variable.name,
         function: func
       },
       bubbles: true,

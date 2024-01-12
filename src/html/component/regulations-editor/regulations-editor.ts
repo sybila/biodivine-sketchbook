@@ -7,11 +7,10 @@ import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
 import dblclick from 'cytoscape-dblclick'
 import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
-import { ElementType, type Monotonicity } from './element-type'
+import { ElementType } from './element-type'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
-import { dummyData } from '../../util/dummy-data'
 import { ContentData } from '../../util/tab-data'
 
 @customElement('regulations-editor')
@@ -37,17 +36,10 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('update-edge', this.updateEdge)
     this.addEventListener('adjust-graph', this.adjustPan)
     this.addEventListener('add-edge', this.addEdge)
-    // this.addEventListener('remove-element', (e) => {
-    //   void this.removeElement(e)
-    // })
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
-    this.addEventListener('update-function', () => { this.toggleMenu(ElementType.NONE) })
-    // this.addEventListener('rename-variable', (event) => {
-    //   const detail = (event as CustomEvent).detail
-    //   this.renameNode(detail.variableId, detail.variableId, detail.nodeName)
-    // })
+    this.addEventListener('focus-function', () => { this.toggleMenu(ElementType.NONE) })
     this.addEventListener('focus-variable', this.focusVariable)
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
@@ -114,15 +106,27 @@ class RegulationsEditor extends LitElement {
     this.init()
     this.addNodes(this.contentData.variables)
     this.addEdges(this.contentData.regulations)
-    this.saveState()
   }
 
   private init (): void {
     this.cy = cytoscape(initOptions(this.editorElement))
     this.edgeHandles = this.cy.edgehandles(edgeOptions)
 
-    this.cy.on('dragfree', 'node', () => { this.saveState() })
-    this.cy.on('ehstop ', () => { this.saveState() })
+    this.cy.on('dragfree', 'node', (a) => {
+      const variableData = a.target.data()
+      this.updateVariable(variableData.id, variableData.id, variableData.name, '', a.target.position())
+    })
+    // false positive for ___
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    this.cy.on('ehcomplete', (_, __, ___, edge) => {
+      this.dispatchEvent(new CustomEvent('add-regulation', {
+        detail: {
+          ...edge.data()
+        },
+        composed: true,
+        bubbles: true
+      }))
+    })
 
     this.cy.on('zoom', () => {
       this.renderMenuForSelectedNode()
@@ -135,8 +139,7 @@ class RegulationsEditor extends LitElement {
     this.cy.on('dblclick', (e) => {
       if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
       const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
-      this.addNode(name, name, e.position)
-      this.saveState()
+      this.createVariable(name, name, e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {
       e.target.addClass('hover')
@@ -180,18 +183,7 @@ class RegulationsEditor extends LitElement {
   }
 
   private loadDummyData (): void {
-    console.log('loading dummy data')
-    this.cy?.remove('node')
-    this.cy?.edges().remove()
-    this.addNodes(dummyData.variables)
-    this.addEdges(dummyData.regulations)
-    this.saveState()
-
-    this.cy?.ready(() => {
-      this.cy?.center()
-      this.cy?.fit(undefined, 50)
-      this.cy?.resize()
-    })
+    this.dispatchEvent(new Event('load-dummy', { bubbles: true, composed: true }))
   }
 
   private async renameNodeDialog (event: Event): Promise<void> {
@@ -227,16 +219,13 @@ class RegulationsEditor extends LitElement {
     })
     void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
       this.dialogs[variableId] = undefined
-      this.dispatchEvent(new CustomEvent('update-variable', {
-        detail: {
-          oldId: variableId,
-          newId: event.payload.id,
-          name: event.payload.name,
-          function: variable?.function ?? ''
-        },
-        bubbles: true,
-        composed: true
-      }))
+      this.updateVariable(
+        variableId,
+        event.payload.id,
+        event.payload.name,
+        variable?.function ?? '',
+        variable?.position ?? { x: 0, y: 0 }
+      )
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[variableId] = undefined
@@ -282,6 +271,33 @@ class RegulationsEditor extends LitElement {
     })
   }
 
+  private createVariable (id: string, name: string, position = { x: 0, y: 0 }): void {
+    this.dispatchEvent(new CustomEvent('add-variable', {
+      detail: {
+        id,
+        name,
+        position,
+        function: ''
+      },
+      composed: true,
+      bubbles: true
+    }))
+  }
+
+  private updateVariable (oldId: string, id: string, name: string, func: string, position: Position): void {
+    this.dispatchEvent(new CustomEvent('update-variable', {
+      detail: {
+        oldId,
+        id,
+        name,
+        function: func,
+        position
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   private toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
     this.menuType = type
     if (this.menuType === ElementType.NONE) {
@@ -316,43 +332,17 @@ class RegulationsEditor extends LitElement {
   }
 
   private updateEdge (event: Event): void {
-    const e = (event as CustomEvent)
-    this.cy?.$id(e.detail.edgeId)
-      .data('observable', e.detail.observable)
-      .data('monotonicity', e.detail.monotonicity)
-    this.menuData = this.cy?.$id(e.detail.edgeId).data()
-    this.saveState()
-  }
-
-  private saveState (): void {
-    const nodes = ((this.cy?.nodes()) ?? []).map((node): IVariableData => {
-      return {
-        id: node.data().id,
-        name: node.data().name,
-        position: node.position(),
-        function: this.contentData.variables?.find((n) => n.id === node.data().id)?.function ?? '' // TODO: fix high complexity
-      }
-    })
-    const edges: IRegulationData[] = ((this.cy?.edges()) ?? []).map((edge): IRegulationData => {
-      return {
-        id: edge.id(),
-        source: edge.source().id(),
-        target: edge.target().id(),
-        observable: edge.data().observable as boolean,
-        monotonicity: edge.data().monotonicity as Monotonicity
-      }
-    })
-    // sort the objects to keep lists in other tabs in stable order
-    nodes.sort((a, b) => (a.id > b.id ? 1 : -1))
-    edges.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
-
-    this.shadowRoot?.dispatchEvent(new CustomEvent('update-data', {
+    const detail = (event as CustomEvent).detail
+    const regulation = this.contentData.regulations.find(reg => reg.id === detail.edgeId)
+    if (regulation === undefined) return
+    this.dispatchEvent(new CustomEvent('update-regulation', {
       detail: {
-        variables: nodes,
-        regulations: edges
+        ...regulation,
+        observable: detail.observable,
+        monotonicity: detail.monotonicity
       },
-      composed: true,
-      bubbles: true
+      bubbles: true,
+      composed: true
     }))
   }
 

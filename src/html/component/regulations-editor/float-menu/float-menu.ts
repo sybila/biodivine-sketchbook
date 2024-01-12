@@ -44,7 +44,7 @@ class FloatMenu extends LitElement {
             this.addEdge()
             break
           case 'F':
-            this.updateFunction()
+            this.focusRegulation()
             break
           case 'DELETE':
           case 'BACKSPACE':
@@ -82,7 +82,7 @@ class FloatMenu extends LitElement {
     {
       icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
-      click: this.updateFunction
+      click: this.focusRegulation
     },
     {
       icon: () => icon(faTrash).node[0],
@@ -198,8 +198,8 @@ class FloatMenu extends LitElement {
     }))
   }
 
-  private updateFunction (): void {
-    this.dispatchEvent(new CustomEvent('update-function', {
+  private focusRegulation (): void {
+    this.dispatchEvent(new CustomEvent('focus-function', {
       detail: {
         variableId: this.data?.id
       },

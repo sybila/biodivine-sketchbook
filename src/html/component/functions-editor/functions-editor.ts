@@ -12,43 +12,12 @@ class FunctionsEditor extends LitElement {
 
   constructor () {
     super()
-    this.addEventListener('focus-function', this.focusedFunction)
-    this.addEventListener('update-variable', this.updateVariable)
-    this.addEventListener('update-regulation', this.updateRegulation)
-  }
-
-  private updateRegulation (event: Event): void {
-    const regulationId = (event as CustomEvent).detail.id
-    const regulation = this.contentData.regulations.find((n) => n.id === regulationId)
-    if (regulation === undefined) return
-    regulation.observable = (event as CustomEvent).detail.observable
-    regulation.monotonicity = (event as CustomEvent).detail.monotonicity
-    this.updateData()
+    this.addEventListener('focus-function-field', this.focusedFunction)
   }
 
   private focusedFunction (event: Event): void {
     const variableId = (event as CustomEvent).detail.variableId
-    this.shadowRoot?.querySelector(`#${variableId}`)?.dispatchEvent(new Event('focus-function'))
-  }
-
-  private updateVariable (event: Event): void {
-    const variableId = (event as CustomEvent).detail.variableId
-    const variable = this.contentData.variables.find((n) => n.id === variableId)
-    if (variable === undefined) return
-    variable.function = (event as CustomEvent).detail.function
-    variable.name = (event as CustomEvent).detail.variableName
-    this.updateData()
-  }
-
-  private updateData (): void {
-    this.shadowRoot?.dispatchEvent(new CustomEvent('update-data', {
-      detail: {
-        variables: this.contentData.variables,
-        regulations: this.contentData.regulations
-      },
-      composed: true,
-      bubbles: true
-    }))
+    this.shadowRoot?.querySelector(`#${variableId}`)?.dispatchEvent(new Event('focus-function-field'))
   }
 
   protected render (): TemplateResult {

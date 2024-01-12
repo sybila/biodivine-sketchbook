@@ -9,6 +9,7 @@ import { aeonState } from '../../../aeon_events'
 import { tabList } from '../../util/config'
 import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
+import { dummyData } from '../../util/dummy-data'
 
 const SAVE_VARIABLES = 'variables'
 const SAVE_REGULATIONS = 'regulations'
@@ -25,13 +26,16 @@ class RootComponent extends LitElement {
     aeonState.tab_bar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tab_bar.active.refresh()
     aeonState.tab_bar.pinned.refresh()
-    this.addEventListener('update-data', this.updateData)
-    this.addEventListener('update-function', this.focusFunction)
-    this.addEventListener('update-variable', this.updateVariable)
+    this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations) })
+    this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('focus-variable', this.focusVariable)
+    this.addEventListener('add-variable', this.addVariable)
+    this.addEventListener('add-regulation', this.addRegulation)
+    this.addEventListener('update-variable', this.updateVariable)
+    this.addEventListener('update-regulation', this.updateRegulation)
     this.addEventListener('remove-element', (e) => { void this.removeVariable(e) })
 
-    this.data = this.data.copy({ regulations: this.loadCachedEdges(), variables: this.loadCachedNodes() })
+    this.data = this.data.copy({ variables: this.loadCachedNodes(), regulations: this.loadCachedEdges() })
   }
 
   #onPinned (pinned: number[]): void {
@@ -52,15 +56,17 @@ class RootComponent extends LitElement {
     this.adjustRegEditor()
   }
 
-  private updateData (event: Event): void {
-    this.data = (event as CustomEvent).detail
-    if (this.data.variables.length > 0) {
-      localStorage.setItem(SAVE_VARIABLES, JSON.stringify(this.data.variables))
+  private updateRegulation (event: Event): void {
+    const regulationId = (event as CustomEvent).detail.id
+    const index = this.data.regulations.findIndex((reg) => reg.id === regulationId)
+    if (index === -1) return
+    const regulations = [...this.data.regulations]
+    regulations[index] = {
+      ...regulations[index],
+      observable: (event as CustomEvent).detail.observable,
+      monotonicity: (event as CustomEvent).detail.monotonicity
     }
-    if (this.data.regulations.length > 0) {
-      localStorage.setItem(SAVE_REGULATIONS, JSON.stringify(this.data.regulations))
-    }
-    console.log('data updated', this.data)
+    this.saveData(this.data.variables, regulations)
   }
 
   private focusVariable (event: Event): void {
@@ -81,25 +87,47 @@ class RootComponent extends LitElement {
     const variableIndex = variables.findIndex(variable => variable.id === details.oldId)
     variables[variableIndex] = {
       ...variables[variableIndex],
-      id: details.newId,
+      id: details.id,
       name: details.name,
-      function: details.function
+      function: details.function,
+      position: details.position
     }
-    if (details.oldId !== details.newId) {
+    if (details.oldId !== details.id) {
       this.data.regulations.forEach((_, i) => {
         if (this.data.regulations[i].source === details.oldId) {
-          regulations[i].source = details.newId
+          regulations[i].source = details.id
         }
         if (this.data.regulations[i].target === details.oldId) {
-          regulations[i].target = details.newId
+          regulations[i].target = details.id
         }
       })
     }
+    this.saveData(variables, regulations)
+  }
 
-    this.data = ContentData.create({
-      variables,
-      regulations
+  private addVariable (event: Event): void {
+    const details = (event as CustomEvent).detail
+    const variables = [...this.data.variables]
+    variables.push({
+      id: details.id,
+      name: details.name,
+      position: details.position,
+      function: details.function ?? ''
     })
+    this.saveData(variables, this.data.regulations)
+  }
+
+  private addRegulation (event: Event): void {
+    const details = (event as CustomEvent).detail
+    const regulations = [...this.data.regulations]
+    regulations.push({
+      id: details.id,
+      source: details.source,
+      target: details.target,
+      observable: details.observable,
+      monotonicity: details.monotonicity
+    })
+    this.saveData(this.data.variables, regulations)
   }
 
   private async removeVariable (event: Event): Promise<void> {
@@ -110,21 +138,15 @@ class RootComponent extends LitElement {
       title: 'Delete'
     })) return
     const variableId = (event as CustomEvent).detail.id
-    this.data = ContentData.create({
-      variables: this.data.variables.filter((variable) => variable.id !== variableId),
-      regulations: this.data.regulations.filter((regulation) => regulation.source !== variableId && regulation.target !== variableId)
-    })
-
-    // TODO: fix duplicate deletion (make separate event for functions?)
-    this.data = ContentData.create({
-      variables: this.data.variables,
-      regulations: this.data.regulations.filter((regulation) => regulation.id !== variableId)
-    })
+    this.saveData(
+      this.data.variables.filter((variable) => variable.id !== variableId),
+      this.data.regulations.filter((regulation) => regulation.source !== variableId && regulation.target !== variableId && regulation.id !== variableId)
+    )
   }
 
   private adjustRegEditor (): void {
     if (window.outerWidth <= 800) return
-    // a bit of messy solution but should eventually go through backend
+    // TODO: a bit of messy solution but should eventually go through backend
     this.shadowRoot?.querySelector('#regulations')
       ?.shadowRoot?.querySelector('regulations-editor')
       ?.dispatchEvent(new CustomEvent('adjust-graph', {
@@ -136,9 +158,10 @@ class RootComponent extends LitElement {
 
   private focusFunction (event: Event): void {
     aeonState.tab_bar.active.emitValue(1)
+    // TODO: a bit of messy solution but should eventually go through backend
     this.shadowRoot?.querySelector('#functions')
       ?.shadowRoot?.querySelector('functions-editor')
-      ?.dispatchEvent(new CustomEvent('focus-function', {
+      ?.dispatchEvent(new CustomEvent('focus-function-field', {
         detail: {
           variableId: (event as CustomEvent).detail.variableId
         }
@@ -147,6 +170,19 @@ class RootComponent extends LitElement {
 
   private visibleTabs (): TabData[] {
     return this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
+  }
+
+  private saveData (variables: IVariableData[], regulations: IRegulationData[]): void {
+    // sort nodes to keep alphabetical order in lists
+    variables.sort((a, b) => (a.id > b.id ? 1 : -1))
+    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+
+    localStorage.setItem(SAVE_VARIABLES, JSON.stringify(variables))
+    localStorage.setItem(SAVE_REGULATIONS, JSON.stringify(regulations))
+    this.data = ContentData.create({
+      variables,
+      regulations
+    })
   }
 
   loadCachedNodes (): IVariableData[] {
