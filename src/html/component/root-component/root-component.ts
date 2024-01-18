@@ -28,7 +28,6 @@ class RootComponent extends LitElement {
     aeonState.tab_bar.pinned.refresh()
     this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations) })
     this.addEventListener('focus-function', this.focusFunction)
-    this.addEventListener('focus-variable', this.focusVariable)
     this.addEventListener('add-variable', this.addVariable)
     this.addEventListener('add-regulation', this.addRegulation)
     this.addEventListener('update-variable', this.updateVariable)
@@ -67,17 +66,6 @@ class RootComponent extends LitElement {
       monotonicity: (event as CustomEvent).detail.monotonicity
     }
     this.saveData(this.data.variables, regulations)
-  }
-
-  private focusVariable (event: Event): void {
-    // aeonState.tab_bar.active.emitValue(0)
-    this.shadowRoot?.querySelector('#regulations')
-      ?.shadowRoot?.querySelector('regulations-editor')
-      ?.dispatchEvent(new CustomEvent('focus-variable', {
-        detail: {
-          variableId: (event as CustomEvent).detail.variableId
-        }
-      }))
   }
 
   private updateVariable (event: Event): void {
@@ -146,26 +134,20 @@ class RootComponent extends LitElement {
 
   private adjustRegEditor (): void {
     if (window.outerWidth <= 800) return
-    // TODO: a bit of messy solution but should eventually go through backend
-    this.shadowRoot?.querySelector('#regulations')
-      ?.shadowRoot?.querySelector('regulations-editor')
-      ?.dispatchEvent(new CustomEvent('adjust-graph', {
-        detail: {
-          tabCount: this.visibleTabs().length
-        }
-      }))
+    window.dispatchEvent(new CustomEvent('adjust-graph', {
+      detail: {
+        tabCount: this.visibleTabs().length
+      }
+    }))
   }
 
   private focusFunction (event: Event): void {
     aeonState.tab_bar.active.emitValue(1)
-    // TODO: a bit of messy solution but should eventually go through backend
-    this.shadowRoot?.querySelector('#functions')
-      ?.shadowRoot?.querySelector('functions-editor')
-      ?.dispatchEvent(new CustomEvent('focus-function-field', {
-        detail: {
-          variableId: (event as CustomEvent).detail.variableId
-        }
-      }))
+    window.dispatchEvent(new CustomEvent('focus-function-field', {
+      detail: {
+        variableId: (event as CustomEvent).detail.variableId
+      }
+    }))
   }
 
   private visibleTabs (): TabData[] {

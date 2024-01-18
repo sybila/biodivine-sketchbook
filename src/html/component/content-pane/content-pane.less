@@ -1,4 +1,4 @@
-@import "uikit/src/less/uikit.theme.less";
+@import '/src/uikit-theme';
 
 .fa-lock, .fa-lock-open {
   height: 1em;
@@ -7,6 +7,10 @@
 .content-pane {
   height: 99%;
   padding: 0.5em;
+  white-space: nowrap;
+  z-index: 2;
+  overflow: hidden;
+  position: relative;
 }
 
 .pin-button {
@@ -14,9 +18,11 @@
   z-index: 999;
 }
 
+
 @media (prefers-color-scheme: dark) {
   .content-pane {
     outline: white solid 1px;
+    background-color: @background-dark;
   }
   .uk-button {
     background: rgb(34, 34, 34);
@@ -26,6 +32,7 @@
 @media (prefers-color-scheme: light) {
   .content-pane {
     outline: gray solid 1px;
+    background: @background-light;
   }
   .uk-button {
     background: rgb(222, 222, 222);

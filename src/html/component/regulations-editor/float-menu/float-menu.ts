@@ -227,7 +227,7 @@ class FloatMenu extends LitElement {
     return html`
         ${this.type !== ElementType.NONE && html`
         <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
-                                       top: ${this.position.y + 58 + yOffset}px; 
+                                       top: ${this.position.y + 8 + yOffset}px; 
                                        transform: scale(${this.zoom})">
             <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
                 ${map(buttons, (buttonData) => {

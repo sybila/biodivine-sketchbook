@@ -34,15 +34,29 @@ class RegulationsEditor extends LitElement {
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
     this.addEventListener('update-edge', this.updateEdge)
-    this.addEventListener('adjust-graph', this.adjustPan)
     this.addEventListener('add-edge', this.addEdge)
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
     this.addEventListener('focus-function', () => { this.toggleMenu(ElementType.NONE) })
-    this.addEventListener('focus-variable', this.focusVariable)
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
+  }
+
+  connectedCallback (): void {
+    super.connectedCallback()
+    window.addEventListener('focus-variable', this.focusVariable.bind(this))
+    window.addEventListener('highlight-regulation', this.highlightRegulation.bind(this))
+    window.addEventListener('reset-highlight', this.resetHighlights.bind(this))
+    window.addEventListener('adjust-graph', this.adjustPan.bind(this))
+  }
+
+  disconnectedCallback (): void {
+    super.disconnectedCallback()
+    window.removeEventListener('focus-variable', this.focusVariable.bind(this))
+    window.removeEventListener('highlight-regulation', this.highlightRegulation.bind(this))
+    window.removeEventListener('reset-highlight', this.resetHighlights.bind(this))
+    window.removeEventListener('adjust-graph', this.adjustPan.bind(this))
   }
 
   protected updated (_changedProperties: PropertyValues): void {
@@ -98,8 +112,17 @@ class RegulationsEditor extends LitElement {
   }
 
   private focusVariable (event: Event): void {
-    const node = this.cy?.$id((event as CustomEvent).detail.variableId)
+    const node = this.cy?.$id((event as CustomEvent).detail.id)
     this.cy?.center(node)
+  }
+
+  private highlightRegulation (event: Event): void {
+    this.cy?.$id((event as CustomEvent).detail.id).addClass('highlight')
+  }
+
+  private resetHighlights (): void {
+    this.cy?.edges().removeClass('highlight')
+    this.cy?.nodes().removeClass('highlight')
   }
 
   firstUpdated (): void {

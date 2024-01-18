@@ -1,4 +1,4 @@
-@import "uikit/src/less/uikit.theme.less";
+@import '/src/uikit-theme';
 .menu-icon {
   max-height: 1em;
   width: 100%;
@@ -18,6 +18,7 @@
   /* We don't animate other stuff because that needs to be in sync with the graph */
   transition: opacity 0.3s;
   pointer-events: none;
+  z-index: 1;
 
   .float-button {
     width: 2em;

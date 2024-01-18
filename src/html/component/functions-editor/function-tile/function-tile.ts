@@ -1,5 +1,5 @@
 import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './function-tile.less?inline'
 import { map } from 'lit/directives/map.js'
 import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
@@ -20,14 +20,13 @@ class FunctionTile extends LitElement {
   @property() variableIndex = 0
   @property() regulations: IRegulationData[] = []
   @property() variables: IVariableData[] = []
-  @query('#function-input') functionInput: HTMLInputElement | undefined
   @state() variableFunction = ''
   @state() variableName = ''
   declare aceEditor: ace.Ace.Editor
 
   constructor () {
     super()
-    this.addEventListener('focus-function-field', () => this.functionInput?.focus())
+    this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
     ace.require(langTools)
   }
 
@@ -66,7 +65,6 @@ class FunctionTile extends LitElement {
     this.aceEditor.getSession().off('change', this.functionUpdated)
     this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
     this.aceEditor.getSession().on('change', this.functionUpdated)
-    console.log(_changedProperties)
   }
 
   private getRegulationSymbol (observable: boolean, monotonicity: Monotonicity): string {
@@ -172,13 +170,23 @@ class FunctionTile extends LitElement {
   }
 
   private focusVariable (): void {
-    this.dispatchEvent(new CustomEvent('focus-variable', {
+    window.dispatchEvent(new CustomEvent('focus-variable', {
       detail: {
-        variableId: this.variables[this.variableIndex].id
-      },
-      bubbles: true,
-      composed: true
+        id: this.variables[this.variableIndex].id
+      }
     }))
+  }
+
+  private highlightRegulation (regulation: IRegulationData): void {
+    window.dispatchEvent(new CustomEvent('highlight-regulation', {
+      detail: {
+        id: regulation.id
+      }
+    }))
+  }
+
+  private resetHighlight (): void {
+    window.dispatchEvent(new Event('reset-highlight'))
   }
 
   protected render (): TemplateResult {
@@ -198,7 +206,10 @@ class FunctionTile extends LitElement {
         ${map(this.regulations, (regulation) => html`
           <div
               class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap"
-          @mouseenter="">
+          @mouseenter="${() => {
+            this.highlightRegulation(regulation)
+          }}"
+          @mouseout="${this.resetHighlight}">
             <div class="uk-width-1-6">${regulation.source}</div>
             <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</div>
             <div class="regulation-property ${regulation.observable ? '' : 'uk-text-muted'}"

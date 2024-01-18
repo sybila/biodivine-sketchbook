@@ -10,14 +10,21 @@ class FunctionsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData: ContentData = ContentData.create()
 
-  constructor () {
-    super()
-    this.addEventListener('focus-function-field', this.focusedFunction)
+  connectedCallback (): void {
+    super.connectedCallback()
+    window.addEventListener('focus-function-field', this.focusedFunction.bind(this))
+  }
+
+  disconnectedCallback (): void {
+    super.disconnectedCallback()
+    window.removeEventListener('focus-function-field', this.focusedFunction.bind(this))
   }
 
   private focusedFunction (event: Event): void {
     const variableId = (event as CustomEvent).detail.variableId
-    this.shadowRoot?.querySelector(`#${variableId}`)?.dispatchEvent(new Event('focus-function-field'))
+    const element = this.shadowRoot?.querySelector(`#${variableId}`)
+    element?.dispatchEvent(new Event('focus-function-field'))
+    element?.scrollIntoView()
   }
 
   protected render (): TemplateResult {
