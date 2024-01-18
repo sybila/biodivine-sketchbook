@@ -7,11 +7,12 @@ import { Monotonicity } from '../../regulations-editor/element-type'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faTrash, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import ace, { Ace } from 'ace-builds'
+import ace, { type Ace, config } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
-import Completion = Ace.Completion
+import modeYaml from 'ace-builds/src-noconflict/mode-yaml?url'
 
 library.add(faTrash, faMagnifyingGlass)
+config.setModuleUrl('ace/mode/yaml', modeYaml)
 
 @customElement('function-tile')
 class FunctionTile extends LitElement {
@@ -38,7 +39,7 @@ class FunctionTile extends LitElement {
       // showGutter: false,
       enableBasicAutocompletion: [{
         getCompletions: (_editor, _session, _point, _prefix, callback) => {
-          callback(null, this.variables.map((variable): Completion => ({ value: variable.id, meta: variable.name })))
+          callback(null, this.variables.map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })))
         }
       }],
       enableSnippets: true,
@@ -49,7 +50,8 @@ class FunctionTile extends LitElement {
       minLines: 1,
       maxLines: Infinity,
       wrap: 'free',
-      fontSize: 14
+      fontSize: 14,
+      mode: 'ace/mode/yaml'
     })
     this.aceEditor.container.style.lineHeight = '1.5em'
     this.aceEditor.container.style.fontSize = '1em'

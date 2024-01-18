@@ -30,6 +30,7 @@
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.0.0",
     "@tauri-apps/cli": "^1.4.0",
+    "@types/ace": "^0.0.52",
     "@types/cytoscape-edgehandles": "^4.0.3",
     "@types/cytoscape-popper": "^2.0.4",
     "@types/lodash": "^4.14.201",
