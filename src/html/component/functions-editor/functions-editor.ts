@@ -23,9 +23,10 @@ class FunctionsEditor extends LitElement {
   protected render (): TemplateResult {
     return html`
           <div class="function-list uk-list uk-list-divider uk-text-center">
-            ${map(this.contentData?.variables, (node) => html`
+            ${map(this.contentData?.variables, (node, index) => html`
               <function-tile id="${node.id}" 
-                             .variable="${node}" 
+                             .variableIndex="${index}"
+                             .variables="${this.contentData.variables}"
                              .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}">
               </function-tile>
             `)}

@@ -13,7 +13,7 @@ export const dummyData: ContentData = ContentData.create({
       id: 'CLN3',
       name: 'CLN3',
       position: { x: 128, y: 68 },
-      function: ''
+      function: '!YOX1 & f(YHP1, ACE2, SWI5)'
     },
     {
       id: 'YHP1',
@@ -43,7 +43,7 @@ export const dummyData: ContentData = ContentData.create({
       id: 'SBF',
       name: 'SBF',
       position: { x: 281, y: 138 },
-      function: ''
+      function: 'g(MBF, YOX1) & h(YHP1, CLN3)'
     },
     {
       id: 'HCM1',

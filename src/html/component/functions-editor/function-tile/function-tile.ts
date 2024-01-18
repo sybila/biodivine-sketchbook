@@ -1,4 +1,4 @@
-import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
+import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './function-tile.less?inline'
 import { map } from 'lit/directives/map.js'
@@ -7,21 +7,64 @@ import { Monotonicity } from '../../regulations-editor/element-type'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faTrash, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import ace, { Ace } from 'ace-builds'
+import langTools from 'ace-builds/src-noconflict/ext-language_tools'
+import Completion = Ace.Completion
 
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('function-tile')
 class FunctionTile extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() declare variable: IVariableData
+  @property() variableIndex = 0
   @property() regulations: IRegulationData[] = []
+  @property() variables: IVariableData[] = []
   @query('#function-input') functionInput: HTMLInputElement | undefined
   @state() variableFunction = ''
   @state() variableName = ''
+  declare aceEditor: ace.Ace.Editor
 
   constructor () {
     super()
     this.addEventListener('focus-function-field', () => this.functionInput?.focus())
+    ace.require(langTools)
+  }
+
+  protected firstUpdated (_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+    const editorElement = this.shadowRoot?.getElementById('function-editor')
+    if (editorElement === null || editorElement === undefined) return
+    this.aceEditor = ace.edit(editorElement, {
+      // showGutter: false,
+      enableBasicAutocompletion: [{
+        getCompletions: (_editor, _session, _point, _prefix, callback) => {
+          callback(null, this.variables.map((variable): Completion => ({ value: variable.id, meta: variable.name })))
+        }
+      }],
+      enableSnippets: true,
+      enableLiveAutocompletion: true,
+      behavioursEnabled: true,
+      value: this.variables[this.variableIndex].function,
+      placeholder: '$f_' + this.variables[this.variableIndex].id + '(...)',
+      minLines: 1,
+      maxLines: Infinity,
+      wrap: 'free',
+      fontSize: 14
+    })
+    this.aceEditor.container.style.lineHeight = '1.5em'
+    this.aceEditor.container.style.fontSize = '1em'
+    this.aceEditor.renderer.updateFontSize()
+    this.aceEditor.getSession().on('change', this.functionUpdated)
+    this.aceEditor.renderer.attachToShadowRoot()
+  }
+
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    if (_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue()) return
+    this.aceEditor.getSession().off('change', this.functionUpdated)
+    this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
+    this.aceEditor.getSession().on('change', this.functionUpdated)
+    console.log(_changedProperties)
   }
 
   private getRegulationSymbol (observable: boolean, monotonicity: Monotonicity): string {
@@ -42,8 +85,8 @@ class FunctionTile extends LitElement {
   private readonly nameUpdated = debounce((name: string) => {
     this.dispatchEvent(new CustomEvent('update-variable', {
       detail: {
-        oldId: this.variable.id,
-        ...this.variable,
+        ...this.variables[this.variableIndex],
+        oldId: this.variables[this.variableIndex].id,
         name
       },
       bubbles: true,
@@ -53,12 +96,12 @@ class FunctionTile extends LitElement {
   300
   )
 
-  private readonly functionUpdated = debounce((func: string) => {
+  private readonly functionUpdated = debounce(() => {
     this.dispatchEvent(new CustomEvent('update-variable', {
       detail: {
-        ...this.variable,
-        oldId: this.variable.id,
-        function: func
+        ...this.variables[this.variableIndex],
+        oldId: this.variables[this.variableIndex].id,
+        function: this.aceEditor.getValue()
       },
       bubbles: true,
       composed: true
@@ -119,7 +162,7 @@ class FunctionTile extends LitElement {
   private removeVariable (): void {
     this.shadowRoot?.dispatchEvent(new CustomEvent('remove-element', {
       detail: {
-        id: this.variable.id
+        id: this.variables[this.variableIndex].id
       },
       composed: true,
       bubbles: true
@@ -129,7 +172,7 @@ class FunctionTile extends LitElement {
   private focusVariable (): void {
     this.dispatchEvent(new CustomEvent('focus-variable', {
       detail: {
-        variableId: this.variable.id
+        variableId: this.variables[this.variableIndex].id
       },
       bubbles: true,
       composed: true
@@ -140,7 +183,7 @@ class FunctionTile extends LitElement {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input class="uk-input uk-text-center" value="${this.variable.name}"
+          <input class="uk-input uk-text-center" value="${this.variables[this.variableIndex].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           <button class="uk-button uk-button-small" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}
@@ -152,7 +195,8 @@ class FunctionTile extends LitElement {
         <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
         ${map(this.regulations, (regulation) => html`
           <div
-              class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap">
+              class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap"
+          @mouseenter="">
             <div class="uk-width-1-6">${regulation.source}</div>
             <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</div>
             <div class="regulation-property ${regulation.observable ? '' : 'uk-text-muted'}"
@@ -169,13 +213,8 @@ class FunctionTile extends LitElement {
             </div>
           </div>
         `)}
-
         <span class="uk-align-left uk-text-left uk-margin-remove">Update function:</span>
-        <input id="function-input"
-               class="uk-input uk-text-center"
-               value="${this.variable.function}"
-               placeholder="$f_${this.variable.name}(...)"
-               @input="${(e: InputEvent) => this.functionUpdated((e.target as HTMLInputElement).value)}"/>
+        <div id="function-editor"></div>
       </div>
       <hr>
     `
