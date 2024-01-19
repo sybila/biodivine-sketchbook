@@ -161,7 +161,7 @@ class RegulationsEditor extends LitElement {
     })
     this.cy.on('dblclick', (e) => {
       if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
-      const name = (Math.random() + 1).toString(36).substring(8).toUpperCase()
+      const name = "var_" + (Math.random() + 1).toString(36).substring(8).toUpperCase()
       this.createVariable(name, name, e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {

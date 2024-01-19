@@ -111,13 +111,13 @@ interface AeonState {
 }
 
 /** An object representing basic information regarding a model variable. */
-interface VariableData {
+export interface VariableData {
   id: string
   name: string
 }
 
 /** An object representing basic information regarding a model regulation. */
-interface RegulationData {
+export interface RegulationData {
   regulator: string
   target: string
   sign: string
@@ -125,13 +125,13 @@ interface RegulationData {
 }
 
 /** An object representing basic information regarding a model layout. */
-interface LayoutData {
+export interface LayoutData {
   id: string
   name: string
 }
 
 /** An object representing basic information regarding a node in a layout. */
-interface LayoutNodeData {
+export interface LayoutNodeData {
   layout: string
   variable: string
   px: number
@@ -139,7 +139,7 @@ interface LayoutNodeData {
 }
 
 /** A function that is notified when a state value changes. */
-type OnStateValue<T> = (value: T) => void
+export type OnStateValue<T> = (value: T) => void
 
 /**
  * An object that can be emitted through `AeonEvents` as a user action.
@@ -149,7 +149,7 @@ type OnStateValue<T> = (value: T) => void
  * joined together to create a "compound" event that is treated as
  * a single user action in the context of the undo-redo stack.
  */
-interface AeonEvent {
+export interface AeonEvent {
   path: string[]
   payload: string | null
 }

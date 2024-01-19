@@ -5,7 +5,7 @@ import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { ContentData, type TabData } from '../../util/tab-data'
-import { aeonState } from '../../../aeon_events'
+import { VariableData, aeonState } from '../../../aeon_events'
 import { tabList } from '../../util/config'
 import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
@@ -29,12 +29,17 @@ class RootComponent extends LitElement {
     this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations) })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
+    aeonState.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
     this.addEventListener('update-variable', this.updateVariable)
+    aeonState.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
     this.addEventListener('update-regulation', this.updateRegulation)
-    this.addEventListener('remove-element', (e) => { void this.removeVariable(e) })
+    this.addEventListener('remove-element', (e) => { 
+      void this.removeVariable(e) 
+    })
+    aeonState.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
 
-    this.data = this.data.copy({ variables: this.loadCachedNodes(), regulations: this.loadCachedEdges() })
+    //this.data = this.data.copy({ variables: this.loadCachedNodes(), regulations: this.loadCachedEdges() })
   }
 
   #onPinned (pinned: number[]): void {
@@ -69,7 +74,7 @@ class RootComponent extends LitElement {
   }
 
   private updateVariable (event: Event): void {
-    const details = (event as CustomEvent).detail
+    /*const details = (event as CustomEvent).detail
     const variables = [...this.data.variables]
     const regulations = [...this.data.regulations]
     const variableIndex = variables.findIndex(variable => variable.id === details.oldId)
@@ -90,17 +95,49 @@ class RootComponent extends LitElement {
         }
       })
     }
+    this.saveData(variables, regulations)*/
+    const details = (event as CustomEvent).detail
+    const variables = [...this.data.variables]
+    const regulations = [...this.data.regulations]
+    const variableIndex = variables.findIndex(variable => variable.id === details.oldId)
+    if (variables[variableIndex].name != details.name) {
+      aeonState.model.setVariableName(details.id, details.name)
+    }
+  }
+
+  #onVariableNameChanged (data: VariableData): void {
+    const variables = [...this.data.variables]
+    const regulations = [...this.data.regulations]
+    const variableIndex = variables.findIndex(variable => variable.id === data.id)
+    variables[variableIndex] = {
+      ...variables[variableIndex],
+      id: data.id,
+      name: data.name,
+    }
     this.saveData(variables, regulations)
   }
 
   private addVariable (event: Event): void {
-    const details = (event as CustomEvent).detail
+    /*const details = (event as CustomEvent).detail
     const variables = [...this.data.variables]
     variables.push({
       id: details.id,
       name: details.name,
       position: details.position,
       function: details.function ?? ''
+    })
+    this.saveData(variables, this.data.regulations)*/
+    const details = (event as CustomEvent).detail
+    aeonState.model.addVariable(details.id, details.name)
+  }
+
+  #onVariableCreated (data: VariableData): void {
+    const variables = [...this.data.variables]
+    variables.push({
+      id: data.id,
+      name: data.name,
+      position: { x: 0, y: 0 },
+      function: ''
     })
     this.saveData(variables, this.data.regulations)
   }
@@ -125,10 +162,20 @@ class RootComponent extends LitElement {
       cancelLabel: 'Keep',
       title: 'Delete'
     })) return
-    const variableId = (event as CustomEvent).detail.id
+    // TODO: This is also deleting regulations. We need to detect this and act accordingly.
+    /*const variableId = (event as CustomEvent).detail.id
     this.saveData(
       this.data.variables.filter((variable) => variable.id !== variableId),
       this.data.regulations.filter((regulation) => regulation.source !== variableId && regulation.target !== variableId && regulation.id !== variableId)
+    )*/
+    const variableId = (event as CustomEvent).detail.id
+    aeonState.model.removeVariable(variableId)
+  }
+
+  #onVariableRemoved (data: VariableData) {
+    this.saveData(
+      this.data.variables.filter((variable) => variable.id !== data.id),
+      this.data.regulations
     )
   }
 
