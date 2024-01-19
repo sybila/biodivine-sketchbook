@@ -2,7 +2,7 @@ import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import style_less from './undo-redo.less?inline'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
-import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
+import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { aeonState } from '../../../aeon_events'
 library.add(faArrowLeft, faArrowRight)
 
@@ -30,9 +30,9 @@ class UndoRedo extends LitElement {
     return html`
       <div class="undo-redo uk-flex-nowrap">
         <button class="uk-button uk-button-secondary uk-button-small"
-                @click=${aeonState.undoStack.undo} ?disabled=${!this.canUndo}>${icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-left' })).node}</button>
+                @click=${aeonState.undoStack.undo} ?disabled=${!this.canUndo}>${icon(faArrowLeft).node}</button>
         <button class="uk-button uk-button-secondary uk-button-small"
-                @click=${aeonState.undoStack.redo} ?disabled=${!this.canRedo}>${icon(findIconDefinition({ prefix: 'fas', iconName: 'arrow-right' })).node}</button>
+                @click=${aeonState.undoStack.redo} ?disabled=${!this.canRedo}>${icon(faArrowRight).node}</button>
       </div>
     `
   }

@@ -44,7 +44,7 @@ class FloatMenu extends LitElement {
             this.addEdge()
             break
           case 'F':
-            this.updateFunction()
+            this.focusRegulation()
             break
           case 'DELETE':
           case 'BACKSPACE':
@@ -82,7 +82,7 @@ class FloatMenu extends LitElement {
     {
       icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
-      click: this.updateFunction
+      click: this.focusRegulation
     },
     {
       icon: () => icon(faTrash).node[0],
@@ -110,7 +110,7 @@ class FloatMenu extends LitElement {
       )).node[0],
       label: () => {
         switch (this.data?.monotonicity) {
-          case Monotonicity.OFF:
+          case Monotonicity.UNSPECIFIED:
             return 'Make activating (M)'
           case Monotonicity.ACTIVATION:
             return 'Make inhibiting (M)'
@@ -159,7 +159,7 @@ class FloatMenu extends LitElement {
         monotonicity = Monotonicity.INHIBITION
         break
       case Monotonicity.INHIBITION:
-        monotonicity = Monotonicity.OFF
+        monotonicity = Monotonicity.UNSPECIFIED
         break
       default:
         monotonicity = Monotonicity.ACTIVATION
@@ -198,10 +198,10 @@ class FloatMenu extends LitElement {
     }))
   }
 
-  private updateFunction (): void {
-    this.dispatchEvent(new CustomEvent('update-function', {
+  private focusRegulation (): void {
+    this.dispatchEvent(new CustomEvent('focus-function', {
       detail: {
-        nodeId: this.data?.id
+        variableId: this.data?.id
       },
       bubbles: true,
       composed: true
@@ -227,7 +227,7 @@ class FloatMenu extends LitElement {
     return html`
         ${this.type !== ElementType.NONE && html`
         <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
-                                       top: ${this.position.y + 58 + yOffset}px; 
+                                       top: ${this.position.y + 8 + yOffset}px; 
                                        transform: scale(${this.zoom})">
             <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
                 ${map(buttons, (buttonData) => {

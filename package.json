@@ -15,6 +15,7 @@
     "@tauri-apps/api": "^1.4.0",
     "@types/cytoscape": "^3.19.15",
     "@types/cytoscape-dagre": "^2.3.3",
+    "ace-builds": "^1.32.3",
     "cytoscape": "^3.27.0",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-dblclick": "^0.3.1",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.0.0",
     "@tauri-apps/cli": "^1.4.0",
+    "@types/ace": "^0.0.52",
     "@types/cytoscape-edgehandles": "^4.0.3",
     "@types/cytoscape-popper": "^2.0.4",
     "@types/lodash": "^4.14.201",

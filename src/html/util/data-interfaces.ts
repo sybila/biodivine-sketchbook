@@ -1,13 +1,14 @@
 import { type Position } from 'cytoscape'
-import { type Monotonicity } from './element-type'
+import { type Monotonicity } from '../component/regulations-editor/element-type'
 
-export interface INodeData {
+export interface IVariableData {
   id: string
   name: string
   position: Position
+  function: string
 }
 
-export interface IEdgeData {
+export interface IRegulationData {
   id: string
   source: string
   target: string

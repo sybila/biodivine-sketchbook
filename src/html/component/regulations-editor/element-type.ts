@@ -8,5 +8,4 @@ export enum Monotonicity {
   UNSPECIFIED = 'unspecified',
   ACTIVATION = 'activation',
   INHIBITION = 'inhibition',
-  OFF = 'off'
 }

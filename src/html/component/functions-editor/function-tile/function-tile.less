@@ -1,28 +1,31 @@
 @import '/src/uikit-theme';
 
-.undo-redo {
-  min-width: 6em;
-  width: 100%;
-  overflow: hidden;
+.regulation-property:hover {
+  font-weight: bold;
 }
 
-.fa-arrow-left, .fa-arrow-right {
+.svg-inline--fa {
   height: 1em;
 }
 
-.disabled {
-  opacity: 0.5;
+#function-editor {
+  width: 99%;
 }
 
+
 @media (prefers-color-scheme: dark) {
+  .regulation:hover {
+    background: rgba(0, 0, 0, 0.37);
+  }
   .uk-button {
     background: rgb(34, 34, 34);
   }
-
-
 }
 
 @media (prefers-color-scheme: light) {
+  .regulation:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
   .uk-button {
     background: rgb(222, 222, 222);
   }

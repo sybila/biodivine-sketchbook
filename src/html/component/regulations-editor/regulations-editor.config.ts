@@ -1,4 +1,5 @@
 import { type CytoscapeOptions } from 'cytoscape'
+import { Monotonicity } from './element-type'
 
 export const edgeOptions = {
   preview: true, // whether to show added edges preview before releasing selection
@@ -21,11 +22,7 @@ export const edgeOptions = {
     return {
       data: {
         observable: true,
-        monotonicity: {
-          unspecified: 'unspecified',
-          activation: 'activation',
-          inhibition: 'inhibition'
-        }
+        monotonicity: Monotonicity.UNSPECIFIED
       }
     }
   }
@@ -80,7 +77,7 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         }
       },
       { // When a node is highlighted by mouse, show it with a dashed blue border.
-        selector: 'node.hover',
+        selector: 'node.highlight',
         style: {
           'border-width': '2.0px',
           'border-color': '#6a7ea5',
@@ -108,7 +105,7 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         }
       },
       {
-        selector: 'edge.hover',
+        selector: 'edge.highlight',
         style: { 'overlay-opacity': 0.1 }
       },
       { // Show non-observable edges as dashed
