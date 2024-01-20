@@ -1,5 +1,5 @@
 import { type CytoscapeOptions } from 'cytoscape'
-import { Monotonicity } from './element-type'
+import { Monotonicity } from '../../util/data-interfaces'
 
 export const edgeOptions = {
   preview: true, // whether to show added edges preview before releasing selection

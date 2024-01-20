@@ -5,14 +5,13 @@ import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { ContentData, type TabData } from '../../util/tab-data'
-import { VariableData, aeonState } from '../../../aeon_events'
+import { type VariableData, aeonState, type LayoutNodeData, type RegulationData } from '../../../aeon_events'
 import { tabList } from '../../util/config'
 import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { dummyData } from '../../util/dummy-data'
 
-const SAVE_VARIABLES = 'variables'
-const SAVE_REGULATIONS = 'regulations'
+const LAYOUT = 'default'
 
 @customElement('root-component')
 class RootComponent extends LitElement {
@@ -26,20 +25,35 @@ class RootComponent extends LitElement {
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
+    aeonState.model.addLayout(LAYOUT, LAYOUT)
     this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations) })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
     aeonState.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
-    this.addEventListener('update-variable', this.updateVariable)
+    aeonState.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
+    this.addEventListener('set-variable-function', this.setVariableFunction)
+    // TODO: detect if function changed on backend
+    this.addEventListener('rename-variable', this.renameVariable)
     aeonState.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
-    this.addEventListener('update-regulation', this.updateRegulation)
-    this.addEventListener('remove-element', (e) => { 
-      void this.removeVariable(e) 
+    this.addEventListener('change-node-position', this.changeNodePosition)
+    aeonState.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
+    this.addEventListener('set-variable-id', this.setVariableId)
+    aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
+    this.addEventListener('set-regulation-observable', this.setRegulationObservable)
+    // TODO: detect if observability changed on backend
+    this.addEventListener('set-regulation-monotonicity', this.setRegulationMonotonicity)
+    aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged)
+    this.addEventListener('remove-variable', (e) => {
+      void this.removeVariable(e)
     })
     aeonState.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
+    this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
+    aeonState.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
 
-    //this.data = this.data.copy({ variables: this.loadCachedNodes(), regulations: this.loadCachedEdges() })
+    aeonState.model.refreshLayouts()
+    aeonState.model.refreshVariables()
+    aeonState.model.refreshRegulations()
   }
 
   #onPinned (pinned: number[]): void {
@@ -60,75 +74,26 @@ class RootComponent extends LitElement {
     this.adjustRegEditor()
   }
 
-  private updateRegulation (event: Event): void {
-    const regulationId = (event as CustomEvent).detail.id
-    const index = this.data.regulations.findIndex((reg) => reg.id === regulationId)
-    if (index === -1) return
-    const regulations = [...this.data.regulations]
-    regulations[index] = {
-      ...regulations[index],
-      observable: (event as CustomEvent).detail.observable,
-      monotonicity: (event as CustomEvent).detail.monotonicity
-    }
-    this.saveData(this.data.variables, regulations)
-  }
-
-  private updateVariable (event: Event): void {
-    /*const details = (event as CustomEvent).detail
-    const variables = [...this.data.variables]
-    const regulations = [...this.data.regulations]
-    const variableIndex = variables.findIndex(variable => variable.id === details.oldId)
-    variables[variableIndex] = {
-      ...variables[variableIndex],
-      id: details.id,
-      name: details.name,
-      function: details.function,
-      position: details.position
-    }
-    if (details.oldId !== details.id) {
-      this.data.regulations.forEach((_, i) => {
-        if (this.data.regulations[i].source === details.oldId) {
-          regulations[i].source = details.id
-        }
-        if (this.data.regulations[i].target === details.oldId) {
-          regulations[i].target = details.id
-        }
-      })
-    }
-    this.saveData(variables, regulations)*/
+  renameVariable (event: Event): void {
     const details = (event as CustomEvent).detail
-    const variables = [...this.data.variables]
-    const regulations = [...this.data.regulations]
-    const variableIndex = variables.findIndex(variable => variable.id === details.oldId)
-    if (variables[variableIndex].name != details.name) {
-      aeonState.model.setVariableName(details.id, details.name)
-    }
+    aeonState.model.setVariableName(details.id, details.name)
   }
 
   #onVariableNameChanged (data: VariableData): void {
     const variables = [...this.data.variables]
-    const regulations = [...this.data.regulations]
     const variableIndex = variables.findIndex(variable => variable.id === data.id)
     variables[variableIndex] = {
       ...variables[variableIndex],
       id: data.id,
-      name: data.name,
+      name: data.name
     }
-    this.saveData(variables, regulations)
+    this.saveData(variables, this.data.regulations)
   }
 
   private addVariable (event: Event): void {
-    /*const details = (event as CustomEvent).detail
-    const variables = [...this.data.variables]
-    variables.push({
-      id: details.id,
-      name: details.name,
-      position: details.position,
-      function: details.function ?? ''
-    })
-    this.saveData(variables, this.data.regulations)*/
     const details = (event as CustomEvent).detail
     aeonState.model.addVariable(details.id, details.name)
+    aeonState.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
   }
 
   #onVariableCreated (data: VariableData): void {
@@ -144,35 +109,29 @@ class RootComponent extends LitElement {
 
   private addRegulation (event: Event): void {
     const details = (event as CustomEvent).detail
+    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, details.observable)
+  }
+
+  #onRegulationCreated (data: RegulationData): void {
     const regulations = [...this.data.regulations]
+    console.log(data)
     regulations.push({
-      id: details.id,
-      source: details.source,
-      target: details.target,
-      observable: details.observable,
-      monotonicity: details.monotonicity
+      id: data.regulator + data.target,
+      source: data.regulator,
+      target: data.target,
+      observable: data.observable,
+      monotonicity: data.sign
     })
     this.saveData(this.data.variables, regulations)
   }
 
   private async removeVariable (event: Event): Promise<void> {
-    if (!await dialog.ask('Are you sure?', {
-      type: 'warning',
-      okLabel: 'Delete',
-      cancelLabel: 'Keep',
-      title: 'Delete'
-    })) return
-    // TODO: This is also deleting regulations. We need to detect this and act accordingly.
-    /*const variableId = (event as CustomEvent).detail.id
-    this.saveData(
-      this.data.variables.filter((variable) => variable.id !== variableId),
-      this.data.regulations.filter((regulation) => regulation.source !== variableId && regulation.target !== variableId && regulation.id !== variableId)
-    )*/
+    if (!await this.confirmDialog()) return
     const variableId = (event as CustomEvent).detail.id
     aeonState.model.removeVariable(variableId)
   }
 
-  #onVariableRemoved (data: VariableData) {
+  #onVariableRemoved (data: VariableData): void {
     this.saveData(
       this.data.variables.filter((variable) => variable.id !== data.id),
       this.data.regulations
@@ -206,32 +165,124 @@ class RootComponent extends LitElement {
     variables.sort((a, b) => (a.id > b.id ? 1 : -1))
     regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
 
-    localStorage.setItem(SAVE_VARIABLES, JSON.stringify(variables))
-    localStorage.setItem(SAVE_REGULATIONS, JSON.stringify(regulations))
     this.data = ContentData.create({
       variables,
       regulations
     })
   }
 
-  loadCachedNodes (): IVariableData[] {
-    try {
-      const parsed = (JSON.parse(localStorage.getItem(SAVE_VARIABLES) ?? '[]') as IVariableData[])
-      console.log('nodes loaded')
-      return parsed
-    } catch (e) {
-      return []
-    }
+  private changeNodePosition (event: Event): void {
+    const details = (event as CustomEvent).detail
+    aeonState.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
   }
 
-  loadCachedEdges (): IRegulationData[] {
-    try {
-      const parsed = (JSON.parse(localStorage.getItem(SAVE_REGULATIONS) ?? '[]') as IRegulationData[])
-      console.log('edges loaded')
-      return parsed
-    } catch (e) {
-      return []
+  #onNodePositionChanged (data: LayoutNodeData): void {
+    // TODO: add support for layouts
+    const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.variable)
+    const variables = [...this.data.variables]
+    variables[variableIndex] = {
+      ...variables[variableIndex],
+      position: {
+        x: data.px,
+        y: data.py
+      }
     }
+    this.saveData(variables, this.data.regulations)
+  }
+
+  private setVariableId (event: Event): void {
+    const details = (event as CustomEvent).detail
+    aeonState.model.setVariableId(details.oldId, details.newId)
+  }
+
+  // TODO: add interface for data
+  #onVariableIdChanged (data: { original_id: string, new_id: string }): void {
+    const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.original_id)
+    if (variableIndex === -1) return
+    const variables = [...this.data.variables]
+    variables[variableIndex] = {
+      ...variables[variableIndex],
+      id: data.new_id
+    }
+    this.saveData(variables, this.data.regulations)
+  }
+
+  private setRegulationObservable (event: Event): void {
+    const details = (event as CustomEvent).detail
+    // TODO: find a way to change observability of a regulation
+    // aeonState.model.setRegulationObservable(details.source, details.target, details.observable)
+
+    const index = this.data.regulations.findIndex((reg) => reg.id === details.id)
+    if (index === -1) return
+    const regulations = [...this.data.regulations]
+    regulations[index] = {
+      ...regulations[index],
+      observable: details.observable
+    }
+    this.saveData(this.data.variables, regulations)
+  }
+
+  // #onRegulationObservableChanged (data): void {
+  //   const index = this.data.regulations.findIndex((reg) => reg.id === data.id)
+  //   if (index === -1) return
+  //   const regulations = [...this.data.regulations]
+  //   regulations[index] = {
+  //     ...regulations[index],
+  //     observable: data.observable
+  //   }
+  //   this.saveData(this.data.variables, regulations)
+  // }
+
+  private setRegulationMonotonicity (event: Event): void {
+    const details = (event as CustomEvent).detail
+    aeonState.model.setRegulationSign(details.source, details.target, details.monotonicity)
+  }
+
+  #onRegulationMonotonicityChanged (data: RegulationData): void {
+    const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
+    if (index === -1) return
+    console.log(data)
+    const regulations = [...this.data.regulations]
+    regulations[index] = {
+      ...regulations[index],
+      monotonicity: data.sign
+    }
+    this.saveData(this.data.variables, regulations)
+  }
+
+  private setVariableFunction (event: Event): void {
+    const details = (event as CustomEvent).detail
+    // TODO: send through backend
+    const variableIndex = this.data.variables.findIndex(variable => variable.id === details.id)
+    if (variableIndex === -1) return
+    const variables = [...this.data.variables]
+    variables[variableIndex] = {
+      ...variables[variableIndex],
+      function: details.function
+    }
+    this.saveData(variables, this.data.regulations)
+  }
+
+  private async removeRegulation (event: Event): Promise<void> {
+    if (!await this.confirmDialog()) return
+    const details = (event as CustomEvent).detail
+    aeonState.model.removeRegulation(details.source, details.target)
+  }
+
+  #onRegulationRemoved (data: RegulationData): void {
+    this.saveData(
+      this.data.variables,
+      this.data.regulations.filter((regulation) => regulation.source !== data.regulator && regulation.target !== data.target)
+    )
+  }
+
+  private async confirmDialog (): Promise<boolean> {
+    return await dialog.ask('Are you sure?', {
+      type: 'warning',
+      okLabel: 'Delete',
+      cancelLabel: 'Keep',
+      title: 'Delete'
+    })
   }
 
   render (): TemplateResult {

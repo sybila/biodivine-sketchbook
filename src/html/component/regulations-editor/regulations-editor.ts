@@ -7,10 +7,9 @@ import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
 import dblclick from 'cytoscape-dblclick'
 import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
-import { ElementType } from './element-type'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
-import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
+import { ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import { ContentData } from '../../util/tab-data'
 
 @customElement('regulations-editor')
@@ -33,7 +32,6 @@ class RegulationsEditor extends LitElement {
     cytoscape.use(dagre)
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
-    this.addEventListener('update-edge', this.updateEdge)
     this.addEventListener('add-edge', this.addEdge)
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
@@ -136,12 +134,10 @@ class RegulationsEditor extends LitElement {
     this.edgeHandles = this.cy.edgehandles(edgeOptions)
 
     this.cy.on('dragfree', 'node', (a) => {
-      const variableData = a.target.data()
-      this.updateVariable(variableData.id, variableData.id, variableData.name, '', a.target.position())
+      this.moveVariable(a.target.data().id, a.target.position())
     })
-    // false positive for ___
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    this.cy.on('ehcomplete', (_, __, ___, edge) => {
+
+    this.cy.on('ehcomplete', (_event, _source, _target, edge) => {
       this.dispatchEvent(new CustomEvent('add-regulation', {
         detail: {
           ...edge.data()
@@ -161,7 +157,7 @@ class RegulationsEditor extends LitElement {
     })
     this.cy.on('dblclick', (e) => {
       if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
-      const name = "var_" + (Math.random() + 1).toString(36).substring(8).toUpperCase()
+      const name = 'var_' + (Math.random() + 1).toString(36).substring(8).toUpperCase()
       this.createVariable(name, name, e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {
@@ -212,8 +208,7 @@ class RegulationsEditor extends LitElement {
   private async renameNodeDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
-    const nodeName = (event as CustomEvent).detail.name
-    const variable = this.contentData.variables.find(variable => variable.id === variableId)
+    const variableName = (event as CustomEvent).detail.name
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[variableId] !== undefined) {
@@ -222,7 +217,7 @@ class RegulationsEditor extends LitElement {
     }
     const renameDialog = new WebviewWindow(`renameDialog${Math.floor(Math.random() * 1000000)}`, {
       url: 'src/html/component/rename-dialog/rename-dialog.html',
-      title: `Edit node (${variableId} / ${nodeName})`,
+      title: `Edit node (${variableId} / ${variableName})`,
       alwaysOnTop: true,
       maximizable: false,
       minimizable: false,
@@ -237,18 +232,31 @@ class RegulationsEditor extends LitElement {
     void renameDialog.once('loaded', () => {
       void renameDialog.emit('edit_node_update', {
         id: variableId,
-        name: nodeName
+        name: variableName
       })
     })
     void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
       this.dialogs[variableId] = undefined
-      this.updateVariable(
-        variableId,
-        event.payload.id,
-        event.payload.name,
-        variable?.function ?? '',
-        variable?.position ?? { x: 0, y: 0 }
-      )
+      if (event.payload.name !== variableName) {
+        this.dispatchEvent(new CustomEvent('rename-variable', {
+          detail: {
+            id: variableId,
+            name: event.payload.name
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
+      if (event.payload.id !== variableId) {
+        this.dispatchEvent(new CustomEvent('set-variable-id', {
+          detail: {
+            oldId: variableId,
+            newId: event.payload.id
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[variableId] = undefined
@@ -307,20 +315,6 @@ class RegulationsEditor extends LitElement {
     }))
   }
 
-  private updateVariable (oldId: string, id: string, name: string, func: string, position: Position): void {
-    this.dispatchEvent(new CustomEvent('update-variable', {
-      detail: {
-        oldId,
-        id,
-        name,
-        function: func,
-        position
-      },
-      bubbles: true,
-      composed: true
-    }))
-  }
-
   private toggleMenu (type: ElementType, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
     this.menuType = type
     if (this.menuType === ElementType.NONE) {
@@ -333,19 +327,6 @@ class RegulationsEditor extends LitElement {
   }
 
   private ensureRegulation (regulation: IRegulationData): void {
-    // const currentEdge = this._findRegulationEdge(regulation.regulator, regulation.target)
-    // if (currentEdge !== undefined) {
-    //   // Edge exists - just make sure to update data
-    //   const data = currentEdge.data()
-    //   data.observable = regulation.observable
-    //   data.monotonicity = regulation.monotonicity
-    //   this.cy?.style().update() // redraw graph
-    //   if (currentEdge.selected()) {
-    //     // if the edge is selected, we also redraw the edge menu
-    //     this._renderMenuForSelectedEdge(currentEdge)
-    //   }
-    // } else {
-    // Edge does not exist - create a new one
     this.cy?.add({
       group: 'edges',
       data: {
@@ -354,15 +335,11 @@ class RegulationsEditor extends LitElement {
     })
   }
 
-  private updateEdge (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    const regulation = this.contentData.regulations.find(reg => reg.id === detail.edgeId)
-    if (regulation === undefined) return
-    this.dispatchEvent(new CustomEvent('update-regulation', {
+  private moveVariable (varId: string, position: Position): void {
+    this.dispatchEvent(new CustomEvent('change-node-position', {
       detail: {
-        ...regulation,
-        observable: detail.observable,
-        monotonicity: detail.monotonicity
+        id: varId,
+        position
       },
       bubbles: true,
       composed: true

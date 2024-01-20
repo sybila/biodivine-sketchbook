@@ -1,11 +1,22 @@
 import { type Position } from 'cytoscape'
-import { type Monotonicity } from '../component/regulations-editor/element-type'
 
 export interface IVariableData {
   id: string
   name: string
   position: Position
   function: string
+}
+
+export enum ElementType {
+  NONE,
+  EDGE,
+  NODE
+}
+
+export enum Monotonicity {
+  UNSPECIFIED = 'Unknown',
+  ACTIVATION = 'Activation',
+  INHIBITION = 'Inhibition',
 }
 
 export interface IRegulationData {

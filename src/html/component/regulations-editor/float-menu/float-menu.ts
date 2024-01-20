@@ -15,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
-import { ElementType, Monotonicity } from '../element-type'
+import { ElementType, type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
@@ -25,7 +25,7 @@ class FloatMenu extends LitElement {
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
   @property() zoom = 1.0
-  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity, name: string } | undefined
+  @property() data: (IRegulationData & IVariableData) | undefined
   @state() selectedButton: IButton | undefined = undefined
 
   connectedCallback (): void {
@@ -61,7 +61,6 @@ class FloatMenu extends LitElement {
             this.toggleMonotonicity()
             break
           case 'DELETE':
-          case 'BACKSPACE':
             this.removeElement()
             break
         }
@@ -130,21 +129,36 @@ class FloatMenu extends LitElement {
   ]
 
   private removeElement (): void {
-    this.dispatchEvent(new CustomEvent('remove-element', {
-      detail: {
-        id: this.data?.id
-      },
-      bubbles: true,
-      composed: true
-    }))
+    switch (this.type) {
+      case ElementType.EDGE:
+        this.dispatchEvent(new CustomEvent('remove-regulation', {
+          detail: {
+            source: this.data?.source,
+            target: this.data?.target
+          },
+          bubbles: true,
+          composed: true
+        }))
+        break
+      case ElementType.NODE:
+        this.dispatchEvent(new CustomEvent('remove-variable', {
+          detail: {
+            id: this.data?.id
+          },
+          bubbles: true,
+          composed: true
+        }))
+        break
+    }
   }
 
   private toggleObservability (): void {
-    this.dispatchEvent(new CustomEvent('update-edge', {
+    this.dispatchEvent(new CustomEvent('set-regulation-observable', {
       detail: {
-        edgeId: this.data?.id,
-        observable: !(this.data?.observable ?? false),
-        monotonicity: this.data?.monotonicity
+        id: this.data?.id,
+        source: this.data?.source,
+        target: this.data?.target,
+        observable: !(this.data?.observable ?? false)
       },
       bubbles: true,
       composed: true
@@ -166,10 +180,11 @@ class FloatMenu extends LitElement {
         break
     }
     if (this.data !== undefined) this.data = { ...this.data, monotonicity }
-    this.dispatchEvent(new CustomEvent('update-edge', {
+    this.dispatchEvent(new CustomEvent('set-regulation-monotonicity', {
       detail: {
-        edgeId: this.data?.id,
-        observable: (this.data?.observable ?? true),
+        id: this.data?.id,
+        source: this.data?.source,
+        target: this.data?.target,
         monotonicity
       },
       bubbles: true,

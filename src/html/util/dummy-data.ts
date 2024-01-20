@@ -1,5 +1,5 @@
-import { Monotonicity } from '../component/regulations-editor/element-type'
 import { ContentData } from './tab-data'
+import { Monotonicity } from './data-interfaces'
 
 export const dummyData: ContentData = ContentData.create({
   variables: [

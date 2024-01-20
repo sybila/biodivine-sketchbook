@@ -1,9 +1,8 @@
 import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './function-tile.less?inline'
 import { map } from 'lit/directives/map.js'
-import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
-import { Monotonicity } from '../../regulations-editor/element-type'
+import { type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faTrash, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
@@ -22,6 +21,7 @@ class FunctionTile extends LitElement {
   @property() variables: IVariableData[] = []
   @state() variableFunction = ''
   @state() variableName = ''
+  @query('#name-field') nameField: HTMLInputElement | undefined
   declare aceEditor: ace.Ace.Editor
 
   constructor () {
@@ -49,8 +49,8 @@ class FunctionTile extends LitElement {
       minLines: 1,
       maxLines: Infinity,
       wrap: 'free',
-      fontSize: 14,
-      mode: 'ace/mode/yaml'
+      fontSize: 14
+      // mode: 'ace/mode/yaml'
     })
     this.aceEditor.container.style.lineHeight = '1.5em'
     this.aceEditor.container.style.fontSize = '1em'
@@ -61,6 +61,9 @@ class FunctionTile extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
+    if (this.nameField !== undefined) {
+      this.nameField.value = this.variables[this.variableIndex].name
+    }
     if (_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue()) return
     this.aceEditor.getSession().off('change', this.functionUpdated)
     this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
@@ -83,10 +86,9 @@ class FunctionTile extends LitElement {
   }
 
   private readonly nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('update-variable', {
+    this.dispatchEvent(new CustomEvent('rename-variable', {
       detail: {
-        ...this.variables[this.variableIndex],
-        oldId: this.variables[this.variableIndex].id,
+        id: this.variables[this.variableIndex].id,
         name
       },
       bubbles: true,
@@ -97,10 +99,9 @@ class FunctionTile extends LitElement {
   )
 
   private readonly functionUpdated = debounce(() => {
-    this.dispatchEvent(new CustomEvent('update-variable', {
+    this.dispatchEvent(new CustomEvent('set-variable-function', {
       detail: {
-        ...this.variables[this.variableIndex],
-        oldId: this.variables[this.variableIndex].id,
+        id: this.variables[this.variableIndex].id,
         function: this.aceEditor.getValue()
       },
       bubbles: true,
@@ -124,10 +125,11 @@ class FunctionTile extends LitElement {
   }
 
   private toggleObservability (regulation: IRegulationData): void {
-    // TODO: move higher up the component tree and merge with similar functions in float-menu
-    this.dispatchEvent(new CustomEvent('update-regulation', {
+    this.dispatchEvent(new CustomEvent('set-regulation-observable', {
       detail: {
-        ...regulation,
+        id: regulation.id,
+        source: regulation.source,
+        target: regulation.target,
         observable: !regulation.observable
       },
       bubbles: true,
@@ -136,7 +138,6 @@ class FunctionTile extends LitElement {
   }
 
   private toggleMonotonicity (regulation: IRegulationData): void {
-    // TODO: move higher up the component tree and merge with similar functions in float-menu
     let monotonicity
     switch (regulation.monotonicity) {
       case Monotonicity.ACTIVATION:
@@ -149,9 +150,11 @@ class FunctionTile extends LitElement {
         monotonicity = Monotonicity.ACTIVATION
         break
     }
-    this.dispatchEvent(new CustomEvent('update-regulation', {
+    this.dispatchEvent(new CustomEvent('set-regulation-monotonicity', {
       detail: {
-        ...regulation,
+        id: regulation.id,
+        source: regulation.source,
+        target: regulation.target,
         monotonicity
       },
       bubbles: true,
@@ -160,7 +163,7 @@ class FunctionTile extends LitElement {
   }
 
   private removeVariable (): void {
-    this.shadowRoot?.dispatchEvent(new CustomEvent('remove-element', {
+    this.shadowRoot?.dispatchEvent(new CustomEvent('remove-variable', {
       detail: {
         id: this.variables[this.variableIndex].id
       },
@@ -193,7 +196,7 @@ class FunctionTile extends LitElement {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input class="uk-input uk-text-center" value="${this.variables[this.variableIndex].name}"
+          <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.variableIndex].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           <button class="uk-button uk-button-small" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}
