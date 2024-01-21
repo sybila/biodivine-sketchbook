@@ -266,6 +266,32 @@ impl ModelState {
                 state_change,
                 perform_reverse: (event.clone(), reverse_event),
             })
+        } else if Self::starts_with("set_observability", at_path).is_some() {
+            // get the payload - a string for the "new_observability"
+            let observability_str = Self::clone_payload_str(event, component_name)?;
+            let new_observability: Observability = serde_json::from_str(&observability_str)?;
+
+            let original_reg = self.get_regulation(&regulator_id, &target_id)?;
+            let orig_observability = *original_reg.get_observability();
+            let reg_data = RegulationData::from_reg(original_reg);
+
+            if orig_observability == new_observability {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move IDs from path to payload)
+            self.change_regulation_observability(&regulator_id, &target_id, &new_observability)?;
+            let state_change_path = ["model", "regulation", "set_observability"];
+            let state_change = Event::build(&state_change_path, Some(&reg_data.to_string()));
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(serde_json::to_string(&orig_observability)?);
+
+            Ok(Consumed::Reversible {
+                state_change,
+                perform_reverse: (event.clone(), reverse_event),
+            })
         } else {
             Self::throw_path_error(at_path, component_name)
         }
@@ -524,7 +550,7 @@ mod tests {
     use crate::sketchbook::simplified_structs::{
         LayoutData, LayoutNodeData, RegulationData, VariableData,
     };
-    use crate::sketchbook::{ModelState, VarId};
+    use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
     use serde_json::json;
 
     /// Check that after applying the reverse event of `result` to the `model` with relative
@@ -686,12 +712,58 @@ mod tests {
     }
 
     #[test]
+    fn test_change_reg_sign_event() {
+        let mut model = ModelState::new();
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        model.add_multiple_variables(variables).unwrap();
+        let regulations = vec!["a -> a", "a -> b", "b -> a"];
+        model.add_multiple_regulations(regulations).unwrap();
+        let model_orig = model.clone();
+
+        // test event for changing regulation's sign
+        let full_path = ["model", "regulation", "a", "b", "set_sign"];
+        let new_sign = serde_json::to_string(&RegulationSign::Inhibition).unwrap();
+        let event = Event::build(&full_path, Some(&new_sign));
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
+
+        check_reverse(
+            model,
+            model_orig,
+            result,
+            &["regulation", "a", "b", "set_sign"],
+        );
+    }
+
+    #[test]
+    fn test_change_reg_observability_event() {
+        let mut model = ModelState::new();
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        model.add_multiple_variables(variables).unwrap();
+        let regulations = vec!["a -> a", "a -> b", "b -> a"];
+        model.add_multiple_regulations(regulations).unwrap();
+        let model_orig = model.clone();
+
+        // test event for changing regulation's observability
+        let full_path = ["model", "regulation", "a", "b", "set_observability"];
+        let new_observability = serde_json::to_string(&Observability::False).unwrap();
+        let event = Event::build(&full_path, Some(&new_observability));
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
+
+        check_reverse(
+            model,
+            model_orig,
+            result,
+            &["regulation", "a", "b", "set_observability"],
+        );
+    }
+
+    #[test]
     fn test_remove_reg_event() {
         let mut model = ModelState::new();
         let var_a = model.generate_var_id("a");
         model.add_var(var_a.clone(), "a").unwrap();
-        let varb = model.generate_var_id("b");
-        model.add_var(varb.clone(), "b").unwrap();
+        let var_b = model.generate_var_id("b");
+        model.add_var(var_b.clone(), "b").unwrap();
         model.add_regulation_by_str("a -> b").unwrap();
         let model_orig = model.clone();
 
@@ -700,7 +772,7 @@ mod tests {
             "model",
             "regulation",
             var_a.as_str(),
-            varb.as_str(),
+            var_b.as_str(),
             "remove",
         ];
         let event = Event::build(&full_path, None);

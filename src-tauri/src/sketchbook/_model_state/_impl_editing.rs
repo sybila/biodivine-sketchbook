@@ -69,6 +69,22 @@ impl ModelState {
         self.add_var(var_id, name)
     }
 
+    /// Shorthand to add a list of new variables with given string IDs and names to this `ModelState`.
+    ///
+    /// Each ID must be valid identifier that is not already used by some other variable.
+    /// The names might be same as the ID. It also might be empty or non-unique.
+    ///
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_multiple_variables(
+        &mut self,
+        id_name_pairs: Vec<(&str, &str)>,
+    ) -> Result<(), String> {
+        for (id, name) in id_name_pairs {
+            self.add_var_by_str(id, name)?;
+        }
+        Ok(())
+    }
+
     /// Add a new `Regulation` to this `ModelState`.
     ///
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
@@ -104,6 +120,18 @@ impl ModelState {
         let target = VarId::new(tar.as_str())?;
         // all validity checks inside
         self.add_regulation(regulator, target, observable, regulation_sign)
+    }
+
+    /// Shorthand to add a list of new `Regulations` given by their string encoding to this `ModelState`.
+    /// The variables in the given string must be valid ID strings for this `ModelState`.
+    ///
+    /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
+    /// are not valid variable IDs, or when the regulation between the two variables already exists.
+    pub fn add_multiple_regulations(&mut self, regulations: Vec<&str>) -> Result<(), String> {
+        for regulation_str in regulations {
+            self.add_regulation_by_str(regulation_str)?;
+        }
+        Ok(())
     }
 
     /// Set the name of a network variable given by id `var_id`.
@@ -244,6 +272,28 @@ impl ModelState {
             target.clone(),
             *regulation.get_observability(),
             *new_sign,
+        )?;
+        Ok(())
+    }
+
+    /// Shorthand to change observability of a `Regulation` pointing from `regulator` to `target`.
+    /// Currently it basically removes the regulation, and adds a new one with the new observability value.
+    ///
+    /// Returns `Err` when one of the variables is invalid
+    pub fn change_regulation_observability(
+        &mut self,
+        regulator: &VarId,
+        target: &VarId,
+        new_observability: &Observability,
+    ) -> Result<(), String> {
+        // all validity checks are performed inside
+        let regulation = self.get_regulation(regulator, target)?.clone();
+        self.remove_regulation(regulation.get_regulator(), regulation.get_target())?;
+        self.add_regulation(
+            regulator.clone(),
+            target.clone(),
+            *new_observability,
+            *regulation.get_sign(),
         )?;
         Ok(())
     }
@@ -474,6 +524,46 @@ mod tests {
         assert!(!model.is_valid_var_id_str("c_id"));
     }
 
+    /// Test adding variables (both incrementally and at once).
+    #[test]
+    fn test_adding_variables() {
+        let mut model = ModelState::new();
+
+        // one by one add variables a, b, c
+        model.add_var_by_str("a", "a_name").unwrap();
+        model.add_var_by_str("b", "b_name").unwrap();
+        model.add_var_by_str("c", "c_name").unwrap();
+        assert_eq!(model.num_vars(), 3);
+        assert!(model.is_valid_var_id_str("c"));
+
+        // add list of variables at once
+        let variables = vec![("aaa", "aaa_name"), ("bbb", "bbb_name")];
+        model.add_multiple_variables(variables).unwrap();
+        assert_eq!(model.num_vars(), 5);
+        assert!(model.is_valid_var_id_str("bbb"));
+    }
+
+    /// Test adding regulations (both incrementally and at once).
+    #[test]
+    fn test_adding_regulations() {
+        let var_id_name_pairs = vec![("a", "a"), ("b", "b"), ("c", "c")];
+        let mut model1 = ModelState::new_from_vars(var_id_name_pairs).unwrap();
+        let mut model2 = model1.clone();
+
+        // one by one, add regulations a -> a, a -> b, b -> c, c -> a
+        model1.add_regulation_by_str("a -> a").unwrap();
+        model1.add_regulation_by_str("a -> b").unwrap();
+        model1.add_regulation_by_str("b -> c").unwrap();
+        model1.add_regulation_by_str("c -> a").unwrap();
+        assert_eq!(model1.num_regulations(), 4);
+
+        // add the same regulations, but now all at once
+        let regulations = vec!["a -> a", "a -> b", "b -> c", "c -> a"];
+        model2.add_multiple_regulations(regulations).unwrap();
+
+        assert_eq!(model1, model2);
+    }
+
     /// Test manually creating `ModelState` and mutating it by adding/removing variables
     /// or regulations. We are only adding valid regulations/variables here, invalid insertions are
     /// covered by other tests.
@@ -482,16 +572,14 @@ mod tests {
         let mut model = ModelState::new();
 
         // add variables a, b, c
-        model.add_var_by_str("a", "a_name").unwrap();
-        model.add_var_by_str("b", "b_name").unwrap();
-        model.add_var_by_str("c", "c_name").unwrap();
+        let variables = vec![("a", "a_name"), ("b", "b_name"), ("c", "c_name")];
+        model.add_multiple_variables(variables).unwrap();
         assert_eq!(model.num_vars(), 3);
+        assert!(model.is_valid_var_id_str("c"));
 
         // add regulations a -> a, a -> b, b -> c, c -> a
-        model.add_regulation_by_str("a -> a").unwrap();
-        model.add_regulation_by_str("a -> b").unwrap();
-        model.add_regulation_by_str("b -> c").unwrap();
-        model.add_regulation_by_str("c -> a").unwrap();
+        let regulations = vec!["a -> a", "a -> b", "b -> c", "c -> a"];
+        model.add_multiple_regulations(regulations).unwrap();
         assert_eq!(model.num_regulations(), 4);
 
         // remove variable and check that all its regulations disappear, try re-adding it then
@@ -515,10 +603,9 @@ mod tests {
     #[test]
     fn test_add_invalid_vars() {
         let mut model = ModelState::new();
-        model.add_var_by_str("a", "a_name").unwrap();
-
         // same names should not be an issue
-        model.add_var_by_str("b", "a_name").unwrap();
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        model.add_multiple_variables(variables).unwrap();
         assert_eq!(model.num_vars(), 2);
 
         // adding same ID again should cause error
@@ -535,8 +622,8 @@ mod tests {
     #[test]
     fn test_add_invalid_regs() {
         let mut model = ModelState::new();
-        model.add_var_by_str("a", "a_name").unwrap();
-        model.add_var_by_str("b", "b_name").unwrap();
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        model.add_multiple_variables(variables).unwrap();
         let var_a = model.get_var_id("a").unwrap();
         let var_b = model.get_var_id("b").unwrap();
 
@@ -563,8 +650,8 @@ mod tests {
     #[test]
     fn test_var_name_change() {
         let mut model = ModelState::new();
-        model.add_var_by_str("a", "a_name").unwrap();
-        model.add_var_by_str("b", "b_name").unwrap();
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        model.add_multiple_variables(variables).unwrap();
         let var_a = model.get_var_id("a").unwrap();
 
         // setting random unique name
@@ -586,10 +673,8 @@ mod tests {
         model.add_var(var_b.clone(), "b_name").unwrap();
 
         // add regulations a -> a, a -> b, b -> a, b -> b
-        model.add_regulation_by_str("a -> a").unwrap();
-        model.add_regulation_by_str("a -> b").unwrap();
-        model.add_regulation_by_str("b -> a").unwrap();
-        model.add_regulation_by_str("b -> b").unwrap();
+        let regulations = vec!["a -> a", "a -> b", "b -> a", "b -> b"];
+        model.add_multiple_regulations(regulations).unwrap();
 
         // add layout
         let default_layout_id = ModelState::get_default_layout_id();

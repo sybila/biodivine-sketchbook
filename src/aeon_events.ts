@@ -92,6 +92,10 @@ interface AeonState {
     regulationSignChanged: Observable<RegulationData>
     /** Set sign of a regulation specified by its regulator and target. */
     setRegulationSign: (regulatorId: string, targetId: string, newSign: string) => void
+    /** RegulationData (with a new `observability`) of a regulation that has its observability changed. */
+    regulationObservableChanged: Observable<RegulationData>
+    /** Set observability of a regulation specified by its regulator and target. */
+    setRegulationObservable: (regulatorId: string, targetId: string, newSign: string) => void
 
     /** Layout-related setter events */
 
@@ -566,6 +570,7 @@ export const aeonState: AeonState = {
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
     regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
+    regulationObservableChanged: new Observable<RegulationData>(['model', 'regulation', 'set_observability']),
 
     layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
     layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
@@ -618,7 +623,13 @@ export const aeonState: AeonState = {
     setRegulationSign (regulatorId: string, targetId: string, newSign: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', regulatorId, targetId, 'set_sign'],
-        payload: newSign
+        payload: JSON.stringify(newSign)
+      })
+    },
+    setRegulationObservable (regulatorId: string, targetId: string, newObservability: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', regulatorId, targetId, 'set_sign'],
+        payload: JSON.stringify(newObservability)
       })
     },
     addLayout (layoutId: string, layoutName: string): void {
