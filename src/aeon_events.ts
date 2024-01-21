@@ -1,5 +1,6 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
+import { type Monotonicity } from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -83,7 +84,7 @@ interface AeonState {
     /** RegulationData for a newly created regulation. */
     regulationCreated: Observable<RegulationData>
     /** Create new regulation specified by all of its four components. */
-    addRegulation: (regulatorId: string, targetId: string, sign: string, observable: boolean) => void
+    addRegulation: (regulatorId: string, targetId: string, sign: string, observable: string) => void
     /** RegulationData of a removed regulation. */
     regulationRemoved: Observable<RegulationData>
     /** Create regulation specified by its regulator and target. */
@@ -124,7 +125,7 @@ export interface VariableData {
 export interface RegulationData {
   regulator: string
   target: string
-  sign: string
+  sign: Monotonicity
   observable: string
 }
 
@@ -603,7 +604,7 @@ export const aeonState: AeonState = {
         payload: newId
       })
     },
-    addRegulation (regulatorId: string, targetId: string, sign: string, observable: boolean): void {
+    addRegulation (regulatorId: string, targetId: string, sign: string, observable: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'add'],
         payload: JSON.stringify({
@@ -628,7 +629,7 @@ export const aeonState: AeonState = {
     },
     setRegulationObservable (regulatorId: string, targetId: string, newObservability: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', regulatorId, targetId, 'set_sign'],
+        path: ['model', 'regulation', regulatorId, targetId, 'set_observability'],
         payload: JSON.stringify(newObservability)
       })
     },

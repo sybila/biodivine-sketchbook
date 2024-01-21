@@ -41,9 +41,9 @@ class RootComponent extends LitElement {
     this.addEventListener('set-variable-id', this.setVariableId)
     aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
     this.addEventListener('set-regulation-observable', this.setRegulationObservable)
-    // TODO: detect if observability changed on backend
+    aeonState.model.regulationObservableChanged.addEventListener(this.#onRegulationObservableChanged.bind(this))
     this.addEventListener('set-regulation-monotonicity', this.setRegulationMonotonicity)
-    aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged)
+    aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
     this.addEventListener('remove-variable', (e) => {
       void this.removeVariable(e)
     })
@@ -109,17 +109,38 @@ class RootComponent extends LitElement {
 
   private addRegulation (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, details.observable)
+    // TODO: just a hotfix, needs to be changed once we unify the types
+    let observable
+    switch (details.observable) {
+      case true:
+        observable = 'True'
+        break
+      default:
+        observable = 'False'
+        break
+    }
+    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, observable)
   }
 
   #onRegulationCreated (data: RegulationData): void {
     const regulations = [...this.data.regulations]
-    console.log(data)
+
+    // TODO: just a hotfix, needs to be changed once we unify the types
+    let observable
+    switch (data.observable) {
+      case 'True':
+        observable = true
+        break
+      default:
+        observable = false
+        break
+    }
+
     regulations.push({
       id: data.regulator + data.target,
       source: data.regulator,
       target: data.target,
-      observable: data.observable,
+      observable,
       monotonicity: data.sign
     })
     this.saveData(this.data.variables, regulations)
@@ -209,29 +230,40 @@ class RootComponent extends LitElement {
 
   private setRegulationObservable (event: Event): void {
     const details = (event as CustomEvent).detail
-    // TODO: find a way to change observability of a regulation
-    // aeonState.model.setRegulationObservable(details.source, details.target, details.observable)
 
-    const index = this.data.regulations.findIndex((reg) => reg.id === details.id)
+    // TODO: just a hotfix, needs to be changed once we unify the types
+    let observable
+    switch (details.observable) {
+      case true:
+        observable = 'True'
+        break
+      default:
+        observable = 'False'
+        break
+    }
+    aeonState.model.setRegulationObservable(details.source, details.target, observable)
+  }
+
+  #onRegulationObservableChanged (data: RegulationData): void {
+    const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
     const regulations = [...this.data.regulations]
+    // TODO: just a hotfix, needs to be changed once we unify the types
+    let observable
+    switch (data.observable) {
+      case 'True':
+        observable = true
+        break
+      default:
+        observable = false
+        break
+    }
     regulations[index] = {
       ...regulations[index],
-      observable: details.observable
+      observable
     }
     this.saveData(this.data.variables, regulations)
   }
-
-  // #onRegulationObservableChanged (data): void {
-  //   const index = this.data.regulations.findIndex((reg) => reg.id === data.id)
-  //   if (index === -1) return
-  //   const regulations = [...this.data.regulations]
-  //   regulations[index] = {
-  //     ...regulations[index],
-  //     observable: data.observable
-  //   }
-  //   this.saveData(this.data.variables, regulations)
-  // }
 
   private setRegulationMonotonicity (event: Event): void {
     const details = (event as CustomEvent).detail
@@ -241,7 +273,6 @@ class RootComponent extends LitElement {
   #onRegulationMonotonicityChanged (data: RegulationData): void {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
-    console.log(data)
     const regulations = [...this.data.regulations]
     regulations[index] = {
       ...regulations[index],

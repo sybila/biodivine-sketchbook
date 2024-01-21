@@ -13,6 +13,7 @@ export enum ElementType {
   NODE
 }
 
+// TODO: add 'Dual' option
 export enum Monotonicity {
   UNSPECIFIED = 'Unknown',
   ACTIVATION = 'Activation',
@@ -23,6 +24,7 @@ export interface IRegulationData {
   id: string
   source: string
   target: string
+  // TODO: add 'Observability' enum with three options instead of using bool
   observable: boolean
   monotonicity: Monotonicity
 }

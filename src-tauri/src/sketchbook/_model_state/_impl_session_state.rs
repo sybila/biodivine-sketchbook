@@ -247,7 +247,6 @@ impl ModelState {
 
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_sign = *original_reg.get_sign();
-            let reg_data = RegulationData::from_reg(original_reg);
 
             if orig_sign == new_sign {
                 return Ok(Consumed::NoChange);
@@ -255,6 +254,8 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move IDs from path to payload)
             self.change_regulation_sign(&regulator_id, &target_id, &new_sign)?;
+            let new_reg = self.get_regulation(&regulator_id, &target_id)?;
+            let reg_data = RegulationData::from_reg(new_reg);
             let state_change_path = ["model", "regulation", "set_sign"];
             let state_change = Event::build(&state_change_path, Some(&reg_data.to_string()));
 
@@ -273,7 +274,6 @@ impl ModelState {
 
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_observability = *original_reg.get_observability();
-            let reg_data = RegulationData::from_reg(original_reg);
 
             if orig_observability == new_observability {
                 return Ok(Consumed::NoChange);
@@ -281,6 +281,8 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move IDs from path to payload)
             self.change_regulation_observability(&regulator_id, &target_id, &new_observability)?;
+            let new_reg = self.get_regulation(&regulator_id, &target_id)?;
+            let reg_data = RegulationData::from_reg(new_reg);
             let state_change_path = ["model", "regulation", "set_observability"];
             let state_change = Event::build(&state_change_path, Some(&reg_data.to_string()));
 
