@@ -46,6 +46,7 @@ impl EditorSession {
 
         while let Some(event) = to_perform.pop() {
             let event_path = event.path.iter().map(|it| it.as_str()).collect::<Vec<_>>();
+            debug!("Executing event: `{:?}`.", event_path);
             let result = match self.perform_event(&event, &event_path) {
                 Ok(result) => result,
                 Err(error) => {
@@ -107,6 +108,9 @@ impl EditorSession {
                     perform.push(p);
                     reverse.push(r);
                 }
+                // Obviously, the "reverse" events need to be execute in the opposite order
+                // compared to the "perform" events.
+                reverse.reverse();
                 let perform = UserAction { events: perform };
                 let reverse = UserAction { events: reverse };
                 if !self.undo_stack.do_action(perform, reverse) {

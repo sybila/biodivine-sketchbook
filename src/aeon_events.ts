@@ -65,7 +65,7 @@ interface AeonState {
     /** VariableData for a newly created variable. */
     variableCreated: Observable<VariableData>
     /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
-    addVariable: (varId: string, varName: string) => void
+    addVariable: (varId: string, varName?: string, position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
     /** VariableData of a removed variable. */
     variableRemoved: Observable<VariableData>
     /** Remove a variable with given ID. */
@@ -139,6 +139,16 @@ export interface LayoutData {
 export interface LayoutNodeData {
   layout: string
   variable: string
+  px: number
+  py: number
+}
+
+/**
+ * The same as `LayoutNodeData`, but does not have a fixed variable ID because
+ * it is associated with a variable that does not have an ID yet.
+ */
+export interface LayoutNodeDataPrototype {
+  layout: string
   px: number
   py: number
 }
@@ -577,14 +587,36 @@ export const aeonState: AeonState = {
     layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
     nodePositionChanged: new Observable<LayoutNodeData>(['model', 'layout', 'update_position']),
 
-    addVariable (varId: string, varName: string = ''): void {
+    addVariable (
+      varId: string,
+      varName: string = '',
+      position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []
+    ): void {
       if (varName === '') {
         varName = varId
       }
-      aeonEvents.emitAction({
+      const actions = []
+      // First action creates the variable.
+      actions.push({
         path: ['model', 'variable', 'add'],
         payload: JSON.stringify({ id: varId, name: varName })
       })
+      // Subsequent actions position it in one or more layouts.
+      if (!Array.isArray(position)) {
+        position = [position]
+      }
+      for (const p of position) {
+        actions.push({
+          path: ['model', 'layout', p.layout, 'update_position'],
+          payload: JSON.stringify({
+            layout: p.layout,
+            variable: varId,
+            px: p.px,
+            py: p.py
+          })
+        })
+      }
+      aeonEvents.emitAction(actions)
     },
     removeVariable (varId: string): void {
       aeonEvents.emitAction({

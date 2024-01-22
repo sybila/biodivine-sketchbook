@@ -92,8 +92,12 @@ class RootComponent extends LitElement {
 
   private addVariable (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.addVariable(details.id, details.name)
-    aeonState.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
+    const position = {
+      layout: LAYOUT,
+      px: details.position.x,
+      py: details.position.y
+    }
+    aeonState.model.addVariable(details.id, details.name, position)
   }
 
   #onVariableCreated (data: VariableData): void {
