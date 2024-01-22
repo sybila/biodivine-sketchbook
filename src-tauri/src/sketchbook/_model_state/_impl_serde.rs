@@ -169,7 +169,7 @@ mod tests {
         let model_serialized = serde_json::to_string(&model).unwrap();
         // this cant fail due to order of vars, since we only have one
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[],\"layouts\":{\"default_layout\":{\"name\":\"default_layout\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
             model_serialized
         );
         assert_eq!(model.to_string(), model_serialized);
@@ -190,7 +190,7 @@ mod tests {
         // To string
         let model_string = model.to_string();
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"observable\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default_layout\":{\"name\":\"default_layout\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"observable\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
             model_string
         );
 

@@ -25,7 +25,6 @@ class RootComponent extends LitElement {
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
-    aeonState.model.addLayout(LAYOUT, LAYOUT)
     this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations) })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
@@ -307,7 +306,7 @@ class RootComponent extends LitElement {
   #onRegulationRemoved (data: RegulationData): void {
     this.saveData(
       this.data.variables,
-      this.data.regulations.filter((regulation) => regulation.source !== data.regulator && regulation.target !== data.target)
+      this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
   }
 

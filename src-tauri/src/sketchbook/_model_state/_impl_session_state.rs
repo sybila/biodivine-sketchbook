@@ -81,17 +81,70 @@ impl ModelState {
                 return AeonError::throw(message);
             }
 
-            // perform the event, prepare the state-change variant (move id from path to payload)
-            let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
-            self.remove_var(&var_id)?;
-            let state_change_path = ["model", "variable", "remove"];
-            let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
+            // To remove a variable, all its regulations must be already removed, and it must be at default position
+            // in each layout. If it is not the case, to ensure that we can undo this operation, we precede the var
+            // removal with a set of events to remove all its regulations, and move its nodes to default positions
+            // (as separate undo-able events).
 
-            // todo make reversible in the future
-            Ok(Consumed::Irreversible {
-                state_change,
-                reset: true,
-            })
+            let targets = self.targets(&var_id)?;
+            let regulators = self.regulators(&var_id)?;
+            let needs_to_move = self.layouts.iter().fold(true, |acc, (_, l)| {
+                acc && (l.get_node_position(&var_id).unwrap() != &NodePosition(0., 0.))
+            });
+
+            if regulators.is_empty() && targets.is_empty() && !needs_to_move {
+                // perform the event, prepare the state-change variant (move id from path to payload)
+                let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
+                self.remove_var(&var_id)?;
+                let state_change_path = ["model", "variable", "remove"];
+                let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
+
+                // prepare the reverse event
+                let reverse_path = ["model", "variable", "add"];
+                let reverse_event = Event::build(&reverse_path, Some(&var_data.to_string()));
+
+                Ok(Consumed::Reversible {
+                    state_change,
+                    perform_reverse: (event.clone(), reverse_event),
+                })
+            } else {
+                let mut event_list = Vec::new();
+                event_list.push(event.clone());
+                for (l_id, _) in &self.layouts {
+                    let event_path = ["model", "layout", l_id.as_str(), "update_position"];
+                    let payload = LayoutNodeData::new(l_id.to_string(), var_id.to_string(), 0., 0.)
+                        .to_string();
+                    let move_event = Event::build(&event_path, Some(payload.as_str()));
+                    event_list.push(move_event)
+                }
+                for reg in regulators {
+                    let event_path = [
+                        "model",
+                        "regulation",
+                        reg.as_str(),
+                        var_id.as_str(),
+                        "remove",
+                    ];
+                    let remove_event = Event::build(&event_path, None);
+                    event_list.push(remove_event)
+                }
+                for target in targets {
+                    // if both target and regulator is the same var (self-loop), it was already removed
+                    if var_id == *target {
+                        continue;
+                    }
+                    let event_path = [
+                        "model",
+                        "regulation",
+                        var_id.as_str(),
+                        target.as_str(),
+                        "remove",
+                    ];
+                    let remove_event = Event::build(&event_path, None);
+                    event_list.push(remove_event)
+                }
+                Ok(Consumed::Restart(event_list))
+            }
         } else if Self::starts_with("set_name", at_path).is_some() {
             // get the payload - string for "new_name"
             let new_name = Self::clone_payload_str(event, component_name)?;
@@ -598,25 +651,60 @@ mod tests {
     }
 
     #[test]
-    fn test_remove_var_event() {
-        let mut model = ModelState::new();
-        let var_id_a = model.generate_var_id("a");
-        model.add_var(var_id_a, "a").unwrap();
-        model.add_regulation_by_str("a -> a").unwrap();
-        assert_eq!(model.num_vars(), 1);
-        assert_eq!(model.num_regulations(), 1);
+    /// Test removing a variable that has no regulations and its node is in default position.
+    fn test_remove_var_event_simple() {
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        let mut model = ModelState::new_from_vars(variables).unwrap();
+        let model_orig = model.clone();
 
         // test variable remove event
         let full_path = ["model", "variable", "a", "remove"];
         let event = Event::build(&full_path, None);
         let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
-        // check var was removed
-        assert_eq!(model.num_vars(), 0);
-        assert_eq!(model.num_regulations(), 0);
+        // check var was removed - result should be a simple `Consumed::Reversible` object
+        assert_eq!(model.num_vars(), 1);
+        check_reverse(model, model_orig, result, &["variable", "add"]);
+    }
 
-        // assert that it is irreversible (at the moment)
-        assert!(matches!(result, Consumed::Irreversible { .. }));
+    #[test]
+    /// Test removing a variable that has regulations and its node is in non-default position.
+    fn test_remove_var_event_complex() {
+        let mut model = ModelState::new();
+        let var_id_a = model.generate_var_id("a");
+        model.add_var(var_id_a.clone(), "a").unwrap();
+        model.add_var_by_str("b", "b").unwrap();
+        model.add_multiple_regulations(vec!["a -> a", "a -> b", "b -> b"]).unwrap();
+        model.update_node_position(&ModelState::get_default_layout_id(), &var_id_a, 1., 1.).unwrap();
+
+        // expected result
+        let mut model_expected = ModelState::new();
+        model_expected.add_var_by_str("b", "b").unwrap();
+        model_expected.add_regulation_by_str("b -> b").unwrap();
+
+
+        // test variable remove event
+        let full_path = ["model", "variable", "a", "remove"];
+        let event = Event::build(&full_path, None);
+        let result = model.perform_event(&event, &full_path[1..]).unwrap();
+
+        // result should be a `Consumed::Restart` object with a vector of events which should simulate the individual
+        // steps of the variable's removal
+        if let Consumed::Restart(mut sub_events) = result {
+            // there should be 2 events for regulations removal, 1 for re-position, and final one for var removal
+            assert_eq!(sub_events.len(), 4);
+            sub_events.reverse();
+            for e in sub_events {
+                let mut full_path = e.path.clone();
+                full_path.remove(0);
+                let full_path_str: Vec<&str> = full_path.iter().map(|s| s.as_str()).collect();
+                println!("{:?}", e);
+                model.perform_event(&e, &full_path_str).unwrap();
+            }
+            assert_eq!(model, model_expected);
+        } else {
+            unreachable!();
+        }
     }
 
     #[test]
@@ -691,11 +779,8 @@ mod tests {
 
     #[test]
     fn test_add_reg_event() {
-        let mut model = ModelState::new();
-        let var_id_a = model.generate_var_id("a");
-        model.add_var(var_id_a.clone(), "a").unwrap();
-        let var_id_b = model.generate_var_id("b");
-        model.add_var(var_id_b.clone(), "b").unwrap();
+        let variables = vec![("a", "a"), ("b", "b")];
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         let model_orig = model.clone();
 
         // test regulation add event
@@ -709,15 +794,14 @@ mod tests {
             model,
             model_orig,
             result,
-            &["regulation", var_id_a.as_str(), var_id_b.as_str(), "remove"],
+            &["regulation", "a", "b", "remove"],
         );
     }
 
     #[test]
     fn test_change_reg_sign_event() {
-        let mut model = ModelState::new();
         let variables = vec![("a", "a_name"), ("b", "b_name")];
-        model.add_multiple_variables(variables).unwrap();
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         let regulations = vec!["a -> a", "a -> b", "b -> a"];
         model.add_multiple_regulations(regulations).unwrap();
         let model_orig = model.clone();
@@ -738,9 +822,8 @@ mod tests {
 
     #[test]
     fn test_change_reg_observability_event() {
-        let mut model = ModelState::new();
         let variables = vec![("a", "a_name"), ("b", "b_name")];
-        model.add_multiple_variables(variables).unwrap();
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         let regulations = vec!["a -> a", "a -> b", "b -> a"];
         model.add_multiple_regulations(regulations).unwrap();
         let model_orig = model.clone();
@@ -761,11 +844,8 @@ mod tests {
 
     #[test]
     fn test_remove_reg_event() {
-        let mut model = ModelState::new();
-        let var_a = model.generate_var_id("a");
-        model.add_var(var_a.clone(), "a").unwrap();
-        let var_b = model.generate_var_id("b");
-        model.add_var(var_b.clone(), "b").unwrap();
+        let variables = vec![("a", "a_name"), ("b", "b_name")];
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         model.add_regulation_by_str("a -> b").unwrap();
         let model_orig = model.clone();
 
@@ -773,8 +853,8 @@ mod tests {
         let full_path = [
             "model",
             "regulation",
-            var_a.as_str(),
-            var_b.as_str(),
+            "a",
+            "b",
             "remove",
         ];
         let event = Event::build(&full_path, None);
