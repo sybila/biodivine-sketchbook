@@ -41,6 +41,10 @@ jobs:
             - uses: dtolnay/rust-toolchain@stable
               with:
                 toolchain: ${{ env.RUST_VERSION }}
+            - name: install tauri native dependencies        
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
             - run: cargo check
               working-directory: ./src-tauri
 
@@ -56,6 +60,10 @@ jobs:
               with:
                 toolchain: ${{ env.RUST_VERSION }}
                 components: clippy
+            - name: install tauri native dependencies        
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
             - run: cargo test
               working-directory: ./src-tauri
 
@@ -71,5 +79,9 @@ jobs:
               with:
                 toolchain: ${{ env.RUST_VERSION }}
                 components: clippy
+            - name: install tauri native dependencies        
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
             - run: cargo clippy
               working-directory: ./src-tauri
