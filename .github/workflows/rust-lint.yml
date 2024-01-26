@@ -28,6 +28,7 @@ jobs:
                 toolchain: ${{ env.RUST_VERSION }}
                 components: rustfmt
             - run: cargo fmt --all -- --check
+              working-directory: ./src-tauri
 
     check:
         needs: fmt
@@ -41,6 +42,7 @@ jobs:
               with:
                 toolchain: ${{ env.RUST_VERSION }}
             - run: cargo check
+              working-directory: ./src-tauri
 
     test:
         needs: check
@@ -55,6 +57,7 @@ jobs:
                 toolchain: ${{ env.RUST_VERSION }}
                 components: clippy
             - run: cargo test
+              working-directory: ./src-tauri
 
     clippy:
         needs: check
@@ -69,3 +72,4 @@ jobs:
                 toolchain: ${{ env.RUST_VERSION }}
                 components: clippy
             - run: cargo clippy
+              working-directory: ./src-tauri
