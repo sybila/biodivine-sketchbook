@@ -1,0 +1,71 @@
+name: Rust lint
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        # The branches below must be a subset of the branches above
+        branches: [ "main" ]
+
+
+env:
+    # A fixed version used for testing, so that the builds don't
+    # spontaneously break after a few years.
+    # Make sure to update this from time to time.
+    RUST_VERSION: "1.74.0"
+            
+
+jobs:
+    fmt:
+        name: rustfmt
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+                components: rustfmt
+            - run: cargo fmt --all -- --check
+
+    check:
+        needs: fmt
+        name: check
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4            
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+            - run: cargo check
+
+    test:
+        needs: check
+        name: clippy
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+                components: clippy
+            - run: cargo test
+
+    clippy:
+        needs: check
+        name: clippy
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+                components: clippy
+            - run: cargo clippy
