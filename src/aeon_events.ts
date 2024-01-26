@@ -1,5 +1,6 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
+import { type Monotonicity } from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -15,11 +16,11 @@ const AEON_REFRESH = 'aeon-refresh'
 interface AeonState {
 
   /** Access to the internal state of the undo-redo stack. */
-  undo_stack: {
+  undoStack: {
     /** True if the stack has actions that can be undone. */
-    can_undo: ObservableState<boolean>
+    canUndo: ObservableState<boolean>
     /** True if the stack has actions that can be redone. */
-    can_redo: ObservableState<boolean>
+    canRedo: ObservableState<boolean>
     /** Try to undo an action. Emits an error if no actions can be undone. */
     undo: () => void
     /** Try to redo an action. Emits an error if no actions can be redone. */
@@ -27,7 +28,7 @@ interface AeonState {
   }
 
   /** The state of the main navigation tab-bar. */
-  tab_bar: {
+  tabBar: {
     /** Integer ID of the currently active tab. */
     active: MutableObservableState<number>
     /** A *sorted* list of IDs of all pinned tabs. */
@@ -38,10 +39,122 @@ interface AeonState {
     unpin: (id: number) => void
   }
 
+  /** The state of the main model. */
+  model: {
+    /** Refresh events. */
+
+    /** List of model variables. */
+    variablesRefreshed: Observable<[VariableData]>
+    /** Refresh the variable. */
+    refreshVariables: () => void
+    /** List of model regulations. */
+    regulationsRefreshed: Observable<[RegulationData]>
+    /** Refresh the regulations. */
+    refreshRegulations: () => void
+    /** List of model layouts. */
+    layoutsRefreshed: Observable<[LayoutData]>
+    /** Refresh the layouts. */
+    refreshLayouts: () => void
+    /** List of nodes in a given layout. */
+    layoutNodesRefreshed: Observable<[LayoutNodeData]>
+    /** Refresh the nodes in a given layout. */
+    refreshLayoutNodes: (layoutId: string) => void
+
+    /** Variable-related setter events */
+
+    /** VariableData for a newly created variable. */
+    variableCreated: Observable<VariableData>
+    /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
+    addVariable: (varId: string, varName?: string, position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
+    /** VariableData of a removed variable. */
+    variableRemoved: Observable<VariableData>
+    /** Remove a variable with given ID. */
+    removeVariable: (varId: string) => void
+    /** VariableData (with a new `name`) for a renamed variable. */
+    variableNameChanged: Observable<VariableData>
+    /** Set a name of variable with given ID to a given new name. */
+    setVariableName: (varId: string, newName: string) => void
+    /** Object with `original_id` of a variable and its `new_id`. */
+    variableIdChanged: Observable<object>
+    /** Set an ID of variable with given original ID to a new id. */
+    setVariableId: (originalId: string, newId: string) => void
+
+    /** Regulation-related setter events */
+
+    /** RegulationData for a newly created regulation. */
+    regulationCreated: Observable<RegulationData>
+    /** Create new regulation specified by all of its four components. */
+    addRegulation: (regulatorId: string, targetId: string, sign: string, observable: string) => void
+    /** RegulationData of a removed regulation. */
+    regulationRemoved: Observable<RegulationData>
+    /** Create regulation specified by its regulator and target. */
+    removeRegulation: (regulatorId: string, targetId: string) => void
+    /** RegulationData (with a new `sign`) of a regulation that has its sign changed. */
+    regulationSignChanged: Observable<RegulationData>
+    /** Set sign of a regulation specified by its regulator and target. */
+    setRegulationSign: (regulatorId: string, targetId: string, newSign: string) => void
+    /** RegulationData (with a new `observability`) of a regulation that has its observability changed. */
+    regulationObservableChanged: Observable<RegulationData>
+    /** Set observability of a regulation specified by its regulator and target. */
+    setRegulationObservable: (regulatorId: string, targetId: string, newSign: string) => void
+
+    /** Layout-related setter events */
+
+    /** LayoutData for a newly created layout. */
+    layoutCreated: Observable<LayoutData>
+    /** Create a new layout with given ID and name. */
+    addLayout: (layoutId: string, layoutName: string) => void
+    /** LayoutData of a removed layout. */
+    layoutRemoved: Observable<LayoutData>
+    /** Remove a layout with given ID. */
+    removeLayout: (layoutId: string) => void
+    /** LayoutNodeData (with a new `px` and `py`) for a layout node that had its position changed. */
+    nodePositionChanged: Observable<LayoutNodeData>
+    /** Change a position of a variable in a layout to new coordinates. */
+    changeNodePosition: (layoutId: string, varId: string, newX: number, newY: number) => void
+  }
+}
+
+/** An object representing basic information regarding a model variable. */
+export interface VariableData {
+  id: string
+  name: string
+}
+
+/** An object representing basic information regarding a model regulation. */
+export interface RegulationData {
+  regulator: string
+  target: string
+  sign: Monotonicity
+  observable: string
+}
+
+/** An object representing basic information regarding a model layout. */
+export interface LayoutData {
+  id: string
+  name: string
+}
+
+/** An object representing basic information regarding a node in a layout. */
+export interface LayoutNodeData {
+  layout: string
+  variable: string
+  px: number
+  py: number
+}
+
+/**
+ * The same as `LayoutNodeData`, but does not have a fixed variable ID because
+ * it is associated with a variable that does not have an ID yet.
+ */
+export interface LayoutNodeDataPrototype {
+  layout: string
+  px: number
+  py: number
 }
 
 /** A function that is notified when a state value changes. */
-type OnStateValue<T> = (value: T) => void
+export type OnStateValue<T> = (value: T) => void
 
 /**
  * An object that can be emitted through `AeonEvents` as a user action.
@@ -51,9 +164,90 @@ type OnStateValue<T> = (value: T) => void
  * joined together to create a "compound" event that is treated as
  * a single user action in the context of the undo-redo stack.
  */
-interface AeonEvent {
+export interface AeonEvent {
   path: string[]
   payload: string | null
+}
+
+/**
+ * One observable event. This does not necessarily maps to a single state item.
+ */
+class Observable<T> {
+  path: string[]
+  listeners: Array<OnStateValue<T>> = []
+
+  constructor (path: string[]) {
+    this.path = path
+    aeonEvents.setEventListener(path, this.#acceptPayload.bind(this))
+  }
+
+  /**
+   * Register a listener to this specific observable state item.
+   *
+   * The listener is notified right away with the current value of the state item.
+   *
+   * @param listener The listener function which should be invoked when the value
+   * of this state item changes.
+   * @returns `true` if the listener was added, `false` if it was already registered.
+   */
+  addEventListener (listener: OnStateValue<T>): boolean {
+    if (this.listeners.includes(listener)) {
+      return false
+    }
+    this.listeners.push(listener)
+    return true
+  }
+
+  /**
+     * Unregister a listener previously added through `addEventListener`.
+     *
+     * @param listener The listener to be unregistered.
+     * @returns `true` if the listener was removed, `false` if it was not registered.
+     */
+  removeEventListener (listener: OnStateValue<T>): boolean {
+    const index = this.listeners.indexOf(listener)
+    if (index > -1) {
+      this.listeners.splice(index, 1)
+      return true
+    }
+    return false
+  }
+
+  /**
+   * Accept a payload value coming from the backend.
+   * @param payload The actual JSON-encoded payload value.
+   */
+  #acceptPayload (payload: string | null): void {
+    payload = payload ?? 'null'
+    try {
+      const value = JSON.parse(payload)
+      for (const listener of this.listeners) {
+        this.#notifyListener(listener, value)
+      }
+    } catch (error) {
+      const path = JSON.stringify(this.path)
+      dialog.message(
+                `Cannot dispatch event ${path} with payload ${payload}: ${String(error)}`,
+                { title: 'Internal app error', type: 'error' }
+      ).catch((e) => {
+        console.error(e)
+      })
+    }
+  }
+
+  #notifyListener (listener: OnStateValue<T>, value: T): void {
+    try {
+      listener(value)
+    } catch (error) {
+      const path = JSON.stringify(this.path)
+      dialog.message(
+                `Cannot handle event ${path} with value ${String(value)}: ${String(value)}`,
+                { title: 'Internal app error', type: 'error' }
+      ).catch((e) => {
+        console.error(e)
+      })
+    }
+  }
 }
 
 /**
@@ -66,12 +260,12 @@ interface AeonEvent {
  */
 class ObservableState<T> {
   path: string[]
-  last_value: T
+  lastValue: T
   listeners: Array<OnStateValue<T>> = []
 
   constructor (path: string[], initial: T) {
     this.path = path
-    this.last_value = initial
+    this.lastValue = initial
     aeonEvents.setEventListener(path, this.#acceptPayload.bind(this))
   }
 
@@ -92,7 +286,7 @@ class ObservableState<T> {
     }
     this.listeners.push(listener)
     if (notifyNow) {
-      this.#notifyListener(listener, this.last_value)
+      this.#notifyListener(listener, this.lastValue)
     }
     return true
   }
@@ -123,7 +317,7 @@ class ObservableState<T> {
      * The last value that was emitted for this observable state.
      */
   value (): T {
-    return this.last_value
+    return this.lastValue
   }
 
   /**
@@ -134,7 +328,7 @@ class ObservableState<T> {
     payload = payload ?? 'null'
     try {
       const value = JSON.parse(payload)
-      this.last_value = value
+      this.lastValue = value
       for (const listener of this.listeners) {
         this.#notifyListener(listener, value)
       }
@@ -180,7 +374,7 @@ class MutableObservableState<T> extends ObservableState<T> {
 
   /**
      * Create a `set` event for the provided `value` and this observable item. Note that the event
-     * is not emitted automatically, but needs to be sent through the `aeon_events`. You can use
+     * is not emitted automatically, but needs to be sent through the `AeonEvents`. You can use
      * `this.emitValue` to create and emit the event as one action.
      *
      * The reason why you might want to create the event but not emit it is that events can be
@@ -325,9 +519,9 @@ export const aeonEvents = new AeonEvents(await invoke('get_session_id'))
  * A singleton state management object for the current Aeon session.
  */
 export const aeonState: AeonState = {
-  undo_stack: {
-    can_undo: new ObservableState<boolean>(['undo_stack', 'can_undo'], false),
-    can_redo: new ObservableState<boolean>(['undo_stack', 'can_redo'], false),
+  undoStack: {
+    canUndo: new ObservableState<boolean>(['undo_stack', 'can_undo'], false),
+    canRedo: new ObservableState<boolean>(['undo_stack', 'can_redo'], false),
     undo () {
       aeonEvents.emitAction({
         path: ['undo_stack', 'undo'],
@@ -341,7 +535,7 @@ export const aeonState: AeonState = {
       })
     }
   },
-  tab_bar: {
+  tabBar: {
     active: new MutableObservableState<number>(['tab_bar', 'active'], 0),
     pinned: new MutableObservableState<number[]>(['tab_bar', 'pinned'], []),
     pin (id: number): void {
@@ -359,6 +553,135 @@ export const aeonState: AeonState = {
         value.splice(index, 1)
         this.pinned.emitValue(value)
       }
+    }
+  },
+  model: {
+    variablesRefreshed: new Observable<[VariableData]>(['model', 'get_variables']),
+    refreshVariables (): void {
+      aeonEvents.refresh(['model', 'get_variables'])
+    },
+    regulationsRefreshed: new Observable<[RegulationData]>(['model', 'get_regulations']),
+    refreshRegulations (): void {
+      aeonEvents.refresh(['model', 'get_regulations'])
+    },
+    layoutsRefreshed: new Observable<[LayoutData]>(['model', 'get_layouts']),
+    refreshLayouts (): void {
+      aeonEvents.refresh(['model', 'get_layouts'])
+    },
+    layoutNodesRefreshed: new Observable<[LayoutNodeData]>(['model', 'get_layout_nodes']),
+    refreshLayoutNodes (layoutId: string): void {
+      aeonEvents.refresh(['model', 'get_layout_nodes', layoutId])
+    },
+
+    variableCreated: new Observable<VariableData>(['model', 'variable', 'add']),
+    variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
+    variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
+    variableIdChanged: new Observable<object>(['model', 'variable', 'set_id']),
+
+    regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
+    regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
+    regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
+    regulationObservableChanged: new Observable<RegulationData>(['model', 'regulation', 'set_observability']),
+
+    layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
+    layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
+    nodePositionChanged: new Observable<LayoutNodeData>(['model', 'layout', 'update_position']),
+
+    addVariable (
+      varId: string,
+      varName: string = '',
+      position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []
+    ): void {
+      if (varName === '') {
+        varName = varId
+      }
+      const actions = []
+      // First action creates the variable.
+      actions.push({
+        path: ['model', 'variable', 'add'],
+        payload: JSON.stringify({ id: varId, name: varName })
+      })
+      // Subsequent actions position it in one or more layouts.
+      if (!Array.isArray(position)) {
+        position = [position]
+      }
+      for (const p of position) {
+        actions.push({
+          path: ['model', 'layout', p.layout, 'update_position'],
+          payload: JSON.stringify({
+            layout: p.layout,
+            variable: varId,
+            px: p.px,
+            py: p.py
+          })
+        })
+      }
+      aeonEvents.emitAction(actions)
+    },
+    removeVariable (varId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', varId, 'remove'],
+        payload: null
+      })
+    },
+    setVariableName (varId: string, newName: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', varId, 'set_name'],
+        payload: newName
+      })
+    },
+    setVariableId (originalId: string, newId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', originalId, 'set_id'],
+        payload: newId
+      })
+    },
+    addRegulation (regulatorId: string, targetId: string, sign: string, observable: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', 'add'],
+        payload: JSON.stringify({
+          regulator: regulatorId,
+          target: targetId,
+          sign,
+          observable
+        })
+      })
+    },
+    removeRegulation (regulatorId: string, targetId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', regulatorId, targetId, 'remove'],
+        payload: null
+      })
+    },
+    setRegulationSign (regulatorId: string, targetId: string, newSign: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', regulatorId, targetId, 'set_sign'],
+        payload: JSON.stringify(newSign)
+      })
+    },
+    setRegulationObservable (regulatorId: string, targetId: string, newObservability: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'regulation', regulatorId, targetId, 'set_observability'],
+        payload: JSON.stringify(newObservability)
+      })
+    },
+    addLayout (layoutId: string, layoutName: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'layout', 'add'],
+        payload: JSON.stringify({ id: layoutId, name: layoutName })
+      })
+    },
+    removeLayout (layoutId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'layout', layoutId, 'remove'],
+        payload: null
+      })
+    },
+    changeNodePosition (layoutId: string, varId: string, newX: number, newY: number): void {
+      aeonEvents.emitAction({
+        path: ['model', 'layout', layoutId, 'update_position'],
+        payload: JSON.stringify({ layout: layoutId, variable: varId, px: newX, py: newY })
+      })
     }
   }
 }

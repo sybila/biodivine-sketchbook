@@ -16,15 +16,15 @@ class TabBar extends LitElement {
 
   switchTab (tabId: number) {
     return () => {
-      aeonState.tab_bar.active.emitValue(tabId)
+      aeonState.tabBar.active.emitValue(tabId)
     }
   }
 
   render (): TemplateResult {
     return html`
-      <div class="tabs uk-flex uk-flex-row">
+      <div class="uk-button-group uk-flex uk-flex-row">
         ${map(this.tabs, (tab) => html`
-            <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'uk-button-primary' : 'uk-button-secondary'}" 
+            <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'active' : 'inactive'}" 
                     @click=${this.switchTab(tab.id)}>
                 ${tab.pinned ? icon(faLock).node : ''}
                 ${icon(findIconDefinition({ prefix: 'fas', iconName: `${tab.icon as IconName}` })).node}

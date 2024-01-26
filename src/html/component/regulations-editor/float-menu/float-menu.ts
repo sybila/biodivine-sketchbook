@@ -15,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
-import { ElementType, Monotonicity } from '../element-type'
+import { ElementType, type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
@@ -25,7 +25,7 @@ class FloatMenu extends LitElement {
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }
   @property() zoom = 1.0
-  @property() data: { id: string, observable: boolean, monotonicity: Monotonicity, name: string } | undefined
+  @property() data: (IRegulationData & IVariableData) | undefined
   @state() selectedButton: IButton | undefined = undefined
 
   connectedCallback (): void {
@@ -44,7 +44,7 @@ class FloatMenu extends LitElement {
             this.addEdge()
             break
           case 'F':
-            this.updateFunction()
+            this.focusRegulation()
             break
           case 'DELETE':
           case 'BACKSPACE':
@@ -61,7 +61,6 @@ class FloatMenu extends LitElement {
             this.toggleMonotonicity()
             break
           case 'DELETE':
-          case 'BACKSPACE':
             this.removeElement()
             break
         }
@@ -82,7 +81,7 @@ class FloatMenu extends LitElement {
     {
       icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
-      click: this.updateFunction
+      click: this.focusRegulation
     },
     {
       icon: () => icon(faTrash).node[0],
@@ -110,7 +109,7 @@ class FloatMenu extends LitElement {
       )).node[0],
       label: () => {
         switch (this.data?.monotonicity) {
-          case Monotonicity.OFF:
+          case Monotonicity.UNSPECIFIED:
             return 'Make activating (M)'
           case Monotonicity.ACTIVATION:
             return 'Make inhibiting (M)'
@@ -130,21 +129,36 @@ class FloatMenu extends LitElement {
   ]
 
   private removeElement (): void {
-    this.dispatchEvent(new CustomEvent('remove-element', {
-      detail: {
-        id: this.data?.id
-      },
-      bubbles: true,
-      composed: true
-    }))
+    switch (this.type) {
+      case ElementType.EDGE:
+        this.dispatchEvent(new CustomEvent('remove-regulation', {
+          detail: {
+            source: this.data?.source,
+            target: this.data?.target
+          },
+          bubbles: true,
+          composed: true
+        }))
+        break
+      case ElementType.NODE:
+        this.dispatchEvent(new CustomEvent('remove-variable', {
+          detail: {
+            id: this.data?.id
+          },
+          bubbles: true,
+          composed: true
+        }))
+        break
+    }
   }
 
   private toggleObservability (): void {
-    this.dispatchEvent(new CustomEvent('update-edge', {
+    this.dispatchEvent(new CustomEvent('set-regulation-observable', {
       detail: {
-        edgeId: this.data?.id,
-        observable: !(this.data?.observable ?? false),
-        monotonicity: this.data?.monotonicity
+        id: this.data?.id,
+        source: this.data?.source,
+        target: this.data?.target,
+        observable: !(this.data?.observable ?? false)
       },
       bubbles: true,
       composed: true
@@ -159,17 +173,18 @@ class FloatMenu extends LitElement {
         monotonicity = Monotonicity.INHIBITION
         break
       case Monotonicity.INHIBITION:
-        monotonicity = Monotonicity.OFF
+        monotonicity = Monotonicity.UNSPECIFIED
         break
       default:
         monotonicity = Monotonicity.ACTIVATION
         break
     }
     if (this.data !== undefined) this.data = { ...this.data, monotonicity }
-    this.dispatchEvent(new CustomEvent('update-edge', {
+    this.dispatchEvent(new CustomEvent('set-regulation-monotonicity', {
       detail: {
-        edgeId: this.data?.id,
-        observable: (this.data?.observable ?? true),
+        id: this.data?.id,
+        source: this.data?.source,
+        target: this.data?.target,
         monotonicity
       },
       bubbles: true,
@@ -198,10 +213,10 @@ class FloatMenu extends LitElement {
     }))
   }
 
-  private updateFunction (): void {
-    this.dispatchEvent(new CustomEvent('update-function', {
+  private focusRegulation (): void {
+    this.dispatchEvent(new CustomEvent('focus-function', {
       detail: {
-        nodeId: this.data?.id
+        variableId: this.data?.id
       },
       bubbles: true,
       composed: true
@@ -227,7 +242,7 @@ class FloatMenu extends LitElement {
     return html`
         ${this.type !== ElementType.NONE && html`
         <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
-                                       top: ${this.position.y + 58 + yOffset}px; 
+                                       top: ${this.position.y + 8 + yOffset}px; 
                                        transform: scale(${this.zoom})">
             <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
                 ${map(buttons, (buttonData) => {

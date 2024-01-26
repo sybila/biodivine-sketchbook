@@ -1,0 +1,87 @@
+name: Rust lint
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        # The branches below must be a subset of the branches above
+        branches: [ "main" ]
+
+
+env:
+    # A fixed version used for testing, so that the builds don't
+    # spontaneously break after a few years.
+    # Make sure to update this from time to time.
+    RUST_VERSION: "1.74.0"
+            
+
+jobs:
+    fmt:
+        name: rustfmt
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+                components: rustfmt
+            - run: cargo fmt --all -- --check
+              working-directory: ./src-tauri
+
+    check:
+        needs: fmt
+        name: check
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4            
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+            - name: install tauri native dependencies        
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+            - run: cargo check
+              working-directory: ./src-tauri
+
+    test:
+        needs: check
+        name: test
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+                components: clippy
+            - name: install tauri native dependencies        
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+            - run: cargo test
+              working-directory: ./src-tauri
+
+    clippy:
+        needs: check
+        name: clippy
+        runs-on: ubuntu-latest
+        env:
+            RUSTFLAGS: "-D warnings"
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                toolchain: ${{ env.RUST_VERSION }}
+                components: clippy
+            - name: install tauri native dependencies        
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+            - run: cargo clippy
+              working-directory: ./src-tauri

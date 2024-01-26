@@ -1,4 +1,4 @@
-@import "uikit/src/less/uikit.theme.less";
+@import '/src/uikit-theme';
 
 .undo-redo {
   min-width: 6em;
@@ -8,4 +8,22 @@
 
 .fa-arrow-left, .fa-arrow-right {
   height: 1em;
+}
+
+.disabled {
+  opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .uk-button {
+    background: rgb(34, 34, 34);
+  }
+
+
+}
+
+@media (prefers-color-scheme: light) {
+  .uk-button {
+    background: rgb(222, 222, 222);
+  }
 }

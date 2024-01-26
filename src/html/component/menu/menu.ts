@@ -8,7 +8,7 @@ class Menu extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <button class="uk-button uk-button-small uk-button-secondary hamburger-menu">☰</button>
+      <button class="uk-button uk-button-small hamburger-menu uk-margin-small-left">☰</button>
     `
   }
 }

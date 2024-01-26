@@ -1,5 +1,20 @@
-@import "uikit/src/less/uikit.theme.less";
+@import '/src/uikit-theme';
 
 .nav-bar {
   white-space: nowrap;
+  z-index: 998;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-bar {
+    background-color: @background-dark;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .nav-bar {
+    background: @background-light;
+  }
 }
