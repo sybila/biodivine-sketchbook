@@ -46,7 +46,7 @@ jobs:
 
     test:
         needs: check
-        name: clippy
+        name: test
         runs-on: ubuntu-latest
         env:
             RUSTFLAGS: "-D warnings"
