@@ -110,7 +110,7 @@ impl ModelState {
             } else {
                 let mut event_list = Vec::new();
                 event_list.push(event.clone());
-                for (l_id, _) in &self.layouts {
+                for l_id in self.layouts.keys() {
                     let event_path = ["model", "layout", l_id.as_str(), "update_position"];
                     let payload = LayoutNodeData::new(l_id.to_string(), var_id.to_string(), 0., 0.)
                         .to_string();
@@ -674,14 +674,17 @@ mod tests {
         let var_id_a = model.generate_var_id("a");
         model.add_var(var_id_a.clone(), "a").unwrap();
         model.add_var_by_str("b", "b").unwrap();
-        model.add_multiple_regulations(vec!["a -> a", "a -> b", "b -> b"]).unwrap();
-        model.update_node_position(&ModelState::get_default_layout_id(), &var_id_a, 1., 1.).unwrap();
+        model
+            .add_multiple_regulations(vec!["a -> a", "a -> b", "b -> b"])
+            .unwrap();
+        model
+            .update_node_position(&ModelState::get_default_layout_id(), &var_id_a, 1., 1.)
+            .unwrap();
 
         // expected result
         let mut model_expected = ModelState::new();
         model_expected.add_var_by_str("b", "b").unwrap();
         model_expected.add_regulation_by_str("b -> b").unwrap();
-
 
         // test variable remove event
         let full_path = ["model", "variable", "a", "remove"];
@@ -850,13 +853,7 @@ mod tests {
         let model_orig = model.clone();
 
         // test regulation add event
-        let full_path = [
-            "model",
-            "regulation",
-            "a",
-            "b",
-            "remove",
-        ];
+        let full_path = ["model", "regulation", "a", "b", "remove"];
         let event = Event::build(&full_path, None);
         let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
