@@ -31,7 +31,7 @@ class RootComponent extends LitElement {
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
-    this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations, dummyData.layout) })
+    this.addEventListener('load-dummy', () => { void this.loadDummy() })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
     aeonState.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
@@ -137,21 +137,12 @@ class RootComponent extends LitElement {
     const regulations = [...this.data.regulations]
 
     // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (data.observable) {
-      case 'True':
-        observable = true
-        break
-      default:
-        observable = false
-        break
-    }
 
     regulations.push({
       id: data.regulator + data.target,
       source: data.regulator,
       target: data.target,
-      observable,
+      observable: data.observable.toUpperCase() === 'TRUE',
       monotonicity: data.sign
     })
     this.saveData(this.data.variables, regulations, this.data.layout)
@@ -333,6 +324,30 @@ class RootComponent extends LitElement {
       }
     })
     this.saveData(this.data.variables, regs, this.data.layout)
+  }
+
+  async loadDummy (): Promise<void> {
+    // TODO: remove sleep
+    this.data.variables.forEach((variable) => {
+      aeonState.model.removeVariable(variable.id)
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 500))
+    this.data.regulations.forEach((reg) => {
+      aeonState.model.removeRegulation(reg.source, reg.target)
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 500))
+    dummyData.variables.forEach((variable) => {
+      console.log(dummyData.layout, variable.id)
+      aeonState.model.addVariable(variable.id, variable.name, {
+        layout: LAYOUT,
+        px: dummyData.layout[variable.id].x,
+        py: dummyData.layout[variable.id].y
+      })
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 500))
+    dummyData.regulations.forEach((regulation) => {
+      aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.observable ? 'True' : 'False')
+    })
   }
 
   private parseMonotonicity (monotonicity: string): Monotonicity {

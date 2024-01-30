@@ -70,7 +70,7 @@ export const dummyData: ContentData = ContentData.create({
     { source: 'HCM1', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: 'bde7998f-5532-4113-acc1-1518c0047e69' }
   ],
   layout: {
-    YOX: { x: 297, y: 175 },
+    YOX1: { x: 297, y: 175 },
     CLN3: { x: 128, y: 68 },
     YHP1: { x: 286, y: 254 },
     ACE2: { x: 74, y: 276 },

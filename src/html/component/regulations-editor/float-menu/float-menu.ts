@@ -47,7 +47,6 @@ class FloatMenu extends LitElement {
             this.focusRegulation()
             break
           case 'DELETE':
-          case 'BACKSPACE':
             this.removeElement()
             break
         }
