@@ -5,7 +5,7 @@ import { map } from 'lit/directives/map.js'
 import { type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faTrash, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
 import ace, { type Ace, config } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import modeYaml from 'ace-builds/src-noconflict/mode-yaml?url'
@@ -79,6 +79,9 @@ class FunctionTile extends LitElement {
       case Monotonicity.INHIBITION:
         res += '|'
         break
+      case Monotonicity.DUAL:
+        res += '■'
+        break
       default:
         res += '?'
     }
@@ -117,6 +120,8 @@ class FunctionTile extends LitElement {
         return 'uk-text-danger'
       case Monotonicity.ACTIVATION:
         return 'uk-text-success'
+      case Monotonicity.DUAL:
+        return 'uk-text-primary'
       case Monotonicity.UNSPECIFIED:
         return 'uk-text-muted'
       default:
@@ -144,6 +149,9 @@ class FunctionTile extends LitElement {
         monotonicity = Monotonicity.INHIBITION
         break
       case Monotonicity.INHIBITION:
+        monotonicity = Monotonicity.DUAL
+        break
+      case Monotonicity.DUAL:
         monotonicity = Monotonicity.UNSPECIFIED
         break
       default:
@@ -225,7 +233,7 @@ class FunctionTile extends LitElement {
                  @click="${() => {
                    this.toggleMonotonicity(regulation)
                  }}">
-              ${regulation.monotonicity}
+              ${regulation.monotonicity.toLowerCase()}
             </div>
           </div>
         `)}

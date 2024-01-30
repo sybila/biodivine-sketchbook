@@ -1,60 +1,50 @@
-import { ContentData } from './tab-data'
-import { Monotonicity } from './data-interfaces'
+import { ContentData, Monotonicity } from './data-interfaces'
 
 export const dummyData: ContentData = ContentData.create({
   variables: [
     {
       id: 'YOX1',
       name: 'YOX1',
-      position: { x: 297, y: 175 },
       function: ''
     },
     {
       id: 'CLN3',
       name: 'CLN3',
-      position: { x: 128, y: 68 },
       function: '!YOX1 & f(YHP1, ACE2, SWI5)'
     },
     {
       id: 'YHP1',
       name: 'YHP1',
-      position: { x: 286, y: 254 },
       function: ''
     },
     {
       id: 'ACE2',
       name: 'ACE2',
-      position: { x: 74, y: 276 },
       function: ''
     },
     {
       id: 'SWI5',
       name: 'SWI5',
-      position: { x: 47, y: 207 },
       function: ''
     },
     {
       id: 'MBF',
       name: 'MBF',
-      position: { x: 219, y: 96 },
       function: ''
     },
     {
       id: 'SBF',
       name: 'SBF',
-      position: { x: 281, y: 138 },
       function: 'g(MBF, YOX1) & h(YHP1, CLN3)'
     },
     {
       id: 'HCM1',
       name: 'HCM1',
-      position: { x: 305, y: 217 },
       function: ''
     },
     {
       id: 'SFF',
       name: 'SFF',
-      position: { x: 186, y: 302 },
       function: ''
     }
   ],
@@ -78,6 +68,17 @@ export const dummyData: ContentData = ContentData.create({
     { source: 'SBF', target: 'HCM1', observable: true, monotonicity: Monotonicity.ACTIVATION, id: '0d78b7e5-b566-4d0d-ad55-720db817ade7' },
     { source: 'SBF', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: 'd70b838b-ff29-48af-a9d7-326bdcea301d' },
     { source: 'HCM1', target: 'SFF', observable: true, monotonicity: Monotonicity.ACTIVATION, id: 'bde7998f-5532-4113-acc1-1518c0047e69' }
-  ]
+  ],
+  layout: {
+    YOX: { x: 297, y: 175 },
+    CLN3: { x: 128, y: 68 },
+    YHP1: { x: 286, y: 254 },
+    ACE2: { x: 74, y: 276 },
+    SWI5: { x: 47, y: 207 },
+    MBF: { x: 219, y: 96 },
+    SBF: { x: 281, y: 138 },
+    HCM1: { x: 305, y: 217 },
+    SFF: { x: 186, y: 302 }
+  }
 
 })

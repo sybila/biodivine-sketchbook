@@ -1,12 +1,13 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './content-pane.less?inline'
-import { ContentData, TabData } from '../../util/tab-data'
+import { TabData } from '../../util/tab-data'
 import { library, icon } from '@fortawesome/fontawesome-svg-core'
 import '../regulations-editor/regulations-editor'
 import '../functions-editor/functions-editor'
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons'
 import { aeonState } from '../../../aeon_events'
+import { ContentData } from '../../util/data-interfaces'
 
 library.add(faLock, faLockOpen)
 

@@ -2,8 +2,8 @@ import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
-import { ContentData } from '../../util/tab-data'
 import './function-tile/function-tile'
+import { ContentData } from '../../util/data-interfaces'
 
 @customElement('functions-editor')
 class FunctionsEditor extends LitElement {

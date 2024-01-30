@@ -9,8 +9,7 @@ import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
-import { ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
-import { ContentData } from '../../util/tab-data'
+import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 
 @customElement('regulations-editor')
 class RegulationsEditor extends LitElement {
@@ -65,8 +64,8 @@ class RegulationsEditor extends LitElement {
     if (_changedProperties.get('contentData') === undefined) return
     this.cy?.remove('node')
     this.cy?.edges().remove()
-    this.addNodes(this.contentData.variables)
-    this.addEdges(this.contentData.regulations)
+    this.addNodes()
+    this.addEdges()
     const elementID = this.menuData?.id ?? ''
     const type = this.menuType
     if (type === ElementType.NONE) return
@@ -125,8 +124,8 @@ class RegulationsEditor extends LitElement {
 
   firstUpdated (): void {
     this.init()
-    this.addNodes(this.contentData.variables)
-    this.addEdges(this.contentData.regulations)
+    this.addNodes()
+    this.addEdges()
   }
 
   private init (): void {
@@ -346,14 +345,14 @@ class RegulationsEditor extends LitElement {
     }))
   }
 
-  private addNodes (nodes: IVariableData[]): void {
-    nodes.forEach((node) => {
-      this.addNode(node.id, node.name, node.position)
+  private addNodes (): void {
+    this.contentData.variables.forEach((node) => {
+      this.addNode(node.id, node.name, this.contentData.layout[node.id])
     })
   }
 
-  private addEdges (edges: IRegulationData[]): void {
-    edges.forEach((edge) => {
+  private addEdges (): void {
+    this.contentData.regulations.forEach((edge) => {
       this.ensureRegulation(edge)
     })
   }

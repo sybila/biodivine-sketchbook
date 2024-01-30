@@ -124,7 +124,7 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         }
       },
       { // When the edge is an activation, show it as green with normal arrow
-        selector: 'edge[monotonicity="activation"]',
+        selector: 'edge[monotonicity="Activation"]',
         style: {
           'line-color': '#4abd73',
           'target-arrow-color': '#4abd73',
@@ -132,11 +132,19 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         }
       },
       { // When the edge is an inhibition, show it as red with a `tee` arrow
-        selector: 'edge[monotonicity="inhibition"]',
+        selector: 'edge[monotonicity="Inhibition"]',
         style: {
           'line-color': '#d05d5d',
           'target-arrow-color': '#d05d5d',
           'target-arrow-shape': 'tee'
+        }
+      },
+      { // When the edge is an inhibition, show it as red with a `tee` arrow
+        selector: 'edge[monotonicity="Dual"]',
+        style: {
+          'line-color': '#1e87f0',
+          'target-arrow-color': '#1e87f0',
+          'target-arrow-shape': 'diamond'
         }
       },
       { // A selected edge should be drawn with an overlay

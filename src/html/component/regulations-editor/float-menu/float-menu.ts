@@ -173,6 +173,9 @@ class FloatMenu extends LitElement {
         monotonicity = Monotonicity.INHIBITION
         break
       case Monotonicity.INHIBITION:
+        monotonicity = Monotonicity.DUAL
+        break
+      case Monotonicity.DUAL:
         monotonicity = Monotonicity.UNSPECIFIED
         break
       default:
