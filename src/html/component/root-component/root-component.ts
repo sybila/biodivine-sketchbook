@@ -5,7 +5,13 @@ import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
-import { aeonState, type LayoutNodeData, type RegulationData, type VariableData } from '../../../aeon_events'
+import {
+  aeonState,
+  type LayoutNodeData,
+  type RegulationData,
+  type VariableData,
+  type VariableIdUpdateData
+} from '../../../aeon_events'
 import { tabList } from '../../util/config'
 import {
   ContentData,
@@ -217,7 +223,7 @@ class RootComponent extends LitElement {
   }
 
   // TODO: add interface for data
-  #onVariableIdChanged (data: { original_id: string, new_id: string }): void {
+  #onVariableIdChanged (data: VariableIdUpdateData): void {
     const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.original_id)
     if (variableIndex === -1) return
     const variables = [...this.data.variables]
@@ -314,7 +320,6 @@ class RootComponent extends LitElement {
 
   #onRegulationsRefreshed (regulations: RegulationData[]): void {
     const regs = regulations.map((data): IRegulationData => {
-      console.log(data.sign, this.parseMonotonicity(data.sign))
       return {
         id: data.regulator + data.target,
         source: data.regulator,
@@ -331,11 +336,11 @@ class RootComponent extends LitElement {
     this.data.variables.forEach((variable) => {
       aeonState.model.removeVariable(variable.id)
     })
-    await new Promise(_resolve => setTimeout(_resolve, 500))
+    await new Promise(_resolve => setTimeout(_resolve, 333))
     this.data.regulations.forEach((reg) => {
       aeonState.model.removeRegulation(reg.source, reg.target)
     })
-    await new Promise(_resolve => setTimeout(_resolve, 500))
+    await new Promise(_resolve => setTimeout(_resolve, 333))
     dummyData.variables.forEach((variable) => {
       console.log(dummyData.layout, variable.id)
       aeonState.model.addVariable(variable.id, variable.name, {
@@ -344,7 +349,7 @@ class RootComponent extends LitElement {
         py: dummyData.layout[variable.id].y
       })
     })
-    await new Promise(_resolve => setTimeout(_resolve, 500))
+    await new Promise(_resolve => setTimeout(_resolve, 333))
     dummyData.regulations.forEach((regulation) => {
       aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.observable ? 'True' : 'False')
     })

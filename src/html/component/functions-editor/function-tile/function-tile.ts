@@ -6,12 +6,12 @@ import { type IRegulationData, type IVariableData, Monotonicity } from '../../..
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
-import ace, { type Ace, config } from 'ace-builds'
+import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
-import modeYaml from 'ace-builds/src-noconflict/mode-yaml?url'
+import 'ace-builds/esm-resolver'
+import AeonMode from './custom-ace.conf'
 
 library.add(faTrash, faMagnifyingGlass)
-config.setModuleUrl('ace/mode/yaml', modeYaml)
 
 @customElement('function-tile')
 class FunctionTile extends LitElement {
@@ -50,12 +50,13 @@ class FunctionTile extends LitElement {
       maxLines: Infinity,
       wrap: 'free',
       fontSize: 14
-      // mode: 'ace/mode/yaml'
     })
+    this.aceEditor.getSession().setMode(new AeonMode())
     this.aceEditor.container.style.lineHeight = '1.5em'
     this.aceEditor.container.style.fontSize = '1em'
     this.aceEditor.renderer.updateFontSize()
     this.aceEditor.getSession().on('change', this.functionUpdated)
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
     this.aceEditor.renderer.attachToShadowRoot()
   }
 

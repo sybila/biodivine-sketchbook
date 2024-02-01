@@ -16,5 +16,8 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true
   },
-  "include": ["./src"]
+  "include": [
+    "./src",
+    "node_modules/@types/ace/index.d.ts"
+  ]
 }

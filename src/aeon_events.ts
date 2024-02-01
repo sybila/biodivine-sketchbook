@@ -75,7 +75,7 @@ interface AeonState {
     /** Set a name of variable with given ID to a given new name. */
     setVariableName: (varId: string, newName: string) => void
     /** Object with `original_id` of a variable and its `new_id`. */
-    variableIdChanged: Observable<object>
+    variableIdChanged: Observable<VariableIdUpdateData>
     /** Set an ID of variable with given original ID to a new id. */
     setVariableId: (originalId: string, newId: string) => void
 
@@ -152,6 +152,11 @@ export interface LayoutNodeDataPrototype {
   px: number
   py: number
 }
+
+/**
+ * An object representing information needed for variable id change
+ */
+export interface VariableIdUpdateData { original_id: string, new_id: string }
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -576,7 +581,7 @@ export const aeonState: AeonState = {
     variableCreated: new Observable<VariableData>(['model', 'variable', 'add']),
     variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
     variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
-    variableIdChanged: new Observable<object>(['model', 'variable', 'set_id']),
+    variableIdChanged: new Observable<VariableIdUpdateData>(['model', 'variable', 'set_id']),
 
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
