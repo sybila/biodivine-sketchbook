@@ -1,7 +1,7 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './float-menu.less?inline'
-import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
+import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import {
   faArrowTrendDown,
   faArrowTrendUp,
@@ -11,7 +11,8 @@ import {
   faPen,
   faPlus,
   faRightLeft,
-  faTrash
+  faTrash,
+  faClone
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
@@ -99,13 +100,18 @@ class FloatMenu extends LitElement {
       click: this.toggleObservability
     },
     {
-      icon: () => icon(findIconDefinition(
-        this.data?.monotonicity === Monotonicity.INHIBITION
-          ? faRightLeft
-          : this.data?.monotonicity === Monotonicity.ACTIVATION
-            ? faArrowTrendDown
-            : faArrowTrendUp
-      )).node[0],
+      icon: () => {
+        switch (this.data?.monotonicity) {
+          case Monotonicity.ACTIVATION:
+            return icon(faArrowTrendDown).node[0]
+          case Monotonicity.INHIBITION:
+            return icon(faClone).node[0]
+          case Monotonicity.DUAL:
+            return icon(faRightLeft).node[0]
+          default:
+            return icon(faArrowTrendUp).node[0]
+        }
+      },
       label: () => {
         switch (this.data?.monotonicity) {
           case Monotonicity.UNSPECIFIED:
@@ -113,6 +119,8 @@ class FloatMenu extends LitElement {
           case Monotonicity.ACTIVATION:
             return 'Make inhibiting (M)'
           case Monotonicity.INHIBITION:
+            return 'Make dual (M)'
+          case Monotonicity.DUAL:
             return 'Monotonicity off (M)'
           default:
             return 'Toggle monotonicity (M)'

@@ -43,6 +43,17 @@
     font-weight: bold;
     transition: opacity 0.3s;
     pointer-events: none;
-    text-shadow: 0 2px 5px #d0d0d0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .hint {
+      text-shadow: 0 2px 5px #000000;
+    }
+  }
+
+  @media (prefers-color-scheme: light) {
+    .hint {
+      text-shadow: 0 2px 5px #d0d0d0;
+    }
   }
 }

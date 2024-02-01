@@ -221,7 +221,6 @@ class RootComponent extends LitElement {
     aeonState.model.setVariableId(details.oldId, details.newId)
   }
 
-  // TODO: add interface for data
   #onVariableIdChanged (data: VariableIdUpdateData): void {
     const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.original_id)
     if (variableIndex === -1) return
@@ -230,6 +229,18 @@ class RootComponent extends LitElement {
       ...variables[variableIndex],
       id: data.new_id
     }
+    // TODO: should this be calculated on FE?
+    this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
+    this.data.layout.delete(data.original_id)
+    const regulations = [...this.data.regulations]
+    regulations.forEach((reg, index) => {
+      if (reg.source === data.original_id) {
+        regulations[index].source = data.new_id
+      }
+      if (reg.target === data.original_id) {
+        regulations[index].target = data.new_id
+      }
+    })
     this.saveData(variables, this.data.regulations, this.data.layout)
   }
 
