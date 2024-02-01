@@ -7,7 +7,7 @@ import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
 import {
   aeonState,
-  type LayoutNodeData,
+  type LayoutNodeData, type LayoutNodeDataPrototype,
   type RegulationData,
   type VariableData,
   type VariableIdUpdateData
@@ -106,7 +106,7 @@ class RootComponent extends LitElement {
 
   private addVariable (event: Event): void {
     const details = (event as CustomEvent).detail
-    const position = {
+    const position: LayoutNodeDataPrototype = {
       layout: LAYOUT,
       px: details.position.x,
       py: details.position.y
@@ -209,12 +209,11 @@ class RootComponent extends LitElement {
 
   #onNodePositionChanged (data: LayoutNodeData): void {
     // TODO: add support for layouts
-    const layout = { ...this.data.layout }
-    layout[data.variable] = {
+    this.data.layout.set(data.variable, {
       x: data.px,
       y: data.py
-    }
-    this.saveData(this.data.variables, this.data.regulations, layout)
+    })
+    this.saveData(this.data.variables, this.data.regulations, this.data.layout)
   }
 
   private setVariableId (event: Event): void {
@@ -275,7 +274,6 @@ class RootComponent extends LitElement {
       ...regulations[index],
       monotonicity: this.parseMonotonicity(data.sign)
     }
-    console.log(regulations[index])
     this.saveData(this.data.variables, regulations, this.data.layout)
   }
 
@@ -311,9 +309,9 @@ class RootComponent extends LitElement {
   }
 
   #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
-    const layout: ILayoutData = {}
+    const layout: ILayoutData = new Map()
     layoutNodes.forEach(layoutNode => {
-      layout[layoutNode.variable] = { x: layoutNode.px, y: layoutNode.py }
+      layout.set(layoutNode.variable, { x: layoutNode.px, y: layoutNode.py })
     })
     this.saveData(this.data.variables, this.data.regulations, layout)
   }
@@ -342,11 +340,10 @@ class RootComponent extends LitElement {
     })
     await new Promise(_resolve => setTimeout(_resolve, 333))
     dummyData.variables.forEach((variable) => {
-      console.log(dummyData.layout, variable.id)
       aeonState.model.addVariable(variable.id, variable.name, {
         layout: LAYOUT,
-        px: dummyData.layout[variable.id].x,
-        py: dummyData.layout[variable.id].y
+        px: (dummyData.layout.get(variable.id)?.x) ?? 0,
+        py: (dummyData.layout.get(variable.id)?.y) ?? 0
       })
     })
     await new Promise(_resolve => setTimeout(_resolve, 333))

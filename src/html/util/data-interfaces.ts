@@ -29,10 +29,10 @@ export interface IRegulationData {
   monotonicity: Monotonicity
 }
 
-export type ILayoutData = Record<string, Position>
+export type ILayoutData = Map<string, Position>
 
 export class ContentData extends Data {
   variables: IVariableData[] = []
-  layout: ILayoutData = {}
+  layout: ILayoutData = new Map()
   regulations: IRegulationData[] = []
 }

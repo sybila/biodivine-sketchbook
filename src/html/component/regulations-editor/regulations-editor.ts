@@ -347,7 +347,7 @@ class RegulationsEditor extends LitElement {
 
   private addNodes (): void {
     this.contentData.variables.forEach((node) => {
-      this.addNode(node.id, node.name, this.contentData.layout[node.id])
+      this.addNode(node.id, node.name, this.contentData.layout.get(node.id))
     })
   }
 
