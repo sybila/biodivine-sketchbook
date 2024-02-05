@@ -20,9 +20,6 @@ const AeonHighlightRules = function () {
     }, {
       token: 'paren.rparen',
       regex: '[\\])}]'
-    }, {
-      token: 'support.function',
-      start: 'f|g|h'
     },
     this.keywordRule
     ]

@@ -67,6 +67,7 @@ class FunctionTile extends LitElement {
     }
     if (_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue()) return
     this.aceEditor.getSession().off('change', this.functionUpdated)
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
     this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
     this.aceEditor.getSession().on('change', this.functionUpdated)
   }

@@ -351,6 +351,14 @@ class RootComponent extends LitElement {
     dummyData.regulations.forEach((regulation) => {
       aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
+    dummyData.variables.forEach((variable) => {
+      this.dispatchEvent(new CustomEvent('set-variable-function', {
+        detail: {
+          id: variable.id,
+          function: variable.function
+        }
+      }))
+    })
   }
 
   private parseMonotonicity (monotonicity: string): Monotonicity {
