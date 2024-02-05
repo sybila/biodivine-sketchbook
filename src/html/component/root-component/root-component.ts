@@ -14,7 +14,7 @@ import {
 } from '../../../aeon_events'
 import { tabList } from '../../util/config'
 import {
-  ContentData,
+  ContentData, Essentiality,
   type ILayoutData,
   type IRegulationData,
   type IVariableData,
@@ -51,7 +51,7 @@ class RootComponent extends LitElement {
     aeonState.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
     this.addEventListener('set-variable-id', this.setVariableId)
     aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
-    this.addEventListener('set-regulation-observable', this.setRegulationObservable)
+    this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
     aeonState.model.regulationObservableChanged.addEventListener(this.#onRegulationObservableChanged.bind(this))
     this.addEventListener('set-regulation-monotonicity', this.setRegulationMonotonicity)
     aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
@@ -126,29 +126,17 @@ class RootComponent extends LitElement {
 
   private addRegulation (event: Event): void {
     const details = (event as CustomEvent).detail
-    // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (details.observable) {
-      case true:
-        observable = 'True'
-        break
-      default:
-        observable = 'False'
-        break
-    }
-    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, observable)
+    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, details.essential)
   }
 
   #onRegulationCreated (data: RegulationData): void {
     const regulations = [...this.data.regulations]
 
-    // TODO: just a hotfix, needs to be changed once we unify the types
-
     regulations.push({
       id: data.regulator + data.target,
       source: data.regulator,
       target: data.target,
-      observable: data.observable.toUpperCase() === 'TRUE',
+      essential: this.parseEssentiality(data.observable),
       monotonicity: data.sign
     })
     this.saveData(this.data.variables, regulations, this.data.layout)
@@ -244,20 +232,22 @@ class RootComponent extends LitElement {
     this.saveData(variables, this.data.regulations, this.data.layout)
   }
 
-  private setRegulationObservable (event: Event): void {
+  private toggleRegulationEssentiality (event: Event): void {
     const details = (event as CustomEvent).detail
 
-    // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (details.observable) {
-      case true:
-        observable = 'True'
+    let essentiality
+    switch (details.essential) {
+      case Essentiality.FALSE:
+        essentiality = Essentiality.TRUE
+        break
+      case Essentiality.TRUE:
+        essentiality = Essentiality.UNKNOWN
         break
       default:
-        observable = 'False'
+        essentiality = Essentiality.FALSE
         break
     }
-    aeonState.model.setRegulationObservable(details.source, details.target, observable)
+    aeonState.model.setRegulationObservable(details.source, details.target, essentiality)
   }
 
   #onRegulationObservableChanged (data: RegulationData): void {
@@ -267,7 +257,7 @@ class RootComponent extends LitElement {
     // TODO: just a hotfix, needs to be changed once we unify the types
     regulations[index] = {
       ...regulations[index],
-      observable: data.observable.toUpperCase() === 'TRUE'
+      essential: this.parseEssentiality(data.observable)
     }
     this.saveData(this.data.variables, regulations, this.data.layout)
   }
@@ -333,7 +323,7 @@ class RootComponent extends LitElement {
         id: data.regulator + data.target,
         source: data.regulator,
         target: data.target,
-        observable: data.observable === 'True',
+        essential: this.parseEssentiality(data.observable),
         monotonicity: this.parseMonotonicity(data.sign)
       }
     })
@@ -359,12 +349,16 @@ class RootComponent extends LitElement {
     })
     await new Promise(_resolve => setTimeout(_resolve, 333))
     dummyData.regulations.forEach((regulation) => {
-      aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.observable ? 'True' : 'False')
+      aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
   }
 
   private parseMonotonicity (monotonicity: string): Monotonicity {
     return Monotonicity[monotonicity.toUpperCase() as unknown as keyof typeof Monotonicity] ?? Monotonicity.UNSPECIFIED
+  }
+
+  private parseEssentiality (essentiality: string): Essentiality {
+    return Essentiality[essentiality.toUpperCase() as unknown as keyof typeof Essentiality] ?? Essentiality.UNKNOWN
   }
 
   private async confirmDialog (): Promise<boolean> {

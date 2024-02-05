@@ -2,7 +2,7 @@ import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafe
 import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './function-tile.less?inline'
 import { map } from 'lit/directives/map.js'
-import { type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
+import { Essentiality, type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -71,8 +71,18 @@ class FunctionTile extends LitElement {
     this.aceEditor.getSession().on('change', this.functionUpdated)
   }
 
-  private getRegulationSymbol (observable: boolean, monotonicity: Monotonicity): string {
+  private getRegulationSymbol (essential: Essentiality, monotonicity: Monotonicity): string {
     let res = '-'
+    switch (essential) {
+      case Essentiality.FALSE:
+        res += '/'
+        break
+      case Essentiality.TRUE:
+        res += ''
+        break
+      default:
+        res += '?'
+    }
     switch (monotonicity) {
       case Monotonicity.ACTIVATION:
         res += '>'
@@ -81,12 +91,12 @@ class FunctionTile extends LitElement {
         res += '|'
         break
       case Monotonicity.DUAL:
-        res += '■'
+        res += '*'
         break
       default:
         res += '?'
     }
-    return res + (observable ? '' : '?')
+    return res
   }
 
   private readonly nameUpdated = debounce((name: string) => {
@@ -130,13 +140,13 @@ class FunctionTile extends LitElement {
     }
   }
 
-  private toggleObservability (regulation: IRegulationData): void {
-    this.dispatchEvent(new CustomEvent('set-regulation-observable', {
+  private toggleEssentiality (regulation: IRegulationData): void {
+    this.dispatchEvent(new CustomEvent('toggle-regulation-essential', {
       detail: {
         id: regulation.id,
         source: regulation.source,
         target: regulation.target,
-        observable: !regulation.observable
+        essential: regulation.essential
       },
       bubbles: true,
       composed: true
@@ -201,6 +211,17 @@ class FunctionTile extends LitElement {
     window.dispatchEvent(new Event('reset-highlight'))
   }
 
+  private getEssentialityText (essentiality: Essentiality): string {
+    switch (essentiality) {
+      case Essentiality.FALSE:
+        return 'non-essential'
+      case Essentiality.TRUE:
+        return 'essential'
+      default:
+        return 'unknown'
+    }
+  }
+
   protected render (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
@@ -223,12 +244,12 @@ class FunctionTile extends LitElement {
           }}"
           @mouseout="${this.resetHighlight}">
             <div class="uk-width-1-6">${regulation.source}</div>
-            <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.observable, regulation.monotonicity)}</div>
-            <div class="regulation-property ${regulation.observable ? '' : 'uk-text-muted'}"
+            <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.essential, regulation.monotonicity)}</div>
+            <div class="regulation-property"
                  @click="${() => {
-                   this.toggleObservability(regulation)
+                   this.toggleEssentiality(regulation)
                  }}">
-              ${regulation.observable ? 'observable' : 'non-observable'}
+              ${this.getEssentialityText(regulation.essential)}
             </div>
             <div class="regulation-property ${this.monotonicityClass(regulation.monotonicity)}"
                  @click="${() => {

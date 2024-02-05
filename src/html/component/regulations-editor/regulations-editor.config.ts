@@ -1,5 +1,6 @@
-import { type CytoscapeOptions } from 'cytoscape'
-import { Monotonicity } from '../../util/data-interfaces'
+import { type CytoscapeOptions, type EdgeSingular } from 'cytoscape'
+import { Essentiality, Monotonicity } from '../../util/data-interfaces'
+import PropertyValueEdge = cytoscape.Css.PropertyValueEdge
 
 export const edgeOptions = {
   preview: true, // whether to show added edges preview before releasing selection
@@ -21,7 +22,7 @@ export const edgeOptions = {
   edgeParams: () => {
     return {
       data: {
-        observable: true,
+        essential: Essentiality.TRUE,
         monotonicity: Monotonicity.UNSPECIFIED
       }
     }
@@ -109,9 +110,9 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         style: { 'overlay-opacity': 0.1 }
       },
       { // Show non-observable edges as dashed
-        selector: 'edge[observable]',
+        selector: 'edge[essential]',
         style: {
-          'line-style': (edge) => { if (edge.data().observable as boolean) { return 'solid' } else { return 'dashed' } },
+          'line-style': regulationStyle,
           'line-dash-pattern': [8, 3]
         }
       },
@@ -182,5 +183,17 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         style: { opacity: 0 }
       }
     ]
+  }
+}
+
+const regulationStyle = (edge: EdgeSingular): PropertyValueEdge<any> => {
+  const essential = edge.data().essential as Essentiality
+  switch (essential) {
+    case Essentiality.FALSE:
+      return 'dotted'
+    case Essentiality.TRUE:
+      return 'solid'
+    default:
+      return 'dashed'
   }
 }

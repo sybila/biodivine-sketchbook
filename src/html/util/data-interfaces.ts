@@ -20,12 +20,18 @@ export enum Monotonicity {
   DUAL = 'Dual'
 }
 
+export enum Essentiality {
+  FALSE = 'False',
+  TRUE = 'True',
+  UNKNOWN = 'Unknown'
+}
+
 export interface IRegulationData {
   id: string
   source: string
   target: string
   // TODO: add 'Observability' enum with three options instead of using bool
-  observable: boolean
+  essential: Essentiality
   monotonicity: Monotonicity
 }
 
