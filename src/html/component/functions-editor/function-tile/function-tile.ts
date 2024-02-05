@@ -35,7 +35,6 @@ class FunctionTile extends LitElement {
     const editorElement = this.shadowRoot?.getElementById('function-editor')
     if (editorElement === null || editorElement === undefined) return
     this.aceEditor = ace.edit(editorElement, {
-      // showGutter: false,
       enableBasicAutocompletion: [{
         getCompletions: (_editor, _session, _point, _prefix, callback) => {
           callback(null, this.variables.map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })))
@@ -51,11 +50,13 @@ class FunctionTile extends LitElement {
       wrap: 'free',
       fontSize: 14
     })
+    // @ts-expect-error ts seems to be ignoring inherited properties
     this.aceEditor.getSession().setMode(new AeonMode())
     this.aceEditor.container.style.lineHeight = '1.5em'
     this.aceEditor.container.style.fontSize = '1em'
     this.aceEditor.renderer.updateFontSize()
     this.aceEditor.getSession().on('change', this.functionUpdated)
+    // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
     this.aceEditor.renderer.attachToShadowRoot()
   }
@@ -65,9 +66,10 @@ class FunctionTile extends LitElement {
     if (this.nameField !== undefined) {
       this.nameField.value = this.variables[this.variableIndex].name
     }
+    // @ts-expect-error $highlightRules exists but not defined in the d.ts file
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
     if (_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue()) return
     this.aceEditor.getSession().off('change', this.functionUpdated)
-    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
     this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
     this.aceEditor.getSession().on('change', this.functionUpdated)
   }

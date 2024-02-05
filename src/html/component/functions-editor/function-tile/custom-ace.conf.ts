@@ -1,41 +1,42 @@
-const oop = ace.require('ace/lib/oop')
-const TextMode = ace.require('ace/mode/text').Mode
+import { Mode as TextMode } from 'ace-builds/src-noconflict/mode-text'
+
 const TextHighlightRules = ace.require('ace/mode/text_highlight_rules').TextHighlightRules
-const AeonHighlightRules = function () {
-  this.setKeywords = function (kwMap) {
-    this.keywordRule.onMatch = this.createKeywordMapper(kwMap, 'identifier')
-  }
-  this.keywordRule = {
-    regex: '\\w+',
-    onMatch: function () { return 'text' }
-  }
 
-  this.$rules = {
-    start: [{
-      token: 'keyword.operator',
-      regex: '&|\\|'
-    }, {
-      token: 'paren.lparen',
-      regex: '[[({]'
-    }, {
-      token: 'paren.rparen',
-      regex: '[\\])}]'
-    },
-    this.keywordRule
-    ]
+class AeonHighlightRules extends TextHighlightRules {
+  constructor () {
+    super()
+    this.setKeywords = (kwMap: string) => {
+      this.keywordRule.onMatch = this.createKeywordMapper(kwMap, 'identifier')
+    }
+    this.keywordRule = {
+      regex: '\\w+',
+      onMatch: function () { return 'text' }
+    }
+    this.$rules = {
+      start: [{
+        token: 'keyword.operator',
+        regex: '&|\\|'
+      }, {
+        token: 'paren.lparen',
+        regex: '[[({]'
+      }, {
+        token: 'paren.rparen',
+        regex: '[\\])}]'
+      },
+      this.keywordRule
+      ]
+    }
+    this.normalizeRules()
   }
-  this.normalizeRules()
 }
 
-oop.inherits(AeonHighlightRules, TextHighlightRules)
-const AeonMode = function () {
-  this.HighlightRules = AeonHighlightRules
+class AeonMode extends TextMode {
+  constructor () {
+    super()
+    this.$id = 'ace/mode/aeon'
+    this.$behaviour = this.$defaultBehaviour
+    this.HighlightRules = AeonHighlightRules
+  }
 }
-oop.inherits(AeonMode, TextMode);
-
-(function () {
-  this.$id = 'ace/mode/aeon'
-  this.$behaviour = this.$defaultBehaviour
-}).call(AeonMode.prototype)
 
 export default AeonMode
