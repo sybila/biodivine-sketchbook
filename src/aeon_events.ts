@@ -45,8 +45,12 @@ interface AeonState {
 
     /** List of model variables. */
     variablesRefreshed: Observable<[VariableData]>
-    /** Refresh the variable. */
+    /** Refresh the variables. */
     refreshVariables: () => void
+    /** List of model parameters. */
+    parametersRefreshed: Observable<[ParameterData]>
+    /** Refresh the parameters. */
+    refreshParameters: () => void
     /** List of model regulations. */
     regulationsRefreshed: Observable<[RegulationData]>
     /** Refresh the regulations. */
@@ -78,6 +82,30 @@ interface AeonState {
     variableIdChanged: Observable<VariableIdUpdateData>
     /** Set an ID of variable with given original ID to a new id. */
     setVariableId: (originalId: string, newId: string) => void
+
+    /** Parameter-related setter events */
+
+    /** ParameterData for a newly created parameter. */
+    parameterCreated: Observable<ParameterData>
+    /** Create new parameter with given arity, ID, and name.
+     * If name is not given, ID string is used for both ID and name. */
+    addParameter: (paramId: string, arity: number, paramName?: string) => void
+    /** ParameterData of a removed parameter. */
+    parameterRemoved: Observable<ParameterData>
+    /** Remove a parameter with given ID. */
+    removeParameter: (paramId: string) => void
+    /** ParameterData (with a new `name`) for a renamed parameter. */
+    parameterNameChanged: Observable<ParameterData>
+    /** Set a name of parameter with given ID. */
+    setParameterName: (paramId: string, newName: string) => void
+    /** ParameterData (with a new `arity`) for a modified parameter. */
+    parameterArityChanged: Observable<ParameterData>
+    /** Set an arity of parameter with given ID. */
+    setParameterArity: (paramId: string, newArity: number) => void
+    /** Object with `original_id` of a parameter and its `new_id`. */
+    parameterIdChanged: Observable<ParameterIdUpdateData>
+    /** Set an ID of parameter with given original ID to a new id. */
+    setParameterId: (originalId: string, newId: string) => void
 
     /** Regulation-related setter events */
 
@@ -121,6 +149,13 @@ export interface VariableData {
   name: string
 }
 
+/** An object representing basic information regarding a model parameter. */
+export interface ParameterData {
+  id: string
+  name: string
+  arity: number
+}
+
 /** An object representing basic information regarding a model regulation. */
 export interface RegulationData {
   regulator: string
@@ -153,10 +188,11 @@ export interface LayoutNodeDataPrototype {
   py: number
 }
 
-/**
- * An object representing information needed for variable id change
- */
+/** An object representing information needed for variable id change. */
 export interface VariableIdUpdateData { original_id: string, new_id: string }
+
+/** An object representing information needed for parameter id change. */
+export interface ParameterIdUpdateData { original_id: string, new_id: string }
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -565,6 +601,10 @@ export const aeonState: AeonState = {
     refreshVariables (): void {
       aeonEvents.refresh(['model', 'get_variables'])
     },
+    parametersRefreshed: new Observable<[ParameterData]>(['model', 'get_parameters']),
+    refreshParameters (): void {
+      aeonEvents.refresh(['model', 'get_parameters'])
+    },
     regulationsRefreshed: new Observable<[RegulationData]>(['model', 'get_regulations']),
     refreshRegulations (): void {
       aeonEvents.refresh(['model', 'get_regulations'])
@@ -582,6 +622,12 @@ export const aeonState: AeonState = {
     variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
     variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
     variableIdChanged: new Observable<VariableIdUpdateData>(['model', 'variable', 'set_id']),
+
+    parameterCreated: new Observable<ParameterData>(['model', 'parameter', 'add']),
+    parameterRemoved: new Observable<ParameterData>(['model', 'parameter', 'remove']),
+    parameterNameChanged: new Observable<ParameterData>(['model', 'parameter', 'set_name']),
+    parameterArityChanged: new Observable<ParameterData>(['model', 'parameter', 'set_arity']),
+    parameterIdChanged: new Observable<ParameterIdUpdateData>(['model', 'parameter', 'set_id']),
 
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
@@ -638,6 +684,39 @@ export const aeonState: AeonState = {
     setVariableId (originalId: string, newId: string): void {
       aeonEvents.emitAction({
         path: ['model', 'variable', originalId, 'set_id'],
+        payload: newId
+      })
+    },
+    addParameter (paramId: string, arity: number, paramName: string = ''): void {
+      if (paramName === '') {
+        paramName = paramId
+      }
+      aeonEvents.emitAction({
+        path: ['model', 'parameter', 'add'],
+        payload: JSON.stringify({ id: paramId, arity, name: paramName })
+      })
+    },
+    removeParameter (paramId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'parameter', paramId, 'remove'],
+        payload: null
+      })
+    },
+    setParameterName (paramId: string, newName: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'parameter', paramId, 'set_name'],
+        payload: newName
+      })
+    },
+    setParameterArity (paramId: string, newArity: number): void {
+      aeonEvents.emitAction({
+        path: ['model', 'parameter', paramId, 'set_name'],
+        payload: newArity.toString()
+      })
+    },
+    setParameterId (originalId: string, newId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'parameter', originalId, 'set_id'],
         payload: newId
       })
     },

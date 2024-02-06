@@ -41,7 +41,7 @@ impl Display for VariableData {
 impl FromStr for VariableData {
     type Err = String;
 
-    /// Use json de-serialization to construct `Variable` from string.
+    /// Use json de-serialization to construct `VariableData` from string.
     fn from_str(s: &str) -> Result<VariableData, String> {
         serde_json::from_str(s).map_err(|e| e.to_string())
     }
