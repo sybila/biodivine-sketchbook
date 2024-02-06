@@ -52,7 +52,7 @@ class RootComponent extends LitElement {
     this.addEventListener('set-variable-id', this.setVariableId)
     aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
     this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
-    aeonState.model.regulationObservableChanged.addEventListener(this.#onRegulationObservableChanged.bind(this))
+    aeonState.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
     this.addEventListener('set-regulation-monotonicity', this.setRegulationMonotonicity)
     aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
     this.addEventListener('remove-variable', (e) => {
@@ -136,7 +136,7 @@ class RootComponent extends LitElement {
       id: data.regulator + data.target,
       source: data.regulator,
       target: data.target,
-      essential: this.parseEssentiality(data.observable),
+      essential: this.parseEssentiality(data.essential),
       monotonicity: data.sign
     })
     this.saveData(this.data.variables, regulations, this.data.layout)
@@ -247,17 +247,17 @@ class RootComponent extends LitElement {
         essentiality = Essentiality.FALSE
         break
     }
-    aeonState.model.setRegulationObservable(details.source, details.target, essentiality)
+    aeonState.model.setRegulationEssentiality(details.source, details.target, essentiality)
   }
 
-  #onRegulationObservableChanged (data: RegulationData): void {
+  #regulationEssentialityChanged (data: RegulationData): void {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
     const regulations = [...this.data.regulations]
     // TODO: just a hotfix, needs to be changed once we unify the types
     regulations[index] = {
       ...regulations[index],
-      essential: this.parseEssentiality(data.observable)
+      essential: this.parseEssentiality(data.essential)
     }
     this.saveData(this.data.variables, regulations, this.data.layout)
   }
@@ -323,7 +323,7 @@ class RootComponent extends LitElement {
         id: data.regulator + data.target,
         source: data.regulator,
         target: data.target,
-        essential: this.parseEssentiality(data.observable),
+        essential: this.parseEssentiality(data.essential),
         monotonicity: this.parseMonotonicity(data.sign)
       }
     })

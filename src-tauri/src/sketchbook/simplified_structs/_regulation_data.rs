@@ -1,4 +1,4 @@
-use crate::sketchbook::{Observability, Regulation, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, Regulation, RegulationSign, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -11,20 +11,20 @@ pub struct RegulationData {
     pub regulator: String,
     pub target: String,
     pub sign: RegulationSign,
-    pub observable: Observability,
+    pub essential: Essentiality,
 }
 
 impl RegulationData {
     pub fn new(
         regulator_id: &VarId,
         target_id: &VarId,
-        observable: &Observability,
+        essential: &Essentiality,
         sign: &RegulationSign,
     ) -> RegulationData {
         RegulationData {
             regulator: regulator_id.to_string(),
             target: target_id.to_string(),
-            observable: *observable,
+            essential: *essential,
             sign: *sign,
         }
     }
@@ -33,7 +33,7 @@ impl RegulationData {
         RegulationData {
             regulator: regulation.get_regulator().to_string(),
             target: regulation.get_target().to_string(),
-            observable: *regulation.get_observability(),
+            essential: *regulation.get_essentiality(),
             sign: *regulation.get_sign(),
         }
     }

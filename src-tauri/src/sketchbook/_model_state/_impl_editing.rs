@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Layout, LayoutId, ModelState, Observability, Regulation, RegulationSign, VarId, Variable,
+    Essentiality, Layout, LayoutId, ModelState, Regulation, RegulationSign, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -93,7 +93,7 @@ impl ModelState {
         &mut self,
         regulator: VarId,
         target: VarId,
-        observable: Observability,
+        essential: Essentiality,
         regulation_sign: RegulationSign,
     ) -> Result<(), String> {
         self.assert_valid_variable(&regulator)?;
@@ -102,7 +102,7 @@ impl ModelState {
         self.regulations.insert(Regulation::new(
             regulator,
             target,
-            observable,
+            essential,
             regulation_sign,
         ));
         Ok(())
@@ -114,12 +114,12 @@ impl ModelState {
     /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
     /// are not valid variable IDs, or when the regulation between the two variables already exists.
     pub fn add_regulation_by_str(&mut self, regulation_str: &str) -> Result<(), String> {
-        let (reg, regulation_sign, observable, tar) =
+        let (reg, regulation_sign, essential, tar) =
             Regulation::try_components_from_string(regulation_str)?;
         let regulator = VarId::new(reg.as_str())?;
         let target = VarId::new(tar.as_str())?;
         // all validity checks inside
-        self.add_regulation(regulator, target, observable, regulation_sign)
+        self.add_regulation(regulator, target, essential, regulation_sign)
     }
 
     /// Shorthand to add a list of new `Regulations` given by their string encoding to this `ModelState`.
@@ -270,21 +270,21 @@ impl ModelState {
         self.add_regulation(
             regulator.clone(),
             target.clone(),
-            *regulation.get_observability(),
+            *regulation.get_essentiality(),
             *new_sign,
         )?;
         Ok(())
     }
 
-    /// Shorthand to change observability of a `Regulation` pointing from `regulator` to `target`.
-    /// Currently it basically removes the regulation, and adds a new one with the new observability value.
+    /// Shorthand to change essentiality of a `Regulation` pointing from `regulator` to `target`.
+    /// Currently it basically removes the regulation, and adds a new one with the new essentiality value.
     ///
     /// Returns `Err` when one of the variables is invalid
-    pub fn change_regulation_observability(
+    pub fn change_regulation_essentiality(
         &mut self,
         regulator: &VarId,
         target: &VarId,
-        new_observability: &Observability,
+        new_essentiality: &Essentiality,
     ) -> Result<(), String> {
         // all validity checks are performed inside
         let regulation = self.get_regulation(regulator, target)?.clone();
@@ -292,7 +292,7 @@ impl ModelState {
         self.add_regulation(
             regulator.clone(),
             target.clone(),
-            *new_observability,
+            *new_essentiality,
             *regulation.get_sign(),
         )?;
         Ok(())
@@ -492,7 +492,7 @@ impl ModelState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{ModelState, Observability, RegulationSign};
+    use crate::sketchbook::{Essentiality, ModelState, RegulationSign};
 
     /// Test generating new default variant of the `ModelState`.
     #[test]
@@ -634,7 +634,7 @@ mod tests {
         assert!(model.add_regulation_by_str("a -> b").is_err());
         assert!(model.add_regulation_by_str("a -| b").is_err());
         assert!(model
-            .add_regulation(var_a, var_b, Observability::Unknown, RegulationSign::Dual)
+            .add_regulation(var_a, var_b, Essentiality::Unknown, RegulationSign::Dual)
             .is_err());
 
         // adding reg with invalid vars or invalid format should cause error

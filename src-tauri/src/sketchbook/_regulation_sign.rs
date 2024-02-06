@@ -28,7 +28,7 @@ impl RegulationSign {
             "?" => Ok(RegulationSign::Unknown),
             ">" => Ok(RegulationSign::Activation),
             "|" => Ok(RegulationSign::Inhibition),
-            "D" => Ok(RegulationSign::Dual),
+            "*" => Ok(RegulationSign::Dual),
             _ => Err(format!("{} does not encode any `RegulationSign`", sign)),
         }
     }
@@ -48,7 +48,7 @@ impl RegulationSign {
             RegulationSign::Unknown => "?",
             RegulationSign::Activation => ">",
             RegulationSign::Inhibition => "|",
-            RegulationSign::Dual => "D",
+            RegulationSign::Dual => "*",
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, ModelState, RegulationSign, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
@@ -29,7 +29,7 @@ impl ModelState {
                 .add_regulation(
                     r.get_regulator().as_str(),
                     r.get_target().as_str(),
-                    r.is_observable(),
+                    r.is_essential(),
                     ModelState::sign_to_monotonicity(r.get_sign()),
                 )
                 .unwrap();
@@ -60,7 +60,7 @@ impl ModelState {
             model.add_regulation(
                 VarId::new(name_regulator.as_str())?,
                 VarId::new(name_target.as_str())?,
-                ModelState::observability_from_bool(r.is_observable()),
+                ModelState::essentiality_from_bool(r.is_observable()),
                 ModelState::sign_from_monotonicity(r.get_monotonicity()),
             )?;
         }
@@ -93,13 +93,13 @@ impl ModelState {
         }
     }
 
-    /// **(internal)** Static utility method to convert `Observability` from boolean.
-    /// TODO: note that `lib-param-bn` currently cannot distinguish between `False` and `Unknown` variants of `Observability`.
-    fn observability_from_bool(observability: bool) -> Observability {
-        match observability {
-            true => Observability::True,
+    /// **(internal)** Static utility method to convert `Essentiality` from boolean.
+    /// TODO: note that `lib-param-bn` currently cannot distinguish between `False` and `Unknown` variants of `Essentiality`.
+    fn essentiality_from_bool(essentiality: bool) -> Essentiality {
+        match essentiality {
+            true => Essentiality::True,
             // todo: fix, this is how it works now in `lib-param-bn`
-            false => Observability::Unknown,
+            false => Essentiality::Unknown,
         }
     }
 }

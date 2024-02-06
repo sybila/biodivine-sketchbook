@@ -190,7 +190,7 @@ mod tests {
         // To string
         let model_string = model.to_string();
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"observable\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"essential\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
             model_string
         );
 

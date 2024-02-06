@@ -5,7 +5,7 @@ use crate::sketchbook::layout::{LayoutId, NodePosition};
 use crate::sketchbook::simplified_structs::{
     LayoutData, LayoutNodeData, RegulationData, VariableData,
 };
-use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, ModelState, RegulationSign, VarId};
 
 use serde_json::json;
 use std::str::FromStr;
@@ -232,16 +232,16 @@ impl ModelState {
         let component_name = "model/regulation";
 
         // get payload components (json for RegulationData containing "regulator", "target",
-        // "sign", "observable")
+        // "sign", "essential")
         let payload = Self::clone_payload_str(event, component_name)?;
         let regulation_data = RegulationData::from_str(payload.as_str())?;
         let regulator_id = self.get_var_id(&regulation_data.regulator)?;
         let target_id = self.get_var_id(&regulation_data.target)?;
         let sign: RegulationSign = regulation_data.sign;
-        let observable: Observability = regulation_data.observable;
+        let essential: Essentiality = regulation_data.essential;
 
         // perform the event, prepare the state-change variant (path and payload stay the same)
-        self.add_regulation(regulator_id, target_id, observable, sign)?;
+        self.add_regulation(regulator_id, target_id, essential, sign)?;
         let state_change = event.clone();
 
         // prepare the reverse event (it is a remove event, so IDs are in path and payload is empty)
@@ -320,28 +320,28 @@ impl ModelState {
                 state_change,
                 perform_reverse: (event.clone(), reverse_event),
             })
-        } else if Self::starts_with("set_observability", at_path).is_some() {
-            // get the payload - a string for the "new_observability"
-            let observability_str = Self::clone_payload_str(event, component_name)?;
-            let new_observability: Observability = serde_json::from_str(&observability_str)?;
+        } else if Self::starts_with("set_essentiality", at_path).is_some() {
+            // get the payload - a string for the "new_essentiality"
+            let essentiality_str = Self::clone_payload_str(event, component_name)?;
+            let new_essentiality: Essentiality = serde_json::from_str(&essentiality_str)?;
 
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
-            let orig_observability = *original_reg.get_observability();
+            let orig_essentiality = *original_reg.get_essentiality();
 
-            if orig_observability == new_observability {
+            if orig_essentiality == new_essentiality {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move IDs from path to payload)
-            self.change_regulation_observability(&regulator_id, &target_id, &new_observability)?;
+            self.change_regulation_essentiality(&regulator_id, &target_id, &new_essentiality)?;
             let new_reg = self.get_regulation(&regulator_id, &target_id)?;
             let reg_data = RegulationData::from_reg(new_reg);
-            let state_change_path = ["model", "regulation", "set_observability"];
+            let state_change_path = ["model", "regulation", "set_essentiality"];
             let state_change = Event::build(&state_change_path, Some(&reg_data.to_string()));
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(serde_json::to_string(&orig_observability)?);
+            reverse_event.payload = Some(serde_json::to_string(&orig_essentiality)?);
 
             Ok(Consumed::Reversible {
                 state_change,
@@ -605,7 +605,7 @@ mod tests {
     use crate::sketchbook::simplified_structs::{
         LayoutData, LayoutNodeData, RegulationData, VariableData,
     };
-    use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
+    use crate::sketchbook::{Essentiality, ModelState, RegulationSign, VarId};
     use serde_json::json;
 
     /// Check that after applying the reverse event of `result` to the `model` with relative
@@ -824,24 +824,24 @@ mod tests {
     }
 
     #[test]
-    fn test_change_reg_observability_event() {
+    fn test_change_reg_essentiality_event() {
         let variables = vec![("a", "a_name"), ("b", "b_name")];
         let mut model = ModelState::new_from_vars(variables).unwrap();
         let regulations = vec!["a -> a", "a -> b", "b -> a"];
         model.add_multiple_regulations(regulations).unwrap();
         let model_orig = model.clone();
 
-        // test event for changing regulation's observability
-        let full_path = ["model", "regulation", "a", "b", "set_observability"];
-        let new_observability = serde_json::to_string(&Observability::False).unwrap();
-        let event = Event::build(&full_path, Some(&new_observability));
+        // test event for changing regulation's essentiality
+        let full_path = ["model", "regulation", "a", "b", "set_essentiality"];
+        let new_essentiality = serde_json::to_string(&Essentiality::False).unwrap();
+        let event = Event::build(&full_path, Some(&new_essentiality));
         let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
         check_reverse(
             model,
             model_orig,
             result,
-            &["regulation", "a", "b", "set_observability"],
+            &["regulation", "a", "b", "set_essentiality"],
         );
     }
 

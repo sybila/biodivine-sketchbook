@@ -84,7 +84,7 @@ interface AeonState {
     /** RegulationData for a newly created regulation. */
     regulationCreated: Observable<RegulationData>
     /** Create new regulation specified by all of its four components. */
-    addRegulation: (regulatorId: string, targetId: string, sign: string, observable: string) => void
+    addRegulation: (regulatorId: string, targetId: string, sign: string, essential: string) => void
     /** RegulationData of a removed regulation. */
     regulationRemoved: Observable<RegulationData>
     /** Create regulation specified by its regulator and target. */
@@ -93,10 +93,10 @@ interface AeonState {
     regulationSignChanged: Observable<RegulationData>
     /** Set sign of a regulation specified by its regulator and target. */
     setRegulationSign: (regulatorId: string, targetId: string, newSign: string) => void
-    /** RegulationData (with a new `observability`) of a regulation that has its observability changed. */
-    regulationObservableChanged: Observable<RegulationData>
-    /** Set observability of a regulation specified by its regulator and target. */
-    setRegulationObservable: (regulatorId: string, targetId: string, newSign: string) => void
+    /** RegulationData (with a new `essentiality`) of a regulation that has its essentiality changed. */
+    regulationEssentialityChanged: Observable<RegulationData>
+    /** Set essentiality of a regulation specified by its regulator and target. */
+    setRegulationEssentiality: (regulatorId: string, targetId: string, newEssentiality: string) => void
 
     /** Layout-related setter events */
 
@@ -126,7 +126,7 @@ export interface RegulationData {
   regulator: string
   target: string
   sign: Monotonicity
-  observable: string
+  essential: string
 }
 
 /** An object representing basic information regarding a model layout. */
@@ -586,7 +586,7 @@ export const aeonState: AeonState = {
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
     regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
-    regulationObservableChanged: new Observable<RegulationData>(['model', 'regulation', 'set_observability']),
+    regulationEssentialityChanged: new Observable<RegulationData>(['model', 'regulation', 'set_essentiality']),
 
     layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
     layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
@@ -641,14 +641,14 @@ export const aeonState: AeonState = {
         payload: newId
       })
     },
-    addRegulation (regulatorId: string, targetId: string, sign: string, observable: string): void {
+    addRegulation (regulatorId: string, targetId: string, sign: string, essential: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'add'],
         payload: JSON.stringify({
           regulator: regulatorId,
           target: targetId,
           sign,
-          observable
+          essential
         })
       })
     },
@@ -664,10 +664,10 @@ export const aeonState: AeonState = {
         payload: JSON.stringify(newSign)
       })
     },
-    setRegulationObservable (regulatorId: string, targetId: string, newObservability: string): void {
+    setRegulationEssentiality (regulatorId: string, targetId: string, newEssentiality: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', regulatorId, targetId, 'set_observability'],
-        payload: JSON.stringify(newObservability)
+        path: ['model', 'regulation', regulatorId, targetId, 'set_essentiality'],
+        payload: JSON.stringify(newEssentiality)
       })
     },
     addLayout (layoutId: string, layoutName: string): void {
