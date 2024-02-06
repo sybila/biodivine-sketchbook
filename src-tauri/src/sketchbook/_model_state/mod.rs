@@ -1,5 +1,5 @@
 use crate::sketchbook::layout::{Layout, LayoutId};
-use crate::sketchbook::{Regulation, VarId, Variable, ParamId, Parameter};
+use crate::sketchbook::{ParamId, Parameter, Regulation, VarId, Variable};
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;

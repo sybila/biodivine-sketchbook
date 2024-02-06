@@ -1,4 +1,4 @@
-use crate::sketchbook::{Layout, LayoutId, ModelState, VarId, Variable, ParamId, Parameter};
+use crate::sketchbook::{Layout, LayoutId, ModelState, ParamId, Parameter, VarId, Variable};
 
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -67,7 +67,8 @@ impl<'de> Deserialize<'de> for ModelState {
                     type Value = Field;
 
                     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                        formatter.write_str("`variables`, `parameters`, `regulations`, or `layouts`")
+                        formatter
+                            .write_str("`variables`, `parameters`, `regulations`, or `layouts`")
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
@@ -138,7 +139,7 @@ impl<'de> Deserialize<'de> for ModelState {
                                     .collect::<Result<HashMap<ParamId, Parameter>, _>>()?,
                             );
                         }
-                            Field::Regulations => {
+                        Field::Regulations => {
                             if regulations.is_some() {
                                 return Err(de::Error::duplicate_field("regulations"));
                             }
@@ -163,7 +164,8 @@ impl<'de> Deserialize<'de> for ModelState {
                 }
 
                 let variables = variables.ok_or_else(|| de::Error::missing_field("variables"))?;
-                let parameters = parameters.ok_or_else(|| de::Error::missing_field("parameters"))?;
+                let parameters =
+                    parameters.ok_or_else(|| de::Error::missing_field("parameters"))?;
                 let regulations =
                     regulations.ok_or_else(|| de::Error::missing_field("regulations"))?;
                 let layouts = layouts.ok_or_else(|| de::Error::missing_field("layouts"))?;

@@ -38,6 +38,9 @@ pub use _variable::Variable;
 /// An iterator over all (`VarId`, `Variable`) pairs of a `ModelState`.
 pub type VariableIterator<'a> = std::collections::hash_map::Keys<'a, VarId, Variable>;
 
+/// An iterator over all (`ParamId`, `Parameter`) pairs of a `ModelState`.
+pub type ParameterIterator<'a> = std::collections::hash_map::Keys<'a, ParamId, Parameter>;
+
 /// An iterator over all `Regulations` of a `ModelState`.
 pub type RegulationIterator<'a> = std::collections::hash_set::Iter<'a, Regulation>;
 

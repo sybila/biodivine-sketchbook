@@ -1,5 +1,6 @@
 use crate::sketchbook::{
-    Essentiality, Layout, LayoutId, ModelState, Regulation, RegulationSign, VarId, Variable,
+    Essentiality, Layout, LayoutId, ModelState, ParamId, Parameter, Regulation, RegulationSign,
+    VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -86,6 +87,40 @@ impl ModelState {
         Ok(())
     }
 
+    /// Add a new parameter with given `id`, `name` and `arity` to this `ModelState`.
+    ///
+    /// The ID must be valid identifier that is not already used by some other parameter.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_param(&mut self, param_id: ParamId, name: &str, arity: u32) -> Result<(), String> {
+        self.assert_no_parameter(&param_id)?;
+        self.parameters
+            .insert(param_id.clone(), Parameter::new(name, arity));
+        Ok(())
+    }
+
+    /// Add a new parameter with given string `id`, `name`, and `arity` to this `ModelState`.
+    ///
+    /// The ID must be valid identifier that is not already used by some other parameter.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_param_by_str(&mut self, id: &str, name: &str, arity: u32) -> Result<(), String> {
+        let param_id = ParamId::new(id)?;
+        self.add_param(param_id, name, arity)
+    }
+
+    /// Shorthand to add a list of new parameters with given string IDs, names, and arities to this `ModelState`.
+    ///
+    /// Each ID must be valid identifier that is not already used by some other param.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_multiple_params(
+        &mut self,
+        id_name_arity_tuples: Vec<(&str, &str, u32)>,
+    ) -> Result<(), String> {
+        for (id, name, arity) in id_name_arity_tuples {
+            self.add_param_by_str(id, name, arity)?;
+        }
+        Ok(())
+    }
+
     /// Add a new `Regulation` to this `ModelState`.
     ///
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
@@ -136,7 +171,6 @@ impl ModelState {
     }
 
     /// Set the name of a network variable given by id `var_id`.
-    ///
     /// The name does not have to be unique, as multiple variables might share a name.
     ///
     /// Note that you don't have to rename anything else in the network, since all other
@@ -230,6 +264,83 @@ impl ModelState {
     pub fn remove_var_by_str(&mut self, id: &str) -> Result<(), String> {
         let var_id = VarId::new(id)?;
         self.remove_var(&var_id)
+    }
+
+    /// Set the name of a parameter given by id `param_id`.
+    pub fn set_param_name(&mut self, param_id: &ParamId, name: &str) -> Result<(), String> {
+        self.assert_valid_parameter(param_id)?;
+        let parameter = self.parameters.get_mut(param_id).unwrap();
+        parameter.set_name(name);
+        Ok(())
+    }
+
+    /// Set the name of a parameter given by string `id`.
+    pub fn set_param_name_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
+        let param_id = ParamId::new(id)?;
+        self.set_param_name(&param_id, name)
+    }
+
+    /// Set the arity of a parameter given by id `param_id`.
+    pub fn set_param_arity(&mut self, param_id: &ParamId, arity: u32) -> Result<(), String> {
+        self.assert_valid_parameter(param_id)?;
+        let parameter = self.parameters.get_mut(param_id).unwrap();
+        parameter.set_arity(arity);
+        Ok(())
+    }
+
+    /// Set the arity of a parameter given by string `id`.
+    pub fn set_param_arity_by_str(&mut self, id: &str, arity: u32) -> Result<(), String> {
+        let param_id = ParamId::new(id)?;
+        self.set_param_arity(&param_id, arity)
+    }
+
+    /// Set the id of parameter with `original_id` to `new_id`.
+    pub fn set_param_id(&mut self, original_id: &ParamId, new_id: ParamId) -> Result<(), String> {
+        self.assert_valid_parameter(original_id)?;
+        self.assert_no_parameter(&new_id)?;
+
+        // all changes must be done directly, not through some helper fns, because the state
+        // might not be consistent inbetween various deletions
+
+        // change id in params list
+        if let Some(param) = self.parameters.remove(original_id) {
+            self.parameters.insert(new_id.clone(), param);
+        }
+
+        // todo - in future, update fns must be modified here
+
+        Ok(())
+    }
+
+    /// Set the id of parameter given by string `original_id` to `new_id`.
+    pub fn set_param_id_by_str(&mut self, original_id: &str, new_id: &str) -> Result<(), String> {
+        let original_id = ParamId::new(original_id)?;
+        let new_id = ParamId::new(new_id)?;
+        self.set_param_id(&original_id, new_id)
+    }
+
+    /// Remove the parameter with given `param_id` from this `ModelState`. Note that this parameter
+    /// must not be used in any update fn.
+    ///
+    /// Also returns `Err` in case the `param_id` is not a valid parameter's identifier.
+    pub fn remove_param(&mut self, param_id: &ParamId) -> Result<(), String> {
+        self.assert_valid_parameter(param_id)?;
+
+        // todo - first check update fns if it is safe to delete
+
+        if self.parameters.remove(param_id).is_none() {
+            panic!("Error when removing param {param_id} from the parameter map.")
+        }
+        Ok(())
+    }
+
+    /// Remove the parameter with given string `id` from this `ModelState`. Note that this parameter
+    /// must not be used in any update fn.
+    ///
+    /// Also returns `Err` in case the `param_id` is not a valid parameter's identifier.
+    pub fn remove_param_by_str(&mut self, id: &str) -> Result<(), String> {
+        let param_id = ParamId::new(id)?;
+        self.remove_param(&param_id)
     }
 
     /// Remove a `Regulation` pointing from `regulator` to `target` from this `ModelState`.
@@ -461,6 +572,28 @@ impl ModelState {
         if self.get_var_name(var_id).is_err() {
             Err(format!(
                 "Invalid variable: Variable with id {var_id} does not exist."
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// **(internal)** Utility method to ensure there is no parameter with given Id yet.
+    fn assert_no_parameter(&self, param_id: &ParamId) -> Result<(), String> {
+        if self.get_parameter(param_id).is_err() {
+            Ok(())
+        } else {
+            Err(format!(
+                "Invalid parameter: Parameter with id {param_id} already exists."
+            ))
+        }
+    }
+
+    /// **(internal)** Utility method to ensure there is a parameter with given Id.
+    fn assert_valid_parameter(&self, param_id: &ParamId) -> Result<(), String> {
+        if self.get_parameter(param_id).is_err() {
+            Err(format!(
+                "Invalid parameter: Parameter with id {param_id} does not exist."
             ))
         } else {
             Ok(())
