@@ -8,20 +8,21 @@ use std::collections::{HashMap, HashSet};
 /// These methods focus on general manipulation with variables/regulations.
 /// See below for API focusing on layout manipulation.
 impl ModelState {
-    /// Create a new `ModelState` that does not contain any `Variables` or `Regulations` yet.
+    /// Create a new `ModelState` that does not contain any `Variables`, `Parameters`, or `Regulations` yet.
     /// It contains a single empty default `Layout`.
     pub fn new() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
         let default_layout = Layout::new_empty(ModelState::get_default_layout_name());
         ModelState {
             variables: HashMap::new(),
+            parameters: HashMap::new(),
             regulations: HashSet::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
         }
     }
 
     /// Create new `ModelState` using provided variable name-ID pairs, both strings.
-    /// Result will contain no `Regulations`, and a single default `Layout`.
+    /// Result will contain no `Parameters` or `Regulations`, and a single default `Layout`.
     ///
     /// The IDs must be unique valid identifiers.
     /// The names might be same as the IDs. It also might be empty or non-unique.

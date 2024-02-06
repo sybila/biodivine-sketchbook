@@ -6,6 +6,10 @@ mod _essentiality;
 mod _identifier;
 /// **(internal)** Utility methods for `ModelState`.
 mod _model_state;
+/// **(internal)** Utility methods for `Parameter`.
+mod _parameter;
+/// **(internal)** Utility methods for `ParameterId`.
+mod _parameter_id;
 /// **(internal)** Utility methods for `Regulation`.
 mod _regulation;
 /// **(internal)** Utility methods for `RegulationSign`.
@@ -24,6 +28,8 @@ pub mod simplified_structs;
 pub use _essentiality::Essentiality;
 pub use _identifier::Identifier;
 pub use _model_state::ModelState;
+pub use _parameter::Parameter;
+pub use _parameter_id::ParamId;
 pub use _regulation::Regulation;
 pub use _regulation_sign::RegulationSign;
 pub use _var_id::VarId;

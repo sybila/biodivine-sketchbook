@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
-/// A type-safe (string-based) identifier of a `Variable` inside `ModelState`.
+/// A type-safe (string-based) identifier of a `Variable` of a `ModelState`.
 ///
 /// **Warning:** Do not mix identifiers between different models.
 /// Generally, be careful to only use `VarIds` that are currently valid for the network.
