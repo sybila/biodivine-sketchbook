@@ -1,6 +1,21 @@
 @import '/src/uikit-theme';
 
 .function-list {
-  height: 90%;
+  height: 100%;
   overflow: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .divider {
+    color: white;
+  }
+  .uk-button {
+    background: rgb(34, 34, 34);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .uk-button {
+    background: rgb(222, 222, 222);
+  }
 }
