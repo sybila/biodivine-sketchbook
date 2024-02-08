@@ -1,15 +1,14 @@
-import { html, type TemplateResult } from 'lit'
+import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
-import { type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
+import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
-import ace from 'ace-builds'
+import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
-import { Utilities } from '../../../util/utilities'
 
 library.add(faTrash, faMagnifyingGlass)
 
@@ -19,6 +18,23 @@ class VariableTile extends EditorTile {
     super()
     this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
     ace.require(langTools)
+  }
+
+  protected firstUpdated (_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+  }
+
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    langTools.setCompleters([{
+      getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
+        callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })))
+      }
+    }])
+  }
+
+  private getVariables (): IVariableData[] {
+    return this.variables
   }
 
   nameUpdated = debounce((name: string) => {
@@ -100,6 +116,15 @@ class VariableTile extends EditorTile {
     window.dispatchEvent(new Event('reset-highlight'))
   }
 
+  private getVariableText (variableId: string): string {
+    const variable = this.variables.find(variable => variable.id === variableId)
+    if (variable === undefined) return ''
+    if (variable.id === variable.name) {
+      return variable.id
+    }
+    return variable.name + ' (' + variable.id + ')'
+  }
+
   protected render (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
@@ -121,7 +146,7 @@ class VariableTile extends EditorTile {
             this.highlightRegulation(regulation)
           }}"
           @mouseout="${this.resetHighlight}">
-            <div class="uk-width-1-6">${regulation.source}</div>
+            <div class="uk-width-1-6">${this.getVariableText(regulation.source)}</div>
             <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.essential, regulation.monotonicity)}</div>
             <div class="regulation-property"
                  @click="${() => {

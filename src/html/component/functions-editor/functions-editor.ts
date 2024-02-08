@@ -16,11 +16,15 @@ class FunctionsEditor extends LitElement {
   connectedCallback (): void {
     super.connectedCallback()
     window.addEventListener('focus-function-field', this.focusedFunction.bind(this))
+    this.addEventListener('remove-function-definition', this.removeFunction)
+    this.addEventListener('rename-function-definition', this.renameFunction)
   }
 
   disconnectedCallback (): void {
     super.disconnectedCallback()
     window.removeEventListener('focus-function-field', this.focusedFunction.bind(this))
+    this.removeEventListener('remove-function-definition', this.removeFunction)
+    this.removeEventListener('rename-function-definition', this.renameFunction)
   }
 
   private focusedFunction (event: Event): void {
@@ -40,6 +44,28 @@ class FunctionsEditor extends LitElement {
     this.functions = [...this.functions]
   }
 
+  private removeFunction (event: Event): void {
+    const id = (event as CustomEvent).detail.id
+    const index = this.functions.findIndex(fun => fun.id === id)
+    if (index === -1) return
+    const functions = [...this.functions]
+    functions.splice(index, 1)
+    this.functions = functions
+  }
+
+  private renameFunction (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const index = this.functions.findIndex(fun => fun.id === detail.id)
+    if (index === -1) return
+    const functions = [...this.functions]
+    functions[index] = {
+      ...functions[index],
+      id: detail.name,
+      name: detail.name
+    }
+    this.functions = functions
+  }
+
   protected render (): TemplateResult {
     return html`
       <div class="function-list">
@@ -50,8 +76,7 @@ class FunctionsEditor extends LitElement {
         <div class="uk-list uk-list-divider uk-text-center">
           ${map(this.functions, (_node, index) => html`
             <function-tile .variableIndex="${index}"
-                           .variables="${this.functions}"
-                           .regulations=${[]}>
+                           .variables="${this.functions}">
             </function-tile>
           `)}
         </div>

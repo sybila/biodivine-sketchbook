@@ -4,7 +4,7 @@ import style_less from './editor-tile.less?inline'
 import { Essentiality, type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
-import ace, { type Ace } from 'ace-builds'
+import ace from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import AeonMode from './custom-ace.conf'
@@ -32,11 +32,6 @@ export abstract class EditorTile extends LitElement {
     const editorElement = this.shadowRoot?.getElementById('function-editor')
     if (editorElement === null || editorElement === undefined) return
     this.aceEditor = ace.edit(editorElement, {
-      enableBasicAutocompletion: [{
-        getCompletions: (_editor, _session, _point, _prefix, callback) => {
-          callback(null, this.variables.map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })))
-        }
-      }],
       enableSnippets: true,
       enableLiveAutocompletion: true,
       behavioursEnabled: true,
@@ -65,10 +60,11 @@ export abstract class EditorTile extends LitElement {
     }
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
-    if (_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue()) return
-    this.aceEditor.getSession().off('change', this.functionUpdated)
-    this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
-    this.aceEditor.getSession().on('change', this.functionUpdated)
+    if (!(_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue())) {
+      this.aceEditor.getSession().off('change', this.functionUpdated)
+      this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
+      this.aceEditor.getSession().on('change', this.functionUpdated)
+    }
   }
 
   protected getRegulationSymbol (essential: Essentiality, monotonicity: Monotonicity): string {

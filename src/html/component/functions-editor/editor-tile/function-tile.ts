@@ -1,11 +1,11 @@
-import { html, type TemplateResult } from 'lit'
+import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import { Essentiality, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
-import ace from 'ace-builds'
+import { faMagnifyingGlass, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
+import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
@@ -21,11 +21,25 @@ class FunctionTile extends EditorTile {
     super()
     this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
     ace.require(langTools)
-    console.log('test')
+  }
+
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    // @ts-expect-error $highlightRules exists but not defined in the d.ts file
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.regulations.map(v => v.source).join('|') })
+  }
+
+  protected firstUpdated (_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+    this.aceEditor.completers = [{
+      getCompletions: (_editor, _session, _point, _prefix, callback) => {
+        callback(null, this.regulations.map((variable): Ace.Completion => ({ value: variable.source, meta: variable.source })))
+      }
+    }]
   }
 
   nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('rename-variable', {
+    this.dispatchEvent(new CustomEvent('rename-function-definition', {
       detail: {
         id: this.variables[this.variableIndex].id,
         name
@@ -51,7 +65,7 @@ class FunctionTile extends EditorTile {
   )
 
   removeVariable (): void {
-    this.shadowRoot?.dispatchEvent(new CustomEvent('remove-variable', {
+    this.shadowRoot?.dispatchEvent(new CustomEvent('remove-function-definition', {
       detail: {
         id: this.variables[this.variableIndex].id
       },
@@ -110,7 +124,7 @@ class FunctionTile extends EditorTile {
           <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.variableIndex].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           <button class="uk-button uk-button-small" @click="${this.addVariable}">
-            ${icon(faMagnifyingGlass).node}
+            ${icon(faPlus).node}
           </button>
           <button class="uk-button uk-button-small" @click="${this.removeVariable}">
             ${icon(faTrash).node}
