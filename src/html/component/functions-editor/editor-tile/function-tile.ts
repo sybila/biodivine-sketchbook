@@ -132,8 +132,8 @@ class FunctionTile extends EditorTile {
         </div>
         <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
         ${map(this.regulations, (regulation) => html`
-          <div class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap">
-            <button class="uk-width-1-6" @click="${() => {
+          <div class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
+            <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-text-center" @click="${() => {
               this.removeRegulation(regulation)
             }}">
               ${icon(faTrash).node}

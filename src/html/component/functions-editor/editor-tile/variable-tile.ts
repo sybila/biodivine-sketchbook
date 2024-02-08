@@ -141,11 +141,11 @@ class VariableTile extends EditorTile {
         <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
         ${map(this.regulations, (regulation) => html`
           <div
-              class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-right uk-text-nowrap"
+              class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap"
           @mouseenter="${() => {
             this.highlightRegulation(regulation)
           }}"
-          @mouseout="${this.resetHighlight}">
+          @mouseleave="${this.resetHighlight}">
             <div class="uk-width-1-6">${this.getVariableText(regulation.source)}</div>
             <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.essential, regulation.monotonicity)}</div>
             <div class="regulation-property"
