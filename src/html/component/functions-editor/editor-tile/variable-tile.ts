@@ -29,7 +29,8 @@ class VariableTile extends EditorTile {
     super.updated(_changedProperties)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
-        callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })).concat(this.functions.map((f): Ace.Completion => ({ value: f.name, snippet: f.name + '()' }))))
+        callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name }))
+          .concat(this.functions.map((f): Ace.Completion => ({ value: f.name, snippet: f.name + '()' }))))
       }
     }])
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file

@@ -28,7 +28,8 @@ class FunctionTile extends EditorTile {
     super.updated(_changedProperties)
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({
-      'constant.language': this.regulations.map(v => v.source).join('|')
+      'constant.language': this.regulations.map(r => r.source).join('|'),
+      'support.function.dom': this.variables.map(v => v.name).join('|')
     })
   }
 
@@ -36,7 +37,8 @@ class FunctionTile extends EditorTile {
     super.firstUpdated(_changedProperties)
     this.aceEditor.completers = [{
       getCompletions: (_editor, _session, _point, _prefix, callback) => {
-        callback(null, this.regulations.map((variable): Ace.Completion => ({ value: variable.source, meta: variable.source })))
+        callback(null, this.regulations.map((variable): Ace.Completion => ({ value: variable.source, meta: variable.source }))
+          .concat(this.variables.map((v): Ace.Completion => ({ value: v.name, snippet: v.name + '()' }))))
       }
     }]
   }
