@@ -1,5 +1,5 @@
 import { html, type PropertyValues, type TemplateResult } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
@@ -9,11 +9,12 @@ import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
-
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('variable-tile')
 class VariableTile extends EditorTile {
+  @property() functions: IVariableData[] = []
+
   constructor () {
     super()
     this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
@@ -28,9 +29,14 @@ class VariableTile extends EditorTile {
     super.updated(_changedProperties)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
-        callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })))
+        callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name })).concat(this.functions.map((f): Ace.Completion => ({ value: f.name, snippet: f.name + '()' }))))
       }
     }])
+    // @ts-expect-error $highlightRules exists but not defined in the d.ts file
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({
+      'constant.language': this.variables.map(v => v.id).join('|'),
+      'support.function': this.functions.map(f => f.name).join('|')
+    })
   }
 
   private getVariables (): IVariableData[] {

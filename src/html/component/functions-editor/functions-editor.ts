@@ -1,4 +1,4 @@
-import { html, css, unsafeCSS, LitElement, type TemplateResult, type PropertyValues } from 'lit'
+import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
@@ -33,7 +33,11 @@ class FunctionsEditor extends LitElement {
     super.updated(_changedProperties)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
-        callback(null, this.functions.map((func): Ace.Completion => ({ value: func.id, meta: func.name, snippet: func.name + '()' })))
+        callback(null, this.functions.map((func): Ace.Completion => ({
+          value: func.id,
+          meta: func.name,
+          snippet: func.name + '()'
+        })))
       }
     }])
   }
@@ -87,22 +91,23 @@ class FunctionsEditor extends LitElement {
           </div>
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.functions, (_node, index) => html`
-            <function-tile .variableIndex="${index}"
-                           .variables="${this.functions}">
-            </function-tile>
-          `)}
+              <function-tile .variableIndex="${index}"
+                             .variables="${this.functions}">
+              </function-tile>
+            `)}
           </div>
         </div>
         <div class="section" id="variables">
           <h2 class="heading uk-text-center">Variables</h2>
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.contentData?.variables, (node, index) => html`
-            <variable-tile id="${node.id}"
-                           .variableIndex="${index}"
-                           .variables="${this.contentData.variables}"
-                           .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}">
-            </variable-tile>
-          `)}
+              <variable-tile id="${node.id}"
+                             .variableIndex="${index}"
+                             .variables="${this.contentData.variables}"
+                             .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}"
+                             .functions="${this.functions}">
+              </variable-tile>
+            `)}
           </div>
         </div>
       </div>

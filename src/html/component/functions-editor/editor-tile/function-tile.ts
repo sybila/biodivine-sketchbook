@@ -10,6 +10,7 @@ import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
 import { getNextEssentiality, getNextMonotonicity } from '../../../util/utilities'
+import { dialog } from '@tauri-apps/api'
 
 library.add(faTrash, faMagnifyingGlass)
 
@@ -26,7 +27,9 @@ class FunctionTile extends EditorTile {
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
-    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.regulations.map(v => v.source).join('|') })
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({
+      'constant.language': this.regulations.map(v => v.source).join('|')
+    })
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
@@ -64,7 +67,8 @@ class FunctionTile extends EditorTile {
   300
   )
 
-  removeVariable (): void {
+  async removeVariable (): Promise<void> {
+    if (!await this.confirmDialog()) return
     this.shadowRoot?.dispatchEvent(new CustomEvent('remove-function-definition', {
       detail: {
         id: this.variables[this.variableIndex].id
@@ -109,12 +113,22 @@ class FunctionTile extends EditorTile {
     this.regulations = regs
   }
 
-  removeRegulation (regulation: IRegulationData): void {
+  async removeRegulation (regulation: IRegulationData): Promise<void> {
+    if (!await this.confirmDialog()) return
     const index = this.regulations.findIndex(reg => reg.id === regulation.id)
     if (index === -1) return
     const regs = [...this.regulations]
     regs.splice(index, 1)
     this.regulations = regs
+  }
+
+  private async confirmDialog (): Promise<boolean> {
+    return await dialog.ask('Are you sure?', {
+      type: 'warning',
+      okLabel: 'Delete',
+      cancelLabel: 'Keep',
+      title: 'Delete'
+    })
   }
 
   protected render (): TemplateResult {
@@ -134,7 +148,7 @@ class FunctionTile extends EditorTile {
         ${map(this.regulations, (regulation) => html`
           <div class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
             <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-text-center" @click="${() => {
-              this.removeRegulation(regulation)
+              void this.removeRegulation(regulation)
             }}">
               ${icon(faTrash).node}
             </button>

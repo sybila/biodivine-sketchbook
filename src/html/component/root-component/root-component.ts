@@ -243,7 +243,6 @@ class RootComponent extends LitElement {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
     const regulations = [...this.data.regulations]
-    // TODO: just a hotfix, needs to be changed once we unify the types
     regulations[index] = {
       ...regulations[index],
       essential: this.parseEssentiality(data.observable)

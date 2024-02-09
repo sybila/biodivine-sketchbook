@@ -58,8 +58,6 @@ export abstract class EditorTile extends LitElement {
     if (this.nameField !== undefined) {
       this.nameField.value = this.variables[this.variableIndex].name
     }
-    // @ts-expect-error $highlightRules exists but not defined in the d.ts file
-    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
     if (!(_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue())) {
       this.aceEditor.getSession().off('change', this.functionUpdated)
       this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
