@@ -40,7 +40,8 @@ export abstract class EditorTile extends LitElement {
       minLines: 1,
       maxLines: Infinity,
       wrap: 'free',
-      fontSize: 14
+      fontSize: 14,
+      theme: 'ace/theme/cloud_editor'
     })
     // @ts-expect-error ts seems to be ignoring inherited properties
     this.aceEditor.getSession().setMode(new AeonMode())

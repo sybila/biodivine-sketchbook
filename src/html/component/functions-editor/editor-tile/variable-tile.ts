@@ -35,7 +35,7 @@ class VariableTile extends EditorTile {
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({
       'constant.language': this.variables.map(v => v.id).join('|'),
-      'support.function': this.functions.map(f => f.name).join('|')
+      'support.function.dom': this.functions.map(f => f.name).join('|')
     })
   }
 
