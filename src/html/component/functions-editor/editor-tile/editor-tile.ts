@@ -1,7 +1,7 @@
 import { css, LitElement, type PropertyValues, unsafeCSS } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import style_less from './editor-tile.less?inline'
-import { Essentiality, type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
+import { Essentiality, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
 import ace from 'ace-builds'
@@ -14,9 +14,7 @@ library.add(faTrash, faMagnifyingGlass)
 
 export abstract class EditorTile extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() variableIndex = 0
-  @property() regulations: IRegulationData[] = []
-  @property() variables: IVariableData[] = []
+  @property() index = 0
   @state() variableFunction = ''
   @state() variableName = ''
   @query('#name-field') nameField: HTMLInputElement | undefined
@@ -27,16 +25,15 @@ export abstract class EditorTile extends LitElement {
     ace.require(langTools)
   }
 
-  protected firstUpdated (_changedProperties: PropertyValues): void {
-    super.firstUpdated(_changedProperties)
+  protected init (index: number, objectList: Array<{ id: string, function: string }>): void {
     const editorElement = this.shadowRoot?.getElementById('function-editor')
     if (editorElement === null || editorElement === undefined) return
     this.aceEditor = ace.edit(editorElement, {
       enableSnippets: true,
       enableLiveAutocompletion: true,
       behavioursEnabled: true,
-      value: this.variables[this.variableIndex].function,
-      placeholder: '$f_' + this.variables[this.variableIndex].id + '(...)',
+      value: objectList[index].function,
+      placeholder: '$f_' + objectList[index].id + '(...)',
       minLines: 1,
       maxLines: Infinity,
       wrap: 'free',
@@ -50,18 +47,21 @@ export abstract class EditorTile extends LitElement {
     this.aceEditor.renderer.updateFontSize()
     this.aceEditor.getSession().on('change', this.functionUpdated)
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
-    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': this.variables.map(v => v.id).join('|') })
+    this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': objectList.map(v => v.id).join('|') })
     this.aceEditor.renderer.attachToShadowRoot()
   }
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
+  }
+
+  protected updateEditor (name: string, func: string): void {
     if (this.nameField !== undefined) {
-      this.nameField.value = this.variables[this.variableIndex].name
+      this.nameField.value = name
     }
-    if (!(_changedProperties.get('variables') === undefined || this.variables[this.variableIndex].function === this.aceEditor.getValue())) {
+    if (func !== this.aceEditor.getValue()) {
       this.aceEditor.getSession().off('change', this.functionUpdated)
-      this.aceEditor.session.setValue(this.aceEditor.setValue(this.variables[this.variableIndex].function, this.variables[this.variableIndex].function.length - 1))
+      this.aceEditor.session.setValue(this.aceEditor.setValue(func, func.length - 1))
       this.aceEditor.getSession().on('change', this.functionUpdated)
     }
   }

@@ -1,7 +1,7 @@
 import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
-import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
+import { type IFunctionData, type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -13,7 +13,9 @@ library.add(faTrash, faMagnifyingGlass)
 
 @customElement('variable-tile')
 class VariableTile extends EditorTile {
-  @property() functions: IVariableData[] = []
+  @property() functions: IFunctionData[] = []
+  @property() regulations: IRegulationData[] = []
+  @property() variables: IVariableData[] = []
 
   constructor () {
     super()
@@ -23,20 +25,22 @@ class VariableTile extends EditorTile {
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
     super.firstUpdated(_changedProperties)
+    this.init(this.index, this.variables)
   }
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
+    this.updateEditor(this.variables[this.index].name, this.variables[this.index].function)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
         callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name }))
-          .concat(this.functions.map((f): Ace.Completion => ({ value: f.name, snippet: f.name + '()' }))))
+          .concat(this.functions.map((f): Ace.Completion => ({ value: f.id, snippet: f.id + '()' }))))
       }
     }])
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({
       'constant.language': this.variables.map(v => v.id).join('|'),
-      'support.function.dom': this.functions.map(f => f.name).join('|')
+      'support.function.dom': this.functions.map(f => f.id).join('|')
     })
   }
 
@@ -47,7 +51,7 @@ class VariableTile extends EditorTile {
   nameUpdated = debounce((name: string) => {
     this.dispatchEvent(new CustomEvent('rename-variable', {
       detail: {
-        id: this.variables[this.variableIndex].id,
+        id: this.variables[this.index].id,
         name
       },
       bubbles: true,
@@ -60,7 +64,7 @@ class VariableTile extends EditorTile {
   functionUpdated = debounce(() => {
     this.dispatchEvent(new CustomEvent('set-variable-function', {
       detail: {
-        id: this.variables[this.variableIndex].id,
+        id: this.variables[this.index].id,
         function: this.aceEditor.getValue()
       },
       bubbles: true,
@@ -96,7 +100,7 @@ class VariableTile extends EditorTile {
   removeVariable (): void {
     this.shadowRoot?.dispatchEvent(new CustomEvent('remove-variable', {
       detail: {
-        id: this.variables[this.variableIndex].id
+        id: this.variables[this.index].id
       },
       composed: true,
       bubbles: true
@@ -106,7 +110,7 @@ class VariableTile extends EditorTile {
   focusVariable (): void {
     window.dispatchEvent(new CustomEvent('focus-variable', {
       detail: {
-        id: this.variables[this.variableIndex].id
+        id: this.variables[this.index].id
       }
     }))
   }
@@ -136,7 +140,7 @@ class VariableTile extends EditorTile {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.variableIndex].name}"
+          <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.index].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           <button class="uk-button uk-button-small" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}

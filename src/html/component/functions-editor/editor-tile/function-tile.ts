@@ -1,7 +1,7 @@
 import { html, type PropertyValues, type TemplateResult } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
-import { Essentiality, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
+import { type IFunctionData, type IRegulationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -9,14 +9,12 @@ import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
-import { getNextEssentiality, getNextMonotonicity } from '../../../util/utilities'
-import { dialog } from '@tauri-apps/api'
 
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('function-tile')
 class FunctionTile extends EditorTile {
-  @state() regulations: IRegulationData[] = []
+  @property() functions: IFunctionData[] = []
   varIndex = 0
   constructor () {
     super()
@@ -26,19 +24,21 @@ class FunctionTile extends EditorTile {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
+    this.updateEditor(this.functions[this.index].id, this.functions[this.index].function)
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({
-      'constant.language': this.regulations.map(r => r.source).join('|'),
-      'support.function.dom': this.variables.map(v => v.name).join('|')
+      'constant.language': this.functions[this.index].variables.map(r => r.source).join('|'),
+      'support.function.dom': this.functions.map(v => v.id).join('|')
     })
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
     super.firstUpdated(_changedProperties)
+    this.init(this.index, this.functions)
     this.aceEditor.completers = [{
       getCompletions: (_editor, _session, _point, _prefix, callback) => {
-        callback(null, this.regulations.map((variable): Ace.Completion => ({ value: variable.source, meta: variable.source }))
-          .concat(this.variables.map((v): Ace.Completion => ({ value: v.name, snippet: v.name + '()' }))))
+        callback(null, this.functions[this.index].variables.map((variable): Ace.Completion => ({ value: variable.source, meta: variable.source }))
+          .concat(this.functions.map((v): Ace.Completion => ({ value: v.id, snippet: v.id + '()' }))))
       }
     }]
   }
@@ -46,8 +46,8 @@ class FunctionTile extends EditorTile {
   nameUpdated = debounce((name: string) => {
     this.dispatchEvent(new CustomEvent('rename-function-definition', {
       detail: {
-        id: this.variables[this.variableIndex].id,
-        name
+        oldId: this.functions[this.index].id,
+        newId: name
       },
       bubbles: true,
       composed: true
@@ -59,7 +59,7 @@ class FunctionTile extends EditorTile {
   functionUpdated = debounce(() => {
     this.dispatchEvent(new CustomEvent('set-variable-function', {
       detail: {
-        id: this.variables[this.variableIndex].id,
+        id: this.functions[this.index].id,
         function: this.aceEditor.getValue()
       },
       bubbles: true,
@@ -70,10 +70,9 @@ class FunctionTile extends EditorTile {
   )
 
   async removeVariable (): Promise<void> {
-    if (!await this.confirmDialog()) return
-    this.shadowRoot?.dispatchEvent(new CustomEvent('remove-function-definition', {
+    this.dispatchEvent(new CustomEvent('remove-function-definition', {
       detail: {
-        id: this.variables[this.variableIndex].id
+        id: this.functions[this.index].id
       },
       composed: true,
       bubbles: true
@@ -81,63 +80,61 @@ class FunctionTile extends EditorTile {
   }
 
   private addVariable (): void {
-    const regs = [...this.regulations]
-    regs.push({
-      id: this.varIndex.toString(),
-      source: 'var' + this.varIndex,
-      target: '',
-      essential: Essentiality.UNKNOWN,
-      monotonicity: Monotonicity.UNSPECIFIED
-    })
+    this.dispatchEvent(new CustomEvent('add-function-variable', {
+      detail: {
+        id: this.functions[this.index].id,
+        variable: 'var' + this.varIndex
+      },
+      bubbles: true,
+      composed: true
+    }))
     this.varIndex++
-    this.regulations = regs
   }
 
   toggleEssentiality (regulation: IRegulationData): void {
-    const index = this.regulations.findIndex(reg => reg.id === regulation.id)
+    const index = this.functions[this.index].variables.findIndex(f => f === regulation)
     if (index === -1) return
-    const regs = [...this.regulations]
-    regs[index] = {
-      ...regs[index],
-      essential: getNextEssentiality(regs[index].essential)
-    }
-    this.regulations = regs
+    this.dispatchEvent(new CustomEvent('toggle-function-variable-essentiality', {
+      detail: {
+        id: this.functions[this.index].id,
+        index
+      },
+      bubbles: true,
+      composed: true
+    }))
   }
 
   toggleMonotonicity (regulation: IRegulationData): void {
-    const index = this.regulations.findIndex(reg => reg.id === regulation.id)
+    const index = this.functions[this.index].variables.findIndex(f => f === regulation)
     if (index === -1) return
-    const regs = [...this.regulations]
-    regs[index] = {
-      ...regs[index],
-      monotonicity: getNextMonotonicity(regs[index].monotonicity)
-    }
-    this.regulations = regs
+    this.dispatchEvent(new CustomEvent('toggle-function-variable-monotonicity', {
+      detail: {
+        id: this.functions[this.index].id,
+        index
+      },
+      bubbles: true,
+      composed: true
+    }))
   }
 
   async removeRegulation (regulation: IRegulationData): Promise<void> {
-    if (!await this.confirmDialog()) return
-    const index = this.regulations.findIndex(reg => reg.id === regulation.id)
+    const index = this.functions[this.index].variables.findIndex(f => f === regulation)
     if (index === -1) return
-    const regs = [...this.regulations]
-    regs.splice(index, 1)
-    this.regulations = regs
-  }
-
-  private async confirmDialog (): Promise<boolean> {
-    return await dialog.ask('Are you sure?', {
-      type: 'warning',
-      okLabel: 'Delete',
-      cancelLabel: 'Keep',
-      title: 'Delete'
-    })
+    this.dispatchEvent(new CustomEvent('remove-function-variable', {
+      detail: {
+        id: this.functions[this.index].id,
+        index
+      },
+      bubbles: true,
+      composed: true
+    }))
   }
 
   protected render (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.variableIndex].name}"
+          <input id="name-field" class="uk-input uk-text-center" value="${this.functions[this.index].id}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           <button class="uk-button uk-button-small" @click="${this.addVariable}">
             ${icon(faPlus).node}
@@ -147,26 +144,26 @@ class FunctionTile extends EditorTile {
           </button>
         </div>
         <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
-        ${map(this.regulations, (regulation) => html`
+        ${map(this.functions[this.index].variables, (variable) => html`
           <div class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
             <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-text-center" @click="${() => {
-              void this.removeRegulation(regulation)
+              void this.removeRegulation(variable)
             }}">
               ${icon(faTrash).node}
             </button>
-            <div class="uk-width-1-6">${regulation.source}</div>
-            <div class="uk-width-1-6">${this.getRegulationSymbol(regulation.essential, regulation.monotonicity)}</div>
+            <div class="uk-width-1-6">${variable.source}</div>
+            <div class="uk-width-1-6">${this.getRegulationSymbol(variable.essential, variable.monotonicity)}</div>
             <div class="regulation-property"
                  @click="${() => {
-                   this.toggleEssentiality(regulation)
+                   this.toggleEssentiality(variable)
                  }}">
-              ${this.getEssentialityText(regulation.essential)}
+              ${this.getEssentialityText(variable.essential)}
             </div>
-            <div class="regulation-property ${this.monotonicityClass(regulation.monotonicity)}"
+            <div class="regulation-property ${this.monotonicityClass(variable.monotonicity)}"
                  @click="${() => {
-                   this.toggleMonotonicity(regulation)
+                   this.toggleMonotonicity(variable)
                  }}">
-              ${regulation.monotonicity.toLowerCase()}
+              ${variable.monotonicity.toLowerCase()}
             </div>
           </div>
         `)}
