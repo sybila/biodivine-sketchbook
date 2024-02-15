@@ -1,10 +1,10 @@
 import { css, LitElement, type PropertyValues, unsafeCSS } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import style_less from './editor-tile.less?inline'
-import { Essentiality, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
+import { Essentiality, type IFunctionData, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
-import ace from 'ace-builds'
+import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import AeonMode from './custom-ace.conf'
@@ -15,6 +15,7 @@ library.add(faTrash, faMagnifyingGlass)
 export abstract class EditorTile extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() index = 0
+  @property() functions: IFunctionData[] = []
   @state() variableFunction = ''
   @state() variableName = ''
   @query('#name-field') nameField: HTMLInputElement | undefined
@@ -64,6 +65,15 @@ export abstract class EditorTile extends LitElement {
       this.aceEditor.session.setValue(this.aceEditor.setValue(func, func.length - 1))
       this.aceEditor.getSession().on('change', this.functionUpdated)
     }
+    langTools.setCompleters([{
+      getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
+        callback(null, this.functions.map((v): Ace.ValueCompletion => ({
+          meta: v.id + '(' + v.variables.map(fv => fv.source).join(', ') + ')',
+          value: v.id + '(' + ')',
+          caption: v.id
+        })))
+      }
+    }])
   }
 
   protected getRegulationSymbol (essential: Essentiality, monotonicity: Monotonicity): string {

@@ -1,7 +1,7 @@
 import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
-import { type IFunctionData, type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
+import { type IRegulationData, type IVariableData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -13,7 +13,6 @@ library.add(faTrash, faMagnifyingGlass)
 
 @customElement('variable-tile')
 class VariableTile extends EditorTile {
-  @property() functions: IFunctionData[] = []
   @property() regulations: IRegulationData[] = []
   @property() variables: IVariableData[] = []
 
@@ -31,12 +30,11 @@ class VariableTile extends EditorTile {
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
     this.updateEditor(this.variables[this.index].name, this.variables[this.index].function)
-    langTools.setCompleters([{
+    this.aceEditor.completers = this.aceEditor.completers.concat({
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
-        callback(null, this.getVariables().map((variable): Ace.Completion => ({ value: variable.id, meta: variable.name }))
-          .concat(this.functions.map((f): Ace.Completion => ({ value: f.id, snippet: f.id + '()' }))))
+        callback(null, this.getVariables().map((variable): Ace.ValueCompletion => ({ value: variable.id, meta: variable.name })))
       }
-    }])
+    })
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({
       'constant.language': this.variables.map(v => v.id).join('|'),

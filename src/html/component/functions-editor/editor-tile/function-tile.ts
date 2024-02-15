@@ -1,7 +1,7 @@
 import { html, type PropertyValues, type TemplateResult } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
-import { type IFunctionData, type IRegulationData } from '../../../util/data-interfaces'
+import { type IRegulationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import { faMagnifyingGlass, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -14,7 +14,6 @@ library.add(faTrash, faMagnifyingGlass)
 
 @customElement('function-tile')
 class FunctionTile extends EditorTile {
-  @property() functions: IFunctionData[] = []
   varIndex = 0
   constructor () {
     super()
@@ -30,17 +29,20 @@ class FunctionTile extends EditorTile {
       'constant.language': this.functions[this.index].variables.map(r => r.source).join('|'),
       'support.function.dom': this.functions.map(v => v.id).join('|')
     })
+    this.aceEditor.completers = this.aceEditor.completers.concat({
+      getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
+        callback(null, this.functions[this.index].variables.map((variable): Ace.Completion => ({
+          caption: variable.source,
+          value: variable.source,
+          meta: variable.source
+        })))
+      }
+    })
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
     super.firstUpdated(_changedProperties)
     this.init(this.index, this.functions)
-    this.aceEditor.completers = [{
-      getCompletions: (_editor, _session, _point, _prefix, callback) => {
-        callback(null, this.functions[this.index].variables.map((variable): Ace.Completion => ({ value: variable.source, meta: variable.source }))
-          .concat(this.functions.map((v): Ace.Completion => ({ value: v.id, snippet: v.id + '()' }))))
-      }
-    }]
   }
 
   nameUpdated = debounce((name: string) => {
