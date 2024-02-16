@@ -1,6 +1,6 @@
 import { Data } from 'dataclass'
 import { html, type TemplateResult } from 'lit'
-import { type IRegulationData, type IVariableData } from './data-interfaces'
+import { type ContentData } from './data-interfaces'
 
 export class TabData extends Data {
   id: number = -1
@@ -9,9 +9,4 @@ export class TabData extends Data {
   content: (contentData: ContentData) => TemplateResult<1> = () => html`unknown`
   active: boolean = false
   icon: string = 'question'
-}
-
-export class ContentData extends Data {
-  variables: IVariableData[] = []
-  regulations: IRegulationData[] = []
 }

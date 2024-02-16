@@ -1,13 +1,15 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './float-menu.less?inline'
-import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
+import { icon, library } from '@fortawesome/fontawesome-svg-core'
 import {
   faArrowTrendDown,
   faArrowTrendUp,
   faCalculator,
+  faClone,
   faEye,
   faEyeSlash,
+  faEyeLowVision,
   faPen,
   faPlus,
   faRightLeft,
@@ -15,7 +17,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
-import { ElementType, type IRegulationData, type IVariableData, Monotonicity } from '../../../util/data-interfaces'
+import {
+  ElementType,
+  Essentiality,
+  type IRegulationData,
+  type IVariableData,
+  Monotonicity
+} from '../../../util/data-interfaces'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
@@ -47,7 +55,6 @@ class FloatMenu extends LitElement {
             this.focusRegulation()
             break
           case 'DELETE':
-          case 'BACKSPACE':
             this.removeElement()
             break
         }
@@ -55,7 +62,7 @@ class FloatMenu extends LitElement {
       case ElementType.EDGE:
         switch (event.key.toUpperCase()) {
           case 'O':
-            this.toggleObservability()
+            this.toggleEssentiality()
             break
           case 'M':
             this.toggleMonotonicity()
@@ -92,21 +99,41 @@ class FloatMenu extends LitElement {
 
   edgeButtons: IButton[] = [
     {
-      icon: () => icon(this.data?.observable === true ? faEyeSlash : faEye).node[0],
-      label: () =>
-        this.data === null || this.data?.observable === null
-          ? 'Toggle observability (O)'
-          : ((this.data?.observable) === true) ? 'Observability off (O)' : 'Observability on (O)',
-      click: this.toggleObservability
+      icon: () => {
+        switch (this.data?.essential) {
+          case (Essentiality.TRUE):
+            return icon(faEye).node[0]
+          case (Essentiality.UNKNOWN):
+            return icon(faEyeSlash).node[0]
+          default:
+            return icon(faEyeLowVision).node[0]
+        }
+      },
+      label: () => {
+        switch (this.data?.essential) {
+          case Essentiality.FALSE:
+            return 'Make essential (O)'
+          case Essentiality.TRUE:
+            return 'Essentiality unknown (O)'
+          default:
+            return 'Make non-essential (O)'
+        }
+      },
+      click: this.toggleEssentiality
     },
     {
-      icon: () => icon(findIconDefinition(
-        this.data?.monotonicity === Monotonicity.INHIBITION
-          ? faRightLeft
-          : this.data?.monotonicity === Monotonicity.ACTIVATION
-            ? faArrowTrendDown
-            : faArrowTrendUp
-      )).node[0],
+      icon: () => {
+        switch (this.data?.monotonicity) {
+          case Monotonicity.ACTIVATION:
+            return icon(faArrowTrendUp).node[0]
+          case Monotonicity.INHIBITION:
+            return icon(faArrowTrendDown).node[0]
+          case Monotonicity.DUAL:
+            return icon(faClone).node[0]
+          default:
+            return icon(faRightLeft).node[0]
+        }
+      },
       label: () => {
         switch (this.data?.monotonicity) {
           case Monotonicity.UNSPECIFIED:
@@ -114,6 +141,8 @@ class FloatMenu extends LitElement {
           case Monotonicity.ACTIVATION:
             return 'Make inhibiting (M)'
           case Monotonicity.INHIBITION:
+            return 'Make dual (M)'
+          case Monotonicity.DUAL:
             return 'Monotonicity off (M)'
           default:
             return 'Toggle monotonicity (M)'
@@ -152,18 +181,17 @@ class FloatMenu extends LitElement {
     }
   }
 
-  private toggleObservability (): void {
-    this.dispatchEvent(new CustomEvent('set-regulation-observable', {
+  private toggleEssentiality (): void {
+    this.dispatchEvent(new CustomEvent('toggle-regulation-essential', {
       detail: {
         id: this.data?.id,
         source: this.data?.source,
         target: this.data?.target,
-        observable: !(this.data?.observable ?? false)
+        essential: this.data?.essential
       },
       bubbles: true,
       composed: true
     }))
-    if (this.data !== undefined) this.data = { ...this.data, observable: !(this.data?.observable ?? false) }
   }
 
   private toggleMonotonicity (): void {
@@ -173,6 +201,9 @@ class FloatMenu extends LitElement {
         monotonicity = Monotonicity.INHIBITION
         break
       case Monotonicity.INHIBITION:
+        monotonicity = Monotonicity.DUAL
+        break
+      case Monotonicity.DUAL:
         monotonicity = Monotonicity.UNSPECIFIED
         break
       default:
@@ -180,12 +211,9 @@ class FloatMenu extends LitElement {
         break
     }
     if (this.data !== undefined) this.data = { ...this.data, monotonicity }
-    this.dispatchEvent(new CustomEvent('set-regulation-monotonicity', {
+    this.dispatchEvent(new CustomEvent('toggle-regulation-monotonicity', {
       detail: {
-        id: this.data?.id,
-        source: this.data?.source,
-        target: this.data?.target,
-        monotonicity
+        ...this.data
       },
       bubbles: true,
       composed: true

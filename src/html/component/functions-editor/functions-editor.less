@@ -1,6 +1,51 @@
 @import '/src/uikit-theme';
 
 .function-list {
-  height: 90%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  max-height: inherit;
+  align-content: start;
+  align-items: stretch;
+  height: 100%;
   overflow: auto;
+  container-name: function-list;
+  container-type: inline-size;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 25em;
+  padding: 0.5em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .heading {
+    color: white;
+  }
+  .uk-button {
+    background: rgb(34, 34, 34);
+  }
+  .section + .section {
+    border-left: 1px solid white;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .uk-button {
+    background: rgb(222, 222, 222);
+  }
+
+  .section + .section {
+    border-left: 1px solid black;
+  }
+}
+
+@container function-list (max-width: 52em) {
+  .section + .section {
+    border-left: none;
+  }
 }

@@ -1,9 +1,9 @@
 import { type Position } from 'cytoscape'
+import { Data } from 'dataclass'
 
 export interface IVariableData {
   id: string
   name: string
-  position: Position
   function: string
 }
 
@@ -13,18 +13,37 @@ export enum ElementType {
   NODE
 }
 
-// TODO: add 'Dual' option
 export enum Monotonicity {
   UNSPECIFIED = 'Unknown',
   ACTIVATION = 'Activation',
   INHIBITION = 'Inhibition',
+  DUAL = 'Dual'
+}
+
+export enum Essentiality {
+  FALSE = 'False',
+  TRUE = 'True',
+  UNKNOWN = 'Unknown'
 }
 
 export interface IRegulationData {
   id: string
   source: string
   target: string
-  // TODO: add 'Observability' enum with three options instead of using bool
-  observable: boolean
+  essential: Essentiality
   monotonicity: Monotonicity
+}
+
+export type ILayoutData = Map<string, Position>
+
+export class ContentData extends Data {
+  variables: IVariableData[] = []
+  layout: ILayoutData = new Map()
+  regulations: IRegulationData[] = []
+}
+
+export interface IFunctionData {
+  id: string
+  function: string
+  variables: IRegulationData[]
 }

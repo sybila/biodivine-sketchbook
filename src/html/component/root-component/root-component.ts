@@ -1,15 +1,28 @@
-import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
-import { ContentData, type TabData } from '../../util/tab-data'
-import { type VariableData, aeonState, type LayoutNodeData, type RegulationData } from '../../../aeon_events'
+import { type TabData } from '../../util/tab-data'
+import {
+  aeonState,
+  type LayoutNodeData, type LayoutNodeDataPrototype,
+  type RegulationData,
+  type VariableData,
+  type VariableIdUpdateData
+} from '../../../aeon_events'
 import { tabList } from '../../util/config'
-import { type IRegulationData, type IVariableData } from '../../util/data-interfaces'
+import {
+  ContentData, Essentiality,
+  type ILayoutData,
+  type IRegulationData,
+  type IVariableData,
+  Monotonicity
+} from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { dummyData } from '../../util/dummy-data'
+import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 
 const LAYOUT = 'default'
 
@@ -25,7 +38,7 @@ class RootComponent extends LitElement {
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
-    this.addEventListener('load-dummy', () => { this.saveData(dummyData.variables, dummyData.regulations) })
+    this.addEventListener('load-dummy', () => { void this.loadDummy() })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
     aeonState.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
@@ -39,9 +52,9 @@ class RootComponent extends LitElement {
     aeonState.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
     this.addEventListener('set-variable-id', this.setVariableId)
     aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
-    this.addEventListener('set-regulation-observable', this.setRegulationObservable)
+    this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
     aeonState.model.regulationObservableChanged.addEventListener(this.#onRegulationObservableChanged.bind(this))
-    this.addEventListener('set-regulation-monotonicity', this.setRegulationMonotonicity)
+    this.addEventListener('toggle-regulation-monotonicity', this.toggleRegulationMonotonicity)
     aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
     this.addEventListener('remove-variable', (e) => {
       void this.removeVariable(e)
@@ -49,9 +62,12 @@ class RootComponent extends LitElement {
     aeonState.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
     this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
     aeonState.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
+    aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
+    aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
+    aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
 
-    aeonState.model.refreshLayouts()
     aeonState.model.refreshVariables()
+    aeonState.model.refreshLayoutNodes(LAYOUT)
     aeonState.model.refreshRegulations()
   }
 
@@ -86,12 +102,12 @@ class RootComponent extends LitElement {
       id: data.id,
       name: data.name
     }
-    this.saveData(variables, this.data.regulations)
+    this.saveData(variables, this.data.regulations, this.data.layout)
   }
 
   private addVariable (event: Event): void {
     const details = (event as CustomEvent).detail
-    const position = {
+    const position: LayoutNodeDataPrototype = {
       layout: LAYOUT,
       px: details.position.x,
       py: details.position.y
@@ -104,49 +120,27 @@ class RootComponent extends LitElement {
     variables.push({
       id: data.id,
       name: data.name,
-      position: { x: 0, y: 0 },
       function: ''
     })
-    this.saveData(variables, this.data.regulations)
+    this.saveData(variables, this.data.regulations, this.data.layout)
   }
 
   private addRegulation (event: Event): void {
     const details = (event as CustomEvent).detail
-    // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (details.observable) {
-      case true:
-        observable = 'True'
-        break
-      default:
-        observable = 'False'
-        break
-    }
-    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, observable)
+    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, details.essential)
   }
 
   #onRegulationCreated (data: RegulationData): void {
     const regulations = [...this.data.regulations]
 
-    // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (data.observable) {
-      case 'True':
-        observable = true
-        break
-      default:
-        observable = false
-        break
-    }
-
     regulations.push({
       id: data.regulator + data.target,
       source: data.regulator,
       target: data.target,
-      observable,
+      essential: this.parseEssentiality(data.observable),
       monotonicity: data.sign
     })
-    this.saveData(this.data.variables, regulations)
+    this.saveData(this.data.variables, regulations, this.data.layout)
   }
 
   private async removeVariable (event: Event): Promise<void> {
@@ -158,15 +152,17 @@ class RootComponent extends LitElement {
   #onVariableRemoved (data: VariableData): void {
     this.saveData(
       this.data.variables.filter((variable) => variable.id !== data.id),
-      this.data.regulations
+      this.data.regulations,
+      this.data.layout
     )
   }
 
   private adjustRegEditor (): void {
-    if (window.outerWidth <= 800) return
+    const visible = this.visibleTabs()
+    if (window.outerWidth <= 800 || visible.includes(this.tabs[0])) return
     window.dispatchEvent(new CustomEvent('adjust-graph', {
       detail: {
-        tabCount: this.visibleTabs().length
+        tabCount: visible.length
       }
     }))
   }
@@ -184,14 +180,15 @@ class RootComponent extends LitElement {
     return this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
   }
 
-  private saveData (variables: IVariableData[], regulations: IRegulationData[]): void {
+  private saveData (variables: IVariableData[], regulations: IRegulationData[], layout: ILayoutData): void {
     // sort nodes to keep alphabetical order in lists
     variables.sort((a, b) => (a.id > b.id ? 1 : -1))
     regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
 
     this.data = ContentData.create({
       variables,
-      regulations
+      regulations,
+      layout
     })
   }
 
@@ -202,16 +199,11 @@ class RootComponent extends LitElement {
 
   #onNodePositionChanged (data: LayoutNodeData): void {
     // TODO: add support for layouts
-    const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.variable)
-    const variables = [...this.data.variables]
-    variables[variableIndex] = {
-      ...variables[variableIndex],
-      position: {
-        x: data.px,
-        y: data.py
-      }
-    }
-    this.saveData(variables, this.data.regulations)
+    this.data.layout.set(data.variable, {
+      x: data.px,
+      y: data.py
+    })
+    this.saveData(this.data.variables, this.data.regulations, this.data.layout)
   }
 
   private setVariableId (event: Event): void {
@@ -219,8 +211,7 @@ class RootComponent extends LitElement {
     aeonState.model.setVariableId(details.oldId, details.newId)
   }
 
-  // TODO: add interface for data
-  #onVariableIdChanged (data: { original_id: string, new_id: string }): void {
+  #onVariableIdChanged (data: VariableIdUpdateData): void {
     const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.original_id)
     if (variableIndex === -1) return
     const variables = [...this.data.variables]
@@ -228,49 +219,40 @@ class RootComponent extends LitElement {
       ...variables[variableIndex],
       id: data.new_id
     }
-    this.saveData(variables, this.data.regulations)
+    // TODO: should this be calculated on FE?
+    this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
+    this.data.layout.delete(data.original_id)
+    const regulations = [...this.data.regulations]
+    regulations.forEach((reg, index) => {
+      if (reg.source === data.original_id) {
+        regulations[index].source = data.new_id
+      }
+      if (reg.target === data.original_id) {
+        regulations[index].target = data.new_id
+      }
+    })
+    this.saveData(variables, this.data.regulations, this.data.layout)
   }
 
-  private setRegulationObservable (event: Event): void {
+  private toggleRegulationEssentiality (event: Event): void {
     const details = (event as CustomEvent).detail
-
-    // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (details.observable) {
-      case true:
-        observable = 'True'
-        break
-      default:
-        observable = 'False'
-        break
-    }
-    aeonState.model.setRegulationObservable(details.source, details.target, observable)
+    aeonState.model.setRegulationObservable(details.source, details.target, getNextEssentiality(details.essential))
   }
 
   #onRegulationObservableChanged (data: RegulationData): void {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
     const regulations = [...this.data.regulations]
-    // TODO: just a hotfix, needs to be changed once we unify the types
-    let observable
-    switch (data.observable) {
-      case 'True':
-        observable = true
-        break
-      default:
-        observable = false
-        break
-    }
     regulations[index] = {
       ...regulations[index],
-      observable
+      essential: this.parseEssentiality(data.observable)
     }
-    this.saveData(this.data.variables, regulations)
+    this.saveData(this.data.variables, regulations, this.data.layout)
   }
 
-  private setRegulationMonotonicity (event: Event): void {
+  private toggleRegulationMonotonicity (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setRegulationSign(details.source, details.target, details.monotonicity)
+    aeonState.model.setRegulationSign(details.source, details.target, getNextMonotonicity(details.monotonicity))
   }
 
   #onRegulationMonotonicityChanged (data: RegulationData): void {
@@ -279,9 +261,9 @@ class RootComponent extends LitElement {
     const regulations = [...this.data.regulations]
     regulations[index] = {
       ...regulations[index],
-      monotonicity: data.sign
+      monotonicity: this.parseMonotonicity(data.sign)
     }
-    this.saveData(this.data.variables, regulations)
+    this.saveData(this.data.variables, regulations, this.data.layout)
   }
 
   private setVariableFunction (event: Event): void {
@@ -294,7 +276,7 @@ class RootComponent extends LitElement {
       ...variables[variableIndex],
       function: details.function
     }
-    this.saveData(variables, this.data.regulations)
+    this.saveData(variables, this.data.regulations, this.data.layout)
   }
 
   private async removeRegulation (event: Event): Promise<void> {
@@ -306,8 +288,73 @@ class RootComponent extends LitElement {
   #onRegulationRemoved (data: RegulationData): void {
     this.saveData(
       this.data.variables,
-      this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
+      this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target),
+      this.data.layout
     )
+  }
+
+  #onVariablesRefreshed (variables: VariableData[]): void {
+    this.saveData(variables.map(v => { return { ...v, function: '' } }), this.data.regulations, this.data.layout)
+  }
+
+  #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
+    const layout: ILayoutData = new Map()
+    layoutNodes.forEach(layoutNode => {
+      layout.set(layoutNode.variable, { x: layoutNode.px, y: layoutNode.py })
+    })
+    this.saveData(this.data.variables, this.data.regulations, layout)
+  }
+
+  #onRegulationsRefreshed (regulations: RegulationData[]): void {
+    const regs = regulations.map((data): IRegulationData => {
+      return {
+        id: data.regulator + data.target,
+        source: data.regulator,
+        target: data.target,
+        essential: this.parseEssentiality(data.observable),
+        monotonicity: this.parseMonotonicity(data.sign)
+      }
+    })
+    this.saveData(this.data.variables, regs, this.data.layout)
+  }
+
+  async loadDummy (): Promise<void> {
+    // TODO: remove sleep
+    this.data.variables.forEach((variable) => {
+      aeonState.model.removeVariable(variable.id)
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 333))
+    this.data.regulations.forEach((reg) => {
+      aeonState.model.removeRegulation(reg.source, reg.target)
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 333))
+    dummyData.variables.forEach((variable) => {
+      aeonState.model.addVariable(variable.id, variable.name, {
+        layout: LAYOUT,
+        px: (dummyData.layout.get(variable.id)?.x) ?? 0,
+        py: (dummyData.layout.get(variable.id)?.y) ?? 0
+      })
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 333))
+    dummyData.regulations.forEach((regulation) => {
+      aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
+    })
+    dummyData.variables.forEach((variable) => {
+      this.dispatchEvent(new CustomEvent('set-variable-function', {
+        detail: {
+          id: variable.id,
+          function: variable.function
+        }
+      }))
+    })
+  }
+
+  private parseMonotonicity (monotonicity: string): Monotonicity {
+    return Monotonicity[monotonicity.toUpperCase() as unknown as keyof typeof Monotonicity] ?? Monotonicity.UNSPECIFIED
+  }
+
+  private parseEssentiality (essentiality: string): Essentiality {
+    return Essentiality[essentiality.toUpperCase() as unknown as keyof typeof Essentiality] ?? Essentiality.UNKNOWN
   }
 
   private async confirmDialog (): Promise<boolean> {
@@ -323,8 +370,10 @@ class RootComponent extends LitElement {
     const visibleTabs = this.visibleTabs()
     return html`
       <div class="root-component">
-        <nav-bar .tabs=${this.tabs}></nav-bar>
-        <div class="content uk-flex uk-flex-row uk-flex-stretch uk-flex-wrap-stretch">
+        <div class="header">
+          <nav-bar .tabs=${this.tabs}></nav-bar>
+        </div>
+        <div class="content">
           ${map(this.tabs, (tab) => html`
             <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
                           class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
