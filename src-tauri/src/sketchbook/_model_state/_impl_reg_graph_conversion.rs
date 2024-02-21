@@ -1,4 +1,4 @@
-use crate::sketchbook::{Essentiality, ModelState, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
@@ -68,28 +68,28 @@ impl ModelState {
     }
 
     /// **(internal)** Static utility method to convert regulation sign given by `Monotonicity`
-    /// used by `lib_param_bn` into the type `RegulationSign` used here.
-    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign`.
-    fn sign_from_monotonicity(monotonicity: Option<Lib_Pbn_Monotonicity>) -> RegulationSign {
+    /// used by `lib_param_bn` into the type `Monotonicity` used here.
+    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `Monotonicity`.
+    fn sign_from_monotonicity(monotonicity: Option<Lib_Pbn_Monotonicity>) -> Monotonicity {
         match monotonicity {
             Some(m) => match m {
-                Lib_Pbn_Monotonicity::Activation => RegulationSign::Activation,
-                Lib_Pbn_Monotonicity::Inhibition => RegulationSign::Inhibition,
+                Lib_Pbn_Monotonicity::Activation => Monotonicity::Activation,
+                Lib_Pbn_Monotonicity::Inhibition => Monotonicity::Inhibition,
             },
-            None => RegulationSign::Unknown,
+            None => Monotonicity::Unknown,
         }
     }
 
     /// **(internal)** Static utility method to convert regulation sign from the type
-    /// `RegulationSign` used here into the type `Monotonicity` used in `lib_param_bn`.
-    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign` and `Unknown` is used instead.
-    fn sign_to_monotonicity(regulation_sign: &RegulationSign) -> Option<Lib_Pbn_Monotonicity> {
+    /// `Monotonicity` used here into the type `Monotonicity` used in `lib_param_bn`.
+    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `Monotonicity` and `Unknown` is used instead.
+    fn sign_to_monotonicity(regulation_sign: &Monotonicity) -> Option<Lib_Pbn_Monotonicity> {
         match regulation_sign {
-            RegulationSign::Activation => Some(Lib_Pbn_Monotonicity::Activation),
-            RegulationSign::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),
-            RegulationSign::Unknown => None,
+            Monotonicity::Activation => Some(Lib_Pbn_Monotonicity::Activation),
+            Monotonicity::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),
+            Monotonicity::Unknown => None,
             // todo: fix
-            RegulationSign::Dual => None,
+            Monotonicity::Dual => None,
         }
     }
 

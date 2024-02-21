@@ -1,19 +1,46 @@
+use crate::sketchbook::{Essentiality, FunctionTree, Monotonicity};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 
-/// An explicit uninterpreted fn of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+/// An explicit uninterpreted function of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
+/// Fields `essentiality_list` and `monotonicity_list` hold information regarding properties of the function
+/// with respect to each of its arguments (in order).
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFn {
     name: String,
     arity: u32,
+    essentialities: Vec<Essentiality>,
+    monotonicities: Vec<Monotonicity>,
+    tree: Option<FunctionTree>,
 }
 
 impl UninterpretedFn {
-    /// Create new `UninterpretedFn` objects.
-    pub fn new(name: &str, arity: u32) -> UninterpretedFn {
+    /// Create new `UninterpretedFn` object.
+    pub fn new(
+        name: &str,
+        arity: u32,
+        essentialities: Vec<Essentiality>,
+        monotonicities: Vec<Monotonicity>,
+        tree: Option<FunctionTree>,
+    ) -> UninterpretedFn {
         UninterpretedFn {
             name: name.to_string(),
             arity,
+            essentialities,
+            monotonicities,
+            tree,
+        }
+    }
+
+    /// Create new `UninterpretedFn` object that has no constraints regarding monotonicity, essentiality,
+    /// or the function itself.
+    pub fn new_without_constraints(name: &str, arity: u32) -> UninterpretedFn {
+        UninterpretedFn {
+            name: name.to_string(),
+            arity,
+            essentialities: vec![Essentiality::Unknown; arity as usize],
+            monotonicities: vec![Monotonicity::Unknown; arity as usize],
+            tree: None,
         }
     }
 
@@ -56,7 +83,7 @@ mod tests {
 
     #[test]
     fn basic_uninterpreted_fn_test() {
-        let p = UninterpretedFn::new("f", 3);
+        let p = UninterpretedFn::new_without_constraints("f", 3);
         assert_eq!(3, p.get_arity());
         assert_eq!("f", p.get_name());
         assert_eq!("f(x_1, x_2, x_3)", p.to_string().as_str());

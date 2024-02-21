@@ -1,4 +1,4 @@
-use crate::sketchbook::{Essentiality, Regulation, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, Monotonicity, Regulation, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -10,7 +10,7 @@ use std::str::FromStr;
 pub struct RegulationData {
     pub regulator: String,
     pub target: String,
-    pub sign: RegulationSign,
+    pub sign: Monotonicity,
     pub essential: Essentiality,
 }
 
@@ -19,7 +19,7 @@ impl RegulationData {
         regulator_id: &VarId,
         target_id: &VarId,
         essential: &Essentiality,
-        sign: &RegulationSign,
+        sign: &Monotonicity,
     ) -> RegulationData {
         RegulationData {
             regulator: regulator_id.to_string(),

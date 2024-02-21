@@ -1,4 +1,4 @@
-use crate::sketchbook::{Essentiality, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, Monotonicity, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -53,7 +53,7 @@ pub struct Regulation {
     regulator: VarId,
     target: VarId,
     essential: Essentiality,
-    regulation_sign: RegulationSign,
+    regulation_sign: Monotonicity,
 }
 
 /// Methods for safely generating new `Regulations`.
@@ -63,7 +63,7 @@ impl Regulation {
         regulator: VarId,
         target: VarId,
         essential: Essentiality,
-        regulation_sign: RegulationSign,
+        regulation_sign: Monotonicity,
     ) -> Regulation {
         Regulation {
             regulator,
@@ -94,15 +94,15 @@ impl Regulation {
     /// `regulation_sign`, `essentiality` and `target`. If the string is not valid, returns `None`.
     pub fn try_components_from_string(
         regulation_str: &str,
-    ) -> Result<(String, RegulationSign, Essentiality, String), String> {
+    ) -> Result<(String, Monotonicity, Essentiality, String), String> {
         REGULATION_REGEX
             .captures(regulation_str.trim())
             .map(|captures| {
                 let regulation_sign = match &captures["regulation_sign"] {
-                    "|" => RegulationSign::Inhibition,
-                    ">" => RegulationSign::Activation,
-                    "*" => RegulationSign::Dual,
-                    "?" => RegulationSign::Unknown,
+                    "|" => Monotonicity::Inhibition,
+                    ">" => Monotonicity::Activation,
+                    "*" => Monotonicity::Dual,
+                    "?" => Monotonicity::Unknown,
                     _ => unreachable!("Nothing else matches this group."),
                 };
                 let essential = match &captures["essential"] {
@@ -137,7 +137,7 @@ impl Regulation {
     }
 
     /// Get the sign of the regulation.
-    pub fn get_sign(&self) -> &RegulationSign {
+    pub fn get_sign(&self) -> &Monotonicity {
         &self.regulation_sign
     }
 
@@ -165,7 +165,7 @@ impl Regulation {
     }
 
     /// Directly swap original sign with a given one.
-    pub fn swap_sign(&mut self, new_sign: RegulationSign) {
+    pub fn swap_sign(&mut self, new_sign: Monotonicity) {
         self.regulation_sign = new_sign;
     }
 
@@ -195,7 +195,7 @@ impl Display for Regulation {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{Essentiality, Regulation, RegulationSign};
+    use crate::sketchbook::{Essentiality, Monotonicity, Regulation};
 
     #[test]
     fn regulation_conversion() {
@@ -216,14 +216,14 @@ mod tests {
             Essentiality::True,
         ];
         let regulation_sign = vec![
-            RegulationSign::Unknown,
-            RegulationSign::Unknown,
-            RegulationSign::Activation,
-            RegulationSign::Activation,
-            RegulationSign::Inhibition,
-            RegulationSign::Inhibition,
-            RegulationSign::Dual,
-            RegulationSign::Dual,
+            Monotonicity::Unknown,
+            Monotonicity::Unknown,
+            Monotonicity::Activation,
+            Monotonicity::Activation,
+            Monotonicity::Inhibition,
+            Monotonicity::Inhibition,
+            Monotonicity::Dual,
+            Monotonicity::Dual,
         ];
 
         for i in 0..regulation_strings.len() {

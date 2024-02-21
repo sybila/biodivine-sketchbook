@@ -5,7 +5,7 @@ use crate::sketchbook::layout::{LayoutId, NodePosition};
 use crate::sketchbook::simplified_structs::{
     LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
 };
-use crate::sketchbook::{Essentiality, ModelState, RegulationSign, UninterpretedFnId, VarId};
+use crate::sketchbook::{Essentiality, ModelState, Monotonicity, UninterpretedFnId, VarId};
 
 use serde_json::json;
 use std::str::FromStr;
@@ -381,7 +381,7 @@ impl ModelState {
         let regulation_data = RegulationData::from_str(payload.as_str())?;
         let regulator_id = self.get_var_id(&regulation_data.regulator)?;
         let target_id = self.get_var_id(&regulation_data.target)?;
-        let sign: RegulationSign = regulation_data.sign;
+        let sign: Monotonicity = regulation_data.sign;
         let essential: Essentiality = regulation_data.essential;
 
         // perform the event, prepare the state-change variant (path and payload stay the same)
@@ -440,7 +440,7 @@ impl ModelState {
         } else if Self::starts_with("set_sign", at_path).is_some() {
             // get the payload - a string for the "new_sign"
             let sign_str = Self::clone_payload_str(event, component_name)?;
-            let new_sign: RegulationSign = serde_json::from_str(&sign_str)?;
+            let new_sign: Monotonicity = serde_json::from_str(&sign_str)?;
 
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_sign = *original_reg.get_sign();
@@ -755,7 +755,7 @@ mod tests {
     use crate::sketchbook::simplified_structs::{
         LayoutData, LayoutNodeData, RegulationData, VariableData,
     };
-    use crate::sketchbook::{Essentiality, ModelState, RegulationSign, VarId};
+    use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
     use serde_json::json;
 
     /// Check that after applying the reverse event of `result` to the `model` with relative
@@ -961,7 +961,7 @@ mod tests {
 
         // test event for changing regulation's sign
         let full_path = ["model", "regulation", "a", "b", "set_sign"];
-        let new_sign = serde_json::to_string(&RegulationSign::Inhibition).unwrap();
+        let new_sign = serde_json::to_string(&Monotonicity::Inhibition).unwrap();
         let event = Event::build(&full_path, Some(&new_sign));
         let result = model.perform_event(&event, &full_path[1..]).unwrap();
 

@@ -1,15 +1,19 @@
 use crate::sketchbook::layout::{Layout, LayoutId};
 
+/// **(internal)** Utility methods for `BinaryOp`.
+mod _binary_op;
 /// **(internal)** Utility methods for `Essentiality`.
 mod _essentiality;
+/// **(internal)** Utility methods for `FunctionTree`.
+mod _function_tree;
 /// **(internal)** Utility methods for `Identifier`.
 mod _identifier;
 /// **(internal)** Utility methods for `ModelState`.
 mod _model_state;
+/// **(internal)** Utility methods for `Monotonicity`.
+mod _monotonicity;
 /// **(internal)** Utility methods for `Regulation`.
 mod _regulation;
-/// **(internal)** Utility methods for `RegulationSign`.
-mod _regulation_sign;
 /// **(internal)** Utility methods for `UninterpretedFn`.
 mod _uninterpreted_fn;
 /// **(internal)** Utility methods for `UninterpretedFnId`.
@@ -27,11 +31,13 @@ pub mod layout;
 /// This includes simplified "data carriers" for variables, regulations, and layouts.
 pub mod simplified_structs;
 
+pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
+pub use _function_tree::FunctionTree;
 pub use _identifier::Identifier;
 pub use _model_state::ModelState;
+pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
-pub use _regulation_sign::RegulationSign;
 pub use _uninterpreted_fn::UninterpretedFn;
 pub use _uninterpreted_fn_id::UninterpretedFnId;
 pub use _update_function::UpdateFunction;

@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Essentiality, Layout, LayoutId, ModelState, Regulation, RegulationSign, UninterpretedFn,
+    Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
     UninterpretedFnId, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
@@ -88,18 +88,21 @@ impl ModelState {
     }
 
     /// Add a new uninterpreted fn with given `id`, `name` and `arity` to this `ModelState`.
+    /// Note that constraints regarding monotonicity or essentiality must be added separately.
     ///
     /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_uninterpreted_fn(
+    pub fn add_new_uninterpreted_fn(
         &mut self,
         fn_id: UninterpretedFnId,
         name: &str,
         arity: u32,
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
-        self.uninterpreted_fns
-            .insert(fn_id.clone(), UninterpretedFn::new(name, arity));
+        self.uninterpreted_fns.insert(
+            fn_id.clone(),
+            UninterpretedFn::new_without_constraints(name, arity),
+        );
         Ok(())
     }
 
@@ -114,7 +117,7 @@ impl ModelState {
         arity: u32,
     ) -> Result<(), String> {
         let fn_id = UninterpretedFnId::new(id)?;
-        self.add_uninterpreted_fn(fn_id, name, arity)
+        self.add_new_uninterpreted_fn(fn_id, name, arity)
     }
 
     /// Shorthand to add a list of new uninterpreted fns with given string IDs, names, and arities to this `ModelState`.
@@ -140,7 +143,7 @@ impl ModelState {
         regulator: VarId,
         target: VarId,
         essential: Essentiality,
-        regulation_sign: RegulationSign,
+        regulation_sign: Monotonicity,
     ) -> Result<(), String> {
         self.assert_valid_variable(&regulator)?;
         self.assert_valid_variable(&target)?;
@@ -405,7 +408,7 @@ impl ModelState {
         &mut self,
         regulator: &VarId,
         target: &VarId,
-        new_sign: &RegulationSign,
+        new_sign: &Monotonicity,
     ) -> Result<(), String> {
         // all validity checks are performed inside
         let regulation = self.get_regulation(regulator, target)?.clone();
@@ -657,7 +660,7 @@ impl ModelState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{Essentiality, ModelState, RegulationSign};
+    use crate::sketchbook::{Essentiality, ModelState, Monotonicity};
 
     /// Test generating new default variant of the `ModelState`.
     #[test]
@@ -799,7 +802,7 @@ mod tests {
         assert!(model.add_regulation_by_str("a -> b").is_err());
         assert!(model.add_regulation_by_str("a -| b").is_err());
         assert!(model
-            .add_regulation(var_a, var_b, Essentiality::Unknown, RegulationSign::Dual)
+            .add_regulation(var_a, var_b, Essentiality::Unknown, Monotonicity::Dual)
             .is_err());
 
         // adding reg with invalid vars or invalid format should cause error
