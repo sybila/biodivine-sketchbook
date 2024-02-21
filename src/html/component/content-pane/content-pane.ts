@@ -28,7 +28,7 @@ export class ContentPane extends LitElement {
 
   protected render (): TemplateResult {
     return html`
-      <div class="content-pane uk-container uk-container-expand">
+      <div class="content-pane">
         <button class="uk-button uk-button-small pin-button" @click="${this.pin}">
           ${this.tab.pinned ? icon(faLock).node : icon(faLockOpen).node}
         </button>

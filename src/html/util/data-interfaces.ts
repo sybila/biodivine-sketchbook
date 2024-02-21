@@ -30,7 +30,6 @@ export interface IRegulationData {
   id: string
   source: string
   target: string
-  // TODO: add 'Observability' enum with three options instead of using bool
   essential: Essentiality
   monotonicity: Monotonicity
 }
@@ -41,4 +40,10 @@ export class ContentData extends Data {
   variables: IVariableData[] = []
   layout: ILayoutData = new Map()
   regulations: IRegulationData[] = []
+}
+
+export interface IFunctionData {
+  id: string
+  function: string
+  variables: IRegulationData[]
 }

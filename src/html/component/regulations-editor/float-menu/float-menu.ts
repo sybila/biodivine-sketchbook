@@ -211,12 +211,9 @@ class FloatMenu extends LitElement {
         break
     }
     if (this.data !== undefined) this.data = { ...this.data, monotonicity }
-    this.dispatchEvent(new CustomEvent('set-regulation-monotonicity', {
+    this.dispatchEvent(new CustomEvent('toggle-regulation-monotonicity', {
       detail: {
-        id: this.data?.id,
-        source: this.data?.source,
-        target: this.data?.target,
-        monotonicity
+        ...this.data
       },
       bubbles: true,
       composed: true

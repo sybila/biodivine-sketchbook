@@ -19,6 +19,7 @@ class RegulationsEditor extends LitElement {
   cy: Core | undefined
   edgeHandles: EdgeHandlesInstance | undefined
   lastTabCount = 1
+  highlighted = ''
   @property() contentData = ContentData.create()
   @state() menuType = ElementType.NONE
   @state() menuPosition = { x: 0, y: 0 }
@@ -66,6 +67,7 @@ class RegulationsEditor extends LitElement {
     this.cy?.edges().remove()
     this.addNodes()
     this.addEdges()
+    this.cy?.$id(this.highlighted).addClass('highlight')
     const elementID = this.menuData?.id ?? ''
     const type = this.menuType
     if (type === ElementType.NONE) return
@@ -114,10 +116,12 @@ class RegulationsEditor extends LitElement {
   }
 
   private highlightRegulation (event: Event): void {
-    this.cy?.$id((event as CustomEvent).detail.id).addClass('highlight')
+    this.highlighted = (event as CustomEvent).detail.id
+    this.cy?.$id(this.highlighted).addClass('highlight')
   }
 
   private resetHighlights (): void {
+    this.highlighted = ''
     this.cy?.edges().removeClass('highlight')
     this.cy?.nodes().removeClass('highlight')
   }

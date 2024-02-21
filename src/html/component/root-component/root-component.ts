@@ -22,6 +22,7 @@ import {
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { dummyData } from '../../util/dummy-data'
+import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 
 const LAYOUT = 'default'
 
@@ -53,7 +54,7 @@ class RootComponent extends LitElement {
     aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
     this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
     aeonState.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
-    this.addEventListener('set-regulation-monotonicity', this.setRegulationMonotonicity)
+    this.addEventListener('toggle-regulation-monotonicity', this.toggleRegulationMonotonicity)
     aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
     this.addEventListener('remove-variable', (e) => {
       void this.removeVariable(e)
@@ -157,10 +158,11 @@ class RootComponent extends LitElement {
   }
 
   private adjustRegEditor (): void {
-    if (window.outerWidth <= 800) return
+    const visible = this.visibleTabs()
+    if (window.outerWidth <= 800 || visible.includes(this.tabs[0])) return
     window.dispatchEvent(new CustomEvent('adjust-graph', {
       detail: {
-        tabCount: this.visibleTabs().length
+        tabCount: visible.length
       }
     }))
   }
@@ -234,27 +236,13 @@ class RootComponent extends LitElement {
 
   private toggleRegulationEssentiality (event: Event): void {
     const details = (event as CustomEvent).detail
-
-    let essentiality
-    switch (details.essential) {
-      case Essentiality.FALSE:
-        essentiality = Essentiality.TRUE
-        break
-      case Essentiality.TRUE:
-        essentiality = Essentiality.UNKNOWN
-        break
-      default:
-        essentiality = Essentiality.FALSE
-        break
-    }
-    aeonState.model.setRegulationEssentiality(details.source, details.target, essentiality)
+    aeonState.model.setRegulationEssentiality(details.source, details.target, getNextEssentiality(details.essential))
   }
 
   #regulationEssentialityChanged (data: RegulationData): void {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
     const regulations = [...this.data.regulations]
-    // TODO: just a hotfix, needs to be changed once we unify the types
     regulations[index] = {
       ...regulations[index],
       essential: this.parseEssentiality(data.essential)
@@ -262,9 +250,9 @@ class RootComponent extends LitElement {
     this.saveData(this.data.variables, regulations, this.data.layout)
   }
 
-  private setRegulationMonotonicity (event: Event): void {
+  private toggleRegulationMonotonicity (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setRegulationSign(details.source, details.target, details.monotonicity)
+    aeonState.model.setRegulationSign(details.source, details.target, getNextMonotonicity(details.monotonicity))
   }
 
   #onRegulationMonotonicityChanged (data: RegulationData): void {
@@ -382,8 +370,10 @@ class RootComponent extends LitElement {
     const visibleTabs = this.visibleTabs()
     return html`
       <div class="root-component">
-        <nav-bar .tabs=${this.tabs}></nav-bar>
-        <div class="content uk-flex uk-flex-row uk-flex-stretch uk-flex-wrap-stretch">
+        <div class="header">
+          <nav-bar .tabs=${this.tabs}></nav-bar>
+        </div>
+        <div class="content">
           ${map(this.tabs, (tab) => html`
             <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
                           class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}

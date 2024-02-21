@@ -2,7 +2,7 @@ import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import style_less from './rename-dialog.less?inline'
 import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
-import { appWindow, LogicalSize, PhysicalSize } from '@tauri-apps/api/window'
+import { appWindow, LogicalSize } from '@tauri-apps/api/window'
 
 @customElement('rename-dialog')
 class RenameDialog extends LitElement {
@@ -21,7 +21,6 @@ class RenameDialog extends LitElement {
     })
     await emit('loaded', {})
     this.variableIdField?.focus()
-    console.log(document.querySelector('body')?.offsetHeight)
     await appWindow.setSize(new LogicalSize(window.outerWidth, (document.querySelector('body')?.offsetHeight ?? 200) + 20))
   }
 
@@ -32,11 +31,9 @@ class RenameDialog extends LitElement {
       this.variableIdField?.classList.remove('uk-form-danger')
       if (this.variableId === '') {
         this.variableIdField?.classList.add('uk-form-danger')
-        console.log('id empty')
       }
       if (this.name === '') {
         this.nameField?.classList.add('uk-form-danger')
-        console.log('name empty')
       }
 
       return
