@@ -1,4 +1,4 @@
-use crate::sketchbook::{LayoutId, ModelState, ParamId, VarId};
+use crate::sketchbook::{LayoutId, ModelState, UninterpretedFnId, VarId};
 
 /// Methods for safely generating valid instances of identifiers for the current `ModelState`.
 impl ModelState {
@@ -80,43 +80,47 @@ impl ModelState {
         LayoutId::new(format!("{}_{}", transformed_name, self.num_layouts()).as_str()).unwrap()
     }
 
-    /// Generate valid `ParamId` that's currently not used by parameters in this `ModelState`.
+    /// Generate valid `UninterpretedFnId` that's currently not used by uninterpreted_fns in this `ModelState`.
     ///
-    /// First, the param's name or its transformation by replacing invalid characters are tried.
+    /// First, the uninterpreted fn's name or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
     ///
     /// **Warning:** Do not use this to pre-generate more than one id at a time, as the process
-    /// is deterministic and might generate the same IDs. Always generate an Id, add that param to
-    /// the model, and then repeat for other params.
-    pub fn generate_param_id(&self, param_name: &str) -> ParamId {
+    /// is deterministic and might generate the same IDs. Always generate an Id, add that fn to
+    /// the model, and then repeat for other fns.
+    pub fn generate_uninterpreted_fn_id(&self, fn_name: &str) -> UninterpretedFnId {
         // first try to generate the id using the name
-        if let Ok(param_id) = ParamId::new(param_name) {
+        if let Ok(fn_id) = UninterpretedFnId::new(fn_name) {
             // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_param_id(&param_id) {
-                return param_id;
+            if !self.is_valid_uninterpreted_fn_id(&fn_id) {
+                return fn_id;
             }
         }
 
         // try to transform the name by removing invalid characters
-        let transformed_name = Self::transform_to_id(param_name);
-        if let Ok(param_id) = ParamId::new(transformed_name.as_str()) {
+        let transformed_name = Self::transform_to_id(fn_name);
+        if let Ok(fn_id) = UninterpretedFnId::new(transformed_name.as_str()) {
             // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_param_id(&param_id) {
-                return param_id;
+            if !self.is_valid_uninterpreted_fn_id(&fn_id) {
+                return fn_id;
             }
         }
 
         // finally, append a number after the name
-        // start searching at 0, until we try `self.num_params()` options
-        for n in 0..self.num_params() {
-            let param_id = ParamId::new(format!("{}_{}", transformed_name, n).as_str()).unwrap();
-            if !self.is_valid_param_id(&param_id) {
-                return param_id;
+        // start searching at 0, until we try `self.num_uninterpreted_fns()` options
+        for n in 0..self.num_uninterpreted_fns() {
+            let fn_id =
+                UninterpretedFnId::new(format!("{}_{}", transformed_name, n).as_str()).unwrap();
+            if !self.is_valid_uninterpreted_fn_id(&fn_id) {
+                return fn_id;
             }
         }
 
-        // this must be valid, we already tried more than self.num_params() options
-        ParamId::new(format!("{}_{}", transformed_name, self.num_params()).as_str()).unwrap()
+        // this must be valid, we already tried more than self.num_uninterpreted_fns() options
+        UninterpretedFnId::new(
+            format!("{}_{}", transformed_name, self.num_uninterpreted_fns()).as_str(),
+        )
+        .unwrap()
     }
 
     /// **(internal)** Transform a string to an identifier string by removing all the

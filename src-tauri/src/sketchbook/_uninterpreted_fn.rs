@@ -1,45 +1,45 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 
-/// An explicit parameter of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
+/// An explicit uninterpreted fn of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Parameter {
+pub struct UninterpretedFn {
     name: String,
     arity: u32,
 }
 
-impl Parameter {
-    /// Create new `Parameter` objects.
-    pub fn new(name: &str, arity: u32) -> Parameter {
-        Parameter {
+impl UninterpretedFn {
+    /// Create new `UninterpretedFn` objects.
+    pub fn new(name: &str, arity: u32) -> UninterpretedFn {
+        UninterpretedFn {
             name: name.to_string(),
             arity,
         }
     }
 
-    /// Human-readable name of this parameter.
+    /// Human-readable name of this uninterpreted fn.
     pub fn get_name(&self) -> &str {
         &self.name
     }
 
-    /// Read parameter arity (number of arguments).
+    /// Read arity (number of arguments) of this uninterpreted fn.
     pub fn get_arity(&self) -> u32 {
         self.arity
     }
 
-    /// Rename this parameter.
+    /// Rename this uninterpreted fn.
     pub fn set_name(&mut self, new_name: &str) {
         // todo: perform some check on the name string - at least disallow newlines
         self.name = new_name.to_string();
     }
 
-    /// Change arity of this parameter.
+    /// Change arity of this uninterpreted fn.
     pub fn set_arity(&mut self, new_arity: u32) {
         self.arity = new_arity;
     }
 }
 
-impl Display for Parameter {
+impl Display for UninterpretedFn {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut args = Vec::new();
         for i in 1..=self.arity {
@@ -52,11 +52,11 @@ impl Display for Parameter {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::Parameter;
+    use crate::sketchbook::UninterpretedFn;
 
     #[test]
-    fn basic_parameter_struct_test() {
-        let p = Parameter::new("f", 3);
+    fn basic_uninterpreted_fn_test() {
+        let p = UninterpretedFn::new("f", 3);
         assert_eq!(3, p.get_arity());
         assert_eq!("f", p.get_name());
         assert_eq!("f(x_1, x_2, x_3)", p.to_string().as_str());

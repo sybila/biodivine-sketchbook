@@ -1,6 +1,6 @@
 use crate::sketchbook::{
-    Essentiality, Layout, LayoutId, ModelState, ParamId, Parameter, Regulation, RegulationSign,
-    VarId, Variable,
+    Essentiality, Layout, LayoutId, ModelState, Regulation, RegulationSign, UninterpretedFn,
+    UninterpretedFnId, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -9,21 +9,21 @@ use std::collections::{HashMap, HashSet};
 /// These methods focus on general manipulation with variables/regulations.
 /// See below for API focusing on layout manipulation.
 impl ModelState {
-    /// Create a new `ModelState` that does not contain any `Variables`, `Parameters`, or `Regulations` yet.
-    /// It contains a single empty default `Layout`.
+    /// Create a new `ModelState` that does not contain any `Variables`, `Uninterpreted Functions`, or `Regulations`
+    /// yet. It contains a single empty default `Layout`.
     pub fn new() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
         let default_layout = Layout::new_empty(ModelState::get_default_layout_name());
         ModelState {
             variables: HashMap::new(),
-            parameters: HashMap::new(),
+            uninterpreted_fns: HashMap::new(),
             regulations: HashSet::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
         }
     }
 
     /// Create new `ModelState` using provided variable name-ID pairs, both strings.
-    /// Result will contain no `Parameters` or `Regulations`, and a single default `Layout`.
+    /// Result will contain no `UninterpretedFns` or `Regulations`, and a single default `Layout`.
     ///
     /// The IDs must be unique valid identifiers.
     /// The names might be same as the IDs. It also might be empty or non-unique.
@@ -87,36 +87,46 @@ impl ModelState {
         Ok(())
     }
 
-    /// Add a new parameter with given `id`, `name` and `arity` to this `ModelState`.
+    /// Add a new uninterpreted fn with given `id`, `name` and `arity` to this `ModelState`.
     ///
-    /// The ID must be valid identifier that is not already used by some other parameter.
+    /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_param(&mut self, param_id: ParamId, name: &str, arity: u32) -> Result<(), String> {
-        self.assert_no_parameter(&param_id)?;
-        self.parameters
-            .insert(param_id.clone(), Parameter::new(name, arity));
+    pub fn add_uninterpreted_fn(
+        &mut self,
+        fn_id: UninterpretedFnId,
+        name: &str,
+        arity: u32,
+    ) -> Result<(), String> {
+        self.assert_no_uninterpreted_fn(&fn_id)?;
+        self.uninterpreted_fns
+            .insert(fn_id.clone(), UninterpretedFn::new(name, arity));
         Ok(())
     }
 
-    /// Add a new parameter with given string `id`, `name`, and `arity` to this `ModelState`.
+    /// Add a new uninterpreted fn with given string `id`, `name`, and `arity` to this `ModelState`.
     ///
-    /// The ID must be valid identifier that is not already used by some other parameter.
+    /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_param_by_str(&mut self, id: &str, name: &str, arity: u32) -> Result<(), String> {
-        let param_id = ParamId::new(id)?;
-        self.add_param(param_id, name, arity)
+    pub fn add_uninterpreted_fn_by_str(
+        &mut self,
+        id: &str,
+        name: &str,
+        arity: u32,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.add_uninterpreted_fn(fn_id, name, arity)
     }
 
-    /// Shorthand to add a list of new parameters with given string IDs, names, and arities to this `ModelState`.
+    /// Shorthand to add a list of new uninterpreted fns with given string IDs, names, and arities to this `ModelState`.
     ///
-    /// Each ID must be valid identifier that is not already used by some other param.
+    /// Each ID must be valid identifier that is not already used by some other uninterpreted fns.
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_multiple_params(
+    pub fn add_multiple_uninterpreted_fns(
         &mut self,
         id_name_arity_tuples: Vec<(&str, &str, u32)>,
     ) -> Result<(), String> {
         for (id, name, arity) in id_name_arity_tuples {
-            self.add_param_by_str(id, name, arity)?;
+            self.add_uninterpreted_fn_by_str(id, name, arity)?;
         }
         Ok(())
     }
@@ -266,45 +276,62 @@ impl ModelState {
         self.remove_var(&var_id)
     }
 
-    /// Set the name of a parameter given by id `param_id`.
-    pub fn set_param_name(&mut self, param_id: &ParamId, name: &str) -> Result<(), String> {
-        self.assert_valid_parameter(param_id)?;
-        let parameter = self.parameters.get_mut(param_id).unwrap();
-        parameter.set_name(name);
+    /// Set the name of an uninterpreted fn given by id `fn_id`.
+    pub fn set_uninterpreted_fn_name(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        name: &str,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_name(name);
         Ok(())
     }
 
-    /// Set the name of a parameter given by string `id`.
-    pub fn set_param_name_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
-        let param_id = ParamId::new(id)?;
-        self.set_param_name(&param_id, name)
+    /// Set the name of an uninterpreted fn given by string `id`.
+    pub fn set_uninterpreted_fn_name_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_name(&fn_id, name)
     }
 
-    /// Set the arity of a parameter given by id `param_id`.
-    pub fn set_param_arity(&mut self, param_id: &ParamId, arity: u32) -> Result<(), String> {
-        self.assert_valid_parameter(param_id)?;
-        let parameter = self.parameters.get_mut(param_id).unwrap();
-        parameter.set_arity(arity);
+    /// Set the arity of an uninterpreted fn given by id `fn_id`.
+    pub fn set_uninterpreted_fn_arity(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        arity: u32,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_arity(arity);
         Ok(())
     }
 
-    /// Set the arity of a parameter given by string `id`.
-    pub fn set_param_arity_by_str(&mut self, id: &str, arity: u32) -> Result<(), String> {
-        let param_id = ParamId::new(id)?;
-        self.set_param_arity(&param_id, arity)
+    /// Set the arity of an uninterpreted fn given by string `id`.
+    pub fn set_uninterpreted_fn_arity_by_str(
+        &mut self,
+        id: &str,
+        arity: u32,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_arity(&fn_id, arity)
     }
 
-    /// Set the id of parameter with `original_id` to `new_id`.
-    pub fn set_param_id(&mut self, original_id: &ParamId, new_id: ParamId) -> Result<(), String> {
-        self.assert_valid_parameter(original_id)?;
-        self.assert_no_parameter(&new_id)?;
+    /// Set the id of an uninterpreted fn with `original_id` to `new_id`.
+    pub fn set_uninterpreted_fn_id(
+        &mut self,
+        original_id: &UninterpretedFnId,
+        new_id: UninterpretedFnId,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(original_id)?;
+        self.assert_no_uninterpreted_fn(&new_id)?;
 
         // all changes must be done directly, not through some helper fns, because the state
         // might not be consistent inbetween various deletions
 
-        // change id in params list
-        if let Some(param) = self.parameters.remove(original_id) {
-            self.parameters.insert(new_id.clone(), param);
+        // change id in uninterpreted_fns list
+        if let Some(uninterpreted_fn) = self.uninterpreted_fns.remove(original_id) {
+            self.uninterpreted_fns
+                .insert(new_id.clone(), uninterpreted_fn);
         }
 
         // todo - in future, update fns must be modified here
@@ -312,35 +339,39 @@ impl ModelState {
         Ok(())
     }
 
-    /// Set the id of parameter given by string `original_id` to `new_id`.
-    pub fn set_param_id_by_str(&mut self, original_id: &str, new_id: &str) -> Result<(), String> {
-        let original_id = ParamId::new(original_id)?;
-        let new_id = ParamId::new(new_id)?;
-        self.set_param_id(&original_id, new_id)
+    /// Set the id of an uninterpreted fn given by string `original_id` to `new_id`.
+    pub fn set_uninterpreted_fn_id_by_str(
+        &mut self,
+        original_id: &str,
+        new_id: &str,
+    ) -> Result<(), String> {
+        let original_id = UninterpretedFnId::new(original_id)?;
+        let new_id = UninterpretedFnId::new(new_id)?;
+        self.set_uninterpreted_fn_id(&original_id, new_id)
     }
 
-    /// Remove the parameter with given `param_id` from this `ModelState`. Note that this parameter
-    /// must not be used in any update fn.
+    /// Remove the uninterpreted fn with given `fn_id` from this `ModelState`. Note that this
+    /// uninterpreted fn must not be used in any update fn.
     ///
-    /// Also returns `Err` in case the `param_id` is not a valid parameter's identifier.
-    pub fn remove_param(&mut self, param_id: &ParamId) -> Result<(), String> {
-        self.assert_valid_parameter(param_id)?;
+    /// Also returns `Err` in case the `fn_id` is not a valid uninterpreted fn's identifier.
+    pub fn remove_uninterpreted_fn(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
 
         // todo - first check update fns if it is safe to delete
 
-        if self.parameters.remove(param_id).is_none() {
-            panic!("Error when removing param {param_id} from the parameter map.")
+        if self.uninterpreted_fns.remove(fn_id).is_none() {
+            panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")
         }
         Ok(())
     }
 
-    /// Remove the parameter with given string `id` from this `ModelState`. Note that this parameter
-    /// must not be used in any update fn.
+    /// Remove the uninterpreted_fn with given string `id` from this `ModelState`. Note that this
+    /// uninterpreted_fn must not be used in any update fn.
     ///
-    /// Also returns `Err` in case the `param_id` is not a valid parameter's identifier.
-    pub fn remove_param_by_str(&mut self, id: &str) -> Result<(), String> {
-        let param_id = ParamId::new(id)?;
-        self.remove_param(&param_id)
+    /// Also returns `Err` in case the `fn_id` is not a valid uninterpreted_fn's identifier.
+    pub fn remove_uninterpreted_fn_by_str(&mut self, id: &str) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.remove_uninterpreted_fn(&fn_id)
     }
 
     /// Remove a `Regulation` pointing from `regulator` to `target` from this `ModelState`.
@@ -578,22 +609,22 @@ impl ModelState {
         }
     }
 
-    /// **(internal)** Utility method to ensure there is no parameter with given Id yet.
-    fn assert_no_parameter(&self, param_id: &ParamId) -> Result<(), String> {
-        if self.get_parameter(param_id).is_err() {
+    /// **(internal)** Utility method to ensure there is no uninterpreted_fn with given Id yet.
+    fn assert_no_uninterpreted_fn(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        if self.get_uninterpreted_fn(fn_id).is_err() {
             Ok(())
         } else {
             Err(format!(
-                "Invalid parameter: Parameter with id {param_id} already exists."
+                "Invalid uninterpreted fn: UninterpretedFn with id {fn_id} already exists."
             ))
         }
     }
 
-    /// **(internal)** Utility method to ensure there is a parameter with given Id.
-    fn assert_valid_parameter(&self, param_id: &ParamId) -> Result<(), String> {
-        if self.get_parameter(param_id).is_err() {
+    /// **(internal)** Utility method to ensure there is a uninterpreted fn with given Id.
+    fn assert_valid_uninterpreted_fn(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        if self.get_uninterpreted_fn(fn_id).is_err() {
             Err(format!(
-                "Invalid parameter: Parameter with id {param_id} does not exist."
+                "Invalid uninterpreted fn: UninterpretedFn with id {fn_id} does not exist."
             ))
         } else {
             Ok(())

@@ -1,5 +1,5 @@
 use crate::sketchbook::layout::{Layout, LayoutId};
-use crate::sketchbook::{ParamId, Parameter, Regulation, VarId, Variable};
+use crate::sketchbook::{Regulation, UninterpretedFn, UninterpretedFnId, VarId, Variable};
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -25,7 +25,7 @@ mod _impl_session_state;
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelState {
     variables: HashMap<VarId, Variable>,
-    parameters: HashMap<ParamId, Parameter>,
+    uninterpreted_fns: HashMap<UninterpretedFnId, UninterpretedFn>,
     regulations: HashSet<Regulation>,
     layouts: HashMap<LayoutId, Layout>,
 }

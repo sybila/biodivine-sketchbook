@@ -47,10 +47,10 @@ interface AeonState {
     variablesRefreshed: Observable<[VariableData]>
     /** Refresh the variables. */
     refreshVariables: () => void
-    /** List of model parameters. */
-    parametersRefreshed: Observable<[ParameterData]>
-    /** Refresh the parameters. */
-    refreshParameters: () => void
+    /** List of model uninterpreted functions. */
+    uninterpretedFnsRefreshed: Observable<[UninterpretedFnData]>
+    /** Refresh the uninterpretedFns. */
+    refreshUninterpretedFns: () => void
     /** List of model regulations. */
     regulationsRefreshed: Observable<[RegulationData]>
     /** Refresh the regulations. */
@@ -83,29 +83,29 @@ interface AeonState {
     /** Set an ID of variable with given original ID to a new id. */
     setVariableId: (originalId: string, newId: string) => void
 
-    /** Parameter-related setter events */
+    /** Uninterpreted function-related setter events */
 
-    /** ParameterData for a newly created parameter. */
-    parameterCreated: Observable<ParameterData>
-    /** Create new parameter with given arity, ID, and name.
+    /** UninterpretedFnData for a newly created uninterpreted function. */
+    uninterpretedFnCreated: Observable<UninterpretedFnData>
+    /** Create new uninterpreted function with given arity, ID, and name.
      * If name is not given, ID string is used for both ID and name. */
-    addParameter: (paramId: string, arity: number, paramName?: string) => void
-    /** ParameterData of a removed parameter. */
-    parameterRemoved: Observable<ParameterData>
-    /** Remove a parameter with given ID. */
-    removeParameter: (paramId: string) => void
-    /** ParameterData (with a new `name`) for a renamed parameter. */
-    parameterNameChanged: Observable<ParameterData>
-    /** Set a name of parameter with given ID. */
-    setParameterName: (paramId: string, newName: string) => void
-    /** ParameterData (with a new `arity`) for a modified parameter. */
-    parameterArityChanged: Observable<ParameterData>
-    /** Set an arity of parameter with given ID. */
-    setParameterArity: (paramId: string, newArity: number) => void
-    /** Object with `original_id` of a parameter and its `new_id`. */
-    parameterIdChanged: Observable<ParameterIdUpdateData>
-    /** Set an ID of parameter with given original ID to a new id. */
-    setParameterId: (originalId: string, newId: string) => void
+    addUninterpretedFn: (uninterpretedFnId: string, arity: number, uninterpretedFnName?: string) => void
+    /** UninterpretedFnData of a removed uninterpreted function. */
+    uninterpretedFnRemoved: Observable<UninterpretedFnData>
+    /** Remove uninterpreted function with given ID. */
+    removeUninterpretedFn: (uninterpretedFnId: string) => void
+    /** UninterpretedFnData (with a new `name`) for a renamed uninterpreted function. */
+    uninterpretedFnNameChanged: Observable<UninterpretedFnData>
+    /** Set a name of uninterpreted function with given ID. */
+    setUninterpretedFnName: (uninterpretedFnId: string, newName: string) => void
+    /** UninterpretedFnData (with a new `arity`) for a modified uninterpreted function. */
+    uninterpretedFnArityChanged: Observable<UninterpretedFnData>
+    /** Set an arity of uninterpreted function with given ID. */
+    setUninterpretedFnArity: (uninterpretedFnId: string, newArity: number) => void
+    /** Object with `original_id` of a uninterpreted function and its `new_id`. */
+    uninterpretedFnIdChanged: Observable<UninterpretedFnIdUpdateData>
+    /** Set an ID of uninterpreted function with given original ID to a new id. */
+    setUninterpretedFnId: (originalId: string, newId: string) => void
 
     /** Regulation-related setter events */
 
@@ -149,8 +149,8 @@ export interface VariableData {
   name: string
 }
 
-/** An object representing basic information regarding a model parameter. */
-export interface ParameterData {
+/** An object representing basic information regarding a model's uninterpreted function. */
+export interface UninterpretedFnData {
   id: string
   name: string
   arity: number
@@ -191,8 +191,8 @@ export interface LayoutNodeDataPrototype {
 /** An object representing information needed for variable id change. */
 export interface VariableIdUpdateData { original_id: string, new_id: string }
 
-/** An object representing information needed for parameter id change. */
-export interface ParameterIdUpdateData { original_id: string, new_id: string }
+/** An object representing information needed for uninterpreted function's id change. */
+export interface UninterpretedFnIdUpdateData { original_id: string, new_id: string }
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -601,9 +601,9 @@ export const aeonState: AeonState = {
     refreshVariables (): void {
       aeonEvents.refresh(['model', 'get_variables'])
     },
-    parametersRefreshed: new Observable<[ParameterData]>(['model', 'get_parameters']),
-    refreshParameters (): void {
-      aeonEvents.refresh(['model', 'get_parameters'])
+    uninterpretedFnsRefreshed: new Observable<[UninterpretedFnData]>(['model', 'get_uninterpreted_fns']),
+    refreshUninterpretedFns (): void {
+      aeonEvents.refresh(['model', 'get_uninterpreted_fns'])
     },
     regulationsRefreshed: new Observable<[RegulationData]>(['model', 'get_regulations']),
     refreshRegulations (): void {
@@ -623,11 +623,11 @@ export const aeonState: AeonState = {
     variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
     variableIdChanged: new Observable<VariableIdUpdateData>(['model', 'variable', 'set_id']),
 
-    parameterCreated: new Observable<ParameterData>(['model', 'parameter', 'add']),
-    parameterRemoved: new Observable<ParameterData>(['model', 'parameter', 'remove']),
-    parameterNameChanged: new Observable<ParameterData>(['model', 'parameter', 'set_name']),
-    parameterArityChanged: new Observable<ParameterData>(['model', 'parameter', 'set_arity']),
-    parameterIdChanged: new Observable<ParameterIdUpdateData>(['model', 'parameter', 'set_id']),
+    uninterpretedFnCreated: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'add']),
+    uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'remove']),
+    uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_name']),
+    uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_arity']),
+    uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['model', 'uninterpreted_fn', 'set_id']),
 
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
@@ -687,36 +687,36 @@ export const aeonState: AeonState = {
         payload: newId
       })
     },
-    addParameter (paramId: string, arity: number, paramName: string = ''): void {
-      if (paramName === '') {
-        paramName = paramId
+    addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
+      if (uninterpretedFnName === '') {
+        uninterpretedFnName = uninterpretedFnId
       }
       aeonEvents.emitAction({
-        path: ['model', 'parameter', 'add'],
-        payload: JSON.stringify({ id: paramId, arity, name: paramName })
+        path: ['model', 'uninterpreted_fn', 'add'],
+        payload: JSON.stringify({ id: uninterpretedFnId, arity, name: uninterpretedFnName })
       })
     },
-    removeParameter (paramId: string): void {
+    removeUninterpretedFn (uninterpretedFnId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'parameter', paramId, 'remove'],
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'remove'],
         payload: null
       })
     },
-    setParameterName (paramId: string, newName: string): void {
+    setUninterpretedFnName (uninterpretedFnId: string, newName: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'parameter', paramId, 'set_name'],
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
         payload: newName
       })
     },
-    setParameterArity (paramId: string, newArity: number): void {
+    setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
       aeonEvents.emitAction({
-        path: ['model', 'parameter', paramId, 'set_name'],
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
         payload: newArity.toString()
       })
     },
-    setParameterId (originalId: string, newId: string): void {
+    setUninterpretedFnId (originalId: string, newId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'parameter', originalId, 'set_id'],
+        path: ['model', 'uninterpreted_fn', originalId, 'set_id'],
         payload: newId
       })
     },

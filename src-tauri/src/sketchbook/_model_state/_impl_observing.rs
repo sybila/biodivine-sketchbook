@@ -1,7 +1,7 @@
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{
-    Layout, LayoutId, LayoutIterator, ModelState, ParamId, Parameter, ParameterIterator,
-    Regulation, RegulationIterator, VarId, Variable, VariableIterator,
+    Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
+    UninterpretedFnId, UninterpretedFnIterator, VarId, Variable, VariableIterator,
 };
 use std::str::FromStr;
 
@@ -15,9 +15,9 @@ impl ModelState {
         self.variables.len()
     }
 
-    /// The number of parameters in this `ModelState`.
-    pub fn num_params(&self) -> usize {
-        self.parameters.len()
+    /// The number of uninterpreted_fns in this `ModelState`.
+    pub fn num_uninterpreted_fns(&self) -> usize {
+        self.uninterpreted_fns.len()
     }
 
     /// The number of layouts in this `ModelState`.
@@ -44,15 +44,15 @@ impl ModelState {
         }
     }
 
-    /// Check if there is a parameter with given Id.
-    pub fn is_valid_param_id(&self, param_id: &ParamId) -> bool {
-        self.parameters.contains_key(param_id)
+    /// Check if there is a uninterpreted fn with given Id.
+    pub fn is_valid_uninterpreted_fn_id(&self, fn_id: &UninterpretedFnId) -> bool {
+        self.uninterpreted_fns.contains_key(fn_id)
     }
 
-    /// Check if the given `id` corresponds to some parameter's valid Id.
-    pub fn is_valid_param_id_str(&self, id: &str) -> bool {
-        if let Ok(param_id) = ParamId::from_str(id) {
-            self.is_valid_param_id(&param_id)
+    /// Check if the given `id` corresponds to some uninterpreted fn's valid Id.
+    pub fn is_valid_uninterpreted_fn_id_str(&self, id: &str) -> bool {
+        if let Ok(fn_id) = UninterpretedFnId::from_str(id) {
+            self.is_valid_uninterpreted_fn_id(&fn_id)
         } else {
             false
         }
@@ -94,26 +94,29 @@ impl ModelState {
         Ok(variable)
     }
 
-    /// Return a valid parameter's `ParamId` corresponding to the given str `id`.
+    /// Return a valid uninterpreted fn's `UninterpretedFnId` corresponding to the given str `id`.
     ///
-    /// Return `Err` if such parameter does not exist (and the ID is invalid).
-    pub fn get_param_id(&self, id: &str) -> Result<ParamId, String> {
-        let param_id = ParamId::from_str(id)?;
-        if self.is_valid_param_id(&param_id) {
-            return Ok(param_id);
+    /// Return `Err` if no such uninterpreted fn exists (and the ID is invalid).
+    pub fn get_uninterpreted_fn_id(&self, id: &str) -> Result<UninterpretedFnId, String> {
+        let fn_id = UninterpretedFnId::from_str(id)?;
+        if self.is_valid_uninterpreted_fn_id(&fn_id) {
+            return Ok(fn_id);
         }
-        Err(format!("Parameter with ID {id} does not exist."))
+        Err(format!("UninterpretedFn with ID {id} does not exist."))
     }
 
-    /// Return a `Parameter` corresponding to a given `ParamId`.
+    /// Return a `UninterpretedFn` corresponding to a given `UninterpretedFnId`.
     ///
-    /// Return `Err` if such parameter does not exist (the ID is invalid in this context).
-    pub fn get_parameter(&self, param_id: &ParamId) -> Result<&Parameter, String> {
-        let parameter = self
-            .parameters
-            .get(param_id)
-            .ok_or(format!("Parameter with ID {param_id} does not exist."))?;
-        Ok(parameter)
+    /// Return `Err` if no such uninterpreted fn exists (the ID is invalid in this context).
+    pub fn get_uninterpreted_fn(
+        &self,
+        fn_id: &UninterpretedFnId,
+    ) -> Result<&UninterpretedFn, String> {
+        let uninterpreted_fn = self
+            .uninterpreted_fns
+            .get(fn_id)
+            .ok_or(format!("UninterpretedFn with ID {fn_id} does not exist."))?;
+        Ok(uninterpreted_fn)
     }
 
     /// Shortcut to return a name of the variable corresponding to a given `VarId`.
@@ -220,9 +223,9 @@ impl ModelState {
         self.variables.keys()
     }
 
-    /// Return an iterator over all parameters of this model.
-    pub fn parameters(&self) -> ParameterIterator {
-        self.parameters.keys()
+    /// Return an iterator over all uninterpreted_fns of this model.
+    pub fn uninterpreted_fns(&self) -> UninterpretedFnIterator {
+        self.uninterpreted_fns.keys()
     }
 
     /// Return an iterator over all regulations of this model.
