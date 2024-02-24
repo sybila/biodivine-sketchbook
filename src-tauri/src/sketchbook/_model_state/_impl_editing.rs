@@ -1,6 +1,6 @@
 use crate::sketchbook::{
     Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
-    UninterpretedFnId, VarId, Variable,
+    UninterpretedFnId, UpdateFn, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -9,20 +9,22 @@ use std::collections::{HashMap, HashSet};
 /// These methods focus on general manipulation with variables/regulations.
 /// See below for API focusing on layout manipulation.
 impl ModelState {
-    /// Create a new `ModelState` that does not contain any `Variables`, `Uninterpreted Functions`, or `Regulations`
-    /// yet. It contains a single empty default `Layout`.
+    /// Create a new `ModelState` that does not contain any `Variables`, `Uninterpreted Functions`,
+    /// or `Regulations` yet. It contains a single empty default `Layout`.
     pub fn new() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
         let default_layout = Layout::new_empty(ModelState::get_default_layout_name());
         ModelState {
             variables: HashMap::new(),
-            uninterpreted_fns: HashMap::new(),
             regulations: HashSet::new(),
+            update_fns: HashMap::new(),
+            uninterpreted_fns: HashMap::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
         }
     }
 
     /// Create new `ModelState` using provided variable name-ID pairs, both strings.
+    /// All variables have default (empty) update functions.
     /// Result will contain no `UninterpretedFns` or `Regulations`, and a single default `Layout`.
     ///
     /// The IDs must be unique valid identifiers.
@@ -42,12 +44,14 @@ impl ModelState {
             model
                 .variables
                 .insert(var_id.clone(), Variable::new(var_name));
+            model.add_default_update_fn(var_id.clone())?;
             model.insert_to_default_layout(var_id)?;
         }
         Ok(model)
     }
 
-    /// Add a new variable with given `var_id` and `name` to this `ModelState`.
+    /// Add a new variable with given `var_id` and `name` to this `ModelState`. The variable
+    /// will receive a default "empty" update function.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -56,11 +60,13 @@ impl ModelState {
     pub fn add_var(&mut self, var_id: VarId, name: &str) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
         self.variables.insert(var_id.clone(), Variable::new(name));
+        self.add_default_update_fn(var_id.clone())?;
         self.insert_to_all_layouts(var_id)?;
         Ok(())
     }
 
-    /// Add a new variable with given `id` and `name` to this `ModelState`.
+    /// Add a new variable with given `id` and `name` to this `ModelState`. The variable
+    /// will receive a default "empty" update function.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -241,6 +247,14 @@ impl ModelState {
         for layout in self.layouts.values_mut() {
             layout.change_node_id(original_id, new_id.clone())?;
         }
+
+        // 4) change id for this variable's update function
+        if let Some(update_fn) = self.update_fns.remove(original_id) {
+            self.update_fns.insert(new_id.clone(), update_fn);
+        }
+
+        // todo - in future, all update fns must be modified here
+
         Ok(())
     }
 
@@ -254,8 +268,8 @@ impl ModelState {
     }
 
     /// Remove the network variable with given `var_id` from this `ModelState`. This also
-    /// removes the variable from all `Layouts` and removes all `Regulations` where this
-    /// variable figures.
+    /// removes the variable from all `Layouts`, removes its `UpdateFn` and all `Regulations`
+    /// where this variable figures.
     ///
     /// Returns `Err` in case the `var_id` is not a valid variable's identifier.
     pub fn remove_var(&mut self, var_id: &VarId) -> Result<(), String> {
@@ -263,15 +277,18 @@ impl ModelState {
         // first delete all regulations, layout nodes, and lastly the variable itself
         self.remove_all_regulations_var(var_id)?;
         self.remove_from_all_layouts(var_id)?;
+        if self.update_fns.remove(var_id).is_none() {
+            panic!("Error when removing update fn for variable {var_id}.")
+        }
         if self.variables.remove(var_id).is_none() {
             panic!("Error when removing variable {var_id} from the variable map.")
         }
         Ok(())
     }
 
-    /// Remove the network variable with given `id` from this `ModelState`. This also
-    /// removes the variable from all `Layouts` and removes all `Regulations` where this
-    /// variable figures.
+    /// Remove the network variable with given `var_id` from this `ModelState`. This also
+    /// removes the variable from all `Layouts`, removes its `UpdateFn` and all `Regulations`
+    /// where this variable figures.
     ///
     /// Returns `Err` in case the `var_id` is not a valid variable's identifier.
     pub fn remove_var_by_str(&mut self, id: &str) -> Result<(), String> {
@@ -329,7 +346,7 @@ impl ModelState {
         self.assert_no_uninterpreted_fn(&new_id)?;
 
         // all changes must be done directly, not through some helper fns, because the state
-        // might not be consistent inbetween various deletions
+        // might not be consistent in between various deletions
 
         // change id in uninterpreted_fns list
         if let Some(uninterpreted_fn) = self.uninterpreted_fns.remove(original_id) {
@@ -441,6 +458,13 @@ impl ModelState {
             *new_essentiality,
             *regulation.get_sign(),
         )?;
+        Ok(())
+    }
+
+    /// **(internal)** Utility method to add a default update fn for a given variable.
+    fn add_default_update_fn(&mut self, var_id: VarId) -> Result<(), String> {
+        self.assert_valid_variable(&var_id)?;
+        self.update_fns.insert(var_id, UpdateFn::default());
         Ok(())
     }
 

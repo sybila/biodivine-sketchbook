@@ -4,7 +4,7 @@ use crate::sketchbook::layout::{Layout, LayoutId};
 mod _binary_op;
 /// **(internal)** Utility methods for `Essentiality`.
 mod _essentiality;
-/// **(internal)** Utility methods for `FunctionTree`.
+/// **(internal)** Utility methods for `FnTreeNode`.
 mod _function_tree;
 /// **(internal)** Utility methods for `Identifier`.
 mod _identifier;
@@ -18,7 +18,7 @@ mod _regulation;
 mod _uninterpreted_fn;
 /// **(internal)** Utility methods for `UninterpretedFnId`.
 mod _uninterpreted_fn_id;
-/// **(internal)** Utility methods for `UpdateFunction`.
+/// **(internal)** Utility methods for `UpdateFn`.
 mod _update_function;
 /// **(internal)** Utility methods for `VarId`.
 mod _var_id;
@@ -33,14 +33,14 @@ pub mod simplified_structs;
 
 pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
-pub use _function_tree::FunctionTree;
+pub use _function_tree::FnTreeNode;
 pub use _identifier::Identifier;
 pub use _model_state::ModelState;
 pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
 pub use _uninterpreted_fn::UninterpretedFn;
 pub use _uninterpreted_fn_id::UninterpretedFnId;
-pub use _update_function::UpdateFunction;
+pub use _update_function::UpdateFn;
 pub use _var_id::VarId;
 pub use _variable::Variable;
 

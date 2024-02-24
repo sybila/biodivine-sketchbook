@@ -1,4 +1,4 @@
-use crate::sketchbook::{Essentiality, FunctionTree, Monotonicity};
+use crate::sketchbook::{Essentiality, FnTreeNode, Monotonicity};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 
@@ -11,7 +11,7 @@ pub struct UninterpretedFn {
     arity: u32,
     essentialities: Vec<Essentiality>,
     monotonicities: Vec<Monotonicity>,
-    tree: Option<FunctionTree>,
+    tree: Option<FnTreeNode>,
 }
 
 impl UninterpretedFn {
@@ -21,8 +21,10 @@ impl UninterpretedFn {
         arity: u32,
         essentialities: Vec<Essentiality>,
         monotonicities: Vec<Monotonicity>,
-        tree: Option<FunctionTree>,
+        tree: Option<FnTreeNode>,
     ) -> UninterpretedFn {
+        // todo: perform some check on the name string - at least disallow newlines
+
         UninterpretedFn {
             name: name.to_string(),
             arity,
@@ -33,7 +35,7 @@ impl UninterpretedFn {
     }
 
     /// Create new `UninterpretedFn` object that has no constraints regarding monotonicity, essentiality,
-    /// or the function itself.
+    /// or the function's expression itself.
     pub fn new_without_constraints(name: &str, arity: u32) -> UninterpretedFn {
         UninterpretedFn {
             name: name.to_string(),

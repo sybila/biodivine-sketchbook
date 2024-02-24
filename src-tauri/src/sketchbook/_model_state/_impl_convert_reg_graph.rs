@@ -2,14 +2,19 @@ use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
-/// Methods for converting between `ModelState` and `RegulatoryGraph` (from the lib-param-bn).
+/// Methods for converting between `ModelState` and `RegulatoryGraph` (from the `lib-param-bn`).
 impl ModelState {
     /// Convert the `ModelState` (the current state of the regulation graph) into the
     /// corresponding `RegulatoryGraph` object. Sorted variable IDs of the `ModelState` are
     /// used for variable names in `RegulatoryGraph`.
     ///
+    /// The conversion might loose some information, as the `RegulatoryGraph` does not support
+    /// all the variants of `Monotonicity` and `Essentiality`. See also [ModelState::sign_to_monotonicity].
+    ///
     /// Note that we can convert the resulting `RegulatoryGraph` back, but the conversion loses
-    /// some information, like the original variable names and layout info.
+    /// some information, like the original variable names and layout information.
+    /// Also, all of the other model components, such as `update functions` or `uninterpreted functions`
+    /// are not part of the `RegulatoryGraph`.
     pub fn to_reg_graph(&self) -> RegulatoryGraph {
         // create `RegulatoryGraph` from a list of variable ID strings (these are unique and
         // can be mapped back)
@@ -106,21 +111,17 @@ impl ModelState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{ModelState, VarId};
+    use crate::sketchbook::ModelState;
     use biodivine_lib_param_bn::RegulatoryGraph;
 
     #[test]
     fn test_to_reg_graph() {
-        let mut model = ModelState::new();
-        let var_id_a = VarId::new("a").unwrap();
-        let var_id_b = VarId::new("b").unwrap();
-        model.add_var(var_id_a, "a").unwrap();
-        model.add_var(var_id_b, "b").unwrap();
-        model.add_regulation_by_str("a -> b").unwrap();
-        model.add_regulation_by_str("b -> a").unwrap();
+        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        model
+            .add_multiple_regulations(vec!["a -> b", "b -> a"])
+            .unwrap();
 
         let reg_graph = model.to_reg_graph();
-
         assert_eq!(reg_graph.num_vars(), 2);
         assert_eq!(
             reg_graph.regulators(reg_graph.find_variable("a").unwrap()),

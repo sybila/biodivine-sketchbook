@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Layout, LayoutId, ModelState, UninterpretedFn, UninterpretedFnId, VarId, Variable,
+    Layout, LayoutId, ModelState, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
 };
 
 use serde::de::{self, MapAccess, Visitor};
@@ -13,7 +13,7 @@ impl Serialize for ModelState {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("ModelState", 3)?;
+        let mut state = serializer.serialize_struct("ModelState", 5)?;
 
         // Serialize `variables` as a map with String keys
         let variables_map: HashMap<String, &Variable> = self
@@ -22,6 +22,14 @@ impl Serialize for ModelState {
             .map(|(k, v)| (k.to_string(), v))
             .collect();
         state.serialize_field("variables", &variables_map)?;
+
+        // Serialize `update_fns` as a map with String keys
+        let update_fns_map: HashMap<String, &UpdateFn> = self
+            .update_fns
+            .iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect();
+        state.serialize_field("update_fns", &update_fns_map)?;
 
         // Serialize `uninterpreted_fns` as a map with String keys
         let uninterpreted_fns_map: HashMap<String, &UninterpretedFn> = self
@@ -53,8 +61,9 @@ impl<'de> Deserialize<'de> for ModelState {
     {
         enum Field {
             Variables,
-            UninterpretedFns,
             Regulations,
+            UpdateFns,
+            UninterpretedFns,
             Layouts,
         }
 
@@ -70,7 +79,7 @@ impl<'de> Deserialize<'de> for ModelState {
 
                     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                         formatter.write_str(
-                            "`variables`, `uninterpreted_fns`, `regulations`, or `layouts`",
+                            "`variables`, `update_fns`, `uninterpreted_fns`, `regulations`, or `layouts`",
                         )
                     }
 
@@ -80,8 +89,9 @@ impl<'de> Deserialize<'de> for ModelState {
                     {
                         match value {
                             "variables" => Ok(Field::Variables),
-                            "uninterpreted_fns" => Ok(Field::UninterpretedFns),
                             "regulations" => Ok(Field::Regulations),
+                            "update_fns" => Ok(Field::UpdateFns),
+                            "uninterpreted_fns" => Ok(Field::UninterpretedFns),
                             "layouts" => Ok(Field::Layouts),
                             _ => Err(de::Error::unknown_field(value, FIELDS)),
                         }
@@ -106,8 +116,9 @@ impl<'de> Deserialize<'de> for ModelState {
                 V: MapAccess<'de>,
             {
                 let mut variables = None;
-                let mut uninterpreted_fns = None;
                 let mut regulations = None;
+                let mut update_fns = None;
+                let mut uninterpreted_fns = None;
                 let mut layouts = None;
 
                 while let Some(key) = map.next_key()? {
@@ -125,6 +136,21 @@ impl<'de> Deserialize<'de> for ModelState {
                                             .map(|k_parsed| (k_parsed, v))
                                     })
                                     .collect::<Result<HashMap<VarId, Variable>, _>>()?,
+                            );
+                        }
+                        Field::UpdateFns => {
+                            if update_fns.is_some() {
+                                return Err(de::Error::duplicate_field("update_fns"));
+                            }
+                            let u: HashMap<String, UpdateFn> = map.next_value()?;
+                            update_fns = Some(
+                                u.into_iter()
+                                    .map(|(k, v)| {
+                                        k.parse::<VarId>()
+                                            .map_err(de::Error::custom)
+                                            .map(|k_parsed| (k_parsed, v))
+                                    })
+                                    .collect::<Result<HashMap<VarId, UpdateFn>, _>>()?,
                             );
                         }
                         Field::UninterpretedFns => {
@@ -167,21 +193,30 @@ impl<'de> Deserialize<'de> for ModelState {
                 }
 
                 let variables = variables.ok_or_else(|| de::Error::missing_field("variables"))?;
-                let uninterpreted_fns = uninterpreted_fns
-                    .ok_or_else(|| de::Error::missing_field("uninterpreted_fns"))?;
                 let regulations =
                     regulations.ok_or_else(|| de::Error::missing_field("regulations"))?;
+                let uninterpreted_fns = uninterpreted_fns
+                    .ok_or_else(|| de::Error::missing_field("uninterpreted_fns"))?;
+                let update_fns =
+                    update_fns.ok_or_else(|| de::Error::missing_field("update_fns"))?;
                 let layouts = layouts.ok_or_else(|| de::Error::missing_field("layouts"))?;
                 Ok(ModelState {
                     variables,
-                    uninterpreted_fns,
                     regulations,
+                    update_fns,
+                    uninterpreted_fns,
                     layouts,
                 })
             }
         }
 
-        const FIELDS: &[&str] = &["variables", "regulations", "layouts"];
+        const FIELDS: &[&str] = &[
+            "variables",
+            "regulations",
+            "update_fns",
+            "uninterpreted_fns",
+            "layouts",
+        ];
         deserializer.deserialize_struct("ModelState", FIELDS, ModelStateVisitor)
     }
 }
@@ -202,7 +237,7 @@ mod tests {
         let model_serialized = serde_json::to_string(&model).unwrap();
         // this cant fail due to order of vars, since we only have one
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"uninterpreted_fns\":{},\"regulations\":[],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
             model_serialized
         );
         assert_eq!(model.to_string(), model_serialized);
@@ -223,7 +258,7 @@ mod tests {
         // To string
         let model_string = model.to_string();
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"uninterpreted_fns\":{},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"essential\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"essential\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
             model_string
         );
 
