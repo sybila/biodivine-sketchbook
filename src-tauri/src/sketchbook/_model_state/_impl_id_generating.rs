@@ -1,4 +1,5 @@
 use crate::sketchbook::{LayoutId, ModelState, UninterpretedFnId, VarId};
+use std::str::FromStr;
 
 /// Methods for safely generating valid instances of identifiers for the current `ModelState`.
 impl ModelState {
@@ -11,34 +12,7 @@ impl ModelState {
     /// is deterministic and might generate the same IDs. Always generate an Id, add that variable to
     /// the model, and then repeat for other variables.
     pub fn generate_var_id(&self, var_name: &str) -> VarId {
-        // first try to generate the id using the given name
-        if let Ok(var_id) = VarId::new(var_name) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_var_id(&var_id) {
-                return var_id;
-            }
-        }
-
-        // try to transform the name by removing invalid characters
-        let transformed_name = Self::transform_to_id(var_name);
-        if let Ok(var_id) = VarId::new(transformed_name.as_str()) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_var_id(&var_id) {
-                return var_id;
-            }
-        }
-
-        // finally, append a number after the name
-        // start searching at 0, until we try `self.num_vars()` options
-        for n in 0..self.num_vars() {
-            let var_id = VarId::new(format!("{}_{}", transformed_name, n).as_str()).unwrap();
-            if !self.is_valid_var_id(&var_id) {
-                return var_id;
-            }
-        }
-
-        // this must be valid, we already tried more than self.num_vars() options
-        VarId::new(format!("{}_{}", transformed_name, self.num_vars()).as_str()).unwrap()
+        self.generate_id(var_name, &(Self::is_valid_var_id), self.num_vars())
     }
 
     /// Generate valid `LayoutId` that's currently not used by layouts in this `ModelState`.
@@ -50,34 +24,7 @@ impl ModelState {
     /// is deterministic and might generate the same IDs. Always generate an Id, add that layout to
     /// the model, and then repeat for other layouts.
     pub fn generate_layout_id(&self, layout_name: &str) -> LayoutId {
-        // first try to generate the id using the name
-        if let Ok(layout_id) = LayoutId::new(layout_name) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_layout_id(&layout_id) {
-                return layout_id;
-            }
-        }
-
-        // try to transform the name by removing invalid characters
-        let transformed_name = Self::transform_to_id(layout_name);
-        if let Ok(layout_id) = LayoutId::new(transformed_name.as_str()) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_layout_id(&layout_id) {
-                return layout_id;
-            }
-        }
-
-        // finally, append a number after the name
-        // start searching at 0, until we try `self.num_layouts()` options
-        for n in 0..self.num_layouts() {
-            let layout_id = LayoutId::new(format!("{}_{}", transformed_name, n).as_str()).unwrap();
-            if !self.is_valid_layout_id(&layout_id) {
-                return layout_id;
-            }
-        }
-
-        // this must be valid, we already tried more than self.num_layouts() options
-        LayoutId::new(format!("{}_{}", transformed_name, self.num_layouts()).as_str()).unwrap()
+        self.generate_id(layout_name, &(Self::is_valid_layout_id), self.num_layouts())
     }
 
     /// Generate valid `UninterpretedFnId` that's currently not used by uninterpreted_fns in this `ModelState`.
@@ -89,47 +36,54 @@ impl ModelState {
     /// is deterministic and might generate the same IDs. Always generate an Id, add that fn to
     /// the model, and then repeat for other fns.
     pub fn generate_uninterpreted_fn_id(&self, fn_name: &str) -> UninterpretedFnId {
-        // first try to generate the id using the name
-        if let Ok(fn_id) = UninterpretedFnId::new(fn_name) {
+        self.generate_id(
+            fn_name,
+            &(Self::is_valid_uninterpreted_fn_id),
+            self.num_uninterpreted_fns(),
+        )
+    }
+
+    /// Generate an ID of type `T` for a component of a `model` (e.g., generate a `VariableId`
+    /// for a `Variable`), given the component's name, a method to check if a generated id is
+    /// taken, and maximum index that the object can take (e.g., for a variable use total number
+    /// of variables in the model).
+    fn generate_id<T>(&self, name: &str, is_taken: &dyn Fn(&Self, &T) -> bool, max_idx: usize) -> T
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::fmt::Debug,
+    {
+        // first try to generate the id using the given name
+        if let Ok(id) = T::from_str(name) {
             // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_uninterpreted_fn_id(&fn_id) {
-                return fn_id;
+            if !is_taken(self, &id) {
+                return id;
             }
         }
 
         // try to transform the name by removing invalid characters
-        let transformed_name = Self::transform_to_id(fn_name);
-        if let Ok(fn_id) = UninterpretedFnId::new(transformed_name.as_str()) {
+        let transformed_name: String = name
+            .chars()
+            .filter(|ch| ch.is_alphanumeric() || *ch == '_')
+            .collect();
+
+        if let Ok(id) = T::from_str(transformed_name.as_str()) {
             // the id must not be valid in the network already (that would mean it is already used)
-            if !self.is_valid_uninterpreted_fn_id(&fn_id) {
-                return fn_id;
+            if !is_taken(self, &id) {
+                return id;
             }
         }
 
         // finally, append a number after the name
-        // start searching at 0, until we try `self.num_uninterpreted_fns()` options
-        for n in 0..self.num_uninterpreted_fns() {
-            let fn_id =
-                UninterpretedFnId::new(format!("{}_{}", transformed_name, n).as_str()).unwrap();
-            if !self.is_valid_uninterpreted_fn_id(&fn_id) {
-                return fn_id;
+        // start searching at 0, until we try `max_idx` options
+        for n in 0..max_idx {
+            let id = T::from_str(format!("{}_{}", transformed_name, n).as_str()).unwrap();
+            if !is_taken(self, &id) {
+                return id;
             }
         }
 
-        // this must be valid, we already tried more than self.num_uninterpreted_fns() options
-        UninterpretedFnId::new(
-            format!("{}_{}", transformed_name, self.num_uninterpreted_fns()).as_str(),
-        )
-        .unwrap()
-    }
-
-    /// **(internal)** Transform a string to an identifier string by removing all the
-    /// invalid characters.
-    fn transform_to_id(random_str: &str) -> String {
-        random_str
-            .chars()
-            .filter(|ch| ch.is_alphanumeric() || *ch == '_')
-            .collect()
+        // this must be valid, we already tried more than `max_idx` options
+        T::from_str(format!("{}_{}", transformed_name, max_idx).as_str()).unwrap()
     }
 }
 
@@ -137,19 +91,6 @@ impl ModelState {
 mod tests {
     use crate::sketchbook::layout::LayoutId;
     use crate::sketchbook::{ModelState, VarId};
-
-    #[test]
-    fn test_id_transformation() {
-        // string slice that is a valid identifier as is
-        let string1 = "id_123";
-        // string slice that is not a valid identifier as it contains various invalid characters
-        let string2 = "i<d ??_12)&3    ";
-
-        let transformed1 = ModelState::transform_to_id(string1);
-        let transformed2 = ModelState::transform_to_id(string2);
-        assert_eq!(transformed1, transformed2);
-        assert_eq!(transformed1, "id_123".to_string());
-    }
 
     #[test]
     fn test_var_id_generating() {
@@ -179,9 +120,7 @@ mod tests {
         let mut model = ModelState::new();
         let layout_id = LayoutId::new("l_0").unwrap();
         let default_layout_id = ModelState::get_default_layout_id();
-        model
-            .add_layout_copy(layout_id, "name", &default_layout_id)
-            .unwrap();
+        model.add_layout_simple(layout_id, "name").unwrap();
         assert_eq!(model.num_layouts(), 2);
 
         // expected result for all the following IDs will be the same

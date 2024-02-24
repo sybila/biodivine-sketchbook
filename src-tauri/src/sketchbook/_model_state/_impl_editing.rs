@@ -482,22 +482,13 @@ impl ModelState {
 /// Several utility methods to manipulate with layouts.
 impl ModelState {
     /// Add a new `Layout` with given `layout_id` and `name` to this `ModelState`. The layout
-    /// will contain nodes for the same variables as layout `template_layout_id`, but all of them
-    /// located at a default position.
+    /// will contain nodes for all model's variables, all of them located at a default position.
     ///
-    /// Returns `Err` if `layout_id` is already being used for some other `Layout` in
-    /// this `ModelState`, or if `template_layout_id` does not exist.
-    pub fn add_layout_simple(
-        &mut self,
-        layout_id: LayoutId,
-        name: &str,
-        template_layout_id: &LayoutId,
-    ) -> Result<(), String> {
+    /// Returns `Err` if `layout_id` is already being used for some other `Layout`.
+    pub fn add_layout_simple(&mut self, layout_id: LayoutId, name: &str) -> Result<(), String> {
         self.assert_no_layout(&layout_id)?;
-        self.assert_valid_layout(template_layout_id)?;
-
-        let template_layout = self.get_layout(template_layout_id)?;
-        let layout = Layout::new_from_another_default(name, template_layout);
+        let variable_ids = self.variables.clone().into_keys().collect();
+        let layout = Layout::new_from_vars_default(name, variable_ids)?;
         self.layouts.insert(layout_id, layout);
         Ok(())
     }
@@ -928,7 +919,7 @@ mod tests {
         // add layouts (one as vars with default nodes, and other as direct copy)
         let new_id_1 = model.generate_layout_id("new_layout");
         model
-            .add_layout_simple(new_id_1.clone(), "new_layout", &default_layout_id)
+            .add_layout_simple(new_id_1.clone(), "new_layout")
             .unwrap();
         let position = model.get_node_position(&new_id_1, &var_id).unwrap();
         assert_eq!(position, &NodePosition(0., 0.));

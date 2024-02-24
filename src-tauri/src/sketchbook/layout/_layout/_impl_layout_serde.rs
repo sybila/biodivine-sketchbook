@@ -1,5 +1,5 @@
 use crate::sketchbook::layout::{Layout, LayoutNode};
-use crate::sketchbook::VarId;
+use crate::sketchbook::utils::{parse_map_keys, stringify_map_keys};
 
 use std::collections::HashMap;
 use std::fmt::{self, Formatter};
@@ -18,9 +18,8 @@ impl Serialize for Layout {
         let mut state = serializer.serialize_struct("Layout", 2)?;
         state.serialize_field("name", &self.name)?;
 
-        // Serialize `nodes` as a map with String keys
-        let nodes_map: HashMap<String, &LayoutNode> =
-            self.nodes.iter().map(|(k, v)| (k.to_string(), v)).collect();
+        // Serialize `nodes` field (HashMap with non-String keys) as a HashMap with String keys
+        let nodes_map = stringify_map_keys(&self.nodes);
         state.serialize_field("nodes", &nodes_map)?;
 
         state.end()
@@ -97,15 +96,7 @@ impl<'de> Deserialize<'de> for Layout {
                                 return Err(de::Error::duplicate_field("nodes"));
                             }
                             let n: HashMap<String, LayoutNode> = map.next_value()?;
-                            nodes = Some(
-                                n.into_iter()
-                                    .map(|(k, v)| {
-                                        k.parse::<VarId>()
-                                            .map_err(de::Error::custom)
-                                            .map(|k_parsed| (k_parsed, v))
-                                    })
-                                    .collect::<Result<HashMap<VarId, LayoutNode>, _>>()?,
-                            );
+                            nodes = Some(parse_map_keys(n).map_err(de::Error::custom)?);
                         }
                     }
                 }

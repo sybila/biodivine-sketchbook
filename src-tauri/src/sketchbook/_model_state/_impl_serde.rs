@@ -1,6 +1,5 @@
-use crate::sketchbook::{
-    Layout, LayoutId, ModelState, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
-};
+use crate::sketchbook::utils::{parse_map_keys, stringify_map_keys};
+use crate::sketchbook::{Layout, ModelState, UninterpretedFn, UpdateFn, Variable};
 
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -15,39 +14,22 @@ impl Serialize for ModelState {
     {
         let mut state = serializer.serialize_struct("ModelState", 5)?;
 
-        // Serialize `variables` as a map with String keys
-        let variables_map: HashMap<String, &Variable> = self
-            .variables
-            .iter()
-            .map(|(k, v)| (k.to_string(), v))
-            .collect();
+        // Serialize all the HashMap fields with non-String keys as a HashMap with String keys
+        // Serialize other fields as they are
+
+        let variables_map = stringify_map_keys(&self.variables);
         state.serialize_field("variables", &variables_map)?;
 
-        // Serialize `update_fns` as a map with String keys
-        let update_fns_map: HashMap<String, &UpdateFn> = self
-            .update_fns
-            .iter()
-            .map(|(k, v)| (k.to_string(), v))
-            .collect();
+        let update_fns_map = stringify_map_keys(&self.update_fns);
         state.serialize_field("update_fns", &update_fns_map)?;
 
-        // Serialize `uninterpreted_fns` as a map with String keys
-        let uninterpreted_fns_map: HashMap<String, &UninterpretedFn> = self
-            .uninterpreted_fns
-            .iter()
-            .map(|(k, v)| (k.to_string(), v))
-            .collect();
+        let uninterpreted_fns_map = stringify_map_keys(&self.uninterpreted_fns);
         state.serialize_field("uninterpreted_fns", &uninterpreted_fns_map)?;
 
-        // Serialize `regulations` as is
+        // Serialize `regulations` as is (it is not a HashMap, just a HashSet)
         state.serialize_field("regulations", &self.regulations)?;
 
-        // Serialize `layouts` as a map with String keys
-        let layouts_map: HashMap<String, &Layout> = self
-            .layouts
-            .iter()
-            .map(|(k, v)| (k.to_string(), v))
-            .collect();
+        let layouts_map = stringify_map_keys(&self.layouts);
         state.serialize_field("layouts", &layouts_map)?;
 
         state.end()
@@ -128,45 +110,21 @@ impl<'de> Deserialize<'de> for ModelState {
                                 return Err(de::Error::duplicate_field("variables"));
                             }
                             let v: HashMap<String, Variable> = map.next_value()?;
-                            variables = Some(
-                                v.into_iter()
-                                    .map(|(k, v)| {
-                                        k.parse::<VarId>()
-                                            .map_err(de::Error::custom)
-                                            .map(|k_parsed| (k_parsed, v))
-                                    })
-                                    .collect::<Result<HashMap<VarId, Variable>, _>>()?,
-                            );
+                            variables = Some(parse_map_keys(v).map_err(de::Error::custom)?);
                         }
                         Field::UpdateFns => {
                             if update_fns.is_some() {
                                 return Err(de::Error::duplicate_field("update_fns"));
                             }
                             let u: HashMap<String, UpdateFn> = map.next_value()?;
-                            update_fns = Some(
-                                u.into_iter()
-                                    .map(|(k, v)| {
-                                        k.parse::<VarId>()
-                                            .map_err(de::Error::custom)
-                                            .map(|k_parsed| (k_parsed, v))
-                                    })
-                                    .collect::<Result<HashMap<VarId, UpdateFn>, _>>()?,
-                            );
+                            update_fns = Some(parse_map_keys(u).map_err(de::Error::custom)?);
                         }
                         Field::UninterpretedFns => {
                             if uninterpreted_fns.is_some() {
                                 return Err(de::Error::duplicate_field("uninterpreted_fns"));
                             }
-                            let p: HashMap<String, UninterpretedFn> = map.next_value()?;
-                            uninterpreted_fns = Some(
-                                p.into_iter()
-                                    .map(|(k, v)| {
-                                        k.parse::<UninterpretedFnId>()
-                                            .map_err(de::Error::custom)
-                                            .map(|k_parsed| (k_parsed, v))
-                                    })
-                                    .collect::<Result<HashMap<UninterpretedFnId, UninterpretedFn>, _>>()?,
-                            );
+                            let u: HashMap<String, UninterpretedFn> = map.next_value()?;
+                            uninterpreted_fns = Some(parse_map_keys(u).map_err(de::Error::custom)?);
                         }
                         Field::Regulations => {
                             if regulations.is_some() {
@@ -179,15 +137,7 @@ impl<'de> Deserialize<'de> for ModelState {
                                 return Err(de::Error::duplicate_field("layouts"));
                             }
                             let l: HashMap<String, Layout> = map.next_value()?;
-                            layouts = Some(
-                                l.into_iter()
-                                    .map(|(k, v)| {
-                                        k.parse::<LayoutId>()
-                                            .map_err(de::Error::custom)
-                                            .map(|k_parsed| (k_parsed, v))
-                                    })
-                                    .collect::<Result<HashMap<LayoutId, Layout>, _>>()?,
-                            );
+                            layouts = Some(parse_map_keys(l).map_err(de::Error::custom)?);
                         }
                     }
                 }

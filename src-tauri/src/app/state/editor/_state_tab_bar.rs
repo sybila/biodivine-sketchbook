@@ -17,7 +17,7 @@ impl SessionState for TabBarState {
         } else if let Some(at_path) = Self::starts_with("pinned", at_path) {
             self.pinned.perform_event(event, at_path)
         } else {
-            Self::invalid_path_error(at_path)
+            Self::invalid_path_error_generic(at_path)
         }
     }
 
@@ -27,7 +27,7 @@ impl SessionState for TabBarState {
         } else if let Some(at_path) = Self::starts_with("pinned", at_path) {
             self.pinned.refresh(full_path, at_path)
         } else {
-            Self::invalid_path_error(at_path)
+            Self::invalid_path_error_generic(at_path)
         }
     }
 }

@@ -30,6 +30,8 @@ pub mod layout;
 /// Classes and utility methods that can be used for sending simplified data to frontend.
 /// This includes simplified "data carriers" for variables, regulations, and layouts.
 pub mod simplified_structs;
+/// Utility functions used throughout the module.
+pub mod utils;
 
 pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;

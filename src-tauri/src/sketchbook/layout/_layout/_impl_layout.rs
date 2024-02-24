@@ -24,15 +24,19 @@ impl Layout {
         }
     }
 
-    /// Create new `Layout` with a given name, which will contain nodes for the same variables as
-    /// `template_layout` has, but all of the nodes will be located at a default position.
-    pub fn new_from_another_default(name_str: &str, template_layout: &Layout) -> Layout {
+    /// Create new `Layout` with a given name, which will contain nodes all the given variables,
+    /// all of the nodes will be located at a default position.
+    ///
+    /// Returns `Error` if given ids contain duplicates.
+    pub fn new_from_vars_default(
+        name_str: &str,
+        variable_ids: Vec<VarId>,
+    ) -> Result<Layout, String> {
         let mut layout = Layout::new_empty(name_str);
-        for var_id in template_layout.nodes.keys() {
-            // this will never fail if `template_layout` is a valid `Layout`
-            layout.add_default_node(var_id.clone()).unwrap();
+        for var_id in variable_ids {
+            layout.add_default_node(var_id.clone())?;
         }
-        layout
+        Ok(layout)
     }
 
     /// Rename this `Layout`.

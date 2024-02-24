@@ -14,29 +14,6 @@ impl SessionHelper for ModelState {}
 
 /// Functionality and shorthands related to the `perform_event` method of the `SessionState` trait.
 impl ModelState {
-    /// Shorthand to get and clone a payload of an event. Errors if payload is empty.
-    /// The `component` specifies which part of the state should be mentioned in the error.
-    /// In future we may consider moving this elsewhere.
-    fn clone_payload_str(event: &Event, component: &str) -> Result<String, DynError> {
-        let payload = event.payload.clone().ok_or(format!(
-            "Event to `{component}` cannot carry empty payload."
-        ))?;
-        Ok(payload)
-    }
-
-    /// Shorthand to assert that path has given length and return typesafe `DynError` otherwise.
-    /// The `component` specifies which component of the state should be mentioned in the error.
-    fn assert_path_length(path: &[&str], length: usize, component: &str) -> Result<(), DynError> {
-        if path.len() != length {
-            return AeonError::throw(format!("`{component}` cannot consume a path `{:?}`.", path));
-        }
-        Ok(())
-    }
-
-    fn throw_path_error<T>(path: &[&str], component: &str) -> Result<T, DynError> {
-        AeonError::throw(format!("`{component}` cannot consume a path `{:?}`.", path))
-    }
-
     /// Perform event of adding a new `variable` component to this `ModelState`.
     fn perform_variable_add_event(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "model/variable";
@@ -185,7 +162,7 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else {
-            Self::throw_path_error(at_path, component_name)
+            Self::invalid_path_error_specific(at_path, component_name)
         }
     }
 
@@ -343,7 +320,7 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else {
-            Self::throw_path_error(at_path, component_name)
+            Self::invalid_path_error_specific(at_path, component_name)
         }
     }
 
@@ -488,7 +465,7 @@ impl ModelState {
                 perform_reverse: (event.clone(), reverse_event),
             })
         } else {
-            Self::throw_path_error(at_path, component_name)
+            Self::invalid_path_error_specific(at_path, component_name)
         }
     }
 
@@ -608,7 +585,7 @@ impl ModelState {
                 reset: true,
             })
         } else {
-            Self::throw_path_error(at_path, component_name)
+            Self::invalid_path_error_specific(at_path, component_name)
         }
     }
 
@@ -731,7 +708,7 @@ impl SessionState for ModelState {
             Some(&"uninterpreted_fn") => self.perform_uninterpreted_fn_event(event, &at_path[1..]),
             Some(&"regulation") => self.perform_regulation_event(event, &at_path[1..]),
             Some(&"layout") => self.perform_layout_event(event, &at_path[1..]),
-            _ => Self::invalid_path_error(at_path),
+            _ => Self::invalid_path_error_generic(at_path),
         }
     }
 
@@ -742,7 +719,7 @@ impl SessionState for ModelState {
             Some(&"get_regulations") => self.refresh_regulations(full_path),
             Some(&"get_layouts") => self.refresh_layouts(full_path),
             Some(&"get_layout_nodes") => self.refresh_layout_nodes(full_path, &at_path[1..]),
-            _ => Self::invalid_path_error(at_path),
+            _ => Self::invalid_path_error_generic(at_path),
         }
     }
 }
