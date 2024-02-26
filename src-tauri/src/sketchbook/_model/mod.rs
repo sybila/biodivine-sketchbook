@@ -18,7 +18,7 @@ mod _impl_id_generating;
 mod _impl_observing;
 /// **(internal)** Implementation of serialization traits [Serialize] and [Deserialize].
 mod _impl_serde;
-/// **(internal)** Implementation of the [SessionState] trait.
+/// **(internal)** Implementation of event-based API for the [SessionState] trait.
 mod _impl_session_state;
 
 /// Object representing the state of the model in the Boolean network editor. The model encompasses variables,

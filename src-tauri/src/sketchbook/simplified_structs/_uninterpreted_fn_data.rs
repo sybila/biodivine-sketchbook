@@ -13,6 +13,7 @@ pub struct UninterpretedFnData {
     pub id: String,
     pub name: String,
     pub arity: usize,
+    // todo: extend with expression and monotonicity/essentiality of arguments
 }
 
 impl UninterpretedFnData {

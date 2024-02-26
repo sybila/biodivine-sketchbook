@@ -13,5 +13,4 @@ mod _impl_layout_serde;
 pub struct Layout {
     name: String,
     nodes: HashMap<VarId, LayoutNode>,
-    // todo: add compartments
 }
