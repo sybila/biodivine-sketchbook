@@ -1,3 +1,4 @@
+use crate::sketchbook::utils::assert_name_valid;
 use crate::sketchbook::{Essentiality, FnTreeNode, Monotonicity};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
@@ -8,7 +9,7 @@ use std::fmt::{Display, Formatter};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFn {
     name: String,
-    arity: u32,
+    arity: usize,
     essentialities: Vec<Essentiality>,
     monotonicities: Vec<Monotonicity>,
     tree: Option<FnTreeNode>,
@@ -18,32 +19,34 @@ impl UninterpretedFn {
     /// Create new `UninterpretedFn` object.
     pub fn new(
         name: &str,
-        arity: u32,
+        arity: usize,
         essentialities: Vec<Essentiality>,
         monotonicities: Vec<Monotonicity>,
         tree: Option<FnTreeNode>,
-    ) -> UninterpretedFn {
-        // todo: perform some check on the name string - at least disallow newlines
+    ) -> Result<UninterpretedFn, String> {
+        assert_name_valid(name)?;
 
-        UninterpretedFn {
+        Ok(UninterpretedFn {
             name: name.to_string(),
             arity,
             essentialities,
             monotonicities,
             tree,
-        }
+        })
     }
 
     /// Create new `UninterpretedFn` object that has no constraints regarding monotonicity, essentiality,
     /// or the function's expression itself.
-    pub fn new_without_constraints(name: &str, arity: u32) -> UninterpretedFn {
-        UninterpretedFn {
+    pub fn new_without_constraints(name: &str, arity: usize) -> Result<UninterpretedFn, String> {
+        assert_name_valid(name)?;
+
+        Ok(UninterpretedFn {
             name: name.to_string(),
             arity,
-            essentialities: vec![Essentiality::Unknown; arity as usize],
-            monotonicities: vec![Monotonicity::Unknown; arity as usize],
+            essentialities: vec![Essentiality::Unknown; arity],
+            monotonicities: vec![Monotonicity::Unknown; arity],
             tree: None,
-        }
+        })
     }
 
     /// Human-readable name of this uninterpreted fn.
@@ -52,18 +55,19 @@ impl UninterpretedFn {
     }
 
     /// Read arity (number of arguments) of this uninterpreted fn.
-    pub fn get_arity(&self) -> u32 {
+    pub fn get_arity(&self) -> usize {
         self.arity
     }
 
     /// Rename this uninterpreted fn.
-    pub fn set_name(&mut self, new_name: &str) {
-        // todo: perform some check on the name string - at least disallow newlines
+    pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
+        assert_name_valid(new_name)?;
         self.name = new_name.to_string();
+        Ok(())
     }
 
     /// Change arity of this uninterpreted fn.
-    pub fn set_arity(&mut self, new_arity: u32) {
+    pub fn set_arity(&mut self, new_arity: usize) {
         self.arity = new_arity;
     }
 }
@@ -85,9 +89,15 @@ mod tests {
 
     #[test]
     fn basic_uninterpreted_fn_test() {
-        let p = UninterpretedFn::new_without_constraints("f", 3);
-        assert_eq!(3, p.get_arity());
-        assert_eq!("f", p.get_name());
-        assert_eq!("f(x_1, x_2, x_3)", p.to_string().as_str());
+        let f = UninterpretedFn::new_without_constraints("f", 3).unwrap();
+        assert_eq!(3, f.get_arity());
+        assert_eq!("f", f.get_name());
+        assert_eq!("f(x_1, x_2, x_3)", f.to_string().as_str());
+    }
+
+    #[test]
+    fn invalid_uninterpreted_fn_test() {
+        let f = UninterpretedFn::new_without_constraints("f\nxyz", 3);
+        assert!(f.is_err());
     }
 }

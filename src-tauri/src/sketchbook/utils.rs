@@ -25,3 +25,12 @@ where
         .collect::<Result<HashMap<K, V>, _>>()?;
     Ok(transformed_map)
 }
+
+/// Check if a name string is valid, return Error otherwise.
+/// Currently, all names not containing newlines are valid.
+pub(crate) fn assert_name_valid(name: &str) -> Result<(), String> {
+    if name.contains('\n') {
+        return Err("Name must not contain a newline.".to_string());
+    }
+    Ok(())
+}

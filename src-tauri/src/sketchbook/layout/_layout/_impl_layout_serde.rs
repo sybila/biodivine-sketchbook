@@ -120,7 +120,7 @@ mod tests {
 
     #[test]
     fn test_layout_serde() {
-        let mut layout = Layout::new_empty("layout_name");
+        let mut layout = Layout::new_empty("layout_name").unwrap();
         layout.add_node(VarId::new("v1").unwrap(), 1., 1.).unwrap();
 
         // Serialization

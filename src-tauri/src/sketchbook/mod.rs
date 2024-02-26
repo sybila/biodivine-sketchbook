@@ -9,7 +9,7 @@ mod _function_tree;
 /// **(internal)** Utility methods for `Identifier`.
 mod _identifier;
 /// **(internal)** Utility methods for `ModelState`.
-mod _model_state;
+mod _model;
 /// **(internal)** Utility methods for `Monotonicity`.
 mod _monotonicity;
 /// **(internal)** Utility methods for `Regulation`.
@@ -37,7 +37,7 @@ pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
 pub use _function_tree::FnTreeNode;
 pub use _identifier::Identifier;
-pub use _model_state::ModelState;
+pub use _model::ModelState;
 pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
 pub use _uninterpreted_fn::UninterpretedFn;

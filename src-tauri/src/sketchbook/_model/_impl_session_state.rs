@@ -296,7 +296,7 @@ impl ModelState {
             })
         } else if Self::starts_with("set_arity", at_path).is_some() {
             // get the payload - string for "new_name"
-            let new_arity: u32 = Self::clone_payload_str(event, component_name)?.parse()?;
+            let new_arity: usize = Self::clone_payload_str(event, component_name)?.parse()?;
             let original_arity = self.get_uninterpreted_fn(&fn_id)?.get_arity();
             if new_arity == original_arity {
                 return Ok(Consumed::NoChange);

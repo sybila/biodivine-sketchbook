@@ -12,12 +12,12 @@ use std::str::FromStr;
 pub struct UninterpretedFnData {
     pub id: String,
     pub name: String,
-    pub arity: u32,
+    pub arity: usize,
 }
 
 impl UninterpretedFnData {
     /// Create new `UninterpretedFnData` object given a uninterpreted fn's `name`, `arity`, and `id`.
-    pub fn new(id: &str, name: &str, arity: u32) -> UninterpretedFnData {
+    pub fn new(id: &str, name: &str, arity: usize) -> UninterpretedFnData {
         UninterpretedFnData {
             id: id.to_string(),
             name: name.to_string(),

@@ -13,7 +13,8 @@ impl ModelState {
     /// or `Regulations` yet. It contains a single empty default `Layout`.
     pub fn new() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
-        let default_layout = Layout::new_empty(ModelState::get_default_layout_name());
+        // `get_default_layout_name()` returns a valid name, so we can safely unwrap
+        let default_layout = Layout::new_empty(ModelState::get_default_layout_name()).unwrap();
         ModelState {
             variables: HashMap::new(),
             regulations: HashSet::new(),
@@ -43,7 +44,7 @@ impl ModelState {
             let var_id = VarId::new(id)?;
             model
                 .variables
-                .insert(var_id.clone(), Variable::new(var_name));
+                .insert(var_id.clone(), Variable::new(var_name)?);
             model.add_default_update_fn(var_id.clone())?;
             model.insert_to_default_layout(var_id)?;
         }
@@ -59,7 +60,7 @@ impl ModelState {
     /// Returns `Err` in case the `id` is already being used.
     pub fn add_var(&mut self, var_id: VarId, name: &str) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
-        self.variables.insert(var_id.clone(), Variable::new(name));
+        self.variables.insert(var_id.clone(), Variable::new(name)?);
         self.add_default_update_fn(var_id.clone())?;
         self.insert_to_all_layouts(var_id)?;
         Ok(())
@@ -102,12 +103,12 @@ impl ModelState {
         &mut self,
         fn_id: UninterpretedFnId,
         name: &str,
-        arity: u32,
+        arity: usize,
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
         self.uninterpreted_fns.insert(
             fn_id.clone(),
-            UninterpretedFn::new_without_constraints(name, arity),
+            UninterpretedFn::new_without_constraints(name, arity)?,
         );
         Ok(())
     }
@@ -120,7 +121,7 @@ impl ModelState {
         &mut self,
         id: &str,
         name: &str,
-        arity: u32,
+        arity: usize,
     ) -> Result<(), String> {
         let fn_id = UninterpretedFnId::new(id)?;
         self.add_new_uninterpreted_fn(fn_id, name, arity)
@@ -132,7 +133,7 @@ impl ModelState {
     /// Returns `Err` in case the `id` is already being used.
     pub fn add_multiple_uninterpreted_fns(
         &mut self,
-        id_name_arity_tuples: Vec<(&str, &str, u32)>,
+        id_name_arity_tuples: Vec<(&str, &str, usize)>,
     ) -> Result<(), String> {
         for (id, name, arity) in id_name_arity_tuples {
             self.add_uninterpreted_fn_by_str(id, name, arity)?;
@@ -197,7 +198,7 @@ impl ModelState {
     pub fn set_var_name(&mut self, var_id: &VarId, name: &str) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
         let variable = self.variables.get_mut(var_id).unwrap();
-        variable.set_name(name);
+        variable.set_name(name)?;
         Ok(())
     }
 
@@ -304,7 +305,7 @@ impl ModelState {
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
-        uninterpreted_fn.set_name(name);
+        uninterpreted_fn.set_name(name)?;
         Ok(())
     }
 
@@ -318,7 +319,7 @@ impl ModelState {
     pub fn set_uninterpreted_fn_arity(
         &mut self,
         fn_id: &UninterpretedFnId,
-        arity: u32,
+        arity: usize,
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
@@ -330,7 +331,7 @@ impl ModelState {
     pub fn set_uninterpreted_fn_arity_by_str(
         &mut self,
         id: &str,
-        arity: u32,
+        arity: usize,
     ) -> Result<(), String> {
         let fn_id = UninterpretedFnId::new(id)?;
         self.set_uninterpreted_fn_arity(&fn_id, arity)

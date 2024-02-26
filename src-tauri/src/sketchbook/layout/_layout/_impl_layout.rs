@@ -1,6 +1,7 @@
 use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
 use crate::sketchbook::VarId;
 
+use crate::sketchbook::utils::assert_name_valid;
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -8,15 +9,16 @@ use std::str::FromStr;
 /// Methods for safely constructing or mutating instances of `Layout`.
 impl Layout {
     /// Create new empty `Layout` (i.e., with no nodes) with a given name.
-    pub fn new_empty(name_str: &str) -> Layout {
-        Layout {
+    pub fn new_empty(name_str: &str) -> Result<Layout, String> {
+        assert_name_valid(name_str)?;
+        Ok(Layout {
             name: name_str.to_string(),
             nodes: HashMap::new(),
-        }
+        })
     }
 
     /// Create new `Layout` with a given name, that is a direct copy of another existing
-    /// `template_layout`.
+    /// valid `template_layout`.
     pub fn new_from_another_copy(name_str: &str, template_layout: &Layout) -> Layout {
         Layout {
             name: name_str.to_string(),
@@ -32,7 +34,7 @@ impl Layout {
         name_str: &str,
         variable_ids: Vec<VarId>,
     ) -> Result<Layout, String> {
-        let mut layout = Layout::new_empty(name_str);
+        let mut layout = Layout::new_empty(name_str)?;
         for var_id in variable_ids {
             layout.add_default_node(var_id.clone())?;
         }
@@ -40,8 +42,10 @@ impl Layout {
     }
 
     /// Rename this `Layout`.
-    pub fn set_layout_name(&mut self, name_str: &str) {
+    pub fn set_layout_name(&mut self, name_str: &str) -> Result<(), String> {
+        assert_name_valid(name_str)?;
         self.name = name_str.to_string();
+        Ok(())
     }
 
     /// Add a new node for a given variable to this layout. Currently, nodes only hold information
@@ -168,9 +172,9 @@ mod tests {
     #[test]
     fn test_layout_basics() {
         // playing with layout name
-        let mut layout = Layout::new_empty("fancy_name");
+        let mut layout = Layout::new_empty("fancy_name").unwrap();
         assert_eq!(layout.get_layout_name(), "fancy_name");
-        layout.set_layout_name("name_v2");
+        layout.set_layout_name("name_v2").unwrap();
         assert_eq!(layout.get_layout_name(), "name_v2");
 
         // predefine few var IDs and expected nodes for later
@@ -201,7 +205,7 @@ mod tests {
 
     #[test]
     fn test_new_layout_from() {
-        let mut layout = Layout::new_empty("fancy_name");
+        let mut layout = Layout::new_empty("fancy_name").unwrap();
         let var_id1 = VarId::new("v1").unwrap();
         layout.add_default_node(var_id1.clone()).unwrap();
 

@@ -22,7 +22,7 @@ impl Identifier {
     /// Construct new instances of `Identifier`s.
     ///
     /// Returns `Err` if the identifier is not a valid C-like identifier.
-    pub fn new(identifier: &str) -> Result<Identifier, String> {
+    pub(crate) fn new(identifier: &str) -> Result<Identifier, String> {
         if Self::is_valid_identifier(identifier) {
             Ok(Self {
                 id: identifier.to_string(),
