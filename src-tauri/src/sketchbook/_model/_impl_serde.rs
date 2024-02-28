@@ -48,7 +48,7 @@ impl<'de> Deserialize<'de> for ModelState {
             UpdateFns,
             UninterpretedFns,
             Layouts,
-            PlaceholderVariables
+            PlaceholderVariables,
         }
 
         impl<'de> Deserialize<'de> for Field {
@@ -160,8 +160,8 @@ impl<'de> Deserialize<'de> for ModelState {
                 let update_fns =
                     update_fns.ok_or_else(|| de::Error::missing_field("update_fns"))?;
                 let layouts = layouts.ok_or_else(|| de::Error::missing_field("layouts"))?;
-                let placeholder_variables =
-                    placeholder_variables.ok_or_else(|| de::Error::missing_field("placeholder_variables"))?;
+                let placeholder_variables = placeholder_variables
+                    .ok_or_else(|| de::Error::missing_field("placeholder_variables"))?;
                 Ok(ModelState {
                     variables,
                     regulations,

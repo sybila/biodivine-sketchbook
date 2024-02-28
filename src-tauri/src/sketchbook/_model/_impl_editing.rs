@@ -1,8 +1,8 @@
-use std::cmp::max;
 use crate::sketchbook::{
     Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
     UninterpretedFnId, UpdateFn, VarId, Variable,
 };
+use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
@@ -487,18 +487,21 @@ impl ModelState {
             let placeholder_id = format!("var{}", self.num_placeholder_vars());
             let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
             self.placeholder_variables.insert(placeholder);
-        };
+        }
     }
 
     /// **(internal)** Utility method to remove as many placeholder variables as is required after
     /// a removal (or update) of an uninterpreted fn.
     fn remove_placeholder_vars_if_needed(&mut self) {
-        let highest_arity = self.uninterpreted_fns.values().fold(0, |acc, f| max(acc, f.get_arity()));
+        let highest_arity = self
+            .uninterpreted_fns
+            .values()
+            .fold(0, |acc, f| max(acc, f.get_arity()));
         while self.num_placeholder_vars() > highest_arity {
             let placeholder_id = format!("var{}", self.num_placeholder_vars() - 1);
             let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
             self.placeholder_variables.remove(&placeholder);
-        };
+        }
     }
 
     /// **(internal)** Utility method to add a default update fn for a given variable.
