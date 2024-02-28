@@ -1,3 +1,4 @@
+use std::cmp::max;
 use crate::sketchbook::{
     Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
     UninterpretedFnId, UpdateFn, VarId, Variable,
@@ -21,6 +22,7 @@ impl ModelState {
             update_fns: HashMap::new(),
             uninterpreted_fns: HashMap::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
+            placeholder_variables: HashSet::new(),
         }
     }
 
@@ -110,6 +112,7 @@ impl ModelState {
             fn_id.clone(),
             UninterpretedFn::new_without_constraints(name, arity)?,
         );
+        self.add_placeholder_vars_if_needed(arity);
         Ok(())
     }
 
@@ -254,7 +257,7 @@ impl ModelState {
             self.update_fns.insert(new_id.clone(), update_fn);
         }
 
-        // todo - in future, all update fns must be modified here
+        // todo - instances of this variable must be updated in each update fn tree
 
         Ok(())
     }
@@ -275,9 +278,13 @@ impl ModelState {
     /// Returns `Err` in case the `var_id` is not a valid variable's identifier.
     pub fn remove_var(&mut self, var_id: &VarId) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
+
+        // todo - first check if it is safe to delete the var (i.e., its not contained in any update fn)
+
         // first delete all regulations, layout nodes, and lastly the variable itself
         self.remove_all_regulations_var(var_id)?;
         self.remove_from_all_layouts(var_id)?;
+
         if self.update_fns.remove(var_id).is_none() {
             panic!("Error when removing update fn for variable {var_id}.")
         }
@@ -322,8 +329,10 @@ impl ModelState {
         arity: usize,
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
+        self.add_placeholder_vars_if_needed(arity);
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
         uninterpreted_fn.set_arity(arity);
+        self.remove_placeholder_vars_if_needed();
         Ok(())
     }
 
@@ -355,7 +364,7 @@ impl ModelState {
                 .insert(new_id.clone(), uninterpreted_fn);
         }
 
-        // todo - in future, update fns must be modified here
+        // todo - instances of this uninterpreted fn must be updated in each update fn tree
 
         Ok(())
     }
@@ -378,11 +387,12 @@ impl ModelState {
     pub fn remove_uninterpreted_fn(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
 
-        // todo - first check update fns if it is safe to delete
+        // todo - first check if it is safe to delete the uninterpreted fn (i.e., its not contained in any update fn)
 
         if self.uninterpreted_fns.remove(fn_id).is_none() {
             panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")
         }
+        self.remove_placeholder_vars_if_needed();
         Ok(())
     }
 
@@ -460,6 +470,35 @@ impl ModelState {
             *regulation.get_sign(),
         )?;
         Ok(())
+    }
+
+    /// Set update function for a given variable to a provided expression.
+    pub fn set_update_fn(&mut self, var_id: &VarId, expression: &str) -> Result<(), String> {
+        self.assert_valid_variable(var_id)?;
+        let new_update_fn = UpdateFn::try_from_str(expression, self)?;
+        self.update_fns.insert(var_id.clone(), new_update_fn);
+        Ok(())
+    }
+
+    /// **(internal)** Utility method to add as many placeholder variables as is required by
+    /// an addition (or update) of an uninterpreted fn of given arity.
+    fn add_placeholder_vars_if_needed(&mut self, arity: usize) {
+        while arity > self.num_placeholder_vars() {
+            let placeholder_id = format!("var{}", self.num_placeholder_vars());
+            let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
+            self.placeholder_variables.insert(placeholder);
+        };
+    }
+
+    /// **(internal)** Utility method to remove as many placeholder variables as is required after
+    /// a removal (or update) of an uninterpreted fn.
+    fn remove_placeholder_vars_if_needed(&mut self) {
+        let highest_arity = self.uninterpreted_fns.values().fold(0, |acc, f| max(acc, f.get_arity()));
+        while self.num_placeholder_vars() > highest_arity {
+            let placeholder_id = format!("var{}", self.num_placeholder_vars() - 1);
+            let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
+            self.placeholder_variables.remove(&placeholder);
+        };
     }
 
     /// **(internal)** Utility method to add a default update fn for a given variable.
@@ -781,6 +820,22 @@ mod tests {
         assert!(model.get_regulation(&var_b, &var_c).is_err());
         assert!(model.add_regulation_by_str("b -> c").is_ok());
         assert_eq!(model.num_regulations(), 1);
+    }
+
+    /// Test manually adding and modifying update functions.
+    #[test]
+    fn test_update_fns() {
+        let var_id_name_pairs = vec![("a", "a"), ("b", "b"), ("c", "c")];
+        let mut model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
+        let var_a = model.get_var_id("a").unwrap();
+
+        let initial_expression = model.get_update_fn(&var_a).unwrap();
+        assert_eq!(initial_expression, "");
+
+        let expression = "(a & b) => c";
+        model.set_update_fn(&var_a, "(a & b) => c").unwrap();
+        let modified_expression = model.get_update_fn(&var_a).unwrap();
+        assert_eq!(modified_expression, expression);
     }
 
     /// Test adding invalid variables.

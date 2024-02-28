@@ -1,4 +1,4 @@
-use crate::sketchbook::FnTreeNode;
+use crate::sketchbook::{FnTree, ModelState};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 
@@ -6,7 +6,7 @@ use std::fmt::{Display, Formatter};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct UpdateFn {
     expression: String,
-    tree: Option<FnTreeNode>,
+    tree: Option<FnTree>,
 }
 
 impl Display for UpdateFn {
@@ -29,14 +29,14 @@ impl UpdateFn {
     /// Create new `UpdateFn` from a provided expression.
     ///
     /// The expression is either a valid update fn expression or an empty (possible whitespace) string.
-    pub fn try_from_str(expression: &str) -> Result<UpdateFn, String> {
+    pub fn try_from_str(expression: &str, context: &ModelState) -> Result<UpdateFn, String> {
         if expression.chars().all(|c| c.is_whitespace()) {
             return Ok(UpdateFn::default());
         }
 
-        let syntactic_tree = FnTreeNode::try_from_str(expression)?;
+        let syntactic_tree = FnTree::try_from_str(expression, context, None)?;
         Ok(UpdateFn {
-            expression: syntactic_tree.to_string(),
+            expression: syntactic_tree.to_string(context, None)?,
             tree: Some(syntactic_tree),
         })
     }
@@ -47,13 +47,17 @@ impl UpdateFn {
     }
 
     /// Set the update function's expression to a given string.
-    pub fn set_fn_expression(&mut self, new_expression: &str) -> Result<(), String> {
+    pub fn set_fn_expression(
+        &mut self,
+        new_expression: &str,
+        context: &ModelState,
+    ) -> Result<(), String> {
         if new_expression.chars().all(|c| c.is_whitespace()) {
             self.tree = None;
             self.expression = String::new()
         } else {
-            let syntactic_tree = FnTreeNode::try_from_str(new_expression)?;
-            self.expression = syntactic_tree.to_string();
+            let syntactic_tree = FnTree::try_from_str(new_expression, context, None)?;
+            self.expression = syntactic_tree.to_string(context, None)?;
             self.tree = Some(syntactic_tree);
         }
         Ok(())

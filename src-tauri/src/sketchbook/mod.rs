@@ -4,7 +4,7 @@ use crate::sketchbook::layout::{Layout, LayoutId};
 mod _binary_op;
 /// **(internal)** Utility methods for `Essentiality`.
 mod _essentiality;
-/// **(internal)** Utility methods for `FnTreeNode`.
+/// **(internal)** Utility methods for `FnTree`.
 mod _function_tree;
 /// **(internal)** Utility methods for `Identifier`.
 mod _identifier;
@@ -35,7 +35,7 @@ pub mod utils;
 
 pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
-pub use _function_tree::FnTreeNode;
+pub use _function_tree::FnTree;
 pub use _identifier::Identifier;
 pub use _model::ModelState;
 pub use _monotonicity::Monotonicity;

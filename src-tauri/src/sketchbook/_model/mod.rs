@@ -33,6 +33,7 @@ pub struct ModelState {
     update_fns: HashMap<VarId, UpdateFn>,
     uninterpreted_fns: HashMap<UninterpretedFnId, UninterpretedFn>,
     layouts: HashMap<LayoutId, Layout>,
+    placeholder_variables: HashSet<VarId>,
 }
 
 impl Default for ModelState {

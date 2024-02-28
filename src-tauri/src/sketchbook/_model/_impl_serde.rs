@@ -26,11 +26,12 @@ impl Serialize for ModelState {
         let uninterpreted_fns_map = stringify_map_keys(&self.uninterpreted_fns);
         state.serialize_field("uninterpreted_fns", &uninterpreted_fns_map)?;
 
-        // Serialize `regulations` as is (it is not a HashMap, just a HashSet)
         state.serialize_field("regulations", &self.regulations)?;
 
         let layouts_map = stringify_map_keys(&self.layouts);
         state.serialize_field("layouts", &layouts_map)?;
+
+        state.serialize_field("placeholder_variables", &self.placeholder_variables)?;
 
         state.end()
     }
@@ -47,6 +48,7 @@ impl<'de> Deserialize<'de> for ModelState {
             UpdateFns,
             UninterpretedFns,
             Layouts,
+            PlaceholderVariables
         }
 
         impl<'de> Deserialize<'de> for Field {
@@ -61,7 +63,7 @@ impl<'de> Deserialize<'de> for ModelState {
 
                     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                         formatter.write_str(
-                            "`variables`, `update_fns`, `uninterpreted_fns`, `regulations`, or `layouts`",
+                            "`variables`, `update_fns`, `uninterpreted_fns`, `regulations`, `layouts`, or `placeholder_variables`",
                         )
                     }
 
@@ -75,6 +77,7 @@ impl<'de> Deserialize<'de> for ModelState {
                             "update_fns" => Ok(Field::UpdateFns),
                             "uninterpreted_fns" => Ok(Field::UninterpretedFns),
                             "layouts" => Ok(Field::Layouts),
+                            "placeholder_variables" => Ok(Field::PlaceholderVariables),
                             _ => Err(de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -102,6 +105,7 @@ impl<'de> Deserialize<'de> for ModelState {
                 let mut update_fns = None;
                 let mut uninterpreted_fns = None;
                 let mut layouts = None;
+                let mut placeholder_variables = None;
 
                 while let Some(key) = map.next_key()? {
                     match key {
@@ -139,6 +143,12 @@ impl<'de> Deserialize<'de> for ModelState {
                             let l: HashMap<String, Layout> = map.next_value()?;
                             layouts = Some(parse_map_keys(l).map_err(de::Error::custom)?);
                         }
+                        Field::PlaceholderVariables => {
+                            if placeholder_variables.is_some() {
+                                return Err(de::Error::duplicate_field("placeholder_variables"));
+                            }
+                            placeholder_variables = Some(map.next_value()?);
+                        }
                     }
                 }
 
@@ -150,12 +160,15 @@ impl<'de> Deserialize<'de> for ModelState {
                 let update_fns =
                     update_fns.ok_or_else(|| de::Error::missing_field("update_fns"))?;
                 let layouts = layouts.ok_or_else(|| de::Error::missing_field("layouts"))?;
+                let placeholder_variables =
+                    placeholder_variables.ok_or_else(|| de::Error::missing_field("placeholder_variables"))?;
                 Ok(ModelState {
                     variables,
                     regulations,
                     update_fns,
                     uninterpreted_fns,
                     layouts,
+                    placeholder_variables,
                 })
             }
         }
@@ -166,6 +179,7 @@ impl<'de> Deserialize<'de> for ModelState {
             "update_fns",
             "uninterpreted_fns",
             "layouts",
+            "placeholder_variables",
         ];
         deserializer.deserialize_struct("ModelState", FIELDS, ModelStateVisitor)
     }
@@ -187,7 +201,7 @@ mod tests {
         let model_serialized = serde_json::to_string(&model).unwrap();
         // this cant fail due to order of vars, since we only have one
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}},\"placeholder_variables\":[]}".to_string(),
             model_serialized
         );
         assert_eq!(model.to_string(), model_serialized);
@@ -208,7 +222,7 @@ mod tests {
         // To string
         let model_string = model.to_string();
         assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"essential\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}}}".to_string(),
+            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"essential\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}},\"placeholder_variables\":[]}".to_string(),
             model_string
         );
 
