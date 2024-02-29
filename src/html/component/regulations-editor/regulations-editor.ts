@@ -12,7 +12,7 @@ import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 
 @customElement('regulations-editor')
-class RegulationsEditor extends LitElement {
+export default class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   dialogs: Record<string, WebviewWindow | undefined> = {}
   editorElement
@@ -36,7 +36,9 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
-    this.addEventListener('focus-function', () => { this.toggleMenu(ElementType.NONE) })
+    this.addEventListener('focus-function', () => {
+      this.toggleMenu(ElementType.NONE)
+    })
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
   }

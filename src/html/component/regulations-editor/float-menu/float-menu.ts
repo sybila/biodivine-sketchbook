@@ -28,7 +28,7 @@ import {
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
 @customElement('float-menu')
-class FloatMenu extends LitElement {
+export default class FloatMenu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() type = ElementType.NONE
   @property() position: Position = { x: 0, y: 0 }

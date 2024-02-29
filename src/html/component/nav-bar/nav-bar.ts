@@ -8,7 +8,7 @@ import '../search/search'
 import { type TabData } from '../../util/tab-data'
 
 @customElement('nav-bar')
-class NavBar extends LitElement {
+export default class NavBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() tabs: TabData[] = []
 

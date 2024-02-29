@@ -27,7 +27,7 @@ import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 const LAYOUT = 'default'
 
 @customElement('root-component')
-class RootComponent extends LitElement {
+export default class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @state() data: ContentData = ContentData.create()
   @state() tabs: TabData[] = tabList

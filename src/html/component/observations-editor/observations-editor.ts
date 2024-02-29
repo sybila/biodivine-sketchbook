@@ -8,7 +8,7 @@ import { dummyData } from '../../util/dummy-data'
 import { dialog } from '@tauri-apps/api'
 
 @customElement('observations-editor')
-class ObservationsEditor extends LitElement {
+export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData = ContentData.create()
   @state() sets: IObservationSet[] = []

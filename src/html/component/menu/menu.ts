@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators.js'
 import style_less from './menu.less?inline'
 
 @customElement('hamburger-menu')
-class Menu extends LitElement {
+export default class Menu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   render (): TemplateResult {

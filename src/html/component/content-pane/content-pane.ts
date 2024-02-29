@@ -13,7 +13,7 @@ import { ContentData } from '../../util/data-interfaces'
 library.add(faLock, faLockOpen)
 
 @customElement('content-pane')
-export class ContentPane extends LitElement {
+export default class ContentPane extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   @property() private readonly tab: TabData = TabData.create()
