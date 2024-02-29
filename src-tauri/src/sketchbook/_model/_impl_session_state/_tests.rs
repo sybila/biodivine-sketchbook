@@ -1,9 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
+use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData, RegulationData, VariableData};
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::simplified_structs::{
-    LayoutData, LayoutNodeData, RegulationData, VariableData,
-};
 use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
 use serde_json::json;
 

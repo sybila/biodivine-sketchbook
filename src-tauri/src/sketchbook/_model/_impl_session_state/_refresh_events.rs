@@ -1,7 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::SessionHelper;
 use crate::app::DynError;
-use crate::sketchbook::simplified_structs::{
+use crate::sketchbook::data_structs::{
     LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::ModelState;

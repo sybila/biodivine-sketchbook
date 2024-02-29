@@ -1,8 +1,8 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
+use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::layout::{LayoutId, NodePosition};
-use crate::sketchbook::simplified_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::ModelState;
 
 use std::str::FromStr;

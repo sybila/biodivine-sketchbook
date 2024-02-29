@@ -1,4 +1,4 @@
-use crate::sketchbook::{UninterpretedFn, UninterpretedFnId};
+use crate::sketchbook::{Essentiality, Monotonicity, UninterpretedFn, UninterpretedFnId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -13,16 +13,28 @@ pub struct UninterpretedFnData {
     pub id: String,
     pub name: String,
     pub arity: usize,
-    // todo: extend with expression and monotonicity/essentiality of arguments
+    pub essentialities: Vec<Essentiality>,
+    pub monotonicities: Vec<Monotonicity>,
+    pub expression: String,
 }
 
 impl UninterpretedFnData {
     /// Create new `UninterpretedFnData` object given a uninterpreted fn's `name`, `arity`, and `id`.
-    pub fn new(id: &str, name: &str, arity: usize) -> UninterpretedFnData {
+    pub fn new(
+        id: &str,
+        name: &str,
+        arity: usize,
+        essentialities: Vec<Essentiality>,
+        monotonicities: Vec<Monotonicity>,
+        expression: &str,
+    ) -> UninterpretedFnData {
         UninterpretedFnData {
             id: id.to_string(),
             name: name.to_string(),
             arity,
+            essentialities,
+            monotonicities,
+            expression: expression.to_string(),
         }
     }
 
@@ -35,6 +47,9 @@ impl UninterpretedFnData {
             id: fn_id.to_string(),
             name: uninterpreted_fn.get_name().to_string(),
             arity: uninterpreted_fn.get_arity(),
+            essentialities: uninterpreted_fn.get_all_essential().clone(),
+            monotonicities: uninterpreted_fn.get_all_monotonic().clone(),
+            expression: uninterpreted_fn.get_fn_expression().to_string(),
         }
     }
 }

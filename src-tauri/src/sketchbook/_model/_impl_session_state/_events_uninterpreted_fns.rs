@@ -1,7 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
-use crate::sketchbook::simplified_structs::UninterpretedFnData;
+use crate::sketchbook::data_structs::UninterpretedFnData;
 use crate::sketchbook::{ModelState, UninterpretedFnId};
 
 use serde_json::json;
@@ -10,6 +10,7 @@ use std::str::FromStr;
 /// Implementation for events related to `uninterpreted functions` of the model.
 impl ModelState {
     /// Perform event of adding a new `uninterpreted fn` component to this `ModelState`.
+    /// For now, it is assumed that new functions have no constraints (monotonicity, essentiality, or expression).
     pub(super) fn event_add_uninterpreted_fn(
         &mut self,
         event: &Event,
@@ -145,7 +146,7 @@ impl ModelState {
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
         }
-        // todo: more events - expression or monotonicity/essentiality of arguments
+        // todo: more events - expression and monotonicity/essentiality of arguments
     }
 
     /// Perform events related to `uninterpreted fns` component of this `ModelState`.

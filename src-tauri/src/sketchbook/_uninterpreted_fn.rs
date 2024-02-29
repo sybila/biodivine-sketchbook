@@ -1,5 +1,5 @@
 use crate::sketchbook::utils::assert_name_valid;
-use crate::sketchbook::{Essentiality, FnTree, ModelState, Monotonicity};
+use crate::sketchbook::{Essentiality, FnTree, ModelState, Monotonicity, UninterpretedFnId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 
@@ -65,12 +65,14 @@ impl UninterpretedFn {
         &mut self,
         new_expression: &str,
         context: &ModelState,
+        own_id: &UninterpretedFnId,
     ) -> Result<(), String> {
         if new_expression.chars().all(|c| c.is_whitespace()) {
             self.tree = None;
             self.expression = String::new()
         } else {
-            let syntactic_tree = FnTree::try_from_str(new_expression, context, Some(self.arity))?;
+            let syntactic_tree =
+                FnTree::try_from_str(new_expression, context, Some((own_id, self)))?;
             self.expression = syntactic_tree.to_string(context, Some(self.arity))?;
             self.tree = Some(syntactic_tree);
         }
@@ -85,6 +87,16 @@ impl UninterpretedFn {
     /// Get `Monotonicity` of argument with given `index` (starting from 0).
     pub fn get_monotonic(&self, index: usize) -> &Monotonicity {
         &self.monotonicities[index]
+    }
+
+    /// Get `Essentiality` of all arguments (in a default order).
+    pub fn get_all_essential(&self) -> &Vec<Essentiality> {
+        &self.essentialities
+    }
+
+    /// Get `Monotonicity` of all arguments (in a default order).
+    pub fn get_all_monotonic(&self) -> &Vec<Monotonicity> {
+        &self.monotonicities
     }
 }
 
@@ -101,7 +113,7 @@ impl Display for UninterpretedFn {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{ModelState, UninterpretedFn};
+    use crate::sketchbook::{ModelState, UninterpretedFn, UninterpretedFnId};
 
     #[test]
     fn basic_uninterpreted_fn_test() {
@@ -119,12 +131,16 @@ mod tests {
 
     #[test]
     fn uninterpreted_fn_expression_test() {
+        // this test is a hack, normally just edit the function's expression through the `ModelState`
+        // object that owns it
+
         let mut context = ModelState::new();
         context.add_uninterpreted_fn_by_str("f", "f", 3).unwrap();
 
+        let fn_id = UninterpretedFnId::new("f").unwrap();
         let mut f = UninterpretedFn::new_without_constraints("f", 3).unwrap();
         let expression = "var0 & (var1 => var2)";
-        f.set_fn_expression(expression, &context).unwrap();
+        f.set_fn_expression(expression, &context, &fn_id).unwrap();
         assert_eq!(f.get_fn_expression(), expression);
     }
 }

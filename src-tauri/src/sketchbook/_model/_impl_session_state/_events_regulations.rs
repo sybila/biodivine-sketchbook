@@ -1,7 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
-use crate::sketchbook::simplified_structs::RegulationData;
+use crate::sketchbook::data_structs::RegulationData;
 use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
 
 use std::str::FromStr;

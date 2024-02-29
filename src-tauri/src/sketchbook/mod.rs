@@ -25,11 +25,11 @@ mod _var_id;
 /// **(internal)** Utility methods for `Variable`.
 mod _variable;
 
-/// Classes and utility methods regarding the layout of the Regulations editor.
-pub mod layout;
 /// Classes and utility methods that can be used for sending simplified data to frontend.
 /// This includes simplified "data carriers" for variables, regulations, and layouts.
-pub mod simplified_structs;
+pub mod data_structs;
+/// Classes and utility methods regarding the layout of the Regulations editor.
+pub mod layout;
 /// Utility functions used throughout the module.
 pub mod utils;
 

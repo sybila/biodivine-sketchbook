@@ -1,8 +1,8 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
+use crate::sketchbook::data_structs::{LayoutNodeData, VariableData};
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::simplified_structs::{LayoutNodeData, VariableData};
 use crate::sketchbook::{ModelState, VarId};
 
 use serde_json::json;
