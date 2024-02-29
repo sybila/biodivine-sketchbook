@@ -62,9 +62,9 @@ export default class ObservationsEditor extends LitElement {
         </div>
         <div class="accordion-body">
           <div class="accordion">
-            ${map(this.sets, (set) => html`
-          <div class="container">
-            <div class="label" @click="${(e: Event) => { e.target?.parentElement.classList.toggle('active') }}" >
+            ${map(this.sets, (set, index) => html`
+          <div class="container" id="${'container' + index}">
+            <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
               ${set.name}
             </div>
             <div class="content">
