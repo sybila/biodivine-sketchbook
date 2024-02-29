@@ -1,9 +1,13 @@
-use crate::sketchbook::layout::LayoutNode;
+use crate::sketchbook::layout::{LayoutId, LayoutNode};
+use crate::sketchbook::VarId;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
 /// Structure for sending data about `NodeLayout` to frontend.
+///
+/// Some fields of `LayoutNodeData` are simplified compared to `NodeLayout` (e.g., pure `Strings`
+/// instead of more complex typesafe structs) to allow for easier (de)serialization.
 ///
 /// - `layout` is a string ID of the node's layout
 /// - `variable` is a string ID of the node's variable
@@ -17,19 +21,19 @@ pub struct LayoutNodeData {
 }
 
 impl LayoutNodeData {
-    pub fn new(layout_id: String, var_id: String, px: f32, py: f32) -> LayoutNodeData {
+    pub fn new(layout_id: &str, var_id: &str, px: f32, py: f32) -> LayoutNodeData {
         LayoutNodeData {
-            layout: layout_id,
-            variable: var_id,
+            layout: layout_id.to_string(),
+            variable: var_id.to_string(),
             px,
             py,
         }
     }
 
-    pub fn from_node(layout_id: String, var_id: String, node: &LayoutNode) -> LayoutNodeData {
+    pub fn from_node(layout_id: &LayoutId, var_id: &VarId, node: &LayoutNode) -> LayoutNodeData {
         LayoutNodeData {
-            layout: layout_id,
-            variable: var_id,
+            layout: layout_id.to_string(),
+            variable: var_id.to_string(),
             px: node.get_px(),
             py: node.get_py(),
         }

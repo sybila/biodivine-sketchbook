@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::SessionHelper;
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{
-    LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
+    LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, UpdateFnData, VariableData,
 };
 use crate::sketchbook::ModelState;
 
@@ -80,9 +80,7 @@ impl ModelState {
 
         let node_list: Vec<LayoutNodeData> = layout
             .layout_nodes()
-            .map(|(var_id, node)| {
-                LayoutNodeData::from_node(layout_id.to_string(), var_id.to_string(), node)
-            })
+            .map(|(var_id, node)| LayoutNodeData::from_node(&layout_id, var_id, node))
             .collect();
 
         // remove the id from the path
@@ -95,5 +93,17 @@ impl ModelState {
         })
     }
 
-    // todo: add event to refresh update functions
+    /// Get a list of all update functions (with corresponding var id).
+    pub(super) fn refresh_update_fns(&self, full_path: &[String]) -> Result<Event, DynError> {
+        let update_fns_list: Vec<UpdateFnData> = self
+            .update_fns
+            .iter()
+            .map(|(id, update_fn)| UpdateFnData::from_update_fn(id, update_fn))
+            .collect();
+
+        Ok(Event {
+            path: full_path.to_vec(),
+            payload: Some(serde_json::to_string(&update_fns_list)?),
+        })
+    }
 }

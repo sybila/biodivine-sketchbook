@@ -53,14 +53,10 @@ impl ModelState {
             let new_position = NodePosition(new_x, new_y);
 
             let orig_pos = self.get_node_position(&layout_id, &var_id)?.clone();
-            let orig_pos_data = LayoutNodeData::new(
-                layout_id.to_string(),
-                var_id.to_string(),
-                orig_pos.0,
-                orig_pos.1,
-            );
+            let orig_pos_data =
+                LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), orig_pos.0, orig_pos.1);
             let new_pos_data =
-                LayoutNodeData::new(layout_id.to_string(), var_id.to_string(), new_x, new_y);
+                LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), new_x, new_y);
 
             if new_position == orig_pos {
                 return Ok(Consumed::NoChange);

@@ -1,11 +1,12 @@
-use crate::sketchbook::{Essentiality, Monotonicity, Regulation, VarId};
+use crate::sketchbook::{Essentiality, Monotonicity, Regulation};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
 /// Structure for sending simplified data about `Regulation` to the frontend.
 ///
-/// All the fields of `VariableData` are simple strings or enums to allow for simpler (de)serialization.
+/// Some fields of `RegulationData` are simplified compared to `Regulation` (e.g., pure `Strings` instead
+/// of more complex typesafe structs) to allow for easier (de)serialization.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegulationData {
     pub regulator: String,
@@ -15,20 +16,22 @@ pub struct RegulationData {
 }
 
 impl RegulationData {
+    /// Create new `RegulationData` object given references to individual components.
     pub fn new(
-        regulator_id: &VarId,
-        target_id: &VarId,
-        essential: &Essentiality,
-        sign: &Monotonicity,
+        regulator_id: &str,
+        target_id: &str,
+        essential: Essentiality,
+        sign: Monotonicity,
     ) -> RegulationData {
         RegulationData {
             regulator: regulator_id.to_string(),
             target: target_id.to_string(),
-            essential: *essential,
-            sign: *sign,
+            essential,
+            sign,
         }
     }
 
+    /// Create new `RegulationData` object given a `regulation`.
     pub fn from_reg(regulation: &Regulation) -> RegulationData {
         RegulationData {
             regulator: regulation.get_regulator().to_string(),
@@ -38,6 +41,7 @@ impl RegulationData {
         }
     }
 
+    /// Try to create new `RegulationData` object given a string encoding a regulation.
     pub fn try_from_reg_str(regulation_str: &str) -> Result<RegulationData, String> {
         let regulation = Regulation::try_from_string(regulation_str)?;
         Ok(RegulationData::from_reg(&regulation))

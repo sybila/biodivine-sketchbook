@@ -6,7 +6,7 @@ use std::str::FromStr;
 /// Structure for sending data about `UninterpretedFn` to the frontend.
 ///
 /// `UninterpretedFnData` does not have the exact same fields as `UninterpretedFn` (for instance, there
-/// is an additional useful field `id`). All the fields of `UninterpretedFnData` are string to allow for simpler
+/// is an additional useful field `id`). Some fields of `UninterpretedFnData` are simplified to allow easier
 /// (de)serialization and manipulation.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFnData {
@@ -19,7 +19,7 @@ pub struct UninterpretedFnData {
 }
 
 impl UninterpretedFnData {
-    /// Create new `UninterpretedFnData` object given a uninterpreted fn's `name`, `arity`, and `id`.
+    /// Create new `UninterpretedFnData` object given an uninterpreted fn's `name`, `arity`, and `id`.
     pub fn new(
         id: &str,
         name: &str,
@@ -38,7 +38,7 @@ impl UninterpretedFnData {
         }
     }
 
-    /// Create new `UninterpretedFnData` object given a `uninterpreted fn` and its id.
+    /// Create new `UninterpretedFnData` object given an uninterpreted function and its id.
     pub fn from_uninterpreted_fn(
         fn_id: &UninterpretedFnId,
         uninterpreted_fn: &UninterpretedFn,

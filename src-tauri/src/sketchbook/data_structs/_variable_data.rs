@@ -6,7 +6,8 @@ use std::str::FromStr;
 /// Structure for sending data about `Variable` to the frontend.
 ///
 /// `VariableData` does not have the exact same fields as `Variable` (for instance, there is an additional useful
-/// field `id`). All the fields of `VariableData` are string to allow for simpler (de)serialization and manipulation.
+/// field `id`). Some fields of `VariableData` are simplified compared to `Variable` (e.g., pure `Strings` instead
+/// of more complex typesafe structs) to allow for easier (de)serialization.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct VariableData {
     pub id: String,
@@ -22,7 +23,7 @@ impl VariableData {
         }
     }
 
-    /// Create new `VariableData` object given a `variable` and its id.
+    /// Create new `VariableData` object given a refernece to a `variable` and its id.
     pub fn from_var(var_id: &VarId, variable: &Variable) -> VariableData {
         VariableData {
             id: var_id.to_string(),

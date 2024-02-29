@@ -79,8 +79,8 @@ impl ModelState {
                 event_list.push(event.clone());
                 for l_id in self.layouts.keys() {
                     let event_path = ["model", "layout", l_id.as_str(), "update_position"];
-                    let payload = LayoutNodeData::new(l_id.to_string(), var_id.to_string(), 0., 0.)
-                        .to_string();
+                    let payload =
+                        LayoutNodeData::new(l_id.as_str(), var_id.as_str(), 0., 0.).to_string();
                     let move_event = Event::build(&event_path, Some(payload.as_str()));
                     event_list.push(move_event)
                 }

@@ -29,7 +29,7 @@ impl SessionState for ModelState {
             Some(&"uninterpreted_fn") => self.perform_uninterpreted_fn_event(event, &at_path[1..]),
             Some(&"regulation") => self.perform_regulation_event(event, &at_path[1..]),
             Some(&"layout") => self.perform_layout_event(event, &at_path[1..]),
-            // todo: add events for update functions
+            Some(&"update_fn") => self.perform_update_fn_event(event, &at_path[1..]),
             _ => Self::invalid_path_error_generic(at_path),
         }
     }
@@ -41,7 +41,7 @@ impl SessionState for ModelState {
             Some(&"get_regulations") => self.refresh_regulations(full_path),
             Some(&"get_layouts") => self.refresh_layouts(full_path),
             Some(&"get_layout_nodes") => self.refresh_layout_nodes(full_path, &at_path[1..]),
-            // todo: add events for update functions
+            Some(&"get_update_fns") => self.refresh_update_fns(full_path),
             _ => Self::invalid_path_error_generic(at_path),
         }
     }
