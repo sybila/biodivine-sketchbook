@@ -25,8 +25,8 @@ export default class ObservationsSet extends LitElement {
   tabulator: Tabulator | undefined
   @state() dummy: IDummyObservation[] = Array(100001).fill(0).map((_, index) => {
     return {
-      id: 'var' + String(index).padStart(4, '0'),
-      name: 'var' + String(index).padStart(4, '0'),
+      id: 'var' + String(index).padStart(5, '0'),
+      name: 'var' + String(index).padStart(5, '0'),
       var0: Math.round(Math.random()),
       var1: Math.round(Math.random()),
       var2: Math.round(Math.random()),
@@ -55,6 +55,11 @@ export default class ObservationsSet extends LitElement {
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
     super.firstUpdated(_changedProperties)
+    await this.init()
+    this.tabulator?.redraw(true)
+  }
+
+  private async init(): Promise<void> {
     const dataCell = (field: string): ColumnDefinition => {
       return {
         title: field,
@@ -89,7 +94,9 @@ export default class ObservationsSet extends LitElement {
       formatter: (_cell, _params, _callback): string => {
         return "<button class='uk-button-small uk-button-primary'>Edit</button>"
       },
-      width: 100,
+      width: 70,
+      headerSort: false,
+      hozAlign: 'center',
       cellClick: (_e: UIEvent, _cell: CellComponent) => {
         console.log('test', _e, _cell.getData())
         void this.editObservation(_cell.getData() as IDummyObservation)
@@ -104,7 +111,7 @@ export default class ObservationsSet extends LitElement {
         pagination: true,
         renderVerticalBuffer: 300,
         sortMode: 'local',
-        initialSort: [{ column: 'var0', dir: 'asc' }],
+        initialSort: [{ column: 'name', dir: 'asc' }],
         headerSort: true,
         index: 'id',
         paginationSize: 20,
