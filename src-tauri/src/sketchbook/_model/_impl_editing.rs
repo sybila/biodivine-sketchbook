@@ -346,6 +346,78 @@ impl ModelState {
         self.set_uninterpreted_fn_arity(&fn_id, arity)
     }
 
+    /// Set expression of an uninterpreted fn given by id `fn_id`.
+    pub fn set_uninterpreted_fn_expression(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        expression: &str,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let original_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
+        let updated_fn =
+            UninterpretedFn::with_new_expression(original_fn, expression, self, fn_id)?;
+        self.uninterpreted_fns.insert(fn_id.clone(), updated_fn);
+        Ok(())
+    }
+
+    /// Set expression of an uninterpreted fn given by string `id`.
+    pub fn set_uninterpreted_fn_expression_by_str(
+        &mut self,
+        id: &str,
+        expression: &str,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_expression(&fn_id, expression)
+    }
+
+    /// Set essentiality of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_essentiality(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        essentiality: Essentiality,
+        index: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_essential(index, essentiality)?;
+        Ok(())
+    }
+
+    /// Set essentiality of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_essentiality_by_str(
+        &mut self,
+        id: &str,
+        essentiality: Essentiality,
+        index: usize,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_essentiality(&fn_id, essentiality, index)
+    }
+
+    /// Set monotonicity of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_monotonicity(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        monotonicity: Monotonicity,
+        index: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_monotonic(index, monotonicity)?;
+        Ok(())
+    }
+
+    /// Set monotonicity of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_monotonicity_by_str(
+        &mut self,
+        id: &str,
+        monotonicity: Monotonicity,
+        index: usize,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_monotonicity(&fn_id, monotonicity, index)
+    }
+
     /// Set the id of an uninterpreted fn with `original_id` to `new_id`.
     pub fn set_uninterpreted_fn_id(
         &mut self,

@@ -5,6 +5,7 @@ use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::layout::{LayoutId, NodePosition};
 use crate::sketchbook::ModelState;
 
+use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use std::str::FromStr;
 
 /// Implementation for events related to `layouts` of the model.
@@ -20,18 +21,13 @@ impl ModelState {
         let layout_id = self.generate_layout_id(&layout_id_str);
         let name = layout_data.name;
 
-        // perform the event, prepare the state-change variant (path and payload stay the same)
-        // todo: decide on how to add layouts - now we just make a copy of the default layout
-        self.add_layout_copy(layout_id, name.as_str(), &Self::get_default_layout_id())?;
-        let state_change = event.clone();
+        // perform the event
+        self.add_layout_copy(layout_id, &name, &Self::get_default_layout_id())?;
 
-        // prepare the reverse event (it is a remove event, so IDs are in path and payload is empty)
-        let reverse_path = ["model", "layout", layout_id_str.as_str(), "remove"];
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_path = ["model", "layout", &layout_id_str, "remove"];
         let reverse_event = Event::build(&reverse_path, None);
-        Ok(Consumed::Reversible {
-            state_change,
-            perform_reverse: (event.clone(), reverse_event),
-        })
+        Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `layout` component of this `ModelState`.
@@ -64,16 +60,13 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move ID from path to payload)
             self.update_node_position(&layout_id, &var_id, new_x, new_y)?;
-            let state_change_path = ["model", "layout", "update_position"];
-            let state_change = Event::build(&state_change_path, Some(&new_pos_data.to_string()));
+            let state_change =
+                make_state_change(&["model", "layout", "update_position"], &new_pos_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(orig_pos_data.to_string());
-            Ok(Consumed::Reversible {
-                state_change,
-                perform_reverse: (event.clone(), reverse_event),
-            })
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("remove", at_path).is_some() {
             // check that payload is really empty
             if event.payload.is_some() {
@@ -86,8 +79,7 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.remove_layout(&layout_id)?;
-            let state_change_path = ["model", "layout", "remove"];
-            let state_change = Event::build(&state_change_path, Some(&layout_data.to_string()));
+            let state_change = make_state_change(&["model", "layout", "remove"], &layout_data);
 
             // todo make reversible in the future?
             Ok(Consumed::Irreversible {

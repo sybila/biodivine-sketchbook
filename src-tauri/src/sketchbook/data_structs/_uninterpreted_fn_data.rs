@@ -39,7 +39,7 @@ impl UninterpretedFnData {
     }
 
     /// Create new `UninterpretedFnData` object given an uninterpreted function and its id.
-    pub fn from_uninterpreted_fn(
+    pub fn from_fn(
         fn_id: &UninterpretedFnId,
         uninterpreted_fn: &UninterpretedFn,
     ) -> UninterpretedFnData {

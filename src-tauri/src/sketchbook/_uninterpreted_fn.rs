@@ -32,6 +32,18 @@ impl UninterpretedFn {
         })
     }
 
+    /// Create uninterpreted function from another one, changing its expression.
+    /// The provided original function object is consumed.
+    pub fn with_new_expression(
+        mut original_fn: UninterpretedFn,
+        new_expression: &str,
+        context: &ModelState,
+        own_id: &UninterpretedFnId,
+    ) -> Result<UninterpretedFn, String> {
+        original_fn.set_fn_expression(new_expression, context, own_id)?;
+        Ok(original_fn)
+    }
+
     /// Human-readable name of this uninterpreted fn.
     pub fn get_name(&self) -> &str {
         &self.name
@@ -97,6 +109,52 @@ impl UninterpretedFn {
     /// Get `Monotonicity` of all arguments (in a default order).
     pub fn get_all_monotonic(&self) -> &Vec<Monotonicity> {
         &self.monotonicities
+    }
+
+    /// Set `Essentiality` of argument with given `index` (starting from 0).
+    pub fn set_essential(&mut self, index: usize, essential: Essentiality) -> Result<(), String> {
+        if index < self.arity {
+            self.essentialities[index] = essential;
+            Ok(())
+        } else {
+            Err("Cannot constrain an argument on index higher than function's arity.".to_string())
+        }
+    }
+
+    /// Set `Monotonicity` of argument with given `index` (starting from 0).
+    pub fn set_monotonic(&mut self, index: usize, monotone: Monotonicity) -> Result<(), String> {
+        if index < self.arity {
+            self.monotonicities[index] = monotone;
+            Ok(())
+        } else {
+            Err("Cannot constrain an argument on index higher than function's arity.".to_string())
+        }
+    }
+
+    /// Set `Essentiality` of all arguments (in a default order).
+    pub fn set_all_essential(
+        &mut self,
+        essentiality_list: Vec<Essentiality>,
+    ) -> Result<(), String> {
+        if essentiality_list.len() == self.arity {
+            self.essentialities = essentiality_list;
+            Ok(())
+        } else {
+            Err("Provided vector has different length than arity of this function.".to_string())
+        }
+    }
+
+    /// Get `Monotonicity` of all arguments (in a default order).
+    pub fn set_all_monotonic(
+        &mut self,
+        monotonicity_list: Vec<Monotonicity>,
+    ) -> Result<(), String> {
+        if monotonicity_list.len() == self.arity {
+            self.monotonicities = monotonicity_list;
+            Ok(())
+        } else {
+            Err("Provided vector has different length than arity of this function.".to_string())
+        }
     }
 }
 

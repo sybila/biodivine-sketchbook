@@ -5,6 +5,7 @@ use crate::sketchbook::data_structs::{LayoutNodeData, VariableData};
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{ModelState, VarId};
 
+use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use serde_json::json;
 use std::str::FromStr;
 
@@ -14,23 +15,15 @@ impl ModelState {
     pub(super) fn event_add_variable(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "model/variable";
 
-        // get payload components (json for VariableData containing "id", and "name")
+        // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
         let variable_data = VariableData::from_str(payload.as_str())?;
-        let var_id_str = variable_data.id;
-        let name = variable_data.name;
+        self.add_var_by_str(&variable_data.id, &variable_data.name)?;
 
-        // perform the event, prepare the state-change variant (path and payload stay the same)
-        self.add_var_by_str(var_id_str.as_str(), name.as_str())?;
-        let state_change = event.clone();
-
-        // prepare the reverse event (it is a remove event, so ID is in path and payload is empty)
-        let reverse_path = ["model", "variable", var_id_str.as_str(), "remove"];
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_path = ["model", "variable", &variable_data.id, "remove"];
         let reverse_event = Event::build(&reverse_path, None);
-        Ok(Consumed::Reversible {
-            state_change,
-            perform_reverse: (event.clone(), reverse_event),
-        })
+        Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `variable` component of this `ModelState`.
@@ -64,16 +57,12 @@ impl ModelState {
                 // perform the event, prepare the state-change variant (move id from path to payload)
                 let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
                 self.remove_var(&var_id)?;
-                let state_change_path = ["model", "variable", "remove"];
-                let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
+                let state_change = make_state_change(&["model", "variable", "remove"], &var_data);
 
                 // prepare the reverse event
                 let reverse_path = ["model", "variable", "add"];
                 let reverse_event = Event::build(&reverse_path, Some(&var_data.to_string()));
-                Ok(Consumed::Reversible {
-                    state_change,
-                    perform_reverse: (event.clone(), reverse_event),
-                })
+                Ok(make_reversible(state_change, event, reverse_event))
             } else {
                 let mut event_list = Vec::new();
                 event_list.push(event.clone());
@@ -123,16 +112,12 @@ impl ModelState {
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_name(&var_id, new_name.as_str())?;
             let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
-            let state_change_path = ["model", "variable", "set_name"];
-            let state_change = Event::build(&state_change_path, Some(&var_data.to_string()));
+            let state_change = make_state_change(&["model", "variable", "set_name"], &var_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_name);
-            Ok(Consumed::Reversible {
-                state_change,
-                perform_reverse: (event.clone(), reverse_event),
-            })
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
@@ -143,20 +128,16 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_id(&var_id, new_var_id)?;
-            let state_change_path = ["model", "variable", "set_id"];
             let payload = json!({
                 "original_id": var_id.as_str(),
                 "new_id": new_id.as_str(),
             });
-            let state_change = Event::build(&state_change_path, Some(&payload.to_string()));
+            let state_change = make_state_change(&["model", "variable", "set_id"], &payload);
 
             // prepare the reverse event
             let reverse_event_path = ["model", "variable", new_id.as_str(), "set_id"];
             let reverse_event = Event::build(&reverse_event_path, Some(var_id.as_str()));
-            Ok(Consumed::Reversible {
-                state_change,
-                perform_reverse: (event.clone(), reverse_event),
-            })
+            Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
         }

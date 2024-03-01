@@ -1,6 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
+use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use crate::sketchbook::data_structs::UpdateFnData;
 use crate::sketchbook::ModelState;
 
@@ -31,21 +32,17 @@ impl ModelState {
 
             // perform the event and check (again) that the new parsed version is different than the original
             self.set_update_fn(&var_id, new_expression.as_str())?;
-            let update_fn_data = UpdateFnData::new(var_id.as_str(), self.get_update_fn(&var_id)?);
-            if *self.get_update_fn(&var_id)? == original_expression {
+            let fn_data = UpdateFnData::new(var_id.as_str(), self.get_update_fn(&var_id)?);
+            if fn_data.expression == original_expression {
                 return Ok(Consumed::NoChange);
             }
-            // prepare the state-change variant (move id from path to payload)
-            let state_change_path = ["model", "update_fn", "set_expression"];
-            let state_change = Event::build(&state_change_path, Some(&update_fn_data.to_string()));
 
-            // prepare the reverse event
+            // prepare state-change and reverse events
+            let state_change =
+                make_state_change(&["model", "update_fn", "set_expression"], &fn_data);
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_expression);
-            Ok(Consumed::Reversible {
-                state_change,
-                perform_reverse: (event.clone(), reverse_event),
-            })
+            Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
         }

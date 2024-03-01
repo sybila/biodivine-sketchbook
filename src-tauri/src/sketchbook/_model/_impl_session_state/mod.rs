@@ -15,6 +15,8 @@ pub mod _events_update_fns;
 pub mod _events_variables;
 /// **(internal)** Implementation for `refresh` (getter) events.
 pub mod _refresh_events;
+/// **(internal)** Utilities for other events.
+mod _utils;
 
 /// **(internal)** Tests for the event-based API.
 #[cfg(test)]

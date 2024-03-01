@@ -1,6 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::SessionHelper;
 use crate::app::DynError;
+use crate::sketchbook::_model::_impl_session_state::_utils::make_refresh_event;
 use crate::sketchbook::data_structs::{
     LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, UpdateFnData, VariableData,
 };
@@ -15,11 +16,7 @@ impl ModelState {
             .iter()
             .map(|(id, data)| VariableData::from_var(id, data))
             .collect();
-
-        Ok(Event {
-            path: full_path.to_vec(),
-            payload: Some(serde_json::to_string(&variable_list)?),
-        })
+        make_refresh_event(full_path, variable_list)
     }
 
     /// Get a list of all uninterpreted fns.
@@ -30,13 +27,9 @@ impl ModelState {
         let uninterpreted_fn_list: Vec<UninterpretedFnData> = self
             .uninterpreted_fns
             .iter()
-            .map(|(id, data)| UninterpretedFnData::from_uninterpreted_fn(id, data))
+            .map(|(id, data)| UninterpretedFnData::from_fn(id, data))
             .collect();
-
-        Ok(Event {
-            path: full_path.to_vec(),
-            payload: Some(serde_json::to_string(&uninterpreted_fn_list)?),
-        })
+        make_refresh_event(full_path, uninterpreted_fn_list)
     }
 
     /// Get a list of all regulations.
@@ -46,11 +39,7 @@ impl ModelState {
             .iter()
             .map(RegulationData::from_reg)
             .collect();
-
-        Ok(Event {
-            path: full_path.to_vec(),
-            payload: Some(serde_json::to_string(&regulation_list)?),
-        })
+        make_refresh_event(full_path, regulation_list)
     }
 
     /// Get a list of all layouts (just basic information like IDs and names).
@@ -60,11 +49,7 @@ impl ModelState {
             .iter()
             .map(|(id, layout)| LayoutData::from_layout(id, layout))
             .collect();
-
-        Ok(Event {
-            path: full_path.to_vec(),
-            payload: Some(serde_json::to_string(&layout_list)?),
-        })
+        make_refresh_event(full_path, layout_list)
     }
 
     /// Get a list with all nodes in a specified layout.
@@ -78,19 +63,15 @@ impl ModelState {
         let layout_id = self.get_layout_id(layout_id_str)?;
         let layout = self.get_layout(&layout_id)?;
 
-        let node_list: Vec<LayoutNodeData> = layout
-            .layout_nodes()
-            .map(|(var_id, node)| LayoutNodeData::from_node(&layout_id, var_id, node))
-            .collect();
-
         // remove the id from the path
         let mut result_path = full_path.to_vec();
         result_path.pop();
 
-        Ok(Event {
-            path: result_path,
-            payload: Some(serde_json::to_string(&node_list)?),
-        })
+        let node_list: Vec<LayoutNodeData> = layout
+            .layout_nodes()
+            .map(|(var_id, node)| LayoutNodeData::from_node(&layout_id, var_id, node))
+            .collect();
+        make_refresh_event(full_path, node_list)
     }
 
     /// Get a list of all update functions (with corresponding var id).
@@ -100,10 +81,6 @@ impl ModelState {
             .iter()
             .map(|(id, update_fn)| UpdateFnData::from_update_fn(id, update_fn))
             .collect();
-
-        Ok(Event {
-            path: full_path.to_vec(),
-            payload: Some(serde_json::to_string(&update_fns_list)?),
-        })
+        make_refresh_event(full_path, update_fns_list)
     }
 }
