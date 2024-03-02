@@ -1,6 +1,7 @@
 use crate::sketchbook::{BinaryOp, ModelState, UninterpretedFn, UninterpretedFnId, VarId};
 use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 /// Syntactic tree of a partially defined Boolean function.
 /// This might specify an update function, or a partially defined uninterpreted fn.
@@ -44,12 +45,12 @@ impl FnTree {
         model: &ModelState,
         is_uninterpreted: Option<usize>,
     ) -> Result<String, String> {
-        let fn_update = self.to_fn_update(model, is_uninterpreted)?;
         let bn_context = if let Some(n) = is_uninterpreted {
             model.to_fake_bn_with_params(n)
         } else {
             model.to_empty_bn_with_params()
         };
+        let fn_update = self.to_fn_update_recursive(&bn_context);
         Ok(fn_update.to_string(&bn_context))
     }
 
@@ -130,70 +131,157 @@ impl FnTree {
         }
     }
 
-    /// Transform the `FnTree` to a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
-    /// The provided model gives context for variable and parameter IDs.
-    fn to_fn_update(
-        &self,
-        model: &ModelState,
-        is_uninterpreted: Option<usize>,
-    ) -> Result<FnUpdate, String> {
-        // TODO: get rid of a `model` argument and just make the BN out of tree variables
-        let bn_context = if let Some(n) = is_uninterpreted {
-            model.to_fake_bn_with_params(n)
-        } else {
-            model.to_empty_bn_with_params()
-        };
-        self.to_fn_update_recursive(&bn_context, is_uninterpreted.is_some())
-    }
-
     /// Recursively transform the `FnTree` to a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
-    /// The provided model gives context for variable and parameter IDs.
-    fn to_fn_update_recursive(
-        &self,
-        bn_context: &BooleanNetwork,
-        is_uninterpreted: bool,
-    ) -> Result<FnUpdate, String> {
+    /// The provided BN gives context for variable and parameter IDs.
+    fn to_fn_update_recursive(&self, bn_context: &BooleanNetwork) -> FnUpdate {
         match self {
-            FnTree::Const(value) => Ok(FnUpdate::Const(*value)),
-            FnTree::Var(var_id) if !is_uninterpreted => {
+            FnTree::Const(value) => FnUpdate::Const(*value),
+            FnTree::Var(var_id) => {
                 // in BN, the var's ID is a number and its name is a string (corresponding to variable ID here)
                 let bn_var_id = bn_context
                     .as_graph()
                     .find_variable(var_id.as_str())
                     .unwrap();
-                Ok(FnUpdate::Var(bn_var_id))
+                FnUpdate::Var(bn_var_id)
             }
-            FnTree::PlaceholderVar(var_id) if is_uninterpreted => {
+            FnTree::PlaceholderVar(var_id) => {
                 let bn_var_id = bn_context
                     .as_graph()
                     .find_variable(var_id.as_str())
                     .unwrap();
-                Ok(FnUpdate::Var(bn_var_id))
+                FnUpdate::Var(bn_var_id)
             }
             FnTree::Not(inner) => {
-                let inner_transformed =
-                    inner.to_fn_update_recursive(bn_context, is_uninterpreted)?;
-                Ok(FnUpdate::Not(Box::new(inner_transformed)))
+                let inner_transformed = inner.to_fn_update_recursive(bn_context);
+                FnUpdate::Not(Box::new(inner_transformed))
             }
             FnTree::Binary(op, l, r) => {
                 let binary_transformed = op.to_lib_param_bn_version();
-                let l_transformed = l.to_fn_update_recursive(bn_context, is_uninterpreted)?;
-                let r_transformed = r.to_fn_update_recursive(bn_context, is_uninterpreted)?;
-                Ok(FnUpdate::Binary(
+                let l_transformed = l.to_fn_update_recursive(bn_context);
+                let r_transformed = r.to_fn_update_recursive(bn_context);
+                FnUpdate::Binary(
                     binary_transformed,
                     Box::new(l_transformed),
                     Box::new(r_transformed),
-                ))
+                )
             }
             FnTree::UninterpretedFn(fn_id, args) => {
                 let bn_param_id = bn_context.find_parameter(fn_id.as_str()).unwrap();
-                let args_transformed: Result<Vec<FnUpdate>, String> = args
+                let args_transformed: Vec<FnUpdate> = args
                     .iter()
-                    .map(|f| f.to_fn_update_recursive(bn_context, is_uninterpreted))
+                    .map(|f| f.to_fn_update_recursive(bn_context))
                     .collect();
-                Ok(FnUpdate::Param(bn_param_id, args_transformed?))
+                FnUpdate::Param(bn_param_id, args_transformed)
             }
-            _ => Err("Error in a function's syntactic tree.".to_string()),
+        }
+    }
+
+    /// Return a set of all variables that are actually used as inputs in this function.
+    pub fn collect_variables(&self) -> HashSet<VarId> {
+        fn r_arguments(function: &FnTree, args: &mut HashSet<VarId>) {
+            match function {
+                FnTree::Const(_) => (),
+                FnTree::Var(id) => {
+                    args.insert(id.clone());
+                }
+                FnTree::PlaceholderVar(id) => {
+                    args.insert(id.clone());
+                }
+                FnTree::UninterpretedFn(_, p_args) => {
+                    for fun in p_args {
+                        r_arguments(fun, args);
+                    }
+                }
+                FnTree::Not(inner) => r_arguments(inner, args),
+                FnTree::Binary(_, l, r) => {
+                    r_arguments(l, args);
+                    r_arguments(r, args);
+                }
+            };
+        }
+        let mut vars = HashSet::new();
+        r_arguments(self, &mut vars);
+        vars
+    }
+
+    /// Return a set of all parameters (i.e. uninterpreted functions) that are used in this update function.
+    pub fn collect_fn_symbols(&self) -> HashSet<UninterpretedFnId> {
+        fn r_parameters(function: &FnTree, params: &mut HashSet<UninterpretedFnId>) {
+            match function {
+                FnTree::Const(_) => (),
+                FnTree::Var(_) => (),
+                FnTree::PlaceholderVar(_) => (),
+                FnTree::UninterpretedFn(id, args) => {
+                    params.insert(id.clone());
+                    for fun in args {
+                        r_parameters(fun, params);
+                    }
+                }
+                FnTree::Not(inner) => r_parameters(inner, params),
+                FnTree::Binary(_, l, r) => {
+                    r_parameters(l, params);
+                    r_parameters(r, params);
+                }
+            };
+        }
+        let mut params = HashSet::new();
+        r_parameters(self, &mut params);
+        params
+    }
+
+    pub fn substitute_var(&self, old_id: &VarId, new_id: &VarId) -> FnTree {
+        match self {
+            FnTree::Const(_) => self.clone(),
+            FnTree::Var(id) => {
+                if id == old_id {
+                    FnTree::Var(new_id.clone())
+                } else {
+                    self.clone()
+                }
+            }
+            FnTree::PlaceholderVar(_) => self.clone(),
+            FnTree::UninterpretedFn(id, args) => {
+                let new_args = args
+                    .iter()
+                    .map(|it| it.substitute_var(old_id, new_id))
+                    .collect::<Vec<_>>();
+                FnTree::UninterpretedFn(id.clone(), new_args)
+            }
+            FnTree::Not(inner) => (*inner).substitute_var(old_id, new_id),
+            FnTree::Binary(op, l, r) => FnTree::Binary(
+                *op,
+                Box::new((*l).substitute_var(old_id, new_id)),
+                Box::new((*r).substitute_var(old_id, new_id)),
+            ),
+        }
+    }
+
+    pub fn substitute_fn_symbol(
+        &self,
+        old_id: &UninterpretedFnId,
+        new_id: &UninterpretedFnId,
+    ) -> FnTree {
+        match self {
+            FnTree::Const(_) => self.clone(),
+            FnTree::Var(_) => self.clone(),
+            FnTree::PlaceholderVar(_) => self.clone(),
+            FnTree::UninterpretedFn(id, args) => {
+                let new_args = args
+                    .iter()
+                    .map(|it| it.substitute_fn_symbol(old_id, new_id))
+                    .collect::<Vec<_>>();
+                if old_id == id {
+                    FnTree::UninterpretedFn(new_id.clone(), new_args)
+                } else {
+                    FnTree::UninterpretedFn(id.clone(), new_args)
+                }
+            }
+            FnTree::Not(inner) => (*inner).substitute_fn_symbol(old_id, new_id),
+            FnTree::Binary(op, l, r) => FnTree::Binary(
+                *op,
+                Box::new((*l).substitute_fn_symbol(old_id, new_id)),
+                Box::new((*r).substitute_fn_symbol(old_id, new_id)),
+            ),
         }
     }
 }

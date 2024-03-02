@@ -252,12 +252,15 @@ impl ModelState {
             layout.change_node_id(original_id, new_id.clone())?;
         }
 
-        // 4) change id for this variable's update function
+        // 4) change key in update fn hashmap
         if let Some(update_fn) = self.update_fns.remove(original_id) {
             self.update_fns.insert(new_id.clone(), update_fn);
         }
 
-        // todo - instances of this variable must be updated in each update fn tree
+        // 5) change id for this variable in all update functions
+        for update_fn in self.update_fns.values_mut() {
+            update_fn.substitute_var(original_id, &new_id);
+        }
 
         Ok(())
     }
@@ -275,11 +278,22 @@ impl ModelState {
     /// removes the variable from all `Layouts`, removes its `UpdateFn` and all `Regulations`
     /// where this variable figures.
     ///
-    /// Returns `Err` in case the `var_id` is not a valid variable's identifier.
+    /// Returns `Err` in case the `var_id` is not a valid variable's identifier, or if some update function
+    /// depends on it.
     pub fn remove_var(&mut self, var_id: &VarId) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
 
-        // todo - first check if it is safe to delete the var (i.e., its not contained in any update fn)
+        // check that variable can be safely deleted (not contained in any update fn)
+        let mut vars_in_update_fns = HashSet::new();
+        for update_fn in self.update_fns.values() {
+            let tmp_var_set = update_fn.collect_variables();
+            vars_in_update_fns.extend(tmp_var_set);
+        }
+        if vars_in_update_fns.contains(var_id) {
+            return Err(format!(
+                "Cannot remove variable `{var_id}`, it is still contained in an update function."
+            ));
+        }
 
         // first delete all regulations, layout nodes, and lastly the variable itself
         self.remove_all_regulations_var(var_id)?;
@@ -436,7 +450,15 @@ impl ModelState {
                 .insert(new_id.clone(), uninterpreted_fn);
         }
 
-        // todo - instances of this uninterpreted fn must be updated in each update fn tree
+        // change id for this uninterpreted fn in all uninterpreted functions' expressions
+        for uninterpreted_fn in self.uninterpreted_fns.values_mut() {
+            uninterpreted_fn.substitute_fn_symbol(original_id, &new_id);
+        }
+
+        // change id for this uninterpreted fn in all update functions
+        for update_fn in &mut self.update_fns.values_mut() {
+            update_fn.substitute_fn_symbol(original_id, &new_id);
+        }
 
         Ok(())
     }
@@ -455,11 +477,24 @@ impl ModelState {
     /// Remove the uninterpreted fn with given `fn_id` from this `ModelState`. Note that this
     /// uninterpreted fn must not be used in any update fn.
     ///
-    /// Also returns `Err` in case the `fn_id` is not a valid uninterpreted fn's identifier.
+    /// Also returns `Err` in case the `fn_id` is not a valid uninterpreted fn's identifier or if some
+    /// update/uninterpreted function depends on it.
     pub fn remove_uninterpreted_fn(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
 
-        // todo - first check if it is safe to delete the uninterpreted fn (i.e., its not contained in any update fn)
+        // check that variable can be safely deleted (not contained in any update/uninterpreted fn)
+        let mut fn_symbols = HashSet::new();
+        for update_fn in self.update_fns.values() {
+            let tmp_fn_symbols = update_fn.collect_fn_symbols();
+            fn_symbols.extend(tmp_fn_symbols);
+        }
+        for uninterpreted_fn in self.uninterpreted_fns.values() {
+            let tmp_fn_symbols = uninterpreted_fn.collect_fn_symbols();
+            fn_symbols.extend(tmp_fn_symbols);
+        }
+        if fn_symbols.contains(fn_id) {
+            return Err(format!("Cannot remove fn symbol `{fn_id}`, it is still contained in an update/uninterpreted function."));
+        }
 
         if self.uninterpreted_fns.remove(fn_id).is_none() {
             panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")

@@ -1,6 +1,7 @@
 use crate::sketchbook::utils::assert_name_valid;
-use crate::sketchbook::{Essentiality, FnTree, ModelState, Monotonicity, UninterpretedFnId};
+use crate::sketchbook::{Essentiality, FnTree, ModelState, Monotonicity, UninterpretedFnId, VarId};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 /// An explicit uninterpreted function of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
@@ -154,6 +155,30 @@ impl UninterpretedFn {
             Ok(())
         } else {
             Err("Provided vector has different length than arity of this function.".to_string())
+        }
+    }
+
+    /// Return a set of all variables that are actually used as inputs in this function.
+    pub fn collect_variables(&self) -> HashSet<VarId> {
+        if let Some(tree) = &self.tree {
+            tree.collect_variables()
+        } else {
+            HashSet::new()
+        }
+    }
+
+    /// Return a set of all uninterpreted fns that are actually used in this function.
+    pub fn collect_fn_symbols(&self) -> HashSet<UninterpretedFnId> {
+        if let Some(tree) = &self.tree {
+            tree.collect_fn_symbols()
+        } else {
+            HashSet::new()
+        }
+    }
+
+    pub fn substitute_fn_symbol(&mut self, old_id: &UninterpretedFnId, new_id: &UninterpretedFnId) {
+        if let Some(tree) = &self.tree {
+            self.tree = Some(tree.substitute_fn_symbol(old_id, new_id));
         }
     }
 }

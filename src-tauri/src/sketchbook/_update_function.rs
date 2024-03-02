@@ -1,5 +1,6 @@
-use crate::sketchbook::{FnTree, ModelState};
+use crate::sketchbook::{FnTree, ModelState, UninterpretedFnId, VarId};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 /// Update function of a `BooleanNetwork`.
@@ -61,5 +62,35 @@ impl UpdateFn {
             self.tree = Some(syntactic_tree);
         }
         Ok(())
+    }
+
+    /// Return a set of all variables that are actually used as inputs in this function.
+    pub fn collect_variables(&self) -> HashSet<VarId> {
+        if let Some(tree) = &self.tree {
+            tree.collect_variables()
+        } else {
+            HashSet::new()
+        }
+    }
+
+    /// Return a set of all uninterpreted fns that are actually used in this function.
+    pub fn collect_fn_symbols(&self) -> HashSet<UninterpretedFnId> {
+        if let Some(tree) = &self.tree {
+            tree.collect_fn_symbols()
+        } else {
+            HashSet::new()
+        }
+    }
+
+    pub fn substitute_var(&mut self, old_id: &VarId, new_id: &VarId) {
+        if let Some(tree) = &self.tree {
+            self.tree = Some(tree.substitute_var(old_id, new_id));
+        }
+    }
+
+    pub fn substitute_fn_symbol(&mut self, old_id: &UninterpretedFnId, new_id: &UninterpretedFnId) {
+        if let Some(tree) = &self.tree {
+            self.tree = Some(tree.substitute_fn_symbol(old_id, new_id));
+        }
     }
 }
