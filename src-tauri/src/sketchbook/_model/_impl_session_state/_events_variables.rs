@@ -1,12 +1,11 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
-use crate::sketchbook::data_structs::{LayoutNodeData, VariableData};
+use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
+use crate::sketchbook::data_structs::{ChangeIdData, LayoutNodeData, VariableData};
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{ModelState, VarId};
 
-use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
-use serde_json::json;
 use std::str::FromStr;
 
 /// Implementation for events related to `variables` of the model.
@@ -128,11 +127,8 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_id(&var_id, new_var_id)?;
-            let payload = json!({
-                "original_id": var_id.as_str(),
-                "new_id": new_id.as_str(),
-            });
-            let state_change = make_state_change(&["model", "variable", "set_id"], &payload);
+            let id_change_data = ChangeIdData::new(var_id.as_str(), new_id.as_str());
+            let state_change = make_state_change(&["model", "variable", "set_id"], &id_change_data);
 
             // prepare the reverse event
             let reverse_event_path = ["model", "variable", new_id.as_str(), "set_id"];

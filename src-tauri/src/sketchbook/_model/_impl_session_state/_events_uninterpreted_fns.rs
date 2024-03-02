@@ -1,11 +1,12 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
-use crate::sketchbook::data_structs::UninterpretedFnData;
+use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
+use crate::sketchbook::data_structs::{
+    ChangeArgEssentialData, ChangeArgMonotoneData, ChangeIdData, UninterpretedFnData,
+};
 use crate::sketchbook::{ModelState, UninterpretedFnId};
 
-use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
-use serde_json::json;
 use std::str::FromStr;
 
 /// Implementation for events related to `uninterpreted functions` of the model.
@@ -85,12 +86,9 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_uninterpreted_fn_id(&fn_id, new_fn_id)?;
-            let payload = json!({
-                "original_id": fn_id.as_str(),
-                "new_id": new_id.as_str(),
-            });
+            let id_change_data = ChangeIdData::new(fn_id.as_str(), new_id.as_str());
             let state_change =
-                make_state_change(&["model", "uninterpreted_fn", "set_id"], &payload);
+                make_state_change(&["model", "uninterpreted_fn", "set_id"], &id_change_data);
 
             // prepare the reverse event
             let reverse_event_path = ["model", "uninterpreted_fn", new_id.as_str(), "set_id"];
@@ -118,7 +116,10 @@ impl ModelState {
         } else if Self::starts_with("set_expression", at_path).is_some() {
             // get the payload - string for "expression"
             let new_expression = Self::clone_payload_str(event, component_name)?;
-            let original_expression = self.get_uninterpreted_fn(&fn_id)?.get_name().to_string();
+            let original_expression = self
+                .get_uninterpreted_fn(&fn_id)?
+                .get_fn_expression()
+                .to_string();
             // actually, this check is not that relevant, as the expressions might be "normalized" during parsing
             if new_expression == original_expression {
                 return Ok(Consumed::NoChange);
@@ -138,10 +139,62 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_expression);
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_monotonicity", at_path).is_some() {
+            // get the payload and parse it
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let change_data = ChangeArgMonotoneData::from_str(payload.as_str())?;
+            let original_monotonicity = *self
+                .get_uninterpreted_fn(&fn_id)?
+                .get_monotonic(change_data.idx);
+            if original_monotonicity == change_data.monotonicity {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_uninterpreted_fn_monotonicity(
+                &fn_id,
+                change_data.monotonicity,
+                change_data.idx,
+            )?;
+            let fn_data = UninterpretedFnData::from_fn(&fn_id, self.get_uninterpreted_fn(&fn_id)?);
+            let state_change =
+                make_state_change(&["model", "uninterpreted_fn", "set_monotonicity"], &fn_data);
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            let reverse_change = ChangeArgMonotoneData::new(change_data.idx, original_monotonicity);
+            reverse_event.payload = Some(reverse_change.to_string());
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_essentiality", at_path).is_some() {
+            // get the payload and parse it
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let change_data = ChangeArgEssentialData::from_str(payload.as_str())?;
+            let original_essentiality = *self
+                .get_uninterpreted_fn(&fn_id)?
+                .get_essential(change_data.idx);
+            if original_essentiality == change_data.essentiality {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_uninterpreted_fn_essentiality(
+                &fn_id,
+                change_data.essentiality,
+                change_data.idx,
+            )?;
+            let fn_data = UninterpretedFnData::from_fn(&fn_id, self.get_uninterpreted_fn(&fn_id)?);
+            let state_change =
+                make_state_change(&["model", "uninterpreted_fn", "set_essentiality"], &fn_data);
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            let reverse_change =
+                ChangeArgEssentialData::new(change_data.idx, original_essentiality);
+            reverse_event.payload = Some(reverse_change.to_string());
+            Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
         }
-        // todo: add two more events - to change monotonicity/essentiality of arguments
     }
 
     /// Perform events related to `uninterpreted fns` component of this `ModelState`.

@@ -1,11 +1,11 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
 use crate::sketchbook::data_structs::{
-    LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, UpdateFnData, VariableData,
+    ChangeArgEssentialData, ChangeArgMonotoneData, LayoutData, LayoutNodeData, RegulationData,
+    UninterpretedFnData, UpdateFnData, VariableData,
 };
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
-use serde_json::json;
 
 /// Check that after applying the reverse event of `result` to the `model` with relative
 /// path `at_path`, we receive precisely `model_orig`.
@@ -37,8 +37,7 @@ fn test_add_var_event() {
     assert_eq!(model.num_vars(), 1);
 
     // test variable add event
-    let var_data = VariableData::new("b", "b");
-    let payload = serde_json::to_string(&var_data).unwrap();
+    let payload = VariableData::new("b", "b").to_string();
     let full_path = ["model", "variable", "add"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
@@ -290,13 +289,7 @@ fn test_change_position_event() {
     let model_orig = model.clone();
 
     // test position change event
-    let payload = json!({
-        "layout": layout_id.as_str(),
-        "variable": var_id.as_str(),
-        "px": 2.5,
-        "py": 0.4,
-    })
-    .to_string();
+    let payload = LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), 2.5, 0.4).to_string();
     let full_path = ["model", "layout", layout_id.as_str(), "update_position"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
@@ -308,6 +301,87 @@ fn test_change_position_event() {
     );
 
     check_reverse(model, model_orig, result, &full_path[1..]);
+}
+
+#[test]
+fn test_change_fn_arg_monotonicity_event() {
+    let mut model = ModelState::new();
+    let f = model.generate_uninterpreted_fn_id("f");
+    model.add_new_uninterpreted_fn(f.clone(), "f", 2).unwrap();
+    let model_orig = model.clone();
+
+    // test event for changing uninterpreted fn's monotonicity
+    let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_monotonicity"];
+    let change_data = ChangeArgMonotoneData::new(1, Monotonicity::Dual).to_string();
+    let event = Event::build(&full_path, Some(&change_data));
+    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+
+    // check if changed correctly
+    assert_eq!(
+        Monotonicity::Dual,
+        *model.get_uninterpreted_fn(&f).unwrap().get_monotonic(1)
+    );
+
+    check_reverse(
+        model,
+        model_orig,
+        result,
+        &["uninterpreted_fn", f.as_str(), "set_monotonicity"],
+    );
+}
+
+#[test]
+fn test_change_fn_arg_essentiality_event() {
+    let mut model = ModelState::new();
+    let f = model.generate_uninterpreted_fn_id("f");
+    model.add_new_uninterpreted_fn(f.clone(), "f", 2).unwrap();
+    let model_orig = model.clone();
+
+    // test event for changing uninterpreted fn's expression
+    let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_essentiality"];
+    let change_data = ChangeArgEssentialData::new(1, Essentiality::True).to_string();
+    let event = Event::build(&full_path, Some(&change_data));
+    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+
+    // check if changed correctly
+    assert_eq!(
+        Essentiality::True,
+        *model.get_uninterpreted_fn(&f).unwrap().get_essential(1)
+    );
+
+    check_reverse(
+        model,
+        model_orig,
+        result,
+        &["uninterpreted_fn", f.as_str(), "set_essentiality"],
+    );
+}
+
+#[test]
+fn test_change_fn_expression_event() {
+    let mut model = ModelState::new();
+    let f = model.generate_uninterpreted_fn_id("f");
+    model.add_new_uninterpreted_fn(f.clone(), "f", 2).unwrap();
+    let model_orig = model.clone();
+
+    // test event for changing uninterpreted fn's expression
+    let expression = "var0 | var1";
+    let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_expression"];
+    let event = Event::build(&full_path, Some(expression));
+    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+
+    // check if changed correctly
+    assert_eq!(
+        model.get_uninterpreted_fn(&f).unwrap().get_fn_expression(),
+        expression,
+    );
+
+    check_reverse(
+        model,
+        model_orig,
+        result,
+        &["uninterpreted_fn", f.as_str(), "set_expression"],
+    );
 }
 
 #[test]

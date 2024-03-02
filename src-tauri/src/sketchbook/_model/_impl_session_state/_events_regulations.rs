@@ -1,10 +1,10 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
+use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use crate::sketchbook::data_structs::RegulationData;
 use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
 
-use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use std::str::FromStr;
 
 /// Implementation for events related to `regulations` of the model.

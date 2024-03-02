@@ -4,8 +4,8 @@ use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::layout::{LayoutId, NodePosition};
 use crate::sketchbook::ModelState;
-
 use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
+
 use std::str::FromStr;
 
 /// Implementation for events related to `layouts` of the model.
@@ -44,22 +44,24 @@ impl ModelState {
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_node_data = LayoutNodeData::from_str(payload.as_str())?;
             let var_id = self.get_var_id(new_node_data.variable.as_str())?;
-            let new_x = new_node_data.px;
-            let new_y = new_node_data.py;
-            let new_position = NodePosition(new_x, new_y);
+            let new_position = NodePosition(new_node_data.px, new_node_data.py);
 
             let orig_pos = self.get_node_position(&layout_id, &var_id)?.clone();
             let orig_pos_data =
                 LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), orig_pos.0, orig_pos.1);
-            let new_pos_data =
-                LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), new_x, new_y);
+            let new_pos_data = LayoutNodeData::new(
+                layout_id.as_str(),
+                var_id.as_str(),
+                new_node_data.px,
+                new_node_data.py,
+            );
 
             if new_position == orig_pos {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move ID from path to payload)
-            self.update_node_position(&layout_id, &var_id, new_x, new_y)?;
+            self.update_node_position(&layout_id, &var_id, new_node_data.px, new_node_data.py)?;
             let state_change =
                 make_state_change(&["model", "layout", "update_position"], &new_pos_data);
 

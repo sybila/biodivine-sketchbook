@@ -114,6 +114,14 @@ interface AeonState {
     uninterpretedFnExpressionChanged: Observable<UninterpretedFnData>
     /** Set an expression of uninterpreted function with given ID. */
     setUninterpretedFnExpression: (uninterpretedFnId: string, newExpression: string) => void
+    /** UninterpretedFnData (with a new `monotonicity`) for a modified uninterpreted function. */
+    uninterpretedFnMonotonicityChanged: Observable<UninterpretedFnData>
+    /** Set a monotonicity of uninterpreted function with given ID. */
+    setUninterpretedFnMonotonicity: (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity) => void
+    /** UninterpretedFnData (with a new `monotonicity`) for a modified uninterpreted function. */
+    uninterpretedFnEssentialityChanged: Observable<UninterpretedFnData>
+    /** Set an essentiality of uninterpreted function with given ID. */
+    setUninterpretedFnEssentiality: (uninterpretedFnId: string, idx: number, essentiality: Essentiality) => void
 
     /** Regulation-related setter events */
 
@@ -657,6 +665,8 @@ export const aeonState: AeonState = {
     uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_arity']),
     uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['model', 'uninterpreted_fn', 'set_id']),
     uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_expression']),
+    uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_monotonicity']),
+    uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_essentiality']),
 
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
@@ -755,6 +765,18 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_expression'],
         payload: newExpression.toString()
+      })
+    },
+    setUninterpretedFnMonotonicity (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicty'],
+        payload: JSON.stringify({ idx, monotonicity })
+      })
+    },
+    setUninterpretedFnEssentiality (uninterpretedFnId: string, idx: number, essentiality: Essentiality): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_essentiality'],
+        payload: JSON.stringify({ idx, essentiality })
       })
     },
     addRegulation (regulatorId: string, targetId: string, sign: string, essential: string): void {
