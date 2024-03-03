@@ -164,7 +164,7 @@ fn test_set_update_fn_event() {
     let full_path = ["model", "update_fn", var_a.as_str(), "set_expression"];
     let event = Event::build(&full_path, Some(expression));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
-    assert_eq!(model.get_update_fn(&var_a).unwrap(), expression);
+    assert_eq!(model.get_update_fn_string(&var_a).unwrap(), expression);
     check_reverse(
         model,
         model_orig,

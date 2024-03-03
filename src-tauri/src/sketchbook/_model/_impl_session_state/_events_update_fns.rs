@@ -32,7 +32,7 @@ impl ModelState {
 
             // perform the event and check (again) that the new parsed version is different than the original
             self.set_update_fn(&var_id, new_expression.as_str())?;
-            let fn_data = UpdateFnData::new(var_id.as_str(), self.get_update_fn(&var_id)?);
+            let fn_data = UpdateFnData::new(var_id.as_str(), self.get_update_fn_string(&var_id)?);
             if fn_data.expression == original_expression {
                 return Ok(Consumed::NoChange);
             }

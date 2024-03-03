@@ -1,7 +1,7 @@
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{
     Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
-    UninterpretedFnId, UninterpretedFnIterator, VarId, Variable, VariableIterator,
+    UninterpretedFnId, UninterpretedFnIterator, UpdateFn, VarId, Variable, VariableIterator,
 };
 use std::str::FromStr;
 
@@ -239,8 +239,17 @@ impl ModelState {
         Ok(targets)
     }
 
-    /// Get an update function's expression of the given variable.
-    pub fn get_update_fn(&self, var_id: &VarId) -> Result<&str, String> {
+    /// Get an update function for the given variable.
+    pub fn get_update_fn(&self, var_id: &VarId) -> Result<&UpdateFn, String> {
+        let update_fn = self
+            .update_fns
+            .get(var_id)
+            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        Ok(update_fn)
+    }
+
+    /// Get an update function's expression for the given variable.
+    pub fn get_update_fn_string(&self, var_id: &VarId) -> Result<&str, String> {
         let update_fn = self
             .update_fns
             .get(var_id)

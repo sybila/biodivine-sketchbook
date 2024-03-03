@@ -114,19 +114,23 @@ mod tests {
     use crate::sketchbook::ModelState;
     use biodivine_lib_param_bn::RegulatoryGraph;
 
-    #[test]
-    fn test_to_reg_graph() {
+    /// Prepare a test model containing only variables and regulations.
+    fn prepare_test_model() -> ModelState {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model
-            .add_multiple_regulations(vec!["a -> b", "b -> a"])
+            .add_multiple_regulations(vec!["a -> b", "b -> a", "a -| a"])
             .unwrap();
+        model
+    }
 
+    #[test]
+    fn test_to_reg_graph() {
+        let model = prepare_test_model();
         let reg_graph = model.to_reg_graph();
+        let var_a = reg_graph.find_variable("a").unwrap();
+        let var_b = reg_graph.find_variable("b").unwrap();
         assert_eq!(reg_graph.num_vars(), 2);
-        assert_eq!(
-            reg_graph.regulators(reg_graph.find_variable("a").unwrap()),
-            vec![reg_graph.find_variable("b").unwrap()]
-        );
+        assert_eq!(reg_graph.regulators(var_a), vec![var_a, var_b]);
 
         let model_back = ModelState::from_reg_graph(reg_graph).unwrap();
         assert_eq!(model, model_back);

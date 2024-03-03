@@ -1,4 +1,5 @@
 use crate::sketchbook::{FnTree, ModelState, UninterpretedFnId, VarId};
+use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
@@ -12,7 +13,7 @@ pub struct UpdateFn {
 
 impl Display for UpdateFn {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({})", self.expression)
+        write!(f, "{}", self.expression)
     }
 }
 
@@ -32,19 +33,24 @@ impl UpdateFn {
     /// The expression is either a valid update fn expression or an empty (possible whitespace) string.
     pub fn try_from_str(expression: &str, context: &ModelState) -> Result<UpdateFn, String> {
         if expression.chars().all(|c| c.is_whitespace()) {
-            return Ok(UpdateFn::default());
+            Ok(UpdateFn::default())
+        } else {
+            let syntactic_tree = FnTree::try_from_str(expression, context, None)?;
+            Ok(UpdateFn {
+                expression: syntactic_tree.to_string(context, None)?,
+                tree: Some(syntactic_tree),
+            })
         }
-
-        let syntactic_tree = FnTree::try_from_str(expression, context, None)?;
-        Ok(UpdateFn {
-            expression: syntactic_tree.to_string(context, None)?,
-            tree: Some(syntactic_tree),
-        })
     }
 
     /// Get function's expression.
     pub fn get_fn_expression(&self) -> &str {
         &self.expression
+    }
+
+    /// Check if the update function is empty (fully unspecified).
+    pub fn is_unspecified(&self) -> bool {
+        self.tree.is_none()
     }
 
     /// Set the update function's expression to a given string.
@@ -62,6 +68,13 @@ impl UpdateFn {
             self.tree = Some(syntactic_tree);
         }
         Ok(())
+    }
+
+    /// Return a set of all variables that are actually used as inputs in this function.
+    pub fn to_fn_update(&self, context: &BooleanNetwork) -> Option<FnUpdate> {
+        self.tree
+            .as_ref()
+            .map(|tree| tree.to_fn_update_recursive(context))
     }
 
     /// Return a set of all variables that are actually used as inputs in this function.

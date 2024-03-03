@@ -832,6 +832,8 @@ mod tests {
     fn test_new_default() {
         let model = ModelState::new();
         assert_eq!(model.num_vars(), 0);
+        assert_eq!(model.num_uninterpreted_fns(), 0);
+        assert_eq!(model.num_placeholder_vars(), 0);
         assert_eq!(model.num_regulations(), 0);
         assert_eq!(model.num_layouts(), 1);
 
@@ -851,7 +853,6 @@ mod tests {
         let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
         let model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
         assert_eq!(model.num_vars(), 2);
-        assert_eq!(model.num_regulations(), 0);
         assert!(model.is_valid_var_id_str("a_id"));
         assert!(model.is_valid_var_id_str("b_id"));
         assert!(!model.is_valid_var_id_str("c_id"));
@@ -874,6 +875,31 @@ mod tests {
         model.add_multiple_variables(variables).unwrap();
         assert_eq!(model.num_vars(), 5);
         assert!(model.is_valid_var_id_str("bbb"));
+    }
+
+    /// Test adding uninterpreted functions (both incrementally and at once).
+    #[test]
+    fn test_adding_uninterpreted_fns() {
+        let mut model = ModelState::new();
+
+        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
+        model.add_uninterpreted_fn_by_str("g", "g", 0).unwrap();
+        let f_id = model.get_uninterpreted_fn_id("f").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 2);
+        assert_eq!(model.num_placeholder_vars(), 1);
+        assert!(model.is_valid_uninterpreted_fn_id_str("f"));
+        assert!(model.is_valid_uninterpreted_fn_id_str("g"));
+        assert_eq!(f.get_arity(), 1);
+
+        // add list of function symbols at once
+        let uninterpreted_fns = vec![("ff", "ff", 4), ("gg", "gg", 3)];
+        model
+            .add_multiple_uninterpreted_fns(uninterpreted_fns)
+            .unwrap();
+        assert_eq!(model.num_placeholder_vars(), 4);
+        assert!(model.is_valid_uninterpreted_fn_id_str("ff"));
+        assert!(model.is_valid_uninterpreted_fn_id_str("gg"));
     }
 
     /// Test adding regulations (both incrementally and at once).
@@ -901,7 +927,7 @@ mod tests {
     /// or regulations. We are only adding valid regulations/variables here, invalid insertions are
     /// covered by other tests.
     #[test]
-    fn test_manually_editing() {
+    fn test_manually_editing_regulation_graph() {
         let mut model = ModelState::new();
 
         // add variables a, b, c
@@ -932,6 +958,64 @@ mod tests {
         assert_eq!(model.num_regulations(), 1);
     }
 
+    /// Test manually creating `ModelState` and mutating it by adding/removing uninterpreted fns.
+    #[test]
+    fn test_manually_editing_uninterpreted_fns() {
+        let mut model = ModelState::new();
+        let uninterpreted_fns = vec![("f", "f", 4), ("g", "g", 2)];
+        model
+            .add_multiple_uninterpreted_fns(uninterpreted_fns)
+            .unwrap();
+
+        // test default field values of an uninterpreted fn
+        let f_id = model.get_uninterpreted_fn_id("f").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 2);
+        assert_eq!(f.get_fn_expression(), "");
+        assert_eq!(f.get_essential(0), &Essentiality::Unknown);
+        assert_eq!(f.get_monotonic(2), &Monotonicity::Unknown);
+        assert_eq!(model.num_placeholder_vars(), 4);
+
+        // test setting all the various fields of an uninterpreted fn (including decreasing arity)
+        model.set_uninterpreted_fn_name(&f_id, "ff").unwrap();
+        model.set_uninterpreted_fn_arity(&f_id, 3).unwrap();
+        model
+            .set_uninterpreted_fn_essentiality(&f_id, Essentiality::True, 0)
+            .unwrap();
+        model
+            .set_uninterpreted_fn_monotonicity(&f_id, Monotonicity::Activation, 2)
+            .unwrap();
+        model
+            .set_uninterpreted_fn_expression(&f_id, "var0 | var2")
+            .unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(f.get_name(), "ff");
+        assert_eq!(f.get_fn_expression(), "var0 | var2");
+        assert_eq!(f.get_essential(0), &Essentiality::True);
+        assert_eq!(f.get_monotonic(2), &Monotonicity::Activation);
+        assert_eq!(model.num_placeholder_vars(), 3);
+
+        // test editing expression back to the empty string
+        model.set_uninterpreted_fn_expression(&f_id, "").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(f.get_fn_expression(), "");
+
+        // test setting ID of an uninterpreted fn, and increasing arity
+        model.set_uninterpreted_fn_id_by_str("g", "h").unwrap();
+        model.set_uninterpreted_fn_arity_by_str("h", 5).unwrap();
+        assert_eq!(model.num_placeholder_vars(), 5);
+
+        // test removing function with NOT the most arguments (should not influence number of placeholder vars)
+        model.remove_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 1);
+        assert_eq!(model.num_placeholder_vars(), 5);
+
+        // test removing function with the most arguments (should lower the number of placeholder vars)
+        model.remove_uninterpreted_fn_by_str("h").unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 0);
+        assert_eq!(model.num_placeholder_vars(), 0);
+    }
+
     /// Test manually adding and modifying update functions.
     #[test]
     fn test_update_fns() {
@@ -939,12 +1023,12 @@ mod tests {
         let mut model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
         let var_a = model.get_var_id("a").unwrap();
 
-        let initial_expression = model.get_update_fn(&var_a).unwrap();
+        let initial_expression = model.get_update_fn_string(&var_a).unwrap();
         assert_eq!(initial_expression, "");
 
         let expression = "(a & b) => c";
         model.set_update_fn(&var_a, "(a & b) => c").unwrap();
-        let modified_expression = model.get_update_fn(&var_a).unwrap();
+        let modified_expression = model.get_update_fn_string(&var_a).unwrap();
         assert_eq!(modified_expression, expression);
     }
 

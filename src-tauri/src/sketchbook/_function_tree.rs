@@ -133,7 +133,7 @@ impl FnTree {
 
     /// Recursively transform the `FnTree` to a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
     /// The provided BN gives context for variable and parameter IDs.
-    fn to_fn_update_recursive(&self, bn_context: &BooleanNetwork) -> FnUpdate {
+    pub(crate) fn to_fn_update_recursive(&self, bn_context: &BooleanNetwork) -> FnUpdate {
         match self {
             FnTree::Const(value) => FnUpdate::Const(*value),
             FnTree::Var(var_id) => {
