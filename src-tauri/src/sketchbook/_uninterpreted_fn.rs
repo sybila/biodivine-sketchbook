@@ -45,6 +45,18 @@ impl UninterpretedFn {
         Ok(original_fn)
     }
 
+    /// Create uninterpreted function from another one, substituting all occurrences of a given
+    /// function symbol in the syntactic tree. The provided original function object is consumed.
+    pub fn with_substituted_fn_symbol(
+        mut original_fn: UninterpretedFn,
+        old_id: &UninterpretedFnId,
+        new_id: &UninterpretedFnId,
+        context: &ModelState,
+    ) -> UninterpretedFn {
+        original_fn.substitute_fn_symbol(old_id, new_id, context);
+        original_fn
+    }
+
     /// Human-readable name of this uninterpreted fn.
     pub fn get_name(&self) -> &str {
         &self.name
@@ -63,9 +75,25 @@ impl UninterpretedFn {
     }
 
     /// Change arity of this uninterpreted fn.
-    pub fn set_arity(&mut self, new_arity: usize) {
-        // TODO - if arity made smaller, check that expression does not contain invalid "variables"
+    pub fn set_arity(&mut self, new_arity: usize) -> Result<(), String> {
+        // if arity made smaller, check that the expression does not contain invalid "variables"
+        if new_arity < self.arity {
+            if let Some(tree) = &self.tree {
+                let used_vars: HashSet<_> = tree
+                    .collect_variables()
+                    .iter()
+                    .map(|v| v.to_string())
+                    .collect();
+                let possible_vars: HashSet<_> = (0..new_arity).map(|i| format!("var{i}")).collect();
+                let diff: HashSet<_> = used_vars.difference(&possible_vars).collect();
+                if !diff.is_empty() {
+                    let msg = "Cannot change arity of a function - its expression contains variables that would become invalid.".to_string();
+                    return Err(msg);
+                }
+            }
+        }
         self.arity = new_arity;
+        Ok(())
     }
 
     /// Get function's expression.
@@ -86,7 +114,7 @@ impl UninterpretedFn {
         } else {
             let syntactic_tree =
                 FnTree::try_from_str(new_expression, context, Some((own_id, self)))?;
-            self.expression = syntactic_tree.to_string(context, Some(self.arity))?;
+            self.expression = syntactic_tree.to_string(context, Some(self.arity));
             self.tree = Some(syntactic_tree);
         }
         Ok(())
@@ -176,9 +204,17 @@ impl UninterpretedFn {
         }
     }
 
-    pub fn substitute_fn_symbol(&mut self, old_id: &UninterpretedFnId, new_id: &UninterpretedFnId) {
+    /// Substitute all occurences of a given function symbol in the syntactic tree.
+    pub fn substitute_fn_symbol(
+        &mut self,
+        old_id: &UninterpretedFnId,
+        new_id: &UninterpretedFnId,
+        context: &ModelState,
+    ) {
         if let Some(tree) = &self.tree {
-            self.tree = Some(tree.substitute_fn_symbol(old_id, new_id));
+            let new_tree = tree.substitute_fn_symbol(old_id, new_id);
+            self.expression = new_tree.to_string(context, Some(self.arity));
+            self.tree = Some(new_tree);
         }
     }
 }

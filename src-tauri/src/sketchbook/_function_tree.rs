@@ -40,18 +40,14 @@ impl FnTree {
     }
 
     /// Convert this update function to a string, taking IDs from the provided `ModelState`.
-    pub fn to_string(
-        &self,
-        model: &ModelState,
-        is_uninterpreted: Option<usize>,
-    ) -> Result<String, String> {
+    pub fn to_string(&self, model: &ModelState, is_uninterpreted: Option<usize>) -> String {
         let bn_context = if let Some(n) = is_uninterpreted {
             model.to_fake_bn_with_params(n)
         } else {
             model.to_empty_bn_with_params()
         };
         let fn_update = self.to_fn_update_recursive(&bn_context);
-        Ok(fn_update.to_string(&bn_context))
+        fn_update.to_string(&bn_context)
     }
 
     /// Obtain the `FnTree` from a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
@@ -298,7 +294,7 @@ mod tests {
 
         let expression = "a & (b | f(b))";
         let fn_tree = FnTree::try_from_str(expression, &model, None).unwrap();
-        let processed_expression = fn_tree.to_string(&model, None).unwrap();
+        let processed_expression = fn_tree.to_string(&model, None);
         assert_eq!(processed_expression.as_str(), expression);
     }
 
@@ -316,7 +312,7 @@ mod tests {
         let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
         let fn_tree =
             FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn))).unwrap();
-        let processed_expression = fn_tree.to_string(&model, Some(arity)).unwrap();
+        let processed_expression = fn_tree.to_string(&model, Some(arity));
         assert_eq!(processed_expression.as_str(), expression,);
     }
 
