@@ -47,3 +47,9 @@ export interface IFunctionData {
   function: string
   variables: IRegulationData[]
 }
+
+export interface IObservation {
+  id: string
+  name: string
+  [key: string]: string | number
+}

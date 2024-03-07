@@ -2,10 +2,12 @@ import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
-import { ContentData, type IVariableData } from '../../util/data-interfaces'
+import { ContentData, type IObservation } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
-import { dummyData } from '../../util/dummy-data'
 import { dialog } from '@tauri-apps/api'
+import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
+import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
+import { dummyData } from '../../util/dummy-data'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -13,9 +15,24 @@ export default class ObservationsEditor extends LitElement {
   @property() contentData = ContentData.create()
   @state() sets: IObservationSet[] = []
 
+  getDummy = (): IObservation[] => Array(100001).fill(0).map((_, index) => {
+    const ret: IObservation = {
+      id: 'obs' + String(index).padStart(4, '0'),
+      name: 'obs' + String(index).padStart(4, '0')
+    }
+    this.contentData.variables.forEach(v => {
+      ret[v.name] = Math.round(Math.random())
+    })
+    return ret
+  })
+
   constructor () {
     super()
-    this.addSet('TEST')
+    this.sets = [{
+      name: 'TEST',
+      data: this.getDummy(),
+      variables: dummyData.variables.map(v => v.name)
+    }]
   }
 
   private async import (): Promise<void> {
@@ -38,17 +55,42 @@ export default class ObservationsEditor extends LitElement {
       ]
     })
     if (handle === null) return
+    let fileName
     if (Array.isArray(handle)) {
-      this.addSet(handle.pop() ?? 'unknown')
+      fileName = handle.pop() ?? 'unknown'
     } else {
-      this.addSet(handle)
+      fileName = handle
     }
+
+    void this.importObservations(fileName, this.getDummy(), this.contentData.variables.map(v => v.name))
   }
 
-  private addSet (filePath: string): void {
-    this.sets = this.sets.concat({
-      name: filePath,
-      data: dummyData.variables
+  private async importObservations (name: string, data: IObservation[], variables: string[]): Promise<void> {
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    const importDialog = new WebviewWindow(`editObservation${Math.floor(Math.random() * 1000000)}`, {
+      url: 'src/html/component/observations-editor/observations-import/observations-import.html',
+      title: 'Import observation set',
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      x: pos.x + (size.width / 2) - 200,
+      y: pos.y + size.height / 4
+    })
+    void importDialog.once('loaded', () => {
+      void importDialog.emit('observations_import_update', {
+        data,
+        variables: this.contentData.variables.map(v => v.name)
+      })
+    })
+    void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
+      console.log(event.payload)
+      this.sets = this.sets.concat({
+        name,
+        data: event.payload,
+        variables
+      })
     })
   }
 
@@ -69,7 +111,8 @@ export default class ObservationsEditor extends LitElement {
             </div>
             <div class="content">
               <observations-set
-                  .data="${set.data}">
+                  .data="${set.data}"
+                  .variables="${set.variables}">
               </observations-set>
             </div>
           </div>
@@ -85,5 +128,6 @@ export default class ObservationsEditor extends LitElement {
 
 interface IObservationSet {
   name: string
-  data: IVariableData[]
+  data: IObservation[]
+  variables: string[]
 }

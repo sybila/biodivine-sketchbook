@@ -4,18 +4,18 @@ import style_less from './edit-observation.less?inline'
 import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
 import { appWindow } from '@tauri-apps/api/window'
 import { map } from 'lit/directives/map.js'
-import { type IDummyObservation } from '../observations-set/observations-set'
+import { type IObservation } from '../../../util/data-interfaces'
 
 @customElement('edit-observation')
 export default class EditObservation extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @query('#node-name') nameField: HTMLInputElement | undefined
   @query('#node-id') variableIdField: HTMLInputElement | undefined
-  @state() data: IDummyObservation | undefined
+  @state() data: IObservation | undefined
   id = ''
 
   async firstUpdated (): Promise<void> {
-    await once('edit_observation_update', (event: TauriEvent<IDummyObservation>) => {
+    await once('edit_observation_update', (event: TauriEvent<IObservation>) => {
       this.id = event.payload.id
       this.data = event.payload
     })

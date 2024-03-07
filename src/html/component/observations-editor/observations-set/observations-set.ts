@@ -1,5 +1,5 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult, type PropertyValues } from 'lit'
-import { customElement, query, property, state } from 'lit/decorators.js'
+import { customElement, query, property } from 'lit/decorators.js'
 import style_less from './observations-set.less?inline'
 import style_tab from 'tabulator-tables/dist/css/tabulator_simple.min.css?inline'
 import {
@@ -13,32 +13,17 @@ import {
   type ColumnDefinition, type CellComponent, InteractionModule
 } from 'tabulator-tables'
 
-import { type IVariableData } from '../../../util/data-interfaces'
+import { type IObservation } from '../../../util/data-interfaces'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 
 @customElement('observations-set')
 export default class ObservationsSet extends LitElement {
   static styles = [css`${unsafeCSS(style_less)}`, css`${unsafeCSS(style_tab)}`]
-  @property() data: IVariableData[] = []
+  @property() data: IObservation[] = []
+  @property() variables: string[] = []
   @query('#table-wrapper') table: HTMLElement | undefined
   tabulator: Tabulator | undefined
-  @state() dummy: IDummyObservation[] = Array(100001).fill(0).map((_, index) => {
-    return {
-      id: 'var' + String(index).padStart(5, '0'),
-      name: 'var' + String(index).padStart(5, '0'),
-      var0: Math.round(Math.random()),
-      var1: Math.round(Math.random()),
-      var2: Math.round(Math.random()),
-      var3: Math.round(Math.random()),
-      var4: Math.round(Math.random()),
-      var5: Math.round(Math.random()),
-      var6: Math.round(Math.random()),
-      var7: Math.round(Math.random()),
-      var8: Math.round(Math.random()),
-      var9: Math.round(Math.random())
-    }
-  })
 
   dialogs: Record<string, WebviewWindow | undefined> = {}
 
@@ -59,7 +44,7 @@ export default class ObservationsSet extends LitElement {
     this.tabulator?.redraw(true)
   }
 
-  private async init(): Promise<void> {
+  private async init (): Promise<void> {
     const dataCell = (field: string): ColumnDefinition => {
       return {
         title: field,
@@ -86,9 +71,9 @@ export default class ObservationsSet extends LitElement {
         headerFilter: 'input'
       }
     ]
-    for (let i = 0; i < 10; i++) {
-      columns.push(dataCell('var' + i))
-    }
+    this.variables.forEach(v => {
+      columns.push(dataCell(v))
+    })
     columns.push({
       title: '',
       formatter: (_cell, _params, _callback): string => {
@@ -99,13 +84,13 @@ export default class ObservationsSet extends LitElement {
       hozAlign: 'center',
       cellClick: (_e: UIEvent, _cell: CellComponent) => {
         console.log('test', _e, _cell.getData())
-        void this.editObservation(_cell.getData() as IDummyObservation)
+        void this.editObservation(_cell.getData() as IObservation)
       }
     })
     if (this.table !== undefined) {
       this.tabulator = new Tabulator(this.table, {
         columns,
-        data: this.dummy,
+        data: this.data,
         layout: 'fitDataTable',
         responsiveLayout: false,
         pagination: true,
@@ -118,10 +103,11 @@ export default class ObservationsSet extends LitElement {
         selectable: 'highlight'
       }
       )
+      this.tabulator.redraw(true)
     }
   }
 
-  private async editObservation (data: IDummyObservation): Promise<void> {
+  private async editObservation (data: IObservation): Promise<void> {
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[data.id] !== undefined) {
@@ -146,9 +132,9 @@ export default class ObservationsSet extends LitElement {
         ...data
       })
     })
-    void renameDialog.once('edit_observation_dialog', (event: TauriEvent<{ id: string, data: IDummyObservation }>) => {
+    void renameDialog.once('edit_observation_dialog', (event: TauriEvent<{ id: string, data: IObservation }>) => {
       this.dialogs[data.id] = undefined
-      const index = this.dummy.findIndex(observation => observation.id === data.id)
+      const index = this.data.findIndex(observation => observation.id === data.id)
       if (index === -1) return
       void this.tabulator?.updateRow(event.payload.id, event.payload.data)
       console.log(event.payload)
@@ -163,19 +149,4 @@ export default class ObservationsSet extends LitElement {
       <div id="table-wrapper"></div>
     `
   }
-}
-
-export interface IDummyObservation {
-  id: string
-  name: string
-  var0: number
-  var1: number
-  var2: number
-  var3: number
-  var4: number
-  var5: number
-  var6: number
-  var7: number
-  var8: number
-  var9: number
 }
