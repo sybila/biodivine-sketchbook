@@ -58,7 +58,7 @@ export default class EditObservation extends LitElement {
         </div>
 
 
-        <button class="uk-button uk-width-1-1" @click="${this.handleSubmit}">Submit</button>
+        <button class="uk-button uk-width-1-1" @click="${this.handleSubmit}">Save</button>
       </form>
     `
   }
