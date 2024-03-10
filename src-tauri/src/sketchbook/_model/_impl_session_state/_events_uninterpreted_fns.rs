@@ -96,7 +96,7 @@ impl ModelState {
             let reverse_event = Event::build(&reverse_event_path, Some(fn_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_arity", at_path).is_some() {
-            // get the payload - string for "new_name"
+            // get the payload - string for "new_arity"
             let new_arity: usize = Self::clone_payload_str(event, component_name)?.parse()?;
             let original_arity = self.get_uninterpreted_fn(&fn_id)?.get_arity();
             if new_arity == original_arity {
@@ -112,7 +112,42 @@ impl ModelState {
             // prepare the reverse event
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_arity.to_string());
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("increment_arity", at_path).is_some() {
+            Self::assert_payload_empty(event, component_name)?;
 
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.increment_fn_arity(&fn_id)?;
+            let fn_data = UninterpretedFnData::from_fn(&fn_id, self.get_uninterpreted_fn(&fn_id)?);
+            let state_change =
+                make_state_change(&["model", "uninterpreted_fn", "increment_arity"], &fn_data);
+
+            // prepare the reverse event
+            let reverse_event_path = [
+                "model",
+                "uninterpreted_fn",
+                fn_id.as_str(),
+                "decrement_arity",
+            ];
+            let reverse_event = Event::build(&reverse_event_path, None);
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("decrement_arity", at_path).is_some() {
+            Self::assert_payload_empty(event, component_name)?;
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.decrement_fn_arity(&fn_id)?;
+            let fn_data = UninterpretedFnData::from_fn(&fn_id, self.get_uninterpreted_fn(&fn_id)?);
+            let state_change =
+                make_state_change(&["model", "uninterpreted_fn", "decrement_arity"], &fn_data);
+
+            // prepare the reverse event
+            let reverse_event_path = [
+                "model",
+                "uninterpreted_fn",
+                fn_id.as_str(),
+                "increment_arity",
+            ];
+            let reverse_event = Event::build(&reverse_event_path, None);
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_expression", at_path).is_some() {
             // get the payload - string for "expression"

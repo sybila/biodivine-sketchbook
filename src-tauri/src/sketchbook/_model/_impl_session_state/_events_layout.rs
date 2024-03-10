@@ -1,6 +1,6 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
-use crate::app::{AeonError, DynError};
+use crate::app::DynError;
 use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::layout::{LayoutId, NodePosition};
 use crate::sketchbook::ModelState;
@@ -70,11 +70,7 @@ impl ModelState {
             reverse_event.payload = Some(orig_pos_data.to_string());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("remove", at_path).is_some() {
-            // check that payload is really empty
-            if event.payload.is_some() {
-                let message = "Payload must be empty for layout removing.".to_string();
-                return AeonError::throw(message);
-            }
+            Self::assert_payload_empty(event, component_name)?;
 
             let layout = self.get_layout(&layout_id)?;
             let layout_data = LayoutData::from_layout(&layout_id, layout);

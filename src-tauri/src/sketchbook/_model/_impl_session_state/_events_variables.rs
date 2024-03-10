@@ -1,6 +1,6 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
-use crate::app::{AeonError, DynError};
+use crate::app::DynError;
 use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use crate::sketchbook::data_structs::{ChangeIdData, LayoutNodeData, VariableData};
 use crate::sketchbook::layout::NodePosition;
@@ -35,11 +35,7 @@ impl ModelState {
         let component_name = "model/variable";
 
         if Self::starts_with("remove", at_path).is_some() {
-            // check that payload is really empty
-            if event.payload.is_some() {
-                let message = "Payload must be empty for variable removing.".to_string();
-                return AeonError::throw(message);
-            }
+            Self::assert_payload_empty(event, component_name)?;
 
             // To remove a variable, all its regulations must be already removed, and it must be at default position
             // in each layout. If it is not the case, to ensure that we can undo this operation, we precede the var

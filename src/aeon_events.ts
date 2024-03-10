@@ -100,12 +100,20 @@ interface AeonState {
     removeUninterpretedFn: (uninterpretedFnId: string) => void
     /** UninterpretedFnData (with a new `name`) for a renamed uninterpreted function. */
     uninterpretedFnNameChanged: Observable<UninterpretedFnData>
-    /** Set a name of uninterpreted function with given ID. */
+    /** Set name of uninterpreted function with given ID. */
     setUninterpretedFnName: (uninterpretedFnId: string, newName: string) => void
     /** UninterpretedFnData (with a new `arity`) for a modified uninterpreted function. */
     uninterpretedFnArityChanged: Observable<UninterpretedFnData>
-    /** Set an arity of uninterpreted function with given ID. */
+    /** Set arity of uninterpreted function with given ID. */
     setUninterpretedFnArity: (uninterpretedFnId: string, newArity: number) => void
+    /** UninterpretedFnData (with incremented `arity`) for a modified uninterpreted function. */
+    uninterpretedFnArityIncremented: Observable<UninterpretedFnData>
+    /** Increment arity of uninterpreted function with given ID. */
+    incrementUninterpretedFnArity: (uninterpretedFnId: string) => void
+    /** UninterpretedFnData (with decremented `arity`) for a modified uninterpreted function. */
+    uninterpretedFnArityDecremented: Observable<UninterpretedFnData>
+    /** Decrement arity of uninterpreted function with given ID. */
+    decrementUninterpretedFnArity: (uninterpretedFnId: string) => void
     /** Object with `original_id` of an uninterpreted function and its `new_id`. */
     uninterpretedFnIdChanged: Observable<UninterpretedFnIdUpdateData>
     /** Set an ID of an uninterpreted function with given original ID to a new id. */
@@ -661,6 +669,8 @@ export const aeonState: AeonState = {
     uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'remove']),
     uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_name']),
     uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_arity']),
+    uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'increment_arity']),
+    uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'decrement_arity']),
     uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['model', 'uninterpreted_fn', 'set_id']),
     uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_expression']),
     uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_monotonicity']),
@@ -756,6 +766,18 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
         payload: newArity.toString()
+      })
+    },
+    incrementUninterpretedFnArity (uninterpretedFnId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
+        payload: null
+      })
+    },
+    decrementUninterpretedFnArity (uninterpretedFnId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
+        payload: null
       })
     },
     setUninterpretedFnId (originalId: string, newId: string): void {

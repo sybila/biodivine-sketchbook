@@ -77,7 +77,7 @@ pub trait SessionHelper {
     /// This might be useful to directly mention relevant fields of more complex types.
     fn clone_payload_str(event: &Event, component: &str) -> Result<String, DynError> {
         let payload = event.payload.clone().ok_or(format!(
-            "Event to `{component}` cannot carry empty payload."
+            "This event to `{component}` cannot carry empty payload."
         ))?;
         Ok(payload)
     }
@@ -89,6 +89,18 @@ pub trait SessionHelper {
     fn assert_path_length(path: &[&str], length: usize, component: &str) -> Result<(), DynError> {
         if path.len() != length {
             return AeonError::throw(format!("`{component}` cannot process path `{:?}`.", path));
+        }
+        Ok(())
+    }
+
+    /// A utility function to assert that payload is empty - otherwise, `DynError` is emitted.
+    ///
+    /// The `component` specifies which component of the state should be mentioned in the error.
+    /// This might be useful to directly mention relevant fields of more complex types.
+    fn assert_payload_empty(event: &Event, component: &str) -> Result<(), DynError> {
+        if event.payload.is_some() {
+            let message = format!("This event to `{component}` cannot have empty payload.");
+            return AeonError::throw(message);
         }
         Ok(())
     }

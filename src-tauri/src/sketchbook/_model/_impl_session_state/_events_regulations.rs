@@ -1,6 +1,6 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
-use crate::app::{AeonError, DynError};
+use crate::app::DynError;
 use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use crate::sketchbook::data_structs::RegulationData;
 use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
@@ -47,11 +47,7 @@ impl ModelState {
         let component_name = "model/regulation";
 
         if Self::starts_with("remove", at_path).is_some() {
-            // check that payload is really empty
-            if event.payload.is_some() {
-                let message = "Payload must be empty for regulation removing.".to_string();
-                return AeonError::throw(message);
-            }
+            Self::assert_payload_empty(event, component_name)?;
 
             // save the original regulation data for state change and reverse event
             let original_reg = self.get_regulation(&regulator_id, &target_id)?.clone();
