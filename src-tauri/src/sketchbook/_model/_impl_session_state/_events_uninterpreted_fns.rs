@@ -22,7 +22,8 @@ impl ModelState {
         // parse the payload and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
         let fn_data = UninterpretedFnData::from_str(payload.as_str())?;
-        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, fn_data.arity)?;
+        let arity = fn_data.arguments.len();
+        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let reverse_path = ["model", "uninterpreted_fn", &fn_data.id, "remove"];

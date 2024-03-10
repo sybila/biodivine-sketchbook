@@ -16,6 +16,8 @@ mod _monotonicity;
 mod _regulation;
 /// **(internal)** Utility methods for `UninterpretedFn`.
 mod _uninterpreted_fn;
+/// **(internal)** Utility methods for `FnArgument`.
+mod _uninterpreted_fn_arg;
 /// **(internal)** Utility methods for `UninterpretedFnId`.
 mod _uninterpreted_fn_id;
 /// **(internal)** Utility methods for `UpdateFn`.
@@ -41,6 +43,7 @@ pub use _model::ModelState;
 pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
 pub use _uninterpreted_fn::UninterpretedFn;
+pub use _uninterpreted_fn_arg::FnArgument;
 pub use _uninterpreted_fn_id::UninterpretedFnId;
 pub use _update_function::UpdateFn;
 pub use _var_id::VarId;

@@ -1,6 +1,6 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
-import { type Monotonicity, type Essentiality } from './html/util/data-interfaces'
+import { Monotonicity, Essentiality } from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -114,11 +114,11 @@ interface AeonState {
     uninterpretedFnExpressionChanged: Observable<UninterpretedFnData>
     /** Set an expression of uninterpreted function with given ID. */
     setUninterpretedFnExpression: (uninterpretedFnId: string, newExpression: string) => void
-    /** UninterpretedFnData (with a new `monotonicity`) for a modified uninterpreted function. */
+    /** UninterpretedFnData (with a new `monotonicity` for one of the args) for a modified uninterpreted function. */
     uninterpretedFnMonotonicityChanged: Observable<UninterpretedFnData>
     /** Set a monotonicity of uninterpreted function with given ID. */
     setUninterpretedFnMonotonicity: (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity) => void
-    /** UninterpretedFnData (with a new `monotonicity`) for a modified uninterpreted function. */
+    /** UninterpretedFnData (with a new `essentiality` for one of the args) for a modified uninterpreted function. */
     uninterpretedFnEssentialityChanged: Observable<UninterpretedFnData>
     /** Set an essentiality of uninterpreted function with given ID. */
     setUninterpretedFnEssentiality: (uninterpretedFnId: string, idx: number, essentiality: Essentiality) => void
@@ -176,9 +176,7 @@ export interface VariableData {
 export interface UninterpretedFnData {
   id: string
   name: string
-  arity: number
-  essentialities: [Essentiality]
-  monotonicities: [Monotonicity]
+  arguments: Array<[Monotonicity, Essentiality]>
   expression: string
 }
 
@@ -734,7 +732,12 @@ export const aeonState: AeonState = {
       }
       aeonEvents.emitAction({
         path: ['model', 'uninterpreted_fn', 'add'],
-        payload: JSON.stringify({ id: uninterpretedFnId, arity, name: uninterpretedFnName })
+        payload: JSON.stringify({
+          id: uninterpretedFnId,
+          name: uninterpretedFnName,
+          arguments: Array(arity).fill([Monotonicity.UNSPECIFIED, Essentiality.UNKNOWN]),
+          expression: ''
+        })
       })
     },
     removeUninterpretedFn (uninterpretedFnId: string): void {
@@ -751,7 +754,7 @@ export const aeonState: AeonState = {
     },
     setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
         payload: newArity.toString()
       })
     },

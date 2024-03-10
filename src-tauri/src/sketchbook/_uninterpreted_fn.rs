@@ -1,5 +1,7 @@
 use crate::sketchbook::utils::assert_name_valid;
-use crate::sketchbook::{Essentiality, FnTree, ModelState, Monotonicity, UninterpretedFnId, VarId};
+use crate::sketchbook::{
+    Essentiality, FnArgument, FnTree, ModelState, Monotonicity, UninterpretedFnId, VarId,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
@@ -10,9 +12,7 @@ use std::fmt::{Display, Formatter};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFn {
     name: String,
-    arity: usize,
-    essentialities: Vec<Essentiality>,
-    monotonicities: Vec<Monotonicity>,
+    arguments: Vec<FnArgument>,
     tree: Option<FnTree>,
     expression: String,
 }
@@ -25,9 +25,7 @@ impl UninterpretedFn {
 
         Ok(UninterpretedFn {
             name: name.to_string(),
-            arity,
-            essentialities: vec![Essentiality::Unknown; arity],
-            monotonicities: vec![Monotonicity::Unknown; arity],
+            arguments: vec![FnArgument::default(); arity],
             tree: None,
             expression: String::new(),
         })
@@ -64,7 +62,7 @@ impl UninterpretedFn {
 
     /// Read arity (number of arguments) of this uninterpreted fn.
     pub fn get_arity(&self) -> usize {
-        self.arity
+        self.arguments.len()
     }
 
     /// Rename this uninterpreted fn.
@@ -75,9 +73,15 @@ impl UninterpretedFn {
     }
 
     /// Change arity of this uninterpreted fn.
+    /// If arity is made larger, default arguments (without monotonicity/essentiality constraints
+    /// are added).
+    /// If arity is made smaller, last arguments are dropped. These must not be used in function's
+    /// expression.
     pub fn set_arity(&mut self, new_arity: usize) -> Result<(), String> {
-        // if arity made smaller, check that the expression does not contain invalid "variables"
-        if new_arity < self.arity {
+        let arity = self.get_arity();
+        if new_arity < arity {
+            // if arity made smaller, check that the expression does not contain variables that
+            // will be dropped
             if let Some(tree) = &self.tree {
                 let used_vars: HashSet<_> = tree
                     .collect_variables()
@@ -91,9 +95,38 @@ impl UninterpretedFn {
                     return Err(msg);
                 }
             }
+            self.arguments.truncate(new_arity);
+        } else {
+            // if arity made larger, add default arguments
+            let arg_count = new_arity - arity;
+            for _ in 0..arg_count {
+                self.add_default_argument();
+            }
         }
-        self.arity = new_arity;
         Ok(())
+    }
+
+    /// Drop the last argument of the function, essentially decrementing the arity of this
+    /// uninterpreted fn.
+    /// The last argument must not be used in function's expression.
+    pub fn drop_last_argument(&mut self) -> Result<(), String> {
+        if self.get_arity() == 0 {
+            return Err("Cannot drop argument of a function with zero arguments.".to_string());
+        }
+        self.set_arity(self.get_arity() - 1)
+    }
+
+    /// Add an argument with specified monotonicity/essentiality for this function.
+    /// Argument is added at the end of the current argument list.
+    pub fn add_argument(&mut self, monotonicity: Monotonicity, essentiality: Essentiality) {
+        self.arguments
+            .push(FnArgument::new(essentiality, monotonicity));
+    }
+
+    /// Add default argument (with unknown monotonicity/essentiality) for this function.
+    /// Argument is added at the end of the current argument list.
+    pub fn add_default_argument(&mut self) {
+        self.arguments.push(FnArgument::default());
     }
 
     /// Get function's expression.
@@ -114,36 +147,46 @@ impl UninterpretedFn {
         } else {
             let syntactic_tree =
                 FnTree::try_from_str(new_expression, context, Some((own_id, self)))?;
-            self.expression = syntactic_tree.to_string(context, Some(self.arity));
+            self.expression = syntactic_tree.to_string(context, Some(self.get_arity()));
             self.tree = Some(syntactic_tree);
         }
         Ok(())
     }
 
+    /// Get function's argument (`FnArgument` object) on given `index` (starting from 0).
+    pub fn get_argument(&self, index: usize) -> &FnArgument {
+        &self.arguments[index]
+    }
+
     /// Get `Essentiality` of argument with given `index` (starting from 0).
     pub fn get_essential(&self, index: usize) -> &Essentiality {
-        &self.essentialities[index]
+        &self.arguments[index].essential
     }
 
     /// Get `Monotonicity` of argument with given `index` (starting from 0).
     pub fn get_monotonic(&self, index: usize) -> &Monotonicity {
-        &self.monotonicities[index]
+        &self.arguments[index].monotonicity
     }
 
-    /// Get `Essentiality` of all arguments (in a default order).
-    pub fn get_all_essential(&self) -> &Vec<Essentiality> {
-        &self.essentialities
+    /// Get list of all ordered arguments (`FnArgument` objects) of this function.
+    pub fn get_all_arguments(&self) -> &Vec<FnArgument> {
+        &self.arguments
     }
 
-    /// Get `Monotonicity` of all arguments (in a default order).
-    pub fn get_all_monotonic(&self) -> &Vec<Monotonicity> {
-        &self.monotonicities
+    /// Set properties of an argument with given `index` (starting from 0).
+    pub fn set_argument(&mut self, index: usize, argument: FnArgument) -> Result<(), String> {
+        if index < self.get_arity() {
+            self.arguments[index] = argument;
+            Ok(())
+        } else {
+            Err("Cannot constrain an argument on index higher than function's arity.".to_string())
+        }
     }
 
     /// Set `Essentiality` of argument with given `index` (starting from 0).
     pub fn set_essential(&mut self, index: usize, essential: Essentiality) -> Result<(), String> {
-        if index < self.arity {
-            self.essentialities[index] = essential;
+        if index < self.get_arity() {
+            self.arguments[index].essential = essential;
             Ok(())
         } else {
             Err("Cannot constrain an argument on index higher than function's arity.".to_string())
@@ -152,34 +195,19 @@ impl UninterpretedFn {
 
     /// Set `Monotonicity` of argument with given `index` (starting from 0).
     pub fn set_monotonic(&mut self, index: usize, monotone: Monotonicity) -> Result<(), String> {
-        if index < self.arity {
-            self.monotonicities[index] = monotone;
+        if index < self.get_arity() {
+            self.arguments[index].monotonicity = monotone;
             Ok(())
         } else {
             Err("Cannot constrain an argument on index higher than function's arity.".to_string())
         }
     }
 
-    /// Set `Essentiality` of all arguments (in a default order).
-    pub fn set_all_essential(
-        &mut self,
-        essentiality_list: Vec<Essentiality>,
-    ) -> Result<(), String> {
-        if essentiality_list.len() == self.arity {
-            self.essentialities = essentiality_list;
-            Ok(())
-        } else {
-            Err("Provided vector has different length than arity of this function.".to_string())
-        }
-    }
-
-    /// Get `Monotonicity` of all arguments (in a default order).
-    pub fn set_all_monotonic(
-        &mut self,
-        monotonicity_list: Vec<Monotonicity>,
-    ) -> Result<(), String> {
-        if monotonicity_list.len() == self.arity {
-            self.monotonicities = monotonicity_list;
+    /// Set the list of all argument properties (essentially replacing them).
+    /// The number of arguments must stay the same, not changing arity.
+    pub fn set_all_arguments(&mut self, argument_list: Vec<FnArgument>) -> Result<(), String> {
+        if argument_list.len() == self.get_arity() {
+            self.arguments = argument_list;
             Ok(())
         } else {
             Err("Provided vector has different length than arity of this function.".to_string())
@@ -213,7 +241,7 @@ impl UninterpretedFn {
     ) {
         if let Some(tree) = &self.tree {
             let new_tree = tree.substitute_fn_symbol(old_id, new_id);
-            self.expression = new_tree.to_string(context, Some(self.arity));
+            self.expression = new_tree.to_string(context, Some(self.get_arity()));
             self.tree = Some(new_tree);
         }
     }
@@ -222,7 +250,7 @@ impl UninterpretedFn {
 impl Display for UninterpretedFn {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut args = Vec::new();
-        for i in 1..=self.arity {
+        for i in 1..=self.get_arity() {
             args.push(format!("x_{}", i));
         }
         let args_str = args.join(", ");

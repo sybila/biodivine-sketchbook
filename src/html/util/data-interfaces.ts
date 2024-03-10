@@ -38,6 +38,7 @@ export type ILayoutData = Map<string, Position>
 
 export class ContentData extends Data {
   variables: IVariableData[] = []
+  functions: IFunctionData[] = []
   layout: ILayoutData = new Map()
   regulations: IRegulationData[] = []
 }

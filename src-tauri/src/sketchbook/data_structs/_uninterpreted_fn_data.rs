@@ -1,4 +1,6 @@
-use crate::sketchbook::{Essentiality, Monotonicity, UninterpretedFn, UninterpretedFnId};
+use crate::sketchbook::{
+    Essentiality, FnArgument, Monotonicity, UninterpretedFn, UninterpretedFnId,
+};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -12,9 +14,7 @@ use std::str::FromStr;
 pub struct UninterpretedFnData {
     pub id: String,
     pub name: String,
-    pub arity: usize,
-    pub essentialities: Vec<Essentiality>,
-    pub monotonicities: Vec<Monotonicity>,
+    pub arguments: Vec<(Monotonicity, Essentiality)>,
     pub expression: String,
 }
 
@@ -23,17 +23,17 @@ impl UninterpretedFnData {
     pub fn new(
         id: &str,
         name: &str,
-        arity: usize,
-        essentialities: Vec<Essentiality>,
-        monotonicities: Vec<Monotonicity>,
+        arguments: Vec<FnArgument>,
         expression: &str,
     ) -> UninterpretedFnData {
+        let arguments_transformed = arguments
+            .iter()
+            .map(|a| (a.monotonicity, a.essential))
+            .collect();
         UninterpretedFnData {
             id: id.to_string(),
             name: name.to_string(),
-            arity,
-            essentialities,
-            monotonicities,
+            arguments: arguments_transformed,
             expression: expression.to_string(),
         }
     }
@@ -43,12 +43,16 @@ impl UninterpretedFnData {
         fn_id: &UninterpretedFnId,
         uninterpreted_fn: &UninterpretedFn,
     ) -> UninterpretedFnData {
+        let arguments = uninterpreted_fn
+            .get_all_arguments()
+            .clone()
+            .iter()
+            .map(|a| (a.monotonicity, a.essential))
+            .collect();
         UninterpretedFnData {
             id: fn_id.to_string(),
             name: uninterpreted_fn.get_name().to_string(),
-            arity: uninterpreted_fn.get_arity(),
-            essentialities: uninterpreted_fn.get_all_essential().clone(),
-            monotonicities: uninterpreted_fn.get_all_monotonic().clone(),
+            arguments,
             expression: uninterpreted_fn.get_fn_expression().to_string(),
         }
     }

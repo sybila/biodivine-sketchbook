@@ -9,6 +9,7 @@ import {
   aeonState,
   type LayoutNodeData, type LayoutNodeDataPrototype,
   type RegulationData,
+  type UpdateFnData,
   type VariableData,
   type VariableIdUpdateData
 } from '../../../aeon_events'
@@ -45,7 +46,7 @@ class RootComponent extends LitElement {
     this.addEventListener('add-regulation', this.addRegulation)
     aeonState.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
     this.addEventListener('set-variable-function', this.setVariableFunction)
-    // TODO: detect if function changed on backend
+    aeonState.model.updateFnExpressionChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
     this.addEventListener('rename-variable', this.renameVariable)
     aeonState.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
     this.addEventListener('change-node-position', this.changeNodePosition)
@@ -268,13 +269,16 @@ class RootComponent extends LitElement {
 
   private setVariableFunction (event: Event): void {
     const details = (event as CustomEvent).detail
-    // TODO: send through backend
-    const variableIndex = this.data.variables.findIndex(variable => variable.id === details.id)
+    aeonState.model.setUpdateFnExpression(details.id, details.function)
+  }
+
+  #onUpdateFnChanged (data: UpdateFnData): void {
+    const variableIndex = this.data.variables.findIndex(variable => variable.id === data.var_id)
     if (variableIndex === -1) return
     const variables = [...this.data.variables]
     variables[variableIndex] = {
       ...variables[variableIndex],
-      function: details.function
+      function: data.expression
     }
     this.saveData(variables, this.data.regulations, this.data.layout)
   }
@@ -334,6 +338,9 @@ class RootComponent extends LitElement {
         px: (dummyData.layout.get(variable.id)?.x) ?? 0,
         py: (dummyData.layout.get(variable.id)?.y) ?? 0
       })
+    })
+    dummyData.functions.forEach((f) => {
+      aeonState.model.addUninterpretedFn(f.id, f.variables.length)
     })
     await new Promise(_resolve => setTimeout(_resolve, 333))
     dummyData.regulations.forEach((regulation) => {
