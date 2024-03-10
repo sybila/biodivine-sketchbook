@@ -59,7 +59,7 @@ class FunctionTile extends EditorTile {
   )
 
   functionUpdated = debounce(() => {
-    this.dispatchEvent(new CustomEvent('set-variable-function', {
+    this.dispatchEvent(new CustomEvent('set-uninterpreted-function-expression', {
       detail: {
         id: this.functions[this.index].id,
         function: this.aceEditor.getValue()
@@ -99,7 +99,8 @@ class FunctionTile extends EditorTile {
     this.dispatchEvent(new CustomEvent('toggle-function-variable-essentiality', {
       detail: {
         id: this.functions[this.index].id,
-        index
+        index,
+        essentiality: this.functions[this.index].variables[index].essential
       },
       bubbles: true,
       composed: true
@@ -112,7 +113,8 @@ class FunctionTile extends EditorTile {
     this.dispatchEvent(new CustomEvent('toggle-function-variable-monotonicity', {
       detail: {
         id: this.functions[this.index].id,
-        index
+        index,
+        monotonicity: this.functions[this.index].variables[index].monotonicity
       },
       bubbles: true,
       composed: true

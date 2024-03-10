@@ -80,13 +80,12 @@ impl ModelState {
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
-            let new_fn_id = self.generate_uninterpreted_fn_id(new_id.as_str());
-            if fn_id == new_fn_id {
+            if fn_id.as_str() == new_id.as_str() {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            self.set_uninterpreted_fn_id(&fn_id, new_fn_id)?;
+            self.set_uninterpreted_fn_id_by_str(fn_id.as_str(), new_id.as_str())?;
             let id_change_data = ChangeIdData::new(fn_id.as_str(), new_id.as_str());
             let state_change =
                 make_state_change(&["model", "uninterpreted_fn", "set_id"], &id_change_data);

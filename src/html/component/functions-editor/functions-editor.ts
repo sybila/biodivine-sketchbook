@@ -4,11 +4,12 @@ import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './editor-tile/variable-tile'
 import './editor-tile/function-tile'
-import { ContentData, Essentiality, type IFunctionData, Monotonicity } from '../../util/data-interfaces'
+import { ContentData, Essentiality, type IFunctionData, Monotonicity, IRegulationData } from '../../util/data-interfaces'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import { type Ace } from 'ace-builds'
 import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 import { dialog } from '@tauri-apps/api'
+import { aeonState, type UninterpretedFnData, type UninterpretedFnIdUpdateData } from '../../../aeon_events'
 
 @customElement('functions-editor')
 class FunctionsEditor extends LitElement {
@@ -19,12 +20,24 @@ class FunctionsEditor extends LitElement {
 
   constructor () {
     super()
+    // TODO do the opposite versions from backend
+    aeonState.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
     this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
-    this.addEventListener('rename-function-definition', this.renameFunction)
+    aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
+    this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
+    aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
+    this.addEventListener('rename-function-definition', this.setFunctionId)
+    aeonState.model.uninterpretedFnIdChanged.addEventListener(this.#onFunctionIdChanged.bind(this))
     this.addEventListener('add-function-variable', this.addFunctionVariable)
+    aeonState.model.uninterpretedFnArityIncremented.addEventListener(this.#onFunctionArityIncremented.bind(this))
     this.addEventListener('toggle-function-variable-monotonicity', this.toggleFunctionVariableMonotonicity)
+    aeonState.model.uninterpretedFnMonotonicityChanged.addEventListener(this.#onFunctionMonotonicityChanged.bind(this))
     this.addEventListener('toggle-function-variable-essentiality', this.toggleFunctionVariableEssentiality)
+    aeonState.model.uninterpretedFnEssentialityChanged.addEventListener(this.#onFunctionEssentialityChanged.bind(this))
     this.addEventListener('remove-function-variable', (e) => { void this.removeFunctionVariable(e) })
+    aeonState.model.uninterpretedFnArityDecremented.addEventListener(this.#onFunctionArityDecremented.bind(this))
+    this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
+    aeonState.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
   }
 
   connectedCallback (): void {
@@ -58,6 +71,7 @@ class FunctionsEditor extends LitElement {
   }
 
   private addFunction (): void {
+    /*
     this.functions.push({
       id: 'func' + this.index,
       function: '',
@@ -65,9 +79,19 @@ class FunctionsEditor extends LitElement {
     })
     this.index++
     this.functions = [...this.functions]
+     */
+    aeonState.model.addUninterpretedFn('func' + this.index, 0)
+  }
+
+  #onFunctionCreated (data: UninterpretedFnData): void {
+    const newFunction = this.convertToIFunction(data)
+    this.functions.push(newFunction)
+    this.index++
+    this.functions = [...this.functions]
   }
 
   private async removeFunction (event: Event): Promise<void> {
+    /*
     if (!await this.confirmDialog()) return
     const id = (event as CustomEvent).detail.id
     const index = this.functions.findIndex(fun => fun.id === id)
@@ -75,9 +99,23 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions.splice(index, 1)
     this.functions = functions
+     */
+    if (!await this.confirmDialog()) return
+    const id = (event as CustomEvent).detail.id
+    aeonState.model.removeUninterpretedFn(id)
   }
 
-  private renameFunction (event: Event): void {
+  #onFunctionRemoved (data: UninterpretedFnData): void {
+    const id = data.id
+    const index = this.functions.findIndex(fun => fun.id === id)
+    if (index === -1) return
+    const functions = [...this.functions]
+    functions.splice(index, 1)
+    this.functions = functions
+  }
+
+  private setFunctionId (event: Event): void {
+    /*
     const detail = (event as CustomEvent).detail
     const index = this.functions.findIndex(fun => fun.id === detail.oldId)
     if (index === -1) return
@@ -87,9 +125,24 @@ class FunctionsEditor extends LitElement {
       id: detail.newId
     }
     this.functions = functions
+     */
+    const detail = (event as CustomEvent).detail
+    aeonState.model.setUninterpretedFnId(detail.oldId, detail.newId)
+  }
+
+  #onFunctionIdChanged (data: UninterpretedFnIdUpdateData): void {
+    const index = this.functions.findIndex(fun => fun.id === data.original_id)
+    if (index === -1) return
+    const functions = [...this.functions]
+    functions[index] = {
+      ...functions[index],
+      id: data.new_id
+    }
+    this.functions = functions
   }
 
   private addFunctionVariable (event: Event): void {
+    /*
     const detail = (event as CustomEvent).detail
     const index = this.functions.findIndex(fun => fun.id === detail.id)
     if (index === -1) return
@@ -102,9 +155,24 @@ class FunctionsEditor extends LitElement {
       monotonicity: Monotonicity.UNSPECIFIED
     })
     this.functions = functions
+     */
+    const detail = (event as CustomEvent).detail
+    aeonState.model.incrementUninterpretedFnArity(detail.id)
+  }
+
+  #onFunctionArityIncremented (data: UninterpretedFnData): void {
+    const index = this.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    // not most efficient, but probably sufficient and clear
+    const modifiedFunction = this.convertToIFunction(data)
+    const functions = [...this.functions]
+    functions[index] = modifiedFunction
+    this.functions = functions
   }
 
   private toggleFunctionVariableMonotonicity (event: Event): void {
+    /*
     const detail = (event as CustomEvent).detail
     const index = this.functions.findIndex(fun => fun.id === detail.id)
     if (index === -1) return
@@ -114,9 +182,25 @@ class FunctionsEditor extends LitElement {
       monotonicity: getNextMonotonicity(functions[index].variables[detail.index].monotonicity)
     }
     this.functions = functions
+     */
+    const detail = (event as CustomEvent).detail
+    const newMonotonicity = getNextMonotonicity(detail.monotonicity)
+    aeonState.model.setUninterpretedFnMonotonicity(detail.id, detail.index, newMonotonicity)
+  }
+
+  #onFunctionMonotonicityChanged (data: UninterpretedFnData): void {
+    const index = this.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    // not most efficient, but probably sufficient and clear
+    const modifiedFunction = this.convertToIFunction(data)
+    const functions = [...this.functions]
+    functions[index] = modifiedFunction
+    this.functions = functions
   }
 
   private toggleFunctionVariableEssentiality (event: Event): void {
+    /*
     const detail = (event as CustomEvent).detail
     const index = this.functions.findIndex(fun => fun.id === detail.id)
     if (index === -1) return
@@ -126,9 +210,41 @@ class FunctionsEditor extends LitElement {
       essential: getNextEssentiality(functions[index].variables[detail.index].essential)
     }
     this.functions = functions
+     */
+    const detail = (event as CustomEvent).detail
+    const newEssentiality = getNextEssentiality(detail.essentiality)
+    aeonState.model.setUninterpretedFnEssentiality(detail.id, detail.index, newEssentiality)
+  }
+
+  #onFunctionEssentialityChanged (data: UninterpretedFnData): void {
+    const index = this.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    // not most efficient, but probably sufficient and clear
+    const modifiedFunction = this.convertToIFunction(data)
+    const functions = [...this.functions]
+    functions[index] = modifiedFunction
+    this.functions = functions
+  }
+
+  private setFunctionExpression (event: Event): void {
+    const details = (event as CustomEvent).detail
+    aeonState.model.setUninterpretedFnExpression(details.id, details.function)
+  }
+
+  #onFunctionExpressionChanged (data: UninterpretedFnData): void {
+    const index = this.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    // not most efficient, but probably sufficient and clear
+    const modifiedFunction = this.convertToIFunction(data)
+    const functions = [...this.functions]
+    functions[index] = modifiedFunction
+    this.functions = functions
   }
 
   private async removeFunctionVariable (event: Event): Promise<void> {
+    /*
     if (!await this.confirmDialog()) return
     const detail = (event as CustomEvent).detail
     const index = this.functions.findIndex(fun => fun.id === detail.id)
@@ -136,6 +252,39 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions[index].variables.splice(detail.index, 1)
     this.functions = functions
+     */
+    if (!await this.confirmDialog()) return
+    const detail = (event as CustomEvent).detail
+    aeonState.model.decrementUninterpretedFnArity(detail.id)
+  }
+
+  #onFunctionArityDecremented (data: UninterpretedFnData): void {
+    const index = this.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    // not most efficient, but probably sufficient and clear
+    const modifiedFunction = this.convertToIFunction(data)
+    const functions = [...this.functions]
+    functions[index] = modifiedFunction
+    this.functions = functions
+  }
+
+  private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
+    const variables = fnData.arguments.map(
+      (arg, index) => {
+        return {
+          id: index.toString(),
+          source: 'var' + index.toString(),
+          target: fnData.id,
+          monotonicity: arg[0],
+          essential: arg[1]
+        }
+      })
+    return {
+      id: fnData.id,
+      function: fnData.expression,
+      variables
+    }
   }
 
   private async confirmDialog (): Promise<boolean> {

@@ -45,7 +45,7 @@ class RootComponent extends LitElement {
     aeonState.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
     aeonState.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
-    this.addEventListener('set-variable-function', this.setVariableFunction)
+    this.addEventListener('set-update-function-expression', this.setVariableFunction)
     aeonState.model.updateFnExpressionChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
     this.addEventListener('rename-variable', this.renameVariable)
     aeonState.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
@@ -138,7 +138,7 @@ class RootComponent extends LitElement {
       id: data.regulator + data.target,
       source: data.regulator,
       target: data.target,
-      essential: this.parseEssentiality(data.essential),
+      essential: data.essential,
       monotonicity: data.sign
     })
     this.saveData(this.data.variables, regulations, this.data.layout)
@@ -246,7 +246,7 @@ class RootComponent extends LitElement {
     const regulations = [...this.data.regulations]
     regulations[index] = {
       ...regulations[index],
-      essential: this.parseEssentiality(data.essential)
+      essential: data.essential
     }
     this.saveData(this.data.variables, regulations, this.data.layout)
   }
@@ -262,7 +262,7 @@ class RootComponent extends LitElement {
     const regulations = [...this.data.regulations]
     regulations[index] = {
       ...regulations[index],
-      monotonicity: this.parseMonotonicity(data.sign)
+      monotonicity: data.sign
     }
     this.saveData(this.data.variables, regulations, this.data.layout)
   }
@@ -315,8 +315,8 @@ class RootComponent extends LitElement {
         id: data.regulator + data.target,
         source: data.regulator,
         target: data.target,
-        essential: this.parseEssentiality(data.essential),
-        monotonicity: this.parseMonotonicity(data.sign)
+        essential: data.essential,
+        monotonicity: data.sign
       }
     })
     this.saveData(this.data.variables, regs, this.data.layout)
@@ -347,21 +347,13 @@ class RootComponent extends LitElement {
       aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
     dummyData.variables.forEach((variable) => {
-      this.dispatchEvent(new CustomEvent('set-variable-function', {
+      this.dispatchEvent(new CustomEvent('set-update-function-expression', {
         detail: {
           id: variable.id,
           function: variable.function
         }
       }))
     })
-  }
-
-  private parseMonotonicity (monotonicity: string): Monotonicity {
-    return Monotonicity[monotonicity.toUpperCase() as unknown as keyof typeof Monotonicity] ?? Monotonicity.UNSPECIFIED
-  }
-
-  private parseEssentiality (essentiality: string): Essentiality {
-    return Essentiality[essentiality.toUpperCase() as unknown as keyof typeof Essentiality] ?? Essentiality.UNKNOWN
   }
 
   private async confirmDialog (): Promise<boolean> {

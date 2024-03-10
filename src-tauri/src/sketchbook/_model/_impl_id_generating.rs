@@ -61,10 +61,14 @@ impl ModelState {
         }
 
         // try to transform the name by removing invalid characters
-        let transformed_name: String = name
+        let mut transformed_name: String = name
             .chars()
             .filter(|ch| ch.is_alphanumeric() || *ch == '_')
             .collect();
+        // and if the first character is not a letter, add prefix 'v_'
+        if transformed_name.starts_with(|ch: char| !ch.is_alphabetic()) {
+            transformed_name.insert_str(0, "v_");
+        }
 
         if let Ok(id) = T::from_str(transformed_name.as_str()) {
             // the id must not be valid in the network already (that would mean it is already used)
@@ -112,6 +116,14 @@ mod tests {
         assert_eq!(
             model.generate_var_id(var_name_3),
             VarId::new("a_0").unwrap()
+        );
+
+        // name that starts with a number - will be cleaned and prefixed with "v_"
+        let var_name_4 = "4ab??";
+        // result will contain an numerical index in the end
+        assert_eq!(
+            model.generate_var_id(var_name_4),
+            VarId::new("v_4ab").unwrap()
         );
     }
 

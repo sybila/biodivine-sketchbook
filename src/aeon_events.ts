@@ -794,7 +794,7 @@ export const aeonState: AeonState = {
     },
     setUninterpretedFnMonotonicity (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicty'],
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicity'],
         payload: JSON.stringify({ idx, monotonicity })
       })
     },

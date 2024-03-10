@@ -116,13 +116,12 @@ impl ModelState {
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
-            let new_var_id = self.generate_var_id(new_id.as_str());
-            if var_id == new_var_id {
+            if var_id.as_str() == new_id.as_str() {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            self.set_var_id(&var_id, new_var_id)?;
+            self.set_var_id_by_str(var_id.as_str(), new_id.as_str())?;
             let id_change_data = ChangeIdData::new(var_id.as_str(), new_id.as_str());
             let state_change = make_state_change(&["model", "variable", "set_id"], &id_change_data);
 
