@@ -120,6 +120,9 @@ impl ModelState {
                 return Ok(Consumed::NoChange);
             }
 
+            // TODO: all changes to update functions (where this variable appears) must be
+            // TODO: propagated to the frontend
+
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_id_by_str(var_id.as_str(), new_id.as_str())?;
             let id_change_data = ChangeIdData::new(var_id.as_str(), new_id.as_str());

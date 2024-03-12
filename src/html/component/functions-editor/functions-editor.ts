@@ -4,7 +4,7 @@ import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './editor-tile/variable-tile'
 import './editor-tile/function-tile'
-import { ContentData, Essentiality, type IFunctionData, Monotonicity, IRegulationData } from '../../util/data-interfaces'
+import { ContentData, type IFunctionData } from '../../util/data-interfaces'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import { type Ace } from 'ace-builds'
 import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
@@ -20,7 +20,6 @@ class FunctionsEditor extends LitElement {
 
   constructor () {
     super()
-    // TODO do the opposite versions from backend
     aeonState.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
     this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
     aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
@@ -38,6 +37,16 @@ class FunctionsEditor extends LitElement {
     aeonState.model.uninterpretedFnArityDecremented.addEventListener(this.#onFunctionArityDecremented.bind(this))
     this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
     aeonState.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
+
+    aeonState.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
+  }
+
+  #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {
+    const fns = functions.map((data): IFunctionData => {
+      return this.convertToIFunction(data)
+    })
+    this.functions = fns
+    this.saveFunctions()
   }
 
   connectedCallback (): void {
@@ -61,6 +70,16 @@ class FunctionsEditor extends LitElement {
         })))
       }
     }])
+  }
+
+  private saveFunctions (): void {
+    // propagate the current version of functions via event that will be captured by root component
+    const element = document.getElementsByTagName('root-component')[0]
+    element?.dispatchEvent(new CustomEvent('save-functions', {
+      detail: {
+        functions: this.functions
+      }
+    }))
   }
 
   private focusedFunction (event: Event): void {
@@ -88,6 +107,7 @@ class FunctionsEditor extends LitElement {
     this.functions.push(newFunction)
     this.index++
     this.functions = [...this.functions]
+    this.saveFunctions()
   }
 
   private async removeFunction (event: Event): Promise<void> {
@@ -112,6 +132,7 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions.splice(index, 1)
     this.functions = functions
+    this.saveFunctions()
   }
 
   private setFunctionId (event: Event): void {
@@ -139,6 +160,7 @@ class FunctionsEditor extends LitElement {
       id: data.new_id
     }
     this.functions = functions
+    this.saveFunctions()
   }
 
   private addFunctionVariable (event: Event): void {
@@ -169,6 +191,7 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions[index] = modifiedFunction
     this.functions = functions
+    this.saveFunctions()
   }
 
   private toggleFunctionVariableMonotonicity (event: Event): void {
@@ -197,6 +220,7 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions[index] = modifiedFunction
     this.functions = functions
+    this.saveFunctions()
   }
 
   private toggleFunctionVariableEssentiality (event: Event): void {
@@ -225,6 +249,7 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions[index] = modifiedFunction
     this.functions = functions
+    this.saveFunctions()
   }
 
   private setFunctionExpression (event: Event): void {
@@ -241,6 +266,7 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions[index] = modifiedFunction
     this.functions = functions
+    this.saveFunctions()
   }
 
   private async removeFunctionVariable (event: Event): Promise<void> {
@@ -267,6 +293,7 @@ class FunctionsEditor extends LitElement {
     const functions = [...this.functions]
     functions[index] = modifiedFunction
     this.functions = functions
+    this.saveFunctions()
   }
 
   private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {

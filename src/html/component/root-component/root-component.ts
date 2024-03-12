@@ -1,5 +1,5 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, state, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
@@ -15,11 +15,10 @@ import {
 } from '../../../aeon_events'
 import { tabList } from '../../util/config'
 import {
-  ContentData, Essentiality,
+  ContentData,
   type ILayoutData,
   type IRegulationData,
-  type IVariableData,
-  Monotonicity
+  type IVariableData
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { dummyData } from '../../util/dummy-data'
@@ -30,11 +29,14 @@ const LAYOUT = 'default'
 @customElement('root-component')
 class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @state() data: ContentData = ContentData.create()
+  @property() data: ContentData = ContentData.create()
   @state() tabs: TabData[] = tabList
 
   constructor () {
     super()
+    aeonState.error.errorReceived.addEventListener((e) => {
+      void this.#onErrorMessage(e)
+    })
     aeonState.tabBar.active.addEventListener(this.#onSwitched.bind(this))
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
@@ -63,6 +65,7 @@ class RootComponent extends LitElement {
     aeonState.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
     this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
     aeonState.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
+
     aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
@@ -70,6 +73,17 @@ class RootComponent extends LitElement {
     aeonState.model.refreshVariables()
     aeonState.model.refreshLayoutNodes(LAYOUT)
     aeonState.model.refreshRegulations()
+    aeonState.model.refreshUninterpretedFns()
+
+    // event from FunctionEditor with new functions
+    this.addEventListener('save-functions', this.saveFunctionData.bind(this))
+  }
+
+  async #onErrorMessage (errorMessage: string): Promise<void> {
+    await dialog.message(errorMessage, {
+      type: 'error',
+      title: 'Error'
+    })
   }
 
   #onPinned (pinned: number[]): void {
@@ -88,6 +102,17 @@ class RootComponent extends LitElement {
       })
     )
     this.adjustRegEditor()
+  }
+
+  saveFunctionData (event: Event): void {
+    // update functions using modified data propagated from FunctionsEditor
+    const details = (event as CustomEvent).detail
+    this.data = ContentData.create({
+      variables: this.data.variables,
+      regulations: this.data.regulations,
+      layout: this.data.layout,
+      functions: details.functions
+    })
   }
 
   renameVariable (event: Event): void {
@@ -133,7 +158,6 @@ class RootComponent extends LitElement {
 
   #onRegulationCreated (data: RegulationData): void {
     const regulations = [...this.data.regulations]
-
     regulations.push({
       id: data.regulator + data.target,
       source: data.regulator,
@@ -182,6 +206,8 @@ class RootComponent extends LitElement {
   }
 
   private saveData (variables: IVariableData[], regulations: IRegulationData[], layout: ILayoutData): void {
+    // save variable/regulation/layout data, leave functions as is
+
     // sort nodes to keep alphabetical order in lists
     variables.sort((a, b) => (a.id > b.id ? 1 : -1))
     regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
@@ -189,7 +215,8 @@ class RootComponent extends LitElement {
     this.data = ContentData.create({
       variables,
       regulations,
-      layout
+      layout,
+      functions: this.data.functions
     })
   }
 
@@ -323,15 +350,31 @@ class RootComponent extends LitElement {
   }
 
   async loadDummy (): Promise<void> {
-    // TODO: remove sleep
+    // remove existing data and load dummy data
+
+    // 1) remove update/uninterpreted fn expressions (so that we can safely remove variables, functions)
     this.data.variables.forEach((variable) => {
-      aeonState.model.removeVariable(variable.id)
+      aeonState.model.setUpdateFnExpression(variable.id, '')
     })
-    await new Promise(_resolve => setTimeout(_resolve, 333))
+    this.data.functions.forEach((fn) => {
+      aeonState.model.setUninterpretedFnExpression(fn.id, '')
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 250))
+    // 2) remove regulations
     this.data.regulations.forEach((reg) => {
       aeonState.model.removeRegulation(reg.source, reg.target)
     })
-    await new Promise(_resolve => setTimeout(_resolve, 333))
+    await new Promise(_resolve => setTimeout(_resolve, 250))
+    // 3) finally remove uninterpreted functions and variables
+    this.data.functions.forEach((fn) => {
+      aeonState.model.removeUninterpretedFn(fn.id)
+    })
+    this.data.variables.forEach((variable) => {
+      aeonState.model.removeVariable(variable.id)
+    })
+    await new Promise(_resolve => setTimeout(_resolve, 250))
+
+    // now we can saload the dummy data
     dummyData.variables.forEach((variable) => {
       aeonState.model.addVariable(variable.id, variable.name, {
         layout: LAYOUT,
@@ -342,7 +385,7 @@ class RootComponent extends LitElement {
     dummyData.functions.forEach((f) => {
       aeonState.model.addUninterpretedFn(f.id, f.variables.length)
     })
-    await new Promise(_resolve => setTimeout(_resolve, 333))
+    await new Promise(_resolve => setTimeout(_resolve, 250))
     dummyData.regulations.forEach((regulation) => {
       aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
@@ -354,6 +397,7 @@ class RootComponent extends LitElement {
         }
       }))
     })
+    await new Promise(_resolve => setTimeout(_resolve, 250))
   }
 
   private async confirmDialog (): Promise<boolean> {

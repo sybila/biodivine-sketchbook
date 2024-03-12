@@ -172,6 +172,12 @@ interface AeonState {
     /** Change a position of a variable in a layout to new coordinates. */
     changeNodePosition: (layoutId: string, varId: string, newX: number, newY: number) => void
   }
+
+  /** The information about errors occurring when processing events on backend. */
+  error: {
+    /** Error message provided by backend. */
+    errorReceived: Observable<string>
+  }
 }
 
 /** An object representing basic information regarding a model variable. */
@@ -633,6 +639,9 @@ export const aeonState: AeonState = {
         this.pinned.emitValue(value)
       }
     }
+  },
+  error: {
+    errorReceived: new Observable<string>(['error'])
   },
   model: {
     variablesRefreshed: new Observable<[VariableData]>(['model', 'get_variables']),

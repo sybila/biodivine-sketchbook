@@ -84,6 +84,9 @@ impl ModelState {
                 return Ok(Consumed::NoChange);
             }
 
+            // TODO: all changes to update/uninterpreted functions (where this function symbol
+            // TODO: appears) must be propagated to the frontend
+
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_uninterpreted_fn_id_by_str(fn_id.as_str(), new_id.as_str())?;
             let id_change_data = ChangeIdData::new(fn_id.as_str(), new_id.as_str());
