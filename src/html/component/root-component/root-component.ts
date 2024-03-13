@@ -16,6 +16,7 @@ import {
 import { tabList } from '../../util/config'
 import {
   ContentData,
+  type IFunctionData,
   type ILayoutData,
   type IRegulationData,
   type IVariableData
@@ -69,10 +70,12 @@ class RootComponent extends LitElement {
     aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
+    aeonState.model.updateFnsRefreshed.addEventListener(this.#onUpdateFnsRefreshed.bind(this))
 
     aeonState.model.refreshVariables()
     aeonState.model.refreshLayoutNodes(LAYOUT)
     aeonState.model.refreshRegulations()
+    aeonState.model.refreshUpdateFns()
     aeonState.model.refreshUninterpretedFns()
 
     // event from FunctionEditor with new functions
@@ -106,12 +109,28 @@ class RootComponent extends LitElement {
 
   saveFunctionData (event: Event): void {
     // update functions using modified data propagated from FunctionsEditor
-    const details = (event as CustomEvent).detail
+    const functions: IFunctionData[] = (event as CustomEvent).detail.functions
+
     this.data = ContentData.create({
       variables: this.data.variables,
       regulations: this.data.regulations,
       layout: this.data.layout,
-      functions: details.functions
+      functions
+    })
+  }
+
+  private saveData (variables: IVariableData[], regulations: IRegulationData[], layout: ILayoutData): void {
+    // save variable/regulation/layout data, leave functions as is
+
+    // sort nodes to keep alphabetical order in lists
+    variables.sort((a, b) => (a.id > b.id ? 1 : -1))
+    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+
+    this.data = ContentData.create({
+      variables,
+      regulations,
+      layout,
+      functions: this.data.functions
     })
   }
 
@@ -205,21 +224,6 @@ class RootComponent extends LitElement {
     return this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
   }
 
-  private saveData (variables: IVariableData[], regulations: IRegulationData[], layout: ILayoutData): void {
-    // save variable/regulation/layout data, leave functions as is
-
-    // sort nodes to keep alphabetical order in lists
-    variables.sort((a, b) => (a.id > b.id ? 1 : -1))
-    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
-
-    this.data = ContentData.create({
-      variables,
-      regulations,
-      layout,
-      functions: this.data.functions
-    })
-  }
-
   private changeNodePosition (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
@@ -247,7 +251,7 @@ class RootComponent extends LitElement {
       ...variables[variableIndex],
       id: data.new_id
     }
-    // TODO: should this be calculated on FE?
+    // TODO: do all of the following on BE, and get rid of the `refresh`
     this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
     this.data.layout.delete(data.original_id)
     const regulations = [...this.data.regulations]
@@ -260,6 +264,8 @@ class RootComponent extends LitElement {
       }
     })
     this.saveData(variables, this.data.regulations, this.data.layout)
+    // this refresh is temporary solution to get updated UF expressions (will be done at BE)
+    aeonState.model.refreshUpdateFns()
   }
 
   private toggleRegulationEssentiality (event: Event): void {
@@ -328,6 +334,20 @@ class RootComponent extends LitElement {
     this.saveData(variables.map(v => { return { ...v, function: '' } }), this.data.regulations, this.data.layout)
   }
 
+  #onUpdateFnsRefreshed (updateFns: UpdateFnData[]): void {
+    // TODO: combine UpdateFnData and VariableData to one object so that we can refresh everything at once?
+
+    // after sort, variables and update functions have the same order, and we just update the `function` field
+    updateFns.sort((a, b) => (a.var_id > b.var_id ? 1 : -1))
+    const variables = this.data.variables.map((v, i) => {
+      return {
+        ...v,
+        function: updateFns[i].expression
+      }
+    })
+    this.saveData(variables, this.data.regulations, this.data.layout)
+  }
+
   #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
     const layout: ILayoutData = new Map()
     layoutNodes.forEach(layoutNode => {
@@ -390,12 +410,7 @@ class RootComponent extends LitElement {
       aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
     dummyData.variables.forEach((variable) => {
-      this.dispatchEvent(new CustomEvent('set-update-function-expression', {
-        detail: {
-          id: variable.id,
-          function: variable.function
-        }
-      }))
+      aeonState.model.setUpdateFnExpression(variable.id, variable.function)
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
   }

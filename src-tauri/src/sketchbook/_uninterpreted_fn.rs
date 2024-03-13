@@ -72,6 +72,26 @@ impl UninterpretedFn {
         Ok(())
     }
 
+    /// Get highest index of a variable that is actually used in the function's expression.
+    /// This number might be lower than actual arity.
+    fn get_highest_var_idx_in_expression(&self) -> usize {
+        if let Some(tree) = &self.tree {
+            let highest_idx = tree
+                .collect_variables()
+                .iter()
+                .filter_map(|v| {
+                    v.to_string()
+                        .strip_prefix("var")
+                        .and_then(|num_str| num_str.parse::<usize>().ok())
+                })
+                .max();
+            if let Some(idx) = highest_idx {
+                return idx;
+            }
+        }
+        0
+    }
+
     /// Change arity of this uninterpreted fn.
     /// If arity is made larger, default arguments (without monotonicity/essentiality constraints
     /// are added).
@@ -82,18 +102,10 @@ impl UninterpretedFn {
         if new_arity < arity {
             // if arity made smaller, check that the expression does not contain variables that
             // will be dropped
-            if let Some(tree) = &self.tree {
-                let used_vars: HashSet<_> = tree
-                    .collect_variables()
-                    .iter()
-                    .map(|v| v.to_string())
-                    .collect();
-                let possible_vars: HashSet<_> = (0..new_arity).map(|i| format!("var{i}")).collect();
-                let diff: HashSet<_> = used_vars.difference(&possible_vars).collect();
-                if !diff.is_empty() {
-                    let msg = "Cannot change arity of a function - its expression contains variables that would become invalid.".to_string();
-                    return Err(msg);
-                }
+            let highest_var_idx = self.get_highest_var_idx_in_expression();
+            if new_arity <= highest_var_idx {
+                let msg = "Cannot change arity of a function - its expression contains variables that would become invalid.";
+                return Err(msg.to_string());
             }
             self.arguments.truncate(new_arity);
         } else {

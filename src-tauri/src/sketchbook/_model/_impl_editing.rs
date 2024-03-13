@@ -340,20 +340,23 @@ impl ModelState {
     }
 
     /// Set the arity of an uninterpreted fn given by id `fn_id`.
+    ///
+    /// In order to change arity of a function symbol, it must not currently be used in any
+    /// update/uninterpreted function's expression (because in expressions, it is used on a
+    /// fixed number of arguments).
     pub fn set_uninterpreted_fn_arity(
         &mut self,
         fn_id: &UninterpretedFnId,
         arity: usize,
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
-        // in order to change arity of this function symbol, it must not be used in any
-        // update/uninterpreted function's expression (in expressions, it is used on a fixed number
-        // of arguments)
         self.assert_fn_not_used_in_expressions(fn_id)?;
 
-        self.add_placeholder_vars_if_needed(arity);
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
         uninterpreted_fn.set_arity(arity)?;
+
+        // add or remove placeholder variables according to the needs
+        self.add_placeholder_vars_if_needed(arity);
         self.remove_placeholder_vars_if_needed();
         Ok(())
     }
@@ -391,7 +394,8 @@ impl ModelState {
         expression: &str,
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
-        let original_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
+        let original_fn = self.uninterpreted_fns.get(fn_id).unwrap().clone();
+        // this will correctly return error if the expression is invalid
         let updated_fn =
             UninterpretedFn::with_new_expression(original_fn, expression, self, fn_id)?;
         self.uninterpreted_fns.insert(fn_id.clone(), updated_fn);
@@ -609,6 +613,8 @@ impl ModelState {
     /// Set update function for a given variable to a provided expression.
     pub fn set_update_fn(&mut self, var_id: &VarId, expression: &str) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
+
+        // this will correctly return error if the expression is invalid
         let new_update_fn = UpdateFn::try_from_str(expression, self)?;
         self.update_fns.insert(var_id.clone(), new_update_fn);
         Ok(())

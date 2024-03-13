@@ -1,5 +1,5 @@
 import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './editor-tile/variable-tile'
@@ -15,7 +15,6 @@ import { aeonState, type UninterpretedFnData, type UninterpretedFnIdUpdateData }
 class FunctionsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData: ContentData = ContentData.create()
-  @state() functions: IFunctionData[] = []
   index = 0
 
   constructor () {
@@ -41,14 +40,6 @@ class FunctionsEditor extends LitElement {
     aeonState.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
   }
 
-  #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {
-    const fns = functions.map((data): IFunctionData => {
-      return this.convertToIFunction(data)
-    })
-    this.functions = fns
-    this.saveFunctions()
-  }
-
   connectedCallback (): void {
     super.connectedCallback()
     window.addEventListener('focus-function-field', this.focusedFunction.bind(this))
@@ -63,7 +54,7 @@ class FunctionsEditor extends LitElement {
     super.updated(_changedProperties)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
-        callback(null, this.functions.map((func): Ace.Completion => ({
+        callback(null, this.contentData.functions.map((func): Ace.Completion => ({
           value: func.id,
           meta: func.id,
           snippet: func.id + '()'
@@ -72,12 +63,14 @@ class FunctionsEditor extends LitElement {
     }])
   }
 
-  private saveFunctions (): void {
+  private saveFunctions (functions: IFunctionData[]): void {
+    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
+
     // propagate the current version of functions via event that will be captured by root component
     const element = document.getElementsByTagName('root-component')[0]
     element?.dispatchEvent(new CustomEvent('save-functions', {
       detail: {
-        functions: this.functions
+        functions
       }
     }))
   }
@@ -87,6 +80,13 @@ class FunctionsEditor extends LitElement {
     const element = this.shadowRoot?.querySelector(`#${variableId}`)
     element?.dispatchEvent(new Event('focus-function-field'))
     element?.scrollIntoView()
+  }
+
+  #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {
+    const fns = functions.map((data): IFunctionData => {
+      return this.convertToIFunction(data)
+    })
+    this.saveFunctions(fns)
   }
 
   private addFunction (): void {
@@ -104,10 +104,9 @@ class FunctionsEditor extends LitElement {
 
   #onFunctionCreated (data: UninterpretedFnData): void {
     const newFunction = this.convertToIFunction(data)
-    this.functions.push(newFunction)
+    this.contentData.functions.push(newFunction)
     this.index++
-    this.functions = [...this.functions]
-    this.saveFunctions()
+    this.saveFunctions([...this.contentData.functions])
   }
 
   private async removeFunction (event: Event): Promise<void> {
@@ -127,12 +126,11 @@ class FunctionsEditor extends LitElement {
 
   #onFunctionRemoved (data: UninterpretedFnData): void {
     const id = data.id
-    const index = this.functions.findIndex(fun => fun.id === id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === id)
     if (index === -1) return
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions.splice(index, 1)
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
   }
 
   private setFunctionId (event: Event): void {
@@ -152,15 +150,19 @@ class FunctionsEditor extends LitElement {
   }
 
   #onFunctionIdChanged (data: UninterpretedFnIdUpdateData): void {
-    const index = this.functions.findIndex(fun => fun.id === data.original_id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === data.original_id)
     if (index === -1) return
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions[index] = {
       ...functions[index],
       id: data.new_id
     }
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
+
+    // TODO: do properly at BE
+    // this refresh is temporary solution to get updated UF expressions (will be done at BE)
+    aeonState.model.refreshUninterpretedFns()
+    aeonState.model.refreshUpdateFns()
   }
 
   private addFunctionVariable (event: Event): void {
@@ -183,15 +185,14 @@ class FunctionsEditor extends LitElement {
   }
 
   #onFunctionArityIncremented (data: UninterpretedFnData): void {
-    const index = this.functions.findIndex(fun => fun.id === data.id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
     const modifiedFunction = this.convertToIFunction(data)
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
   }
 
   private toggleFunctionVariableMonotonicity (event: Event): void {
@@ -212,15 +213,14 @@ class FunctionsEditor extends LitElement {
   }
 
   #onFunctionMonotonicityChanged (data: UninterpretedFnData): void {
-    const index = this.functions.findIndex(fun => fun.id === data.id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
     const modifiedFunction = this.convertToIFunction(data)
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
   }
 
   private toggleFunctionVariableEssentiality (event: Event): void {
@@ -241,15 +241,14 @@ class FunctionsEditor extends LitElement {
   }
 
   #onFunctionEssentialityChanged (data: UninterpretedFnData): void {
-    const index = this.functions.findIndex(fun => fun.id === data.id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
     const modifiedFunction = this.convertToIFunction(data)
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
   }
 
   private setFunctionExpression (event: Event): void {
@@ -258,15 +257,14 @@ class FunctionsEditor extends LitElement {
   }
 
   #onFunctionExpressionChanged (data: UninterpretedFnData): void {
-    const index = this.functions.findIndex(fun => fun.id === data.id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
     const modifiedFunction = this.convertToIFunction(data)
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
   }
 
   private async removeFunctionVariable (event: Event): Promise<void> {
@@ -285,15 +283,14 @@ class FunctionsEditor extends LitElement {
   }
 
   #onFunctionArityDecremented (data: UninterpretedFnData): void {
-    const index = this.functions.findIndex(fun => fun.id === data.id)
+    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
     const modifiedFunction = this.convertToIFunction(data)
-    const functions = [...this.functions]
+    const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
-    this.functions = functions
-    this.saveFunctions()
+    this.saveFunctions(functions)
   }
 
   private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
@@ -332,9 +329,9 @@ class FunctionsEditor extends LitElement {
             <button @click="${this.addFunction}" class="uk-button uk-button-small">add function</button>
           </div>
           <div class="uk-list uk-list-divider uk-text-center">
-            ${map(this.functions, (_node, index) => html`
+            ${map(this.contentData.functions, (_node, index) => html`
               <function-tile .index="${index}"
-                             .functions="${this.functions}">
+                             .functions="${this.contentData.functions}">
               </function-tile>
             `)}
           </div>
@@ -347,7 +344,7 @@ class FunctionsEditor extends LitElement {
                              .index="${index}"
                              .variables="${this.contentData.variables}"
                              .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}"
-                             .functions="${this.functions}">
+                             .functions="${this.contentData.functions}">
               </variable-tile>
             `)}
           </div>
