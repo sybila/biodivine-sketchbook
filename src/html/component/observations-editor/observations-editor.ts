@@ -7,6 +7,7 @@ import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
+import { basename } from '@tauri-apps/api/path'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -51,8 +52,8 @@ export default class ObservationsEditor extends LitElement {
     } else {
       fileName = handle
     }
-
-    void this.importObservations(fileName, this.getDummy(), this.contentData.variables.map(v => v.name))
+    const name = await basename(fileName)
+    void this.importObservations(name, this.getDummy(), this.contentData.variables.map(v => v.name))
   }
 
   private async importObservations (name: string, data: IObservation[], variables: string[]): Promise<void> {

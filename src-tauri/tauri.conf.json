@@ -25,6 +25,9 @@
         "close": true,
         "setSize": true,
         "setFocus": true
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {
