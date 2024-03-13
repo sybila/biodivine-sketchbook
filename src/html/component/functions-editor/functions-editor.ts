@@ -11,7 +11,7 @@ import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 import { dialog } from '@tauri-apps/api'
 
 @customElement('functions-editor')
-class FunctionsEditor extends LitElement {
+export class FunctionsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData: ContentData = ContentData.create()
   @state() functions: IFunctionData[] = []

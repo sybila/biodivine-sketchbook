@@ -12,7 +12,7 @@ import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 
 @customElement('regulations-editor')
-export default class RegulationsEditor extends LitElement {
+export class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   dialogs: Record<string, WebviewWindow | undefined> = {}
   editorElement
@@ -101,14 +101,15 @@ export default class RegulationsEditor extends LitElement {
   }
 
   private addEdge (event: Event): void {
-    this.cy?.nodes().deselect()
+    if (this.cy === undefined) return
+    this.cy.nodes().deselect()
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
 
     // start attribute wrongly typed - added weird typecast to avoid tslint error
     this.edgeHandles?.start((this.cy?.$id(variableId) as unknown as string))
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
+    // @ts-expect-error renderer exists but its missing from the *.d.ts file
     this.cy.renderer().hoverData.capture = true
   }
 

@@ -12,7 +12,7 @@ import { EditorTile } from './editor-tile'
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('variable-tile')
-class VariableTile extends EditorTile {
+export class VariableTile extends EditorTile {
   @property() regulations: IRegulationData[] = []
   @property() variables: IVariableData[] = []
 

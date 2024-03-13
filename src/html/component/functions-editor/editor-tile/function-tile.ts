@@ -13,7 +13,7 @@ import { EditorTile } from './editor-tile'
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('function-tile')
-class FunctionTile extends EditorTile {
+export class FunctionTile extends EditorTile {
   varIndex = 0
   constructor () {
     super()
