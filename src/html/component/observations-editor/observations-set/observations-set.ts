@@ -2,20 +2,11 @@ import { html, css, unsafeCSS, LitElement, type TemplateResult, type PropertyVal
 import { customElement, query, property } from 'lit/decorators.js'
 import style_less from './observations-set.less?inline'
 import style_tab from 'tabulator-tables/dist/css/tabulator_simple.min.css?inline'
-import {
-  Tabulator,
-  SortModule,
-  EditModule,
-  PageModule,
-  FilterModule,
-  SelectRowModule,
-  FormatModule,
-  type ColumnDefinition, type CellComponent, InteractionModule
-} from 'tabulator-tables'
-
+import { Tabulator, type ColumnDefinition, type CellComponent } from 'tabulator-tables'
 import { type IObservation } from '../../../util/data-interfaces'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
+import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
 
 @customElement('observations-set')
 export default class ObservationsSet extends LitElement {
@@ -29,13 +20,7 @@ export default class ObservationsSet extends LitElement {
 
   constructor () {
     super()
-    Tabulator.registerModule(SortModule)
-    Tabulator.registerModule(EditModule)
-    Tabulator.registerModule(PageModule)
-    Tabulator.registerModule(FilterModule)
-    Tabulator.registerModule(SelectRowModule)
-    Tabulator.registerModule(FormatModule)
-    Tabulator.registerModule(InteractionModule)
+    loadTabulatorPlugins()
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
@@ -45,31 +30,9 @@ export default class ObservationsSet extends LitElement {
   }
 
   private async init (): Promise<void> {
-    const dataCell = (field: string): ColumnDefinition => {
-      return {
-        title: field,
-        field,
-        editor: 'textarea',
-        sorter: 'number',
-        headerFilter: 'tickCross',
-        hozAlign: 'center',
-        headerFilterParams: { tristate: true }
-      }
-    }
     const columns: ColumnDefinition[] = [
-      {
-        title: '',
-        formatter: 'rowSelection',
-        titleFormatter: 'rowSelection',
-        headerSort: false
-      },
-      {
-        title: 'Name',
-        field: 'name',
-        width: 100,
-        sorter: 'string',
-        headerFilter: 'input'
-      }
+      checkboxColumn,
+      nameColumn
     ]
     this.variables.forEach(v => {
       columns.push(dataCell(v))
@@ -83,7 +46,6 @@ export default class ObservationsSet extends LitElement {
       headerSort: false,
       hozAlign: 'center',
       cellClick: (_e: UIEvent, _cell: CellComponent) => {
-        console.log('test', _e, _cell.getData())
         void this.editObservation(_cell.getData() as IObservation)
       }
     })
@@ -91,18 +53,8 @@ export default class ObservationsSet extends LitElement {
       this.tabulator = new Tabulator(this.table, {
         columns,
         data: this.data,
-        layout: 'fitDataTable',
-        responsiveLayout: false,
-        pagination: true,
-        renderVerticalBuffer: 300,
-        sortMode: 'local',
-        initialSort: [{ column: 'name', dir: 'asc' }],
-        headerSort: true,
-        index: 'id',
-        paginationSize: 20,
-        selectable: 'highlight'
-      }
-      )
+        ...tabulatorOptions
+      })
       this.tabulator.redraw(true)
     }
   }

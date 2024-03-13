@@ -7,7 +7,6 @@ import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { dummyData } from '../../util/dummy-data'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -25,15 +24,6 @@ export default class ObservationsEditor extends LitElement {
     })
     return ret
   })
-
-  constructor () {
-    super()
-    this.sets = [{
-      name: 'TEST',
-      data: this.getDummy(),
-      variables: dummyData.variables.map(v => v.name)
-    }]
-  }
 
   private async import (): Promise<void> {
     const handle = await dialog.open({

@@ -6,16 +6,8 @@ import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
 import { appWindow } from '@tauri-apps/api/window'
 import { type IObservation } from '../../../util/data-interfaces'
 import style_tab from 'tabulator-tables/dist/css/tabulator_simple.min.css?inline'
-import {
-  AjaxModule,
-  type ColumnDefinition,
-  EditModule,
-  FilterModule, FormatModule, InteractionModule,
-  PageModule,
-  SelectRowModule,
-  SortModule,
-  Tabulator
-} from 'tabulator-tables'
+import { type ColumnDefinition, Tabulator } from 'tabulator-tables'
+import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
 
 @customElement('observations-import')
 export default class ObservationsImport extends LitElement {
@@ -29,14 +21,7 @@ export default class ObservationsImport extends LitElement {
 
   constructor () {
     super()
-    Tabulator.registerModule(SortModule)
-    Tabulator.registerModule(EditModule)
-    Tabulator.registerModule(PageModule)
-    Tabulator.registerModule(FilterModule)
-    Tabulator.registerModule(SelectRowModule)
-    Tabulator.registerModule(FormatModule)
-    Tabulator.registerModule(InteractionModule)
-    Tabulator.registerModule(AjaxModule)
+    loadTabulatorPlugins()
     this.table.id = 'table-wrapper'
   }
 
@@ -54,31 +39,9 @@ export default class ObservationsImport extends LitElement {
   }
 
   createColumns (): ColumnDefinition[] {
-    const dataCell = (field: string): ColumnDefinition => {
-      return {
-        title: field,
-        field,
-        editor: 'textarea',
-        sorter: 'number',
-        headerFilter: 'tickCross',
-        hozAlign: 'center',
-        headerFilterParams: { tristate: true }
-      }
-    }
     const columns: ColumnDefinition[] = [
-      {
-        title: '',
-        formatter: 'rowSelection',
-        titleFormatter: 'rowSelection',
-        headerSort: false
-      },
-      {
-        title: 'Name',
-        field: 'name',
-        width: 100,
-        sorter: 'string',
-        headerFilter: 'input'
-      }
+      checkboxColumn,
+      nameColumn
     ]
     this.variables.forEach(v => {
       columns.push(dataCell(v))
@@ -91,16 +54,7 @@ export default class ObservationsImport extends LitElement {
       this.tabulator = new Tabulator(this.table, {
         columns: this.createColumns(),
         data: this.data,
-        layout: 'fitDataTable',
-        responsiveLayout: false,
-        pagination: true,
-        renderVerticalBuffer: 300,
-        sortMode: 'local',
-        initialSort: [{ column: 'name', dir: 'asc' }],
-        headerSort: true,
-        index: 'id',
-        paginationSize: 20,
-        selectable: 'highlight'
+        ...tabulatorOptions
       })
     }
   }
