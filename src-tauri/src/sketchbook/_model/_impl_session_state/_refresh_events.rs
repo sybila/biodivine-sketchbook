@@ -3,7 +3,7 @@ use crate::app::state::SessionHelper;
 use crate::app::DynError;
 use crate::sketchbook::_model::_impl_session_state::_utils::make_refresh_event;
 use crate::sketchbook::data_structs::{
-    LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, UpdateFnData, VariableData,
+    LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::ModelState;
 
@@ -14,7 +14,11 @@ impl ModelState {
         let variable_list: Vec<VariableData> = self
             .variables
             .iter()
-            .map(|(id, data)| VariableData::from_var(id, data))
+            .map(|(id, data)| {
+                // the variable will have valid update function, we can safely unwrap
+                let update_fn = self.get_update_fn(id).unwrap();
+                VariableData::from_var(id, data, update_fn)
+            })
             .collect();
         make_refresh_event(full_path, variable_list)
     }
@@ -72,15 +76,5 @@ impl ModelState {
             .map(|(var_id, node)| LayoutNodeData::from_node(&layout_id, var_id, node))
             .collect();
         make_refresh_event(full_path, node_list)
-    }
-
-    /// Get a list of all update functions (with corresponding var id).
-    pub(super) fn refresh_update_fns(&self, full_path: &[String]) -> Result<Event, DynError> {
-        let update_fns_list: Vec<UpdateFnData> = self
-            .update_fns
-            .iter()
-            .map(|(id, update_fn)| UpdateFnData::from_update_fn(id, update_fn))
-            .collect();
-        make_refresh_event(full_path, update_fns_list)
     }
 }

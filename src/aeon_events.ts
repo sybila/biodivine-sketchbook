@@ -55,10 +55,6 @@ interface AeonState {
     regulationsRefreshed: Observable<[RegulationData]>
     /** Refresh the regulations. */
     refreshRegulations: () => void
-    /** List of model update functions. */
-    updateFnsRefreshed: Observable<[UpdateFnData]>
-    /** Refresh the update functions. */
-    refreshUpdateFns: () => void
     /** List of model layouts. */
     layoutsRefreshed: Observable<[LayoutData]>
     /** Refresh the layouts. */
@@ -86,6 +82,10 @@ interface AeonState {
     variableIdChanged: Observable<VariableIdUpdateData>
     /** Set an ID of variable with given original ID to a new id. */
     setVariableId: (originalId: string, newId: string) => void
+    /** VariableData (with a new `update_fn`) for a variable with modified update function. */
+    variableUpdateFnChanged: Observable<VariableData>
+    /** Set an expression of update function for variable with given ID. */
+    setVariableUpdateFn: (varId: string, newExpression: string) => void
 
     /** Uninterpreted function-related setter events */
 
@@ -150,13 +150,6 @@ interface AeonState {
     /** Set essentiality of a regulation specified by its regulator and target. */
     setRegulationEssentiality: (regulatorId: string, targetId: string, newEssentiality: Essentiality) => void
 
-    /** Update-function-related setter events */
-
-    /** UpdateFnData (with a new `expression`) for a modified update function. */
-    updateFnExpressionChanged: Observable<UpdateFnData>
-    /** Set an expression of update function for variable with given ID. */
-    setUpdateFnExpression: (varId: string, newExpression: string) => void
-
     /** Layout-related setter events */
 
     /** LayoutData for a newly created layout. */
@@ -184,6 +177,7 @@ interface AeonState {
 export interface VariableData {
   id: string
   name: string
+  update_fn: string
 }
 
 /** An object representing basic information regarding a model's uninterpreted function. */
@@ -191,12 +185,6 @@ export interface UninterpretedFnData {
   id: string
   name: string
   arguments: Array<[Monotonicity, Essentiality]>
-  expression: string
-}
-
-/** An object representing basic information regarding a model's update function. */
-export interface UpdateFnData {
-  var_id: string
   expression: string
 }
 
@@ -656,10 +644,6 @@ export const aeonState: AeonState = {
     refreshRegulations (): void {
       aeonEvents.refresh(['model', 'get_regulations'])
     },
-    updateFnsRefreshed: new Observable<[UpdateFnData]>(['model', 'get_update_fns']),
-    refreshUpdateFns (): void {
-      aeonEvents.refresh(['model', 'get_update_fns'])
-    },
     layoutsRefreshed: new Observable<[LayoutData]>(['model', 'get_layouts']),
     refreshLayouts (): void {
       aeonEvents.refresh(['model', 'get_layouts'])
@@ -673,6 +657,7 @@ export const aeonState: AeonState = {
     variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
     variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
     variableIdChanged: new Observable<VariableIdUpdateData>(['model', 'variable', 'set_id']),
+    variableUpdateFnChanged: new Observable<VariableData>(['model', 'variable', 'set_update_fn']),
 
     uninterpretedFnCreated: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'add']),
     uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'remove']),
@@ -690,8 +675,6 @@ export const aeonState: AeonState = {
     regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
     regulationEssentialityChanged: new Observable<RegulationData>(['model', 'regulation', 'set_essentiality']),
 
-    updateFnExpressionChanged: new Observable<UpdateFnData>(['model', 'update_fn', 'set_expression']),
-
     layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
     layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
     nodePositionChanged: new Observable<LayoutNodeData>(['model', 'layout', 'update_position']),
@@ -708,7 +691,7 @@ export const aeonState: AeonState = {
       // First action creates the variable.
       actions.push({
         path: ['model', 'variable', 'add'],
-        payload: JSON.stringify({ id: varId, name: varName })
+        payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
       })
       // Subsequent actions position it in one or more layouts.
       if (!Array.isArray(position)) {
@@ -743,6 +726,12 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['model', 'variable', originalId, 'set_id'],
         payload: newId
+      })
+    },
+    setVariableUpdateFn (varId: string, newExpression: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', varId, 'set_update_fn'],
+        payload: newExpression.toString()
       })
     },
     addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
@@ -840,12 +829,6 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['model', 'regulation', regulatorId, targetId, 'set_essentiality'],
         payload: JSON.stringify(newEssentiality)
-      })
-    },
-    setUpdateFnExpression (varId: string, newExpression: string): void {
-      aeonEvents.emitAction({
-        path: ['model', 'update_fn', varId, 'set_expression'],
-        payload: newExpression.toString()
       })
     },
     addLayout (layoutId: string, layoutName: string): void {

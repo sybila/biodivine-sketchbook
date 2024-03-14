@@ -159,10 +159,10 @@ class FunctionsEditor extends LitElement {
     }
     this.saveFunctions(functions)
 
-    // TODO: do properly at BE
-    // this refresh is temporary solution to get updated UF expressions (will be done at BE)
+    // TODO: this refresh is a temporary solution to get potentially modified update function and uninterpreted
+    // functions' expressions
     aeonState.model.refreshUninterpretedFns()
-    aeonState.model.refreshUpdateFns()
+    aeonState.model.refreshVariables()
   }
 
   private addFunctionVariable (event: Event): void {

@@ -9,9 +9,8 @@ pub mod _events_layout;
 pub mod _events_regulations;
 /// **(internal)** Implementation for events related to `uninterpreted functions` of the model.
 pub mod _events_uninterpreted_fns;
-/// **(internal)** Implementation for events related to `update functions` of the model.
-pub mod _events_update_fns;
-/// **(internal)** Implementation for events related to `variables` of the model.
+/// **(internal)** Implementation for events related to `variables` of the model and
+/// their `update functions`.
 pub mod _events_variables;
 /// **(internal)** Implementation for `refresh` (getter) events.
 pub mod _refresh_events;
@@ -31,7 +30,6 @@ impl SessionState for ModelState {
             Some(&"uninterpreted_fn") => self.perform_uninterpreted_fn_event(event, &at_path[1..]),
             Some(&"regulation") => self.perform_regulation_event(event, &at_path[1..]),
             Some(&"layout") => self.perform_layout_event(event, &at_path[1..]),
-            Some(&"update_fn") => self.perform_update_fn_event(event, &at_path[1..]),
             _ => Self::invalid_path_error_generic(at_path),
         }
     }
@@ -43,7 +41,6 @@ impl SessionState for ModelState {
             Some(&"get_regulations") => self.refresh_regulations(full_path),
             Some(&"get_layouts") => self.refresh_layouts(full_path),
             Some(&"get_layout_nodes") => self.refresh_layout_nodes(full_path, &at_path[1..]),
-            Some(&"get_update_fns") => self.refresh_update_fns(full_path),
             _ => Self::invalid_path_error_generic(at_path),
         }
     }

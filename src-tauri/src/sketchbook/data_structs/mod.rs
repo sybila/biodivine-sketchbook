@@ -10,8 +10,6 @@ mod _layout_node_data;
 mod _regulation_data;
 /// **(internal)**  Utility methods for `UninterpretedFnData`.
 mod _uninterpreted_fn_data;
-/// **(internal)**  Utility methods for `UpdateFnData`.
-mod _update_fn_data;
 /// **(internal)**  Utility methods for `VariableData`.
 mod _variable_data;
 
@@ -21,5 +19,4 @@ pub use _layout_data::LayoutData;
 pub use _layout_node_data::LayoutNodeData;
 pub use _regulation_data::RegulationData;
 pub use _uninterpreted_fn_data::UninterpretedFnData;
-pub use _update_fn_data::UpdateFnData;
 pub use _variable_data::VariableData;

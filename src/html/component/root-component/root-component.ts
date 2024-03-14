@@ -9,7 +9,6 @@ import {
   aeonState,
   type LayoutNodeData, type LayoutNodeDataPrototype,
   type RegulationData,
-  type UpdateFnData,
   type VariableData,
   type VariableIdUpdateData
 } from '../../../aeon_events'
@@ -49,7 +48,7 @@ class RootComponent extends LitElement {
     this.addEventListener('add-regulation', this.addRegulation)
     aeonState.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
     this.addEventListener('set-update-function-expression', this.setVariableFunction)
-    aeonState.model.updateFnExpressionChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
+    aeonState.model.variableUpdateFnChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
     this.addEventListener('rename-variable', this.renameVariable)
     aeonState.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
     this.addEventListener('change-node-position', this.changeNodePosition)
@@ -70,15 +69,14 @@ class RootComponent extends LitElement {
     aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
-    aeonState.model.updateFnsRefreshed.addEventListener(this.#onUpdateFnsRefreshed.bind(this))
 
+    // first get uninterpreted functions, then variables (so that variable updates can contain function symbols)
+    aeonState.model.refreshUninterpretedFns()
     aeonState.model.refreshVariables()
     aeonState.model.refreshLayoutNodes(LAYOUT)
     aeonState.model.refreshRegulations()
-    aeonState.model.refreshUpdateFns()
-    aeonState.model.refreshUninterpretedFns()
 
-    // event from FunctionEditor with new functions
+    // capture event from FunctionEditor with potentially newly added functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
   }
 
@@ -251,7 +249,7 @@ class RootComponent extends LitElement {
       ...variables[variableIndex],
       id: data.new_id
     }
-    // TODO: do all of the following on BE, and get rid of the `refresh`
+    // TODO: do all of the following on BE (and then just refresh affected components?)
     this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
     this.data.layout.delete(data.original_id)
     const regulations = [...this.data.regulations]
@@ -264,8 +262,9 @@ class RootComponent extends LitElement {
       }
     })
     this.saveData(variables, this.data.regulations, this.data.layout)
-    // this refresh is temporary solution to get updated UF expressions (will be done at BE)
-    aeonState.model.refreshUpdateFns()
+
+    // TODO: this refresh is a temporary solution to get potentially modified update function expressions
+    aeonState.model.refreshVariables()
   }
 
   private toggleRegulationEssentiality (event: Event): void {
@@ -302,16 +301,16 @@ class RootComponent extends LitElement {
 
   private setVariableFunction (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setUpdateFnExpression(details.id, details.function)
+    aeonState.model.setVariableUpdateFn(details.id, details.function)
   }
 
-  #onUpdateFnChanged (data: UpdateFnData): void {
-    const variableIndex = this.data.variables.findIndex(variable => variable.id === data.var_id)
+  #onUpdateFnChanged (data: VariableData): void {
+    const variableIndex = this.data.variables.findIndex(variable => variable.id === data.id)
     if (variableIndex === -1) return
     const variables = [...this.data.variables]
     variables[variableIndex] = {
       ...variables[variableIndex],
-      function: data.expression
+      function: data.update_fn
     }
     this.saveData(variables, this.data.regulations, this.data.layout)
   }
@@ -331,21 +330,11 @@ class RootComponent extends LitElement {
   }
 
   #onVariablesRefreshed (variables: VariableData[]): void {
-    this.saveData(variables.map(v => { return { ...v, function: '' } }), this.data.regulations, this.data.layout)
-  }
-
-  #onUpdateFnsRefreshed (updateFns: UpdateFnData[]): void {
-    // TODO: combine UpdateFnData and VariableData to one object so that we can refresh everything at once?
-
-    // after sort, variables and update functions have the same order, and we just update the `function` field
-    updateFns.sort((a, b) => (a.var_id > b.var_id ? 1 : -1))
-    const variables = this.data.variables.map((v, i) => {
-      return {
-        ...v,
-        function: updateFns[i].expression
-      }
-    })
-    this.saveData(variables, this.data.regulations, this.data.layout)
+    this.saveData(
+      variables.map(v => { return { ...v, function: v.update_fn } }),
+      this.data.regulations,
+      this.data.layout
+    )
   }
 
   #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
@@ -374,7 +363,7 @@ class RootComponent extends LitElement {
 
     // 1) remove update/uninterpreted fn expressions (so that we can safely remove variables, functions)
     this.data.variables.forEach((variable) => {
-      aeonState.model.setUpdateFnExpression(variable.id, '')
+      aeonState.model.setVariableUpdateFn(variable.id, '')
     })
     this.data.functions.forEach((fn) => {
       aeonState.model.setUninterpretedFnExpression(fn.id, '')
@@ -410,7 +399,7 @@ class RootComponent extends LitElement {
       aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
     dummyData.variables.forEach((variable) => {
-      aeonState.model.setUpdateFnExpression(variable.id, variable.function)
+      aeonState.model.setVariableUpdateFn(variable.id, variable.function)
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
   }

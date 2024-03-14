@@ -49,8 +49,13 @@ impl ModelState {
             });
 
             if regulators.is_empty() && targets.is_empty() && !needs_to_move {
+                // save the variable's data for reverse event
+                let var_data = VariableData::from_var(
+                    &var_id,
+                    self.get_variable(&var_id)?,
+                    self.get_update_fn(&var_id)?,
+                );
                 // perform the event, prepare the state-change variant (move id from path to payload)
-                let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
                 self.remove_var(&var_id)?;
                 let state_change = make_state_change(&["model", "variable", "remove"], &var_data);
 
@@ -106,7 +111,11 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_name(&var_id, new_name.as_str())?;
-            let var_data = VariableData::from_var(&var_id, self.get_variable(&var_id)?);
+            let var_data = VariableData::from_var(
+                &var_id,
+                self.get_variable(&var_id)?,
+                self.get_update_fn(&var_id)?,
+            );
             let state_change = make_state_change(&["model", "variable", "set_name"], &var_data);
 
             // prepare the reverse event
@@ -131,6 +140,30 @@ impl ModelState {
             // prepare the reverse event
             let reverse_event_path = ["model", "variable", new_id.as_str(), "set_id"];
             let reverse_event = Event::build(&reverse_event_path, Some(var_id.as_str()));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_update_fn", at_path).is_some() {
+            // get the payload - string for "new_expression"
+            let new_expression = Self::clone_payload_str(event, component_name)?;
+            let original_expression = self.get_update_fn(&var_id)?.to_string();
+            // actually, this check is not that relevant, as the expressions might be "normalized" during parsing
+            if new_expression == original_expression {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event and check (again) that the new parsed version is different than the original
+            self.set_update_fn(&var_id, new_expression.as_str())?;
+            let new_update_fn = self.get_update_fn(&var_id)?;
+            let var_data =
+                VariableData::from_var(&var_id, self.get_variable(&var_id)?, new_update_fn);
+            if new_update_fn.get_fn_expression() == original_expression {
+                return Ok(Consumed::NoChange);
+            }
+
+            // prepare state-change and reverse events
+            let state_change =
+                make_state_change(&["model", "variable", "set_update_fn"], &var_data);
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(original_expression);
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)

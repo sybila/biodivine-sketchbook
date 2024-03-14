@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
 use crate::sketchbook::data_structs::{
     ChangeArgEssentialData, ChangeArgMonotoneData, LayoutData, LayoutNodeData, RegulationData,
-    UninterpretedFnData, UpdateFnData, VariableData,
+    UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
@@ -37,7 +37,7 @@ fn test_add_var_event() {
     assert_eq!(model.num_vars(), 1);
 
     // test variable add event
-    let payload = VariableData::new("b", "b").to_string();
+    let payload = VariableData::new("b", "b", "").to_string();
     let full_path = ["model", "variable", "add"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
@@ -161,7 +161,7 @@ fn test_set_update_fn_event() {
     let var_a = model.get_var_id("a").unwrap();
 
     // test update fn modification event
-    let full_path = ["model", "update_fn", var_a.as_str(), "set_expression"];
+    let full_path = ["model", "variable", var_a.as_str(), "set_update_fn"];
     let event = Event::build(&full_path, Some(expression));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
     assert_eq!(model.get_update_fn_string(&var_a).unwrap(), expression);
@@ -169,7 +169,7 @@ fn test_set_update_fn_event() {
         model,
         model_orig,
         result,
-        &["update_fn", var_a.as_str(), "set_expression"],
+        &["variable", var_a.as_str(), "set_update_fn"],
     );
 }
 
@@ -408,7 +408,9 @@ fn test_refresh() {
         .unwrap();
     let var_list: Vec<VariableData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(var_list.len(), 1);
+    assert_eq!(var_list[0].name, "a_name".to_string());
     assert_eq!(var_list[0].id, var_a.to_string());
+    assert_eq!(var_list[0].update_fn, expression);
 
     // test regulation getter
     let event = model
@@ -447,17 +449,6 @@ fn test_refresh() {
     let node_list: Vec<LayoutNodeData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(node_list.len(), 1);
     assert_eq!(node_list[0].variable, var_a.to_string());
-
-    // test update fn getter
-    let event = model
-        .refresh(
-            &["model".to_string(), "get_update_fns".to_string()],
-            &["get_update_fns", var_a.as_str()],
-        )
-        .unwrap();
-    let update_fn_list: Vec<UpdateFnData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
-    assert_eq!(update_fn_list.len(), 1);
-    assert_eq!(update_fn_list[0].expression, expression);
 
     // test uninterpreted fn getter
     let event = model

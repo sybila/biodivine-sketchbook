@@ -1,33 +1,37 @@
-use crate::sketchbook::{VarId, Variable};
+use crate::sketchbook::{UpdateFn, VarId, Variable};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
-/// Structure for sending data about `Variable` to the frontend.
+/// Structure for sending data about `Variable` and its `UpdateFn` to the frontend.
 ///
-/// `VariableData` does not have the exact same fields as `Variable` (for instance, there is an additional useful
-/// field `id`). Some fields of `VariableData` are simplified compared to `Variable` (e.g., pure `Strings` instead
-/// of more complex typesafe structs) to allow for easier (de)serialization.
+/// `VariableData` contains similar fields as `Variable` and additional fields `id` and `update_fn`.
+/// Some fields simplified compared to original typesafe versions (e.g., pure `Strings` are used
+/// instead of more complex typesafe structs) to allow for easier (de)serialization.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct VariableData {
     pub id: String,
     pub name: String,
+    pub update_fn: String,
 }
 
 impl VariableData {
     /// Create new `VariableData` object given a variable's `name` and `id` string slices.
-    pub fn new(id: &str, name: &str) -> VariableData {
+    pub fn new(id: &str, name: &str, update_fn: &str) -> VariableData {
         VariableData {
             id: id.to_string(),
             name: name.to_string(),
+            update_fn: update_fn.to_string(),
         }
     }
 
-    /// Create new `VariableData` object given a refernece to a `variable` and its id.
-    pub fn from_var(var_id: &VarId, variable: &Variable) -> VariableData {
+    /// Create new `VariableData` object given a reference to a variable, its update function,
+    /// and its id.
+    pub fn from_var(var_id: &VarId, variable: &Variable, update_fn: &UpdateFn) -> VariableData {
         VariableData {
             id: var_id.to_string(),
             name: variable.get_name().to_string(),
+            update_fn: update_fn.get_fn_expression().to_string(),
         }
     }
 }
