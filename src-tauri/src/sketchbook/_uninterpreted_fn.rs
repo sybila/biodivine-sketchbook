@@ -18,8 +18,8 @@ pub struct UninterpretedFn {
 }
 
 impl UninterpretedFn {
-    /// Create new `UninterpretedFn` object that has no constraints regarding monotonicity, essentiality,
-    /// or the function's expression itself.
+    /// Create new `UninterpretedFn` object that has no constraints regarding monotonicity,
+    /// essentiality, or its expression.
     pub fn new_without_constraints(name: &str, arity: usize) -> Result<UninterpretedFn, String> {
         assert_name_valid(name)?;
 
@@ -31,7 +31,7 @@ impl UninterpretedFn {
         })
     }
 
-    /// Create uninterpreted function from another one, changing its expression.
+    /// Create uninterpreted function using another one as a template, but changing the expression.
     /// The provided original function object is consumed.
     pub fn with_new_expression(
         mut original_fn: UninterpretedFn,
@@ -73,7 +73,7 @@ impl UninterpretedFn {
     }
 
     /// Get highest index of a variable that is actually used in the function's expression.
-    /// This number might be lower than actual arity.
+    /// This number might be lower than function's actual arity.
     fn get_highest_var_idx_in_expression(&self) -> usize {
         if let Some(tree) = &self.tree {
             let highest_idx = tree
@@ -93,8 +93,9 @@ impl UninterpretedFn {
     }
 
     /// Change arity of this uninterpreted fn.
-    /// If arity is made larger, default arguments (without monotonicity/essentiality constraints
-    /// are added).
+    ///
+    /// If arity is made larger, default arguments (without monotonicity/essentiality constraints)
+    /// are added.
     /// If arity is made smaller, last arguments are dropped. These must not be used in function's
     /// expression.
     pub fn set_arity(&mut self, new_arity: usize) -> Result<(), String> {
@@ -119,8 +120,7 @@ impl UninterpretedFn {
     }
 
     /// Drop the last argument of the function, essentially decrementing the arity of this
-    /// uninterpreted fn.
-    /// The last argument must not be used in function's expression.
+    /// uninterpreted fn. The last argument must not be used in function's expression.
     pub fn drop_last_argument(&mut self) -> Result<(), String> {
         if self.get_arity() == 0 {
             return Err("Cannot drop argument of a function with zero arguments.".to_string());
@@ -128,7 +128,7 @@ impl UninterpretedFn {
         self.set_arity(self.get_arity() - 1)
     }
 
-    /// Add an argument with specified monotonicity/essentiality for this function.
+    /// Add an argument with specified monotonicity/essentiality.
     /// Argument is added at the end of the current argument list.
     pub fn add_argument(&mut self, monotonicity: Monotonicity, essentiality: Essentiality) {
         self.arguments
@@ -146,20 +146,24 @@ impl UninterpretedFn {
         &self.expression
     }
 
-    /// Set the update function's expression to a given string.
+    /// Set the function's expression to a given string.
+    ///
+    /// `model` is used to provide context regarding valid IDs.
+    ///
+    /// We also need ID of this uninterpreted function to ensure that the expression is not defined
+    /// recursively, i.e., to check that expression of function `f` does not contain `f` inside.
     pub fn set_fn_expression(
         &mut self,
         new_expression: &str,
-        context: &ModelState,
+        model: &ModelState,
         own_id: &UninterpretedFnId,
     ) -> Result<(), String> {
         if new_expression.chars().all(|c| c.is_whitespace()) {
             self.tree = None;
             self.expression = String::new()
         } else {
-            let syntactic_tree =
-                FnTree::try_from_str(new_expression, context, Some((own_id, self)))?;
-            self.expression = syntactic_tree.to_string(context, Some(self.get_arity()));
+            let syntactic_tree = FnTree::try_from_str(new_expression, model, Some((own_id, self)))?;
+            self.expression = syntactic_tree.to_string(model, Some(self.get_arity()));
             self.tree = Some(syntactic_tree);
         }
         Ok(())
@@ -215,7 +219,7 @@ impl UninterpretedFn {
         }
     }
 
-    /// Set the list of all argument properties (essentially replacing them).
+    /// Set the properties for all arguments (essentially replacing the current version).
     /// The number of arguments must stay the same, not changing arity.
     pub fn set_all_arguments(&mut self, argument_list: Vec<FnArgument>) -> Result<(), String> {
         if argument_list.len() == self.get_arity() {
@@ -244,7 +248,7 @@ impl UninterpretedFn {
         }
     }
 
-    /// Substitute all occurences of a given function symbol in the syntactic tree.
+    /// Substitute all occurrences of a given function symbol in the syntactic tree.
     pub fn substitute_fn_symbol(
         &mut self,
         old_id: &UninterpretedFnId,

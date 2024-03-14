@@ -24,6 +24,10 @@ pub enum FnTree {
 
 impl FnTree {
     /// Try to parse an update function from a string, taking IDs from the provided `ModelState`.
+    ///
+    /// `is_uninterpreted` specifies whether the expression represents an uninterpreted function,
+    /// or an update function. This must be distinguished as update functions can contain network
+    /// variables, but uninterpreted functions only utilize "unnamed" variables `var0`, `var1`, ...
     pub fn try_from_str(
         expression: &str,
         model: &ModelState,
@@ -39,7 +43,10 @@ impl FnTree {
         Ok(fn_tree)
     }
 
-    /// Convert this update function to a string, taking IDs from the provided `ModelState`.
+    /// Convert this update function to a string.
+    ///
+    /// Currently, the transformation utilizes intermediate structs from [biodivine_lib_param_bn]
+    /// library, and thus `model` is needed to provide context (regarding IDs).
     pub fn to_string(&self, model: &ModelState, is_uninterpreted: Option<usize>) -> String {
         let bn_context = if let Some(n) = is_uninterpreted {
             model.to_fake_bn_with_params(n)
@@ -67,7 +74,7 @@ impl FnTree {
     }
 
     /// Recursively obtain the `FnTree` from a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
-    /// The provided model gives context for variable and parameter IDs.
+    /// The provided model and BN give context for variable and parameter IDs.
     fn from_fn_update_recursive(
         fn_update: FnUpdate,
         model: &ModelState,
@@ -172,7 +179,10 @@ impl FnTree {
         }
     }
 
-    /// Return a set of all variables that are actually used as inputs in this function.
+    /// Return a set of all variables that are actually used in this function as arguments.
+    ///
+    /// Both valid `network variables` and `placeholder variables` are collected (note that
+    /// these two variants can never happen to be in the same tree at the same time).
     pub fn collect_variables(&self) -> HashSet<VarId> {
         fn r_arguments(function: &FnTree, args: &mut HashSet<VarId>) {
             match function {
@@ -200,7 +210,7 @@ impl FnTree {
         vars
     }
 
-    /// Return a set of all parameters (i.e. uninterpreted functions) that are used in this update function.
+    /// Return a set of all uninterpreted functions (parameters) that are used in this function.
     pub fn collect_fn_symbols(&self) -> HashSet<UninterpretedFnId> {
         fn r_parameters(function: &FnTree, params: &mut HashSet<UninterpretedFnId>) {
             match function {
@@ -225,6 +235,12 @@ impl FnTree {
         params
     }
 
+    /// Use this function as a template to create a new one, but substitute a given network
+    /// variable's ID with a new one.
+    ///
+    /// This can only be used to substitute `network variables` (that appear in update functions),
+    /// not placeholder variables (that appear in uninterpreted functions), since modifying the
+    /// latter does not make that much sense.
     pub fn substitute_var(&self, old_id: &VarId, new_id: &VarId) -> FnTree {
         match self {
             FnTree::Const(_) => self.clone(),
@@ -252,6 +268,8 @@ impl FnTree {
         }
     }
 
+    /// Use this function as a template to create a new one, but substitute a given uninterpreted
+    /// function's ID with a new one.
     pub fn substitute_fn_symbol(
         &self,
         old_id: &UninterpretedFnId,
@@ -285,10 +303,11 @@ impl FnTree {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::{FnTree, ModelState};
+    use std::collections::HashSet;
 
     #[test]
     /// Test parsing of a valid update function's expression.
-    fn test_valid_fn() {
+    fn test_valid_update_fn() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
 
@@ -318,11 +337,11 @@ mod tests {
 
     #[test]
     /// Test parsing of several invalid update functions' expressions.
-    fn test_invalid_fns() {
+    fn test_invalid_update_fns() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model.add_uninterpreted_fn_by_str("f", "f", 2).unwrap();
 
-        // try using an invalid variable
+        // try using an invalid network variables
         let expression = "var0 & var1";
         let fn_tree = FnTree::try_from_str(expression, &model, None);
         assert!(fn_tree.is_err());
@@ -343,9 +362,9 @@ mod tests {
     fn test_invalid_uninterpreted_fn() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
-        model.add_uninterpreted_fn_by_str("g", "g", 1).unwrap();
+        model.add_uninterpreted_fn_by_str("g", "g", 2).unwrap();
 
-        // this would be a valid update fn, but should not be a valid for an uninterpreted fn `g`
+        // this would be a valid `update fn`, but not an uninterpreted fn (contains network variables)
         let expression = "a & (b | f(a))";
         let fn_id = model.get_uninterpreted_fn_id("g").unwrap();
         let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
@@ -358,5 +377,64 @@ mod tests {
         let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
         let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
         assert!(fn_tree.is_err());
+
+        // this has higher arity (f has arity 1)
+        let expression = "var0 | var1";
+        let fn_id = model.get_uninterpreted_fn_id("f").unwrap();
+        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
+        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        assert!(fn_tree.is_err());
+    }
+
+    #[test]
+    /// Test variable & uninterpreted fn substitution.
+    fn test_substitution() {
+        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
+        model.add_uninterpreted_fn_by_str("g", "g", 1).unwrap();
+        let a = model.get_var_id("a").unwrap();
+        let b = model.get_var_id("b").unwrap();
+        let f = model.get_uninterpreted_fn_id("f").unwrap();
+        let g = model.get_uninterpreted_fn_id("g").unwrap();
+
+        let fn_tree = FnTree::try_from_str("a & f(a)", &model, None).unwrap();
+
+        // variable substitution
+        let modified_tree = fn_tree.substitute_var(&a, &b);
+        assert_eq!(modified_tree.to_string(&model, None), "b & f(b)");
+
+        // function symbol substitution
+        let modified_tree = fn_tree.substitute_fn_symbol(&f, &g);
+        assert_eq!(modified_tree.to_string(&model, None), "a & g(a)");
+    }
+
+    #[test]
+    /// Test collecting function symbols from function's expression.
+    fn test_collect_fns() {
+        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let fns = vec![("f", "f", 1), ("g", "g", 1), ("h", "h", 1)];
+        model.add_multiple_uninterpreted_fns(fns).unwrap();
+        let f = model.get_uninterpreted_fn_id("f").unwrap();
+        let g = model.get_uninterpreted_fn_id("g").unwrap();
+
+        let fn_tree = FnTree::try_from_str("a & f(a) | (g(b))", &model, None).unwrap();
+        let collected_fns = fn_tree.collect_fn_symbols();
+        let expected_fns = HashSet::from([f, g]);
+        assert_eq!(expected_fns, collected_fns);
+    }
+
+    #[test]
+    /// Test collecting variables from function's expression.
+    fn test_collect_vars() {
+        let variables = vec![("a", "a"), ("b", "b"), ("c", "c")];
+        let mut model = ModelState::new_from_vars(variables).unwrap();
+        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
+        let a = model.get_var_id("a").unwrap();
+        let b = model.get_var_id("b").unwrap();
+
+        let fn_tree = FnTree::try_from_str("a & f(a) | (f(b))", &model, None).unwrap();
+        let collected_vars = fn_tree.collect_variables();
+        let expected_vars = HashSet::from([a, b]);
+        assert_eq!(expected_vars, collected_vars);
     }
 }
