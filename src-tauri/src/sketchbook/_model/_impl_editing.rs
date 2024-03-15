@@ -1,6 +1,8 @@
 use crate::sketchbook::{
-    Layout, LayoutId, ModelState, Observability, Regulation, RegulationSign, VarId, Variable,
+    Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
+    UninterpretedFnId, UpdateFn, VarId, Variable,
 };
+use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
@@ -8,20 +10,25 @@ use std::collections::{HashMap, HashSet};
 /// These methods focus on general manipulation with variables/regulations.
 /// See below for API focusing on layout manipulation.
 impl ModelState {
-    /// Create a new `ModelState` that does not contain any `Variables` or `Regulations` yet.
-    /// It contains a single empty default `Layout`.
+    /// Create a new `ModelState` that does not contain any `Variables`, `Uninterpreted Functions`,
+    /// or `Regulations` yet. It contains a single empty default `Layout`.
     pub fn new() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
-        let default_layout = Layout::new_empty(ModelState::get_default_layout_name());
+        // `get_default_layout_name()` returns a valid name, so we can safely unwrap
+        let default_layout = Layout::new_empty(ModelState::get_default_layout_name()).unwrap();
         ModelState {
             variables: HashMap::new(),
             regulations: HashSet::new(),
+            update_fns: HashMap::new(),
+            uninterpreted_fns: HashMap::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
+            placeholder_variables: HashSet::new(),
         }
     }
 
     /// Create new `ModelState` using provided variable name-ID pairs, both strings.
-    /// Result will contain no `Regulations`, and a single default `Layout`.
+    /// All variables have default (empty) update functions.
+    /// Result will contain no `UninterpretedFns` or `Regulations`, and a single default `Layout`.
     ///
     /// The IDs must be unique valid identifiers.
     /// The names might be same as the IDs. It also might be empty or non-unique.
@@ -39,13 +46,15 @@ impl ModelState {
             let var_id = VarId::new(id)?;
             model
                 .variables
-                .insert(var_id.clone(), Variable::new(var_name));
+                .insert(var_id.clone(), Variable::new(var_name)?);
+            model.add_default_update_fn(var_id.clone())?;
             model.insert_to_default_layout(var_id)?;
         }
         Ok(model)
     }
 
-    /// Add a new variable with given `var_id` and `name` to this `ModelState`.
+    /// Add a new variable with given `var_id` and `name` to this `ModelState`. The variable
+    /// will receive a default "empty" update function.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -53,12 +62,14 @@ impl ModelState {
     /// Returns `Err` in case the `id` is already being used.
     pub fn add_var(&mut self, var_id: VarId, name: &str) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
-        self.variables.insert(var_id.clone(), Variable::new(name));
+        self.variables.insert(var_id.clone(), Variable::new(name)?);
+        self.add_default_update_fn(var_id.clone())?;
         self.insert_to_all_layouts(var_id)?;
         Ok(())
     }
 
-    /// Add a new variable with given `id` and `name` to this `ModelState`.
+    /// Add a new variable with given `id` and `name` to this `ModelState`. The variable
+    /// will receive a default "empty" update function.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -85,6 +96,54 @@ impl ModelState {
         Ok(())
     }
 
+    /// Add a new uninterpreted fn with given `id`, `name` and `arity` to this `ModelState`.
+    /// Note that constraints regarding monotonicity or essentiality must be added separately.
+    ///
+    /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_new_uninterpreted_fn(
+        &mut self,
+        fn_id: UninterpretedFnId,
+        name: &str,
+        arity: usize,
+    ) -> Result<(), String> {
+        self.assert_no_uninterpreted_fn(&fn_id)?;
+        self.uninterpreted_fns.insert(
+            fn_id.clone(),
+            UninterpretedFn::new_without_constraints(name, arity)?,
+        );
+        self.add_placeholder_vars_if_needed(arity);
+        Ok(())
+    }
+
+    /// Add a new uninterpreted fn with given string `id`, `name`, and `arity` to this `ModelState`.
+    ///
+    /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_uninterpreted_fn_by_str(
+        &mut self,
+        id: &str,
+        name: &str,
+        arity: usize,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.add_new_uninterpreted_fn(fn_id, name, arity)
+    }
+
+    /// Shorthand to add a list of new uninterpreted fns with given string IDs, names, and arities to this `ModelState`.
+    ///
+    /// Each ID must be valid identifier that is not already used by some other uninterpreted fns.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_multiple_uninterpreted_fns(
+        &mut self,
+        id_name_arity_tuples: Vec<(&str, &str, usize)>,
+    ) -> Result<(), String> {
+        for (id, name, arity) in id_name_arity_tuples {
+            self.add_uninterpreted_fn_by_str(id, name, arity)?;
+        }
+        Ok(())
+    }
+
     /// Add a new `Regulation` to this `ModelState`.
     ///
     /// Returns `Err` when one of the variables is invalid, or the regulation between the two
@@ -93,8 +152,8 @@ impl ModelState {
         &mut self,
         regulator: VarId,
         target: VarId,
-        observable: Observability,
-        regulation_sign: RegulationSign,
+        essential: Essentiality,
+        regulation_sign: Monotonicity,
     ) -> Result<(), String> {
         self.assert_valid_variable(&regulator)?;
         self.assert_valid_variable(&target)?;
@@ -102,7 +161,7 @@ impl ModelState {
         self.regulations.insert(Regulation::new(
             regulator,
             target,
-            observable,
+            essential,
             regulation_sign,
         ));
         Ok(())
@@ -114,12 +173,12 @@ impl ModelState {
     /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
     /// are not valid variable IDs, or when the regulation between the two variables already exists.
     pub fn add_regulation_by_str(&mut self, regulation_str: &str) -> Result<(), String> {
-        let (reg, regulation_sign, observable, tar) =
+        let (reg, regulation_sign, essential, tar) =
             Regulation::try_components_from_string(regulation_str)?;
         let regulator = VarId::new(reg.as_str())?;
         let target = VarId::new(tar.as_str())?;
         // all validity checks inside
-        self.add_regulation(regulator, target, observable, regulation_sign)
+        self.add_regulation(regulator, target, essential, regulation_sign)
     }
 
     /// Shorthand to add a list of new `Regulations` given by their string encoding to this `ModelState`.
@@ -135,7 +194,6 @@ impl ModelState {
     }
 
     /// Set the name of a network variable given by id `var_id`.
-    ///
     /// The name does not have to be unique, as multiple variables might share a name.
     ///
     /// Note that you don't have to rename anything else in the network, since all other
@@ -143,7 +201,7 @@ impl ModelState {
     pub fn set_var_name(&mut self, var_id: &VarId, name: &str) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
         let variable = self.variables.get_mut(var_id).unwrap();
-        variable.set_name(name);
+        variable.set_name(name)?;
         Ok(())
     }
 
@@ -193,6 +251,20 @@ impl ModelState {
         for layout in self.layouts.values_mut() {
             layout.change_node_id(original_id, new_id.clone())?;
         }
+
+        // 4) change key in update functions hashmap
+        if let Some(update_fn) = self.update_fns.remove(original_id) {
+            self.update_fns.insert(new_id.clone(), update_fn);
+        }
+
+        // 5) substitute id for this variable in all update functions
+        for var_id in self.variables.keys() {
+            let update_fn = self.update_fns.remove(var_id).unwrap();
+            let new_update_fn =
+                UpdateFn::with_substituted_var(update_fn, original_id, &new_id, self);
+            self.update_fns.insert(var_id.clone(), new_update_fn);
+        }
+
         Ok(())
     }
 
@@ -206,29 +278,269 @@ impl ModelState {
     }
 
     /// Remove the network variable with given `var_id` from this `ModelState`. This also
-    /// removes the variable from all `Layouts` and removes all `Regulations` where this
-    /// variable figures.
+    /// removes the variable from all `Layouts`, removes its `UpdateFn` and all `Regulations`
+    /// where this variable figures.
     ///
-    /// Returns `Err` in case the `var_id` is not a valid variable's identifier.
+    /// Returns `Err` in case the `var_id` is not a valid variable's identifier, or if some update function
+    /// depends on it.
     pub fn remove_var(&mut self, var_id: &VarId) -> Result<(), String> {
         self.assert_valid_variable(var_id)?;
+
+        // check that variable can be safely deleted (not contained in any update fn)
+        let mut vars_in_update_fns = HashSet::new();
+        for update_fn in self.update_fns.values() {
+            let tmp_var_set = update_fn.collect_variables();
+            vars_in_update_fns.extend(tmp_var_set);
+        }
+        if vars_in_update_fns.contains(var_id) {
+            return Err(format!(
+                "Cannot remove variable `{var_id}`, it is still contained in an update function."
+            ));
+        }
+
         // first delete all regulations, layout nodes, and lastly the variable itself
         self.remove_all_regulations_var(var_id)?;
         self.remove_from_all_layouts(var_id)?;
+
+        if self.update_fns.remove(var_id).is_none() {
+            panic!("Error when removing update fn for variable {var_id}.")
+        }
         if self.variables.remove(var_id).is_none() {
             panic!("Error when removing variable {var_id} from the variable map.")
         }
         Ok(())
     }
 
-    /// Remove the network variable with given `id` from this `ModelState`. This also
-    /// removes the variable from all `Layouts` and removes all `Regulations` where this
-    /// variable figures.
+    /// Remove the network variable with given `var_id` from this `ModelState`. This also
+    /// removes the variable from all `Layouts`, removes its `UpdateFn` and all `Regulations`
+    /// where this variable figures.
     ///
     /// Returns `Err` in case the `var_id` is not a valid variable's identifier.
     pub fn remove_var_by_str(&mut self, id: &str) -> Result<(), String> {
         let var_id = VarId::new(id)?;
         self.remove_var(&var_id)
+    }
+
+    /// Set the name of an uninterpreted fn given by id `fn_id`.
+    pub fn set_uninterpreted_fn_name(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        name: &str,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_name(name)?;
+        Ok(())
+    }
+
+    /// Set the name of an uninterpreted fn given by string `id`.
+    pub fn set_uninterpreted_fn_name_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_name(&fn_id, name)
+    }
+
+    /// Set the arity of an uninterpreted fn given by id `fn_id`.
+    ///
+    /// In order to change arity of a function symbol, it must not currently be used in any
+    /// update/uninterpreted function's expression (because in expressions, it is used on a
+    /// fixed number of arguments).
+    pub fn set_uninterpreted_fn_arity(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        arity: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        self.assert_fn_not_used_in_expressions(fn_id)?;
+
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_arity(arity)?;
+
+        // add or remove placeholder variables according to the needs
+        self.add_placeholder_vars_if_needed(arity);
+        self.remove_placeholder_vars_if_needed();
+        Ok(())
+    }
+
+    /// Set the arity of an uninterpreted fn given by string `id`.
+    pub fn set_uninterpreted_fn_arity_by_str(
+        &mut self,
+        id: &str,
+        arity: usize,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_arity(&fn_id, arity)
+    }
+
+    /// Increment the arity of an uninterpreted fn given by id `fn_id`. Basically adds a defualt
+    /// argument (with unknown monotonicity/essentiality) at the end of the function's arg list.
+    pub fn increment_fn_arity(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get(fn_id).unwrap();
+        self.set_uninterpreted_fn_arity(fn_id, uninterpreted_fn.get_arity() + 1)
+    }
+
+    /// Decrement the arity of an uninterpreted fn given by id `fn_id`. Basically drops the last
+    /// argument of the function. The last argument must not be used in function's expression.
+    pub fn decrement_fn_arity(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get(fn_id).unwrap();
+        self.set_uninterpreted_fn_arity(fn_id, uninterpreted_fn.get_arity() - 1)
+    }
+
+    /// Set expression of an uninterpreted fn given by id `fn_id`.
+    pub fn set_uninterpreted_fn_expression(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        expression: &str,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let original_fn = self.uninterpreted_fns.get(fn_id).unwrap().clone();
+        // this will correctly return error if the expression is invalid
+        let updated_fn =
+            UninterpretedFn::with_new_expression(original_fn, expression, self, fn_id)?;
+        self.uninterpreted_fns.insert(fn_id.clone(), updated_fn);
+        Ok(())
+    }
+
+    /// Set expression of an uninterpreted fn given by string `id`.
+    pub fn set_uninterpreted_fn_expression_by_str(
+        &mut self,
+        id: &str,
+        expression: &str,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_expression(&fn_id, expression)
+    }
+
+    /// Set essentiality of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_essentiality(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        essentiality: Essentiality,
+        index: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_essential(index, essentiality)?;
+        Ok(())
+    }
+
+    /// Set essentiality of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_essentiality_by_str(
+        &mut self,
+        id: &str,
+        essentiality: Essentiality,
+        index: usize,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_essentiality(&fn_id, essentiality, index)
+    }
+
+    /// Set monotonicity of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_monotonicity(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        monotonicity: Monotonicity,
+        index: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_monotonic(index, monotonicity)?;
+        Ok(())
+    }
+
+    /// Set monotonicity of an argument of given uninterpreted fn (on provided index).
+    pub fn set_uninterpreted_fn_monotonicity_by_str(
+        &mut self,
+        id: &str,
+        monotonicity: Monotonicity,
+        index: usize,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_monotonicity(&fn_id, monotonicity, index)
+    }
+
+    /// Set the id of an uninterpreted fn with `original_id` to `new_id`.
+    ///
+    /// Note that this operation may be costly as it affects several components of the state.
+    pub fn set_uninterpreted_fn_id(
+        &mut self,
+        original_id: &UninterpretedFnId,
+        new_id: UninterpretedFnId,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(original_id)?;
+        self.assert_no_uninterpreted_fn(&new_id)?;
+
+        // all changes must be done directly, not through some helper fns, because the state
+        // might not be consistent in between various deletions
+
+        // change key in uninterpreted functions hashmap
+        if let Some(uninterpreted_fn) = self.uninterpreted_fns.remove(original_id) {
+            self.uninterpreted_fns
+                .insert(new_id.clone(), uninterpreted_fn);
+        }
+
+        // substitute id for this uninterpreted fn in all uninterpreted functions' expressions
+        // todo - inefficient
+        for fn_id in self.uninterpreted_fns.clone().keys() {
+            let uninterpreted_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
+            let new_uninterpreted_fn = UninterpretedFn::with_substituted_fn_symbol(
+                uninterpreted_fn,
+                original_id,
+                &new_id,
+                self,
+            );
+            self.uninterpreted_fns
+                .insert(fn_id.clone(), new_uninterpreted_fn);
+        }
+
+        // substitute id for this uninterpreted fn in all update functions
+        for var_id in self.variables.keys() {
+            let update_fn = self.update_fns.remove(var_id).unwrap();
+            let new_update_fn =
+                UpdateFn::with_substituted_fn_symbol(update_fn, original_id, &new_id, self);
+            self.update_fns.insert(var_id.clone(), new_update_fn);
+        }
+
+        Ok(())
+    }
+
+    /// Set the id of an uninterpreted fn given by string `original_id` to `new_id`.
+    pub fn set_uninterpreted_fn_id_by_str(
+        &mut self,
+        original_id: &str,
+        new_id: &str,
+    ) -> Result<(), String> {
+        let original_id = UninterpretedFnId::new(original_id)?;
+        let new_id = UninterpretedFnId::new(new_id)?;
+        self.set_uninterpreted_fn_id(&original_id, new_id)
+    }
+
+    /// Remove the uninterpreted fn with given `fn_id` from this `ModelState`. Note that this
+    /// uninterpreted fn must not be used in any update fn.
+    ///
+    /// Also returns `Err` in case the `fn_id` is not a valid uninterpreted fn's identifier or if some
+    /// update/uninterpreted function depends on it.
+    pub fn remove_uninterpreted_fn(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+
+        // check that this function symbol can be safely deleted (not contained in any update/uninterpreted fn)
+        self.assert_fn_not_used_in_expressions(fn_id)?;
+
+        if self.uninterpreted_fns.remove(fn_id).is_none() {
+            panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")
+        }
+        self.remove_placeholder_vars_if_needed();
+        Ok(())
+    }
+
+    /// Remove the uninterpreted_fn with given string `id` from this `ModelState`. Note that this
+    /// uninterpreted_fn must not be used in any update fn.
+    ///
+    /// Also returns `Err` in case the `fn_id` is not a valid uninterpreted_fn's identifier.
+    pub fn remove_uninterpreted_fn_by_str(&mut self, id: &str) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.remove_uninterpreted_fn(&fn_id)
     }
 
     /// Remove a `Regulation` pointing from `regulator` to `target` from this `ModelState`.
@@ -262,7 +574,7 @@ impl ModelState {
         &mut self,
         regulator: &VarId,
         target: &VarId,
-        new_sign: &RegulationSign,
+        new_sign: &Monotonicity,
     ) -> Result<(), String> {
         // all validity checks are performed inside
         let regulation = self.get_regulation(regulator, target)?.clone();
@@ -270,21 +582,21 @@ impl ModelState {
         self.add_regulation(
             regulator.clone(),
             target.clone(),
-            *regulation.get_observability(),
+            *regulation.get_essentiality(),
             *new_sign,
         )?;
         Ok(())
     }
 
-    /// Shorthand to change observability of a `Regulation` pointing from `regulator` to `target`.
-    /// Currently it basically removes the regulation, and adds a new one with the new observability value.
+    /// Shorthand to change essentiality of a `Regulation` pointing from `regulator` to `target`.
+    /// Currently it basically removes the regulation, and adds a new one with the new essentiality value.
     ///
     /// Returns `Err` when one of the variables is invalid
-    pub fn change_regulation_observability(
+    pub fn change_regulation_essentiality(
         &mut self,
         regulator: &VarId,
         target: &VarId,
-        new_observability: &Observability,
+        new_essentiality: &Essentiality,
     ) -> Result<(), String> {
         // all validity checks are performed inside
         let regulation = self.get_regulation(regulator, target)?.clone();
@@ -292,9 +604,50 @@ impl ModelState {
         self.add_regulation(
             regulator.clone(),
             target.clone(),
-            *new_observability,
+            *new_essentiality,
             *regulation.get_sign(),
         )?;
+        Ok(())
+    }
+
+    /// Set update function for a given variable to a provided expression.
+    pub fn set_update_fn(&mut self, var_id: &VarId, expression: &str) -> Result<(), String> {
+        self.assert_valid_variable(var_id)?;
+
+        // this will correctly return error if the expression is invalid
+        let new_update_fn = UpdateFn::try_from_str(expression, self)?;
+        self.update_fns.insert(var_id.clone(), new_update_fn);
+        Ok(())
+    }
+
+    /// **(internal)** Utility method to add as many placeholder variables as is required by
+    /// an addition (or update) of an uninterpreted fn of given arity.
+    fn add_placeholder_vars_if_needed(&mut self, arity: usize) {
+        while arity > self.num_placeholder_vars() {
+            let placeholder_id = format!("var{}", self.num_placeholder_vars());
+            let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
+            self.placeholder_variables.insert(placeholder);
+        }
+    }
+
+    /// **(internal)** Utility method to remove as many placeholder variables as is required after
+    /// a removal (or update) of an uninterpreted fn.
+    fn remove_placeholder_vars_if_needed(&mut self) {
+        let highest_arity = self
+            .uninterpreted_fns
+            .values()
+            .fold(0, |acc, f| max(acc, f.get_arity()));
+        while self.num_placeholder_vars() > highest_arity {
+            let placeholder_id = format!("var{}", self.num_placeholder_vars() - 1);
+            let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
+            self.placeholder_variables.remove(&placeholder);
+        }
+    }
+
+    /// **(internal)** Utility method to add a default update fn for a given variable.
+    fn add_default_update_fn(&mut self, var_id: VarId) -> Result<(), String> {
+        self.assert_valid_variable(&var_id)?;
+        self.update_fns.insert(var_id, UpdateFn::default());
         Ok(())
     }
 
@@ -312,22 +665,13 @@ impl ModelState {
 /// Several utility methods to manipulate with layouts.
 impl ModelState {
     /// Add a new `Layout` with given `layout_id` and `name` to this `ModelState`. The layout
-    /// will contain nodes for the same variables as layout `template_layout_id`, but all of them
-    /// located at a default position.
+    /// will contain nodes for all model's variables, all of them located at a default position.
     ///
-    /// Returns `Err` if `layout_id` is already being used for some other `Layout` in
-    /// this `ModelState`, or if `template_layout_id` does not exist.
-    pub fn add_layout_simple(
-        &mut self,
-        layout_id: LayoutId,
-        name: &str,
-        template_layout_id: &LayoutId,
-    ) -> Result<(), String> {
+    /// Returns `Err` if `layout_id` is already being used for some other `Layout`.
+    pub fn add_layout_simple(&mut self, layout_id: LayoutId, name: &str) -> Result<(), String> {
         self.assert_no_layout(&layout_id)?;
-        self.assert_valid_layout(template_layout_id)?;
-
-        let template_layout = self.get_layout(template_layout_id)?;
-        let layout = Layout::new_from_another_default(name, template_layout);
+        let variable_ids = self.variables.clone().into_keys().collect();
+        let layout = Layout::new_from_vars_default(name, variable_ids)?;
         self.layouts.insert(layout_id, layout);
         Ok(())
     }
@@ -466,6 +810,28 @@ impl ModelState {
         }
     }
 
+    /// **(internal)** Utility method to ensure there is no uninterpreted_fn with given Id yet.
+    fn assert_no_uninterpreted_fn(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        if self.get_uninterpreted_fn(fn_id).is_err() {
+            Ok(())
+        } else {
+            Err(format!(
+                "Invalid uninterpreted fn: UninterpretedFn with id {fn_id} already exists."
+            ))
+        }
+    }
+
+    /// **(internal)** Utility method to ensure there is a uninterpreted fn with given Id.
+    fn assert_valid_uninterpreted_fn(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        if self.get_uninterpreted_fn(fn_id).is_err() {
+            Err(format!(
+                "Invalid uninterpreted fn: UninterpretedFn with id {fn_id} does not exist."
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
     /// **(internal)** Utility method to ensure there is no layout with given Id yet.
     fn assert_no_layout(&self, layout_id: &LayoutId) -> Result<(), String> {
         if self.get_layout(layout_id).is_err() {
@@ -487,18 +853,40 @@ impl ModelState {
             Ok(())
         }
     }
+
+    /// **(internal)** Utility method to ensure that an uninterpreted function is not used in any
+    /// expressions (corresponding to any update function or any uninterpreted function).
+    fn assert_fn_not_used_in_expressions(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        // check that this function symbol can be safely deleted (not contained in any update/uninterpreted fn)
+        let mut fn_symbols = HashSet::new();
+        for update_fn in self.update_fns.values() {
+            let tmp_fn_symbols = update_fn.collect_fn_symbols();
+            fn_symbols.extend(tmp_fn_symbols);
+        }
+        for uninterpreted_fn in self.uninterpreted_fns.values() {
+            let tmp_fn_symbols = uninterpreted_fn.collect_fn_symbols();
+            fn_symbols.extend(tmp_fn_symbols);
+        }
+        if fn_symbols.contains(fn_id) {
+            Err(format!("Cannot remove fn symbol `{fn_id}`, it is still contained in an update/uninterpreted function."))
+        } else {
+            Ok(())
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{ModelState, Observability, RegulationSign};
+    use crate::sketchbook::{Essentiality, ModelState, Monotonicity};
 
     /// Test generating new default variant of the `ModelState`.
     #[test]
     fn test_new_default() {
         let model = ModelState::new();
         assert_eq!(model.num_vars(), 0);
+        assert_eq!(model.num_uninterpreted_fns(), 0);
+        assert_eq!(model.num_placeholder_vars(), 0);
         assert_eq!(model.num_regulations(), 0);
         assert_eq!(model.num_layouts(), 1);
 
@@ -518,7 +906,6 @@ mod tests {
         let var_id_name_pairs = vec![("a_id", "a_name"), ("b_id", "b_name")];
         let model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
         assert_eq!(model.num_vars(), 2);
-        assert_eq!(model.num_regulations(), 0);
         assert!(model.is_valid_var_id_str("a_id"));
         assert!(model.is_valid_var_id_str("b_id"));
         assert!(!model.is_valid_var_id_str("c_id"));
@@ -541,6 +928,31 @@ mod tests {
         model.add_multiple_variables(variables).unwrap();
         assert_eq!(model.num_vars(), 5);
         assert!(model.is_valid_var_id_str("bbb"));
+    }
+
+    /// Test adding uninterpreted functions (both incrementally and at once).
+    #[test]
+    fn test_adding_uninterpreted_fns() {
+        let mut model = ModelState::new();
+
+        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
+        model.add_uninterpreted_fn_by_str("g", "g", 0).unwrap();
+        let f_id = model.get_uninterpreted_fn_id("f").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 2);
+        assert_eq!(model.num_placeholder_vars(), 1);
+        assert!(model.is_valid_uninterpreted_fn_id_str("f"));
+        assert!(model.is_valid_uninterpreted_fn_id_str("g"));
+        assert_eq!(f.get_arity(), 1);
+
+        // add list of function symbols at once
+        let uninterpreted_fns = vec![("ff", "ff", 4), ("gg", "gg", 3)];
+        model
+            .add_multiple_uninterpreted_fns(uninterpreted_fns)
+            .unwrap();
+        assert_eq!(model.num_placeholder_vars(), 4);
+        assert!(model.is_valid_uninterpreted_fn_id_str("ff"));
+        assert!(model.is_valid_uninterpreted_fn_id_str("gg"));
     }
 
     /// Test adding regulations (both incrementally and at once).
@@ -568,7 +980,7 @@ mod tests {
     /// or regulations. We are only adding valid regulations/variables here, invalid insertions are
     /// covered by other tests.
     #[test]
-    fn test_manually_editing() {
+    fn test_manually_editing_regulation_graph() {
         let mut model = ModelState::new();
 
         // add variables a, b, c
@@ -597,6 +1009,91 @@ mod tests {
         assert!(model.get_regulation(&var_b, &var_c).is_err());
         assert!(model.add_regulation_by_str("b -> c").is_ok());
         assert_eq!(model.num_regulations(), 1);
+    }
+
+    /// Test manually creating `ModelState` and mutating it by adding/removing uninterpreted fns.
+    #[test]
+    fn test_manually_editing_uninterpreted_fns() {
+        let mut model = ModelState::new();
+        let uninterpreted_fns = vec![("f", "f", 4), ("g", "g", 1)];
+        model
+            .add_multiple_uninterpreted_fns(uninterpreted_fns)
+            .unwrap();
+
+        // test default field values of an uninterpreted fn
+        let f_id = model.get_uninterpreted_fn_id("f").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 2);
+        assert_eq!(f.get_fn_expression(), "");
+        assert_eq!(f.get_essential(0), &Essentiality::Unknown);
+        assert_eq!(f.get_monotonic(2), &Monotonicity::Unknown);
+        assert_eq!(model.num_placeholder_vars(), 4);
+
+        // test setting all the various fields of an uninterpreted fn (including decreasing arity)
+        model.set_uninterpreted_fn_name(&f_id, "ff").unwrap();
+        model.set_uninterpreted_fn_arity(&f_id, 3).unwrap();
+        model
+            .set_uninterpreted_fn_essentiality(&f_id, Essentiality::True, 0)
+            .unwrap();
+        model
+            .set_uninterpreted_fn_monotonicity(&f_id, Monotonicity::Activation, 2)
+            .unwrap();
+        model
+            .set_uninterpreted_fn_expression(&f_id, "g(var0) | var2")
+            .unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(f.get_name(), "ff");
+        assert_eq!(f.get_fn_expression(), "g(var0) | var2");
+        assert_eq!(f.get_essential(0), &Essentiality::True);
+        assert_eq!(f.get_monotonic(2), &Monotonicity::Activation);
+        assert_eq!(model.num_placeholder_vars(), 3);
+
+        // function `g` cannot be removed, and its arity cannot be changed, since it is used inside the
+        // expression for function `f`
+        let remove_error = model.remove_uninterpreted_fn_by_str("g");
+        assert!(remove_error.is_err());
+        let modify_arity_error = model.set_uninterpreted_fn_arity_by_str("g", 2);
+        assert!(modify_arity_error.is_err());
+
+        // test setting ID of an uninterpreted fn
+        model.set_uninterpreted_fn_id_by_str("g", "h").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(f.get_fn_expression(), "h(var0) | var2");
+
+        // test editing function's expression back to an empty string
+        model.set_uninterpreted_fn_expression(&f_id, "").unwrap();
+        let f = model.get_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(f.get_fn_expression(), "");
+
+        // test increasing arity (the function symbol is no longer used in any expression)
+        model.set_uninterpreted_fn_arity_by_str("h", 5).unwrap();
+        assert_eq!(model.num_placeholder_vars(), 5);
+
+        // test removing function with NOT the most arguments (should not influence number of placeholder vars)
+        model.remove_uninterpreted_fn(&f_id).unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 1);
+        assert_eq!(model.num_placeholder_vars(), 5);
+
+        // test removing function with the most arguments (should lower the number of placeholder vars)
+        model.remove_uninterpreted_fn_by_str("h").unwrap();
+        assert_eq!(model.num_uninterpreted_fns(), 0);
+        assert_eq!(model.num_placeholder_vars(), 0);
+    }
+
+    /// Test manually adding and modifying update functions.
+    #[test]
+    fn test_update_fns() {
+        let var_id_name_pairs = vec![("a", "a"), ("b", "b"), ("c", "c")];
+        let mut model = ModelState::new_from_vars(var_id_name_pairs).unwrap();
+        let var_a = model.get_var_id("a").unwrap();
+
+        let initial_expression = model.get_update_fn_string(&var_a).unwrap();
+        assert_eq!(initial_expression, "");
+
+        let expression = "(a & b) => c";
+        model.set_update_fn(&var_a, "(a & b) => c").unwrap();
+        let modified_expression = model.get_update_fn_string(&var_a).unwrap();
+        assert_eq!(modified_expression, expression);
     }
 
     /// Test adding invalid variables.
@@ -634,7 +1131,7 @@ mod tests {
         assert!(model.add_regulation_by_str("a -> b").is_err());
         assert!(model.add_regulation_by_str("a -| b").is_err());
         assert!(model
-            .add_regulation(var_a, var_b, Observability::Unknown, RegulationSign::Dual)
+            .add_regulation(var_a, var_b, Essentiality::Unknown, Monotonicity::Dual)
             .is_err());
 
         // adding reg with invalid vars or invalid format should cause error
@@ -683,6 +1180,10 @@ mod tests {
             .add_layout_copy(new_layout_id.clone(), "layout2", &default_layout_id)
             .unwrap();
 
+        // add update fn expression for both variables contain `a`
+        model.set_update_fn(&var_a, "a | b").unwrap();
+        model.set_update_fn(&var_b, "a => a").unwrap();
+
         // change var id of variable a, check that it correctly changed everywhere
         let new_var = model.generate_var_id("c");
         model.set_var_id(&var_a, new_var.clone()).unwrap();
@@ -707,6 +1208,11 @@ mod tests {
         assert!(layout2.get_node_position(&var_a).is_err());
         assert!(layout1.get_node_position(&new_var).is_ok());
         assert!(layout2.get_node_position(&new_var).is_ok());
+
+        // 4) update functions changed correctly
+        assert!(model.get_update_fn_string(&var_a).is_err());
+        assert_eq!(model.get_update_fn_string(&new_var).unwrap(), "c | b");
+        assert_eq!(model.get_update_fn_string(&var_b).unwrap(), "c => c");
     }
 
     #[test]
@@ -736,7 +1242,7 @@ mod tests {
         // add layouts (one as vars with default nodes, and other as direct copy)
         let new_id_1 = model.generate_layout_id("new_layout");
         model
-            .add_layout_simple(new_id_1.clone(), "new_layout", &default_layout_id)
+            .add_layout_simple(new_id_1.clone(), "new_layout")
             .unwrap();
         let position = model.get_node_position(&new_id_1, &var_id).unwrap();
         assert_eq!(position, &NodePosition(0., 0.));

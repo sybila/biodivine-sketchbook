@@ -197,7 +197,7 @@ impl SessionState for EditorSession {
         } else if let Some(at_path) = Self::starts_with("model", at_path) {
             self.model.perform_event(event, at_path)
         } else {
-            Self::invalid_path_error(at_path)
+            Self::invalid_path_error_generic(at_path)
         }
     }
 
@@ -209,7 +209,7 @@ impl SessionState for EditorSession {
         } else if let Some(at_path) = Self::starts_with("model", at_path) {
             self.model.refresh(full_path, at_path)
         } else {
-            Self::invalid_path_error(at_path)
+            Self::invalid_path_error_generic(at_path)
         }
     }
 }

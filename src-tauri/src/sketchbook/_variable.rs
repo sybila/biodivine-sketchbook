@@ -1,3 +1,4 @@
+use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -12,10 +13,10 @@ pub struct Variable {
 
 impl Variable {
     /// Create new `Variable` objects.
-    pub fn new(name_str: &str) -> Variable {
-        Variable {
-            name: name_str.to_string(),
-        }
+    pub fn new(name_str: &str) -> Result<Variable, String> {
+        assert_name_valid(name_str)?;
+        let name = name_str.to_string();
+        Ok(Variable { name })
     }
 
     /// Human-readable name of this variable.
@@ -24,9 +25,10 @@ impl Variable {
     }
 
     /// Rename this variable.
-    pub fn set_name(&mut self, new_name: &str) {
-        // todo: perform some check on the name string - at least disallow newlines
+    pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
+        assert_name_valid(new_name)?;
         self.name = new_name.to_string();
+        Ok(())
     }
 }
 
@@ -41,11 +43,23 @@ mod tests {
     use crate::sketchbook::Variable;
 
     #[test]
-    fn test_var_creation() {
-        let var_name = "variable".to_string();
-        let var = Variable::new(var_name.as_str());
+    fn test_variable() {
+        let var_name = "v a r i a b l e 123".to_string();
+        let mut var = Variable::new(var_name.as_str()).unwrap();
 
         assert_eq!(var.get_name(), &var_name);
         assert_eq!(var.to_string(), var_name);
+
+        let new_name = "v a r 123".to_string();
+        var.set_name(&new_name).unwrap();
+        assert_eq!(var.get_name(), &new_name);
+    }
+
+    #[test]
+    fn test_invalid_variable() {
+        let var_name = "v\na\nr\n".to_string();
+        let var = Variable::new(var_name.as_str());
+
+        assert!(var.is_err());
     }
 }

@@ -1,7 +1,7 @@
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{
-    Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, VarId, Variable,
-    VariableIterator,
+    Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
+    UninterpretedFnId, UninterpretedFnIterator, UpdateFn, VarId, Variable, VariableIterator,
 };
 use std::str::FromStr;
 
@@ -15,6 +15,11 @@ impl ModelState {
         self.variables.len()
     }
 
+    /// The number of uninterpreted_fns in this `ModelState`.
+    pub fn num_uninterpreted_fns(&self) -> usize {
+        self.uninterpreted_fns.len()
+    }
+
     /// The number of layouts in this `ModelState`.
     pub fn num_layouts(&self) -> usize {
         self.layouts.len()
@@ -25,15 +30,39 @@ impl ModelState {
         self.regulations.len()
     }
 
+    /// The number of placeholder variables in this `ModelState`.
+    pub(crate) fn num_placeholder_vars(&self) -> usize {
+        self.placeholder_variables.len()
+    }
+
     /// Check if there is a variable with given Id.
     pub fn is_valid_var_id(&self, var_id: &VarId) -> bool {
         self.variables.contains_key(var_id)
+    }
+
+    /// Check if there is a placeholder variable with given Id.
+    pub(crate) fn is_valid_placeholder_var_id(&self, var_id: &VarId) -> bool {
+        self.placeholder_variables.contains(var_id)
     }
 
     /// Check if the given `id` corresponds to some variable's valid Id.
     pub fn is_valid_var_id_str(&self, id: &str) -> bool {
         if let Ok(var_id) = VarId::from_str(id) {
             self.is_valid_var_id(&var_id)
+        } else {
+            false
+        }
+    }
+
+    /// Check if there is a uninterpreted fn with given Id.
+    pub fn is_valid_uninterpreted_fn_id(&self, fn_id: &UninterpretedFnId) -> bool {
+        self.uninterpreted_fns.contains_key(fn_id)
+    }
+
+    /// Check if the given `id` corresponds to some uninterpreted fn's valid Id.
+    pub fn is_valid_uninterpreted_fn_id_str(&self, id: &str) -> bool {
+        if let Ok(fn_id) = UninterpretedFnId::from_str(id) {
+            self.is_valid_uninterpreted_fn_id(&fn_id)
         } else {
             false
         }
@@ -53,7 +82,7 @@ impl ModelState {
         }
     }
 
-    /// Return a valid variable's `VarId` corresponding to the Id given by a `String`.
+    /// Return a valid variable's `VarId` corresponding to the given str `id`.
     ///
     /// Return `Err` if such variable does not exist (and the ID is invalid).
     pub fn get_var_id(&self, id: &str) -> Result<VarId, String> {
@@ -62,6 +91,17 @@ impl ModelState {
             return Ok(var_id);
         }
         Err(format!("Variable with ID {id} does not exist."))
+    }
+
+    /// Return a valid placeholder variable's `VarId` corresponding to the given str `id`.
+    ///
+    /// Return `Err` if such variable does not exist (and the ID is invalid).
+    pub(crate) fn get_placeholder_var_id(&self, id: &str) -> Result<VarId, String> {
+        let var_id = VarId::from_str(id)?;
+        if self.is_valid_placeholder_var_id(&var_id) {
+            return Ok(var_id);
+        }
+        Err(format!("Placeholder variable with ID {id} does not exist."))
     }
 
     /// Return a `Variable` corresponding to a given `VarId`.
@@ -73,6 +113,31 @@ impl ModelState {
             .get(var_id)
             .ok_or(format!("Variable with ID {var_id} does not exist."))?;
         Ok(variable)
+    }
+
+    /// Return a valid uninterpreted fn's `UninterpretedFnId` corresponding to the given str `id`.
+    ///
+    /// Return `Err` if no such uninterpreted fn exists (and the ID is invalid).
+    pub fn get_uninterpreted_fn_id(&self, id: &str) -> Result<UninterpretedFnId, String> {
+        let fn_id = UninterpretedFnId::from_str(id)?;
+        if self.is_valid_uninterpreted_fn_id(&fn_id) {
+            return Ok(fn_id);
+        }
+        Err(format!("UninterpretedFn with ID {id} does not exist."))
+    }
+
+    /// Return a `UninterpretedFn` corresponding to a given `UninterpretedFnId`.
+    ///
+    /// Return `Err` if no such uninterpreted fn exists (the ID is invalid in this context).
+    pub fn get_uninterpreted_fn(
+        &self,
+        fn_id: &UninterpretedFnId,
+    ) -> Result<&UninterpretedFn, String> {
+        let uninterpreted_fn = self
+            .uninterpreted_fns
+            .get(fn_id)
+            .ok_or(format!("UninterpretedFn with ID {fn_id} does not exist."))?;
+        Ok(uninterpreted_fn)
     }
 
     /// Shortcut to return a name of the variable corresponding to a given `VarId`.
@@ -174,17 +239,40 @@ impl ModelState {
         Ok(targets)
     }
 
-    /// Return an iterator over all variables of this graph.
+    /// Get an update function for the given variable.
+    pub fn get_update_fn(&self, var_id: &VarId) -> Result<&UpdateFn, String> {
+        let update_fn = self
+            .update_fns
+            .get(var_id)
+            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        Ok(update_fn)
+    }
+
+    /// Get an update function's expression for the given variable.
+    pub fn get_update_fn_string(&self, var_id: &VarId) -> Result<&str, String> {
+        let update_fn = self
+            .update_fns
+            .get(var_id)
+            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        Ok(update_fn.get_fn_expression())
+    }
+
+    /// Return an iterator over all variables of this model.
     pub fn variables(&self) -> VariableIterator {
         self.variables.keys()
     }
 
-    /// Return an iterator over all regulations of this graph.
+    /// Return an iterator over all uninterpreted_fns of this model.
+    pub fn uninterpreted_fns(&self) -> UninterpretedFnIterator {
+        self.uninterpreted_fns.keys()
+    }
+
+    /// Return an iterator over all regulations of this model.
     pub fn regulations(&self) -> RegulationIterator {
         self.regulations.iter()
     }
 
-    /// Return an iterator over all layouts of this graph.
+    /// Return an iterator over all layouts of this model.
     pub fn layouts(&self) -> LayoutIterator {
         self.layouts.keys()
     }

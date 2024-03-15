@@ -60,7 +60,7 @@ export class VariableTile extends EditorTile {
   )
 
   functionUpdated = debounce(() => {
-    this.dispatchEvent(new CustomEvent('set-variable-function', {
+    this.dispatchEvent(new CustomEvent('set-update-function-expression', {
       detail: {
         id: this.variables[this.index].id,
         function: this.aceEditor.getValue()

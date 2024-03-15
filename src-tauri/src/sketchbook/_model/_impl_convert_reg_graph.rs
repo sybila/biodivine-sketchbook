@@ -1,15 +1,20 @@
-use crate::sketchbook::{ModelState, Observability, RegulationSign, VarId};
+use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
-/// Methods for converting between `ModelState` and `RegulatoryGraph` (from the lib-param-bn).
+/// Methods for converting between `ModelState` and `RegulatoryGraph` (from the `lib-param-bn`).
 impl ModelState {
     /// Convert the `ModelState` (the current state of the regulation graph) into the
     /// corresponding `RegulatoryGraph` object. Sorted variable IDs of the `ModelState` are
     /// used for variable names in `RegulatoryGraph`.
     ///
+    /// The conversion might loose some information, as the `RegulatoryGraph` does not support
+    /// all the variants of `Monotonicity` and `Essentiality`. See also [ModelState::sign_to_monotonicity].
+    ///
     /// Note that we can convert the resulting `RegulatoryGraph` back, but the conversion loses
-    /// some information, like the original variable names and layout info.
+    /// some information, like the original variable names and layout information.
+    /// Also, all of the other model components, such as `update functions` or `uninterpreted functions`
+    /// are not part of the `RegulatoryGraph`.
     pub fn to_reg_graph(&self) -> RegulatoryGraph {
         // create `RegulatoryGraph` from a list of variable ID strings (these are unique and
         // can be mapped back)
@@ -29,7 +34,7 @@ impl ModelState {
                 .add_regulation(
                     r.get_regulator().as_str(),
                     r.get_target().as_str(),
-                    r.is_observable(),
+                    r.is_essential(),
                     ModelState::sign_to_monotonicity(r.get_sign()),
                 )
                 .unwrap();
@@ -60,7 +65,7 @@ impl ModelState {
             model.add_regulation(
                 VarId::new(name_regulator.as_str())?,
                 VarId::new(name_target.as_str())?,
-                ModelState::observability_from_bool(r.is_observable()),
+                ModelState::essentiality_from_bool(r.is_observable()),
                 ModelState::sign_from_monotonicity(r.get_monotonicity()),
             )?;
         }
@@ -68,64 +73,64 @@ impl ModelState {
     }
 
     /// **(internal)** Static utility method to convert regulation sign given by `Monotonicity`
-    /// used by `lib_param_bn` into the type `RegulationSign` used here.
-    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign`.
-    fn sign_from_monotonicity(monotonicity: Option<Lib_Pbn_Monotonicity>) -> RegulationSign {
+    /// used by `lib_param_bn` into the type `Monotonicity` used here.
+    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `Monotonicity`.
+    fn sign_from_monotonicity(monotonicity: Option<Lib_Pbn_Monotonicity>) -> Monotonicity {
         match monotonicity {
             Some(m) => match m {
-                Lib_Pbn_Monotonicity::Activation => RegulationSign::Activation,
-                Lib_Pbn_Monotonicity::Inhibition => RegulationSign::Inhibition,
+                Lib_Pbn_Monotonicity::Activation => Monotonicity::Activation,
+                Lib_Pbn_Monotonicity::Inhibition => Monotonicity::Inhibition,
             },
-            None => RegulationSign::Unknown,
+            None => Monotonicity::Unknown,
         }
     }
 
     /// **(internal)** Static utility method to convert regulation sign from the type
-    /// `RegulationSign` used here into the type `Monotonicity` used in `lib_param_bn`.
-    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `RegulationSign` and `Unknown` is used instead.
-    fn sign_to_monotonicity(regulation_sign: &RegulationSign) -> Option<Lib_Pbn_Monotonicity> {
+    /// `Monotonicity` used here into the type `Monotonicity` used in `lib_param_bn`.
+    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `Monotonicity` and `Unknown` is used instead.
+    fn sign_to_monotonicity(regulation_sign: &Monotonicity) -> Option<Lib_Pbn_Monotonicity> {
         match regulation_sign {
-            RegulationSign::Activation => Some(Lib_Pbn_Monotonicity::Activation),
-            RegulationSign::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),
-            RegulationSign::Unknown => None,
+            Monotonicity::Activation => Some(Lib_Pbn_Monotonicity::Activation),
+            Monotonicity::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),
+            Monotonicity::Unknown => None,
             // todo: fix
-            RegulationSign::Dual => None,
+            Monotonicity::Dual => None,
         }
     }
 
-    /// **(internal)** Static utility method to convert `Observability` from boolean.
-    /// TODO: note that `lib-param-bn` currently cannot distinguish between `False` and `Unknown` variants of `Observability`.
-    fn observability_from_bool(observability: bool) -> Observability {
-        match observability {
-            true => Observability::True,
+    /// **(internal)** Static utility method to convert `Essentiality` from boolean.
+    /// TODO: note that `lib-param-bn` currently cannot distinguish between `False` and `Unknown` variants of `Essentiality`.
+    fn essentiality_from_bool(essentiality: bool) -> Essentiality {
+        match essentiality {
+            true => Essentiality::True,
             // todo: fix, this is how it works now in `lib-param-bn`
-            false => Observability::Unknown,
+            false => Essentiality::Unknown,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{ModelState, VarId};
+    use crate::sketchbook::ModelState;
     use biodivine_lib_param_bn::RegulatoryGraph;
+
+    /// Prepare a test model containing only variables and regulations.
+    fn prepare_test_model() -> ModelState {
+        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        model
+            .add_multiple_regulations(vec!["a -> b", "b -> a", "a -| a"])
+            .unwrap();
+        model
+    }
 
     #[test]
     fn test_to_reg_graph() {
-        let mut model = ModelState::new();
-        let var_id_a = VarId::new("a").unwrap();
-        let var_id_b = VarId::new("b").unwrap();
-        model.add_var(var_id_a, "a").unwrap();
-        model.add_var(var_id_b, "b").unwrap();
-        model.add_regulation_by_str("a -> b").unwrap();
-        model.add_regulation_by_str("b -> a").unwrap();
-
+        let model = prepare_test_model();
         let reg_graph = model.to_reg_graph();
-
+        let var_a = reg_graph.find_variable("a").unwrap();
+        let var_b = reg_graph.find_variable("b").unwrap();
         assert_eq!(reg_graph.num_vars(), 2);
-        assert_eq!(
-            reg_graph.regulators(reg_graph.find_variable("a").unwrap()),
-            vec![reg_graph.find_variable("b").unwrap()]
-        );
+        assert_eq!(reg_graph.regulators(var_a), vec![var_a, var_b]);
 
         let model_back = ModelState::from_reg_graph(reg_graph).unwrap();
         assert_eq!(model, model_back);

@@ -4,7 +4,7 @@
 use aeon_sketchbook::app::event::{Event, UserAction};
 use aeon_sketchbook::app::state::editor::EditorSession;
 use aeon_sketchbook::app::state::{AppState, DynSession};
-use aeon_sketchbook::app::{AeonApp, AEON_ACTION, AEON_REFRESH};
+use aeon_sketchbook::app::{AeonApp, AEON_ACTION, AEON_REFRESH, AEON_VALUE};
 use aeon_sketchbook::debug;
 use serde::{Deserialize, Serialize};
 use tauri::{command, Manager, State, Window};
@@ -62,7 +62,15 @@ fn main() {
                 let result = state.consume_event(&aeon, session_id.as_str(), &action);
                 if let Err(e) = result {
                     // TODO: This should be a normal error.
-                    panic!("Event error: {:?}", e);
+                    //panic!("Event error: {:?}", e);
+
+                    // TODO: This is only a temporary solution to propagate the error message to frontend.
+                    debug!("Error processing last event: `{}`.", e.to_string());
+                    let json_message = format!("\"{e}\"");
+                    let state_change = Event::build(&["error"], Some(&json_message));
+                    if aeon.tauri.emit_all(AEON_VALUE, vec![state_change]).is_err() {
+                        panic!("Event error failed to be sent: {:?}", e);
+                    }
                 }
             });
             let aeon = aeon_original.clone();

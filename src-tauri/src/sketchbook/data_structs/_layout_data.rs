@@ -7,7 +7,8 @@ use std::str::FromStr;
 ///
 /// `LayoutData` does not have the exact same fields as `Layout` (for instance, there is an additional useful
 /// field `id` and the layout nodes are missing).
-/// All the fields of `LayoutData` are string to allow for simpler (de)serialization and manipulation.
+/// Some fields of `LayoutData` are simplified compared to `Layout` (e.g., pure `Strings` instead
+/// of more complex typesafe structs) to allow for easier (de)serialization.
 ///
 /// See also [LayoutNodeData] for similar structure to carry data regarding `NodeLayouts`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

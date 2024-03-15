@@ -58,12 +58,51 @@ pub trait SessionHelper {
     }
 
     /// A utility function which emits a generic "invalid path" error.
-    fn invalid_path_error<T>(at_path: &[&str]) -> Result<T, DynError> {
+    fn invalid_path_error_generic<T>(at_path: &[&str]) -> Result<T, DynError> {
         AeonError::throw(format!(
             "`{}` cannot process path `{:?}`.",
             std::any::type_name::<Self>(),
             at_path
         ))
+    }
+
+    /// A utility function which emits a "invalid path" error mentioning specific state's `component`.
+    fn invalid_path_error_specific<T>(path: &[&str], component: &str) -> Result<T, DynError> {
+        AeonError::throw(format!("`{component}` cannot process path `{:?}`.", path))
+    }
+
+    /// A utility function to get and clone a payload of an event. Errors if payload is empty.
+    ///
+    /// The `component` specifies which component of the state should be mentioned in the error.
+    /// This might be useful to directly mention relevant fields of more complex types.
+    fn clone_payload_str(event: &Event, component: &str) -> Result<String, DynError> {
+        let payload = event.payload.clone().ok_or(format!(
+            "This event to `{component}` cannot carry empty payload."
+        ))?;
+        Ok(payload)
+    }
+
+    /// A utility function to assert that path has a given length, or emit a `DynError` otherwise.
+    ///
+    /// The `component` specifies the state's component that should be mentioned in the error.
+    /// This might be useful to directly mention relevant fields of more complex types.
+    fn assert_path_length(path: &[&str], length: usize, component: &str) -> Result<(), DynError> {
+        if path.len() != length {
+            return AeonError::throw(format!("`{component}` cannot process path `{:?}`.", path));
+        }
+        Ok(())
+    }
+
+    /// A utility function to assert that payload is empty - otherwise, `DynError` is emitted.
+    ///
+    /// The `component` specifies which component of the state should be mentioned in the error.
+    /// This might be useful to directly mention relevant fields of more complex types.
+    fn assert_payload_empty(event: &Event, component: &str) -> Result<(), DynError> {
+        if event.payload.is_some() {
+            let message = format!("This event to `{component}` cannot have empty payload.");
+            return AeonError::throw(message);
+        }
+        Ok(())
     }
 }
 

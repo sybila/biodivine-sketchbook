@@ -48,6 +48,33 @@ export const dummyData: ContentData = ContentData.create({
       function: ''
     }
   ],
+  functions: [
+    {
+      id: 'f',
+      function: '',
+      variables: [
+        { source: 'var0', target: 'f', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: '9868a51d-bffa-4964-98d7-be5aea3111c3' },
+        { source: 'var1', target: 'f', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: '7e9229c6-07b8-4d01-b8d0-c84ed092311c' },
+        { source: 'var2', target: 'f', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: 'ce5dcc04-8f65-47e9-a5d9-102058b49c65' }
+      ]
+    },
+    {
+      id: 'g',
+      function: '',
+      variables: [
+        { source: 'var0', target: 'g', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: '4bba0135-ceab-4a1f-9158-ea7df95b79f7' },
+        { source: 'var1', target: 'g', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: 'f338b1d5-e009-48b5-a992-21700d3a8300' }
+      ]
+    },
+    {
+      id: 'h',
+      function: '',
+      variables: [
+        { source: 'var0', target: 'g', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: '477372ad-b681-413e-827c-8c1bf1e6eb8f' },
+        { source: 'var1', target: 'g', essential: Essentiality.UNKNOWN, monotonicity: Monotonicity.UNSPECIFIED, id: '99f5ac87-76eb-4ef0-a17b-a393d8931cb6' }
+      ]
+    }
+  ],
   regulations: [
     { source: 'MBF', target: 'YOX1', essential: Essentiality.TRUE, monotonicity: Monotonicity.ACTIVATION, id: '9ec9bb07-0a4d-4e76-8f42-bc6288fab957' },
     { source: 'SBF', target: 'YOX1', essential: Essentiality.TRUE, monotonicity: Monotonicity.ACTIVATION, id: '591f6b76-581b-431b-ac28-ce3f82607de1' },

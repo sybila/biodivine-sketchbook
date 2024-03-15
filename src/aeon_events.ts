@@ -1,6 +1,6 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
-import { type Monotonicity } from './html/util/data-interfaces'
+import { Monotonicity, Essentiality } from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -45,8 +45,12 @@ interface AeonState {
 
     /** List of model variables. */
     variablesRefreshed: Observable<[VariableData]>
-    /** Refresh the variable. */
+    /** Refresh the variables. */
     refreshVariables: () => void
+    /** List of model uninterpreted functions. */
+    uninterpretedFnsRefreshed: Observable<[UninterpretedFnData]>
+    /** Refresh the uninterpreted functions. */
+    refreshUninterpretedFns: () => void
     /** List of model regulations. */
     regulationsRefreshed: Observable<[RegulationData]>
     /** Refresh the regulations. */
@@ -78,13 +82,61 @@ interface AeonState {
     variableIdChanged: Observable<VariableIdUpdateData>
     /** Set an ID of variable with given original ID to a new id. */
     setVariableId: (originalId: string, newId: string) => void
+    /** VariableData (with a new `update_fn`) for a variable with modified update function. */
+    variableUpdateFnChanged: Observable<VariableData>
+    /** Set an expression of update function for variable with given ID. */
+    setVariableUpdateFn: (varId: string, newExpression: string) => void
+
+    /** Uninterpreted function-related setter events */
+
+    /** UninterpretedFnData for a newly created uninterpreted function. */
+    uninterpretedFnCreated: Observable<UninterpretedFnData>
+    /** Create new uninterpreted function with given arity, ID, and name.
+     * If name is not given, ID string is used for both ID and name. */
+    addUninterpretedFn: (uninterpretedFnId: string, arity: number, uninterpretedFnName?: string) => void
+    /** UninterpretedFnData of a removed uninterpreted function. */
+    uninterpretedFnRemoved: Observable<UninterpretedFnData>
+    /** Remove uninterpreted function with given ID. */
+    removeUninterpretedFn: (uninterpretedFnId: string) => void
+    /** UninterpretedFnData (with a new `name`) for a renamed uninterpreted function. */
+    uninterpretedFnNameChanged: Observable<UninterpretedFnData>
+    /** Set name of uninterpreted function with given ID. */
+    setUninterpretedFnName: (uninterpretedFnId: string, newName: string) => void
+    /** UninterpretedFnData (with a new `arity`) for a modified uninterpreted function. */
+    uninterpretedFnArityChanged: Observable<UninterpretedFnData>
+    /** Set arity of uninterpreted function with given ID. */
+    setUninterpretedFnArity: (uninterpretedFnId: string, newArity: number) => void
+    /** UninterpretedFnData (with incremented `arity`) for a modified uninterpreted function. */
+    uninterpretedFnArityIncremented: Observable<UninterpretedFnData>
+    /** Increment arity of uninterpreted function with given ID. */
+    incrementUninterpretedFnArity: (uninterpretedFnId: string) => void
+    /** UninterpretedFnData (with decremented `arity`) for a modified uninterpreted function. */
+    uninterpretedFnArityDecremented: Observable<UninterpretedFnData>
+    /** Decrement arity of uninterpreted function with given ID. */
+    decrementUninterpretedFnArity: (uninterpretedFnId: string) => void
+    /** Object with `original_id` of an uninterpreted function and its `new_id`. */
+    uninterpretedFnIdChanged: Observable<UninterpretedFnIdUpdateData>
+    /** Set an ID of an uninterpreted function with given original ID to a new id. */
+    setUninterpretedFnId: (originalId: string, newId: string) => void
+    /** UninterpretedFnData (with a new `expression`) for a modified uninterpreted function. */
+    uninterpretedFnExpressionChanged: Observable<UninterpretedFnData>
+    /** Set an expression of uninterpreted function with given ID. */
+    setUninterpretedFnExpression: (uninterpretedFnId: string, newExpression: string) => void
+    /** UninterpretedFnData (with a new `monotonicity` for one of the args) for a modified uninterpreted function. */
+    uninterpretedFnMonotonicityChanged: Observable<UninterpretedFnData>
+    /** Set a monotonicity of uninterpreted function with given ID. */
+    setUninterpretedFnMonotonicity: (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity) => void
+    /** UninterpretedFnData (with a new `essentiality` for one of the args) for a modified uninterpreted function. */
+    uninterpretedFnEssentialityChanged: Observable<UninterpretedFnData>
+    /** Set an essentiality of uninterpreted function with given ID. */
+    setUninterpretedFnEssentiality: (uninterpretedFnId: string, idx: number, essentiality: Essentiality) => void
 
     /** Regulation-related setter events */
 
     /** RegulationData for a newly created regulation. */
     regulationCreated: Observable<RegulationData>
     /** Create new regulation specified by all of its four components. */
-    addRegulation: (regulatorId: string, targetId: string, sign: string, observable: string) => void
+    addRegulation: (regulatorId: string, targetId: string, sign: string, essential: string) => void
     /** RegulationData of a removed regulation. */
     regulationRemoved: Observable<RegulationData>
     /** Create regulation specified by its regulator and target. */
@@ -92,11 +144,11 @@ interface AeonState {
     /** RegulationData (with a new `sign`) of a regulation that has its sign changed. */
     regulationSignChanged: Observable<RegulationData>
     /** Set sign of a regulation specified by its regulator and target. */
-    setRegulationSign: (regulatorId: string, targetId: string, newSign: string) => void
-    /** RegulationData (with a new `observability`) of a regulation that has its observability changed. */
-    regulationObservableChanged: Observable<RegulationData>
-    /** Set observability of a regulation specified by its regulator and target. */
-    setRegulationObservable: (regulatorId: string, targetId: string, newSign: string) => void
+    setRegulationSign: (regulatorId: string, targetId: string, newSign: Monotonicity) => void
+    /** RegulationData (with a new `essentiality`) of a regulation that has its essentiality changed. */
+    regulationEssentialityChanged: Observable<RegulationData>
+    /** Set essentiality of a regulation specified by its regulator and target. */
+    setRegulationEssentiality: (regulatorId: string, targetId: string, newEssentiality: Essentiality) => void
 
     /** Layout-related setter events */
 
@@ -113,12 +165,27 @@ interface AeonState {
     /** Change a position of a variable in a layout to new coordinates. */
     changeNodePosition: (layoutId: string, varId: string, newX: number, newY: number) => void
   }
+
+  /** The information about errors occurring when processing events on backend. */
+  error: {
+    /** Error message provided by backend. */
+    errorReceived: Observable<string>
+  }
 }
 
 /** An object representing basic information regarding a model variable. */
 export interface VariableData {
   id: string
   name: string
+  update_fn: string
+}
+
+/** An object representing basic information regarding a model's uninterpreted function. */
+export interface UninterpretedFnData {
+  id: string
+  name: string
+  arguments: Array<[Monotonicity, Essentiality]>
+  expression: string
 }
 
 /** An object representing basic information regarding a model regulation. */
@@ -126,7 +193,7 @@ export interface RegulationData {
   regulator: string
   target: string
   sign: Monotonicity
-  observable: string
+  essential: Essentiality
 }
 
 /** An object representing basic information regarding a model layout. */
@@ -153,10 +220,11 @@ export interface LayoutNodeDataPrototype {
   py: number
 }
 
-/**
- * An object representing information needed for variable id change
- */
+/** An object representing information needed for variable id change. */
 export interface VariableIdUpdateData { original_id: string, new_id: string }
+
+/** An object representing information needed for uninterpreted function's id change. */
+export interface UninterpretedFnIdUpdateData { original_id: string, new_id: string }
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -560,10 +628,17 @@ export const aeonState: AeonState = {
       }
     }
   },
+  error: {
+    errorReceived: new Observable<string>(['error'])
+  },
   model: {
     variablesRefreshed: new Observable<[VariableData]>(['model', 'get_variables']),
     refreshVariables (): void {
       aeonEvents.refresh(['model', 'get_variables'])
+    },
+    uninterpretedFnsRefreshed: new Observable<[UninterpretedFnData]>(['model', 'get_uninterpreted_fns']),
+    refreshUninterpretedFns (): void {
+      aeonEvents.refresh(['model', 'get_uninterpreted_fns'])
     },
     regulationsRefreshed: new Observable<[RegulationData]>(['model', 'get_regulations']),
     refreshRegulations (): void {
@@ -582,11 +657,23 @@ export const aeonState: AeonState = {
     variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
     variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
     variableIdChanged: new Observable<VariableIdUpdateData>(['model', 'variable', 'set_id']),
+    variableUpdateFnChanged: new Observable<VariableData>(['model', 'variable', 'set_update_fn']),
+
+    uninterpretedFnCreated: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'add']),
+    uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'remove']),
+    uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_name']),
+    uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_arity']),
+    uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'increment_arity']),
+    uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'decrement_arity']),
+    uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['model', 'uninterpreted_fn', 'set_id']),
+    uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_expression']),
+    uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_monotonicity']),
+    uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_essentiality']),
 
     regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
     regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
     regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
-    regulationObservableChanged: new Observable<RegulationData>(['model', 'regulation', 'set_observability']),
+    regulationEssentialityChanged: new Observable<RegulationData>(['model', 'regulation', 'set_essentiality']),
 
     layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
     layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
@@ -604,7 +691,7 @@ export const aeonState: AeonState = {
       // First action creates the variable.
       actions.push({
         path: ['model', 'variable', 'add'],
-        payload: JSON.stringify({ id: varId, name: varName })
+        payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
       })
       // Subsequent actions position it in one or more layouts.
       if (!Array.isArray(position)) {
@@ -641,14 +728,88 @@ export const aeonState: AeonState = {
         payload: newId
       })
     },
-    addRegulation (regulatorId: string, targetId: string, sign: string, observable: string): void {
+    setVariableUpdateFn (varId: string, newExpression: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'variable', varId, 'set_update_fn'],
+        payload: newExpression.toString()
+      })
+    },
+    addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
+      if (uninterpretedFnName === '') {
+        uninterpretedFnName = uninterpretedFnId
+      }
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', 'add'],
+        payload: JSON.stringify({
+          id: uninterpretedFnId,
+          name: uninterpretedFnName,
+          arguments: Array(arity).fill([Monotonicity.UNSPECIFIED, Essentiality.UNKNOWN]),
+          expression: ''
+        })
+      })
+    },
+    removeUninterpretedFn (uninterpretedFnId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'remove'],
+        payload: null
+      })
+    },
+    setUninterpretedFnName (uninterpretedFnId: string, newName: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
+        payload: newName
+      })
+    },
+    setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
+        payload: newArity.toString()
+      })
+    },
+    incrementUninterpretedFnArity (uninterpretedFnId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
+        payload: null
+      })
+    },
+    decrementUninterpretedFnArity (uninterpretedFnId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
+        payload: null
+      })
+    },
+    setUninterpretedFnId (originalId: string, newId: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', originalId, 'set_id'],
+        payload: newId
+      })
+    },
+    setUninterpretedFnExpression (uninterpretedFnId: string, newExpression: string): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_expression'],
+        payload: newExpression.toString()
+      })
+    },
+    setUninterpretedFnMonotonicity (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicity'],
+        payload: JSON.stringify({ idx, monotonicity })
+      })
+    },
+    setUninterpretedFnEssentiality (uninterpretedFnId: string, idx: number, essentiality: Essentiality): void {
+      aeonEvents.emitAction({
+        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_essentiality'],
+        payload: JSON.stringify({ idx, essentiality })
+      })
+    },
+    addRegulation (regulatorId: string, targetId: string, sign: string, essential: string): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', 'add'],
         payload: JSON.stringify({
           regulator: regulatorId,
           target: targetId,
           sign,
-          observable
+          essential
         })
       })
     },
@@ -658,16 +819,16 @@ export const aeonState: AeonState = {
         payload: null
       })
     },
-    setRegulationSign (regulatorId: string, targetId: string, newSign: string): void {
+    setRegulationSign (regulatorId: string, targetId: string, newSign: Monotonicity): void {
       aeonEvents.emitAction({
         path: ['model', 'regulation', regulatorId, targetId, 'set_sign'],
         payload: JSON.stringify(newSign)
       })
     },
-    setRegulationObservable (regulatorId: string, targetId: string, newObservability: string): void {
+    setRegulationEssentiality (regulatorId: string, targetId: string, newEssentiality: Essentiality): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', regulatorId, targetId, 'set_observability'],
-        payload: JSON.stringify(newObservability)
+        path: ['model', 'regulation', regulatorId, targetId, 'set_essentiality'],
+        payload: JSON.stringify(newEssentiality)
       })
     },
     addLayout (layoutId: string, layoutName: string): void {
