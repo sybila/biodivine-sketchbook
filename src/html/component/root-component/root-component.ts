@@ -109,12 +109,7 @@ class RootComponent extends LitElement {
     // update functions using modified data propagated from FunctionsEditor
     const functions: IFunctionData[] = (event as CustomEvent).detail.functions
 
-    this.data = ContentData.create({
-      variables: this.data.variables,
-      regulations: this.data.regulations,
-      layout: this.data.layout,
-      functions
-    })
+    this.data = this.data.copy({ functions })
   }
 
   private saveData (variables: IVariableData[], regulations: IRegulationData[], layout: ILayoutData): void {

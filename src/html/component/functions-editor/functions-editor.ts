@@ -67,8 +67,9 @@ class FunctionsEditor extends LitElement {
     functions.sort((a, b) => (a.id > b.id ? 1 : -1))
 
     // propagate the current version of functions via event that will be captured by root component
-    const element = document.getElementsByTagName('root-component')[0]
-    element?.dispatchEvent(new CustomEvent('save-functions', {
+    this.dispatchEvent(new CustomEvent('save-functions', {
+      bubbles: true,
+      composed: true,
       detail: {
         functions
       }
