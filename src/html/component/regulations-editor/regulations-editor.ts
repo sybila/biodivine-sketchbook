@@ -12,7 +12,7 @@ import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 
 @customElement('regulations-editor')
-class RegulationsEditor extends LitElement {
+export class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   dialogs: Record<string, WebviewWindow | undefined> = {}
   editorElement
@@ -36,7 +36,9 @@ class RegulationsEditor extends LitElement {
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
-    this.addEventListener('focus-function', () => { this.toggleMenu(ElementType.NONE) })
+    this.addEventListener('focus-function', () => {
+      this.toggleMenu(ElementType.NONE)
+    })
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
   }
@@ -99,14 +101,15 @@ class RegulationsEditor extends LitElement {
   }
 
   private addEdge (event: Event): void {
-    this.cy?.nodes().deselect()
+    if (this.cy === undefined) return
+    this.cy.nodes().deselect()
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
 
     // start attribute wrongly typed - added weird typecast to avoid tslint error
     this.edgeHandles?.start((this.cy?.$id(variableId) as unknown as string))
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
+    // @ts-expect-error renderer exists but its missing from the *.d.ts file
     this.cy.renderer().hoverData.capture = true
   }
 
@@ -219,7 +222,7 @@ class RegulationsEditor extends LitElement {
       return
     }
     const renameDialog = new WebviewWindow(`renameDialog${Math.floor(Math.random() * 1000000)}`, {
-      url: 'src/html/component/rename-dialog/rename-dialog.html',
+      url: 'src/html/component/regulations-editor/rename-dialog/rename-dialog.html',
       title: `Edit node (${variableId} / ${variableName})`,
       alwaysOnTop: true,
       maximizable: false,

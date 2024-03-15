@@ -5,7 +5,7 @@ import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
 import { appWindow, LogicalSize } from '@tauri-apps/api/window'
 
 @customElement('rename-dialog')
-class RenameDialog extends LitElement {
+export class RenameDialog extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @query('#node-name') nameField: HTMLInputElement | undefined
   @query('#node-id') variableIdField: HTMLInputElement | undefined

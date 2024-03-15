@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators.js'
 import style_less from './search.less?inline'
 
 @customElement('search-bar')
-class SearchBar extends LitElement {
+export default class SearchBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   render (): TemplateResult {

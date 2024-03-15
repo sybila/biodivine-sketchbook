@@ -5,6 +5,7 @@ import { TabData } from '../../util/tab-data'
 import { library, icon } from '@fortawesome/fontawesome-svg-core'
 import '../regulations-editor/regulations-editor'
 import '../functions-editor/functions-editor'
+import '../observations-editor/observations-editor'
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons'
 import { aeonState } from '../../../aeon_events'
 import { ContentData } from '../../util/data-interfaces'
@@ -12,7 +13,7 @@ import { ContentData } from '../../util/data-interfaces'
 library.add(faLock, faLockOpen)
 
 @customElement('content-pane')
-export class ContentPane extends LitElement {
+export default class ContentPane extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   @property() private readonly tab: TabData = TabData.create()

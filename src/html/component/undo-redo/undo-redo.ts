@@ -7,7 +7,7 @@ import { aeonState } from '../../../aeon_events'
 library.add(faArrowLeft, faArrowRight)
 
 @customElement('undo-redo')
-class UndoRedo extends LitElement {
+export default class UndoRedo extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   @state()

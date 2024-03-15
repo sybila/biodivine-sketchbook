@@ -9,7 +9,7 @@ import { aeonState } from '../../../aeon_events'
 library.add(faLock, fas)
 
 @customElement('tab-bar')
-class TabBar extends LitElement {
+export default class TabBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
   @property() tabs: TabData[] = []
