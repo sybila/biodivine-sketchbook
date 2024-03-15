@@ -19,7 +19,7 @@ biodivine-lib-bdd = ">=0.5.6, <1.0.0"
 biodivine-lib-param-bn = ">=0.5.0, <1.0.0"
 lazy_static = "1.4.0"
 regex = "1.10.2"
-tauri = { version = "1.4", features = [ "window-set-focus", "window-set-size", "window-close", "window-create", "dialog-all", "shell-open"] }
+tauri = { version = "1.4", features = [ "window-set-focus", "window-set-size", "window-close", "window-create", "dialog-all", "shell-open", "path-all"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
