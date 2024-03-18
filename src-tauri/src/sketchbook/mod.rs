@@ -33,7 +33,9 @@ pub mod data_structs;
 /// Classes and utility methods regarding the layout of the Regulations editor.
 pub mod layout;
 /// Classes and utility methods regarding the observations.
-pub mod observation;
+pub mod observations;
+/// Classes and utility methods regarding the properties.
+pub mod properties;
 /// Utility functions used throughout the module.
 pub mod utils;
 

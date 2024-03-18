@@ -1,4 +1,4 @@
-use crate::sketchbook::observation::_var_value::VarValue;
+use crate::sketchbook::observations::_var_value::VarValue;
 use biodivine_lib_param_bn::{Space, VariableId};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -120,7 +120,7 @@ impl Observation {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observation::{Observation, VarValue};
+    use crate::sketchbook::observations::{Observation, VarValue};
 
     #[test]
     /// Test creating observation object from string.

@@ -1,4 +1,4 @@
-use crate::sketchbook::observation::{Observation, ObservationType};
+use crate::sketchbook::observations::{Observation, ObservationType};
 use serde::{Deserialize, Serialize};
 
 /// An ordered list of observations. The order is important for some datasets, for example,
@@ -75,7 +75,7 @@ impl ObservationList {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observation::{Observation, ObservationList, ObservationType};
+    use crate::sketchbook::observations::{Observation, ObservationList, ObservationType};
 
     #[test]
     /// Test displaying of string description of observation lists.
