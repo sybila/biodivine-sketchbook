@@ -4,18 +4,21 @@ use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
+use crate::sketchbook::observations::ObservationManager;
+use crate::sketchbook::properties::PropertyManager;
 use crate::sketchbook::ModelState;
 
 /// The state of one editor session.
 ///
 /// An editor session is the "main" app session where a model is created/edited and from which
 /// different analysis sessions can be started.
-///
 pub struct EditorSession {
     id: String,
     undo_stack: UndoStack,
     tab_bar: TabBarState,
     model: ModelState,
+    observations: ObservationManager,
+    properties: PropertyManager,
 }
 
 impl EditorSession {
@@ -25,6 +28,8 @@ impl EditorSession {
             undo_stack: UndoStack::default(),
             tab_bar: TabBarState::default(),
             model: ModelState::default(),
+            observations: ObservationManager::default(),
+            properties: PropertyManager::default(),
         }
     }
 
@@ -196,6 +201,22 @@ impl SessionState for EditorSession {
             self.tab_bar.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("model", at_path) {
             self.model.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("observations", at_path) {
+            // TODO
+            println!("{:?}", self.observations);
+            panic!(
+                "Cannot consume {:?}, no events for observations yet.",
+                at_path
+            );
+            // self.observations.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("properties", at_path) {
+            // TODO
+            println!("{:?}", self.properties);
+            panic!(
+                "Cannot consume {:?}, no events for properties yet.",
+                at_path
+            );
+            // self.properties.perform_event(event, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

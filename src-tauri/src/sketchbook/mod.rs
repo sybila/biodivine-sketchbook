@@ -1,4 +1,4 @@
-use crate::sketchbook::layout::{Layout, LayoutId};
+use crate::sketchbook::layout::Layout;
 
 /// **(internal)** Utility methods for `BinaryOp`.
 mod _binary_op;
@@ -6,8 +6,9 @@ mod _binary_op;
 mod _essentiality;
 /// **(internal)** Utility methods for `FnTree`.
 mod _function_tree;
-/// **(internal)** Utility methods for `Identifier`.
-mod _identifier;
+/// **(internal)** Classes and utility methods regarding the type-safe identifiers for
+/// various components.
+mod _identifiers;
 /// **(internal)** Utility methods for `ModelState`.
 mod _model;
 /// **(internal)** Utility methods for `Monotonicity`.
@@ -18,12 +19,8 @@ mod _regulation;
 mod _uninterpreted_fn;
 /// **(internal)** Utility methods for `FnArgument`.
 mod _uninterpreted_fn_arg;
-/// **(internal)** Utility methods for `UninterpretedFnId`.
-mod _uninterpreted_fn_id;
 /// **(internal)** Utility methods for `UpdateFn`.
 mod _update_function;
-/// **(internal)** Utility methods for `VarId`.
-mod _var_id;
 /// **(internal)** Utility methods for `Variable`.
 mod _variable;
 
@@ -42,15 +39,15 @@ pub mod utils;
 pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
 pub use _function_tree::FnTree;
-pub use _identifier::Identifier;
+pub use _identifiers::{
+    LayoutId, ObservationId, ObservationListId, PropertyId, UninterpretedFnId, VarId,
+};
 pub use _model::ModelState;
 pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
 pub use _uninterpreted_fn::UninterpretedFn;
 pub use _uninterpreted_fn_arg::FnArgument;
-pub use _uninterpreted_fn_id::UninterpretedFnId;
 pub use _update_function::UpdateFn;
-pub use _var_id::VarId;
 pub use _variable::Variable;
 
 /// An iterator over all (`VarId`, `Variable`) pairs of a `ModelState`.

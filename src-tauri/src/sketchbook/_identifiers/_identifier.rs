@@ -59,7 +59,7 @@ impl FromStr for Identifier {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::Identifier;
+    use crate::sketchbook::_identifiers::Identifier;
     use std::str::FromStr;
 
     #[test]

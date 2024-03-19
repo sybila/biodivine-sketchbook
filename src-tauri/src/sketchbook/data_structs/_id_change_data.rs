@@ -1,5 +1,4 @@
-use crate::sketchbook::layout::LayoutId;
-use crate::sketchbook::{UninterpretedFnId, VarId};
+use crate::sketchbook::{LayoutId, UninterpretedFnId, VarId};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;

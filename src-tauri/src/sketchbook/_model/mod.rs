@@ -1,6 +1,6 @@
-use crate::sketchbook::layout::{Layout, LayoutId};
+use crate::sketchbook::layout::Layout;
 use crate::sketchbook::{
-    Regulation, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
+    LayoutId, Regulation, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Error, Formatter};

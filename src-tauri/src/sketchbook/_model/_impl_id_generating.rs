@@ -93,7 +93,7 @@ impl ModelState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::layout::LayoutId;
+    use crate::sketchbook::LayoutId;
     use crate::sketchbook::{ModelState, VarId};
 
     #[test]

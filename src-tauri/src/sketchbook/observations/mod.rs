@@ -1,13 +1,16 @@
-/// **(internal)** Utility methods for `Observation`.
+/// **(internal)** Definition and methods for `Observation`.
 mod _observation;
-/// **(internal)** Utility methods for `ObservationList`.
+/// **(internal)** Definition and methods for `ObservationList`.
 mod _observation_list;
-/// **(internal)** Utility methods for `ObservationType`.
+/// **(internal)** Definition and methods for `ObservationType`.
+mod _observation_manager;
+/// **(internal)** Definition and methods for `ObservationType`.
 mod _observation_type;
-/// **(internal)** Utility methods for `VarValue`.
+/// **(internal)** Definition and methods for `VarValue`.
 mod _var_value;
 
 pub use _observation::Observation;
 pub use _observation_list::ObservationList;
+pub use _observation_manager::ObservationManager;
 pub use _observation_type::ObservationType;
 pub use _var_value::VarValue;
