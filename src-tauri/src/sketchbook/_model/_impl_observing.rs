@@ -257,14 +257,14 @@ impl ModelState {
         Ok(update_fn.get_fn_expression())
     }
 
-    /// Return an iterator over all variables of this model.
+    /// Return an iterator over all variables (with IDs) of this model.
     pub fn variables(&self) -> VariableIterator {
-        self.variables.keys()
+        self.variables.iter()
     }
 
-    /// Return an iterator over all uninterpreted_fns of this model.
+    /// Return an iterator over all uninterpreted_fns (with IDs) of this model.
     pub fn uninterpreted_fns(&self) -> UninterpretedFnIterator {
-        self.uninterpreted_fns.keys()
+        self.uninterpreted_fns.iter()
     }
 
     /// Return an iterator over all regulations of this model.
@@ -272,9 +272,9 @@ impl ModelState {
         self.regulations.iter()
     }
 
-    /// Return an iterator over all layouts of this model.
+    /// Return an iterator over all layouts (with IDs) of this model.
     pub fn layouts(&self) -> LayoutIterator {
-        self.layouts.keys()
+        self.layouts.iter()
     }
 
     /// Static fn to get `LayoutId` of the default layout (same for all `ModelStates`).

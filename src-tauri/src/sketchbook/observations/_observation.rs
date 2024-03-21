@@ -1,56 +1,50 @@
 use crate::sketchbook::observations::_var_value::VarValue;
+use crate::sketchbook::ObservationId;
 use biodivine_lib_param_bn::{Space, VariableId};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-/// A single observation, i.e., an ordered vector of binarized values.
+/// A single named observation, i.e., an ordered vector of binarized values.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Observation {
-    pub id: String,
+    pub id: ObservationId,
     pub values: Vec<VarValue>,
 }
 
 impl Observation {
-    /// Create `Observation` object from a vector with values.
-    pub fn new(values: Vec<VarValue>, id: &str) -> Self {
-        Self {
-            values,
-            id: id.to_string(),
-        }
+    /// Create `Observation` object from a vector with values and an ID.
+    pub fn new_with_id(values: Vec<VarValue>, id: ObservationId) -> Self {
+        Self { values, id }
+    }
+
+    /// Create `Observation` object from a vector with values, and string ID (which must be valid).
+    pub fn new(values: Vec<VarValue>, id: &str) -> Result<Self, String> {
+        Ok(Self::new_with_id(values, ObservationId::new(id)?))
     }
 
     /// Create `Observation` encoding a vector of `n` ones.
-    pub fn new_full_ones(n: usize, id: &str) -> Self {
-        Self {
-            values: vec![VarValue::True; n],
-            id: id.to_string(),
-        }
+    pub fn new_full_ones(n: usize, id: &str) -> Result<Self, String> {
+        Self::new(vec![VarValue::True; n], id)
     }
 
     /// Create `Observation` encoding a vector of `n` zeros.
-    pub fn new_full_zeros(n: usize, id: &str) -> Self {
-        Self {
-            values: vec![VarValue::False; n],
-            id: id.to_string(),
-        }
+    pub fn new_full_zeros(n: usize, id: &str) -> Result<Self, String> {
+        Self::new(vec![VarValue::False; n], id)
     }
 
     /// Create `Observation` encoding a vector of `n` unspecified values.
-    pub fn new_full_unspecified(n: usize, id: &str) -> Self {
-        Self {
-            values: vec![VarValue::Any; n],
-            id: id.to_string(),
-        }
+    pub fn new_full_unspecified(n: usize, id: &str) -> Result<Self, String> {
+        Self::new(vec![VarValue::Any; n], id)
     }
 
     /// Create `Observation` from a similar [Space] object of the [biodivine_lib_param_bn] library.
     /// The values of the resulting observation are given in the same order as `var_ids`.
-    pub fn from_space(space: &Space, var_ids: &Vec<VariableId>, id: &str) -> Observation {
+    pub fn from_space(space: &Space, var_ids: &Vec<VariableId>, id: ObservationId) -> Observation {
         let mut vec_values = Vec::new();
         for var_id in var_ids {
             vec_values.push(VarValue::from(space[*var_id]));
         }
-        Observation::new(vec_values, id)
+        Observation::new_with_id(vec_values, id)
     }
 
     /// Create `Observation` object from string encoding of its (ordered) values.
@@ -66,10 +60,7 @@ impl Observation {
             return Err("Observation can't be empty.".to_string());
         }
 
-        Ok(Self {
-            values: observation_vec,
-            id: id.to_string(),
-        })
+        Self::new(observation_vec, id)
     }
 
     /// Number of all values in this observation (its "length").
@@ -127,16 +118,14 @@ mod tests {
     fn test_observation_from_str() {
         let observation_str = "001**".to_string();
         let id = "observation_id";
-        let observation = Observation {
-            values: vec![
-                VarValue::False,
-                VarValue::False,
-                VarValue::True,
-                VarValue::Any,
-                VarValue::Any,
-            ],
-            id: id.to_string(),
-        };
+        let values = vec![
+            VarValue::False,
+            VarValue::False,
+            VarValue::True,
+            VarValue::Any,
+            VarValue::Any,
+        ];
+        let observation = Observation::new(values, id).unwrap();
         assert_eq!(
             Observation::try_from_str(observation_str, id).unwrap(),
             observation
@@ -158,17 +147,14 @@ mod tests {
     #[test]
     /// Test displaying of observations.
     fn test_display_observations() {
-        let id = "id1".to_string();
-        let observation = Observation {
-            values: vec![
-                VarValue::False,
-                VarValue::False,
-                VarValue::True,
-                VarValue::Any,
-                VarValue::Any,
-            ],
-            id,
-        };
+        let values = vec![
+            VarValue::False,
+            VarValue::False,
+            VarValue::True,
+            VarValue::Any,
+            VarValue::Any,
+        ];
+        let observation = Observation::new(values, "id1").unwrap();
         let expected_long = "id1(001**)".to_string();
         let expected_short = "001**".to_string();
         assert_eq!(observation.to_debug_string(true), expected_short);

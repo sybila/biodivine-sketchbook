@@ -1,4 +1,4 @@
-use crate::sketchbook::observations::{Observation, ObservationList, ObservationType, VarValue};
+use crate::sketchbook::observations::{Dataset, Observation, ObservationType, VarValue};
 
 /// Encode binarized observation with a formula depicting the corresponding state/sub-space.
 /// Using binarized values and proposition names, creates a conjunction of literals
@@ -46,7 +46,7 @@ pub fn encode_multiple_observations(
 /// template is chosen depending on the type of data (attractor data, time-series, ...).
 ///
 /// Only data with their type specified can be encoded.
-pub fn encode_observation_list_hctl(observation_list: &ObservationList) -> Result<String, String> {
+pub fn encode_observation_list_hctl(observation_list: &Dataset) -> Result<String, String> {
     let encoded_observations =
         encode_multiple_observations(&observation_list.observations, &observation_list.var_names)?;
     match observation_list.data_type {
@@ -244,7 +244,7 @@ pub fn mk_formula_reachability_chain(states_sequence: Vec<String>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observations::{Observation, ObservationList, ObservationType};
+    use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
     use crate::sketchbook::properties::_mk_formulas::*;
 
     #[test]
@@ -297,7 +297,7 @@ mod tests {
         let raw_observations = vec![observation1, observation2];
         let prop_names = vec!["a".to_string(), "b".to_string(), "c".to_string()];
 
-        let attr_observations = ObservationList::new(
+        let attr_observations = Dataset::new(
             raw_observations.clone(),
             prop_names.clone(),
             ObservationType::Attractor,
@@ -308,7 +308,7 @@ mod tests {
             "((3{x}: (@{x}: ((a & b & ~c) & (AG EF ((a & b & ~c) & {x}))))) & (3{x}: (@{x}: ((a & c) & (AG EF ((a & c) & {x}))))))".to_string(),
         );
 
-        let fixed_point_observations = ObservationList::new(
+        let fixed_point_observations = Dataset::new(
             raw_observations.clone(),
             prop_names.clone(),
             ObservationType::FixedPoint,
@@ -319,7 +319,7 @@ mod tests {
             "((3{x}: (@{x}: ((a & b & ~c) & (AX ((a & b & ~c) & {x}))))) & (3{x}: (@{x}: ((a & c) & (AX ((a & c) & {x}))))))".to_string(),
         );
 
-        let time_series_observations = ObservationList::new(
+        let time_series_observations = Dataset::new(
             raw_observations.clone(),
             prop_names.clone(),
             ObservationType::TimeSeries,
@@ -330,7 +330,7 @@ mod tests {
             "(3{x}: (@{x}: ((a & b & ~c)) & EF ((a & c))))".to_string(),
         );
 
-        let unspecified_observations = ObservationList::new(
+        let unspecified_observations = Dataset::new(
             raw_observations.clone(),
             prop_names.clone(),
             ObservationType::Unspecified,

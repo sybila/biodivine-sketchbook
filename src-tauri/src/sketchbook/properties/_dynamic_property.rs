@@ -1,4 +1,4 @@
-use crate::sketchbook::observations::{Observation, ObservationList};
+use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::properties::_mk_formulas::*;
 use serde::{Deserialize, Serialize};
 
@@ -9,23 +9,22 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct DynamicProperty {
     pub formula: String,
-    pub id: String,
 }
 
 impl DynamicProperty {
     /// Create `DynamicProperty` object directly from a formula and id string slices.
     ///
-    /// TODO: syntax check.
-    pub fn try_from_str(formula: &str, id: &str) -> Result<DynamicProperty, String> {
+    /// TODO: add syntax check.
+    pub fn try_from_str(formula: &str) -> Result<DynamicProperty, String> {
         // todo: syntax check
-
-        Ok(DynamicProperty::new_raw(formula, id))
+        Ok(DynamicProperty::new_raw(formula))
     }
 
-    /// **internal** Create `DynamicProperty` object directly from a formula and id string slices.
-    fn new_raw(formula: &str, id: &str) -> Self {
+    /// **internal** Create `DynamicProperty` object directly from a string formula.
+    ///
+    /// Note that this does not perform any syntax checks.
+    fn new_raw(formula: &str) -> Self {
         DynamicProperty {
-            id: id.to_string(),
             formula: formula.to_string(),
         }
     }
@@ -36,10 +35,9 @@ impl DynamicProperty {
     pub fn encode_observation(
         obs: &Observation,
         var_names: &[String],
-        id: &str,
     ) -> Result<DynamicProperty, String> {
         let formula = encode_observation(obs, var_names)?;
-        Ok(DynamicProperty::new_raw(&formula, id))
+        Ok(DynamicProperty::new_raw(&formula))
     }
 
     /// Encode each of the several observations, one by one.
@@ -47,13 +45,11 @@ impl DynamicProperty {
     pub fn encode_multiple_observations(
         observations: &[Observation],
         var_names: &[String],
-        ids: &[&str],
     ) -> Result<Vec<DynamicProperty>, String> {
         let formulae = encode_multiple_observations(observations, var_names)?;
         let properties = formulae
             .iter()
-            .zip(ids)
-            .map(|(f, i)| DynamicProperty::new_raw(f, i))
+            .map(|f| DynamicProperty::new_raw(f))
             .collect();
         Ok(properties)
     }
@@ -62,11 +58,8 @@ impl DynamicProperty {
     /// template is chosen depending on the type of data (attractor data, time-series, ...).
     ///
     /// Only data with their type specified can be encoded.
-    pub fn try_encode_observation_list_hctl(
-        obs_list: &ObservationList,
-        id: &str,
-    ) -> Result<DynamicProperty, String> {
+    pub fn try_encode_observation_list_hctl(obs_list: &Dataset) -> Result<DynamicProperty, String> {
         let formula = encode_observation_list_hctl(obs_list)?;
-        Ok(DynamicProperty::new_raw(&formula, id))
+        Ok(DynamicProperty::new_raw(&formula))
     }
 }

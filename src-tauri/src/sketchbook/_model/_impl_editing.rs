@@ -26,7 +26,7 @@ impl ModelState {
         }
     }
 
-    /// Create new `ModelState` using provided variable name-ID pairs, both strings.
+    /// Create new `ModelState` using provided variable ID-name pairs, both strings.
     /// All variables have default (empty) update functions.
     /// Result will contain no `UninterpretedFns` or `Regulations`, and a single default `Layout`.
     ///
@@ -85,11 +85,16 @@ impl ModelState {
     /// Each ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
     ///
-    /// Returns `Err` in case the `id` is already being used.
+    /// Returns `Err` in case some `id` is already being used.
     pub fn add_multiple_variables(
         &mut self,
         id_name_pairs: Vec<(&str, &str)>,
     ) -> Result<(), String> {
+        // before making any changes, check if all IDs are actually valid
+        for (id, _) in id_name_pairs.iter() {
+            let var_id = VarId::new(id)?;
+            self.assert_no_variable(&var_id)?;
+        }
         for (id, name) in id_name_pairs {
             self.add_var_by_str(id, name)?;
         }
@@ -138,6 +143,11 @@ impl ModelState {
         &mut self,
         id_name_arity_tuples: Vec<(&str, &str, usize)>,
     ) -> Result<(), String> {
+        // before making any changes, check if all IDs are actually valid
+        for (id, _, _) in id_name_arity_tuples.iter() {
+            let fn_id = UninterpretedFnId::new(id)?;
+            self.assert_no_uninterpreted_fn(&fn_id)?;
+        }
         for (id, name, arity) in id_name_arity_tuples {
             self.add_uninterpreted_fn_by_str(id, name, arity)?;
         }
@@ -187,6 +197,14 @@ impl ModelState {
     /// Returns `Err` when the string does not encode a valid regulation, if the provided variables
     /// are not valid variable IDs, or when the regulation between the two variables already exists.
     pub fn add_multiple_regulations(&mut self, regulations: Vec<&str>) -> Result<(), String> {
+        // before making any changes, check that all regulations are actually valid
+        for regulation_str in regulations.iter() {
+            let (reg, _, _, tar) = Regulation::try_components_from_string(regulation_str)?;
+            let regulator = VarId::new(reg.as_str())?;
+            let target = VarId::new(tar.as_str())?;
+            self.assert_no_regulation(&regulator, &target)?
+        }
+
         for regulation_str in regulations {
             self.add_regulation_by_str(regulation_str)?;
         }
@@ -790,67 +808,55 @@ impl ModelState {
 
     /// **(internal)** Utility method to ensure there is no variable with given Id yet.
     fn assert_no_variable(&self, var_id: &VarId) -> Result<(), String> {
-        if self.get_var_name(var_id).is_err() {
-            Ok(())
+        if self.is_valid_var_id(var_id) {
+            Err(format!("Variable with id {var_id} already exists."))
         } else {
-            Err(format!(
-                "Invalid variable: Variable with id {var_id} already exists."
-            ))
+            Ok(())
         }
     }
 
     /// **(internal)** Utility method to ensure there is a variable with given Id.
     fn assert_valid_variable(&self, var_id: &VarId) -> Result<(), String> {
-        if self.get_var_name(var_id).is_err() {
-            Err(format!(
-                "Invalid variable: Variable with id {var_id} does not exist."
-            ))
-        } else {
+        if self.is_valid_var_id(var_id) {
             Ok(())
+        } else {
+            Err(format!("Variable with id {var_id} does not exist."))
         }
     }
 
     /// **(internal)** Utility method to ensure there is no uninterpreted_fn with given Id yet.
     fn assert_no_uninterpreted_fn(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
-        if self.get_uninterpreted_fn(fn_id).is_err() {
-            Ok(())
+        if self.is_valid_uninterpreted_fn_id(fn_id) {
+            Err(format!("UninterpretedFn with id {fn_id} already exists."))
         } else {
-            Err(format!(
-                "Invalid uninterpreted fn: UninterpretedFn with id {fn_id} already exists."
-            ))
+            Ok(())
         }
     }
 
     /// **(internal)** Utility method to ensure there is a uninterpreted fn with given Id.
     fn assert_valid_uninterpreted_fn(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
-        if self.get_uninterpreted_fn(fn_id).is_err() {
-            Err(format!(
-                "Invalid uninterpreted fn: UninterpretedFn with id {fn_id} does not exist."
-            ))
-        } else {
+        if self.is_valid_uninterpreted_fn_id(fn_id) {
             Ok(())
+        } else {
+            Err(format!("UninterpretedFn with id {fn_id} does not exist."))
         }
     }
 
     /// **(internal)** Utility method to ensure there is no layout with given Id yet.
     fn assert_no_layout(&self, layout_id: &LayoutId) -> Result<(), String> {
-        if self.get_layout(layout_id).is_err() {
-            Ok(())
+        if self.is_valid_layout_id(layout_id) {
+            Err(format!("Layout with id {layout_id} already exists."))
         } else {
-            Err(format!(
-                "Invalid layout: Layout with id {layout_id} already exists."
-            ))
+            Ok(())
         }
     }
 
     /// **(internal)** Utility method to ensure there is a layout with given Id.
     fn assert_valid_layout(&self, layout_id: &LayoutId) -> Result<(), String> {
-        if self.get_layout(layout_id).is_err() {
-            Err(format!(
-                "Invalid layout: Layout with id {layout_id} does not exist."
-            ))
-        } else {
+        if self.is_valid_layout_id(layout_id) {
             Ok(())
+        } else {
+            Err(format!("Layout with id {layout_id} does not exist."))
         }
     }
 

@@ -1,6 +1,6 @@
 use crate::sketchbook::properties::DynamicProperty;
 use crate::sketchbook::PropertyId;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct PropertyManager {
@@ -8,7 +8,7 @@ pub struct PropertyManager {
 }
 
 impl Default for PropertyManager {
-    /// Default object with no datasets.
+    /// Default manager instance with no datasets.
     fn default() -> PropertyManager {
         PropertyManager::new_empty()
     }
@@ -16,9 +16,30 @@ impl Default for PropertyManager {
 
 impl PropertyManager {
     /// Instantiate `PropertyManager` with empty list of properties.
-    fn new_empty() -> PropertyManager {
+    pub fn new_empty() -> PropertyManager {
         PropertyManager {
             properties: HashMap::new(),
         }
+    }
+
+    /// Instantiate `PropertyManager` with given list of ID-formula pairs.
+    pub fn new_from_properties(properties: Vec<(&str, &str)>) -> Result<PropertyManager, String> {
+        let mut manager = PropertyManager::new_empty();
+
+        let prop_id_set = properties.iter().map(|pair| pair.0).collect::<HashSet<_>>();
+        if prop_id_set.len() != properties.len() {
+            return Err(format!(
+                "Properties {:?} contain duplicate IDs.",
+                properties
+            ));
+        }
+
+        for (id, formula) in properties {
+            let prop_id = PropertyId::new(id)?;
+            manager
+                .properties
+                .insert(prop_id, DynamicProperty::try_from_str(formula)?);
+        }
+        Ok(manager)
     }
 }

@@ -1,11 +1,10 @@
 use crate::sketchbook::observations::{Observation, ObservationType};
 use serde::{Deserialize, Serialize};
 
-/// An ordered list of observations. The order is important for some datasets, for example,
-/// to be able to capture time series.
-/// Contains binarized observations' data, names for variables, and type of data.
+/// An ordered list of observations (of potentially specified type) for a set of variables.
+/// The order is important for some datasets, for example, to be able to capture time series.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub struct ObservationList {
+pub struct Dataset {
     /// List of binarized observations.
     pub observations: Vec<Observation>,
     /// Variables captured by the observations.
@@ -14,8 +13,8 @@ pub struct ObservationList {
     pub data_type: ObservationType,
 }
 
-impl ObservationList {
-    /// Generate new `ObservationList`.
+impl Dataset {
+    /// Create new dataset from a list of observations, variables, and type of the observations.
     ///
     /// Length of observations and number of variables must match.
     /// Lists of observations and variables must not be empty.
@@ -44,7 +43,19 @@ impl ObservationList {
         })
     }
 
-    /// Make a string describing this `ObservationList` in a human-readable format.
+    /// Shorthand to create a new dataset with `unspecified` type of observations, given
+    /// a list of observations, variables.
+    ///
+    /// Length of observations and number of variables must match.
+    /// Lists of observations and variables must not be empty.
+    pub fn new_unspecified(
+        observations: Vec<Observation>,
+        var_names: Vec<String>,
+    ) -> Result<Self, String> {
+        Dataset::new(observations, var_names, ObservationType::Unspecified)
+    }
+
+    /// Make a string describing this `Dataset` in a human-readable format.
     /// If `list_all` is set to `true`, all observation vectors are listed. Otherwise, just
     /// a summary is given (number of observations).
     ///
@@ -75,7 +86,7 @@ impl ObservationList {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observations::{Observation, ObservationList, ObservationType};
+    use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
 
     #[test]
     /// Test displaying of string description of observation lists.
@@ -87,19 +98,19 @@ mod tests {
 
         // length of observation and number variables differs
         let observations = vec![obs2.clone()];
-        let obs_list = ObservationList::new(observations, var_names.clone(), obs_type);
+        let obs_list = Dataset::new(observations, var_names.clone(), obs_type);
         assert!(obs_list.is_err());
 
         let observations = vec![obs1.clone(), obs2.clone()];
-        let obs_list = ObservationList::new(observations, var_names.clone(), obs_type);
+        let obs_list = Dataset::new(observations, var_names.clone(), obs_type);
         assert!(obs_list.is_err());
 
         // empty observations list
-        let obs_list = ObservationList::new(vec![], var_names.clone(), obs_type);
+        let obs_list = Dataset::new(vec![], var_names.clone(), obs_type);
         assert!(obs_list.is_err());
 
         // empty variables list
-        let obs_list = ObservationList::new(vec![obs1], vec![], obs_type);
+        let obs_list = Dataset::new(vec![obs1], vec![], obs_type);
         assert!(obs_list.is_err());
     }
 
@@ -108,7 +119,7 @@ mod tests {
     fn test_debug_str() {
         let observation1 = Observation::try_from_str("*1".to_string(), "a").unwrap();
         let observation2 = Observation::try_from_str("00".to_string(), "b").unwrap();
-        let observation_list = ObservationList {
+        let observation_list = Dataset {
             observations: vec![observation1, observation2],
             var_names: vec!["a".to_string(), "b".to_string()],
             data_type: ObservationType::Attractor,

@@ -39,9 +39,7 @@ pub mod utils;
 pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
 pub use _function_tree::FnTree;
-pub use _identifiers::{
-    LayoutId, ObservationId, ObservationListId, PropertyId, UninterpretedFnId, VarId,
-};
+pub use _identifiers::{DatasetId, LayoutId, ObservationId, PropertyId, UninterpretedFnId, VarId};
 pub use _model::ModelState;
 pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
@@ -51,14 +49,14 @@ pub use _update_function::UpdateFn;
 pub use _variable::Variable;
 
 /// An iterator over all (`VarId`, `Variable`) pairs of a `ModelState`.
-pub type VariableIterator<'a> = std::collections::hash_map::Keys<'a, VarId, Variable>;
+pub type VariableIterator<'a> = std::collections::hash_map::Iter<'a, VarId, Variable>;
 
 /// An iterator over all (`UninterpretedFnId`, `UninterpretedFn`) pairs of a `ModelState`.
 pub type UninterpretedFnIterator<'a> =
-    std::collections::hash_map::Keys<'a, UninterpretedFnId, UninterpretedFn>;
+    std::collections::hash_map::Iter<'a, UninterpretedFnId, UninterpretedFn>;
 
 /// An iterator over all `Regulations` of a `ModelState`.
 pub type RegulationIterator<'a> = std::collections::hash_set::Iter<'a, Regulation>;
 
 /// An iterator over all (`LayoutId`, `Layout`) pairs of a `ModelState`.
-pub type LayoutIterator<'a> = std::collections::hash_map::Keys<'a, LayoutId, Layout>;
+pub type LayoutIterator<'a> = std::collections::hash_map::Iter<'a, LayoutId, Layout>;
