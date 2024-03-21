@@ -27,6 +27,8 @@ mod _variable;
 /// Classes and utility methods that can be used for sending simplified data to frontend.
 /// This includes simplified "data carriers" for variables, regulations, and layouts.
 pub mod data_structs;
+/// Utility functions specifically related to events.
+mod event_utils;
 /// Classes and utility methods regarding the layout of the Regulations editor.
 pub mod layout;
 /// Classes and utility methods regarding the observations.

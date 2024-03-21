@@ -8,6 +8,8 @@ use std::str::FromStr;
 mod _impl_manager;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `ObservationManager`.
 mod _impl_serde;
+/// **(internal)** Implementation of event-based API for the [SessionState] trait.
+mod _impl_session_state;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ObservationManager {

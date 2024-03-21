@@ -1,10 +1,10 @@
 use crate::app::event::Event;
 use crate::app::state::SessionHelper;
 use crate::app::DynError;
-use crate::sketchbook::_model::_impl_session_state::_utils::make_refresh_event;
 use crate::sketchbook::data_structs::{
     LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
 };
+use crate::sketchbook::event_utils::make_refresh_event;
 use crate::sketchbook::ModelState;
 
 /// Implementation for `refresh` (getter) events.

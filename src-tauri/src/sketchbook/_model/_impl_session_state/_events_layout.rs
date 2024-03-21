@@ -1,8 +1,8 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
-use crate::sketchbook::_model::_impl_session_state::_utils::{make_reversible, make_state_change};
 use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
+use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::{LayoutId, ModelState};
 
