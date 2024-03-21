@@ -9,7 +9,7 @@ use std::fmt::{Display, Formatter};
 /// An explicit uninterpreted function of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
 /// Fields `essentiality_list` and `monotonicity_list` hold information regarding properties of the function
 /// with respect to each of its arguments (in order).
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFn {
     name: String,
     arguments: Vec<FnArgument>,

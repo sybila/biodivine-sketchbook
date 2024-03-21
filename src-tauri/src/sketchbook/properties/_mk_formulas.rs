@@ -14,7 +14,7 @@ pub fn encode_observation(
     formula.push('(');
 
     for (i, prop) in prop_names.iter().enumerate() {
-        match observation.values[i] {
+        match observation.get_values()[i] {
             VarValue::True => formula.push_str(format!("{prop} & ").as_str()),
             VarValue::False => formula.push_str(format!("~{prop} & ").as_str()),
             VarValue::Any => (),
@@ -47,9 +47,11 @@ pub fn encode_multiple_observations(
 ///
 /// Only data with their type specified can be encoded.
 pub fn encode_observation_list_hctl(observation_list: &Dataset) -> Result<String, String> {
-    let encoded_observations =
-        encode_multiple_observations(&observation_list.observations, &observation_list.var_names)?;
-    match observation_list.data_type {
+    let encoded_observations = encode_multiple_observations(
+        observation_list.observations(),
+        observation_list.variables(),
+    )?;
+    match observation_list.data_type() {
         ObservationType::Attractor => Ok(mk_formula_attractor_set(encoded_observations)),
         ObservationType::FixedPoint => Ok(mk_formula_fixed_point_set(encoded_observations)),
         ObservationType::TimeSeries => Ok(mk_formula_reachability_chain(encoded_observations)),
@@ -293,7 +295,7 @@ mod tests {
     /// Test encoding of a list of observations of various kinds.
     fn test_attractor_observations_encoding() {
         let observation1 = Observation::try_from_str("110".to_string(), "obs1").unwrap();
-        let observation2 = Observation::try_from_str("1*1".to_string(), "obs1").unwrap();
+        let observation2 = Observation::try_from_str("1*1".to_string(), "obs2").unwrap();
         let raw_observations = vec![observation1, observation2];
         let prop_names = vec!["a".to_string(), "b".to_string(), "c".to_string()];
 

@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 /// Update function of a `BooleanNetwork`.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UpdateFn {
     expression: String,
     tree: Option<FnTree>,

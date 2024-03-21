@@ -5,7 +5,7 @@ use std::collections::HashSet;
 
 /// Syntactic tree of a partially defined Boolean function.
 /// This might specify an update function, or a partially defined uninterpreted fn.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FnTree {
     /// A true/false constant.
     Const(bool),

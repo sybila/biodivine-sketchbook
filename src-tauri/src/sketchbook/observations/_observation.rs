@@ -5,12 +5,13 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// A single named observation, i.e., an ordered vector of binarized values.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Observation {
-    pub id: ObservationId,
-    pub values: Vec<VarValue>,
+    id: ObservationId,
+    values: Vec<VarValue>,
 }
 
+/// Creating observations.
 impl Observation {
     /// Create `Observation` object from a vector with values and an ID.
     pub fn new_with_id(values: Vec<VarValue>, id: ObservationId) -> Self {
@@ -62,6 +63,46 @@ impl Observation {
 
         Self::new(observation_vec, id)
     }
+}
+
+/// Editing observations.
+impl Observation {
+    /// Set the value at given idx.
+    pub fn set_value_at_idx(&mut self, index: usize, value: VarValue) -> Result<(), String> {
+        if index >= self.num_values() {
+            return Err("Index is larger than number of values.".to_string());
+        }
+        self.values[index] = value;
+        Ok(())
+    }
+
+    /// Set all the values in this observation. The new vector of values must have the same
+    /// number of values as the original observation ("arity" does not change).
+    pub fn set_all_values(&mut self, values: Vec<VarValue>) -> Result<(), String> {
+        if values.len() != self.num_values() {
+            return Err("Vectors of old and new values differ in length.".to_string());
+        }
+        self.values = values;
+        Ok(())
+    }
+
+    /// Set the id of this observation.
+    pub fn set_id(&mut self, id: ObservationId) {
+        self.id = id;
+    }
+}
+
+/// Observing `Observation` instances.
+impl Observation {
+    /// Get reference to observation's vector of values.
+    pub fn get_values(&self) -> &Vec<VarValue> {
+        &self.values
+    }
+
+    /// Get reference to observation's id.
+    pub fn get_id(&self) -> &ObservationId {
+        &self.id
+    }
 
     /// Number of all values in this observation (its "length").
     pub fn num_values(&self) -> usize {
@@ -89,6 +130,14 @@ impl Observation {
             .iter()
             .filter(|&v| *v == VarValue::False)
             .count()
+    }
+
+    /// Value at given index.
+    pub fn value_at_idx(&self, index: usize) -> Result<&VarValue, String> {
+        if index >= self.num_values() {
+            return Err("Index is larger than number of values.".to_string());
+        }
+        Ok(&self.values[index])
     }
 
     /// Make a string describing this `Observation` in a human-readable format.

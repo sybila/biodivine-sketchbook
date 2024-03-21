@@ -5,7 +5,7 @@ use std::fmt::{Display, Error, Formatter};
 /// A type safe object for a Boolean variable of a `ModelState`.
 ///
 /// Currently, it only stores the variable's `name`.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Variable {
     name: String,
     // todo: add compartment and more

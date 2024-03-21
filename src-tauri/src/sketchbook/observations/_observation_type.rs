@@ -6,7 +6,7 @@ use std::fmt;
 ///
 /// Defining the type enables us to automatically encode observation lists via temporal formulae.
 /// If the type is unknown, or is not covered, use [ObservationType::Unspecified].
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Copy)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Copy)]
 pub enum ObservationType {
     Attractor,
     FixedPoint,

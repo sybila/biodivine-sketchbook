@@ -15,6 +15,7 @@ impl Default for ObservationManager {
     }
 }
 
+/// Creating instances of `ObservationManager`.
 impl ObservationManager {
     /// Instantiate `ObservationManager` with empty list of datasets.
     pub fn new_empty() -> ObservationManager {
@@ -38,7 +39,10 @@ impl ObservationManager {
         }
         Ok(manager)
     }
+}
 
+/// Editing `ObservationManager`.
+impl ObservationManager {
     /// Add a new dataset with given `id` to this `ObservationManager`.
     ///
     /// The ID must be valid identifier that is not already used by some other dataset.
@@ -131,6 +135,7 @@ impl ObservationManager {
     }
 }
 
+/// Observing the `ObservationManager`.
 impl ObservationManager {
     /// The number of datasets in this `ObservationManager`.
     pub fn num_datasets(&self) -> usize {

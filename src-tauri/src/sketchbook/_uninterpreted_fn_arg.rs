@@ -2,7 +2,7 @@ use crate::sketchbook::{Essentiality, Monotonicity};
 use serde::{Deserialize, Serialize};
 
 /// Data regarding an argument of an uninterpreted function.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct FnArgument {
     pub essential: Essentiality,
     pub monotonicity: Monotonicity,
