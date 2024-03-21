@@ -31,12 +31,12 @@ impl LayoutNodeData {
     }
 
     pub fn from_node(layout_id: &LayoutId, var_id: &VarId, node: &LayoutNode) -> LayoutNodeData {
-        LayoutNodeData {
-            layout: layout_id.to_string(),
-            variable: var_id.to_string(),
-            px: node.get_px(),
-            py: node.get_py(),
-        }
+        LayoutNodeData::new(
+            layout_id.as_str(),
+            var_id.as_str(),
+            node.get_px(),
+            node.get_py(),
+        )
     }
 }
 

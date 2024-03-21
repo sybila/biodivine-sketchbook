@@ -1,19 +1,7 @@
-use crate::sketchbook::observations::{Dataset, DatasetIterator};
+use crate::sketchbook::observations::{Dataset, DatasetIterator, ObservationManager};
 use crate::sketchbook::DatasetId;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct ObservationManager {
-    datasets: HashMap<DatasetId, Dataset>,
-}
-
-impl Default for ObservationManager {
-    /// Default manager instance with no datasets.
-    fn default() -> ObservationManager {
-        ObservationManager::new_empty()
-    }
-}
 
 /// Creating instances of `ObservationManager`.
 impl ObservationManager {

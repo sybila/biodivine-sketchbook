@@ -23,7 +23,7 @@ impl UninterpretedFnData {
     pub fn new(
         id: &str,
         name: &str,
-        arguments: Vec<FnArgument>,
+        arguments: &[FnArgument],
         expression: &str,
     ) -> UninterpretedFnData {
         let arguments_transformed = arguments
@@ -43,18 +43,13 @@ impl UninterpretedFnData {
         fn_id: &UninterpretedFnId,
         uninterpreted_fn: &UninterpretedFn,
     ) -> UninterpretedFnData {
-        let arguments = uninterpreted_fn
-            .get_all_arguments()
-            .clone()
-            .iter()
-            .map(|a| (a.monotonicity, a.essential))
-            .collect();
-        UninterpretedFnData {
-            id: fn_id.to_string(),
-            name: uninterpreted_fn.get_name().to_string(),
+        let arguments = uninterpreted_fn.get_all_arguments();
+        UninterpretedFnData::new(
+            fn_id.as_str(),
+            uninterpreted_fn.get_name(),
             arguments,
-            expression: uninterpreted_fn.get_fn_expression().to_string(),
-        }
+            uninterpreted_fn.get_fn_expression(),
+        )
     }
 }
 

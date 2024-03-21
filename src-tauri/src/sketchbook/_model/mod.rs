@@ -38,7 +38,7 @@ pub struct ModelState {
 
 impl Default for ModelState {
     /// Default model object with no Variables, Uninterpreted Functions, or Regulations yet.
-    /// It contains a single empty default Layout
+    /// It contains a single empty default Layout.
     fn default() -> ModelState {
         ModelState::new()
     }

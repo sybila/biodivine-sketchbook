@@ -140,21 +140,23 @@ impl Observation {
         Ok(&self.values[index])
     }
 
-    /// Make a string describing this `Observation` in a human-readable format.
-    /// If `values_only` is set to `true`, only value string is listed. Otherwise, the format
-    /// consists of id and values - `id(values)`.
-    ///
-    /// This is mainly for debug purposes, as it is different than classical string serialization.
-    pub fn to_debug_string(&self, values_only: bool) -> String {
-        let mut value_string = String::new();
+    /// Make a string with bit-encoding of values of this `Observation`.
+    /// Values are encoded using characters `1`, `0`, or `*`.
+    pub fn to_values_string(&self) -> String {
+        let mut values_string = String::new();
         self.values
             .iter()
-            .for_each(|v| value_string.push_str(v.as_str()));
-        if values_only {
-            value_string
-        } else {
-            format!("{}({value_string})", self.id)
-        }
+            .for_each(|v| values_string.push_str(v.as_str()));
+        values_string
+    }
+
+    /// Make a string describing this `Observation` in a human-readable format.
+    /// The format consists of id and values - `id(values)`.
+    ///
+    /// This is mainly for debug purposes, as it is different than classical string serialization.
+    pub fn to_debug_string(&self) -> String {
+        let values_string = self.to_values_string();
+        format!("{}({values_string})", self.id)
     }
 }
 
@@ -206,7 +208,7 @@ mod tests {
         let observation = Observation::new(values, "id1").unwrap();
         let expected_long = "id1(001**)".to_string();
         let expected_short = "001**".to_string();
-        assert_eq!(observation.to_debug_string(true), expected_short);
-        assert_eq!(observation.to_debug_string(false), expected_long);
+        assert_eq!(observation.to_values_string(), expected_short);
+        assert_eq!(observation.to_debug_string(), expected_long);
     }
 }

@@ -28,11 +28,11 @@ impl VariableData {
     /// Create new `VariableData` object given a reference to a variable, its update function,
     /// and its id.
     pub fn from_var(var_id: &VarId, variable: &Variable, update_fn: &UpdateFn) -> VariableData {
-        VariableData {
-            id: var_id.to_string(),
-            name: variable.get_name().to_string(),
-            update_fn: update_fn.get_fn_expression().to_string(),
-        }
+        VariableData::new(
+            var_id.as_str(),
+            variable.get_name(),
+            update_fn.get_fn_expression(),
+        )
     }
 }
 

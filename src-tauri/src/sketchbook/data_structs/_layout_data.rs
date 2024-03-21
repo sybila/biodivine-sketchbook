@@ -29,10 +29,7 @@ impl LayoutData {
 
     /// Create new `VariableData` object given a `variable` and its id.
     pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutData {
-        LayoutData {
-            id: layout_id.to_string(),
-            name: layout.get_layout_name().to_string(),
-        }
+        LayoutData::new(layout_id.as_str(), layout.get_layout_name())
     }
 }
 

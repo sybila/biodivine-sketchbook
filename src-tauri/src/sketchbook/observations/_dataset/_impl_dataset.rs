@@ -1,21 +1,6 @@
-use crate::sketchbook::observations::{Observation, ObservationType};
+use crate::sketchbook::observations::{Dataset, Observation, ObservationType, VarValue};
 use crate::sketchbook::ObservationId;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-/// An ordered list of observations (of potentially specified type) for a set of variables.
-/// The order is important for some datasets, for example, to be able to capture time series.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Dataset {
-    /// List of binarized observations.
-    observations: Vec<Observation>,
-    /// Variables captured by the observations.
-    var_names: Vec<String>,
-    /// Type of this dataset.
-    data_type: ObservationType,
-    /// Index map from observation IDs to their index in vector, for faster searching.
-    index_map: HashMap<ObservationId, usize>,
-}
 
 /// Creating new `Dataset` instances.
 impl Dataset {
@@ -110,6 +95,17 @@ impl Dataset {
         self.index_map.remove(obs.get_id());
         Ok(())
     }
+
+    /// Swap value vector for an observation with given ID.
+    /// The new vector of values must be of the same length as the original.
+    pub fn update_observation(
+        &mut self,
+        id: &ObservationId,
+        new_values: Vec<VarValue>,
+    ) -> Result<(), String> {
+        let idx = self.get_observation_index(id)?;
+        self.observations[idx].set_all_values(new_values)
+    }
 }
 
 /// Observing `Dataset` instances.
@@ -160,6 +156,11 @@ impl Dataset {
         &self.var_names
     }
 
+    /// Variable on given index.
+    pub fn get_variable(&self, index: usize) -> &String {
+        &self.var_names[index]
+    }
+
     /// Type of the data.
     pub fn data_type(&self) -> &ObservationType {
         &self.data_type
@@ -186,7 +187,7 @@ impl Dataset {
 
         let mut obs_string = String::new();
         for observation in &self.observations {
-            obs_string.push_str(format!("{}, ", observation.to_debug_string(false)).as_str());
+            obs_string.push_str(format!("{}, ", observation.to_debug_string()).as_str());
         }
         obs_string = obs_string.strip_suffix(", ").unwrap().to_string();
 

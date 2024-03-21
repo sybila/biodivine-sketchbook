@@ -33,12 +33,12 @@ impl RegulationData {
 
     /// Create new `RegulationData` object given a `regulation`.
     pub fn from_reg(regulation: &Regulation) -> RegulationData {
-        RegulationData {
-            regulator: regulation.get_regulator().to_string(),
-            target: regulation.get_target().to_string(),
-            essential: *regulation.get_essentiality(),
-            sign: *regulation.get_sign(),
-        }
+        RegulationData::new(
+            regulation.get_regulator().as_str(),
+            regulation.get_target().as_str(),
+            *regulation.get_essentiality(),
+            *regulation.get_sign(),
+        )
     }
 
     /// Try to create new `RegulationData` object given a string encoding a regulation.

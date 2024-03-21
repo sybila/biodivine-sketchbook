@@ -1,6 +1,8 @@
 use crate::sketchbook::layout::LayoutNode;
 use crate::sketchbook::VarId;
 use std::collections::HashMap;
+use std::fmt::{Display, Error, Formatter};
+use std::str::FromStr;
 
 /// **(internal)** Basic utility methods for `Layout`.
 mod _impl_layout;
@@ -13,4 +15,20 @@ mod _impl_layout_serde;
 pub struct Layout {
     name: String,
     nodes: HashMap<VarId, LayoutNode>,
+}
+
+impl Display for Layout {
+    /// Use json serialization to convert `Layout` to string.
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "{}", serde_json::to_string(self).unwrap())
+    }
+}
+
+impl FromStr for Layout {
+    type Err = String;
+
+    /// Use json de-serialization to construct `Layout` from string.
+    fn from_str(s: &str) -> Result<Layout, String> {
+        serde_json::from_str(s).map_err(|e| e.to_string())
+    }
 }

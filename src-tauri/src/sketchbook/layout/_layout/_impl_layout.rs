@@ -3,8 +3,6 @@ use crate::sketchbook::VarId;
 
 use crate::sketchbook::utils::assert_name_valid;
 use std::collections::HashMap;
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Methods for safely constructing or mutating instances of `Layout`.
 impl Layout {
@@ -145,22 +143,6 @@ impl Layout {
     /// Return an iterator over all nodes of this layout.
     pub fn layout_nodes(&self) -> LayoutNodeIterator {
         self.nodes.iter()
-    }
-}
-
-impl Display for Layout {
-    /// Use json serialization to convert `Layout` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for Layout {
-    type Err = String;
-
-    /// Use json de-serialization to construct `Layout` from string.
-    fn from_str(s: &str) -> Result<Layout, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }
 
