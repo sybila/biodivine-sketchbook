@@ -1,5 +1,5 @@
 use crate::sketchbook::data_structs::ObservationData;
-use crate::sketchbook::observations::Dataset;
+use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
 use crate::sketchbook::DatasetId;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
@@ -14,6 +14,7 @@ pub struct DatasetData {
     pub id: String,
     pub observations: Vec<ObservationData>,
     pub variables: Vec<String>,
+    pub data_type: ObservationType,
 }
 
 impl DatasetData {
@@ -28,7 +29,19 @@ impl DatasetData {
             id: id.to_string(),
             observations,
             variables: dataset.variables().clone(),
+            data_type: *dataset.data_type(),
         }
+    }
+
+    /// Convert the `DatasetData` to the corresponding `Dataset`.
+    /// There is a syntax check just to make sure that the data are valid.
+    pub fn to_dataset(&self) -> Result<Dataset, String> {
+        let observations = self
+            .observations
+            .iter()
+            .map(|o| o.to_observation())
+            .collect::<Result<Vec<Observation>, String>>()?;
+        Dataset::new(observations, self.variables.clone(), self.data_type)
     }
 }
 

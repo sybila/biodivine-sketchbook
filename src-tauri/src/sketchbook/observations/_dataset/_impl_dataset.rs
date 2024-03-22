@@ -131,8 +131,14 @@ impl Dataset {
     }
 
     /// Observation on given index.
-    pub fn get_observation(&self, index: usize) -> &Observation {
+    pub fn get_observation_on_idx(&self, index: usize) -> &Observation {
         &self.observations[index]
+    }
+
+    /// Observation with given ID.
+    pub fn get_observation(&self, id: &ObservationId) -> Result<&Observation, String> {
+        let obs_idx = self.get_observation_index(id)?;
+        Ok(self.get_observation_on_idx(obs_idx))
     }
 
     /// ID of an observation on given index.

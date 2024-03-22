@@ -26,6 +26,12 @@ impl ObservationData {
     pub fn from_obs(obs: &Observation) -> ObservationData {
         ObservationData::new(obs.get_id().as_str(), &obs.to_values_string())
     }
+
+    /// Convert the `ObservationData` to the corresponding `Observation`.
+    /// There is a syntax check just to make sure that the data are valid.
+    pub fn to_observation(&self) -> Result<Observation, String> {
+        Observation::try_from_str(self.values.clone(), &self.id)
+    }
 }
 
 impl Display for ObservationData {

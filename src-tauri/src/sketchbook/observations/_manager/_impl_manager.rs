@@ -1,5 +1,5 @@
-use crate::sketchbook::observations::{Dataset, DatasetIterator, ObservationManager};
-use crate::sketchbook::DatasetId;
+use crate::sketchbook::observations::{Dataset, DatasetIterator, Observation, ObservationManager};
+use crate::sketchbook::{DatasetId, ObservationId};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
@@ -155,6 +155,40 @@ impl ObservationManager {
             .get(id)
             .ok_or(format!("Dataset with ID {id} does not exist."))?;
         Ok(dataset)
+    }
+
+    /// Return a `Dataset` corresponding to a given id given as string.
+    ///
+    /// Return `Err` if such dataset does not exist (the ID is invalid in this context).
+    pub fn get_dataset_by_str(&self, id: &str) -> Result<&Dataset, String> {
+        let dataset_id = DatasetId::new(id)?;
+        self.get_dataset(&dataset_id)
+    }
+
+    /// Shorthand to get `Observation` with a given id, from a specified dataset.
+    ///
+    /// Return `Err` if such dataset does not exist (the ID is invalid in this context).
+    pub fn get_observation(
+        &self,
+        dataset_id: &DatasetId,
+        obs_id: &ObservationId,
+    ) -> Result<&Observation, String> {
+        let dataset = self.get_dataset(dataset_id)?;
+        dataset.get_observation(obs_id)
+    }
+
+    /// Shorthand to get `Observation` with a given string id, from a specified dataset.
+    ///
+    /// Return `Err` if such dataset (or observation) does not exist (the ID is invalid
+    /// in this context).
+    pub fn get_observation_by_str(
+        &self,
+        dataset_id: &str,
+        obs_id: &str,
+    ) -> Result<&Observation, String> {
+        let dataset_id = DatasetId::new(dataset_id)?;
+        let obs_id = ObservationId::new(obs_id)?;
+        self.get_observation(&dataset_id, &obs_id)
     }
 
     /// Return an iterator over all datasets of this model.

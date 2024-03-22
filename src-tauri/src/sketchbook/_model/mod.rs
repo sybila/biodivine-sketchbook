@@ -21,8 +21,8 @@ mod _impl_serde;
 /// **(internal)** Implementation of event-based API for the [SessionState] trait.
 mod _impl_session_state;
 
-/// Object representing the state of the model in the Boolean network editor. The model encompasses variables,
-/// regulations, uninterpreted functions, update functions, and layout information.
+/// Object representing the state of the model in the Boolean network editor. The model encompasses
+/// variables, regulations, uninterpreted functions, update functions, and layout information.
 ///
 /// `ModelState` can be observed/edited using its classical Rust API, as well as through the
 /// external events (as it implements the `SessionState` event).

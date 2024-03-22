@@ -1,7 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
-use crate::sketchbook::data_structs::DatasetData;
+use crate::sketchbook::data_structs::{DatasetData, ObservationData};
 use crate::sketchbook::event_utils::{make_refresh_event, make_reversible, make_state_change};
 use crate::sketchbook::observations::ObservationManager;
 use crate::sketchbook::DatasetId;
@@ -30,6 +30,7 @@ impl SessionState for ObservationManager {
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         match at_path.first() {
             Some(&"get_all_datasets") => {
+                Self::assert_path_length(at_path, 0, "observation_manager")?;
                 let dataset_list: Vec<DatasetData> = self
                     .datasets
                     .iter()
@@ -40,23 +41,32 @@ impl SessionState for ObservationManager {
             Some(&"get_dataset") => {
                 // path specifies dataset's ID
                 Self::assert_path_length(at_path, 1, "observation_manager/datasets")?;
-                let dataset_id_str = at_path.first().unwrap();
+                let dataset_id_str = at_path[0];
+
                 let dataset_id = self.get_dataset_id(dataset_id_str)?;
                 let dataset = self.get_dataset(&dataset_id)?;
                 let dataset_data = DatasetData::from_dataset(dataset, &dataset_id);
                 let payload = Some(dataset_data.to_string());
 
-                // remove the id from the path
                 let mut path = full_path.to_vec();
-                path.pop();
+                path.pop(); // remove the id from the path
 
                 Ok(Event { path, payload })
             }
             Some(&"get_observation") => {
                 // path specifies dataset's ID and observation's ID
                 Self::assert_path_length(at_path, 2, "observation_manager/datasets/observations")?;
-                // todo: return ObservationData
-                todo!()
+                let dataset_id_str = at_path[0];
+                let obs_id_str = at_path[1];
+
+                let observation = self.get_observation_by_str(dataset_id_str, obs_id_str)?;
+                let obs_data = ObservationData::from_obs(observation);
+                let payload = Some(obs_data.to_string());
+
+                let mut path = full_path.to_vec();
+                path.truncate(path.len() - 2); // remove the two ids from the path
+
+                Ok(Event { path, payload })
             }
             _ => Self::invalid_path_error_generic(at_path),
         }
@@ -71,9 +81,14 @@ impl ObservationManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let _dataset_data = DatasetData::from_str(payload.as_str())?;
-        // todo: parse and add the dataset
-        todo!()
+        let dataset_data = DatasetData::from_str(payload.as_str())?;
+        let dataset = dataset_data.to_dataset()?;
+        self.add_dataset_by_str(&dataset_data.id, dataset)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_path = ["observation_manager", &dataset_data.id, "remove"];
+        let reverse_event = Event::build(&reverse_path, None);
+        Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `dataset` component of this
@@ -112,7 +127,7 @@ impl ObservationManager {
             todo!()
         } else {
             // otherwise we edit specific observation with `at_path` being ["observation_id", ...]
-            // todo: sent the event down to dataset
+            // todo: sent the event down to the `Dataset` (once it implements SessionState)
             todo!()
         }
     }

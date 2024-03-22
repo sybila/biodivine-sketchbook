@@ -11,6 +11,10 @@ mod _impl_serde;
 /// **(internal)** Implementation of event-based API for the [SessionState] trait.
 mod _impl_session_state;
 
+/// Class to manage all observations and datasets.
+///
+/// `ObservationManager` can be managed through its classical Rust API, as well as
+/// through the external events (as it implements the `SessionState` event).
 #[derive(Clone, Debug, PartialEq)]
 pub struct ObservationManager {
     datasets: HashMap<DatasetId, Dataset>,

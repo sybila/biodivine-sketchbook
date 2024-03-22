@@ -9,7 +9,7 @@ mod _impl_dataset;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `Dataset`.
 mod _impl_serde;
 
-/// An ordered list of observations (of potentially specified type) for a set of variables.
+/// An ordered list of observations (of potentially specified type) for given variables.
 /// The order is important for some datasets, for example, to be able to capture time series.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Dataset {
