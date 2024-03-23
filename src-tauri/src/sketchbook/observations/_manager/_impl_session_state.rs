@@ -1,10 +1,10 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
-use crate::sketchbook::data_structs::{DatasetData, ObservationData};
+use crate::sketchbook::data_structs::{ChangeIdData, DatasetData, ObservationData};
 use crate::sketchbook::event_utils::{make_refresh_event, make_reversible, make_state_change};
 use crate::sketchbook::observations::ObservationManager;
-use crate::sketchbook::DatasetId;
+use crate::sketchbook::{DatasetId, ObservationId};
 use std::str::FromStr;
 
 impl SessionHelper for ObservationManager {}
@@ -13,7 +13,7 @@ impl SessionState for ObservationManager {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         let component_name = "observation_manager";
 
-        // there is either adding of a new dataset, or editing/removing of an existing one
+        // there is either adding of a new dataset, or modifying/removing an existing one
         // when adding new dataset, the `at_path` is just ["add"]
         // when editing existing dataset, the `at_path` is ["dataset_id", ...]
 
@@ -28,9 +28,12 @@ impl SessionState for ObservationManager {
     }
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
+        let component_name = "observation_manager";
+        // currently three options: get all datasets, single dataset, single observation
+
         match at_path.first() {
             Some(&"get_all_datasets") => {
-                Self::assert_path_length(at_path, 0, "observation_manager")?;
+                Self::assert_path_length(at_path, 0, component_name)?;
                 let dataset_list: Vec<DatasetData> = self
                     .datasets
                     .iter()
@@ -40,7 +43,7 @@ impl SessionState for ObservationManager {
             }
             Some(&"get_dataset") => {
                 // path specifies dataset's ID
-                Self::assert_path_length(at_path, 1, "observation_manager/datasets")?;
+                Self::assert_path_length(at_path, 1, component_name)?;
                 let dataset_id_str = at_path[0];
 
                 let dataset_id = self.get_dataset_id(dataset_id_str)?;
@@ -54,13 +57,14 @@ impl SessionState for ObservationManager {
                 Ok(Event { path, payload })
             }
             Some(&"get_observation") => {
-                // path specifies dataset's ID and observation's ID
-                Self::assert_path_length(at_path, 2, "observation_manager/datasets/observations")?;
+                // path specifies 1) dataset's ID and 2) observation's ID
+                Self::assert_path_length(at_path, 2, component_name)?;
                 let dataset_id_str = at_path[0];
+                let dataset_id = self.get_dataset_id(dataset_id_str)?;
                 let obs_id_str = at_path[1];
 
                 let observation = self.get_observation_by_str(dataset_id_str, obs_id_str)?;
-                let obs_data = ObservationData::from_obs(observation);
+                let obs_data = ObservationData::from_obs(observation, &dataset_id);
                 let payload = Some(obs_data.to_string());
 
                 let mut path = full_path.to_vec();
@@ -73,11 +77,11 @@ impl SessionState for ObservationManager {
     }
 }
 
-/// Implementation for events related to `datasets`.
+/// Implementation for events related to modifying `datasets`.
 impl ObservationManager {
     /// Perform event of adding a new `dataset` component to this `ObservationManager`.
     pub(super) fn event_add_dataset(&mut self, event: &Event) -> Result<Consumed, DynError> {
-        let component_name = "observation_manager/datasets";
+        let component_name = "observation_manager";
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
@@ -99,10 +103,12 @@ impl ObservationManager {
         at_path: &[&str],
         dataset_id: DatasetId,
     ) -> Result<Consumed, DynError> {
-        let component_name = "observation_manager/datasets";
+        let component_name = "observation_manager";
 
-        // there is either editing whole dataset directly with `at_path` being [<ACTION>]
-        // or editing specific observation with `at_path` being ["observation_id", ...]
+        // there are two possible options:
+        //     1) modify a dataset directly, with `at_path` being just [<ACTION>]
+        //     2) modify a specific observation with `at_path` being ["observation_id", ...]
+        // the second option is handled by the dataset instance itself
 
         if Self::starts_with("remove", at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
@@ -120,15 +126,42 @@ impl ObservationManager {
             let reverse_event = Event::build(&reverse_path, Some(&dataset_data.to_string()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_id", at_path).is_some() {
-            // todo: set dataset's ID
-            todo!()
+            // get the payload - string for "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if dataset_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_dataset_id_by_str(dataset_id.as_str(), new_id.as_str())?;
+            let id_change_data = ChangeIdData::new(dataset_id.as_str(), new_id.as_str());
+            let state_change =
+                make_state_change(&["observation_manager", "set_id"], &id_change_data);
+
+            // prepare the reverse event
+            let reverse_event_path = ["observation_manager", new_id.as_str(), "set_id"];
+            let reverse_event = Event::build(&reverse_event_path, Some(dataset_id.as_str()));
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("change_data", at_path).is_some() {
             // todo: change dataset's whole observation list to a new list
             todo!()
+        } else if Self::starts_with("add", at_path).is_some() {
+            // the ID is valid (checked before), we can unwrap
+            let dataset = self.datasets.get_mut(&dataset_id).unwrap();
+            // Adding observation to a particular dataset is handled by the `Dataset` itself
+            dataset.event_add_observation(event, dataset_id)
         } else {
-            // otherwise we edit specific observation with `at_path` being ["observation_id", ...]
-            // todo: sent the event down to the `Dataset` (once it implements SessionState)
-            todo!()
+            // Finally, this must be a modification of a particular observation
+            // The `at_path` must be ["observation_id", <ACTION>]
+            // We just extract the particular ID and let the `Dataset` handle it itself
+            Self::assert_path_length(at_path, 2, component_name)?;
+            let observation_id_str = at_path[0];
+            let obs_id = ObservationId::new(observation_id_str)?;
+            let action = at_path[1];
+
+            // the ID is valid (checked before), we can unwrap
+            let dataset = self.datasets.get_mut(&dataset_id).unwrap();
+            dataset.event_modify_observation(event, action, dataset_id, obs_id)
         }
     }
 }

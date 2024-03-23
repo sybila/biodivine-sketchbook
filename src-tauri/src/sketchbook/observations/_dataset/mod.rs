@@ -6,6 +6,8 @@ use std::str::FromStr;
 
 /// **(internal)** Basic utility methods for `Dataset`.
 mod _impl_dataset;
+/// **(internal)** Implementation of partial event-based API.
+mod _impl_events;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `Dataset`.
 mod _impl_serde;
 

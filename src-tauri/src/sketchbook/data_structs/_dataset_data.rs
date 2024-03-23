@@ -23,7 +23,7 @@ impl DatasetData {
         let observations = dataset
             .observations()
             .iter()
-            .map(ObservationData::from_obs)
+            .map(|o| ObservationData::from_obs(o, id))
             .collect();
         DatasetData {
             id: id.to_string(),
