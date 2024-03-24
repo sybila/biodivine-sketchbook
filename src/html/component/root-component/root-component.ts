@@ -196,7 +196,7 @@ export default class RootComponent extends LitElement {
 
   private adjustRegEditor (): void {
     const visible = this.visibleTabs()
-    if (window.outerWidth <= 800 || visible.includes(this.tabs[0])) return
+    if (window.outerWidth <= 800 || !visible.includes(this.tabs[0])) return
     window.dispatchEvent(new CustomEvent('adjust-graph', {
       detail: {
         tabCount: visible.length
