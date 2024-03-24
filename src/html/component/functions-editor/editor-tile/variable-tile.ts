@@ -40,6 +40,7 @@ export class VariableTile extends EditorTile {
       'constant.language': this.variables.map(v => v.id).join('|'),
       'support.function.dom': this.functions.map(f => f.id).join('|')
     })
+    this.aceEditor.setOption('placeholder', '$f_' + this.variables[this.index].id + '(...)')
   }
 
   private getVariables (): IVariableData[] {

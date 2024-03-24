@@ -1,4 +1,4 @@
-import { css, LitElement, type PropertyValues, unsafeCSS } from 'lit'
+import { css, LitElement, unsafeCSS } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import style_less from './editor-tile.less?inline'
 import { Essentiality, type IFunctionData, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
