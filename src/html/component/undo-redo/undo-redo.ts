@@ -29,9 +29,9 @@ export default class UndoRedo extends LitElement {
   render (): TemplateResult {
     return html`
       <div class="undo-redo uk-flex-nowrap">
-        <button class="uk-button uk-button-secondary uk-button-small"
+        <button class="uk-button uk-button-secondary uk-button-small ${!this.canUndo ? 'disabled' : ''}"
                 @click=${aeonState.undoStack.undo} ?disabled=${!this.canUndo}>${icon(faArrowLeft).node}</button>
-        <button class="uk-button uk-button-secondary uk-button-small"
+        <button class="uk-button uk-button-secondary uk-button-small ${!this.canRedo ? 'disabled' : ''}"
                 @click=${aeonState.undoStack.redo} ?disabled=${!this.canRedo}>${icon(faArrowRight).node}</button>
       </div>
     `
