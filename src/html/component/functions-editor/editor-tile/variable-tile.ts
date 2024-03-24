@@ -55,8 +55,7 @@ export class VariableTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, EditorTile.DEBOUNCE
   )
 
   functionUpdated = debounce(() => {
@@ -68,8 +67,7 @@ export class VariableTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, EditorTile.DEBOUNCE
   )
 
   toggleEssentiality (regulation: IRegulationData): void {

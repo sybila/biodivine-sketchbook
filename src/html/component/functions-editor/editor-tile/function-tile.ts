@@ -54,8 +54,7 @@ export class FunctionTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, EditorTile.DEBOUNCE
   )
 
   functionUpdated = debounce(() => {
@@ -67,8 +66,7 @@ export class FunctionTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, EditorTile.DEBOUNCE
   )
 
   async removeVariable (): Promise<void> {
