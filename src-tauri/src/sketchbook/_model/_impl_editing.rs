@@ -1,3 +1,4 @@
+use crate::sketchbook::utils::assert_ids_unique;
 use crate::sketchbook::{
     Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
     UninterpretedFnId, UpdateFn, VarId, Variable,
@@ -36,11 +37,8 @@ impl ModelState {
     /// Return `Err` in case the IDs are not unique.
     pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<ModelState, String> {
         let mut model = ModelState::new();
-
-        let var_id_set = variables.iter().map(|pair| pair.0).collect::<HashSet<_>>();
-        if var_id_set.len() != variables.len() {
-            return Err(format!("Variables {:?} contain duplicates.", variables));
-        }
+        let var_ids = variables.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&var_ids)?;
 
         for (id, var_name) in variables {
             let var_id = VarId::new(id)?;
@@ -90,11 +88,14 @@ impl ModelState {
         &mut self,
         id_name_pairs: Vec<(&str, &str)>,
     ) -> Result<(), String> {
-        // before making any changes, check if all IDs are actually valid
-        for (id, _) in id_name_pairs.iter() {
+        // before making any changes, check that all IDs are actually valid and unique
+        let var_ids = id_name_pairs.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&var_ids)?;
+        for id in var_ids {
             let var_id = VarId::new(id)?;
             self.assert_no_variable(&var_id)?;
         }
+        // now we can safely add them
         for (id, name) in id_name_pairs {
             self.add_var_by_str(id, name)?;
         }
@@ -135,7 +136,8 @@ impl ModelState {
         self.add_new_uninterpreted_fn(fn_id, name, arity)
     }
 
-    /// Shorthand to add a list of new uninterpreted fns with given string IDs, names, and arities to this `ModelState`.
+    /// Shorthand to add a list of new uninterpreted fns, each with a string ID, name, and arity,
+    /// to this `ModelState`.
     ///
     /// Each ID must be valid identifier that is not already used by some other uninterpreted fns.
     /// Returns `Err` in case the `id` is already being used.
@@ -143,11 +145,17 @@ impl ModelState {
         &mut self,
         id_name_arity_tuples: Vec<(&str, &str, usize)>,
     ) -> Result<(), String> {
-        // before making any changes, check if all IDs are actually valid
-        for (id, _, _) in id_name_arity_tuples.iter() {
+        // before making any changes, check that all IDs are actually valid and unique
+        let fn_ids = id_name_arity_tuples
+            .iter()
+            .map(|triplet| triplet.0)
+            .collect();
+        assert_ids_unique(&fn_ids)?;
+        for id in fn_ids {
             let fn_id = UninterpretedFnId::new(id)?;
             self.assert_no_uninterpreted_fn(&fn_id)?;
         }
+        // now we can safely add them
         for (id, name, arity) in id_name_arity_tuples {
             self.add_uninterpreted_fn_by_str(id, name, arity)?;
         }
@@ -809,7 +817,9 @@ impl ModelState {
     /// **(internal)** Utility method to ensure there is no variable with given Id yet.
     fn assert_no_variable(&self, var_id: &VarId) -> Result<(), String> {
         if self.is_valid_var_id(var_id) {
-            Err(format!("Variable with id {var_id} already exists."))
+            Err(format!(
+                "Variable with id {var_id} already exists in this model."
+            ))
         } else {
             Ok(())
         }
@@ -820,7 +830,9 @@ impl ModelState {
         if self.is_valid_var_id(var_id) {
             Ok(())
         } else {
-            Err(format!("Variable with id {var_id} does not exist."))
+            Err(format!(
+                "Variable with id {var_id} does not exist in this model."
+            ))
         }
     }
 

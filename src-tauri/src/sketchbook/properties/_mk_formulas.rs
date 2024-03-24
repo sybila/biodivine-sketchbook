@@ -47,10 +47,13 @@ pub fn encode_multiple_observations(
 ///
 /// Only data with their type specified can be encoded.
 pub fn encode_observation_list_hctl(observation_list: &Dataset) -> Result<String, String> {
-    let encoded_observations = encode_multiple_observations(
-        observation_list.observations(),
-        observation_list.variables(),
-    )?;
+    let variables_strings = observation_list
+        .variables()
+        .iter()
+        .map(|v| v.to_string())
+        .collect::<Vec<String>>();
+    let encoded_observations =
+        encode_multiple_observations(observation_list.observations(), &variables_strings)?;
     match observation_list.data_type() {
         ObservationType::Attractor => Ok(mk_formula_attractor_set(encoded_observations)),
         ObservationType::FixedPoint => Ok(mk_formula_fixed_point_set(encoded_observations)),
@@ -260,21 +263,21 @@ mod tests {
             "e".to_string(),
         ];
 
-        let observation1 = Observation::try_from_str("001*1".to_string(), "obs1").unwrap();
+        let observation1 = Observation::try_from_str("001*1", "obs1").unwrap();
         let encoded1 = "(~a & ~b & c & e)";
         assert_eq!(
             encode_observation(&observation1, &prop_names).unwrap(),
             encoded1
         );
 
-        let observation2 = Observation::try_from_str("001**".to_string(), "obs2").unwrap();
+        let observation2 = Observation::try_from_str("001**", "obs2").unwrap();
         let encoded2 = "(~a & ~b & c)";
         assert_eq!(
             encode_observation(&observation2, &prop_names).unwrap(),
             encoded2
         );
 
-        let observation3 = Observation::try_from_str("*****".to_string(), "obs3").unwrap();
+        let observation3 = Observation::try_from_str("*****", "obs3").unwrap();
         let encoded3 = "(true)";
         assert_eq!(
             encode_observation(&observation3, &prop_names).unwrap(),
@@ -294,14 +297,14 @@ mod tests {
     #[test]
     /// Test encoding of a list of observations of various kinds.
     fn test_attractor_observations_encoding() {
-        let observation1 = Observation::try_from_str("110".to_string(), "obs1").unwrap();
-        let observation2 = Observation::try_from_str("1*1".to_string(), "obs2").unwrap();
+        let observation1 = Observation::try_from_str("110", "obs1").unwrap();
+        let observation2 = Observation::try_from_str("1*1", "obs2").unwrap();
         let raw_observations = vec![observation1, observation2];
-        let prop_names = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+        let var_names = vec!["a", "b", "c"];
 
         let attr_observations = Dataset::new(
             raw_observations.clone(),
-            prop_names.clone(),
+            var_names.clone(),
             ObservationType::Attractor,
         )
         .unwrap();
@@ -312,7 +315,7 @@ mod tests {
 
         let fixed_point_observations = Dataset::new(
             raw_observations.clone(),
-            prop_names.clone(),
+            var_names.clone(),
             ObservationType::FixedPoint,
         )
         .unwrap();
@@ -323,7 +326,7 @@ mod tests {
 
         let time_series_observations = Dataset::new(
             raw_observations.clone(),
-            prop_names.clone(),
+            var_names.clone(),
             ObservationType::TimeSeries,
         )
         .unwrap();
@@ -334,7 +337,7 @@ mod tests {
 
         let unspecified_observations = Dataset::new(
             raw_observations.clone(),
-            prop_names.clone(),
+            var_names.clone(),
             ObservationType::Unspecified,
         )
         .unwrap();

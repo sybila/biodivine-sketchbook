@@ -1,5 +1,5 @@
 use crate::sketchbook::observations::{Observation, ObservationType};
-use crate::sketchbook::ObservationId;
+use crate::sketchbook::{ObservationId, VarId};
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -18,7 +18,7 @@ pub struct Dataset {
     /// List of binarized observations.
     observations: Vec<Observation>,
     /// Variables captured by the observations.
-    var_names: Vec<String>,
+    variables: Vec<VarId>,
     /// Type of this dataset.
     data_type: ObservationType,
     /// Index map from observation IDs to their index in vector, for faster searching.

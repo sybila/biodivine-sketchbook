@@ -39,7 +39,7 @@ impl ObservationData {
     /// Extract the corresponding `Observation` from the `ObservationData`.
     /// There is a syntax check just to make sure that the data are valid.
     pub fn to_observation(&self) -> Result<Observation, String> {
-        Observation::try_from_str(self.values.clone(), &self.id)
+        Observation::try_from_str(&self.values.clone(), &self.id)
     }
 }
 
@@ -56,5 +56,23 @@ impl FromStr for ObservationData {
     /// Use json de-serialization to construct `ObservationData` from string.
     fn from_str(s: &str) -> Result<ObservationData, String> {
         serde_json::from_str(s).map_err(|e| e.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::sketchbook::data_structs::ObservationData;
+    use crate::sketchbook::observations::Observation;
+    use crate::sketchbook::DatasetId;
+
+    #[test]
+    /// Test converting between `Observation` and `ObservationData`.
+    fn test_converting() {
+        let dataset_id = DatasetId::new("d").unwrap();
+        let obs_before = Observation::try_from_str("0011*", "o").unwrap();
+        let obs_data = ObservationData::from_obs(&obs_before, &dataset_id);
+        let obs_after = obs_data.to_observation().unwrap();
+
+        assert_eq!(obs_before, obs_after);
     }
 }

@@ -25,10 +25,11 @@ impl DatasetData {
             .iter()
             .map(|o| ObservationData::from_obs(o, id))
             .collect();
+        let variables = dataset.variables().iter().map(|v| v.to_string()).collect();
         DatasetData {
             id: id.to_string(),
             observations,
-            variables: dataset.variables().clone(),
+            variables,
             data_type: *dataset.data_type(),
         }
     }
@@ -41,7 +42,8 @@ impl DatasetData {
             .iter()
             .map(|o| o.to_observation())
             .collect::<Result<Vec<Observation>, String>>()?;
-        Dataset::new(observations, self.variables.clone(), self.data_type)
+        let variables = self.variables.iter().map(|v| v.as_str()).collect();
+        Dataset::new(observations, variables, self.data_type)
     }
 }
 
@@ -58,5 +60,26 @@ impl FromStr for DatasetData {
     /// Use json de-serialization to construct `DatasetData` from string.
     fn from_str(s: &str) -> Result<DatasetData, String> {
         serde_json::from_str(s).map_err(|e| e.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::sketchbook::data_structs::DatasetData;
+    use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
+    use crate::sketchbook::DatasetId;
+
+    #[test]
+    /// Test converting between `Dataset` and `DatasetData`.
+    fn test_converting() {
+        let dataset_id = DatasetId::new("d").unwrap();
+        let obs1 = Observation::try_from_str("*1", "o1").unwrap();
+        let obs2 = Observation::try_from_str("00", "o2").unwrap();
+        let dataset_before =
+            Dataset::new(vec![obs1, obs2], vec!["a", "b"], ObservationType::Attractor).unwrap();
+        let dataset_data = DatasetData::from_dataset(&dataset_before, &dataset_id);
+        let dataset_after = dataset_data.to_dataset().unwrap();
+
+        assert_eq!(dataset_before, dataset_after);
     }
 }

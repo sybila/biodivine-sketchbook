@@ -1,7 +1,6 @@
 use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
+use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
 use crate::sketchbook::VarId;
-
-use crate::sketchbook::utils::assert_name_valid;
 use std::collections::HashMap;
 
 /// Methods for safely constructing or mutating instances of `Layout`.
@@ -32,6 +31,9 @@ impl Layout {
         name_str: &str,
         variable_ids: Vec<VarId>,
     ) -> Result<Layout, String> {
+        // before making any changes, check that all IDs are actually valid and unique
+        assert_ids_unique(&variable_ids)?;
+        // now we can safely add them
         let mut layout = Layout::new_empty(name_str)?;
         for var_id in variable_ids {
             layout.add_default_node(var_id.clone())?;

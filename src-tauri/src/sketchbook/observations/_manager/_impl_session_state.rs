@@ -29,8 +29,8 @@ impl SessionState for ObservationManager {
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         let component_name = "observation_manager";
-        // currently three options: get all datasets, single dataset, single observation
 
+        // currently three options: get all datasets, a single dataset, a single observation
         match at_path.first() {
             Some(&"get_all_datasets") => {
                 Self::assert_path_length(at_path, 0, component_name)?;
@@ -79,7 +79,7 @@ impl SessionState for ObservationManager {
 
 /// Implementation for events related to modifying `datasets`.
 impl ObservationManager {
-    /// Perform event of adding a new `dataset` component to this `ObservationManager`.
+    /// Perform event of adding a new `dataset` to this `ObservationManager`.
     pub(super) fn event_add_dataset(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "observation_manager";
 
@@ -138,17 +138,21 @@ impl ObservationManager {
             let state_change =
                 make_state_change(&["observation_manager", "set_id"], &id_change_data);
 
-            // prepare the reverse event
+            // prepare the reverse event (setting the original ID back)
             let reverse_event_path = ["observation_manager", new_id.as_str(), "set_id"];
             let reverse_event = Event::build(&reverse_event_path, Some(dataset_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("change_data", at_path).is_some() {
             // todo: change dataset's whole observation list to a new list
             todo!()
+        } else if Self::starts_with("set_var_id", at_path).is_some() {
+            // todo: change variable's ID in a dataset
+            todo!()
         } else if Self::starts_with("add", at_path).is_some() {
+            // Adding observation to a particular dataset is handled by the `Dataset` itself
+
             // the ID is valid (checked before), we can unwrap
             let dataset = self.datasets.get_mut(&dataset_id).unwrap();
-            // Adding observation to a particular dataset is handled by the `Dataset` itself
             dataset.event_add_observation(event, dataset_id)
         } else {
             // Finally, this must be a modification of a particular observation

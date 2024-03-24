@@ -80,6 +80,16 @@ impl ObservationManager {
         Ok(())
     }
 
+    /// Swap content of a dataset with given `id`. The ID must be valid identifier.
+    pub fn swap_dataset_content_by_str(
+        &mut self,
+        id: &str,
+        new_content: Dataset,
+    ) -> Result<(), String> {
+        let dataset_id = DatasetId::new(id)?;
+        self.swap_dataset_content(&dataset_id, new_content)
+    }
+
     /// Set the id of dataset with `original_id` to `new_id`.
     pub fn set_dataset_id(
         &mut self,
@@ -212,5 +222,82 @@ impl ObservationManager {
         } else {
             Err(format!("Dataset with id {id} does not exist."))
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::sketchbook::observations::{Dataset, Observation, ObservationManager};
+
+    #[test]
+    /// Test that valid manager instances are created correctly, and invalid case is handled.
+    fn test_new_manager() {
+        let manager = ObservationManager::new_empty();
+        assert_eq!(manager.num_datasets(), 0);
+
+        let d1 = Dataset::new_unspecified(vec![], vec!["a", "b"]).unwrap();
+        let d2 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
+        let manager = ObservationManager::new_from_datasets(dataset_list).unwrap();
+        assert_eq!(manager.num_datasets(), 2);
+
+        // test also invalid, with non-unique IDs
+        let dataset_list = vec![("d", d1.clone()), ("d", d2.clone())];
+        assert!(ObservationManager::new_from_datasets(dataset_list).is_err());
+    }
+
+    #[test]
+    /// Test adding/removing datasets.
+    fn test_manipulate_datasets() {
+        let o1 = Observation::try_from_str("*", "o").unwrap();
+        let o2 = Observation::try_from_str("0", "p").unwrap();
+
+        let d1 = Dataset::new_unspecified(vec![o1, o2], vec!["a"]).unwrap();
+        let d2 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
+
+        let mut manager = ObservationManager::new_from_datasets(dataset_list).unwrap();
+        assert_eq!(manager.num_datasets(), 2);
+
+        // add dataset
+        let d3 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        manager.add_dataset_by_str("d3", d3.clone()).unwrap();
+        assert_eq!(manager.num_datasets(), 3);
+
+        // try adding dataset with the same ID again (should fail)
+        let d3 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        assert!(manager.add_multiple_datasets(vec![("d3", d3)]).is_err());
+        assert_eq!(manager.num_datasets(), 3);
+
+        // remove a dataset
+        manager.remove_dataset_by_str("d2").unwrap();
+        assert_eq!(manager.num_datasets(), 2);
+
+        // try removing dataset with invalid (already removed) ID
+        assert!(manager.remove_dataset_by_str("d2").is_err());
+        assert_eq!(manager.num_datasets(), 2);
+    }
+
+    #[test]
+    /// Test changing a dataset's ID or content.
+    fn test_edit_dataset() {
+        let o1 = Observation::try_from_str("*1", "o").unwrap();
+        let o2 = Observation::try_from_str("00", "p").unwrap();
+        let d1 = Dataset::new_unspecified(vec![o1, o2], vec!["a", "b"]).unwrap();
+        let dataset_list = vec![("dataset1", d1.clone())];
+        let mut manager = ObservationManager::new_from_datasets(dataset_list).unwrap();
+
+        // try setting ID
+        manager.set_dataset_id_by_str("dataset1", "d1").unwrap();
+        assert!(manager.get_dataset_id("dataset1").is_err());
+        assert!(manager.get_dataset_id("d1").is_ok());
+
+        // try setting content
+        let new_dataset = Dataset::new_unspecified(vec![], vec!["a", "b"]).unwrap();
+        manager
+            .swap_dataset_content_by_str("d1", new_dataset.clone())
+            .unwrap();
+        let d1 = manager.get_dataset_id("d1").unwrap();
+        assert_eq!(manager.get_dataset(&d1).unwrap(), &new_dataset);
     }
 }

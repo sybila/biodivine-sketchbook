@@ -52,9 +52,9 @@ impl Observation {
     /// Values are encoded using characters `1`, `0`, or `*`.
     ///
     /// Observation cannot be empty.
-    pub fn try_from_str(observation_string: String, id: &str) -> Result<Self, String> {
+    pub fn try_from_str(observation_str: &str, id: &str) -> Result<Self, String> {
         let mut observation_vec: Vec<VarValue> = Vec::new();
-        for c in observation_string.chars() {
+        for c in observation_str.chars() {
             observation_vec.push(VarValue::from_str(&c.to_string())?)
         }
         if observation_vec.is_empty() {
@@ -68,12 +68,18 @@ impl Observation {
 /// Editing observations.
 impl Observation {
     /// Set the value at given idx.
-    pub fn set_value_at_idx(&mut self, index: usize, value: VarValue) -> Result<(), String> {
+    pub fn set_value(&mut self, index: usize, value: VarValue) -> Result<(), String> {
         if index >= self.num_values() {
             return Err("Index is larger than number of values.".to_string());
         }
         self.values[index] = value;
         Ok(())
+    }
+
+    /// Set the value (one of the "0"/"1"/"*") at given idx.
+    pub fn set_value_by_str(&mut self, index: usize, value: &str) -> Result<(), String> {
+        let converted_value = VarValue::from_str(value)?;
+        self.set_value(index, converted_value)
     }
 
     /// Set all the values in this observation. The new vector of values must have the same
@@ -86,9 +92,27 @@ impl Observation {
         Ok(())
     }
 
+    /// Set all the values in this observation via its string encoding (string of "0"/"1"/"*").
+    /// The new vector of values must have the same number of values as the original observation
+    /// ("arity" does not change).
+    pub fn set_all_values_by_str(&mut self, values: &str) -> Result<(), String> {
+        let mut converted_values: Vec<VarValue> = Vec::new();
+        for c in values.chars() {
+            converted_values.push(VarValue::from_str(&c.to_string())?)
+        }
+        self.set_all_values(converted_values)
+    }
+
     /// Set the id of this observation.
     pub fn set_id(&mut self, id: ObservationId) {
         self.id = id;
+    }
+
+    /// Set the id of this observation, given the potential ID as string.
+    pub fn set_id_by_str(&mut self, id: &str) -> Result<(), String> {
+        let obs_id = ObservationId::new(id)?;
+        self.set_id(obs_id);
+        Ok(())
     }
 }
 
@@ -167,28 +191,74 @@ mod tests {
     #[test]
     /// Test creating observation object from string.
     fn test_observation_from_str() {
-        let observation_str = "001**".to_string();
+        let observation_str = "001**";
         let id = "observation_id";
-        let values = vec![
+        let expected_values = vec![
             VarValue::False,
             VarValue::False,
             VarValue::True,
             VarValue::Any,
             VarValue::Any,
         ];
-        let observation = Observation::new(values, id).unwrap();
+        let expected_obs = Observation::new(expected_values, id).unwrap();
         assert_eq!(
             Observation::try_from_str(observation_str, id).unwrap(),
-            observation
+            expected_obs
         );
+    }
+
+    #[test]
+    /// Test creating observations via provided shortcuts.
+    fn test_creating_shortcuts() {
+        let obs = Observation::new_full_ones(4, "o").unwrap();
+        let expected_obs = Observation::try_from_str("1111", "o").unwrap();
+        assert_eq!(obs, expected_obs);
+
+        let obs = Observation::new_full_zeros(4, "o").unwrap();
+        let expected_obs = Observation::try_from_str("0000", "o").unwrap();
+        assert_eq!(obs, expected_obs);
+
+        let obs = Observation::new_full_unspecified(4, "o").unwrap();
+        let expected_obs = Observation::try_from_str("****", "o").unwrap();
+        assert_eq!(obs, expected_obs);
+    }
+
+    #[test]
+    /// Test getters and similar methods.
+    fn test_getters() {
+        let obs = Observation::try_from_str("10*11*", "o").unwrap();
+        assert_eq!(obs.num_values(), 6);
+        assert_eq!(obs.num_ones(), 3);
+        assert_eq!(obs.num_zeros(), 1);
+        assert_eq!(obs.num_specified_values(), 4);
+        assert_eq!(obs.num_unspecified_values(), 2);
+
+        assert_eq!(obs.get_id().as_str(), "o");
+        assert_eq!(obs.value_at_idx(0).unwrap().as_str(), "1");
+        assert_eq!(obs.value_at_idx(5).unwrap().as_str(), "*");
+        assert!(obs.value_at_idx(6).is_err());
+    }
+
+    #[test]
+    /// Test setters (for ID and values).
+    fn test_setters() {
+        let mut obs = Observation::try_from_str("10*11*", "o").unwrap();
+        obs.set_id_by_str("p").unwrap();
+        assert_eq!(obs.get_id().as_str(), "p");
+
+        obs.set_value_by_str(1, "1").unwrap();
+        assert_eq!(obs.to_values_string().as_str(), "11*11*");
+
+        obs.set_all_values_by_str("111111").unwrap();
+        assert_eq!(obs.to_values_string().as_str(), "111111");
     }
 
     #[test]
     /// Test error handling while creating observation object from string.
     fn test_err_observation_from_str() {
-        let observation_str1 = "0 1**".to_string();
-        let observation_str2 = "0**a".to_string();
-        let observation_str3 = "".to_string();
+        let observation_str1 = "0 1**";
+        let observation_str2 = "0**a";
+        let observation_str3 = "";
 
         assert!(Observation::try_from_str(observation_str1, "obs1").is_err());
         assert!(Observation::try_from_str(observation_str2, "obs2").is_err());
@@ -198,17 +268,10 @@ mod tests {
     #[test]
     /// Test displaying of observations.
     fn test_display_observations() {
-        let values = vec![
-            VarValue::False,
-            VarValue::False,
-            VarValue::True,
-            VarValue::Any,
-            VarValue::Any,
-        ];
-        let observation = Observation::new(values, "id1").unwrap();
+        let values_str = "001**";
+        let observation = Observation::try_from_str(values_str, "id1").unwrap();
         let expected_long = "id1(001**)".to_string();
-        let expected_short = "001**".to_string();
-        assert_eq!(observation.to_values_string(), expected_short);
+        assert_eq!(observation.to_values_string(), values_str.to_string());
         assert_eq!(observation.to_debug_string(), expected_long);
     }
 }

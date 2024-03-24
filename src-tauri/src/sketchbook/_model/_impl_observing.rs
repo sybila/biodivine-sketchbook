@@ -90,7 +90,9 @@ impl ModelState {
         if self.is_valid_var_id(&var_id) {
             return Ok(var_id);
         }
-        Err(format!("Variable with ID {id} does not exist."))
+        Err(format!(
+            "Variable with ID {id} does not exist in this model."
+        ))
     }
 
     /// Return a valid placeholder variable's `VarId` corresponding to the given str `id`.
@@ -101,17 +103,18 @@ impl ModelState {
         if self.is_valid_placeholder_var_id(&var_id) {
             return Ok(var_id);
         }
-        Err(format!("Placeholder variable with ID {id} does not exist."))
+        Err(format!(
+            "Placeholder variable with ID {id} does not exist in this model."
+        ))
     }
 
     /// Return a `Variable` corresponding to a given `VarId`.
     ///
     /// Return `Err` if such variable does not exist (the ID is invalid in this context).
     pub fn get_variable(&self, var_id: &VarId) -> Result<&Variable, String> {
-        let variable = self
-            .variables
-            .get(var_id)
-            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        let variable = self.variables.get(var_id).ok_or(format!(
+            "Variable with ID {var_id} does not exist in this model."
+        ))?;
         Ok(variable)
     }
 
@@ -123,7 +126,9 @@ impl ModelState {
         if self.is_valid_uninterpreted_fn_id(&fn_id) {
             return Ok(fn_id);
         }
-        Err(format!("UninterpretedFn with ID {id} does not exist."))
+        Err(format!(
+            "UninterpretedFn with ID {id} does not exist in this model."
+        ))
     }
 
     /// Return a `UninterpretedFn` corresponding to a given `UninterpretedFnId`.
@@ -133,10 +138,9 @@ impl ModelState {
         &self,
         fn_id: &UninterpretedFnId,
     ) -> Result<&UninterpretedFn, String> {
-        let uninterpreted_fn = self
-            .uninterpreted_fns
-            .get(fn_id)
-            .ok_or(format!("UninterpretedFn with ID {fn_id} does not exist."))?;
+        let uninterpreted_fn = self.uninterpreted_fns.get(fn_id).ok_or(format!(
+            "UninterpretedFn with ID {fn_id} does not exist in this model."
+        ))?;
         Ok(uninterpreted_fn)
     }
 
@@ -144,10 +148,9 @@ impl ModelState {
     ///
     /// Return `Err` if such variable does not exist (the ID is invalid in this context).
     pub fn get_var_name(&self, var_id: &VarId) -> Result<&str, String> {
-        let variable = self
-            .variables
-            .get(var_id)
-            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        let variable = self.variables.get(var_id).ok_or(format!(
+            "Variable with ID {var_id} does not exist in this model."
+        ))?;
         Ok(variable.get_name())
     }
 
@@ -157,17 +160,19 @@ impl ModelState {
     pub fn get_regulation(&self, regulator: &VarId, target: &VarId) -> Result<&Regulation, String> {
         if !self.is_valid_var_id(regulator) {
             return Err(format!(
-                "Regulator variable with ID {regulator} does not exist."
+                "Regulator variable with ID {regulator} does not exist in this model."
             ));
         }
         if !self.is_valid_var_id(target) {
-            return Err(format!("Target variable with ID {target} does not exist."));
+            return Err(format!(
+                "Target variable with ID {target} does not exist in this model."
+            ));
         }
         self.regulations
             .iter()
             .find(|r| r.get_regulator() == regulator && r.get_target() == target)
             .ok_or(format!(
-                "Regulation between {regulator} and {target} does not exist."
+                "Regulation between {regulator} and {target} does not exist in this model."
             ))
     }
 
@@ -177,7 +182,7 @@ impl ModelState {
     pub fn get_layout(&self, id: &LayoutId) -> Result<&Layout, String> {
         self.layouts
             .get(id)
-            .ok_or(format!("Layout with ID {id} does not exist."))
+            .ok_or(format!("Layout with ID {id} does not exist in this model."))
     }
 
     /// Return a valid layout's `LayoutId` corresponding to the Id given by a `String`.
@@ -188,7 +193,7 @@ impl ModelState {
         if self.is_valid_layout_id(&layout_id) {
             return Ok(layout_id);
         }
-        Err(format!("Layout with ID {id} does not exist."))
+        Err(format!("Layout with ID {id} does not exist in this model."))
     }
 
     /// Shorthand for getting a string name of a layout.
@@ -208,7 +213,9 @@ impl ModelState {
     /// Return a sorted list of variables that regulate the given `target` variable.
     pub fn regulators(&self, target: &VarId) -> Result<Vec<&VarId>, String> {
         if !self.is_valid_var_id(target) {
-            return Err(format!("Target variable with ID {target} does not exist."));
+            return Err(format!(
+                "Target variable with ID {target} does not exist in this model."
+            ));
         }
 
         let mut regulators: Vec<&VarId> = self
@@ -225,7 +232,7 @@ impl ModelState {
     pub fn targets(&self, regulator: &VarId) -> Result<Vec<&VarId>, String> {
         if !self.is_valid_var_id(regulator) {
             return Err(format!(
-                "Regulator variable with ID {regulator} does not exist."
+                "Regulator variable with ID {regulator} does not exist in this model."
             ));
         }
 
@@ -241,19 +248,17 @@ impl ModelState {
 
     /// Get an update function for the given variable.
     pub fn get_update_fn(&self, var_id: &VarId) -> Result<&UpdateFn, String> {
-        let update_fn = self
-            .update_fns
-            .get(var_id)
-            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        let update_fn = self.update_fns.get(var_id).ok_or(format!(
+            "Variable with ID {var_id} does not exist in this model."
+        ))?;
         Ok(update_fn)
     }
 
     /// Get an update function's expression for the given variable.
     pub fn get_update_fn_string(&self, var_id: &VarId) -> Result<&str, String> {
-        let update_fn = self
-            .update_fns
-            .get(var_id)
-            .ok_or(format!("Variable with ID {var_id} does not exist."))?;
+        let update_fn = self.update_fns.get(var_id).ok_or(format!(
+            "Variable with ID {var_id} does not exist in this model."
+        ))?;
         Ok(update_fn.get_fn_expression())
     }
 

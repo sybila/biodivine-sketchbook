@@ -17,7 +17,7 @@ impl Serialize for Dataset {
     {
         let mut state = serializer.serialize_struct("Dataset", 4)?;
         state.serialize_field("observations", &self.observations)?;
-        state.serialize_field("var_names", &self.var_names)?;
+        state.serialize_field("variables", &self.variables)?;
         state.serialize_field("data_type", &self.data_type)?;
 
         // Serialize `index_map` field (HashMap with non-String keys) as a HashMap with String keys
@@ -37,7 +37,7 @@ impl<'de> Deserialize<'de> for Dataset {
     {
         enum Field {
             Observations,
-            VarNames,
+            Variables,
             DataType,
             IndexMap,
         }
@@ -54,7 +54,7 @@ impl<'de> Deserialize<'de> for Dataset {
 
                     fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
                         formatter
-                            .write_str("`observations`, `var_names`, `data_type` or `index_map`")
+                            .write_str("`observations`, `variables`, `data_type` or `index_map`")
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
@@ -63,7 +63,7 @@ impl<'de> Deserialize<'de> for Dataset {
                     {
                         match value {
                             "observations" => Ok(Field::Observations),
-                            "var_names" => Ok(Field::VarNames),
+                            "variables" => Ok(Field::Variables),
                             "data_type" => Ok(Field::DataType),
                             "index_map" => Ok(Field::IndexMap),
                             _ => Err(de::Error::unknown_field(value, FIELDS)),
@@ -88,7 +88,7 @@ impl<'de> Deserialize<'de> for Dataset {
                 V: MapAccess<'de>,
             {
                 let mut observations = None;
-                let mut var_names = None;
+                let mut variables = None;
                 let mut data_type = None;
                 let mut index_map = None;
 
@@ -100,11 +100,11 @@ impl<'de> Deserialize<'de> for Dataset {
                             }
                             observations = Some(map.next_value()?);
                         }
-                        Field::VarNames => {
-                            if var_names.is_some() {
-                                return Err(de::Error::duplicate_field("var_names"));
+                        Field::Variables => {
+                            if variables.is_some() {
+                                return Err(de::Error::duplicate_field("variables"));
                             }
-                            var_names = Some(map.next_value()?);
+                            variables = Some(map.next_value()?);
                         }
                         Field::DataType => {
                             if data_type.is_some() {
@@ -124,19 +124,19 @@ impl<'de> Deserialize<'de> for Dataset {
 
                 let observations =
                     observations.ok_or_else(|| de::Error::missing_field("observations"))?;
-                let var_names = var_names.ok_or_else(|| de::Error::missing_field("var_names"))?;
+                let variables = variables.ok_or_else(|| de::Error::missing_field("variables"))?;
                 let data_type = data_type.ok_or_else(|| de::Error::missing_field("data_type"))?;
                 let index_map = index_map.ok_or_else(|| de::Error::missing_field("index_map"))?;
                 Ok(Dataset {
                     observations,
-                    var_names,
+                    variables,
                     data_type,
                     index_map,
                 })
             }
         }
 
-        const FIELDS: &[&str] = &["observations", "var_names", "data_type", "index_map"];
+        const FIELDS: &[&str] = &["observations", "variables", "data_type", "index_map"];
         deserializer.deserialize_struct("Dataset", FIELDS, DatasetVisitor)
     }
 }
