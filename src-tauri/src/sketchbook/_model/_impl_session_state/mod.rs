@@ -15,10 +15,6 @@ pub mod _events_variables;
 /// **(internal)** Implementation for `refresh` (getter) events.
 pub mod _refresh_events;
 
-/// **(internal)** Tests for the event-based API.
-#[cfg(test)]
-mod _tests;
-
 impl SessionHelper for ModelState {}
 
 impl SessionState for ModelState {

@@ -1,5 +1,5 @@
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::utils::{parse_map_keys, stringify_map_keys};
+use crate::sketchbook::utils::{parse_map_keys, stringify_and_order_keys};
 
 use std::collections::HashMap;
 use std::fmt::{self, Formatter};
@@ -21,7 +21,7 @@ impl Serialize for Dataset {
         state.serialize_field("data_type", &self.data_type)?;
 
         // Serialize `index_map` field (HashMap with non-String keys) as a HashMap with String keys
-        let index_map = stringify_map_keys(&self.index_map);
+        let index_map = stringify_and_order_keys(&self.index_map);
         state.serialize_field("index_map", &index_map)?;
 
         state.end()

@@ -1,8 +1,6 @@
 use crate::sketchbook::observations::Observation;
 use crate::sketchbook::DatasetId;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending data about `Observation` to the frontend.
 ///
@@ -40,22 +38,6 @@ impl ObservationData {
     /// There is a syntax check just to make sure that the data are valid.
     pub fn to_observation(&self) -> Result<Observation, String> {
         Observation::try_from_str(&self.values.clone(), &self.id)
-    }
-}
-
-impl Display for ObservationData {
-    /// Use json serialization to convert `ObservationData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for ObservationData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `ObservationData` from string.
-    fn from_str(s: &str) -> Result<ObservationData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }
 

@@ -61,7 +61,7 @@ impl ModelState {
             }
 
             // perform the event, prepare the state-change variant (move ID from path to payload)
-            self.update_node_position(&layout_id, &var_id, new_node_data.px, new_node_data.py)?;
+            self.update_position(&layout_id, &var_id, new_node_data.px, new_node_data.py)?;
             let state_change =
                 make_state_change(&["model", "layout", "update_position"], &new_pos_data);
 

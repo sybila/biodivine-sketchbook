@@ -176,6 +176,15 @@ impl ModelState {
             ))
     }
 
+    /// Shorthand to find a `Regulation` between two variables (specified by strings) if it exists.
+    ///
+    /// Return `Err` if one of variable ids is invalid or the regulation does not exist.
+    pub fn get_regulation_by_str(&self, reg: &str, target: &str) -> Result<&Regulation, String> {
+        let reg_id = self.get_var_id(reg)?;
+        let target_id = self.get_var_id(target)?;
+        self.get_regulation(&reg_id, &target_id)
+    }
+
     /// Return a `Layout` corresponding to the given `LayoutId`.
     ///
     /// Return `Err` if the `LayoutId` is invalid.

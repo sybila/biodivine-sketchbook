@@ -1,7 +1,5 @@
 use crate::sketchbook::{Essentiality, Monotonicity, Regulation};
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending simplified data about `Regulation` to the frontend.
 ///
@@ -45,21 +43,5 @@ impl RegulationData {
     pub fn try_from_reg_str(regulation_str: &str) -> Result<RegulationData, String> {
         let regulation = Regulation::try_from_string(regulation_str)?;
         Ok(RegulationData::from_reg(&regulation))
-    }
-}
-
-impl Display for RegulationData {
-    /// Use json serialization to convert `RegulationData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for RegulationData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `RegulationData` from string.
-    fn from_str(s: &str) -> Result<RegulationData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }

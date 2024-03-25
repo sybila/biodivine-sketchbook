@@ -38,6 +38,10 @@ pub mod properties;
 /// Utility functions used throughout the module.
 pub mod utils;
 
+/// **(internal)** Tests for the event-based API of various components.
+#[cfg(test)]
+mod _tests_events;
+
 pub use _binary_op::BinaryOp;
 pub use _essentiality::Essentiality;
 pub use _function_tree::FnTree;

@@ -1,4 +1,4 @@
-use crate::sketchbook::utils::{parse_map_keys, stringify_map_keys};
+use crate::sketchbook::utils::{parse_map_keys, stringify_and_order_keys};
 use crate::sketchbook::{Layout, ModelState, UninterpretedFn, UpdateFn, Variable};
 
 use serde::de::{self, MapAccess, Visitor};
@@ -17,18 +17,18 @@ impl Serialize for ModelState {
         // Serialize all the HashMap fields with non-String keys as a HashMap with String keys
         // Serialize other fields as they are
 
-        let variables_map = stringify_map_keys(&self.variables);
+        let variables_map = stringify_and_order_keys(&self.variables);
         state.serialize_field("variables", &variables_map)?;
 
-        let update_fns_map = stringify_map_keys(&self.update_fns);
+        let update_fns_map = stringify_and_order_keys(&self.update_fns);
         state.serialize_field("update_fns", &update_fns_map)?;
 
-        let uninterpreted_fns_map = stringify_map_keys(&self.uninterpreted_fns);
+        let uninterpreted_fns_map = stringify_and_order_keys(&self.uninterpreted_fns);
         state.serialize_field("uninterpreted_fns", &uninterpreted_fns_map)?;
 
         state.serialize_field("regulations", &self.regulations)?;
 
-        let layouts_map = stringify_map_keys(&self.layouts);
+        let layouts_map = stringify_and_order_keys(&self.layouts);
         state.serialize_field("layouts", &layouts_map)?;
 
         state.serialize_field("placeholder_variables", &self.placeholder_variables)?;

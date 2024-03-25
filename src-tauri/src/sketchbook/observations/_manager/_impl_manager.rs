@@ -1,5 +1,7 @@
-use crate::sketchbook::observations::{Dataset, DatasetIterator, Observation, ObservationManager};
-use crate::sketchbook::{DatasetId, ObservationId};
+use crate::sketchbook::observations::{
+    Dataset, DatasetIterator, Observation, ObservationManager, ObservationType,
+};
+use crate::sketchbook::{DatasetId, ObservationId, VarId};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
@@ -13,7 +15,7 @@ impl ObservationManager {
     }
 
     /// Instantiate `ObservationManager` with given list of ID-dataset pairs.
-    pub fn new_from_datasets(datasets: Vec<(&str, Dataset)>) -> Result<ObservationManager, String> {
+    pub fn from_datasets(datasets: Vec<(&str, Dataset)>) -> Result<ObservationManager, String> {
         let mut manager = ObservationManager::new_empty();
 
         let prop_id_set = datasets.iter().map(|pair| pair.0).collect::<HashSet<_>>();
@@ -112,6 +114,47 @@ impl ObservationManager {
         let original_id = DatasetId::new(original_id)?;
         let new_id = DatasetId::new(new_id)?;
         self.set_dataset_id(&original_id, new_id)
+    }
+
+    /// Set the id of a variable with `original_id` (in a given dataset) to `new_id`.
+    pub fn set_var_id(
+        &mut self,
+        dataset_id: &DatasetId,
+        original_id: &VarId,
+        new_id: VarId,
+    ) -> Result<(), String> {
+        self.assert_valid_dataset(dataset_id)?;
+        self.datasets
+            .get_mut(dataset_id)
+            .unwrap()
+            .set_var_id(original_id, new_id)
+    }
+
+    /// Set the id of a variable with `original_id` (in a given dataset) to `new_id`.
+    pub fn set_var_id_by_str(
+        &mut self,
+        dataset_id: &str,
+        original_id: &str,
+        new_id: &str,
+    ) -> Result<(), String> {
+        let dataset_id = DatasetId::new(dataset_id)?;
+        let original_id = VarId::new(original_id)?;
+        let new_id = VarId::new(new_id)?;
+        self.set_var_id(&dataset_id, &original_id, new_id)
+    }
+
+    /// Set the type of data for this dataset.
+    pub fn set_data_type(
+        &mut self,
+        dataset_id: &DatasetId,
+        data_type: ObservationType,
+    ) -> Result<(), String> {
+        self.assert_valid_dataset(dataset_id)?;
+        self.datasets
+            .get_mut(dataset_id)
+            .unwrap()
+            .set_data_type(data_type);
+        Ok(())
     }
 
     /// Remove the dataset with given `id` from this manager.
@@ -238,12 +281,12 @@ mod tests {
         let d1 = Dataset::new_unspecified(vec![], vec!["a", "b"]).unwrap();
         let d2 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
         let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
-        let manager = ObservationManager::new_from_datasets(dataset_list).unwrap();
+        let manager = ObservationManager::from_datasets(dataset_list).unwrap();
         assert_eq!(manager.num_datasets(), 2);
 
         // test also invalid, with non-unique IDs
         let dataset_list = vec![("d", d1.clone()), ("d", d2.clone())];
-        assert!(ObservationManager::new_from_datasets(dataset_list).is_err());
+        assert!(ObservationManager::from_datasets(dataset_list).is_err());
     }
 
     #[test]
@@ -256,7 +299,7 @@ mod tests {
         let d2 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
         let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
 
-        let mut manager = ObservationManager::new_from_datasets(dataset_list).unwrap();
+        let mut manager = ObservationManager::from_datasets(dataset_list).unwrap();
         assert_eq!(manager.num_datasets(), 2);
 
         // add dataset
@@ -285,7 +328,7 @@ mod tests {
         let o2 = Observation::try_from_str("00", "p").unwrap();
         let d1 = Dataset::new_unspecified(vec![o1, o2], vec!["a", "b"]).unwrap();
         let dataset_list = vec![("dataset1", d1.clone())];
-        let mut manager = ObservationManager::new_from_datasets(dataset_list).unwrap();
+        let mut manager = ObservationManager::from_datasets(dataset_list).unwrap();
 
         // try setting ID
         manager.set_dataset_id_by_str("dataset1", "d1").unwrap();

@@ -1,5 +1,5 @@
 use crate::sketchbook::observations::{Dataset, ObservationManager};
-use crate::sketchbook::utils::{parse_map_keys, stringify_map_keys};
+use crate::sketchbook::utils::{parse_map_keys, stringify_and_order_keys};
 
 use std::collections::HashMap;
 use std::fmt::{self, Formatter};
@@ -17,7 +17,7 @@ impl Serialize for ObservationManager {
     {
         let mut state = serializer.serialize_struct("ObservationManager", 1)?;
         // Serialize `nodes` field (HashMap with non-String keys) as a HashMap with String keys
-        let datasets = stringify_map_keys(&self.datasets);
+        let datasets = stringify_and_order_keys(&self.datasets);
         state.serialize_field("datasets", &datasets)?;
 
         state.end()

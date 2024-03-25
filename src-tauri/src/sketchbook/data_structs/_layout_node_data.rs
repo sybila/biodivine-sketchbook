@@ -1,8 +1,6 @@
 use crate::sketchbook::layout::LayoutNode;
 use crate::sketchbook::{LayoutId, VarId};
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending data about `NodeLayout` to frontend.
 ///
@@ -37,21 +35,5 @@ impl LayoutNodeData {
             node.get_px(),
             node.get_py(),
         )
-    }
-}
-
-impl Display for LayoutNodeData {
-    /// Use json serialization to convert `LayoutNodeData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for LayoutNodeData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `LayoutNodeData` from string.
-    fn from_str(s: &str) -> Result<LayoutNodeData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }

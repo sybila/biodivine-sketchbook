@@ -748,7 +748,7 @@ impl ModelState {
     /// Update position of a node for variable `var_id` in layout `layout_id`.
     ///
     /// Returns `Err` in case one of the ids is not a valid for this `ModelState`.
-    pub fn update_node_position(
+    pub fn update_position(
         &mut self,
         layout_id: &LayoutId,
         var_id: &VarId,
@@ -1250,7 +1250,7 @@ mod tests {
         // change default layout's nodes
         let var_id = model.get_var_id("a_id").unwrap();
         model
-            .update_node_position(&default_layout_id, &var_id, 2., 2.)
+            .update_position(&default_layout_id, &var_id, 2., 2.)
             .unwrap();
         let position = model
             .get_node_position(&default_layout_id, &var_id)

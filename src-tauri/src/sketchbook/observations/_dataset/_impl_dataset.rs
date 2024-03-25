@@ -97,7 +97,7 @@ impl Dataset {
         // re-index everything after the to-be-deleted observation
         self.observations.iter().enumerate().for_each(|(i, o)| {
             if i > idx {
-                self.index_map.insert(o.get_id().clone(), i + 1);
+                self.index_map.insert(o.get_id().clone(), i - 1);
             }
         });
 
@@ -106,9 +106,30 @@ impl Dataset {
         Ok(())
     }
 
+    /// Add observation to a given index in the dataset.
+    ///
+    /// This operation might be very costly, as we must reindex all subsequent observations.
+    pub fn insert_observation(&mut self, index: usize, obs: Observation) -> Result<(), String> {
+        // check that inputs are valid
+        self.assert_no_observation(obs.get_id())?;
+        if index > self.num_observations() {
+            return Err("Index is larger than number of observations.".to_string());
+        }
+
+        self.index_map.insert(obs.get_id().clone(), index);
+        self.observations.insert(index, obs);
+        // re-index everything after the new observation
+        self.observations.iter().enumerate().for_each(|(i, o)| {
+            if i > index {
+                self.index_map.insert(o.get_id().clone(), i + 1);
+            }
+        });
+        Ok(())
+    }
+
     /// Swap value vector for an observation with given ID.
     /// The new vector of values must be of the same length as the original.
-    pub fn update_observation(
+    pub fn swap_observation_data(
         &mut self,
         id: &ObservationId,
         new_values: Vec<VarValue>,
@@ -162,6 +183,11 @@ impl Dataset {
         let new_id = ObservationId::new(new_id)?;
         self.set_obs_id(&original_id, new_id)
     }
+
+    /// Set the type of data for this dataset.
+    pub fn set_data_type(&mut self, data_type: ObservationType) {
+        self.data_type = data_type;
+    }
 }
 
 /// Observing `Dataset` instances.
@@ -186,9 +212,9 @@ impl Dataset {
         self.index_map.contains_key(id)
     }
 
-    /// Observation on given index.
+    /// Observation on given index (indexing starts at 0).
     pub fn get_observation_on_idx(&self, index: usize) -> Result<&Observation, String> {
-        if index > self.num_observations() {
+        if index >= self.num_observations() {
             return Err("Index is larger than number of observations.".to_string());
         }
         Ok(&self.observations[index])
@@ -206,6 +232,7 @@ impl Dataset {
     }
 
     /// Get index of given observation, or None (if not present).
+    /// Indexing starts at 0.
     pub fn get_observation_index(&self, id: &ObservationId) -> Result<usize, String> {
         self.assert_valid_observation(id)?;
         Ok(*self.index_map.get(id).unwrap())
@@ -235,7 +262,7 @@ impl Dataset {
 
     /// Variable on given index.
     pub fn get_variable_on_idx(&self, index: usize) -> Result<&VarId, String> {
-        if index > self.num_variables() {
+        if index >= self.num_variables() {
             return Err("Index is larger than number of variables.".to_string());
         }
         Ok(&self.variables[index])

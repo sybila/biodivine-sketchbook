@@ -11,7 +11,7 @@ use crate::sketchbook::ModelState;
 impl ModelState {
     /// Get a list of all variables.
     pub(super) fn refresh_variables(&self, full_path: &[String]) -> Result<Event, DynError> {
-        let variable_list: Vec<VariableData> = self
+        let mut variable_list: Vec<VariableData> = self
             .variables
             .iter()
             .map(|(id, data)| {
@@ -20,6 +20,8 @@ impl ModelState {
                 VariableData::from_var(id, data, update_fn)
             })
             .collect();
+        // return the list sorted by IDs, so that it is deterministic
+        variable_list.sort_by(|a, b| a.id.cmp(&b.id));
         make_refresh_event(full_path, variable_list)
     }
 
@@ -28,31 +30,44 @@ impl ModelState {
         &self,
         full_path: &[String],
     ) -> Result<Event, DynError> {
-        let uninterpreted_fn_list: Vec<UninterpretedFnData> = self
+        let mut uninterpreted_fn_list: Vec<UninterpretedFnData> = self
             .uninterpreted_fns
             .iter()
             .map(|(id, data)| UninterpretedFnData::from_fn(id, data))
             .collect();
+        // return the list sorted by IDs, so that it is deterministic
+        uninterpreted_fn_list.sort_by(|a, b| a.id.cmp(&b.id));
         make_refresh_event(full_path, uninterpreted_fn_list)
     }
 
     /// Get a list of all regulations.
     pub(super) fn refresh_regulations(&self, full_path: &[String]) -> Result<Event, DynError> {
-        let regulation_list: Vec<RegulationData> = self
+        let mut regulation_list: Vec<RegulationData> = self
             .regulations
             .iter()
             .map(RegulationData::from_reg)
             .collect();
+        // return the list sorted by IDs of both reg and target, so that it is deterministic
+        regulation_list.sort_by(|a, b| {
+            let id_comparison = a.regulator.cmp(&b.regulator);
+            if id_comparison == std::cmp::Ordering::Equal {
+                a.target.cmp(&b.target)
+            } else {
+                id_comparison
+            }
+        });
         make_refresh_event(full_path, regulation_list)
     }
 
     /// Get a list of all layouts (just basic information like IDs and names).
     pub(super) fn refresh_layouts(&self, full_path: &[String]) -> Result<Event, DynError> {
-        let layout_list: Vec<LayoutData> = self
+        let mut layout_list: Vec<LayoutData> = self
             .layouts
             .iter()
             .map(|(id, layout)| LayoutData::from_layout(id, layout))
             .collect();
+        // return the list sorted by IDs, so that it is deterministic
+        layout_list.sort_by(|a, b| a.id.cmp(&b.id));
         make_refresh_event(full_path, layout_list)
     }
 
@@ -71,10 +86,12 @@ impl ModelState {
         let mut result_path = full_path.to_vec();
         result_path.pop();
 
-        let node_list: Vec<LayoutNodeData> = layout
+        let mut node_list: Vec<LayoutNodeData> = layout
             .layout_nodes()
             .map(|(var_id, node)| LayoutNodeData::from_node(&layout_id, var_id, node))
             .collect();
+        // return the list sorted by variable IDs, so that it is deterministic
+        node_list.sort_by(|a, b| a.variable.cmp(&b.variable));
         make_refresh_event(full_path, node_list)
     }
 }

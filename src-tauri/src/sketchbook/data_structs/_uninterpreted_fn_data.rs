@@ -2,8 +2,6 @@ use crate::sketchbook::{
     Essentiality, FnArgument, Monotonicity, UninterpretedFn, UninterpretedFnId,
 };
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending data about `UninterpretedFn` to the frontend.
 ///
@@ -50,21 +48,5 @@ impl UninterpretedFnData {
             arguments,
             uninterpreted_fn.get_fn_expression(),
         )
-    }
-}
-
-impl Display for UninterpretedFnData {
-    /// Use json serialization to convert `UninterpretedFnData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for UninterpretedFnData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `UninterpretedFnData` from string.
-    fn from_str(s: &str) -> Result<UninterpretedFnData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }

@@ -6,13 +6,17 @@ use std::str::FromStr;
 
 /// **(internal)** Basic utility methods for `Dataset`.
 mod _impl_dataset;
-/// **(internal)** Implementation of partial event-based API.
+/// **(internal)** Implementation of partial event-based API to manipulate observations.
 mod _impl_events;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `Dataset`.
 mod _impl_serde;
 
 /// An ordered list of observations (of potentially specified type) for given variables.
 /// The order is important for some datasets, for example, to be able to capture time series.
+///
+/// `Dataset` provides classical Rust API for modifications. It also manages its observations
+/// through event-based API. However, this API is limited, and only serves as an extension to that
+/// of the `ObservationManager`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Dataset {
     /// List of binarized observations.
