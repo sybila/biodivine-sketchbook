@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::SessionState;
 use crate::sketchbook::_tests_events::check_reverse;
 use crate::sketchbook::data_structs::*;
-use crate::sketchbook::observations::{Dataset, Observation, ObservationManager, ObservationType};
+use crate::sketchbook::observations::{DataCategory, Dataset, Observation, ObservationManager};
 use crate::sketchbook::DatasetId;
 use std::str::FromStr;
 
@@ -12,7 +12,7 @@ fn prepare_dataset1() -> Dataset {
     let obs2 = Observation::try_from_str("000", "o2").unwrap();
     let obs_list = vec![obs1, obs2];
     let var_names = vec!["a", "b", "c"];
-    let obs_type = ObservationType::FixedPoint;
+    let obs_type = DataCategory::FixedPoint;
     Dataset::new(obs_list.clone(), var_names.clone(), obs_type).unwrap()
 }
 
@@ -21,7 +21,7 @@ fn prepare_dataset2() -> Dataset {
     let obs1 = Observation::try_from_str("11", "o1").unwrap();
     let obs_list = vec![obs1];
     let var_names = vec!["v1", "v2"];
-    let obs_type = ObservationType::Unspecified;
+    let obs_type = DataCategory::Unspecified;
     Dataset::new(obs_list.clone(), var_names.clone(), obs_type).unwrap()
 }
 
@@ -71,23 +71,23 @@ fn test_set_dataset_fields() {
     check_reverse(&mut manager, &manager_orig, result, &["d2", "set_id"]);
 
     // 2) event to set dataset's type
-    let new_type = ObservationType::Unspecified;
-    let full_path = ["observations", "d1", "set_type"];
+    let new_type = DataCategory::Unspecified;
+    let full_path = ["observations", "d1", "set_category"];
     let event = Event::build(&full_path, Some(&serde_json::to_string(&new_type).unwrap()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
-    let current_type = manager.get_dataset_by_str("d1").unwrap().data_type();
+    let current_type = manager.get_dataset_by_str("d1").unwrap().category();
     assert_eq!(current_type, &new_type);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "set_type"]);
+    check_reverse(&mut manager, &manager_orig, result, &["d1", "set_category"]);
 
     // 3) event to change dataset's inner "data"
     let d2 = prepare_dataset2();
     let d2_id = DatasetId::new("this_doesnt_matter").unwrap();
     let d2_data = DatasetData::from_dataset(&d2, &d2_id);
-    let full_path = ["observations", "d1", "change_data"];
+    let full_path = ["observations", "d1", "set_content"];
     let event = Event::build(&full_path, Some(&d2_data.to_string()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     assert_eq!(manager.get_dataset_by_str("d1").unwrap().num_variables(), 2);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "change_data"]);
+    check_reverse(&mut manager, &manager_orig, result, &["d1", "set_content"]);
 
     // 4) event to change one of dataset's variables
     let full_path = ["observations", "d1", "set_var_id"];
@@ -113,7 +113,7 @@ fn test_push_pop_observations() {
     // perform observation push event
     let new_obs = Observation::try_from_str("111", "new_obs").unwrap();
     let payload = ObservationData::from_obs(&new_obs, &d1_id).to_string();
-    let full_path = ["observations", "d1", "push"];
+    let full_path = ["observations", "d1", "push_obs"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     // check observation was added, test reverse action
@@ -121,16 +121,16 @@ fn test_push_pop_observations() {
     let pushed_obs = manager.get_observation(&d1_id, new_obs.get_id()).unwrap();
     assert_eq!(modified_dataset.num_observations(), 3);
     assert_eq!(pushed_obs, &new_obs);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "pop"]);
+    check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
 
     // perform observation pop event
-    let full_path = ["observations", "d1", "pop"];
+    let full_path = ["observations", "d1", "pop_obs"];
     let event = Event::build(&full_path, None);
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     // check observation was removed, test reverse action
     let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
     assert_eq!(modified_dataset.num_observations(), 1);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "push"]);
+    check_reverse(&mut manager, &manager_orig, result, &["d1", "push_obs"]);
 }
 
 #[test]
@@ -174,7 +174,7 @@ fn test_set_observation_fields() {
     assert_eq!(obs_original.num_zeros(), 0);
     let new_obs = Observation::try_from_str("000", "doesnt_matter").unwrap();
     let new_obs_data = ObservationData::from_obs(&new_obs, &d1_id);
-    let full_path = ["observations", "d1", "o1", "change_data"];
+    let full_path = ["observations", "d1", "o1", "set_content"];
     let event = Event::build(&full_path, Some(&new_obs_data.to_string()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     let obs_modified = manager.get_observation_by_str("d1", "o1").unwrap();
@@ -183,7 +183,7 @@ fn test_set_observation_fields() {
         &mut manager,
         &manager_orig,
         result,
-        &["d1", "o1", "change_data"],
+        &["d1", "o1", "set_content"],
     );
 }
 

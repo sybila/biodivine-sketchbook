@@ -26,6 +26,13 @@ export enum Essentiality {
   UNKNOWN = 'Unknown'
 }
 
+export enum DataCategory {
+  ATTRACTOR = 'Attractor',
+  FIXEDPOINT = 'FixedPoint',
+  TIMESERIES = 'TimeSeries',
+  UNSPECIFIED = 'Unspecified',
+}
+
 export interface IRegulationData {
   id: string
   source: string

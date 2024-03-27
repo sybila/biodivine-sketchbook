@@ -202,13 +202,7 @@ impl SessionState for EditorSession {
         } else if let Some(at_path) = Self::starts_with("model", at_path) {
             self.model.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("observations", at_path) {
-            // TODO
-            println!("{:?}", self.observations);
-            panic!(
-                "Cannot consume {:?}, no events for observations yet.",
-                at_path
-            );
-            // self.observations.perform_event(event, at_path)
+            self.observations.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("properties", at_path) {
             // TODO
             println!("{:?}", self.properties);

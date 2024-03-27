@@ -1,5 +1,5 @@
 use crate::sketchbook::data_structs::ObservationData;
-use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
+use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
 use crate::sketchbook::DatasetId;
 use serde::{Deserialize, Serialize};
 
@@ -12,7 +12,7 @@ pub struct DatasetData {
     pub id: String,
     pub observations: Vec<ObservationData>,
     pub variables: Vec<String>,
-    pub data_type: ObservationType,
+    pub category: DataCategory,
 }
 
 /// Structure for sending *metadata* about `Dataset`. This includes id, variable names, data type,
@@ -24,7 +24,7 @@ pub struct DatasetData {
 pub struct DatasetMetaData {
     pub id: String,
     pub variables: Vec<String>,
-    pub data_type: ObservationType,
+    pub category: DataCategory,
 }
 
 impl DatasetData {
@@ -40,7 +40,7 @@ impl DatasetData {
             id: id.to_string(),
             observations,
             variables,
-            data_type: *dataset.data_type(),
+            category: *dataset.category(),
         }
     }
 
@@ -53,7 +53,7 @@ impl DatasetData {
             .map(|o| o.to_observation())
             .collect::<Result<Vec<Observation>, String>>()?;
         let variables = self.variables.iter().map(|v| v.as_str()).collect();
-        Dataset::new(observations, variables, self.data_type)
+        Dataset::new(observations, variables, self.category)
     }
 }
 
@@ -64,7 +64,7 @@ impl DatasetMetaData {
         DatasetMetaData {
             id: id.to_string(),
             variables,
-            data_type: *dataset.data_type(),
+            category: *dataset.category(),
         }
     }
 }
@@ -72,7 +72,7 @@ impl DatasetMetaData {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::data_structs::DatasetData;
-    use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
+    use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
     use crate::sketchbook::DatasetId;
 
     #[test]
@@ -82,7 +82,7 @@ mod tests {
         let obs1 = Observation::try_from_str("*1", "o1").unwrap();
         let obs2 = Observation::try_from_str("00", "o2").unwrap();
         let dataset_before =
-            Dataset::new(vec![obs1, obs2], vec!["a", "b"], ObservationType::Attractor).unwrap();
+            Dataset::new(vec![obs1, obs2], vec!["a", "b"], DataCategory::Attractor).unwrap();
         let dataset_data = DatasetData::from_dataset(&dataset_before, &dataset_id);
         let dataset_after = dataset_data.to_dataset().unwrap();
 

@@ -1,4 +1,4 @@
-use crate::sketchbook::observations::{Dataset, Observation, ObservationType, VarValue};
+use crate::sketchbook::observations::{DataCategory, Dataset, Observation, VarValue};
 
 /// Encode binarized observation with a formula depicting the corresponding state/sub-space.
 /// Using binarized values and proposition names, creates a conjunction of literals
@@ -54,11 +54,11 @@ pub fn encode_observation_list_hctl(observation_list: &Dataset) -> Result<String
         .collect::<Vec<String>>();
     let encoded_observations =
         encode_multiple_observations(observation_list.observations(), &variables_strings)?;
-    match observation_list.data_type() {
-        ObservationType::Attractor => Ok(mk_formula_attractor_set(encoded_observations)),
-        ObservationType::FixedPoint => Ok(mk_formula_fixed_point_set(encoded_observations)),
-        ObservationType::TimeSeries => Ok(mk_formula_reachability_chain(encoded_observations)),
-        ObservationType::Unspecified => Err("Cannot encode data with unspecified type".to_string()),
+    match observation_list.category() {
+        DataCategory::Attractor => Ok(mk_formula_attractor_set(encoded_observations)),
+        DataCategory::FixedPoint => Ok(mk_formula_fixed_point_set(encoded_observations)),
+        DataCategory::TimeSeries => Ok(mk_formula_reachability_chain(encoded_observations)),
+        DataCategory::Unspecified => Err("Cannot encode data with unspecified type".to_string()),
     }
 }
 
@@ -249,7 +249,7 @@ pub fn mk_formula_reachability_chain(states_sequence: Vec<String>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observations::{Dataset, Observation, ObservationType};
+    use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
     use crate::sketchbook::properties::_mk_formulas::*;
 
     #[test]
@@ -305,7 +305,7 @@ mod tests {
         let attr_observations = Dataset::new(
             raw_observations.clone(),
             var_names.clone(),
-            ObservationType::Attractor,
+            DataCategory::Attractor,
         )
         .unwrap();
         assert_eq!(
@@ -316,7 +316,7 @@ mod tests {
         let fixed_point_observations = Dataset::new(
             raw_observations.clone(),
             var_names.clone(),
-            ObservationType::FixedPoint,
+            DataCategory::FixedPoint,
         )
         .unwrap();
         assert_eq!(
@@ -327,7 +327,7 @@ mod tests {
         let time_series_observations = Dataset::new(
             raw_observations.clone(),
             var_names.clone(),
-            ObservationType::TimeSeries,
+            DataCategory::TimeSeries,
         )
         .unwrap();
         assert_eq!(
@@ -338,7 +338,7 @@ mod tests {
         let unspecified_observations = Dataset::new(
             raw_observations.clone(),
             var_names.clone(),
-            ObservationType::Unspecified,
+            DataCategory::Unspecified,
         )
         .unwrap();
         assert!(encode_observation_list_hctl(&unspecified_observations).is_err());

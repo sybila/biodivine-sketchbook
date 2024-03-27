@@ -1,4 +1,4 @@
-use crate::sketchbook::observations::{Observation, ObservationType};
+use crate::sketchbook::observations::{DataCategory, Observation};
 use crate::sketchbook::{ObservationId, VarId};
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
@@ -23,8 +23,8 @@ pub struct Dataset {
     observations: Vec<Observation>,
     /// Variables captured by the observations.
     variables: Vec<VarId>,
-    /// Type of this dataset.
-    data_type: ObservationType,
+    /// Category of this dataset.
+    category: DataCategory,
     /// Index map from observation IDs to their index in vector, for faster searching.
     index_map: HashMap<ObservationId, usize>,
 }

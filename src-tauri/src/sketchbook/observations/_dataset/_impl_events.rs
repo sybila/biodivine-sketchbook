@@ -35,7 +35,7 @@ impl Dataset {
             "observations",
             &dataset_id.as_str(),
             &observation_data.id,
-            "pop",
+            "pop_obs",
         ];
         let reverse_event = Event::build(&reverse_path, None);
         Ok(make_reversible(state_change, event, reverse_event))
@@ -61,7 +61,7 @@ impl Dataset {
         let state_change = make_state_change(&state_change_path, &obs_data);
 
         // prepare the reverse 'add_last' event (path has no ids, all info carried by payload)
-        let reverse_path = ["observations", dataset_id.as_str(), "push"];
+        let reverse_path = ["observations", dataset_id.as_str(), "push_obs"];
         let reverse_event = Event::build(&reverse_path, Some(&obs_data.to_string()));
         Ok(make_reversible(state_change, event, reverse_event))
     }
@@ -116,7 +116,7 @@ impl Dataset {
             ];
             let reverse_event = Event::build(&reverse_event_path, Some(obs_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if action == "change_data" {
+        } else if action == "set_content" {
             // get the payload - string encoding a new observation data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_obs_data = ObservationData::from_str(&payload)?;
@@ -130,14 +130,14 @@ impl Dataset {
             let orig_obs_data = ObservationData::from_obs(orig_obs, &dataset_id);
             self.swap_observation_data(&obs_id, new_obs.get_values().clone())?;
             let state_change =
-                make_state_change(&["observations", "change_obs_data"], &new_obs_data);
+                make_state_change(&["observations", "set_obs_content"], &new_obs_data);
 
             // prepare the reverse event (setting the original ID back)
             let reverse_event_path = [
                 "observations",
                 dataset_id.as_str(),
                 obs_id.as_str(),
-                "change_data",
+                "set_content",
             ];
             let reverse_event = Event::build(&reverse_event_path, Some(&orig_obs_data.to_string()));
             Ok(make_reversible(state_change, event, reverse_event))

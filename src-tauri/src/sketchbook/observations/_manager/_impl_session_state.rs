@@ -5,7 +5,7 @@ use crate::sketchbook::data_structs::{
     ChangeIdData, DatasetData, DatasetMetaData, ObservationData,
 };
 use crate::sketchbook::event_utils::{make_refresh_event, make_reversible, make_state_change};
-use crate::sketchbook::observations::{ObservationManager, ObservationType};
+use crate::sketchbook::observations::{DataCategory, ObservationManager};
 use crate::sketchbook::{DatasetId, ObservationId};
 use std::str::FromStr;
 
@@ -147,7 +147,7 @@ impl ObservationManager {
             let reverse_event_path = ["observations", new_id.as_str(), "set_id"];
             let reverse_event = Event::build(&reverse_event_path, Some(dataset_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("change_data", at_path).is_some() {
+        } else if Self::starts_with("set_content", at_path).is_some() {
             // get the payload - string encoding a new dataset data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_dataset_data = DatasetData::from_str(&payload)?;
@@ -161,30 +161,30 @@ impl ObservationManager {
             let orig_dataset_data = DatasetData::from_dataset(orig_dataset, &dataset_id);
             self.swap_dataset_content(&dataset_id, new_dataset)?;
             let state_change =
-                make_state_change(&["observations", "change_data"], &new_dataset_data);
+                make_state_change(&["observations", "set_content"], &new_dataset_data);
 
             // prepare the reverse event (setting the original ID back)
-            let reverse_event_path = ["observations", dataset_id.as_str(), "change_data"];
+            let reverse_event_path = ["observations", dataset_id.as_str(), "set_content"];
             let reverse_event =
                 Event::build(&reverse_event_path, Some(&orig_dataset_data.to_string()));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_type", at_path).is_some() {
+        } else if Self::starts_with("set_category", at_path).is_some() {
             // get the payload - string for data type
             let payload = Self::clone_payload_str(event, component_name)?;
-            let data_type: ObservationType = serde_json::from_str(&payload)?;
+            let category: DataCategory = serde_json::from_str(&payload)?;
             let orig_dataset = self.get_dataset(&dataset_id)?;
-            if orig_dataset.data_type() == &data_type {
+            if orig_dataset.category() == &category {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             let orig_metadata = DatasetMetaData::from_dataset(orig_dataset, &dataset_id);
-            self.set_data_type(&dataset_id, data_type)?;
-            let state_change = make_state_change(&["observations", "set_type"], &orig_metadata);
+            self.set_category(&dataset_id, category)?;
+            let state_change = make_state_change(&["observations", "set_category"], &orig_metadata);
 
             // prepare the reverse event
-            let reverse_event_path = ["observations", dataset_id.as_str(), "set_type"];
-            let payload = serde_json::to_string(&orig_metadata.data_type)?;
+            let reverse_event_path = ["observations", dataset_id.as_str(), "set_category"];
+            let payload = serde_json::to_string(&orig_metadata.category)?;
             let reverse_event = Event::build(&reverse_event_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_var_id", at_path).is_some() {
@@ -211,14 +211,14 @@ impl ObservationManager {
                 ChangeIdData::new(&id_change_data.new_id, &id_change_data.original_id);
             let reverse_event = Event::build(&reverse_event_path, Some(&reverse_data.to_string()));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("push", at_path).is_some() {
+        } else if Self::starts_with("push_obs", at_path).is_some() {
             // Adding observation to the end of a particular dataset
             // This is handled by the `Dataset` itself
 
             // the ID is valid (checked before), we can unwrap
             let dataset = self.datasets.get_mut(&dataset_id).unwrap();
             dataset.event_push_observation(event, dataset_id)
-        } else if Self::starts_with("pop", at_path).is_some() {
+        } else if Self::starts_with("pop_obs", at_path).is_some() {
             // Removing last observation from the end of a particular dataset
             // This is handled by the `Dataset` itself
 

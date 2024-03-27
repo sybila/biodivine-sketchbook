@@ -1,5 +1,5 @@
 use crate::sketchbook::observations::{
-    Dataset, DatasetIterator, Observation, ObservationManager, ObservationType,
+    DataCategory, Dataset, DatasetIterator, Observation, ObservationManager,
 };
 use crate::sketchbook::{DatasetId, ObservationId, VarId};
 use std::collections::{HashMap, HashSet};
@@ -143,17 +143,17 @@ impl ObservationManager {
         self.set_var_id(&dataset_id, &original_id, new_id)
     }
 
-    /// Set the type of data for this dataset.
-    pub fn set_data_type(
+    /// Set the category of data for this dataset.
+    pub fn set_category(
         &mut self,
         dataset_id: &DatasetId,
-        data_type: ObservationType,
+        category: DataCategory,
     ) -> Result<(), String> {
         self.assert_valid_dataset(dataset_id)?;
         self.datasets
             .get_mut(dataset_id)
             .unwrap()
-            .set_data_type(data_type);
+            .set_category(category);
         Ok(())
     }
 
