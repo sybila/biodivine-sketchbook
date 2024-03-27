@@ -1,5 +1,5 @@
 use crate::sketchbook::{
-    Essentiality, FnArgument, Monotonicity, UninterpretedFn, UninterpretedFnId,
+    Essentiality, FnArgument, JsonSerde, Monotonicity, UninterpretedFn, UninterpretedFnId,
 };
 use serde::{Deserialize, Serialize};
 
@@ -15,6 +15,8 @@ pub struct UninterpretedFnData {
     pub arguments: Vec<(Monotonicity, Essentiality)>,
     pub expression: String,
 }
+
+impl<'de> JsonSerde<'de> for UninterpretedFnData {}
 
 impl UninterpretedFnData {
     /// Create new `UninterpretedFnData` object given an uninterpreted fn's `name`, `arity`, and `id`.

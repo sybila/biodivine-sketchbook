@@ -1,3 +1,4 @@
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -13,6 +14,8 @@ pub enum DataCategory {
     TimeSeries,
     Unspecified,
 }
+
+impl<'de> JsonSerde<'de> for DataCategory {}
 
 impl fmt::Display for DataCategory {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -5,9 +5,7 @@ use crate::sketchbook::data_structs::{
     ChangeArgEssentialData, ChangeArgMonotoneData, ChangeIdData, UninterpretedFnData,
 };
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
-use crate::sketchbook::{ModelState, UninterpretedFnId};
-
-use std::str::FromStr;
+use crate::sketchbook::{JsonSerde, ModelState, UninterpretedFnId};
 
 /// Implementation for events related to `uninterpreted functions` of the model.
 impl ModelState {
@@ -21,7 +19,7 @@ impl ModelState {
 
         // parse the payload and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let fn_data = UninterpretedFnData::from_str(payload.as_str())?;
+        let fn_data = UninterpretedFnData::from_json_str(payload.as_str())?;
         let arity = fn_data.arguments.len();
         self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
 
@@ -56,7 +54,7 @@ impl ModelState {
 
             // prepare the reverse event
             let reverse_path = ["model", "uninterpreted_fn", "add"];
-            let reverse_event = Event::build(&reverse_path, Some(&fn_data.to_string()));
+            let reverse_event = Event::build(&reverse_path, Some(&fn_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_name", at_path).is_some() {
             // get the payload - string for "new_name"
@@ -180,7 +178,7 @@ impl ModelState {
         } else if Self::starts_with("set_monotonicity", at_path).is_some() {
             // get the payload and parse it
             let payload = Self::clone_payload_str(event, component_name)?;
-            let change_data = ChangeArgMonotoneData::from_str(payload.as_str())?;
+            let change_data = ChangeArgMonotoneData::from_json_str(payload.as_str())?;
             let original_monotonicity = *self
                 .get_uninterpreted_fn(&fn_id)?
                 .get_monotonic(change_data.idx);
@@ -201,12 +199,12 @@ impl ModelState {
             // prepare the reverse event
             let mut reverse_event = event.clone();
             let reverse_change = ChangeArgMonotoneData::new(change_data.idx, original_monotonicity);
-            reverse_event.payload = Some(reverse_change.to_string());
+            reverse_event.payload = Some(reverse_change.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_essentiality", at_path).is_some() {
             // get the payload and parse it
             let payload = Self::clone_payload_str(event, component_name)?;
-            let change_data = ChangeArgEssentialData::from_str(payload.as_str())?;
+            let change_data = ChangeArgEssentialData::from_json_str(payload.as_str())?;
             let original_essentiality = *self
                 .get_uninterpreted_fn(&fn_id)?
                 .get_essential(change_data.idx);
@@ -228,7 +226,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             let reverse_change =
                 ChangeArgEssentialData::new(change_data.idx, original_essentiality);
-            reverse_event.payload = Some(reverse_change.to_string());
+            reverse_event.payload = Some(reverse_change.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)

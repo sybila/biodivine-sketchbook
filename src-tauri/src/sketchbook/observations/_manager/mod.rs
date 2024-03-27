@@ -1,5 +1,5 @@
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::DatasetId;
+use crate::sketchbook::{DatasetId, JsonSerde};
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -19,6 +19,8 @@ mod _impl_session_state;
 pub struct ObservationManager {
     datasets: HashMap<DatasetId, Dataset>,
 }
+
+impl<'de> JsonSerde<'de> for ObservationManager {}
 
 impl Default for ObservationManager {
     /// Default manager instance with no datasets.

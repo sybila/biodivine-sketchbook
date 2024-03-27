@@ -3,9 +3,7 @@ use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::RegulationData;
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
-use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
-
-use std::str::FromStr;
+use crate::sketchbook::{Essentiality, JsonSerde, ModelState, Monotonicity, VarId};
 
 /// Implementation for events related to `regulations` of the model.
 impl ModelState {
@@ -15,7 +13,7 @@ impl ModelState {
 
         // get payload components (json for RegulationData containing "regulator", "target", "sign", "essential")
         let payload = Self::clone_payload_str(event, component_name)?;
-        let regulation_data = RegulationData::from_str(payload.as_str())?;
+        let regulation_data = RegulationData::from_json_str(payload.as_str())?;
         let regulator_id = self.get_var_id(&regulation_data.regulator)?;
         let target_id = self.get_var_id(&regulation_data.target)?;
         let sign: Monotonicity = regulation_data.sign;
@@ -59,12 +57,12 @@ impl ModelState {
 
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let reverse_path = ["model", "regulation", "add"];
-            let reverse_event = Event::build(&reverse_path, Some(&reg_data.to_string()));
+            let reverse_event = Event::build(&reverse_path, Some(&reg_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_sign", at_path).is_some() {
             // get the payload - a string for the "new_sign"
             let sign_str = Self::clone_payload_str(event, component_name)?;
-            let new_sign: Monotonicity = serde_json::from_str(&sign_str)?;
+            let new_sign = Monotonicity::from_json_str(&sign_str)?;
 
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_sign = *original_reg.get_sign();
@@ -81,12 +79,12 @@ impl ModelState {
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(serde_json::to_string(&orig_sign)?);
+            reverse_event.payload = Some(orig_sign.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_essentiality", at_path).is_some() {
             // get the payload - a string for the "new_essentiality"
             let essentiality_str = Self::clone_payload_str(event, component_name)?;
-            let new_essentiality: Essentiality = serde_json::from_str(&essentiality_str)?;
+            let new_essentiality = Essentiality::from_json_str(&essentiality_str)?;
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_essentiality = *original_reg.get_essentiality();
             if orig_essentiality == new_essentiality {
@@ -102,7 +100,7 @@ impl ModelState {
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(serde_json::to_string(&orig_essentiality)?);
+            reverse_event.payload = Some(orig_essentiality.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)

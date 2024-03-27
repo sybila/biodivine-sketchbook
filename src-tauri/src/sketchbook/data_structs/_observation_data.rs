@@ -1,5 +1,5 @@
 use crate::sketchbook::observations::Observation;
-use crate::sketchbook::DatasetId;
+use crate::sketchbook::{DatasetId, JsonSerde};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `Observation` to the frontend.
@@ -13,6 +13,8 @@ pub struct ObservationData {
     pub dataset: String,
     pub values: String,
 }
+
+impl<'de> JsonSerde<'de> for ObservationData {}
 
 impl ObservationData {
     /// Create new `ObservationData` object given `id` and values string slices.

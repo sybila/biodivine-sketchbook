@@ -1,5 +1,5 @@
 use crate::sketchbook::layout::Layout;
-use crate::sketchbook::LayoutId;
+use crate::sketchbook::{JsonSerde, LayoutId};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending simplified general data about `Layout` to the frontend.
@@ -15,6 +15,8 @@ pub struct LayoutData {
     pub id: String,
     pub name: String,
 }
+
+impl<'de> JsonSerde<'de> for LayoutData {}
 
 impl LayoutData {
     /// Create new `LayoutData` object given a layout's name and id string slices.

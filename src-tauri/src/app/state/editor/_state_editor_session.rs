@@ -204,13 +204,7 @@ impl SessionState for EditorSession {
         } else if let Some(at_path) = Self::starts_with("observations", at_path) {
             self.observations.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("properties", at_path) {
-            // TODO
-            println!("{:?}", self.properties);
-            panic!(
-                "Cannot consume {:?}, no events for properties yet.",
-                at_path
-            );
-            // self.properties.perform_event(event, at_path)
+            self.properties.perform_event(event, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

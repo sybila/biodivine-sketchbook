@@ -1,6 +1,6 @@
 use crate::sketchbook::data_structs::ObservationData;
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
-use crate::sketchbook::DatasetId;
+use crate::sketchbook::{DatasetId, JsonSerde};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `Dataset` .
@@ -26,6 +26,9 @@ pub struct DatasetMetaData {
     pub variables: Vec<String>,
     pub category: DataCategory,
 }
+
+impl<'de> JsonSerde<'de> for DatasetData {}
+impl<'de> JsonSerde<'de> for DatasetMetaData {}
 
 impl DatasetData {
     /// Create new `DatasetData` object given a reference to a dataset and its ID.

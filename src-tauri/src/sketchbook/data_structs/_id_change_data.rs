@@ -1,4 +1,4 @@
-use crate::sketchbook::{LayoutId, UninterpretedFnId, VarId};
+use crate::sketchbook::{JsonSerde, LayoutId, UninterpretedFnId, VarId};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about changes in object's ID to the frontend.
@@ -15,6 +15,8 @@ pub struct ChangeIdData {
     #[serde(default)]
     pub metadata: String,
 }
+
+impl<'de> JsonSerde<'de> for ChangeIdData {}
 
 impl ChangeIdData {
     /// Create new `ChangeIdData` object given the two id slices and metadata.

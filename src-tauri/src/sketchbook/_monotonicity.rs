@@ -1,3 +1,4 @@
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -14,6 +15,8 @@ pub enum Monotonicity {
     Dual,
     Unknown,
 }
+
+impl<'de> JsonSerde<'de> for Monotonicity {}
 
 impl Display for Monotonicity {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {

@@ -1,5 +1,5 @@
 use crate::sketchbook::layout::LayoutNode;
-use crate::sketchbook::{LayoutId, VarId};
+use crate::sketchbook::{JsonSerde, LayoutId, VarId};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `NodeLayout` to frontend.
@@ -17,6 +17,8 @@ pub struct LayoutNodeData {
     pub px: f32,
     pub py: f32,
 }
+
+impl<'de> JsonSerde<'de> for LayoutNodeData {}
 
 impl LayoutNodeData {
     pub fn new(layout_id: &str, var_id: &str, px: f32, py: f32) -> LayoutNodeData {

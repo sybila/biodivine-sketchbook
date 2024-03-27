@@ -4,8 +4,7 @@ use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{ChangeIdData, ObservationData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::{DatasetId, ObservationId};
-use std::str::FromStr;
+use crate::sketchbook::{DatasetId, JsonSerde, ObservationId};
 
 impl SessionHelper for Dataset {}
 
@@ -23,7 +22,7 @@ impl Dataset {
 
         // get payload components and perform the action
         let payload = Self::clone_payload_str(event, component_name)?;
-        let observation_data = ObservationData::from_str(payload.as_str())?;
+        let observation_data = ObservationData::from_json_str(payload.as_str())?;
         let observation = observation_data.to_observation()?;
         self.push_observation(observation)?;
 
@@ -62,7 +61,7 @@ impl Dataset {
 
         // prepare the reverse 'add_last' event (path has no ids, all info carried by payload)
         let reverse_path = ["observations", dataset_id.as_str(), "push_obs"];
-        let reverse_event = Event::build(&reverse_path, Some(&obs_data.to_string()));
+        let reverse_event = Event::build(&reverse_path, Some(&obs_data.to_json_str()));
         Ok(make_reversible(state_change, event, reverse_event))
     }
 
@@ -119,7 +118,7 @@ impl Dataset {
         } else if action == "set_content" {
             // get the payload - string encoding a new observation data
             let payload = Self::clone_payload_str(event, component_name)?;
-            let new_obs_data = ObservationData::from_str(&payload)?;
+            let new_obs_data = ObservationData::from_json_str(&payload)?;
             let new_obs = new_obs_data.to_observation()?;
             let orig_obs = self.get_observation(&obs_id)?;
             if orig_obs == &new_obs {
@@ -139,7 +138,8 @@ impl Dataset {
                 obs_id.as_str(),
                 "set_content",
             ];
-            let reverse_event = Event::build(&reverse_event_path, Some(&orig_obs_data.to_string()));
+            let reverse_event =
+                Event::build(&reverse_event_path, Some(&orig_obs_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             AeonError::throw(format!(

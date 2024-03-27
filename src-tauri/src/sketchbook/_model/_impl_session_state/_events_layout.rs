@@ -4,9 +4,7 @@ use crate::app::DynError;
 use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{LayoutId, ModelState};
-
-use std::str::FromStr;
+use crate::sketchbook::{JsonSerde, LayoutId, ModelState};
 
 /// Implementation for events related to `layouts` of the model.
 impl ModelState {
@@ -16,7 +14,7 @@ impl ModelState {
 
         // get payload components (json for LayoutData)
         let payload = Self::clone_payload_str(event, component_name)?;
-        let layout_data = LayoutData::from_str(payload.as_str())?;
+        let layout_data = LayoutData::from_json_str(payload.as_str())?;
         let layout_id_str = layout_data.id;
         let layout_id = self.generate_layout_id(&layout_id_str);
         let name = layout_data.name;
@@ -42,7 +40,7 @@ impl ModelState {
         if Self::starts_with("update_position", at_path).is_some() {
             // get payload components (json containing "var_id", "new_x" and "new_y")
             let payload = Self::clone_payload_str(event, component_name)?;
-            let new_node_data = LayoutNodeData::from_str(payload.as_str())?;
+            let new_node_data = LayoutNodeData::from_json_str(payload.as_str())?;
             let var_id = self.get_var_id(new_node_data.variable.as_str())?;
             let new_position = NodePosition(new_node_data.px, new_node_data.py);
 
@@ -67,7 +65,7 @@ impl ModelState {
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(orig_pos_data.to_string());
+            reverse_event.payload = Some(orig_pos_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("remove", at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;

@@ -1,4 +1,5 @@
 use crate::sketchbook::layout::Layout;
+use serde::{Deserialize, Serialize};
 
 /// **(internal)** Utility methods for `BinaryOp`.
 mod _binary_op;
@@ -66,3 +67,17 @@ pub type RegulationIterator<'a> = std::collections::hash_set::Iter<'a, Regulatio
 
 /// An iterator over all (`LayoutId`, `Layout`) pairs of a `ModelState`.
 pub type LayoutIterator<'a> = std::collections::hash_map::Iter<'a, LayoutId, Layout>;
+
+/// Trait that implements `to_json_str` and `from_json_str` wrappers, utilizing [serde_json].
+/// All of the structs implementing `JsonSerde` must implement traits `Serialize` and
+pub trait JsonSerde<'de>: Sized + Serialize + Deserialize<'de> {
+    /// Wrapper for json serialization.
+    fn to_json_str(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+
+    /// Wrapper for json de-serialization.
+    fn from_json_str(s: &'de str) -> Result<Self, String> {
+        serde_json::from_str(s).map_err(|e| e.to_string())
+    }
+}

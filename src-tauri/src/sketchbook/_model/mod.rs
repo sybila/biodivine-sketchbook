@@ -1,6 +1,6 @@
 use crate::sketchbook::layout::Layout;
 use crate::sketchbook::{
-    LayoutId, Regulation, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
+    JsonSerde, LayoutId, Regulation, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
 };
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Error, Formatter};
@@ -35,6 +35,8 @@ pub struct ModelState {
     layouts: HashMap<LayoutId, Layout>,
     placeholder_variables: HashSet<VarId>,
 }
+
+impl<'de> JsonSerde<'de> for ModelState {}
 
 impl Default for ModelState {
     /// Default model object with no Variables, Uninterpreted Functions, or Regulations yet.

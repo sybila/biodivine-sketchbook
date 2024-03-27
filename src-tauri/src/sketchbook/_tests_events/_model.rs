@@ -3,7 +3,7 @@ use crate::app::state::{Consumed, SessionState};
 use crate::sketchbook::_tests_events::check_reverse;
 use crate::sketchbook::data_structs::*;
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
+use crate::sketchbook::{Essentiality, JsonSerde, ModelState, Monotonicity, VarId};
 
 #[test]
 fn test_add_var() {
@@ -14,7 +14,7 @@ fn test_add_var() {
     assert_eq!(model.num_vars(), 1);
 
     // test variable add event
-    let payload = VariableData::new("b", "b", "").to_string();
+    let payload = VariableData::new("b", "b", "").to_json_str();
     let full_path = ["model", "variable", "add"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
@@ -175,7 +175,7 @@ fn test_add_reg() {
     // test regulation add event
     let full_path = ["model", "regulation", "add"];
     let regulation_data = RegulationData::try_from_reg_str("a -> b").unwrap();
-    let event = Event::build(&full_path, Some(&regulation_data.to_string()));
+    let event = Event::build(&full_path, Some(&regulation_data.to_json_str()));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
     // check that regulation was added correctly, and test the reverse event
@@ -194,7 +194,7 @@ fn test_change_reg_sign() {
 
     // test event for changing regulation's sign
     let full_path = ["model", "regulation", "a", "b", "set_sign"];
-    let new_sign = serde_json::to_string(&Monotonicity::Inhibition).unwrap();
+    let new_sign = Monotonicity::Inhibition.to_json_str();
     let event = Event::build(&full_path, Some(&new_sign));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -215,7 +215,7 @@ fn test_change_reg_essentiality() {
 
     // test event for changing regulation's essentiality
     let full_path = ["model", "regulation", "a", "b", "set_essentiality"];
-    let new_essentiality = serde_json::to_string(&Essentiality::False).unwrap();
+    let new_essentiality = Essentiality::False.to_json_str();
     let event = Event::build(&full_path, Some(&new_essentiality));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -252,7 +252,7 @@ fn test_change_position() {
     let model_orig = model.clone();
 
     // test position change event
-    let payload = LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), 2.5, 0.4).to_string();
+    let payload = LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), 2.5, 0.4).to_json_str();
     let full_path = ["model", "layout", layout_id.as_str(), "update_position"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
@@ -272,7 +272,7 @@ fn test_change_fn_arg_monotonicity() {
 
     // test event for changing uninterpreted fn's monotonicity
     let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_monotonicity"];
-    let change_data = ChangeArgMonotoneData::new(1, Monotonicity::Dual).to_string();
+    let change_data = ChangeArgMonotoneData::new(1, Monotonicity::Dual).to_json_str();
     let event = Event::build(&full_path, Some(&change_data));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
 
@@ -292,7 +292,7 @@ fn test_change_fn_arg_essentiality() {
 
     // test event for changing uninterpreted fn's expression
     let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_essentiality"];
-    let change_data = ChangeArgEssentialData::new(1, Essentiality::True).to_string();
+    let change_data = ChangeArgEssentialData::new(1, Essentiality::True).to_json_str();
     let event = Event::build(&full_path, Some(&change_data));
     let result = model.perform_event(&event, &full_path[1..]).unwrap();
 

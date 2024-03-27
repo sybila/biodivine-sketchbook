@@ -1,4 +1,4 @@
-use crate::sketchbook::{UpdateFn, VarId, Variable};
+use crate::sketchbook::{JsonSerde, UpdateFn, VarId, Variable};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `Variable` and its `UpdateFn` to the frontend.
@@ -12,6 +12,8 @@ pub struct VariableData {
     pub name: String,
     pub update_fn: String,
 }
+
+impl<'de> JsonSerde<'de> for VariableData {}
 
 impl VariableData {
     /// Create new `VariableData` object given a variable's `name` and `id` string slices.

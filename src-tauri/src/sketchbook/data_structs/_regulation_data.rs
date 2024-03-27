@@ -1,4 +1,4 @@
-use crate::sketchbook::{Essentiality, Monotonicity, Regulation};
+use crate::sketchbook::{Essentiality, JsonSerde, Monotonicity, Regulation};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending simplified data about `Regulation` to the frontend.
@@ -12,6 +12,8 @@ pub struct RegulationData {
     pub sign: Monotonicity,
     pub essential: Essentiality,
 }
+
+impl<'de> JsonSerde<'de> for RegulationData {}
 
 impl RegulationData {
     /// Create new `RegulationData` object given references to individual components.

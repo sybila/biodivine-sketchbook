@@ -6,8 +6,7 @@ use crate::sketchbook::data_structs::{
 };
 use crate::sketchbook::event_utils::{make_refresh_event, make_reversible, make_state_change};
 use crate::sketchbook::observations::{DataCategory, ObservationManager};
-use crate::sketchbook::{DatasetId, ObservationId};
-use std::str::FromStr;
+use crate::sketchbook::{DatasetId, JsonSerde, ObservationId};
 
 impl SessionHelper for ObservationManager {}
 
@@ -55,7 +54,7 @@ impl SessionState for ObservationManager {
                 let dataset_id = self.get_dataset_id(dataset_id_str)?;
                 let dataset = self.get_dataset(&dataset_id)?;
                 let dataset_data = DatasetData::from_dataset(dataset, &dataset_id);
-                let payload = Some(dataset_data.to_string());
+                let payload = Some(dataset_data.to_json_str());
 
                 let mut path = full_path.to_vec();
                 path.pop(); // remove the id from the path
@@ -71,7 +70,7 @@ impl SessionState for ObservationManager {
 
                 let observation = self.get_observation_by_str(dataset_id_str, obs_id_str)?;
                 let obs_data = ObservationData::from_obs(observation, &dataset_id);
-                let payload = Some(obs_data.to_string());
+                let payload = Some(obs_data.to_json_str());
 
                 let mut path = full_path.to_vec();
                 path.truncate(path.len() - 2); // remove the two ids from the path
@@ -91,7 +90,7 @@ impl ObservationManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let dataset_data = DatasetData::from_str(payload.as_str())?;
+        let dataset_data = DatasetData::from_json_str(payload.as_str())?;
         let dataset = dataset_data.to_dataset()?;
         self.add_dataset_by_str(&dataset_data.id, dataset)?;
 
@@ -129,7 +128,7 @@ impl ObservationManager {
 
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let reverse_path = ["observations", "add"];
-            let reverse_event = Event::build(&reverse_path, Some(&dataset_data.to_string()));
+            let reverse_event = Event::build(&reverse_path, Some(&dataset_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
@@ -150,7 +149,7 @@ impl ObservationManager {
         } else if Self::starts_with("set_content", at_path).is_some() {
             // get the payload - string encoding a new dataset data
             let payload = Self::clone_payload_str(event, component_name)?;
-            let new_dataset_data = DatasetData::from_str(&payload)?;
+            let new_dataset_data = DatasetData::from_json_str(&payload)?;
             let new_dataset = new_dataset_data.to_dataset()?;
             let orig_dataset = self.get_dataset(&dataset_id)?;
             if orig_dataset == &new_dataset {
@@ -166,7 +165,7 @@ impl ObservationManager {
             // prepare the reverse event (setting the original ID back)
             let reverse_event_path = ["observations", dataset_id.as_str(), "set_content"];
             let reverse_event =
-                Event::build(&reverse_event_path, Some(&orig_dataset_data.to_string()));
+                Event::build(&reverse_event_path, Some(&orig_dataset_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_category", at_path).is_some() {
             // get the payload - string for data type
@@ -184,13 +183,13 @@ impl ObservationManager {
 
             // prepare the reverse event
             let reverse_event_path = ["observations", dataset_id.as_str(), "set_category"];
-            let payload = serde_json::to_string(&orig_metadata.category)?;
+            let payload = orig_metadata.category.to_json_str();
             let reverse_event = Event::build(&reverse_event_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_var_id", at_path).is_some() {
             // get the payload - string for ChangeIdData
             let payload = Self::clone_payload_str(event, component_name)?;
-            let id_change_data = ChangeIdData::from_str(&payload)?;
+            let id_change_data = ChangeIdData::from_json_str(&payload)?;
             if id_change_data.original_id == id_change_data.new_id {
                 return Ok(Consumed::NoChange);
             }
@@ -209,7 +208,8 @@ impl ObservationManager {
             let reverse_event_path = ["observations", dataset_id.as_str(), "set_var_id"];
             let reverse_data =
                 ChangeIdData::new(&id_change_data.new_id, &id_change_data.original_id);
-            let reverse_event = Event::build(&reverse_event_path, Some(&reverse_data.to_string()));
+            let reverse_event =
+                Event::build(&reverse_event_path, Some(&reverse_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("push_obs", at_path).is_some() {
             // Adding observation to the end of a particular dataset

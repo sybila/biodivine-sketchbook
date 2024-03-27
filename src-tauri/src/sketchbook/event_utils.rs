@@ -1,8 +1,8 @@
 use crate::app::event::Event;
 use crate::app::state::Consumed;
 use crate::app::DynError;
+use crate::sketchbook::JsonSerde;
 use serde::Serialize;
-use std::fmt::Display;
 
 /// Shorthand to create a `Consumed::Reversible`.
 pub(super) fn make_reversible(
@@ -32,9 +32,9 @@ where
 /// Shorthand to create a state-change event.
 /// Payload can be any struct that can be stringified (especially any class defined
 /// in [crate::sketchbook::data_structs]).
-pub(super) fn make_state_change<T>(path: &[&str], payload: &T) -> Event
+pub(super) fn make_state_change<'a, T>(path: &[&str], payload: &T) -> Event
 where
-    T: Display,
+    T: JsonSerde<'a>,
 {
-    Event::build(path, Some(&payload.to_string()))
+    Event::build(path, Some(&payload.to_json_str()))
 }

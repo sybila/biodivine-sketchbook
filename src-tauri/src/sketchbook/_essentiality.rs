@@ -1,3 +1,4 @@
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Possible variants of essentiality of a `Regulation`.
@@ -11,3 +12,5 @@ pub enum Essentiality {
     False,
     Unknown,
 }
+
+impl<'de> JsonSerde<'de> for Essentiality {}

@@ -4,9 +4,7 @@ use crate::app::DynError;
 use crate::sketchbook::data_structs::{ChangeIdData, LayoutNodeData, VariableData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{ModelState, VarId};
-
-use std::str::FromStr;
+use crate::sketchbook::{JsonSerde, ModelState, VarId};
 
 /// Implementation for events related to `variables` of the model.
 impl ModelState {
@@ -16,7 +14,7 @@ impl ModelState {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let variable_data = VariableData::from_str(payload.as_str())?;
+        let variable_data = VariableData::from_json_str(payload.as_str())?;
         self.add_var_by_str(&variable_data.id, &variable_data.name)?;
 
         // prepare the state-change and reverse event (which is a remove event)
@@ -61,7 +59,7 @@ impl ModelState {
 
                 // prepare the reverse event
                 let reverse_path = ["model", "variable", "add"];
-                let reverse_event = Event::build(&reverse_path, Some(&var_data.to_string()));
+                let reverse_event = Event::build(&reverse_path, Some(&var_data.to_json_str()));
                 Ok(make_reversible(state_change, event, reverse_event))
             } else {
                 let mut event_list = Vec::new();
@@ -69,7 +67,7 @@ impl ModelState {
                 for l_id in self.layouts.keys() {
                     let event_path = ["model", "layout", l_id.as_str(), "update_position"];
                     let payload =
-                        LayoutNodeData::new(l_id.as_str(), var_id.as_str(), 0., 0.).to_string();
+                        LayoutNodeData::new(l_id.as_str(), var_id.as_str(), 0., 0.).to_json_str();
                     let move_event = Event::build(&event_path, Some(payload.as_str()));
                     event_list.push(move_event)
                 }

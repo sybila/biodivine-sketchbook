@@ -1,22 +1,6 @@
-use crate::sketchbook::properties::DynamicProperty;
+use crate::sketchbook::properties::{DynamicProperty, PropertyManager};
 use crate::sketchbook::PropertyId;
 use std::collections::{HashMap, HashSet};
-
-/// Class to manage all properties.
-///
-/// `PropertyManager` can be managed through its classical Rust API, as well as
-/// through the external events (as it implements the `SessionState` event).
-#[derive(Clone, Debug, PartialEq)]
-pub struct PropertyManager {
-    properties: HashMap<PropertyId, DynamicProperty>,
-}
-
-impl Default for PropertyManager {
-    /// Default manager instance with no datasets.
-    fn default() -> PropertyManager {
-        PropertyManager::new_empty()
-    }
-}
 
 impl PropertyManager {
     /// Instantiate `PropertyManager` with empty list of properties.

@@ -3,8 +3,7 @@ use crate::app::state::SessionState;
 use crate::sketchbook::_tests_events::check_reverse;
 use crate::sketchbook::data_structs::*;
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation, ObservationManager};
-use crate::sketchbook::DatasetId;
-use std::str::FromStr;
+use crate::sketchbook::{DatasetId, JsonSerde};
 
 /// Prepare a simple dataset with 2 observations and 3 variables.
 fn prepare_dataset1() -> Dataset {
@@ -36,7 +35,7 @@ fn test_add_remove_datasets() {
     // perform dataset add event
     let d2 = prepare_dataset2();
     let d2_id = DatasetId::new("d2").unwrap();
-    let payload = DatasetData::from_dataset(&d2, &d2_id).to_string();
+    let payload = DatasetData::from_dataset(&d2, &d2_id).to_json_str();
     let full_path = ["observations", "add"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
@@ -73,7 +72,7 @@ fn test_set_dataset_fields() {
     // 2) event to set dataset's type
     let new_type = DataCategory::Unspecified;
     let full_path = ["observations", "d1", "set_category"];
-    let event = Event::build(&full_path, Some(&serde_json::to_string(&new_type).unwrap()));
+    let event = Event::build(&full_path, Some(&new_type.to_json_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     let current_type = manager.get_dataset_by_str("d1").unwrap().category();
     assert_eq!(current_type, &new_type);
@@ -84,14 +83,14 @@ fn test_set_dataset_fields() {
     let d2_id = DatasetId::new("this_doesnt_matter").unwrap();
     let d2_data = DatasetData::from_dataset(&d2, &d2_id);
     let full_path = ["observations", "d1", "set_content"];
-    let event = Event::build(&full_path, Some(&d2_data.to_string()));
+    let event = Event::build(&full_path, Some(&d2_data.to_json_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     assert_eq!(manager.get_dataset_by_str("d1").unwrap().num_variables(), 2);
     check_reverse(&mut manager, &manager_orig, result, &["d1", "set_content"]);
 
     // 4) event to change one of dataset's variables
     let full_path = ["observations", "d1", "set_var_id"];
-    let payload = ChangeIdData::new("a", "xyz").to_string();
+    let payload = ChangeIdData::new("a", "xyz").to_json_str();
     let event = Event::build(&full_path, Some(&payload));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     let d1_ref = manager.get_dataset_by_str("d1").unwrap();
@@ -112,7 +111,7 @@ fn test_push_pop_observations() {
 
     // perform observation push event
     let new_obs = Observation::try_from_str("111", "new_obs").unwrap();
-    let payload = ObservationData::from_obs(&new_obs, &d1_id).to_string();
+    let payload = ObservationData::from_obs(&new_obs, &d1_id).to_json_str();
     let full_path = ["observations", "d1", "push_obs"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
@@ -175,7 +174,7 @@ fn test_set_observation_fields() {
     let new_obs = Observation::try_from_str("000", "doesnt_matter").unwrap();
     let new_obs_data = ObservationData::from_obs(&new_obs, &d1_id);
     let full_path = ["observations", "d1", "o1", "set_content"];
-    let event = Event::build(&full_path, Some(&new_obs_data.to_string()));
+    let event = Event::build(&full_path, Some(&new_obs_data.to_json_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     let obs_modified = manager.get_observation_by_str("d1", "o1").unwrap();
     assert_eq!(obs_modified.num_zeros(), 3);
@@ -209,7 +208,7 @@ fn test_refresh() {
         "d1".to_string(),
     ];
     let event = manager.refresh(&full_path, &["get_dataset", "d1"]).unwrap();
-    let dataset_data = DatasetData::from_str(&event.payload.unwrap()).unwrap();
+    let dataset_data = DatasetData::from_json_str(&event.payload.unwrap()).unwrap();
     assert_eq!(dataset_data.to_dataset().unwrap(), d1);
 
     // test getter for a single observation
@@ -221,7 +220,7 @@ fn test_refresh() {
     ];
     let at_path = ["get_observation", "d1", "o2"];
     let event = manager.refresh(&full_path, &at_path).unwrap();
-    let obs_data = ObservationData::from_str(&event.payload.unwrap()).unwrap();
+    let obs_data = ObservationData::from_json_str(&event.payload.unwrap()).unwrap();
     let expected_obs = d1.get_observation_on_idx(1).unwrap();
     assert_eq!(&obs_data.to_observation().unwrap(), expected_obs);
 }
