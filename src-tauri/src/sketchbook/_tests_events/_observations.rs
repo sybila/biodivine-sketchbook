@@ -2,8 +2,9 @@ use crate::app::event::Event;
 use crate::app::state::SessionState;
 use crate::sketchbook::_tests_events::check_reverse;
 use crate::sketchbook::data_structs::*;
+use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation, ObservationManager};
-use crate::sketchbook::{DatasetId, JsonSerde};
+use crate::sketchbook::JsonSerde;
 
 /// Prepare a simple dataset with 2 observations and 3 variables.
 fn prepare_dataset1() -> Dataset {

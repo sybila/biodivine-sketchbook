@@ -1,7 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
-use crate::sketchbook::ModelState;
+use crate::sketchbook::model::ModelState;
 
 /// **(internal)** Implementation for events related to `layouts` of the model.
 pub mod _events_layout;

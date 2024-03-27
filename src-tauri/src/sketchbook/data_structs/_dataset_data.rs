@@ -1,6 +1,7 @@
 use crate::sketchbook::data_structs::ObservationData;
+use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
-use crate::sketchbook::{DatasetId, JsonSerde};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `Dataset` .
@@ -75,8 +76,8 @@ impl DatasetMetaData {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::data_structs::DatasetData;
+    use crate::sketchbook::ids::DatasetId;
     use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
-    use crate::sketchbook::DatasetId;
 
     #[test]
     /// Test converting between `Dataset` and `DatasetData`.

@@ -1,4 +1,4 @@
-use crate::sketchbook::{Essentiality, Monotonicity};
+use crate::sketchbook::model::{Essentiality, Monotonicity};
 use serde::{Deserialize, Serialize};
 
 /// Data regarding an argument of an uninterpreted function.

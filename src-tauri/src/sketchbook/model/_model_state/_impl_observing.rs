@@ -1,8 +1,11 @@
+use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
+use crate::sketchbook::layout::Layout;
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{
-    Layout, LayoutId, LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
-    UninterpretedFnId, UninterpretedFnIterator, UpdateFn, VarId, Variable, VariableIterator,
+use crate::sketchbook::model::{
+    LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
+    UninterpretedFnIterator, UpdateFn, Variable, VariableIterator,
 };
+
 use std::str::FromStr;
 
 /// Id (and also name) of the initial default layout.

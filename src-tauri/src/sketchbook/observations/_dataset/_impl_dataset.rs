@@ -1,6 +1,6 @@
+use crate::sketchbook::ids::{ObservationId, VarId};
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation, VarValue};
 use crate::sketchbook::utils::assert_ids_unique;
-use crate::sketchbook::{ObservationId, VarId};
 use std::collections::HashMap;
 
 /// Creating new `Dataset` instances.

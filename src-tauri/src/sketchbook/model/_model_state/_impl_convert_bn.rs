@@ -1,4 +1,4 @@
-use crate::sketchbook::ModelState;
+use crate::sketchbook::model::ModelState;
 use biodivine_lib_param_bn::{BooleanNetwork, RegulatoryGraph};
 
 /// Methods for converting between `ModelState` and `BooleanNetwork` (from the `lib-param-bn`).
@@ -66,7 +66,7 @@ impl ModelState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::ModelState;
+    use crate::sketchbook::model::ModelState;
 
     /// Prepare a test model containing all the different components.
     pub(super) fn prepare_test_model_full() -> ModelState {

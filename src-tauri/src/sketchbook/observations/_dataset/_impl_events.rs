@@ -3,8 +3,9 @@ use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{ChangeIdData, ObservationData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::{DatasetId, JsonSerde, ObservationId};
+use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for Dataset {}
 

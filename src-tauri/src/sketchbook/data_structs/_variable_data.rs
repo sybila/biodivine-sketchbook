@@ -1,4 +1,6 @@
-use crate::sketchbook::{JsonSerde, UpdateFn, VarId, Variable};
+use crate::sketchbook::ids::VarId;
+use crate::sketchbook::model::{UpdateFn, Variable};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `Variable` and its `UpdateFn` to the frontend.

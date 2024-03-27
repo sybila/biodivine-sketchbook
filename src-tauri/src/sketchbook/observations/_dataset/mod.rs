@@ -1,5 +1,5 @@
+use crate::sketchbook::ids::{ObservationId, VarId};
 use crate::sketchbook::observations::{DataCategory, Observation};
-use crate::sketchbook::{ObservationId, VarId};
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;

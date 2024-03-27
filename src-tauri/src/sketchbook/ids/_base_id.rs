@@ -1,4 +1,4 @@
-use crate::sketchbook::_identifiers::Identifier;
+use crate::sketchbook::ids::_identifier::Identifier;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;

@@ -1,5 +1,6 @@
+use crate::sketchbook::ids::LayoutId;
 use crate::sketchbook::layout::Layout;
-use crate::sketchbook::{JsonSerde, LayoutId};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending simplified general data about `Layout` to the frontend.

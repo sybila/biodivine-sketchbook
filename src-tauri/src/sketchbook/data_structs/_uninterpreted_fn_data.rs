@@ -1,6 +1,6 @@
-use crate::sketchbook::{
-    Essentiality, FnArgument, JsonSerde, Monotonicity, UninterpretedFn, UninterpretedFnId,
-};
+use crate::sketchbook::ids::UninterpretedFnId;
+use crate::sketchbook::model::{Essentiality, FnArgument, Monotonicity, UninterpretedFn};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `UninterpretedFn` to the frontend.

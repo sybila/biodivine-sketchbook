@@ -1,5 +1,6 @@
+use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::{DatasetId, JsonSerde};
+use crate::sketchbook::JsonSerde;
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;

@@ -40,7 +40,7 @@ impl Display for Variable {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::Variable;
+    use crate::sketchbook::model::Variable;
 
     #[test]
     fn test_variable() {

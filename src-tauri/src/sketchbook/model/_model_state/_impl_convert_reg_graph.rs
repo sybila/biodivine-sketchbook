@@ -1,4 +1,5 @@
-use crate::sketchbook::{Essentiality, ModelState, Monotonicity, VarId};
+use crate::sketchbook::ids::VarId;
+use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
 use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
@@ -111,7 +112,7 @@ impl ModelState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::ModelState;
+    use crate::sketchbook::model::ModelState;
     use biodivine_lib_param_bn::RegulatoryGraph;
 
     /// Prepare a test model containing only variables and regulations.

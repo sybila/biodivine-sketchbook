@@ -3,8 +3,10 @@ use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{ChangeIdData, LayoutNodeData, VariableData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{JsonSerde, ModelState, VarId};
+use crate::sketchbook::model::ModelState;
+use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `variables` of the model.
 impl ModelState {

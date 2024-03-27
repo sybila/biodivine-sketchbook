@@ -1,4 +1,5 @@
-use crate::sketchbook::{Essentiality, JsonSerde, Monotonicity, Regulation};
+use crate::sketchbook::model::{Essentiality, Monotonicity, Regulation};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending simplified data about `Regulation` to the frontend.

@@ -1,3 +1,5 @@
+use crate::sketchbook::ids::DatasetId;
+
 /// **(internal)** Definition and methods for `DataCategory`.
 mod _data_category;
 /// **(internal)** Definition and methods for `Dataset`.
@@ -9,7 +11,6 @@ mod _observation;
 /// **(internal)** Definition and methods for `VarValue`.
 mod _var_value;
 
-use crate::sketchbook::DatasetId;
 pub use _data_category::DataCategory;
 pub use _dataset::Dataset;
 pub use _manager::ObservationManager;

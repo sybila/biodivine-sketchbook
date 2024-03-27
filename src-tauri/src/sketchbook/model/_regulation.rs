@@ -1,4 +1,5 @@
-use crate::sketchbook::{Essentiality, Monotonicity, VarId};
+use crate::sketchbook::ids::VarId;
+use crate::sketchbook::model::{Essentiality, Monotonicity};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
@@ -195,7 +196,7 @@ impl Display for Regulation {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{Essentiality, Monotonicity, Regulation};
+    use crate::sketchbook::model::{Essentiality, Monotonicity, Regulation};
 
     #[test]
     fn regulation_conversion() {

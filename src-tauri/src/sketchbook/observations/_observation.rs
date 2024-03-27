@@ -1,5 +1,5 @@
+use crate::sketchbook::ids::ObservationId;
 use crate::sketchbook::observations::_var_value::VarValue;
-use crate::sketchbook::ObservationId;
 use biodivine_lib_param_bn::{Space, VariableId};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;

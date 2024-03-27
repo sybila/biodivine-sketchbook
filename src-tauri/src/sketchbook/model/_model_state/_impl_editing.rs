@@ -1,8 +1,9 @@
-use crate::sketchbook::utils::assert_ids_unique;
-use crate::sketchbook::{
-    Essentiality, Layout, LayoutId, ModelState, Monotonicity, Regulation, UninterpretedFn,
-    UninterpretedFnId, UpdateFn, VarId, Variable,
+use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
+use crate::sketchbook::layout::Layout;
+use crate::sketchbook::model::{
+    Essentiality, ModelState, Monotonicity, Regulation, UninterpretedFn, UpdateFn, Variable,
 };
+use crate::sketchbook::utils::assert_ids_unique;
 use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 
@@ -896,7 +897,7 @@ impl ModelState {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::layout::NodePosition;
-    use crate::sketchbook::{Essentiality, ModelState, Monotonicity};
+    use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
 
     /// Test generating new default variant of the `ModelState`.
     #[test]

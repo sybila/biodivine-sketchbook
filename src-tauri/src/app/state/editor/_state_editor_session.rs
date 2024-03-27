@@ -4,9 +4,9 @@ use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
+use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::ObservationManager;
 use crate::sketchbook::properties::PropertyManager;
-use crate::sketchbook::ModelState;
 
 /// The state of one editor session.
 ///

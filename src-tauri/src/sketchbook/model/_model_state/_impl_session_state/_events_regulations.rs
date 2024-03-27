@@ -3,7 +3,9 @@ use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::RegulationData;
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
-use crate::sketchbook::{Essentiality, JsonSerde, ModelState, Monotonicity, VarId};
+use crate::sketchbook::ids::VarId;
+use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
+use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `regulations` of the model.
 impl ModelState {

@@ -1,4 +1,5 @@
-use crate::sketchbook::{LayoutId, ModelState, UninterpretedFnId, VarId};
+use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
+use crate::sketchbook::model::ModelState;
 use std::str::FromStr;
 
 /// Methods for safely generating valid instances of identifiers for the current `ModelState`.
@@ -93,8 +94,8 @@ impl ModelState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::LayoutId;
-    use crate::sketchbook::{ModelState, VarId};
+    use crate::sketchbook::ids::{LayoutId, VarId};
+    use crate::sketchbook::model::ModelState;
 
     #[test]
     fn test_var_id_generating() {

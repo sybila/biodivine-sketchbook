@@ -1,5 +1,6 @@
+use crate::sketchbook::ids::PropertyId;
 use crate::sketchbook::properties::DynamicProperty;
-use crate::sketchbook::{JsonSerde, PropertyId};
+use crate::sketchbook::JsonSerde;
 use std::collections::HashMap;
 
 /// **(internal)** Basic utility methods for `PropertyManager`.

@@ -1,7 +1,6 @@
+use crate::sketchbook::ids::{UninterpretedFnId, VarId};
+use crate::sketchbook::model::{Essentiality, FnArgument, FnTree, ModelState, Monotonicity};
 use crate::sketchbook::utils::assert_name_valid;
-use crate::sketchbook::{
-    Essentiality, FnArgument, FnTree, ModelState, Monotonicity, UninterpretedFnId, VarId,
-};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
@@ -276,7 +275,8 @@ impl Display for UninterpretedFn {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{ModelState, UninterpretedFn, UninterpretedFnId};
+    use crate::sketchbook::ids::UninterpretedFnId;
+    use crate::sketchbook::model::{ModelState, UninterpretedFn};
 
     #[test]
     fn basic_uninterpreted_fn_test() {

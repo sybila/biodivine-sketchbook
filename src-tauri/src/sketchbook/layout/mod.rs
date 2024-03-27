@@ -1,4 +1,4 @@
-use crate::sketchbook::VarId;
+use crate::sketchbook::ids::VarId;
 
 /// **(internal)** Utility methods for `Layout`.
 mod _layout;

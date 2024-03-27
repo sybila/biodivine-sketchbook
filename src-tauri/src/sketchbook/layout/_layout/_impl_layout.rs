@@ -1,6 +1,6 @@
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
 use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
-use crate::sketchbook::VarId;
 use std::collections::HashMap;
 
 /// Methods for safely constructing or mutating instances of `Layout`.
@@ -150,8 +150,8 @@ impl Layout {
 
 #[cfg(test)]
 mod tests {
+    use crate::sketchbook::ids::VarId;
     use crate::sketchbook::layout::{Layout, LayoutNode};
-    use crate::sketchbook::VarId;
 
     #[test]
     fn test_layout_basics() {

@@ -114,8 +114,8 @@ impl<'de> Deserialize<'de> for Layout {
 
 #[cfg(test)]
 mod tests {
+    use crate::sketchbook::ids::VarId;
     use crate::sketchbook::layout::Layout;
-    use crate::sketchbook::VarId;
     use std::str::FromStr;
 
     #[test]

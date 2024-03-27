@@ -2,8 +2,10 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
 use crate::sketchbook::_tests_events::check_reverse;
 use crate::sketchbook::data_structs::*;
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{Essentiality, JsonSerde, ModelState, Monotonicity, VarId};
+use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
+use crate::sketchbook::JsonSerde;
 
 #[test]
 fn test_add_var() {

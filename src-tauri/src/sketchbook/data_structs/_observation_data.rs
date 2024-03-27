@@ -1,5 +1,6 @@
+use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::Observation;
-use crate::sketchbook::{DatasetId, JsonSerde};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about `Observation` to the frontend.
@@ -46,8 +47,8 @@ impl ObservationData {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::data_structs::ObservationData;
+    use crate::sketchbook::ids::DatasetId;
     use crate::sketchbook::observations::Observation;
-    use crate::sketchbook::DatasetId;
 
     #[test]
     /// Test converting between `Observation` and `ObservationData`.

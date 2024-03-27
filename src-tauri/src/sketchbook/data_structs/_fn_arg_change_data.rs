@@ -1,4 +1,5 @@
-use crate::sketchbook::{Essentiality, JsonSerde, Monotonicity};
+use crate::sketchbook::model::{Essentiality, Monotonicity};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for receiving data about changes in monotonicity of uninterpreted fn's argument from the frontend.

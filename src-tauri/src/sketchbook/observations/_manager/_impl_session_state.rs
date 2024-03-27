@@ -5,8 +5,9 @@ use crate::sketchbook::data_structs::{
     ChangeIdData, DatasetData, DatasetMetaData, ObservationData,
 };
 use crate::sketchbook::event_utils::{make_refresh_event, make_reversible, make_state_change};
+use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::observations::{DataCategory, ObservationManager};
-use crate::sketchbook::{DatasetId, JsonSerde, ObservationId};
+use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for ObservationManager {}
 

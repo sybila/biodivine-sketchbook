@@ -3,8 +3,10 @@ use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::ids::LayoutId;
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::{JsonSerde, LayoutId, ModelState};
+use crate::sketchbook::model::ModelState;
+use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `layouts` of the model.
 impl ModelState {

@@ -1,4 +1,5 @@
-use crate::sketchbook::{BinaryOp, ModelState, UninterpretedFn, UninterpretedFnId, VarId};
+use crate::sketchbook::ids::{UninterpretedFnId, VarId};
+use crate::sketchbook::model::{BinaryOp, ModelState, UninterpretedFn};
 use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -302,7 +303,7 @@ impl FnTree {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{FnTree, ModelState};
+    use crate::sketchbook::model::{FnTree, ModelState};
     use std::collections::HashSet;
 
     #[test]

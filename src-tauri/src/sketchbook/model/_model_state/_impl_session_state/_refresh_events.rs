@@ -5,7 +5,7 @@ use crate::sketchbook::data_structs::{
     LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::event_utils::make_refresh_event;
-use crate::sketchbook::ModelState;
+use crate::sketchbook::model::ModelState;
 
 /// Implementation for `refresh` (getter) events.
 impl ModelState {

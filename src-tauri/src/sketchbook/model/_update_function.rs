@@ -1,4 +1,5 @@
-use crate::sketchbook::{FnTree, ModelState, UninterpretedFnId, VarId};
+use crate::sketchbook::ids::{UninterpretedFnId, VarId};
+use crate::sketchbook::model::{FnTree, ModelState};
 use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;

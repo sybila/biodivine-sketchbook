@@ -5,7 +5,9 @@ use crate::sketchbook::data_structs::{
     ChangeArgEssentialData, ChangeArgMonotoneData, ChangeIdData, UninterpretedFnData,
 };
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
-use crate::sketchbook::{JsonSerde, ModelState, UninterpretedFnId};
+use crate::sketchbook::ids::UninterpretedFnId;
+use crate::sketchbook::model::ModelState;
+use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `uninterpreted functions` of the model.
 impl ModelState {

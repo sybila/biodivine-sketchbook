@@ -6,7 +6,6 @@ mod _base_id;
 mod _identifier;
 
 use _base_id::BaseId;
-use _identifier::Identifier;
 
 macro_rules! id_wrapper {
     ($TypeName:ident, $doc:expr) => {

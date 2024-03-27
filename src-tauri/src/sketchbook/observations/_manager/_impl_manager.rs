@@ -1,7 +1,7 @@
+use crate::sketchbook::ids::{DatasetId, ObservationId, VarId};
 use crate::sketchbook::observations::{
     DataCategory, Dataset, DatasetIterator, Observation, ObservationManager,
 };
-use crate::sketchbook::{DatasetId, ObservationId, VarId};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 

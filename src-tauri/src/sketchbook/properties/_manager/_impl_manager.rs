@@ -1,5 +1,5 @@
+use crate::sketchbook::ids::PropertyId;
 use crate::sketchbook::properties::{DynamicProperty, PropertyManager};
-use crate::sketchbook::PropertyId;
 use std::collections::{HashMap, HashSet};
 
 impl PropertyManager {

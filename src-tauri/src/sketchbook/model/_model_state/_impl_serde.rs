@@ -1,5 +1,6 @@
+use crate::sketchbook::layout::Layout;
+use crate::sketchbook::model::{ModelState, UninterpretedFn, UpdateFn, Variable};
 use crate::sketchbook::utils::{parse_map_keys, stringify_and_order_keys};
-use crate::sketchbook::{Layout, ModelState, UninterpretedFn, UpdateFn, Variable};
 
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -187,8 +188,9 @@ impl<'de> Deserialize<'de> for ModelState {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::{ModelState, VarId};
-    use std::str::FromStr;
+    use crate::sketchbook::ids::VarId;
+    use crate::sketchbook::model::ModelState;
+    use crate::sketchbook::JsonSerde;
 
     #[test]
     fn test_model_state_serde() {
@@ -204,30 +206,11 @@ mod tests {
             "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}},\"placeholder_variables\":[]}".to_string(),
             model_serialized
         );
-        assert_eq!(model.to_string(), model_serialized);
+        assert_eq!(model.to_json_str(), model_serialized);
 
         // Deserialization (and `from_str`)
-        let model_v2: ModelState = serde_json::from_str(&model_serialized).unwrap();
+        let model_v2 = ModelState::from_json_str(&model_serialized).unwrap();
         assert_eq!(model, model_v2);
-        assert_eq!(model, ModelState::from_str(&model_serialized).unwrap());
-    }
-
-    #[test]
-    fn test_from_to_string() {
-        let mut model = ModelState::new();
-        let var_id = VarId::new("a").unwrap();
-        model.add_var(var_id, "a").unwrap();
-        model.add_regulation_by_str("a -> a").unwrap();
-
-        // To string
-        let model_string = model.to_string();
-        assert_eq!(
-            "{\"variables\":{\"a\":{\"name\":\"a\"}},\"update_fns\":{\"a\":{\"expression\":\"\",\"tree\":null}},\"uninterpreted_fns\":{},\"regulations\":[{\"regulator\":{\"id\":{\"id\":\"a\"}},\"target\":{\"id\":{\"id\":\"a\"}},\"essential\":\"True\",\"regulation_sign\":\"Activation\"}],\"layouts\":{\"default\":{\"name\":\"default\",\"nodes\":{\"a\":{\"position\":[0.0,0.0]}}}},\"placeholder_variables\":[]}".to_string(),
-            model_string
-        );
-
-        // From String
-        let model_v2 = ModelState::from_str(&model_string).unwrap();
-        assert_eq!(model, model_v2);
+        assert_eq!(model, ModelState::from_json_str(&model_serialized).unwrap());
     }
 }

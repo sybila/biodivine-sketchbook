@@ -1,4 +1,5 @@
-use crate::sketchbook::{JsonSerde, LayoutId, UninterpretedFnId, VarId};
+use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending data about changes in object's ID to the frontend.

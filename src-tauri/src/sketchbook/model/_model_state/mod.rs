@@ -1,10 +1,8 @@
+use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::layout::Layout;
-use crate::sketchbook::{
-    JsonSerde, LayoutId, Regulation, UninterpretedFn, UninterpretedFnId, UpdateFn, VarId, Variable,
-};
+use crate::sketchbook::model::{Regulation, UninterpretedFn, UpdateFn, Variable};
+use crate::sketchbook::JsonSerde;
 use std::collections::{HashMap, HashSet};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// **(internal)** Methods for converting between `ModelState` and `BooleanNetwork`.
 mod _impl_convert_bn;
@@ -43,23 +41,5 @@ impl Default for ModelState {
     /// It contains a single empty default Layout.
     fn default() -> ModelState {
         ModelState::new()
-    }
-}
-
-impl FromStr for ModelState {
-    type Err = String;
-
-    /// Use json de-serialization to construct `ModelState` from string.
-    /// See [_impl_serde] for details.
-    fn from_str(s: &str) -> Result<ModelState, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
-    }
-}
-
-impl Display for ModelState {
-    /// Use json serialization to convert `ModelState` to string.
-    /// See [_impl_serde] for details.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
     }
 }
