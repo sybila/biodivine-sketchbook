@@ -20,7 +20,6 @@ export abstract class EditorTile extends LitElement {
   @state() variableName = ''
   @query('#name-field') nameField: HTMLInputElement | undefined
   declare aceEditor: ace.Ace.Editor
-  static DEBOUNCE = 1000
 
   protected constructor () {
     super()
