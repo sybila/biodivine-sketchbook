@@ -5,7 +5,7 @@ import style_less from './observations-import.less?inline'
 import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
 import { appWindow } from '@tauri-apps/api/window'
 import { type IObservation } from '../../../util/data-interfaces'
-import style_tab from 'tabulator-tables/dist/css/tabulator_simple.min.css?inline'
+import style_tab from '../tabulator-style.less?inline'
 import { type ColumnDefinition, Tabulator } from 'tabulator-tables'
 import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
 
@@ -15,6 +15,7 @@ export default class ObservationsImport extends LitElement {
   @state() data: IObservation[] = []
   @state() variables: string[] = []
   @state() loaded = false
+  @state() submitDisabled = false
   table = document.createElement('div')
 
   tabulator: Tabulator | undefined
@@ -33,7 +34,6 @@ export default class ObservationsImport extends LitElement {
       this.data = event.payload.data
       this.variables = event.payload.variables
       void this.init()
-      this.loaded = true
     })
     await emit('loaded', {})
   }
@@ -54,13 +54,19 @@ export default class ObservationsImport extends LitElement {
       this.tabulator = new Tabulator(this.table, {
         columns: this.createColumns(),
         data: this.data,
+        popupContainer: this.table,
         ...tabulatorOptions
+      })
+      this.tabulator.on('tableBuilt', () => {
+        this.tabulator?.selectRow()
+        this.loaded = true
       })
     }
   }
 
   private async handleSubmit (event: Event): Promise<void> {
     event.preventDefault()
+    this.submitDisabled = true
     await emit('observations_import_dialog', this.tabulator?.getSelectedData())
     await appWindow.close()
   }
@@ -72,7 +78,11 @@ export default class ObservationsImport extends LitElement {
             <h1 class="uk-margin-small-bottom">Select rows to be imported</h1>
             ${this.table}
             <div class="footer uk-flex-row uk-text-center ">
-              <button class="uk-button uk-button-primary" @click="${this.handleSubmit}">Import</button>
+              <button class="uk-button uk-button-primary" 
+                      ?disabled="${this.submitDisabled}" 
+                      @click="${this.handleSubmit}">
+                ${this.submitDisabled ? 'Processing...' : 'Import'}
+              </button>
             </div>
           </div>
       `,

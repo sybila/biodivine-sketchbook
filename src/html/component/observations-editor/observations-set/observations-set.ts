@@ -1,7 +1,7 @@
 import { html, css, unsafeCSS, LitElement, type TemplateResult, type PropertyValues } from 'lit'
 import { customElement, query, property } from 'lit/decorators.js'
 import style_less from './observations-set.less?inline'
-import style_tab from 'tabulator-tables/dist/css/tabulator_simple.min.css?inline'
+import style_tab from '../tabulator-style.less?inline'
 import { Tabulator, type ColumnDefinition, type CellComponent } from 'tabulator-tables'
 import { type IObservation } from '../../../util/data-interfaces'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
@@ -37,6 +37,7 @@ export default class ObservationsSet extends LitElement {
     this.variables.forEach(v => {
       columns.push(dataCell(v))
     })
+    // edit button
     columns.push({
       title: '',
       formatter: (_cell, _params, _callback): string => {
@@ -49,10 +50,39 @@ export default class ObservationsSet extends LitElement {
         void this.editObservation(_cell.getData() as IObservation)
       }
     })
+    // delete button
+    columns.push({
+      title: '',
+      formatter: (_cell, _params, _callback): string => {
+        return "<button class='uk-button-small uk-button-danger'>Delete</button>"
+      },
+      width: 80,
+      headerSort: false,
+      hozAlign: 'center',
+      cellClick: (_e: UIEvent, _cell: CellComponent) => {
+        // todo: send through backend
+        void _cell.getRow().delete()
+      }
+    })
     if (this.table !== undefined) {
       this.tabulator = new Tabulator(this.table, {
         columns,
         data: this.data,
+        popupContainer: this.table,
+        rowContextMenu: [
+          {
+            label: 'Edit Row',
+            action: (_, row) => {
+              void this.editObservation(row.getData() as IObservation)
+            }
+          },
+          {
+            label: 'Delete Row',
+            action: function (_, row) {
+              void row.delete()
+            }
+          }
+        ],
         ...tabulatorOptions
       })
       this.tabulator.redraw(true)

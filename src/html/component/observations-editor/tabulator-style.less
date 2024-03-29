@@ -1,0 +1,27 @@
+@import (css) "tabulator-tables/dist/css/tabulator.min.css";
+
+@row-background: #fff;
+@row-even-background: #EFEFEF;
+@row-hover: rgba(0, 0, 0, 0.2);
+
+.tabulator-menu-item {
+  color: black;
+}
+
+.tabulator-row {
+  &.tabulator-selected {
+    background-color: @row-background;
+
+    &.tabulator-row-even {
+      background-color: @row-even-background;
+    }
+
+    &:hover {
+      background-color: @row-hover;
+    }
+  }
+
+  &:hover {
+    background-color: @row-hover;
+  }
+}
