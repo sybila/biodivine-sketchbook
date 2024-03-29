@@ -54,3 +54,9 @@ export interface IObservation {
   name: string
   [key: string]: string | number
 }
+
+export interface IObservationSet {
+  name: string
+  observations: IObservation[]
+  variables: string[]
+}

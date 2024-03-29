@@ -13,7 +13,7 @@ export const dataCell = (field: string): ColumnDefinition => {
   return {
     title: field,
     field,
-    editor: 'textarea',
+    editor: 'number',
     sorter: 'number',
     headerFilter: 'tickCross',
     hozAlign: 'center',
@@ -47,12 +47,12 @@ export const nameColumn: ColumnDefinition = {
   field: 'name',
   width: 100,
   sorter: 'string',
-  headerFilter: 'input'
+  headerFilter: 'input',
+  editor: 'textarea'
 }
 
 export const tabulatorOptions: Options = {
   layout: 'fitData',
-  responsiveLayout: 'hide',
   resizableColumnFit: true,
   pagination: true,
   renderVerticalBuffer: 300,
