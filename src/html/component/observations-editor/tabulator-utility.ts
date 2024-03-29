@@ -4,7 +4,7 @@ import {
   EditModule,
   FilterModule, FormatModule, InteractionModule, MenuModule,
   type Options,
-  PageModule, SelectRowModule,
+  PageModule, ResizeColumnsModule, SelectRowModule,
   SortModule,
   Tabulator
 } from 'tabulator-tables'
@@ -51,8 +51,9 @@ export const nameColumn: ColumnDefinition = {
 }
 
 export const tabulatorOptions: Options = {
-  layout: 'fitDataTable',
-  responsiveLayout: false,
+  layout: 'fitData',
+  responsiveLayout: 'hide',
+  resizableColumnFit: true,
   pagination: true,
   renderVerticalBuffer: 300,
   sortMode: 'local',
@@ -81,4 +82,5 @@ export const loadTabulatorPlugins = (): void => {
   Tabulator.registerModule(InteractionModule)
   Tabulator.registerModule(AjaxModule)
   Tabulator.registerModule(MenuModule)
+  Tabulator.registerModule(ResizeColumnsModule)
 }

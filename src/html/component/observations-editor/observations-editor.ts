@@ -8,6 +8,8 @@ import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { basename } from '@tauri-apps/api/path'
+import { debounce } from 'lodash'
+import { functionDebounceTimer } from '../../util/config'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -85,6 +87,11 @@ export default class ObservationsEditor extends LitElement {
     })
   }
 
+  updateSetName = debounce((name: string, id: number) => {
+    this.sets[id].name = name
+  }, functionDebounceTimer
+  )
+
   render (): TemplateResult {
     return html`
       <div class="observations">
@@ -98,7 +105,16 @@ export default class ObservationsEditor extends LitElement {
             ${map(this.sets, (set, index) => html`
           <div class="container" id="${'container' + index}">
             <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
-              ${set.name}
+              <input 
+                  @input="${(e: InputEvent) => {
+                    this.updateSetName((e.target as HTMLInputElement).value, index)
+                  }}"
+                  ?readonly="${true}"
+                  @dblclick="${(e: InputEvent) => {
+                    (e.target as HTMLInputElement).readOnly = !(e.target as HTMLInputElement).readOnly
+                  }}"
+                  class="set-name heading uk-input uk-form-blank"
+                  value="${set.name}"/>
             </div>
             <div class="content">
               <observations-set
