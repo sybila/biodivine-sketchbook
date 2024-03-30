@@ -1,31 +1,31 @@
 use serde::{Deserialize, Serialize};
 
+/// Structs and utility methods that can be used for communication with frontend.
+pub mod data_structs;
+/// Definitions and utilities for type-safe identifiers of various components.
+pub mod ids;
+/// Structs and utility methods regarding the layout of the Regulations editor.
+pub mod layout;
+/// Structs and utility methods regarding the model of the Regulations editor.
+pub mod model;
+/// Structs and utility methods regarding observations and datasets.
+pub mod observations;
+/// Classes and utility methods regarding properties.
+pub mod properties;
+
 /// Utility functions specifically related to events.
 mod event_utils;
-
-/// Classes and utility methods that can be used for sending simplified data to frontend.
-/// This includes simplified "data carriers" for variables, regulations, and layouts.
-pub mod data_structs;
-/// **(internal)** Classes and utility methods regarding the type-safe identifiers for
-/// various components.
-pub mod ids;
-/// Classes and utility methods regarding the layout of the Regulations editor.
-pub mod layout;
-/// Classes and utility methods regarding the model of the Regulations editor.
-pub mod model;
-/// Classes and utility methods regarding the observations.
-pub mod observations;
-/// Classes and utility methods regarding the properties.
-pub mod properties;
-/// Utility functions used throughout the module.
+/// General utilities used throughout the module (e.g., serialization helper methods).
 pub mod utils;
 
-/// **(internal)** Tests for the event-based API of various components.
+/// **(internal)** Tests for the event-based API of various top-level components.
 #[cfg(test)]
 mod _tests_events;
 
-/// Trait that implements `to_json_str` and `from_json_str` wrappers, utilizing [serde_json].
-/// All of the structs implementing `JsonSerde` must implement traits `Serialize` and
+/// Trait that implements `to_json_str` and `from_json_str` wrappers to serialize and
+/// deserialize objects, utilizing [serde_json].
+///
+/// All of the structs implementing `JsonSerde` must implement traits `Serialize` and `Deserialize`.
 pub trait JsonSerde<'de>: Sized + Serialize + Deserialize<'de> {
     /// Wrapper for json serialization.
     fn to_json_str(&self) -> String {

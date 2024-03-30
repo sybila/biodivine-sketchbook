@@ -15,13 +15,16 @@ impl SessionState for ObservationManager {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         let component_name = "observations";
 
-        // there is either adding of a new dataset, or modifying/removing an existing one
+        // there is either adding/loading of a new dataset, or modifying/removing an existing one
         // when adding new dataset, the `at_path` is just ["add"]
         // when editing existing dataset, the `at_path` is ["dataset_id", ...]
 
         if Self::starts_with("add", at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_dataset(event)
+        } else if Self::starts_with("load", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_load_dataset(event)
         } else {
             let dataset_id_str = at_path.first().unwrap();
             let dataset_id = self.get_dataset_id(dataset_id_str)?;
@@ -99,6 +102,26 @@ impl ObservationManager {
         let reverse_path = ["observations", &dataset_data.id, "remove"];
         let reverse_event = Event::build(&reverse_path, None);
         Ok(make_reversible(event.clone(), event, reverse_event))
+    }
+
+    /// Perform event of loading (and adding) new `dataset` to this `ObservationManager`.
+    pub(super) fn event_load_dataset(&mut self, event: &Event) -> Result<Consumed, DynError> {
+        let component_name = "observations";
+
+        // get the payload - string encoding a path to a csv file with dataset
+        let file_path = Self::clone_payload_str(event, component_name)?;
+        // load and add the dataset
+        let dataset = Self::load_dataset(&file_path)?;
+        let dataset_id = DatasetId::new(&file_path)?;
+        let dataset_data = DatasetData::from_dataset(&dataset, &dataset_id);
+        self.add_dataset_by_str(&dataset_data.id, dataset)?;
+
+        // prepare the state-change event (which sends the loaded dataset to frontend)
+        let state_change = make_state_change(&["observations", "load"], &dataset_data);
+        // and also prepare the reverse, which is a classical `remove` event
+        let reverse_path = ["observations", &dataset_data.id, "remove"];
+        let reverse_event = Event::build(&reverse_path, None);
+        Ok(make_reversible(state_change, event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `dataset` component of this

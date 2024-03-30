@@ -19,7 +19,6 @@ fn check_reverse<T: SessionState + std::fmt::Debug + PartialEq>(
     result: Consumed,
     at_path: &[&str],
 ) {
-    // assert that the reverse event is correct
     match result {
         Consumed::Reversible {
             perform_reverse: (_, reverse),

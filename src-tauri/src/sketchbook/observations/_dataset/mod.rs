@@ -1,8 +1,7 @@
 use crate::sketchbook::ids::{ObservationId, VarId};
 use crate::sketchbook::observations::{DataCategory, Observation};
+use crate::sketchbook::JsonSerde;
 use std::collections::HashMap;
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// **(internal)** Basic utility methods for `Dataset`.
 mod _impl_dataset;
@@ -29,18 +28,4 @@ pub struct Dataset {
     index_map: HashMap<ObservationId, usize>,
 }
 
-impl Display for Dataset {
-    /// Use json serialization to convert `Dataset` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for Dataset {
-    type Err = String;
-
-    /// Use json de-serialization to construct `Dataset` from string.
-    fn from_str(s: &str) -> Result<Dataset, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
-    }
-}
+impl<'de> JsonSerde<'de> for Dataset {}

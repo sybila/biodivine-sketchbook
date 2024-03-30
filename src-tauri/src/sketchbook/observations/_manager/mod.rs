@@ -5,6 +5,8 @@ use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
+/// **(internal)** Functionality for loading datasets from file.
+mod _impl_load_dataset;
 /// **(internal)** Basic utility methods for `ObservationManager`.
 mod _impl_manager;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `ObservationManager`.

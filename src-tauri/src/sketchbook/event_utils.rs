@@ -4,7 +4,7 @@ use crate::app::DynError;
 use crate::sketchbook::JsonSerde;
 use serde::Serialize;
 
-/// Shorthand to create a `Consumed::Reversible`.
+/// Shorthand to create a `Consumed::Reversible` instance given all the components.
 pub(super) fn make_reversible(
     state_change: Event,
     original_event: &Event,
@@ -16,6 +16,7 @@ pub(super) fn make_reversible(
     }
 }
 
+/// Shorthand to create a "refresh event" for a list of items.
 pub(super) fn make_refresh_event<T>(
     full_path: &[String],
     item_list: Vec<T>,
@@ -29,9 +30,8 @@ where
     })
 }
 
-/// Shorthand to create a state-change event.
-/// Payload can be any struct that can be stringified (especially any class defined
-/// in [crate::sketchbook::data_structs]).
+/// Shorthand to create a "state-change" event given a path and potential payload.
+/// Payload can be any struct that implements `JsonSerde`.
 pub(super) fn make_state_change<'a, T>(path: &[&str], payload: &T) -> Event
 where
     T: JsonSerde<'a>,

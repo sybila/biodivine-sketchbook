@@ -6,8 +6,8 @@ use std::str::FromStr;
 /// Convert keys of the `HashMap` to `String`, and then order the map by converting it into
 /// a sorted `BTreeMap`.
 ///
-/// The ordering enables deterministic serialization, and the string keys are needed to
-/// implement the [serde::Serialize] trait (serde requires `String` map keys).
+/// The ordering enables deterministic serialization, and the string keys are needed to correctly
+/// implement the [serde::Serialize] trait (`serde_json` requires `String` map keys).
 pub fn stringify_and_order_keys<K: ToString + Ord, V>(map: &HashMap<K, V>) -> BTreeMap<String, &V> {
     map.iter()
         .map(|(k, v)| (k.to_string(), v))
@@ -44,7 +44,8 @@ where
 }
 
 /// Check if a name string is valid, return Error otherwise.
-/// Currently, all names not containing newlines are valid.
+///
+/// Currently, all names that do not contain newlines are valid.
 pub(crate) fn assert_name_valid(name: &str) -> Result<(), String> {
     if name.contains('\n') {
         return Err("Name must not contain a newline.".to_string());
@@ -52,7 +53,7 @@ pub(crate) fn assert_name_valid(name: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Check the list of (typesafe or string) IDs contains only unique IDs.
+/// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates).
 pub(crate) fn assert_ids_unique<T: Eq + Hash + Debug>(id_list: &Vec<T>) -> Result<(), String> {
     let id_set = id_list.iter().collect::<HashSet<_>>();
     if id_set.len() != id_list.len() {

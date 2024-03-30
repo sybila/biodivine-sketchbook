@@ -6,8 +6,8 @@ use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation, ObservationManager};
 use crate::sketchbook::JsonSerde;
 
-/// Prepare a simple dataset with 2 observations and 3 variables.
-fn prepare_dataset1() -> Dataset {
+/// Prepare a simple dataset with 3 variables and 2 observations (of fixed-point type).
+fn prepare_dataset_3v_2o() -> Dataset {
     let obs1 = Observation::try_from_str("*11", "o1").unwrap();
     let obs2 = Observation::try_from_str("000", "o2").unwrap();
     let obs_list = vec![obs1, obs2];
@@ -16,8 +16,8 @@ fn prepare_dataset1() -> Dataset {
     Dataset::new(obs_list.clone(), var_names.clone(), obs_type).unwrap()
 }
 
-/// Prepare a simple dataset with 1 observation and 2 variables.
-fn prepare_dataset2() -> Dataset {
+/// Prepare a simple dataset with 2 variables and 1 observation (of unspecified type).
+fn prepare_dataset_2v_1o() -> Dataset {
     let obs1 = Observation::try_from_str("11", "o1").unwrap();
     let obs_list = vec![obs1];
     let var_names = vec!["v1", "v2"];
@@ -28,13 +28,13 @@ fn prepare_dataset2() -> Dataset {
 #[test]
 /// Test adding and removing dataset via events.
 fn test_add_remove_datasets() {
-    let d1 = prepare_dataset1();
+    let d1 = prepare_dataset_3v_2o();
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let manager_orig = manager.clone();
     assert_eq!(manager.num_datasets(), 1);
 
     // perform dataset add event
-    let d2 = prepare_dataset2();
+    let d2 = prepare_dataset_2v_1o();
     let d2_id = DatasetId::new("d2").unwrap();
     let payload = DatasetData::from_dataset(&d2, &d2_id).to_json_str();
     let full_path = ["observations", "add"];
@@ -58,7 +58,7 @@ fn test_add_remove_datasets() {
 #[test]
 /// Test setting various dataset fields via events.
 fn test_set_dataset_fields() {
-    let d1 = prepare_dataset1();
+    let d1 = prepare_dataset_3v_2o();
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let manager_orig = manager.clone();
 
@@ -80,7 +80,7 @@ fn test_set_dataset_fields() {
     check_reverse(&mut manager, &manager_orig, result, &["d1", "set_category"]);
 
     // 3) event to change dataset's inner "data"
-    let d2 = prepare_dataset2();
+    let d2 = prepare_dataset_2v_1o();
     let d2_id = DatasetId::new("this_doesnt_matter").unwrap();
     let d2_data = DatasetData::from_dataset(&d2, &d2_id);
     let full_path = ["observations", "d1", "set_content"];
@@ -103,7 +103,7 @@ fn test_set_dataset_fields() {
 #[test]
 /// Test pushing/popping observations via events.
 fn test_push_pop_observations() {
-    let d1 = prepare_dataset1();
+    let d1 = prepare_dataset_3v_2o();
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let d1_id = manager.get_dataset_id("d1").unwrap();
     let manager_orig = manager.clone();
@@ -136,7 +136,7 @@ fn test_push_pop_observations() {
 #[test]
 /// Test removing an observation from a dataset via events.
 fn test_remove_observations() {
-    let d1 = prepare_dataset1();
+    let d1 = prepare_dataset_3v_2o();
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let orig_dataset = manager.get_dataset_by_str("d1").unwrap();
     assert_eq!(orig_dataset.num_observations(), 2);
@@ -155,7 +155,7 @@ fn test_remove_observations() {
 #[test]
 /// Test setting various dataset fields via events.
 fn test_set_observation_fields() {
-    let d1 = prepare_dataset1();
+    let d1 = prepare_dataset_3v_2o();
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let d1_id = manager.get_dataset_id("d1").unwrap();
     let manager_orig = manager.clone();
@@ -190,8 +190,8 @@ fn test_set_observation_fields() {
 #[test]
 /// Test all of the refresh (getter) events.
 fn test_refresh() {
-    let d1 = prepare_dataset1();
-    let d2 = prepare_dataset2();
+    let d1 = prepare_dataset_3v_2o();
+    let d2 = prepare_dataset_2v_1o();
     let dataset_list = vec![("d1", d1.clone()), ("d2", d2)];
     let manager = ObservationManager::from_datasets(dataset_list).unwrap();
 

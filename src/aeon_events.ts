@@ -189,6 +189,11 @@ interface AeonState {
     datasetCreated: Observable<DatasetData>
     /** Create a new dataset with given ID, variables, observations, and category. */
     addDataset: (id: string, variables: [string], observations: [ObservationData], category: DataCategory) => void
+    /** DatasetData for a newly loaded dataset (from a csv file).
+     *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
+    datasetLoaded: Observable<DatasetData>
+    /** Load a new dataset from a CSV file. */
+    loadDataset: (path: string) => void
     /** DatasetData of a removed dataset. */
     datasetRemoved: Observable<DatasetData>
     /** Remove dataset with given ID. */
@@ -958,6 +963,7 @@ export const aeonState: AeonState = {
     },
 
     datasetCreated: new Observable<DatasetData>(['observations', 'add']),
+    datasetLoaded: new Observable<DatasetData>(['observations', 'load']),
     datasetRemoved: new Observable<DatasetData>(['observations', 'remove']),
     datasetIdChanged: new Observable<DatasetIdUpdateData>(['observations', 'set_id']),
     datasetCategoryChanged: new Observable<DatasetMetaData>(['observations', 'set_category']),
@@ -978,6 +984,12 @@ export const aeonState: AeonState = {
           observations,
           category
         })
+      })
+    },
+    loadDataset (path: string): void {
+      aeonEvents.emitAction({
+        path: ['observations', 'load'],
+        payload: path
       })
     },
     removeDataset (id: string): void {

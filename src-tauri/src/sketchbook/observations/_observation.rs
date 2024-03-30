@@ -1,6 +1,5 @@
 use crate::sketchbook::ids::ObservationId;
 use crate::sketchbook::observations::_var_value::VarValue;
-use biodivine_lib_param_bn::{Space, VariableId};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -13,14 +12,13 @@ pub struct Observation {
 
 /// Creating observations.
 impl Observation {
-    /// Create `Observation` object from a vector with values and an ID.
-    pub fn new_with_id(values: Vec<VarValue>, id: ObservationId) -> Self {
-        Self { values, id }
-    }
-
-    /// Create `Observation` object from a vector with values, and string ID (which must be valid).
+    /// Create `Observation` object from a vector with values, and string ID (which must be
+    /// a valid identifier).
     pub fn new(values: Vec<VarValue>, id: &str) -> Result<Self, String> {
-        Ok(Self::new_with_id(values, ObservationId::new(id)?))
+        Ok(Self {
+            values,
+            id: ObservationId::new(id)?,
+        })
     }
 
     /// Create `Observation` encoding a vector of `n` ones.
@@ -36,16 +34,6 @@ impl Observation {
     /// Create `Observation` encoding a vector of `n` unspecified values.
     pub fn new_full_unspecified(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::Any; n], id)
-    }
-
-    /// Create `Observation` from a similar [Space] object of the [biodivine_lib_param_bn] library.
-    /// The values of the resulting observation are given in the same order as `var_ids`.
-    pub fn from_space(space: &Space, var_ids: &Vec<VariableId>, id: ObservationId) -> Observation {
-        let mut vec_values = Vec::new();
-        for var_id in var_ids {
-            vec_values.push(VarValue::from(space[*var_id]));
-        }
-        Observation::new_with_id(vec_values, id)
     }
 
     /// Create `Observation` object from string encoding of its (ordered) values.
