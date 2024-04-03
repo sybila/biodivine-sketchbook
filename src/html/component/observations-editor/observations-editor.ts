@@ -2,7 +2,7 @@ import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
-import { ContentData, type IObservation, type IObservationSet } from '../../util/data-interfaces'
+import { ContentData, type IObservation, type IObservationSet, DataCategory } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
@@ -15,7 +15,7 @@ import { functionDebounceTimer } from '../../util/config'
 export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData = ContentData.create()
-  @state() sets: IObservationSet[] = []
+  @state() datasets: IObservationSet[] = []
 
   constructor () {
     super()
@@ -25,11 +25,11 @@ export default class ObservationsEditor extends LitElement {
   private addObservation (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log(detail)
-    const setIndex = this.sets.findIndex(set => set.name === detail.id)
+    const setIndex = this.datasets.findIndex(dataset => dataset.id === detail.id)
     if (setIndex === -1) return
-    this.sets[setIndex].observations.push(this.singleDummy(this.sets[setIndex].observations.length))
-    this.sets = [...this.sets]
-    console.log(this.sets)
+    this.datasets[setIndex].observations.push(this.singleDummy(this.datasets[setIndex].observations.length))
+    this.datasets = [...this.datasets]
+    console.log(this.datasets)
   }
 
   getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
@@ -73,6 +73,8 @@ export default class ObservationsEditor extends LitElement {
     } else {
       fileName = handle
     }
+
+    // TODO: allow proper import in future
     const name = await basename(fileName)
     void this.importObservations(name, this.getDummy(), this.contentData.variables.map(v => v.name))
   }
@@ -97,16 +99,17 @@ export default class ObservationsEditor extends LitElement {
       })
     })
     void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
-      this.sets = this.sets.concat({
-        name,
+      this.datasets = this.datasets.concat({
+        id: name,
         observations: event.payload,
-        variables
+        variables,
+        category: DataCategory.UNSPECIFIED
       })
     })
   }
 
   updateSetName = debounce((name: string, id: number) => {
-    this.sets[id].name = name
+    this.datasets[id].id = name
   }, functionDebounceTimer
   )
 
@@ -120,7 +123,7 @@ export default class ObservationsEditor extends LitElement {
         </div>
         <div class="accordion-body">
           <div class="accordion">
-            ${map(this.sets, (set, index) => html`
+            ${map(this.datasets, (dataset, index) => html`
           <div class="container" id="${'container' + index}">
             <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
               <input 
@@ -132,11 +135,11 @@ export default class ObservationsEditor extends LitElement {
                     (e.target as HTMLInputElement).readOnly = !(e.target as HTMLInputElement).readOnly
                   }}"
                   class="set-name heading uk-input uk-form-blank"
-                  value="${set.name}"/>
+                  value="${dataset.id}"/>
             </div>
             <div class="content">
               <observations-set
-                  .data="${set}">
+                  .data="${dataset}">
               </observations-set>
             </div>
           </div>

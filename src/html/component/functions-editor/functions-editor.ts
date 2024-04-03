@@ -91,15 +91,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private addFunction (): void {
-    /*
-    this.functions.push({
-      id: 'func' + this.index,
-      function: '',
-      variables: []
-    })
-    this.index++
-    this.functions = [...this.functions]
-     */
     aeonState.model.addUninterpretedFn('func' + this.index, 0)
   }
 
@@ -111,15 +102,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private async removeFunction (event: Event): Promise<void> {
-    /*
-    if (!await this.confirmDialog()) return
-    const id = (event as CustomEvent).detail.id
-    const index = this.functions.findIndex(fun => fun.id === id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions.splice(index, 1)
-    this.functions = functions
-     */
     if (!await this.confirmDialog()) return
     const id = (event as CustomEvent).detail.id
     aeonState.model.removeUninterpretedFn(id)
@@ -135,17 +117,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private setFunctionId (event: Event): void {
-    /*
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.oldId)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index] = {
-      ...functions[index],
-      id: detail.newId
-    }
-    this.functions = functions
-     */
     const detail = (event as CustomEvent).detail
     aeonState.model.setUninterpretedFnId(detail.oldId, detail.newId)
   }
@@ -167,20 +138,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private addFunctionVariable (event: Event): void {
-    /*
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables.push({
-      id: detail.index,
-      source: detail.variable,
-      target: functions[index].id,
-      essential: Essentiality.UNKNOWN,
-      monotonicity: Monotonicity.UNSPECIFIED
-    })
-    this.functions = functions
-     */
     const detail = (event as CustomEvent).detail
     aeonState.model.incrementUninterpretedFnArity(detail.id)
   }
@@ -197,17 +154,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private toggleFunctionVariableMonotonicity (event: Event): void {
-    /*
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables[detail.index] = {
-      ...functions[index].variables[detail.index],
-      monotonicity: getNextMonotonicity(functions[index].variables[detail.index].monotonicity)
-    }
-    this.functions = functions
-     */
     const detail = (event as CustomEvent).detail
     const newMonotonicity = getNextMonotonicity(detail.monotonicity)
     aeonState.model.setUninterpretedFnMonotonicity(detail.id, detail.index, newMonotonicity)
@@ -225,17 +171,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private toggleFunctionVariableEssentiality (event: Event): void {
-    /*
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables[detail.index] = {
-      ...functions[index].variables[detail.index],
-      essential: getNextEssentiality(functions[index].variables[detail.index].essential)
-    }
-    this.functions = functions
-     */
     const detail = (event as CustomEvent).detail
     const newEssentiality = getNextEssentiality(detail.essentiality)
     aeonState.model.setUninterpretedFnEssentiality(detail.id, detail.index, newEssentiality)
@@ -269,15 +204,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private async removeFunctionVariable (event: Event): Promise<void> {
-    /*
-    if (!await this.confirmDialog()) return
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables.splice(detail.index, 1)
-    this.functions = functions
-     */
     if (!await this.confirmDialog()) return
     const detail = (event as CustomEvent).detail
     aeonState.model.decrementUninterpretedFnArity(detail.id)

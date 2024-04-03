@@ -82,7 +82,7 @@ export default class ObservationsSet extends LitElement {
             action: () => {
               this.dispatchEvent(new CustomEvent('add-observation', {
                 detail: {
-                  id: this.data.name
+                  id: this.data.id
                 },
                 bubbles: true,
                 composed: true
@@ -108,16 +108,16 @@ export default class ObservationsSet extends LitElement {
     }
   }
 
-  private async editObservation (data: IObservation): Promise<void> {
+  private async editObservation (obs: IObservation): Promise<void> {
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
-    if (this.dialogs[data.id] !== undefined) {
-      await this.dialogs[data.id]?.setFocus()
+    if (this.dialogs[obs.id] !== undefined) {
+      await this.dialogs[obs.id]?.setFocus()
       return
     }
     const renameDialog = new WebviewWindow(`editObservation${Math.floor(Math.random() * 1000000)}`, {
       url: 'src/html/component/observations-editor/edit-observation/edit-observation.html',
-      title: `Edit observation (${data.id} / ${data.name})`,
+      title: `Edit observation (${obs.id} / ${obs.name})`,
       alwaysOnTop: true,
       maximizable: false,
       minimizable: false,
@@ -127,21 +127,21 @@ export default class ObservationsSet extends LitElement {
       x: pos.x + (size.width / 2) - 200,
       y: pos.y + size.height / 4
     })
-    this.dialogs[data.id] = renameDialog
+    this.dialogs[obs.id] = renameDialog
     void renameDialog.once('loaded', () => {
       void renameDialog.emit('edit_observation_update', {
-        ...data
+        ...obs
       })
     })
     void renameDialog.once('edit_observation_dialog', (event: TauriEvent<{ id: string, data: IObservation }>) => {
-      this.dialogs[data.id] = undefined
-      const index = this.data.observations.findIndex(observation => observation.id === data.id)
+      this.dialogs[obs.id] = undefined
+      const index = this.data.observations.findIndex(observation => observation.id === obs.id)
       if (index === -1) return
       void this.tabulator?.updateRow(event.payload.id, event.payload.data)
       console.log(event.payload)
     })
     void renameDialog.onCloseRequested(() => {
-      this.dialogs[data.id] = undefined
+      this.dialogs[obs.id] = undefined
     })
   }
 

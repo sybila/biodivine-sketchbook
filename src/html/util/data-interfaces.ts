@@ -63,7 +63,8 @@ export interface IObservation {
 }
 
 export interface IObservationSet {
-  name: string
+  id: string
   observations: IObservation[]
   variables: string[]
+  category: DataCategory
 }
