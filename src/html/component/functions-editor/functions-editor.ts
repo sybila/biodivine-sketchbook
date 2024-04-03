@@ -22,8 +22,6 @@ export class FunctionsEditor extends LitElement {
     aeonState.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
     this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
     aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
-    this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
-    aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
     this.addEventListener('rename-function-definition', this.setFunctionId)
     aeonState.model.uninterpretedFnIdChanged.addEventListener(this.#onFunctionIdChanged.bind(this))
     this.addEventListener('add-function-variable', this.addFunctionVariable)

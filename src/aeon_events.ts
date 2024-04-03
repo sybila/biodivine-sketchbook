@@ -192,8 +192,8 @@ interface AeonState {
     /** DatasetData for a newly loaded dataset (from a csv file).
      *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
     datasetLoaded: Observable<DatasetData>
-    /** Load a new dataset from a CSV file. */
-    loadDataset: (path: string) => void
+    /** Load a new dataset with a given ID from a CSV file. */
+    loadDataset: (path: string, id: string) => void
     /** DatasetData of a removed dataset. */
     datasetRemoved: Observable<DatasetData>
     /** Remove dataset with given ID. */
@@ -327,6 +327,9 @@ export interface ObservationIdUpdateData { original_id: string, new_id: string, 
 
 /** An object representing information needed for dataset id change. */
 export interface DatasetIdUpdateData { original_id: string, new_id: string }
+
+/** An object representing information needed for loading a dataset. */
+export interface DatasetLoadData { path: string, id: string }
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -991,10 +994,10 @@ export const aeonState: AeonState = {
         })
       })
     },
-    loadDataset (path: string): void {
+    loadDataset (path: string, id: string): void {
       aeonEvents.emitAction({
         path: ['observations', 'load'],
-        payload: path
+        payload: JSON.stringify({ path, id })
       })
     },
     removeDataset (id: string): void {

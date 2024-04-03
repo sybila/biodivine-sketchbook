@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{
-    ChangeIdData, DatasetData, DatasetMetaData, ObservationData,
+    ChangeIdData, DatasetData, DatasetLoadData, DatasetMetaData, ObservationData,
 };
 use crate::sketchbook::event_utils::{make_refresh_event, make_reversible, make_state_change};
 use crate::sketchbook::ids::{DatasetId, ObservationId};
@@ -108,11 +108,12 @@ impl ObservationManager {
     pub(super) fn event_load_dataset(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "observations";
 
-        // get the payload - string encoding a path to a csv file with dataset
-        let file_path = Self::clone_payload_str(event, component_name)?;
+        // get the payload - object with a path to a csv file with dataset, and with ID
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let load_data = DatasetLoadData::from_json_str(&payload)?;
         // load and add the dataset
-        let dataset = Self::load_dataset(&file_path)?;
-        let dataset_id = DatasetId::new(&file_path)?;
+        let dataset = Self::load_dataset(&load_data.path)?;
+        let dataset_id = DatasetId::new(&load_data.id)?;
         let dataset_data = DatasetData::from_dataset(&dataset, &dataset_id);
         self.add_dataset_by_str(&dataset_data.id, dataset)?;
 

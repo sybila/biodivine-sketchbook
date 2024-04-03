@@ -38,13 +38,10 @@ impl ObservationManager {
         Dataset::new_unspecified(observations, variables)
     }
 
-    /// Load a dataset from given CSV file, and add it to this `ObservationManager`. The provided
-    /// path is used as datasets ID.
-    ///
-    /// The header line specifies variables, following lines represent individual observations
-    /// (id and values).
-    pub fn load_and_add_dataset(&mut self, csv_path: &str) -> Result<(), String> {
+    /// Load a dataset from given CSV file, and add it to this `ObservationManager`. The header
+    /// line specifies variables, following lines represent individual observations (id and values).
+    pub fn load_and_add_dataset(&mut self, csv_path: &str, id: &str) -> Result<(), String> {
         let dataset = Self::load_dataset(csv_path)?;
-        self.add_dataset_by_str(csv_path, dataset)
+        self.add_dataset_by_str(id, dataset)
     }
 }
