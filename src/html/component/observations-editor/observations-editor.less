@@ -1,5 +1,13 @@
 @import '/src/uikit-theme';
 
+.set-name {
+  &:read-only {
+    background-color: transparent;
+    border: none;
+  }
+}
+
+
 .accordion {
   .container {
     position: relative;
@@ -78,6 +86,12 @@
 @media (prefers-color-scheme: dark) {
   .heading {
     color: white;
+  }
+
+  .set-name {
+    &:read-only {
+      color: white;
+    }
   }
 
 }

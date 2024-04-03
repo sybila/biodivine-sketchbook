@@ -2,9 +2,9 @@ import {
   AjaxModule,
   type ColumnDefinition,
   EditModule,
-  FilterModule, FormatModule, InteractionModule,
+  FilterModule, FormatModule, InteractionModule, MenuModule,
   type Options,
-  PageModule, SelectRowModule,
+  PageModule, ResizeColumnsModule, SelectRowModule,
   SortModule,
   Tabulator
 } from 'tabulator-tables'
@@ -13,11 +13,25 @@ export const dataCell = (field: string): ColumnDefinition => {
   return {
     title: field,
     field,
-    editor: 'textarea',
+    editor: 'number',
     sorter: 'number',
     headerFilter: 'tickCross',
     hozAlign: 'center',
-    headerFilterParams: { tristate: true }
+    headerFilterParams: { tristate: true },
+    headerMenu: [
+      {
+        label: 'Hide Column',
+        action: function (_, column) {
+          column.hide()
+        }
+      },
+      {
+        label: 'Delete Column',
+        action: function (_, column) {
+          void column.delete()
+        }
+      }
+    ]
   }
 }
 
@@ -33,12 +47,13 @@ export const nameColumn: ColumnDefinition = {
   field: 'name',
   width: 100,
   sorter: 'string',
-  headerFilter: 'input'
+  headerFilter: 'input',
+  editor: 'textarea'
 }
 
 export const tabulatorOptions: Options = {
-  layout: 'fitDataTable',
-  responsiveLayout: false,
+  layout: 'fitData',
+  resizableColumnFit: true,
   pagination: true,
   renderVerticalBuffer: 300,
   sortMode: 'local',
@@ -46,7 +61,15 @@ export const tabulatorOptions: Options = {
   headerSort: true,
   index: 'id',
   paginationSize: 20,
-  selectable: 'highlight'
+  paginationSizeSelector: true,
+  rowContextMenu: [
+    {
+      label: 'Delete Row',
+      action: function (_, row) {
+        void row.delete()
+      }
+    }
+  ]
 }
 
 export const loadTabulatorPlugins = (): void => {
@@ -58,4 +81,6 @@ export const loadTabulatorPlugins = (): void => {
   Tabulator.registerModule(FormatModule)
   Tabulator.registerModule(InteractionModule)
   Tabulator.registerModule(AjaxModule)
+  Tabulator.registerModule(MenuModule)
+  Tabulator.registerModule(ResizeColumnsModule)
 }

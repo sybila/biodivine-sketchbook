@@ -1,4 +1,4 @@
-import { css, LitElement, type PropertyValues, unsafeCSS } from 'lit'
+import { css, LitElement, unsafeCSS } from 'lit'
 import { property, query, state } from 'lit/decorators.js'
 import style_less from './editor-tile.less?inline'
 import { Essentiality, type IFunctionData, type IRegulationData, Monotonicity } from '../../../util/data-interfaces'
@@ -50,10 +50,6 @@ export abstract class EditorTile extends LitElement {
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': objectList.map(v => v.id).join('|') })
     this.aceEditor.renderer.attachToShadowRoot()
-  }
-
-  protected updated (_changedProperties: PropertyValues): void {
-    super.updated(_changedProperties)
   }
 
   protected updateEditor (name: string, func: string): void {

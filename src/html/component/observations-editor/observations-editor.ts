@@ -1,13 +1,15 @@
-import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
-import { ContentData, type IObservation } from '../../util/data-interfaces'
+import { ContentData, type IObservation, type IObservationSet } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { basename } from '@tauri-apps/api/path'
+import { debounce } from 'lodash'
+import { functionDebounceTimer } from '../../util/config'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -15,16 +17,35 @@ export default class ObservationsEditor extends LitElement {
   @property() contentData = ContentData.create()
   @state() sets: IObservationSet[] = []
 
-  getDummy = (): IObservation[] => Array(100001).fill(0).map((_, index) => {
+  constructor () {
+    super()
+    this.addEventListener('add-observation', this.addObservation)
+  }
+
+  private addObservation (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log(detail)
+    const setIndex = this.sets.findIndex(set => set.name === detail.id)
+    if (setIndex === -1) return
+    this.sets[setIndex].observations.push(this.singleDummy(this.sets[setIndex].observations.length))
+    this.sets = [...this.sets]
+    console.log(this.sets)
+  }
+
+  getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
+    return this.singleDummy(index)
+  })
+
+  private singleDummy (index: number): IObservation {
     const ret: IObservation = {
-      id: 'obs' + String(index).padStart(4, '0'),
+      id: String(index).padStart(4, '0'),
       name: 'obs' + String(index).padStart(4, '0')
     }
     this.contentData.variables.forEach(v => {
       ret[v.name] = Math.round(Math.random())
     })
     return ret
-  })
+  }
 
   private async import (): Promise<void> {
     const handle = await dialog.open({
@@ -76,14 +97,18 @@ export default class ObservationsEditor extends LitElement {
       })
     })
     void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
-      console.log(event.payload)
       this.sets = this.sets.concat({
         name,
-        data: event.payload,
+        observations: event.payload,
         variables
       })
     })
   }
+
+  updateSetName = debounce((name: string, id: number) => {
+    this.sets[id].name = name
+  }, functionDebounceTimer
+  )
 
   render (): TemplateResult {
     return html`
@@ -98,12 +123,20 @@ export default class ObservationsEditor extends LitElement {
             ${map(this.sets, (set, index) => html`
           <div class="container" id="${'container' + index}">
             <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
-              ${set.name}
+              <input 
+                  @input="${(e: InputEvent) => {
+                    this.updateSetName((e.target as HTMLInputElement).value, index)
+                  }}"
+                  ?readonly="${true}"
+                  @dblclick="${(e: InputEvent) => {
+                    (e.target as HTMLInputElement).readOnly = !(e.target as HTMLInputElement).readOnly
+                  }}"
+                  class="set-name heading uk-input uk-form-blank"
+                  value="${set.name}"/>
             </div>
             <div class="content">
               <observations-set
-                  .data="${set.data}"
-                  .variables="${set.variables}">
+                  .data="${set}">
               </observations-set>
             </div>
           </div>
@@ -115,10 +148,4 @@ export default class ObservationsEditor extends LitElement {
       
     `
   }
-}
-
-interface IObservationSet {
-  name: string
-  data: IObservation[]
-  variables: string[]
 }
