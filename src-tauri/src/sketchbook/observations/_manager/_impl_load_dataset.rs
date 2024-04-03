@@ -10,6 +10,7 @@ impl ObservationManager {
     ///    ID,YOX1,CLN3,YHP1,ACE2,SWI5,MBF
     ///    Observation1,0,1,0,1,0,1
     ///    Observation2,1,0,*,1,0,*
+    ///
     pub fn load_dataset(csv_path: &str) -> Result<Dataset, String> {
         let csv_file = File::open(csv_path).map_err(|e| e.to_string())?;
         let mut rdr = csv::Reader::from_reader(csv_file);
@@ -37,8 +38,8 @@ impl ObservationManager {
         Dataset::new_unspecified(observations, variables)
     }
 
-    /// Load a dataset from given CSV file, and add it to this `ObservationManager`. The file name
-    /// is used as datasets ID.
+    /// Load a dataset from given CSV file, and add it to this `ObservationManager`. The provided
+    /// path is used as datasets ID.
     ///
     /// The header line specifies variables, following lines represent individual observations
     /// (id and values).

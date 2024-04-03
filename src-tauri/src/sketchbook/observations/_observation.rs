@@ -102,6 +102,24 @@ impl Observation {
         self.set_id(obs_id);
         Ok(())
     }
+
+    /// Remove value on given `index`, decrementing the dimension of the observation.
+    pub fn remove_nth_value(&mut self, index: usize) -> Result<(), String> {
+        if index >= self.num_values() {
+            return Err("Index is larger than number of values.".to_string());
+        }
+        self.values.remove(index);
+        Ok(())
+    }
+
+    /// Insert value on given `index`, incrementing the dimension of the observation.
+    pub fn add_value(&mut self, index: usize, value: VarValue) -> Result<(), String> {
+        if index > self.num_values() {
+            return Err("Index is larger than number of values.".to_string());
+        }
+        self.values.insert(index, value);
+        Ok(())
+    }
 }
 
 /// Observing `Observation` instances.
@@ -239,6 +257,17 @@ mod tests {
 
         obs.set_all_values_by_str("111111").unwrap();
         assert_eq!(obs.to_values_string().as_str(), "111111");
+    }
+
+    #[test]
+    /// Test inserting and removing values.
+    fn test_insert_remove_value() {
+        let mut observation = Observation::try_from_str("001**", "id1").unwrap();
+        observation.add_value(1, VarValue::True).unwrap();
+        assert_eq!(observation.to_values_string(), "0101**");
+
+        observation.remove_nth_value(3).unwrap();
+        assert_eq!(observation.to_values_string(), "010**");
     }
 
     #[test]

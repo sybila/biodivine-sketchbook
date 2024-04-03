@@ -127,6 +127,46 @@ impl Dataset {
         Ok(())
     }
 
+    /// Remove variable and all the values corresponding to it (decrementing dimension of the
+    /// dataset in process).
+    pub fn remove_var(&mut self, var_id: &VarId) -> Result<(), String> {
+        let idx = self.get_idx_of_var(var_id)?; // validity check inside
+        self.variables.remove(idx);
+        for obs in self.observations.iter_mut() {
+            obs.remove_nth_value(idx)?;
+        }
+        Ok(())
+    }
+
+    /// Remove variable and all the values corresponding to it (decrementing dimension of the
+    /// dataset in process).
+    pub fn remove_var_by_str(&mut self, id: &str) -> Result<(), String> {
+        let var_id = VarId::new(id)?;
+        self.remove_var(&var_id)
+    }
+
+    /// Add variable to a specific index, and fill its values in all observations with "*"
+    /// placeholders.
+    pub fn add_var_default(&mut self, var_id: VarId, index: usize) -> Result<(), String> {
+        self.assert_no_variable(&var_id)?;
+        if index > self.num_observations() {
+            return Err("Index is larger than number of observations.".to_string());
+        }
+
+        self.variables.insert(index, var_id);
+        for obs in self.observations.iter_mut() {
+            obs.add_value(index, VarValue::Any)?;
+        }
+        Ok(())
+    }
+
+    /// Add variable to a specific index, and fill its values in all observations with "*"
+    /// placeholders.
+    pub fn add_var_default_by_str(&mut self, id: &str, index: usize) -> Result<(), String> {
+        let var_id = VarId::new(id)?;
+        self.add_var_default(var_id, index)
+    }
+
     /// Swap value vector for an observation with given ID.
     /// The new vector of values must be of the same length as the original.
     pub fn swap_observation_data(
@@ -261,11 +301,21 @@ impl Dataset {
     }
 
     /// Variable on given index.
-    pub fn get_variable_on_idx(&self, index: usize) -> Result<&VarId, String> {
+    pub fn get_var_on_idx(&self, index: usize) -> Result<&VarId, String> {
         if index >= self.num_variables() {
             return Err("Index is larger than number of variables.".to_string());
         }
         Ok(&self.variables[index])
+    }
+
+    /// Index of given variable.
+    pub fn get_idx_of_var(&self, var_id: &VarId) -> Result<usize, String> {
+        self.variables
+            .iter()
+            .position(|v| v == var_id)
+            .ok_or(format!(
+                "Variable with id {var_id} does not exist in this dataset."
+            ))
     }
 
     /// Category of the data.
@@ -454,10 +504,44 @@ mod tests {
 
         // valid case
         dataset.set_var_id_by_str("a", "a2").unwrap();
-        assert_eq!(dataset.get_variable_on_idx(0).unwrap().as_str(), "a2");
+        assert_eq!(dataset.get_var_on_idx(0).unwrap().as_str(), "a2");
 
         // invalid case, ID already in use
         assert!(dataset.set_obs_id_by_str("p", "o2").is_err());
+    }
+
+    #[test]
+    /// Test removing variable from a dataset.
+    fn test_remove_variable() {
+        let obs1 = Observation::try_from_str("*1", "o").unwrap();
+        let obs2 = Observation::try_from_str("00", "p").unwrap();
+        let data_type = DataCategory::Attractor;
+        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"], data_type).unwrap();
+        dataset.remove_var_by_str("a").unwrap();
+
+        let obs1_expected = Observation::try_from_str("1", "o").unwrap();
+        let obs2_expected = Observation::try_from_str("0", "p").unwrap();
+        let obs_expected = vec![obs1_expected, obs2_expected];
+        let dataset_expected = Dataset::new(obs_expected, vec!["b"], data_type).unwrap();
+
+        assert_eq!(dataset, dataset_expected);
+    }
+
+    #[test]
+    /// Test adding variable with default values to a dataset.
+    fn test_add_variable_default() {
+        let obs1 = Observation::try_from_str("1", "o").unwrap();
+        let obs2 = Observation::try_from_str("0", "p").unwrap();
+        let data_type = DataCategory::Attractor;
+        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["b"], data_type).unwrap();
+        dataset.add_var_default_by_str("a", 0).unwrap();
+
+        let obs1_expected = Observation::try_from_str("*1", "o").unwrap();
+        let obs2_expected = Observation::try_from_str("*0", "p").unwrap();
+        let obs_expected = vec![obs1_expected, obs2_expected];
+        let dataset_expected = Dataset::new(obs_expected, vec!["a", "b"], data_type).unwrap();
+
+        assert_eq!(dataset, dataset_expected);
     }
 
     #[test]

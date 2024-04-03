@@ -210,6 +210,10 @@ interface AeonState {
     datasetVariableChanged: Observable<DatasetMetaData>
     /** Set variable's ID within a specified dataset. */
     setDatasetVariable: (datasetId: string, originalId: string, newId: string) => void
+    /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
+    datasetVariableRemoved: Observable<DatasetMetaData>
+    /** Remove variable from a specified dataset (removing "a column" of a dataset's table). */
+    removeDatasetVariable: (datasetId: string, varId: string) => void
 
     /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
     observationPushed: Observable<ObservationData>
@@ -968,6 +972,7 @@ export const aeonState: AeonState = {
     datasetIdChanged: new Observable<DatasetIdUpdateData>(['observations', 'set_id']),
     datasetCategoryChanged: new Observable<DatasetMetaData>(['observations', 'set_category']),
     datasetVariableChanged: new Observable<DatasetMetaData>(['observations', 'set_var_id']),
+    datasetVariableRemoved: new Observable<DatasetMetaData>(['observations', 'remove_var']),
 
     observationPushed: new Observable<ObservationData>(['observations', 'push_obs']),
     observationPopped: new Observable<ObservationData>(['observations', 'pop_obs']),
@@ -1014,6 +1019,12 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['observations', datasetId, 'set_variable'],
         payload: JSON.stringify({ original_id: originalId, new_id: newId })
+      })
+    },
+    removeDatasetVariable (datasetId: string, varId: string): void {
+      aeonEvents.emitAction({
+        path: ['observations', datasetId, 'remove_var'],
+        payload: varId
       })
     },
     pushObservation (observation: ObservationData, datasetId: string): void {

@@ -191,6 +191,22 @@ impl ObservationManager {
             let reverse_event =
                 Event::build(&reverse_event_path, Some(&orig_dataset_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("remove_var", at_path).is_some() {
+            // get the payload - string encoding a new dataset data
+            let var_id_str = Self::clone_payload_str(event, component_name)?;
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.remove_var_by_str(dataset_id.as_str(), var_id_str.as_str())?;
+            let new_dataset = self.get_dataset(&dataset_id)?;
+            let new_dataset_data = DatasetData::from_dataset(new_dataset, &dataset_id);
+            let state_change =
+                make_state_change(&["observations", "remove_var"], &new_dataset_data);
+
+            // TODO: make this potentially reversible?
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: true,
+            })
         } else if Self::starts_with("set_category", at_path).is_some() {
             // get the payload - string for data type
             let payload = Self::clone_payload_str(event, component_name)?;

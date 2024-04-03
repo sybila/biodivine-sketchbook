@@ -143,6 +143,24 @@ impl ObservationManager {
         self.set_var_id(&dataset_id, &original_id, new_id)
     }
 
+    /// Remove variable and all the values corresponding to it from a dataset (decrementing
+    /// dimension of the dataset in process).
+    pub fn remove_var(&mut self, dataset_id: &DatasetId, var_id: &VarId) -> Result<(), String> {
+        self.assert_valid_dataset(dataset_id)?;
+        self.datasets
+            .get_mut(dataset_id)
+            .unwrap()
+            .remove_var(var_id)
+    }
+
+    /// Remove variable and all the values corresponding to it from a dataset (decrementing
+    /// dimension of the dataset in process).
+    pub fn remove_var_by_str(&mut self, dataset_id: &str, id: &str) -> Result<(), String> {
+        let dataset_id = DatasetId::new(dataset_id)?;
+        let var_id = VarId::new(id)?;
+        self.remove_var(&dataset_id, &var_id)
+    }
+
     /// Set the category of data for this dataset.
     pub fn set_category(
         &mut self,
