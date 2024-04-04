@@ -20,7 +20,8 @@ export default class ObservationsEditor extends LitElement {
   constructor () {
     super()
     this.addEventListener('add-observation', this.addObservation)
-    this.addEventListener('observation-edited', this.updateObservation)
+    this.addEventListener('edit-observation', this.updateObservation)
+    this.addEventListener('remove-observation', this.removeObservation)
   }
 
   private addObservation (event: Event): void {
@@ -31,7 +32,7 @@ export default class ObservationsEditor extends LitElement {
     this.sets = [...this.sets]
   }
 
-  getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
+  getDummy = (): IObservation[] => Array(100).fill(0).map((_, index) => {
     return this.singleDummy(index)
   })
 
@@ -111,13 +112,19 @@ export default class ObservationsEditor extends LitElement {
 
   private updateObservation (event: Event): void {
     const detail = (event as CustomEvent).detail
-    const setIndex = this.sets.findIndex(set => set.name === detail.id)
-    if (setIndex === -1) return
-    const set = { ...this.sets[setIndex] }
+    const set = { ...this.sets[detail.id] }
     const obsIndex = set.observations.findIndex(obs => obs.id === detail.obsID)
     if (obsIndex === -1) return
     set.observations[obsIndex] = detail.data
-    this.saveSets(setIndex, set)
+    console.log(detail)
+    this.saveSets(detail.id, set)
+  }
+
+  private removeObservation (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const set = { ...this.sets[detail.id] }
+    set.observations = set.observations.filter(obs => obs.id !== detail.obsID)
+    this.saveSets(detail.id, set)
   }
 
   saveSets (index: number, set: IObservationSet): void {
@@ -152,6 +159,7 @@ export default class ObservationsEditor extends LitElement {
             </div>
             <div class="content">
               <observations-set
+                  .index="${index}"
                   .data="${set}">
               </observations-set>
             </div>

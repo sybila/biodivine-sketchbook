@@ -12,6 +12,7 @@ import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOp
 export default class ObservationsSet extends LitElement {
   static styles = [css`${unsafeCSS(style_less)}`, css`${unsafeCSS(style_tab)}`]
   @property() declare data: IObservationSet
+  @property() index: number = -1
   @query('#table-wrapper') table: HTMLElement | undefined
   tabulator: Tabulator | undefined
 
@@ -25,17 +26,15 @@ export default class ObservationsSet extends LitElement {
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
     super.firstUpdated(_changedProperties)
     await this.init()
-    this.tabulator?.redraw(true)
     this.tabulator?.on('cellEdited', (cell) => {
-      const row = cell.getRow().getData() as IObservation
-      this.observationEdited(row.id, row)
+      const row = cell.getRow()
+      this.observationEdited(row.getIndex(), row.getData() as IObservation)
     })
   }
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    void this.tabulator?.updateOrAddData(this.data.observations)
-    this.tabulator?.redraw()
+    void this.tabulator?.setData(this.data.observations)
   }
 
   private async init (): Promise<void> {
@@ -55,8 +54,9 @@ export default class ObservationsSet extends LitElement {
       width: 70,
       headerSort: false,
       hozAlign: 'center',
-      cellClick: (_e: UIEvent, _cell: CellComponent) => {
-        void this.editObservation(_cell.getData() as IObservation)
+      cellClick: (_e: UIEvent, cell: CellComponent) => {
+        const row = cell.getRow()
+        void this.editObservation(row.getIndex(), row.getData() as IObservation)
       }
     })
     // delete button
@@ -68,9 +68,8 @@ export default class ObservationsSet extends LitElement {
       width: 80,
       headerSort: false,
       hozAlign: 'center',
-      cellClick: (_e: UIEvent, _cell: CellComponent) => {
-        // todo: send through backend
-        void _cell.getRow().delete()
+      cellClick: (_e: UIEvent, cell: CellComponent) => {
+        this.observationRemoved(cell.getRow().getIndex())
       }
     })
     if (this.table !== undefined) {
@@ -96,13 +95,13 @@ export default class ObservationsSet extends LitElement {
           {
             label: 'Edit Row',
             action: (_, row) => {
-              void this.editObservation(row.getData() as IObservation)
+              void this.editObservation(row.getIndex(), row.getData() as IObservation)
             }
           },
           {
             label: 'Delete Row',
-            action: function (_, row) {
-              void row.delete()
+            action: (_, row) => {
+              this.observationRemoved(row.getIndex())
             }
           }
         ]
@@ -117,11 +116,11 @@ export default class ObservationsSet extends LitElement {
     }
   }
 
-  private observationEdited (id: string, data: IObservation): void {
-    this.dispatchEvent(new CustomEvent('observation-edited', {
+  private observationEdited (obsID: string, data: IObservation): void {
+    this.dispatchEvent(new CustomEvent('edit-observation', {
       detail: {
-        id: this.data.name,
-        obsID: id,
+        id: this.index,
+        obsID,
         data
       },
       bubbles: true,
@@ -129,7 +128,18 @@ export default class ObservationsSet extends LitElement {
     }))
   }
 
-  private async editObservation (data: IObservation): Promise<void> {
+  private observationRemoved (obsID: string): void {
+    this.dispatchEvent(new CustomEvent('remove-observation', {
+      detail: {
+        id: this.index,
+        obsID
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private async editObservation (obsID: string, data: IObservation): Promise<void> {
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[data.id] !== undefined) {
@@ -156,7 +166,7 @@ export default class ObservationsSet extends LitElement {
     })
     void renameDialog.once('edit_observation_dialog', (event: TauriEvent<{ id: string, data: IObservation }>) => {
       this.dialogs[data.id] = undefined
-      this.observationEdited(data.id, event.payload.data)
+      this.observationEdited(obsID, event.payload.data)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[data.id] = undefined
