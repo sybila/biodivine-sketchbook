@@ -1,94 +1,47 @@
 use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::model::ModelState;
-use std::str::FromStr;
+use crate::sketchbook::Manager;
 
 /// Methods for safely generating valid instances of identifiers for the current `ModelState`.
 impl ModelState {
     /// Generate valid `VarId` that's currently not used by any variable in this `ModelState`.
     ///
-    /// First, the variable's name or its transformation by replacing invalid characters are tried.
+    /// First, the given `ideal_id` or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
     ///
     /// **Warning:** Do not use this to pre-generate more than one id at a time, as the process
     /// is deterministic and might generate the same IDs. Always generate an Id, add that variable to
     /// the model, and then repeat for other variables.
-    pub fn generate_var_id(&self, var_name: &str) -> VarId {
-        self.generate_id(var_name, &(Self::is_valid_var_id), self.num_vars())
+    pub fn generate_var_id(&self, ideal_id: &str) -> VarId {
+        self.generate_id(ideal_id, &(Self::is_valid_var_id), self.num_vars())
     }
 
     /// Generate valid `LayoutId` that's currently not used by layouts in this `ModelState`.
     ///
-    /// First, the variable's name or its transformation by replacing invalid characters are tried.
+    /// First, the given `ideal_id` or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
     ///
     /// **Warning:** Do not use this to pre-generate more than one id at a time, as the process
     /// is deterministic and might generate the same IDs. Always generate an Id, add that layout to
     /// the model, and then repeat for other layouts.
-    pub fn generate_layout_id(&self, layout_name: &str) -> LayoutId {
-        self.generate_id(layout_name, &(Self::is_valid_layout_id), self.num_layouts())
+    pub fn generate_layout_id(&self, ideal_id: &str) -> LayoutId {
+        self.generate_id(ideal_id, &(Self::is_valid_layout_id), self.num_layouts())
     }
 
     /// Generate valid `UninterpretedFnId` that's currently not used by uninterpreted_fns in this `ModelState`.
     ///
-    /// First, the uninterpreted fn's name or its transformation by replacing invalid characters are tried.
+    /// First, the given `ideal_id` or its transformation by replacing invalid characters are tried.
     /// If they are both invalid (non-unique), a numerical identifier is added at the end.
     ///
     /// **Warning:** Do not use this to pre-generate more than one id at a time, as the process
     /// is deterministic and might generate the same IDs. Always generate an Id, add that fn to
     /// the model, and then repeat for other fns.
-    pub fn generate_uninterpreted_fn_id(&self, fn_name: &str) -> UninterpretedFnId {
+    pub fn generate_uninterpreted_fn_id(&self, ideal_id: &str) -> UninterpretedFnId {
         self.generate_id(
-            fn_name,
+            ideal_id,
             &(Self::is_valid_uninterpreted_fn_id),
             self.num_uninterpreted_fns(),
         )
-    }
-
-    /// Generate an ID of type `T` for a component of a `model` (e.g., generate a `VariableId`
-    /// for a `Variable`), given the component's name, a method to check if a generated id is
-    /// taken, and maximum index that the object can take (e.g., for a variable use total number
-    /// of variables in the model).
-    fn generate_id<T>(&self, name: &str, is_taken: &dyn Fn(&Self, &T) -> bool, max_idx: usize) -> T
-    where
-        T: FromStr,
-        <T as FromStr>::Err: std::fmt::Debug,
-    {
-        // first try to generate the id using the given name
-        if let Ok(id) = T::from_str(name) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !is_taken(self, &id) {
-                return id;
-            }
-        }
-
-        // try to transform the name by removing invalid characters
-        let mut transformed_name: String = name
-            .chars()
-            .filter(|ch| ch.is_alphanumeric() || *ch == '_')
-            .collect();
-        // and if the first character is not a letter, add prefix 'v_'
-        if transformed_name.starts_with(|ch: char| !ch.is_alphabetic()) {
-            transformed_name.insert_str(0, "v_");
-        }
-
-        if let Ok(id) = T::from_str(transformed_name.as_str()) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !is_taken(self, &id) {
-                return id;
-            }
-        }
-
-        // finally, append a number after the name
-        // start searching at 0, until we try `max_idx` options
-        for n in 0..max_idx {
-            let id = T::from_str(format!("{}_{}", transformed_name, n).as_str()).unwrap();
-            if !is_taken(self, &id) {
-                return id;
-            }
-        }
-
-        // this must be valid, we already tried more than `max_idx` options
-        T::from_str(format!("{}_{}", transformed_name, max_idx).as_str()).unwrap()
     }
 }
 

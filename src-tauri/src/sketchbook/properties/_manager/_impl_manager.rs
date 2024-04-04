@@ -31,3 +31,16 @@ impl PropertyManager {
         Ok(manager)
     }
 }
+
+/// Observing the `PropertyManager`.
+impl PropertyManager {
+    /// The number of properties in this `PropertyManager`.
+    pub fn num_properties(&self) -> usize {
+        self.properties.len()
+    }
+
+    /// Check if there is a property with given Id.
+    pub fn is_valid_property_id(&self, id: &PropertyId) -> bool {
+        self.properties.contains_key(id)
+    }
+}

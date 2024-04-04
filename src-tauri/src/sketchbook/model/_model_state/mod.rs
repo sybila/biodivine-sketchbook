@@ -1,7 +1,7 @@
 use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::layout::Layout;
 use crate::sketchbook::model::{Regulation, UninterpretedFn, UpdateFn, Variable};
-use crate::sketchbook::JsonSerde;
+use crate::sketchbook::{JsonSerde, Manager};
 use std::collections::{HashMap, HashSet};
 
 /// **(internal)** Methods for converting between `ModelState` and `BooleanNetwork`.
@@ -35,6 +35,7 @@ pub struct ModelState {
 }
 
 impl<'de> JsonSerde<'de> for ModelState {}
+impl Manager for ModelState {}
 
 impl Default for ModelState {
     /// Default model object with no Variables, Uninterpreted Functions, or Regulations yet.

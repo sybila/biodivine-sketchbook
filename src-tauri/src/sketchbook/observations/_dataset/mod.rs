@@ -1,12 +1,14 @@
 use crate::sketchbook::ids::{ObservationId, VarId};
 use crate::sketchbook::observations::{DataCategory, Observation};
-use crate::sketchbook::JsonSerde;
+use crate::sketchbook::{JsonSerde, Manager};
 use std::collections::HashMap;
 
 /// **(internal)** Basic utility methods for `Dataset`.
 mod _impl_dataset;
 /// **(internal)** Implementation of partial event-based API to manipulate observations.
 mod _impl_events;
+/// **(internal)** Implementation of the safe identifier generating.
+mod _impl_id_generating;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `Dataset`.
 mod _impl_serde;
 
@@ -29,3 +31,7 @@ pub struct Dataset {
 }
 
 impl<'de> JsonSerde<'de> for Dataset {}
+
+// We give `Manager` trait to Dataset as it simplifies many things.
+// It really behaves like a manager class, but is slightly different than the other ones.
+impl Manager for Dataset {}

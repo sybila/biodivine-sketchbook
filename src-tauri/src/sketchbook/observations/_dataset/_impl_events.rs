@@ -4,7 +4,7 @@ use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{ChangeIdData, ObservationData};
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::ids::{DatasetId, ObservationId};
-use crate::sketchbook::observations::Dataset;
+use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for Dataset {}
@@ -30,13 +30,31 @@ impl Dataset {
         // prepare the state-change variant (remove IDs from the path)
         let state_change_path = ["observations", "push_obs"];
         let state_change = make_state_change(&state_change_path, &observation_data);
-        // prepare the reverse event (which is a remove event)
-        let reverse_path = [
-            "observations",
-            &dataset_id.as_str(),
-            &observation_data.id,
-            "pop_obs",
-        ];
+        // prepare the reverse event (which is a pop event)
+        let reverse_path = ["observations", &dataset_id.as_str(), "pop_obs"];
+        let reverse_event = Event::build(&reverse_path, None);
+        Ok(make_reversible(state_change, event, reverse_event))
+    }
+
+    /// Perform event of adding a completely new "empty" `observation` to the end of this `Dataset`.
+    ///
+    /// All its values are `unspecified` and its Id is generated.
+    pub(in crate::sketchbook::observations) fn event_push_empty_observation(
+        &mut self,
+        event: &Event,
+        dataset_id: DatasetId,
+    ) -> Result<Consumed, DynError> {
+        // get payload components and perform the action
+        let id = self.generate_obs_id(&format!("new_observation_{}", self.num_observations()));
+        let observation = Observation::new_full_unspecified(self.num_variables(), id.as_str())?;
+        let observation_data = ObservationData::from_obs(&observation, &dataset_id);
+        self.push_observation(observation)?;
+
+        // prepare the state-change variant - classical push_obs event
+        let state_change_path = ["observations", "push_obs"];
+        let state_change = make_state_change(&state_change_path, &observation_data);
+        // prepare the reverse event (which is a pop event)
+        let reverse_path = ["observations", &dataset_id.as_str(), "pop_obs"];
         let reverse_event = Event::build(&reverse_path, None);
         Ok(make_reversible(state_change, event, reverse_event))
     }

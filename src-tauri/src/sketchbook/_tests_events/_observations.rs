@@ -123,6 +123,21 @@ fn test_push_pop_observations() {
     assert_eq!(pushed_obs, &new_obs);
     check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
 
+    // push empty observation
+    let full_path = ["observations", "d1", "push_empty_obs"];
+    let event = Event::build(&full_path, None);
+    let result = manager.perform_event(&event, &full_path[1..]).unwrap();
+    // check observation was added, test reverse action
+    let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
+    let obs_id = modified_dataset.get_observation_id(2);
+    let expected_obs =
+        Observation::new_full_unspecified(modified_dataset.num_variables(), obs_id.as_str())
+            .unwrap();
+    let pushed_obs = manager.get_observation(&d1_id, obs_id).unwrap();
+    assert_eq!(modified_dataset.num_observations(), 3);
+    assert_eq!(pushed_obs, &expected_obs);
+    check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
+
     // perform observation pop event
     let full_path = ["observations", "d1", "pop_obs"];
     let event = Event::build(&full_path, None);

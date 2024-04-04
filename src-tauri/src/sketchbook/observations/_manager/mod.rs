@@ -1,10 +1,12 @@
 use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::JsonSerde;
+use crate::sketchbook::{JsonSerde, Manager};
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
+/// **(internal)** Implementation of the safe identifier generating.
+mod _impl_id_generating;
 /// **(internal)** Functionality for loading datasets from file.
 mod _impl_load_dataset;
 /// **(internal)** Basic utility methods for `ObservationManager`.
@@ -24,6 +26,8 @@ pub struct ObservationManager {
 }
 
 impl<'de> JsonSerde<'de> for ObservationManager {}
+
+impl Manager for ObservationManager {}
 
 impl Default for ObservationManager {
     /// Default manager instance with no datasets.

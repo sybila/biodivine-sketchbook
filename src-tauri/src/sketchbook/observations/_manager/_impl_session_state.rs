@@ -253,22 +253,30 @@ impl ObservationManager {
                 Event::build(&reverse_event_path, Some(&reverse_data.to_json_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("push_obs", at_path).is_some() {
-            // Adding observation to the end of a particular dataset
+            // Adding particular observation to the end of a specific dataset
             // This is handled by the `Dataset` itself
 
             // the ID is valid (checked before), we can unwrap
             let dataset = self.datasets.get_mut(&dataset_id).unwrap();
             dataset.event_push_observation(event, dataset_id)
+        } else if Self::starts_with("push_empty_obs", at_path).is_some() {
+            // Adding new empty observation to the end of a specific dataset
+            // This is handled by the `Dataset` itself
+
+            // the ID is valid (checked before), we can unwrap
+            let dataset = self.datasets.get_mut(&dataset_id).unwrap();
+            dataset.event_push_empty_observation(event, dataset_id)
         } else if Self::starts_with("pop_obs", at_path).is_some() {
-            // Removing last observation from the end of a particular dataset
+            // Removing last observation from the end of a specific dataset
             // This is handled by the `Dataset` itself
 
             // the ID is valid (checked before), we can unwrap
             let dataset = self.datasets.get_mut(&dataset_id).unwrap();
             dataset.event_pop_observation(event, dataset_id)
         } else {
-            // Finally, this must be a modification of a particular observation
+            // Finally, remaining events must be some kind of modification of a specific observation
             // The `at_path` must be ["observation_id", <ACTION>]
+
             // We just extract the particular ID and let the `Dataset` handle it itself
             Self::assert_path_length(at_path, 2, component_name)?;
             let observation_id_str = at_path[0];

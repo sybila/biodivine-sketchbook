@@ -20,6 +20,8 @@ export default class ObservationsSet extends LitElement {
   constructor () {
     super()
     loadTabulatorPlugins()
+
+    // todo: add events properly
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
@@ -80,7 +82,7 @@ export default class ObservationsSet extends LitElement {
           {
             label: 'Add Row',
             action: () => {
-              this.dispatchEvent(new CustomEvent('add-observation', {
+              this.dispatchEvent(new CustomEvent('push-new-observation', {
                 detail: {
                   id: this.data.id
                 },

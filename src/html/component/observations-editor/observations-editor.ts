@@ -9,7 +9,7 @@ import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../util/config'
-import { aeonState, type DatasetData, type DatasetIdUpdateData } from '../../../aeon_events'
+import { aeonState, type DatasetData, type DatasetIdUpdateData, type ObservationData } from '../../../aeon_events'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -20,10 +20,11 @@ export default class ObservationsEditor extends LitElement {
 
   constructor () {
     super()
-    this.addEventListener('add-observation', this.addObservation)
-
     aeonState.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
     aeonState.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
+    this.addEventListener('push-new-observation', this.pushNewObservation)
+    aeonState.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
+
     // TODO add all other events
   }
 
@@ -112,16 +113,6 @@ export default class ObservationsEditor extends LitElement {
     })
   }
 
-  private addObservation (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    console.log(detail)
-    const setIndex = this.datasets.findIndex(dataset => dataset.id === detail.id)
-    if (setIndex === -1) return
-    this.datasets[setIndex].observations.push(this.singleDummy(this.datasets[setIndex].observations.length))
-    this.datasets = [...this.datasets]
-    console.log(this.datasets)
-  }
-
   getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
     return this.singleDummy(index)
   })
@@ -151,6 +142,21 @@ export default class ObservationsEditor extends LitElement {
       ...datasets[index],
       id: data.new_id
     }
+  }
+
+  private pushNewObservation (event: Event): void {
+    // push new observation (placeholder) that is fully generated on backend
+    const detail = (event as CustomEvent).detail
+    const datasetId = detail.id
+    aeonState.observations.pushObservation(datasetId)
+  }
+
+  #onObservationPushed (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    this.datasets[datasetIndex].observations.push(this.singleDummy(this.datasets[datasetIndex].observations.length))
+    this.datasets = [...this.datasets]
+    console.log(this.datasets)
   }
 
   render (): TemplateResult {

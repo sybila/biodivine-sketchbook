@@ -217,8 +217,9 @@ interface AeonState {
 
     /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
     observationPushed: Observable<ObservationData>
-    /** Push a new observation with into a specified dataset. */
-    pushObservation: (observation: ObservationData, datasetId: string) => void
+    /** Push a new observation with into a specified dataset. If observation data are not provided,
+     * the observation is newly generated on backend (with unspecified values). */
+    pushObservation: (datasetId: string, observation?: ObservationData) => void
     /** ObservationData for a popped (removed from the end) observation (also contains corresponding dataset ID). */
     observationPopped: Observable<ObservationData>
     /** Pop (remove) observation from the end of a specified dataset. */
@@ -1030,11 +1031,18 @@ export const aeonState: AeonState = {
         payload: varId
       })
     },
-    pushObservation (observation: ObservationData, datasetId: string): void {
-      aeonEvents.emitAction({
-        path: ['observations', datasetId, 'push_obs'],
-        payload: JSON.stringify(observation)
-      })
+    pushObservation (datasetId: string, observation?: ObservationData): void {
+      if (observation == null) {
+        aeonEvents.emitAction({
+          path: ['observations', datasetId, 'push_obs'],
+          payload: JSON.stringify(observation)
+        })
+      } else {
+        aeonEvents.emitAction({
+          path: ['observations', datasetId, 'push_empty_obs'],
+          payload: null
+        })
+      }
     },
     popObservation (datasetId: string): void {
       aeonEvents.emitAction({
