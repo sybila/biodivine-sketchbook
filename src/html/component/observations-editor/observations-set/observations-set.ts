@@ -6,7 +6,12 @@ import { Tabulator, type ColumnDefinition, type CellComponent } from 'tabulator-
 import { type IObservation, type IObservationSet } from '../../../util/data-interfaces'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
+import {
+  dataCell,
+  loadTabulatorPlugins,
+  nameColumn,
+  tabulatorOptions
+} from '../tabulator-utility'
 
 @customElement('observations-set')
 export default class ObservationsSet extends LitElement {
@@ -39,7 +44,7 @@ export default class ObservationsSet extends LitElement {
 
   private async init (): Promise<void> {
     const columns: ColumnDefinition[] = [
-      checkboxColumn,
+      this.checkboxColumn,
       nameColumn
     ]
     this.data.variables.forEach(v => {
@@ -171,6 +176,38 @@ export default class ObservationsSet extends LitElement {
     void renameDialog.onCloseRequested(() => {
       this.dialogs[data.id] = undefined
     })
+  }
+
+  checkboxColumn: ColumnDefinition = {
+    title: '<input type="checkbox" class="select-all-row" />',
+    field: 'selected',
+    formatter: (cell) => {
+      const box = document.createElement('input')
+      box.type = 'checkbox'
+      box.classList.add('select-row')
+      box.readOnly = true
+      box.checked = cell.getData().selected
+      return box
+    },
+    headerSort: false,
+    cssClass: 'text-center',
+    frozen: true,
+    cellClick: (_e, cell) => {
+      const row = cell.getRow()
+      const data = row.getData() as IObservation
+      this.observationEdited(row.getIndex(), {
+        ...data,
+        selected: !data.selected
+      })
+    },
+    headerClick: function (_e, column) {
+      console.log((column.getElement().querySelector('.select-all-row') as HTMLInputElement).checked)
+      if ((column.getElement().querySelector('.select-all-row') as HTMLInputElement).checked) {
+        column.getTable().selectRow()
+      } else {
+        column.getTable().deselectRow()
+      }
+    }
   }
 
   render (): TemplateResult {

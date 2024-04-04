@@ -50,9 +50,10 @@ export interface IFunctionData {
 }
 
 export interface IObservation {
+  selected: boolean
   id: string
   name: string
-  [key: string]: string | number
+  [key: string]: string | number | boolean
 }
 
 export interface IObservationSet {

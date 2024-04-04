@@ -38,6 +38,7 @@ export default class ObservationsEditor extends LitElement {
 
   private singleDummy (index: number, empty = false): IObservation {
     const ret: IObservation = {
+      selected: false,
       id: String(index).padStart(4, '0'),
       name: 'obs' + String(index).padStart(4, '0')
     }
