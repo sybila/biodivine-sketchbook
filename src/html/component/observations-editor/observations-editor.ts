@@ -20,29 +20,28 @@ export default class ObservationsEditor extends LitElement {
   constructor () {
     super()
     this.addEventListener('add-observation', this.addObservation)
+    this.addEventListener('observation-edited', this.updateObservation)
   }
 
   private addObservation (event: Event): void {
     const detail = (event as CustomEvent).detail
-    console.log(detail)
     const setIndex = this.sets.findIndex(set => set.name === detail.id)
     if (setIndex === -1) return
-    this.sets[setIndex].observations.push(this.singleDummy(this.sets[setIndex].observations.length))
+    this.sets[setIndex].observations.push(this.singleDummy(this.sets[setIndex].observations.length, true))
     this.sets = [...this.sets]
-    console.log(this.sets)
   }
 
   getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
     return this.singleDummy(index)
   })
 
-  private singleDummy (index: number): IObservation {
+  private singleDummy (index: number, empty = false): IObservation {
     const ret: IObservation = {
       id: String(index).padStart(4, '0'),
       name: 'obs' + String(index).padStart(4, '0')
     }
     this.contentData.variables.forEach(v => {
-      ret[v.name] = Math.round(Math.random())
+      ret[v.name] = empty ? '' : Math.round(Math.random())
     })
     return ret
   }
@@ -105,10 +104,27 @@ export default class ObservationsEditor extends LitElement {
     })
   }
 
-  updateSetName = debounce((name: string, id: number) => {
-    this.sets[id].name = name
+  updateSetName = debounce((name: string, index: number) => {
+    this.saveSets(index, { ...this.sets[index], name })
   }, functionDebounceTimer
   )
+
+  private updateObservation (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const setIndex = this.sets.findIndex(set => set.name === detail.id)
+    if (setIndex === -1) return
+    const set = { ...this.sets[setIndex] }
+    const obsIndex = set.observations.findIndex(obs => obs.id === detail.obsID)
+    if (obsIndex === -1) return
+    set.observations[obsIndex] = detail.data
+    this.saveSets(setIndex, set)
+  }
+
+  saveSets (index: number, set: IObservationSet): void {
+    const sets = [...this.sets]
+    sets[index] = set
+    this.sets = sets
+  }
 
   render (): TemplateResult {
     return html`

@@ -26,11 +26,14 @@ export default class ObservationsSet extends LitElement {
     super.firstUpdated(_changedProperties)
     await this.init()
     this.tabulator?.redraw(true)
+    this.tabulator?.on('cellEdited', (cell) => {
+      const row = cell.getRow().getData() as IObservation
+      this.observationEdited(row.id, row)
+    })
   }
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    console.log(_changedProperties)
     void this.tabulator?.updateOrAddData(this.data.observations)
     this.tabulator?.redraw()
   }
@@ -76,6 +79,7 @@ export default class ObservationsSet extends LitElement {
         columns,
         data: this.data.observations,
         popupContainer: this.table,
+        reactiveData: true,
         rowContextMenu: [
           {
             label: 'Add Row',
@@ -87,7 +91,6 @@ export default class ObservationsSet extends LitElement {
                 bubbles: true,
                 composed: true
               }))
-              this.requestUpdate()
             }
           },
           {
@@ -105,7 +108,25 @@ export default class ObservationsSet extends LitElement {
         ]
       })
       this.tabulator.redraw(true)
+      this.tabulator.on('rowSelectionChanged', function (data, rows, selectedRows, deselectedRows) {
+        console.log(data, rows, selectedRows, deselectedRows)
+      })
+      this.tabulator.on('cellEdited', function (cell) {
+        console.log(cell)
+      })
     }
+  }
+
+  private observationEdited (id: string, data: IObservation): void {
+    this.dispatchEvent(new CustomEvent('observation-edited', {
+      detail: {
+        id: this.data.name,
+        obsID: id,
+        data
+      },
+      bubbles: true,
+      composed: true
+    }))
   }
 
   private async editObservation (data: IObservation): Promise<void> {
@@ -135,10 +156,7 @@ export default class ObservationsSet extends LitElement {
     })
     void renameDialog.once('edit_observation_dialog', (event: TauriEvent<{ id: string, data: IObservation }>) => {
       this.dialogs[data.id] = undefined
-      const index = this.data.observations.findIndex(observation => observation.id === data.id)
-      if (index === -1) return
-      void this.tabulator?.updateRow(event.payload.id, event.payload.data)
-      console.log(event.payload)
+      this.observationEdited(data.id, event.payload.data)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[data.id] = undefined

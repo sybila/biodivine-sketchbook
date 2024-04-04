@@ -4,7 +4,7 @@ import {
   EditModule,
   FilterModule, FormatModule, InteractionModule, MenuModule,
   type Options,
-  PageModule, ResizeColumnsModule, SelectRowModule,
+  PageModule, ReactiveDataModule, ResizeColumnsModule, SelectRowModule,
   SortModule,
   Tabulator
 } from 'tabulator-tables'
@@ -83,4 +83,5 @@ export const loadTabulatorPlugins = (): void => {
   Tabulator.registerModule(AjaxModule)
   Tabulator.registerModule(MenuModule)
   Tabulator.registerModule(ResizeColumnsModule)
+  Tabulator.registerModule(ReactiveDataModule)
 }
