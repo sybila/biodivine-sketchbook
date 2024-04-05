@@ -36,3 +36,5 @@ export const tabList: TabData[] = [
     icon: 'a'
   })
 ]
+
+export const functionDebounceTimer = 1000

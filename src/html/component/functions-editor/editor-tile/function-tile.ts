@@ -9,6 +9,7 @@ import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
+import { functionDebounceTimer } from '../../../util/config'
 
 library.add(faTrash, faMagnifyingGlass)
 
@@ -38,6 +39,7 @@ export class FunctionTile extends EditorTile {
         })))
       }
     })
+    this.aceEditor.setOption('placeholder', '$f_' + this.functions[this.index].id + '(...)')
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
@@ -54,8 +56,7 @@ export class FunctionTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, functionDebounceTimer
   )
 
   functionUpdated = debounce(() => {
@@ -67,8 +68,7 @@ export class FunctionTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, functionDebounceTimer
   )
 
   async removeVariable (): Promise<void> {

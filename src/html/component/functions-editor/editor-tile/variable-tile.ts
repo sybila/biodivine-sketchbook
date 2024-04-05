@@ -9,6 +9,7 @@ import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
+import { functionDebounceTimer } from '../../../util/config'
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('variable-tile')
@@ -40,6 +41,7 @@ export class VariableTile extends EditorTile {
       'constant.language': this.variables.map(v => v.id).join('|'),
       'support.function.dom': this.functions.map(f => f.id).join('|')
     })
+    this.aceEditor.setOption('placeholder', '$f_' + this.variables[this.index].id + '(...)')
   }
 
   private getVariables (): IVariableData[] {
@@ -55,8 +57,7 @@ export class VariableTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, functionDebounceTimer
   )
 
   functionUpdated = debounce(() => {
@@ -68,8 +69,7 @@ export class VariableTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  },
-  300
+  }, functionDebounceTimer
   )
 
   toggleEssentiality (regulation: IRegulationData): void {

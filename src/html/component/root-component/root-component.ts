@@ -112,19 +112,18 @@ export default class RootComponent extends LitElement {
     this.data = this.data.copy({ functions })
   }
 
-  private saveData (variables: IVariableData[], regulations: IRegulationData[], layout: ILayoutData): void {
-    // save variable/regulation/layout data, leave functions as is
-
-    // sort nodes to keep alphabetical order in lists
+  private saveVariables (variables: IVariableData[]): void {
     variables.sort((a, b) => (a.id > b.id ? 1 : -1))
-    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+    this.data = this.data.copy({ variables })
+  }
 
-    this.data = ContentData.create({
-      variables,
-      regulations,
-      layout,
-      functions: this.data.functions
-    })
+  private saveRegulations (regulations: IRegulationData[]): void {
+    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+    this.data = this.data.copy({ regulations })
+  }
+
+  private saveLayout (layout: ILayoutData): void {
+    this.data = this.data.copy({ layout })
   }
 
   renameVariable (event: Event): void {
@@ -140,7 +139,7 @@ export default class RootComponent extends LitElement {
       id: data.id,
       name: data.name
     }
-    this.saveData(variables, this.data.regulations, this.data.layout)
+    this.saveVariables(variables)
   }
 
   private addVariable (event: Event): void {
@@ -160,7 +159,7 @@ export default class RootComponent extends LitElement {
       name: data.name,
       function: ''
     })
-    this.saveData(variables, this.data.regulations, this.data.layout)
+    this.saveVariables(variables)
   }
 
   private addRegulation (event: Event): void {
@@ -177,7 +176,7 @@ export default class RootComponent extends LitElement {
       essential: data.essential,
       monotonicity: data.sign
     })
-    this.saveData(this.data.variables, regulations, this.data.layout)
+    this.saveRegulations(regulations)
   }
 
   private async removeVariable (event: Event): Promise<void> {
@@ -187,16 +186,14 @@ export default class RootComponent extends LitElement {
   }
 
   #onVariableRemoved (data: VariableData): void {
-    this.saveData(
-      this.data.variables.filter((variable) => variable.id !== data.id),
-      this.data.regulations,
-      this.data.layout
+    this.saveVariables(
+      this.data.variables.filter((variable) => variable.id !== data.id)
     )
   }
 
   private adjustRegEditor (): void {
     const visible = this.visibleTabs()
-    if (window.outerWidth <= 800 || visible.includes(this.tabs[0])) return
+    if (window.outerWidth <= 800 || !visible.includes(this.tabs[0])) return
     window.dispatchEvent(new CustomEvent('adjust-graph', {
       detail: {
         tabCount: visible.length
@@ -224,11 +221,12 @@ export default class RootComponent extends LitElement {
 
   #onNodePositionChanged (data: LayoutNodeData): void {
     // TODO: add support for layouts
-    this.data.layout.set(data.variable, {
+    const layout = new Map(this.data.layout)
+    layout.set(data.variable, {
       x: data.px,
       y: data.py
     })
-    this.saveData(this.data.variables, this.data.regulations, this.data.layout)
+    this.saveLayout(layout)
   }
 
   private setVariableId (event: Event): void {
@@ -256,7 +254,7 @@ export default class RootComponent extends LitElement {
         regulations[index].target = data.new_id
       }
     })
-    this.saveData(variables, this.data.regulations, this.data.layout)
+    this.saveVariables(variables)
 
     // TODO: this refresh is a temporary solution to get potentially modified update function expressions
     aeonState.model.refreshVariables()
@@ -275,7 +273,7 @@ export default class RootComponent extends LitElement {
       ...regulations[index],
       essential: data.essential
     }
-    this.saveData(this.data.variables, regulations, this.data.layout)
+    this.saveRegulations(regulations)
   }
 
   private toggleRegulationMonotonicity (event: Event): void {
@@ -291,7 +289,7 @@ export default class RootComponent extends LitElement {
       ...regulations[index],
       monotonicity: data.sign
     }
-    this.saveData(this.data.variables, regulations, this.data.layout)
+    this.saveRegulations(regulations)
   }
 
   private setVariableFunction (event: Event): void {
@@ -307,7 +305,7 @@ export default class RootComponent extends LitElement {
       ...variables[variableIndex],
       function: data.update_fn
     }
-    this.saveData(variables, this.data.regulations, this.data.layout)
+    this.saveVariables(variables)
   }
 
   private async removeRegulation (event: Event): Promise<void> {
@@ -317,18 +315,14 @@ export default class RootComponent extends LitElement {
   }
 
   #onRegulationRemoved (data: RegulationData): void {
-    this.saveData(
-      this.data.variables,
-      this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target),
-      this.data.layout
+    this.saveRegulations(
+      this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
   }
 
   #onVariablesRefreshed (variables: VariableData[]): void {
-    this.saveData(
-      variables.map(v => { return { ...v, function: v.update_fn } }),
-      this.data.regulations,
-      this.data.layout
+    this.saveVariables(
+      variables.map(v => { return { ...v, function: v.update_fn } })
     )
   }
 
@@ -337,7 +331,7 @@ export default class RootComponent extends LitElement {
     layoutNodes.forEach(layoutNode => {
       layout.set(layoutNode.variable, { x: layoutNode.px, y: layoutNode.py })
     })
-    this.saveData(this.data.variables, this.data.regulations, layout)
+    this.saveLayout(layout)
   }
 
   #onRegulationsRefreshed (regulations: RegulationData[]): void {
@@ -350,7 +344,7 @@ export default class RootComponent extends LitElement {
         monotonicity: data.sign
       }
     })
-    this.saveData(this.data.variables, regs, this.data.layout)
+    this.saveRegulations(regs)
   }
 
   async loadDummy (): Promise<void> {
