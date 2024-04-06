@@ -1,17 +1,22 @@
-use crate::sketchbook::ids::PropertyId;
-use crate::sketchbook::properties::{DynamicProperty, PropertyManager};
+use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
+use crate::sketchbook::properties::{
+    DynPropIterator, DynProperty, PropertyManager, StatPropIterator,
+};
 use std::collections::{HashMap, HashSet};
 
 impl PropertyManager {
-    /// Instantiate `PropertyManager` with empty list of properties.
+    /// Instantiate `PropertyManager` with empty sets of properties.
     pub fn new_empty() -> PropertyManager {
         PropertyManager {
-            properties: HashMap::new(),
+            dyn_properties: HashMap::new(),
+            stat_properties: HashMap::new(),
         }
     }
 
-    /// Instantiate `PropertyManager` with given list of ID-formula pairs.
-    pub fn new_from_properties(properties: Vec<(&str, &str)>) -> Result<PropertyManager, String> {
+    /// Instantiate `PropertyManager` with dynamic properties given as a list of ID-formula pairs.
+    pub fn new_from_dyn_properties(
+        properties: Vec<(&str, &str)>,
+    ) -> Result<PropertyManager, String> {
         let mut manager = PropertyManager::new_empty();
 
         let prop_id_set = properties.iter().map(|pair| pair.0).collect::<HashSet<_>>();
@@ -23,10 +28,10 @@ impl PropertyManager {
         }
 
         for (id, formula) in properties {
-            let prop_id = PropertyId::new(id)?;
+            let prop_id = DynPropertyId::new(id)?;
             manager
-                .properties
-                .insert(prop_id, DynamicProperty::try_from_str(formula)?);
+                .dyn_properties
+                .insert(prop_id, DynProperty::try_from_str(formula)?);
         }
         Ok(manager)
     }
@@ -34,13 +39,33 @@ impl PropertyManager {
 
 /// Observing the `PropertyManager`.
 impl PropertyManager {
-    /// The number of properties in this `PropertyManager`.
-    pub fn num_properties(&self) -> usize {
-        self.properties.len()
+    /// The number of dynamic properties in this `PropertyManager`.
+    pub fn num_dyn_properties(&self) -> usize {
+        self.dyn_properties.len()
     }
 
-    /// Check if there is a property with given Id.
-    pub fn is_valid_property_id(&self, id: &PropertyId) -> bool {
-        self.properties.contains_key(id)
+    /// The number of static properties in this `PropertyManager`.
+    pub fn num_stat_properties(&self) -> usize {
+        self.stat_properties.len()
+    }
+
+    /// Check if there is a dynamic property with given Id.
+    pub fn is_valid_dyn_property_id(&self, id: &DynPropertyId) -> bool {
+        self.dyn_properties.contains_key(id)
+    }
+
+    /// Check if there is a static property with given Id.
+    pub fn is_valid_stat_property_id(&self, id: &StatPropertyId) -> bool {
+        self.stat_properties.contains_key(id)
+    }
+
+    /// Return an iterator over all dynamic properties of this model.
+    pub fn dyn_props(&self) -> DynPropIterator {
+        self.dyn_properties.iter()
+    }
+
+    /// Return an iterator over all dynamic properties of this model.
+    pub fn stat_props(&self) -> StatPropIterator {
+        self.stat_properties.iter()
     }
 }

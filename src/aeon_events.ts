@@ -302,8 +302,8 @@ export interface ObservationData {
 /** An object representing all information regarding a whole dataset. */
 export interface DatasetData {
   id: string
-  observations: [ObservationData]
-  variables: [string]
+  observations: ObservationData[]
+  variables: string[]
   category: DataCategory
 }
 
@@ -959,7 +959,7 @@ export const aeonState: AeonState = {
   observations: {
     datasetsRefreshed: new Observable<[DatasetData]>(['observations', 'get_all_datasets']),
     refreshDatasets (): void {
-      aeonEvents.refresh(['observations', 'get_datasets'])
+      aeonEvents.refresh(['observations', 'get_all_datasets'])
     },
     singleDatasetRefreshed: new Observable<DatasetData>(['observations', 'get_dataset']),
     refreshSingleDataset (id: string): void {
@@ -1032,15 +1032,15 @@ export const aeonState: AeonState = {
       })
     },
     pushObservation (datasetId: string, observation?: ObservationData): void {
-      if (observation == null) {
-        aeonEvents.emitAction({
-          path: ['observations', datasetId, 'push_obs'],
-          payload: JSON.stringify(observation)
-        })
-      } else {
+      if (observation === undefined) {
         aeonEvents.emitAction({
           path: ['observations', datasetId, 'push_empty_obs'],
           payload: null
+        })
+      } else {
+        aeonEvents.emitAction({
+          path: ['observations', datasetId, 'push_obs'],
+          payload: JSON.stringify(observation)
         })
       }
     },

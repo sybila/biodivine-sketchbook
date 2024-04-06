@@ -1,30 +1,30 @@
 use crate::sketchbook::observations::{Dataset, Observation};
-use crate::sketchbook::properties::_mk_formulas::*;
+use crate::sketchbook::properties::_mk_hctl_formulas::*;
 use serde::{Deserialize, Serialize};
 
 /// A typesafe representation of a dynamic property expressed by a formula.
 ///
-/// TODO: Currently, this is made considering only HCTL properties, but that will change.
-/// TODO: That might result in some finer property hierarchy.
+/// TODO: Currently, this is just a placeholder for HCTL properties, but that will probably change
+/// TODO: once we introduce property templates. That might result in some finer property hierarchy.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub struct DynamicProperty {
-    pub formula: String,
+pub struct DynProperty {
+    formula: String,
 }
 
-impl DynamicProperty {
-    /// Create `DynamicProperty` object directly from a formula and id string slices.
+/// Creating properties.
+impl DynProperty {
+    /// Create ` DynProperty` object directly from a formula, which must be in a correct format.
     ///
     /// TODO: add syntax check.
-    pub fn try_from_str(formula: &str) -> Result<DynamicProperty, String> {
+    pub fn try_from_str(formula: &str) -> Result<DynProperty, String> {
         // todo: syntax check
-        Ok(DynamicProperty::new_raw(formula))
+        Ok(DynProperty::new_raw(formula))
     }
 
-    /// **internal** Create `DynamicProperty` object directly from a string formula.
-    ///
-    /// Note that this does not perform any syntax checks.
+    /// **internal** Create ` DynProperty` object directly from a string formula,
+    /// without any syntax checks on it.
     fn new_raw(formula: &str) -> Self {
-        DynamicProperty {
+        DynProperty {
             formula: formula.to_string(),
         }
     }
@@ -35,9 +35,9 @@ impl DynamicProperty {
     pub fn encode_observation(
         obs: &Observation,
         var_names: &[String],
-    ) -> Result<DynamicProperty, String> {
+    ) -> Result<DynProperty, String> {
         let formula = encode_observation(obs, var_names)?;
-        Ok(DynamicProperty::new_raw(&formula))
+        Ok(DynProperty::new_raw(&formula))
     }
 
     /// Encode each of the several observations, one by one.
@@ -45,12 +45,9 @@ impl DynamicProperty {
     pub fn encode_multiple_observations(
         observations: &[Observation],
         var_names: &[String],
-    ) -> Result<Vec<DynamicProperty>, String> {
+    ) -> Result<Vec<DynProperty>, String> {
         let formulae = encode_multiple_observations(observations, var_names)?;
-        let properties = formulae
-            .iter()
-            .map(|f| DynamicProperty::new_raw(f))
-            .collect();
+        let properties = formulae.iter().map(|f| DynProperty::new_raw(f)).collect();
         Ok(properties)
     }
 
@@ -58,8 +55,20 @@ impl DynamicProperty {
     /// template is chosen depending on the type of data (attractor data, time-series, ...).
     ///
     /// Only data with their type specified can be encoded.
-    pub fn try_encode_observation_list_hctl(obs_list: &Dataset) -> Result<DynamicProperty, String> {
-        let formula = encode_observation_list_hctl(obs_list)?;
-        Ok(DynamicProperty::new_raw(&formula))
+    pub fn try_encode_dataset_hctl(dataset: &Dataset) -> Result<DynProperty, String> {
+        let formula = encode_observation_list_hctl(dataset)?;
+        Ok(DynProperty::new_raw(&formula))
+    }
+}
+
+/// Editing properties.
+impl DynProperty {
+    // TODO
+}
+
+/// Observing properties.
+impl DynProperty {
+    pub fn get_formula(&self) -> &str {
+        &self.formula
     }
 }

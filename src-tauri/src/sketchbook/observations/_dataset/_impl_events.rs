@@ -45,7 +45,7 @@ impl Dataset {
         dataset_id: DatasetId,
     ) -> Result<Consumed, DynError> {
         // get payload components and perform the action
-        let id = self.generate_obs_id(&format!("new_observation_{}", self.num_observations()));
+        let id = self.generate_obs_id(&format!("new_obs_{}", self.num_observations()));
         let observation = Observation::new_full_unspecified(self.num_variables(), id.as_str())?;
         let observation_data = ObservationData::from_obs(&observation, &dataset_id);
         self.push_observation(observation)?;

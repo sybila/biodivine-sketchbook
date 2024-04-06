@@ -20,17 +20,18 @@ export default class ObservationsSet extends LitElement {
   constructor () {
     super()
     loadTabulatorPlugins()
-
     // todo: add events properly
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
+    console.log('firstUpdated')
     super.firstUpdated(_changedProperties)
     await this.init()
     this.tabulator?.redraw(true)
   }
 
   protected updated (_changedProperties: PropertyValues): void {
+    console.log('updated')
     super.updated(_changedProperties)
     console.log(_changedProperties)
     void this.tabulator?.updateOrAddData(this.data.observations)
@@ -68,8 +69,14 @@ export default class ObservationsSet extends LitElement {
       headerSort: false,
       hozAlign: 'center',
       cellClick: (_e: UIEvent, _cell: CellComponent) => {
-        // todo: send through backend
-        void _cell.getRow().delete()
+        this.dispatchEvent(new CustomEvent('remove-observation', {
+          detail: {
+            dataset: this.data.id,
+            id: (_cell.getRow().getData() as IObservation).id
+          },
+          bubbles: true,
+          composed: true
+        }))
       }
     })
     if (this.table !== undefined) {
@@ -100,12 +107,20 @@ export default class ObservationsSet extends LitElement {
           },
           {
             label: 'Delete Row',
-            action: function (_, row) {
-              void row.delete()
+            action: (_, row) => {
+              this.dispatchEvent(new CustomEvent('remove-observation', {
+                detail: {
+                  dataset: this.data.id,
+                  id: (row.getData() as IObservation).id
+                },
+                bubbles: true,
+                composed: true
+              }))
             }
           }
         ]
       })
+      console.log('init')
       this.tabulator.redraw(true)
     }
   }

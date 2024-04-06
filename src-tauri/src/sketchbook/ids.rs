@@ -95,10 +95,11 @@ macro_rules! id_wrapper {
     };
 }
 
+id_wrapper!(DatasetId, "Dataset");
+id_wrapper!(DynPropertyId, "DynProperty");
 id_wrapper!(LayoutId, "Layout");
 id_wrapper!(ObservationId, "Observation");
-id_wrapper!(DatasetId, "Dataset");
-id_wrapper!(PropertyId, "Property");
+id_wrapper!(StatPropertyId, "StatProperty");
 id_wrapper!(UninterpretedFnId, "UninterpretedFn");
 id_wrapper!(VarId, "Variable");
 

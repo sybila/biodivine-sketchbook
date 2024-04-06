@@ -19,6 +19,8 @@ export class FunctionsEditor extends LitElement {
 
   constructor () {
     super()
+
+    // functions-related event listeners
     aeonState.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
     this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
     aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
@@ -35,7 +37,11 @@ export class FunctionsEditor extends LitElement {
     this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
     aeonState.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
 
+    // refresh-event listeners
     aeonState.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
+
+    // note that the `refreshUninterpretedFns` event is triggered directly from the root
+    // component (due to some dependency issues)
   }
 
   connectedCallback (): void {
@@ -85,6 +91,7 @@ export class FunctionsEditor extends LitElement {
     const fns = functions.map((data): IFunctionData => {
       return this.convertToIFunction(data)
     })
+    this.index = fns.length
     this.saveFunctions(fns)
   }
 

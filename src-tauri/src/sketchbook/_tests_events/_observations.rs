@@ -36,7 +36,7 @@ fn test_add_remove_datasets() {
     // perform dataset add event
     let d2 = prepare_dataset_2v_1o();
     let d2_id = DatasetId::new("d2").unwrap();
-    let payload = DatasetData::from_dataset(&d2, &d2_id).to_json_str();
+    let payload = DatasetData::from_dataset(&d2_id, &d2).to_json_str();
     let full_path = ["observations", "add"];
     let event = Event::build(&full_path, Some(payload.as_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
@@ -82,7 +82,7 @@ fn test_set_dataset_fields() {
     // 3) event to change dataset's inner "data"
     let d2 = prepare_dataset_2v_1o();
     let d2_id = DatasetId::new("this_doesnt_matter").unwrap();
-    let d2_data = DatasetData::from_dataset(&d2, &d2_id);
+    let d2_data = DatasetData::from_dataset(&d2_id, &d2);
     let full_path = ["observations", "d1", "set_content"];
     let event = Event::build(&full_path, Some(&d2_data.to_json_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();

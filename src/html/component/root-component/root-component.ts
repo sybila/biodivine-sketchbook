@@ -34,13 +34,19 @@ export default class RootComponent extends LitElement {
 
   constructor () {
     super()
+
+    // error event listener
     aeonState.error.errorReceived.addEventListener((e) => {
       void this.#onErrorMessage(e)
     })
+
+    // tab bar event listeners
     aeonState.tabBar.active.addEventListener(this.#onSwitched.bind(this))
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
+
+    // model editor related event listeners
     this.addEventListener('load-dummy', () => { void this.loadDummy() })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
@@ -66,17 +72,20 @@ export default class RootComponent extends LitElement {
     this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
     aeonState.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
 
+    // refresh-event listeners
     aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
 
+    // refreshing content from backend
     // first get uninterpreted functions, then variables (so that variable updates can contain function symbols)
+    // TODO: the order of events is not enforced - load the whole model's data at once
     aeonState.model.refreshUninterpretedFns()
     aeonState.model.refreshVariables()
     aeonState.model.refreshLayoutNodes(LAYOUT)
     aeonState.model.refreshRegulations()
 
-    // capture event from FunctionEditor with potentially newly added functions
+    // event listener to capture changes from FunctionEditor with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
   }
 
@@ -235,6 +244,16 @@ export default class RootComponent extends LitElement {
   }
 
   #onVariableIdChanged (data: VariableIdUpdateData): void {
+    // we need to refresh all the affected components - that can be any update function, any regulation,
+    // and then the variable itself and its layout node
+    // TODO: od this more efficiently, but on backend
+    this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
+    this.data.layout.delete(data.original_id)
+    aeonState.model.refreshVariables()
+    aeonState.model.refreshRegulations()
+
+    /*
+    // older version that partially changes components directly follows
     const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.original_id)
     if (variableIndex === -1) return
     const variables = [...this.data.variables]
@@ -242,9 +261,7 @@ export default class RootComponent extends LitElement {
       ...variables[variableIndex],
       id: data.new_id
     }
-    // TODO: do all of the following on BE (and then just refresh affected components?)
-    this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
-    this.data.layout.delete(data.original_id)
+
     const regulations = [...this.data.regulations]
     regulations.forEach((reg, index) => {
       if (reg.source === data.original_id) {
@@ -255,9 +272,7 @@ export default class RootComponent extends LitElement {
       }
     })
     this.saveVariables(variables)
-
-    // TODO: this refresh is a temporary solution to get potentially modified update function expressions
-    aeonState.model.refreshVariables()
+     */
   }
 
   private toggleRegulationEssentiality (event: Event): void {

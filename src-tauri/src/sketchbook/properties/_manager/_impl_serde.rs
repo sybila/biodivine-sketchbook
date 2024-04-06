@@ -1,4 +1,4 @@
-use crate::sketchbook::properties::{DynamicProperty, PropertyManager};
+use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
 use crate::sketchbook::utils::{parse_map_keys, stringify_and_order_keys};
 
 use std::collections::HashMap;
@@ -17,8 +17,10 @@ impl Serialize for PropertyManager {
     {
         let mut state = serializer.serialize_struct("PropertyManager", 1)?;
         // Serialize `nodes` field (HashMap with non-String keys) as a HashMap with String keys
-        let properties = stringify_and_order_keys(&self.properties);
-        state.serialize_field("properties", &properties)?;
+        let dyn_properties = stringify_and_order_keys(&self.dyn_properties);
+        state.serialize_field("dyn_properties", &dyn_properties)?;
+        let stat_properties = stringify_and_order_keys(&self.stat_properties);
+        state.serialize_field("stat_properties", &stat_properties)?;
 
         state.end()
     }
@@ -32,7 +34,8 @@ impl<'de> Deserialize<'de> for PropertyManager {
         D: Deserializer<'de>,
     {
         enum Field {
-            Properties,
+            DynProperties,
+            StatProperties,
         }
 
         impl<'de> Deserialize<'de> for Field {
@@ -46,7 +49,7 @@ impl<'de> Deserialize<'de> for PropertyManager {
                     type Value = Field;
 
                     fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-                        formatter.write_str("`properties`")
+                        formatter.write_str("`dyn_properties` or `stat_properties`")
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
@@ -54,7 +57,8 @@ impl<'de> Deserialize<'de> for PropertyManager {
                         E: de::Error,
                     {
                         match value {
-                            "properties" => Ok(Field::Properties),
+                            "dyn_properties" => Ok(Field::DynProperties),
+                            "stat_properties" => Ok(Field::StatProperties),
                             _ => Err(de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -76,27 +80,40 @@ impl<'de> Deserialize<'de> for PropertyManager {
             where
                 V: MapAccess<'de>,
             {
-                let mut properties = None;
+                let mut dyn_properties = None;
+                let mut stat_properties = None;
 
                 while let Some(key) = map.next_key()? {
                     match key {
-                        Field::Properties => {
-                            if properties.is_some() {
-                                return Err(de::Error::duplicate_field("properties"));
+                        Field::DynProperties => {
+                            if dyn_properties.is_some() {
+                                return Err(de::Error::duplicate_field("dyn_properties"));
                             }
-                            let d: HashMap<String, DynamicProperty> = map.next_value()?;
-                            properties = Some(parse_map_keys(d).map_err(de::Error::custom)?);
+                            let d: HashMap<String, DynProperty> = map.next_value()?;
+                            dyn_properties = Some(parse_map_keys(d).map_err(de::Error::custom)?);
+                        }
+                        Field::StatProperties => {
+                            if stat_properties.is_some() {
+                                return Err(de::Error::duplicate_field("stat_properties"));
+                            }
+                            let s: HashMap<String, StatProperty> = map.next_value()?;
+                            stat_properties = Some(parse_map_keys(s).map_err(de::Error::custom)?);
                         }
                     }
                 }
 
-                let properties =
-                    properties.ok_or_else(|| de::Error::missing_field("properties"))?;
-                Ok(PropertyManager { properties })
+                let dyn_properties =
+                    dyn_properties.ok_or_else(|| de::Error::missing_field("dyn_properties"))?;
+                let stat_properties =
+                    stat_properties.ok_or_else(|| de::Error::missing_field("stat_properties"))?;
+                Ok(PropertyManager {
+                    dyn_properties,
+                    stat_properties,
+                })
             }
         }
 
-        const FIELDS: &[&str] = &["properties"];
+        const FIELDS: &[&str] = &["dyn_properties", "stat_properties"];
         deserializer.deserialize_struct("PropertyManager", FIELDS, PropertyManagerVisitor)
     }
 }

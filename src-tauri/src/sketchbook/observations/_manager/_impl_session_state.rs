@@ -35,8 +35,6 @@ impl SessionState for ObservationManager {
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         let component_name = "observations";
 
-        println!("{:?}", at_path);
-        println!("{:?}", at_path.first());
         // currently three options: get all datasets, a single dataset, a single observation
         match at_path.first() {
             Some(&"get_all_datasets") => {
@@ -44,7 +42,7 @@ impl SessionState for ObservationManager {
                 let mut dataset_list: Vec<DatasetData> = self
                     .datasets
                     .iter()
-                    .map(|(id, dataset)| DatasetData::from_dataset(dataset, id))
+                    .map(|(id, dataset)| DatasetData::from_dataset(id, dataset))
                     .collect();
                 // return the list sorted, so that it is deterministic
                 dataset_list.sort_by(|a, b| a.id.cmp(&b.id));
@@ -57,7 +55,7 @@ impl SessionState for ObservationManager {
 
                 let dataset_id = self.get_dataset_id(dataset_id_str)?;
                 let dataset = self.get_dataset(&dataset_id)?;
-                let dataset_data = DatasetData::from_dataset(dataset, &dataset_id);
+                let dataset_data = DatasetData::from_dataset(&dataset_id, dataset);
                 let payload = Some(dataset_data.to_json_str());
 
                 let mut path = full_path.to_vec();
@@ -114,7 +112,7 @@ impl ObservationManager {
         // load and add the dataset
         let dataset = Self::load_dataset(&load_data.path)?;
         let dataset_id = DatasetId::new(&load_data.id)?;
-        let dataset_data = DatasetData::from_dataset(&dataset, &dataset_id);
+        let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
         self.add_dataset_by_str(&dataset_data.id, dataset)?;
 
         // prepare the state-change event (which sends the loaded dataset to frontend)
@@ -145,7 +143,7 @@ impl ObservationManager {
 
             // save the original dataset data for state change and reverse event
             let original_dataset = self.get_dataset(&dataset_id)?.clone();
-            let dataset_data = DatasetData::from_dataset(&original_dataset, &dataset_id);
+            let dataset_data = DatasetData::from_dataset(&dataset_id, &original_dataset);
 
             // perform the event, prepare the state-change variant (move IDs from path to payload)
             self.remove_dataset(&dataset_id)?;
@@ -182,7 +180,7 @@ impl ObservationManager {
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            let orig_dataset_data = DatasetData::from_dataset(orig_dataset, &dataset_id);
+            let orig_dataset_data = DatasetData::from_dataset(&dataset_id, orig_dataset);
             self.swap_dataset_content(&dataset_id, new_dataset)?;
             let state_change =
                 make_state_change(&["observations", "set_content"], &new_dataset_data);
@@ -199,7 +197,7 @@ impl ObservationManager {
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.remove_var_by_str(dataset_id.as_str(), var_id_str.as_str())?;
             let new_dataset = self.get_dataset(&dataset_id)?;
-            let new_dataset_data = DatasetData::from_dataset(new_dataset, &dataset_id);
+            let new_dataset_data = DatasetData::from_dataset(&dataset_id, new_dataset);
             let state_change =
                 make_state_change(&["observations", "remove_var"], &new_dataset_data);
 
@@ -218,7 +216,7 @@ impl ObservationManager {
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            let orig_metadata = DatasetMetaData::from_dataset(orig_dataset, &dataset_id);
+            let orig_metadata = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
             self.set_category(&dataset_id, category)?;
             let state_change = make_state_change(&["observations", "set_category"], &orig_metadata);
 
@@ -237,7 +235,7 @@ impl ObservationManager {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             let orig_dataset = self.get_dataset(&dataset_id)?;
-            let orig_metadata = DatasetMetaData::from_dataset(orig_dataset, &dataset_id);
+            let orig_metadata = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
             self.set_var_id_by_str(
                 dataset_id.as_str(),
                 &id_change_data.original_id,

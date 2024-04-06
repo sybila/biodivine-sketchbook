@@ -28,7 +28,7 @@ pub struct DatasetMetaData {
     pub category: DataCategory,
 }
 
-/// Structure for receiving *metadata* about `Dataset` to load.
+/// Structure for receiving *metadata* about `Dataset` to load from a file.
 /// This includes just an id and path to load it from.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DatasetLoadData {
@@ -42,7 +42,7 @@ impl<'de> JsonSerde<'de> for DatasetLoadData {}
 
 impl DatasetData {
     /// Create new `DatasetData` object given a reference to a dataset and its ID.
-    pub fn from_dataset(dataset: &Dataset, id: &DatasetId) -> DatasetData {
+    pub fn from_dataset(id: &DatasetId, dataset: &Dataset) -> DatasetData {
         let observations = dataset
             .observations()
             .iter()
@@ -72,7 +72,7 @@ impl DatasetData {
 
 impl DatasetMetaData {
     /// Create new `DatasetMetaData` object given a reference to a dataset and its ID.
-    pub fn from_dataset(dataset: &Dataset, id: &DatasetId) -> DatasetMetaData {
+    pub fn from_dataset(id: &DatasetId, dataset: &Dataset) -> DatasetMetaData {
         let variables = dataset.variables().iter().map(|v| v.to_string()).collect();
         DatasetMetaData {
             id: id.to_string(),
@@ -106,7 +106,7 @@ mod tests {
         let obs2 = Observation::try_from_str("00", "o2").unwrap();
         let dataset_before =
             Dataset::new(vec![obs1, obs2], vec!["a", "b"], DataCategory::Attractor).unwrap();
-        let dataset_data = DatasetData::from_dataset(&dataset_before, &dataset_id);
+        let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset_before);
         let dataset_after = dataset_data.to_dataset().unwrap();
 
         assert_eq!(dataset_before, dataset_after);

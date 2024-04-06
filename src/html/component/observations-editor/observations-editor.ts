@@ -20,29 +20,67 @@ export default class ObservationsEditor extends LitElement {
 
   constructor () {
     super()
+
+    // observations-related event listeners
     aeonState.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
     aeonState.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
     this.addEventListener('push-new-observation', this.pushNewObservation)
     aeonState.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
-
+    this.addEventListener('remove-observation', this.removeObservation)
+    aeonState.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
     // TODO add all other events
+
+    // refresh-event listeners
+    aeonState.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
+
+    // refreshing content from backend
+    aeonState.observations.refreshDatasets()
+  }
+
+  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
+    const obs: IObservation = { id: observationData.id, name: observationData.id }
+    variables.forEach(((v, idx) => {
+      const value = observationData.values[idx]
+      obs[v] = (value === '*') ? '' : value
+    }))
+    return obs
+  }
+
+  private convertFromIObservation (observation: IObservation, datasetId: string, variables: string[]): ObservationData {
+    const valueString = variables.map(v => {
+      return (observation[v] === '') ? '*' : observation[v]
+    }).join('')
+    return { id: observation.id, dataset: datasetId, values: valueString }
   }
 
   private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
     const observations = datasetData.observations.map(
-      observationData => {
-        const obs: IObservation = { id: observationData.id, name: observationData.id }
-        datasetData.variables.forEach(((v, idx) => {
-          obs[v] = observationData.values[idx]
-        }))
-        return obs
-      })
+      observationData => this.convertToIObservation(observationData, datasetData.variables)
+    )
     return {
       id: datasetData.id,
       observations,
       variables: datasetData.variables,
       category: datasetData.category
     }
+  }
+
+  private convertFromIObservationSet (dataset: IObservationSet): DatasetData {
+    const observations = dataset.observations.map(
+      obs => this.convertFromIObservation(obs, dataset.id, dataset.variables)
+    )
+    return {
+      id: dataset.id,
+      observations,
+      variables: dataset.variables,
+      category: dataset.category
+    }
+  }
+
+  #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
+    const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
+    this.index = datasets.length
+    this.datasets = datasets
   }
 
   private async loadDataset (): Promise<void> {
@@ -147,16 +185,29 @@ export default class ObservationsEditor extends LitElement {
   private pushNewObservation (event: Event): void {
     // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
-    const datasetId = detail.id
-    aeonState.observations.pushObservation(datasetId)
+    aeonState.observations.pushObservation(detail.id)
   }
 
   #onObservationPushed (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    this.datasets[datasetIndex].observations.push(this.singleDummy(this.datasets[datasetIndex].observations.length))
-    this.datasets = [...this.datasets]
-    console.log(this.datasets)
+    const datasets = this.datasets
+    datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
+    this.datasets = datasets
+  }
+
+  private removeObservation (event: Event): void {
+    // push new observation (placeholder) that is fully generated on backend
+    const detail = (event as CustomEvent).detail
+    aeonState.observations.removeObservation(detail.dataset, detail.id)
+  }
+
+  #onObservationRemoved (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    const datasets = this.datasets
+    datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
+    this.datasets = datasets
   }
 
   render (): TemplateResult {
