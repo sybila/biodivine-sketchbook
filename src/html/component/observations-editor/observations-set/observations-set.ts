@@ -201,7 +201,6 @@ export default class ObservationsSet extends LitElement {
       })
     },
     headerClick: function (_e, column) {
-      console.log((column.getElement().querySelector('.select-all-row') as HTMLInputElement).checked)
       if ((column.getElement().querySelector('.select-all-row') as HTMLInputElement).checked) {
         column.getTable().selectRow()
       } else {

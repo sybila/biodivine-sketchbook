@@ -26,7 +26,7 @@ export const tabList: TabData[] = [
   TabData.create({
     id: index++,
     name: 'Properties',
-    content: () => html`<h1 class="uk-heading uk-text-success">Content of properties tab</h1>`,
+    content: (contentData) => html`<properties-editor .contentData=${contentData}></properties-editor>`,
     icon: 'p'
   }),
   TabData.create({

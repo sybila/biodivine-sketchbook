@@ -61,3 +61,9 @@ export interface IObservationSet {
   observations: IObservation[]
   variables: string[]
 }
+
+export interface IProperty {
+  name: string
+  value: string
+  static: boolean
+}
