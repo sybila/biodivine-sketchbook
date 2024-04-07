@@ -2,13 +2,23 @@ use crate::app::event::Event;
 use crate::app::state::SessionHelper;
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{
-    LayoutData, LayoutNodeData, RegulationData, UninterpretedFnData, VariableData,
+    LayoutData, LayoutNodeData, ModelData, RegulationData, UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::event_utils::make_refresh_event;
 use crate::sketchbook::model::ModelState;
+use crate::sketchbook::JsonSerde;
 
 /// Implementation for `refresh` (getter) events.
 impl ModelState {
+    /// Get a whole model.
+    pub(super) fn refresh_whole_model(&self, full_path: &[String]) -> Result<Event, DynError> {
+        let model_data = ModelData::new(self);
+        Ok(Event {
+            path: full_path.to_vec(),
+            payload: Some(model_data.to_json_str()),
+        })
+    }
+
     /// Get a list of all variables.
     pub(super) fn refresh_variables(&self, full_path: &[String]) -> Result<Event, DynError> {
         let mut variable_list: Vec<VariableData> = self

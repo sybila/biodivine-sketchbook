@@ -369,4 +369,13 @@ fn test_refresh() {
         serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(uninterpreted_fn_list.len(), 2);
     assert_eq!(uninterpreted_fn_list[0].id, fn_f.to_string());
+
+    // test whole model getter
+    let full_path = ["model".to_string(), "get_whole_model".to_string()];
+    let event = model.refresh(&full_path, &["get_whole_model"]).unwrap();
+    let model_data: ModelData = ModelData::from_json_str(&event.payload.unwrap()).unwrap();
+    assert_eq!(model_data.uninterpreted_fns, uninterpreted_fn_list);
+    assert_eq!(model_data.variables, var_list);
+    assert_eq!(model_data.regulations, reg_list);
+    assert_eq!(model_data.layouts, layout_list);
 }

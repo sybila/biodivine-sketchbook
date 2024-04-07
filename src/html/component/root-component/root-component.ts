@@ -7,8 +7,11 @@ import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
 import {
   aeonState,
-  type LayoutNodeData, type LayoutNodeDataPrototype,
+  type LayoutNodeData,
+  type LayoutNodeDataPrototype,
+  type ModelData,
   type RegulationData,
+  type UninterpretedFnData,
   type VariableData,
   type VariableIdUpdateData
 } from '../../../aeon_events'
@@ -73,20 +76,15 @@ export default class RootComponent extends LitElement {
     aeonState.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
 
     // refresh-event listeners
+    aeonState.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
     aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
-
-    // refreshing content from backend
-    // first get uninterpreted functions, then variables (so that variable updates can contain function symbols)
-    // TODO: the order of events is not enforced - load the whole model's data at once
-    aeonState.model.refreshUninterpretedFns()
-    aeonState.model.refreshVariables()
-    aeonState.model.refreshLayoutNodes(LAYOUT)
-    aeonState.model.refreshRegulations()
-
     // event listener to capture changes from FunctionEditor with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
+
+    // refreshing content from backend
+    aeonState.model.refreshModel()
   }
 
   async #onErrorMessage (errorMessage: string): Promise<void> {
@@ -117,7 +115,11 @@ export default class RootComponent extends LitElement {
   saveFunctionData (event: Event): void {
     // update functions using modified data propagated from FunctionsEditor
     const functions: IFunctionData[] = (event as CustomEvent).detail.functions
+    this.saveFunctions(functions)
+  }
 
+  private saveFunctions (functions: IFunctionData[]): void {
+    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ functions })
   }
 
@@ -333,6 +335,36 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(
       this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
+  }
+
+  private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
+    const variables = fnData.arguments.map(
+      (arg, index) => {
+        return {
+          id: index.toString(),
+          source: 'var' + index.toString(),
+          target: fnData.id,
+          monotonicity: arg[0],
+          essential: arg[1]
+        }
+      })
+    return {
+      id: fnData.id,
+      function: fnData.expression,
+      variables
+    }
+  }
+
+  #onModelRefreshed (model: ModelData): void {
+    const functions = model.uninterpreted_fns.map((data): IFunctionData => {
+      return this.convertToIFunction(data)
+    })
+    this.saveFunctions(functions)
+
+    this.#onVariablesRefreshed(model.variables)
+    this.#onRegulationsRefreshed(model.regulations)
+    // TODO: this will have to change if more layouts will be possible
+    this.#onLayoutNodesRefreshed(model.layouts[0].nodes)
   }
 
   #onVariablesRefreshed (variables: VariableData[]): void {

@@ -43,24 +43,28 @@ interface AeonState {
   model: {
     /** Refresh events. */
 
+    /** The whole model instance. */
+    modelRefreshed: Observable<ModelData>
+    /** Refresh the whole model. */
+    refreshModel: () => void
     /** List of model variables. */
-    variablesRefreshed: Observable<[VariableData]>
+    variablesRefreshed: Observable<VariableData[]>
     /** Refresh the variables. */
     refreshVariables: () => void
     /** List of model uninterpreted functions. */
-    uninterpretedFnsRefreshed: Observable<[UninterpretedFnData]>
+    uninterpretedFnsRefreshed: Observable<UninterpretedFnData[]>
     /** Refresh the uninterpreted functions. */
     refreshUninterpretedFns: () => void
     /** List of model regulations. */
-    regulationsRefreshed: Observable<[RegulationData]>
+    regulationsRefreshed: Observable<RegulationData[]>
     /** Refresh the regulations. */
     refreshRegulations: () => void
     /** List of model layouts. */
-    layoutsRefreshed: Observable<[LayoutData]>
+    layoutsRefreshed: Observable<LayoutData[]>
     /** Refresh the layouts. */
     refreshLayouts: () => void
     /** List of nodes in a given layout. */
-    layoutNodesRefreshed: Observable<[LayoutNodeData]>
+    layoutNodesRefreshed: Observable<LayoutNodeData[]>
     /** Refresh the nodes in a given layout. */
     refreshLayoutNodes: (layoutId: string) => void
 
@@ -245,6 +249,14 @@ interface AeonState {
   }
 }
 
+/** An object representing all relevant parts of a model. */
+export interface ModelData {
+  variables: VariableData[]
+  regulations: RegulationData[]
+  uninterpreted_fns: UninterpretedFnData[]
+  layouts: LayoutData[]
+}
+
 /** An object representing basic information regarding a model variable. */
 export interface VariableData {
   id: string
@@ -272,6 +284,7 @@ export interface RegulationData {
 export interface LayoutData {
   id: string
   name: string
+  nodes: LayoutNodeData[]
 }
 
 /** An object representing basic information regarding a node in a layout. */
@@ -738,23 +751,27 @@ export const aeonState: AeonState = {
     errorReceived: new Observable<string>(['error'])
   },
   model: {
-    variablesRefreshed: new Observable<[VariableData]>(['model', 'get_variables']),
+    modelRefreshed: new Observable<ModelData>(['model', 'get_whole_model']),
+    refreshModel (): void {
+      aeonEvents.refresh(['model', 'get_whole_model'])
+    },
+    variablesRefreshed: new Observable<VariableData[]>(['model', 'get_variables']),
     refreshVariables (): void {
       aeonEvents.refresh(['model', 'get_variables'])
     },
-    uninterpretedFnsRefreshed: new Observable<[UninterpretedFnData]>(['model', 'get_uninterpreted_fns']),
+    uninterpretedFnsRefreshed: new Observable<UninterpretedFnData[]>(['model', 'get_uninterpreted_fns']),
     refreshUninterpretedFns (): void {
       aeonEvents.refresh(['model', 'get_uninterpreted_fns'])
     },
-    regulationsRefreshed: new Observable<[RegulationData]>(['model', 'get_regulations']),
+    regulationsRefreshed: new Observable<RegulationData[]>(['model', 'get_regulations']),
     refreshRegulations (): void {
       aeonEvents.refresh(['model', 'get_regulations'])
     },
-    layoutsRefreshed: new Observable<[LayoutData]>(['model', 'get_layouts']),
+    layoutsRefreshed: new Observable<LayoutData[]>(['model', 'get_layouts']),
     refreshLayouts (): void {
       aeonEvents.refresh(['model', 'get_layouts'])
     },
-    layoutNodesRefreshed: new Observable<[LayoutNodeData]>(['model', 'get_layout_nodes']),
+    layoutNodesRefreshed: new Observable<LayoutNodeData[]>(['model', 'get_layout_nodes']),
     refreshLayoutNodes (layoutId: string): void {
       aeonEvents.refresh(['model', 'get_layout_nodes', layoutId])
     },

@@ -30,6 +30,7 @@ impl SessionState for ModelState {
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         match at_path.first() {
+            Some(&"get_whole_model") => self.refresh_whole_model(full_path),
             Some(&"get_variables") => self.refresh_variables(full_path),
             Some(&"get_uninterpreted_fns") => self.refresh_uninterpreted_fns(full_path),
             Some(&"get_regulations") => self.refresh_regulations(full_path),

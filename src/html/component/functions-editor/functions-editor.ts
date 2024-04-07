@@ -40,8 +40,8 @@ export class FunctionsEditor extends LitElement {
     // refresh-event listeners
     aeonState.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
 
-    // note that the `refreshUninterpretedFns` event is triggered directly from the root
-    // component (due to some dependency issues)
+    // note that the `refreshUninterpretedFns` or `refreshModel` events are triggered (after app refresh) directly
+    // from the root component (due to some dependency issues)
   }
 
   connectedCallback (): void {
@@ -56,6 +56,7 @@ export class FunctionsEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
+    this.index = this.contentData.functions.length
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
         callback(null, this.contentData.functions.map((func): Ace.Completion => ({
@@ -68,8 +69,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private saveFunctions (functions: IFunctionData[]): void {
-    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
-
     // propagate the current version of functions via event that will be captured by root component
     this.dispatchEvent(new CustomEvent('save-functions', {
       bubbles: true,
