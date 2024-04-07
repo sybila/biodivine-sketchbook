@@ -170,7 +170,7 @@ impl ObservationManager {
             let reverse_event = Event::build(&reverse_event_path, Some(dataset_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_content", at_path).is_some() {
-            // get the payload - string encoding a new dataset data
+            // get the payload - json string encoding a new dataset data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_dataset_data = DatasetData::from_json_str(&payload)?;
             let new_dataset = new_dataset_data.to_dataset()?;

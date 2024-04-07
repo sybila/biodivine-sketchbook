@@ -206,6 +206,10 @@ interface AeonState {
     datasetIdChanged: Observable<DatasetIdUpdateData>
     /** Set ID of dataset with given original ID to a new id. */
     setDatasetId: (originalId: string, newId: string) => void
+    /** DatasetData of a fully modified dataset. */
+    datasetContentChanged: Observable<DatasetData>
+    /** Set content (variables, observations - everything) of dataset with given ID. */
+    setDatasetContent: (id: string, newContent: DatasetData) => void
     /** DatasetMetaData (with updated `category`) of a modified dataset. */
     datasetCategoryChanged: Observable<DatasetMetaData>
     /** Set category of dataset with given ID. */
@@ -991,6 +995,7 @@ export const aeonState: AeonState = {
     datasetLoaded: new Observable<DatasetData>(['observations', 'load']),
     datasetRemoved: new Observable<DatasetData>(['observations', 'remove']),
     datasetIdChanged: new Observable<DatasetIdUpdateData>(['observations', 'set_id']),
+    datasetContentChanged: new Observable<DatasetData>(['observations', 'set_content']),
     datasetCategoryChanged: new Observable<DatasetMetaData>(['observations', 'set_category']),
     datasetVariableChanged: new Observable<DatasetMetaData>(['observations', 'set_var_id']),
     datasetVariableRemoved: new Observable<DatasetMetaData>(['observations', 'remove_var']),
@@ -1030,10 +1035,16 @@ export const aeonState: AeonState = {
         payload: newId
       })
     },
-    setDatasetCategory (id: string, category: DataCategory): void {
+    setDatasetContent (id: string, newContent: DatasetData): void {
+      aeonEvents.emitAction({
+        path: ['observations', id, 'set_content'],
+        payload: JSON.stringify(newContent)
+      })
+    },
+    setDatasetCategory (id: string, newCategory: DataCategory): void {
       aeonEvents.emitAction({
         path: ['observations', id, 'set_category'],
-        payload: JSON.stringify(category)
+        payload: JSON.stringify(newCategory)
       })
     },
     setDatasetVariable (datasetId: string, originalId: string, newId: string): void {

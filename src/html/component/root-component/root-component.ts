@@ -248,7 +248,7 @@ export default class RootComponent extends LitElement {
   #onVariableIdChanged (data: VariableIdUpdateData): void {
     // we need to refresh all the affected components - that can be any update function, any regulation,
     // and then the variable itself and its layout node
-    // TODO: od this more efficiently, but on backend
+    // TODO: od this more efficiently (but still on backend)
     this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
     this.data.layout.delete(data.original_id)
     aeonState.model.refreshVariables()

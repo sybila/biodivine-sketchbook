@@ -23,6 +23,7 @@ export default class ObservationsEditor extends LitElement {
 
     // observations-related event listeners
     aeonState.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
+    aeonState.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
     aeonState.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
     this.addEventListener('push-new-observation', this.pushNewObservation)
     aeonState.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
@@ -110,16 +111,13 @@ export default class ObservationsEditor extends LitElement {
       fileName = handle
     }
 
-    // TODO: allow proper import in future
     aeonState.observations.loadDataset(fileName, 'dataset' + this.index)
-    // const name = await basename(fileName)
-    // void this.importObservations(name, this.getDummy(), this.contentData.variables.map(v => v.name))
   }
 
   #onDatasetLoaded (data: DatasetData): void {
     const newDataset = this.convertToIObservationSet(data)
-    this.index++
-    this.datasets = this.datasets.concat(newDataset)
+    // just call import dialog, dataset will be filtered and then added
+    void this.importObservations(newDataset.id, newDataset.observations, newDataset.variables)
   }
 
   private async importObservations (name: string, data: IObservation[], variables: string[]): Promise<void> {
@@ -138,17 +136,29 @@ export default class ObservationsEditor extends LitElement {
     void importDialog.once('loaded', () => {
       void importDialog.emit('observations_import_update', {
         data,
-        variables: this.contentData.variables.map(v => v.name)
+        variables
       })
     })
     void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
-      this.datasets = this.datasets.concat({
+      const modifiedDataset: IObservationSet = {
         id: name,
         observations: event.payload,
         variables,
         category: DataCategory.UNSPECIFIED
-      })
+      }
+      // temporarily add the dataset in its current version, but also send an event to backend with changes
+      this.datasets = this.datasets.concat(modifiedDataset)
+      this.index++
+      aeonState.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
     })
+  }
+
+  #onDatasetContentChanged (data: DatasetData): void {
+    const observationSet = this.convertToIObservationSet(data)
+    const index = this.datasets.findIndex(item => item.id === data.id)
+    if (index === -1) return
+
+    this.datasets[index] = observationSet
   }
 
   getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
@@ -173,13 +183,15 @@ export default class ObservationsEditor extends LitElement {
   )
 
   #onDatasetIdChanged (data: DatasetIdUpdateData): void {
+    console.log(data)
     const index = this.datasets.findIndex(d => d.id === data.original_id)
     if (index === -1) return
     const datasets = [...this.datasets]
-    this.datasets[index] = {
+    datasets[index] = {
       ...datasets[index],
       id: data.new_id
     }
+    this.datasets = datasets
   }
 
   private pushNewObservation (event: Event): void {
