@@ -11,8 +11,8 @@ edition = "2021"
 tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
-biodivine-lib-bdd = ">=0.5.11, <1.0.0"
-biodivine-lib-param-bn = ">=0.5.9, <1.0.0"
+biodivine-lib-bdd = ">=0.5.13, <1.0.0"
+biodivine-lib-param-bn = ">=0.5.10, <1.0.0"
 lazy_static = "1.4.0"
 regex = "1.10.2"
 tauri = { version = "1.4", features = [ "window-set-focus", "window-set-size", "window-close", "window-create", "dialog-all", "shell-open", "path-all"] }
