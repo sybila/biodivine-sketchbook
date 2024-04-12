@@ -161,21 +161,6 @@ export default class ObservationsEditor extends LitElement {
     this.datasets[index] = observationSet
   }
 
-  getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
-    return this.singleDummy(index)
-  })
-
-  private singleDummy (index: number): IObservation {
-    const ret: IObservation = {
-      id: String(index).padStart(4, '0'),
-      name: 'obs' + String(index).padStart(4, '0')
-    }
-    this.contentData.variables.forEach(v => {
-      ret[v.name] = Math.round(Math.random())
-    })
-    return ret
-  }
-
   updateDatasetId = debounce((newId: string, index: number) => {
     const originalId = this.datasets[index].id
     aeonState.observations.setDatasetId(originalId, newId)
@@ -203,7 +188,7 @@ export default class ObservationsEditor extends LitElement {
   #onObservationPushed (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = this.datasets
+    const datasets = [...this.datasets]
     datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
     this.datasets = datasets
   }
@@ -217,7 +202,7 @@ export default class ObservationsEditor extends LitElement {
   #onObservationRemoved (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = this.datasets
+    const datasets = [...this.datasets]
     datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
     this.datasets = datasets
   }
