@@ -13,11 +13,25 @@ export default class PropertyTile extends LitElement {
   @property() declare prop: IProperty
 
   nameUpdated = debounce((name: string) => {
-    console.log(name)
+    this.dispatchEvent(new CustomEvent('property-name-changed', {
+      detail: {
+        id: this.prop.id,
+        name
+      },
+      composed: true,
+      bubbles: true
+    }))
   }, functionDebounceTimer)
 
-  valueUpdated = debounce((name: string) => {
-    console.log(name)
+  valueUpdated = debounce((value: string) => {
+    this.dispatchEvent(new CustomEvent('property-value-changed', {
+      detail: {
+        id: this.prop.id,
+        value
+      },
+      composed: true,
+      bubbles: true
+    }))
   }, functionDebounceTimer)
 
   render (): TemplateResult {

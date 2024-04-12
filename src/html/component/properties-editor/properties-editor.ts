@@ -14,15 +14,38 @@ export default class PropertiesEditor extends LitElement {
 
   constructor () {
     super()
+    this.addEventListener('property-name-changed', this.propNameChanged)
+    this.addEventListener('property-value-changed', this.propValueChanged)
+
     this.properties = [{
+      id: '1',
       name: 'static property',
       value: 'static property value',
       static: true
     }, {
+      id: '2',
       name: 'dynamic property',
       value: 'dynamic property value',
       static: false
     }]
+  }
+
+  propNameChanged (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const properties = [...this.properties]
+    const index = properties.findIndex(prop => prop.id === detail.id)
+    if (index === -1) return
+    properties[index].name = detail.name
+    this.properties = properties
+  }
+
+  propValueChanged (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const properties = [...this.properties]
+    const index = properties.findIndex(prop => prop.id === detail.id)
+    if (index === -1) return
+    properties[index].value = detail.value
+    this.properties = properties
   }
 
   render (): TemplateResult {

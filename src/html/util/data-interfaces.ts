@@ -63,6 +63,7 @@ export interface IObservationSet {
 }
 
 export interface IProperty {
+  id: string
   name: string
   value: string
   static: boolean
