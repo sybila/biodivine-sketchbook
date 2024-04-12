@@ -25,15 +25,12 @@ export default class ObservationsSet extends LitElement {
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
-    console.log('firstUpdated')
     super.firstUpdated(_changedProperties)
     await this.init()
   }
 
   protected updated (_changedProperties: PropertyValues): void {
-    console.log('updated')
     super.updated(_changedProperties)
-    console.log(_changedProperties)
     if (this.tabulatorReady) void this.tabulator?.setData(this.data.observations)
   }
 
@@ -103,8 +100,6 @@ export default class ObservationsSet extends LitElement {
       this.tabulator.on('dataLoaded', () => {
         this.tabulatorReady = true
       })
-
-      console.log('init')
     }
   }
 

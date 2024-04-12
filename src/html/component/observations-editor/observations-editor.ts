@@ -157,8 +157,10 @@ export default class ObservationsEditor extends LitElement {
     const observationSet = this.convertToIObservationSet(data)
     const index = this.datasets.findIndex(item => item.id === data.id)
     if (index === -1) return
+    const datasets = structuredClone(this.datasets)
 
-    this.datasets[index] = observationSet
+    datasets[index] = observationSet
+    this.datasets = datasets
   }
 
   updateDatasetId = debounce((newId: string, index: number) => {
@@ -171,7 +173,7 @@ export default class ObservationsEditor extends LitElement {
     console.log(data)
     const index = this.datasets.findIndex(d => d.id === data.original_id)
     if (index === -1) return
-    const datasets = [...this.datasets]
+    const datasets = structuredClone(this.datasets)
     datasets[index] = {
       ...datasets[index],
       id: data.new_id
@@ -188,7 +190,7 @@ export default class ObservationsEditor extends LitElement {
   #onObservationPushed (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = [...this.datasets]
+    const datasets = structuredClone(this.datasets)
     datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
     this.datasets = datasets
   }
@@ -202,7 +204,7 @@ export default class ObservationsEditor extends LitElement {
   #onObservationRemoved (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = [...this.datasets]
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
     datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
     this.datasets = datasets
   }
