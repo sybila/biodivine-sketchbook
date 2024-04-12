@@ -99,6 +99,10 @@ export default class ObservationsSet extends LitElement {
 
       this.tabulator.on('dataLoaded', () => {
         this.tabulatorReady = true
+        this.tabulator?.on('cellEdited', (cell) => {
+          const data = cell.getData() as IObservation
+          this.changeObservation(data.id, data)
+        })
       })
     }
   }
@@ -122,6 +126,19 @@ export default class ObservationsSet extends LitElement {
       bubbles: true,
       composed: true
     }))
+  }
+
+  private changeObservation (id: string, observation: IObservation): void {
+    this.dispatchEvent(new CustomEvent('change-observation', {
+      detail: {
+        dataset: this.data.id,
+        id,
+        observation
+      },
+      bubbles: true,
+      composed: true
+    }))
+    console.log('observation updated', observation)
   }
 
   private async editObservation (obs: IObservation): Promise<void> {
@@ -153,7 +170,7 @@ export default class ObservationsSet extends LitElement {
       this.dialogs[obs.id] = undefined
       const index = this.data.observations.findIndex(observation => observation.id === obs.id)
       if (index === -1) return
-      void this.tabulator?.updateRow(event.payload.id, event.payload.data)
+      this.changeObservation(obs.id, event.payload.data)
       console.log(event.payload)
     })
     void renameDialog.onCloseRequested(() => {
