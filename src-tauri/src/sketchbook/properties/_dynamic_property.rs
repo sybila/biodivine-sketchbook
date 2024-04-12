@@ -56,7 +56,7 @@ impl DynProperty {
     ///
     /// Only data with their type specified can be encoded.
     pub fn try_encode_dataset_hctl(dataset: &Dataset) -> Result<DynProperty, String> {
-        let formula = encode_observation_list_hctl(dataset)?;
+        let formula = encode_dataset_hctl(dataset)?;
         Ok(DynProperty::new_raw(&formula))
     }
 }

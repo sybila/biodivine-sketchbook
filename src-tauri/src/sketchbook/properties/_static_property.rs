@@ -8,7 +8,7 @@ pub struct StatProperty {}
 
 /// Creating properties.
 impl StatProperty {
-    /// TODO - just a placeholder
+    /// TODO - just a placeholder for now
     pub fn new() -> StatProperty {
         StatProperty {}
     }
