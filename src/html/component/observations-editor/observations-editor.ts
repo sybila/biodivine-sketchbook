@@ -29,6 +29,8 @@ export default class ObservationsEditor extends LitElement {
     aeonState.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
     this.addEventListener('remove-observation', this.removeObservation)
     aeonState.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
+    this.addEventListener('change-observation', this.changeObservation)
+    aeonState.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
     // TODO add all other events
 
     // refresh-event listeners
@@ -206,6 +208,27 @@ export default class ObservationsEditor extends LitElement {
     if (datasetIndex === -1) return
     const datasets: IObservationSet[] = structuredClone(this.datasets)
     datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
+    this.datasets = datasets
+  }
+
+  private changeObservation (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const dataset = this.datasets.find(ds => ds.id === detail.dataset)
+    if (dataset === undefined) return
+    if (detail.id !== detail.observation.id) {
+      aeonState.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
+    }
+    const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
+    aeonState.observations.setObservationContent(detail.dataset, obsData)
+  }
+
+  #onObservationContentChanged (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.id)
+    if (obsIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
     this.datasets = datasets
   }
 

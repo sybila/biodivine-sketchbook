@@ -138,7 +138,6 @@ export default class ObservationsSet extends LitElement {
       bubbles: true,
       composed: true
     }))
-    console.log('observation updated', observation)
   }
 
   private async editObservation (obs: IObservation): Promise<void> {
@@ -171,7 +170,6 @@ export default class ObservationsSet extends LitElement {
       const index = this.data.observations.findIndex(observation => observation.id === obs.id)
       if (index === -1) return
       this.changeObservation(obs.id, event.payload.data)
-      console.log(event.payload)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[obs.id] = undefined
