@@ -9,7 +9,13 @@ import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../util/config'
-import { aeonState, type DatasetData, type DatasetIdUpdateData, type ObservationData } from '../../../aeon_events'
+import {
+  aeonState,
+  type DatasetData,
+  type DatasetIdUpdateData,
+  type ObservationData,
+  type ObservationIdUpdateData
+} from '../../../aeon_events'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -31,6 +37,7 @@ export default class ObservationsEditor extends LitElement {
     aeonState.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
     this.addEventListener('change-observation', this.changeObservation)
     aeonState.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
     // TODO add all other events
 
     // refresh-event listeners
@@ -229,6 +236,18 @@ export default class ObservationsEditor extends LitElement {
     if (obsIndex === -1) return
     const datasets: IObservationSet[] = structuredClone(this.datasets)
     datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
+    this.datasets = datasets
+  }
+
+  #onObservationIdChanged (data: ObservationIdUpdateData): void {
+    // data.metadata seems to be dataset todo: confirm with ondrej
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.metadata)
+    if (datasetIndex === -1) return
+    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.original_id)
+    if (obsIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations[obsIndex].id = data.new_id
+    datasets[datasetIndex].observations[obsIndex].name = data.new_id
     this.datasets = datasets
   }
 
