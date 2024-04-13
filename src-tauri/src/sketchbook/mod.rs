@@ -13,6 +13,8 @@ pub mod model;
 pub mod observations;
 /// Classes and utility methods regarding properties.
 pub mod properties;
+/// The main `Sketch` manager object and its utilities.
+pub mod sketch;
 
 /// **(internal)** Utility functions specifically related to events.
 mod event_utils;

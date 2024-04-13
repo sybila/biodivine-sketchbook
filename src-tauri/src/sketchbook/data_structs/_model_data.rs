@@ -54,8 +54,4 @@ impl ModelData {
             layouts,
         }
     }
-
-    pub fn to_model(&self) -> ModelState {
-        todo!()
-    }
 }

@@ -30,3 +30,8 @@ fn check_reverse<T: SessionState + std::fmt::Debug + PartialEq>(
         _ => panic!(),
     }
 }
+
+/// Shorthand to convert a path array consisting of `&str` to a vec of `Strings`.
+fn stringify_path(path: &[&str]) -> Vec<String> {
+    path.iter().map(|s| s.to_string()).collect()
+}

@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{ChangeIdData, ObservationData};
-use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::event_utils::{make_reversible, mk_obs_event, mk_obs_state_change};
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::JsonSerde;
@@ -28,11 +28,10 @@ impl Dataset {
         self.push_observation(observation)?;
 
         // prepare the state-change variant (remove IDs from the path)
-        let state_change_path = ["observations", "push_obs"];
-        let state_change = make_state_change(&state_change_path, &observation_data);
+        let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
         // prepare the reverse event (which is a pop event)
-        let reverse_path = ["observations", &dataset_id.as_str(), "pop_obs"];
-        let reverse_event = Event::build(&reverse_path, None);
+        let reverse_at_path = [&dataset_id.as_str(), "pop_obs"];
+        let reverse_event = mk_obs_event(&reverse_at_path, None);
         Ok(make_reversible(state_change, event, reverse_event))
     }
 
@@ -51,11 +50,10 @@ impl Dataset {
         self.push_observation(observation)?;
 
         // prepare the state-change variant - classical push_obs event
-        let state_change_path = ["observations", "push_obs"];
-        let state_change = make_state_change(&state_change_path, &observation_data);
+        let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
         // prepare the reverse event (which is a pop event)
-        let reverse_path = ["observations", &dataset_id.as_str(), "pop_obs"];
-        let reverse_event = Event::build(&reverse_path, None);
+        let reverse_at_path = [&dataset_id.as_str(), "pop_obs"];
+        let reverse_event = mk_obs_event(&reverse_at_path, None);
         Ok(make_reversible(state_change, event, reverse_event))
     }
 
@@ -75,12 +73,12 @@ impl Dataset {
 
         // perform the action, prepare the state-change variant (move IDs from path to payload)
         self.pop_observation();
-        let state_change_path = ["observations", "pop_obs"];
-        let state_change = make_state_change(&state_change_path, &obs_data);
+        let state_change = mk_obs_state_change(&["pop_obs"], &obs_data);
 
         // prepare the reverse 'add_last' event (path has no ids, all info carried by payload)
-        let reverse_path = ["observations", dataset_id.as_str(), "push_obs"];
-        let reverse_event = Event::build(&reverse_path, Some(&obs_data.to_json_str()));
+        let reverse_at_path = [dataset_id.as_str(), "push_obs"];
+        let payload = obs_data.to_json_str();
+        let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
         Ok(make_reversible(state_change, event, reverse_event))
     }
 
@@ -101,8 +99,7 @@ impl Dataset {
 
             // perform the action, prepare the state-change variant (move IDs from path to payload)
             self.remove_observation(&obs_id)?;
-            let state_change_path = ["observations", "remove_obs"];
-            let state_change = make_state_change(&state_change_path, &obs_data);
+            let state_change = mk_obs_state_change(&["remove_obs"], &obs_data);
 
             // TODO: make this potentially reversible?
             Ok(Consumed::Irreversible {
@@ -123,16 +120,11 @@ impl Dataset {
                 new_id.as_str(),
                 dataset_id.as_str(),
             );
-            let state_change = make_state_change(&["observations", "set_obs_id"], &id_change_data);
+            let state_change = mk_obs_state_change(&["set_obs_id"], &id_change_data);
 
             // prepare the reverse event (setting the original ID back)
-            let reverse_event_path = [
-                "observations",
-                dataset_id.as_str(),
-                new_id.as_str(),
-                "set_id",
-            ];
-            let reverse_event = Event::build(&reverse_event_path, Some(obs_id.as_str()));
+            let reverse_at_path = [dataset_id.as_str(), new_id.as_str(), "set_id"];
+            let reverse_event = mk_obs_event(&reverse_at_path, Some(obs_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if action == "set_content" {
             // get the payload - string encoding a new observation data
@@ -147,18 +139,12 @@ impl Dataset {
             // perform the action, prepare the state-change variant (move id from path to payload)
             let orig_obs_data = ObservationData::from_obs(orig_obs, &dataset_id);
             self.swap_observation_data(&obs_id, new_obs.get_values().clone())?;
-            let state_change =
-                make_state_change(&["observations", "set_obs_content"], &new_obs_data);
+            let state_change = mk_obs_state_change(&["set_obs_content"], &new_obs_data);
 
             // prepare the reverse event (setting the original ID back)
-            let reverse_event_path = [
-                "observations",
-                dataset_id.as_str(),
-                obs_id.as_str(),
-                "set_content",
-            ];
-            let reverse_event =
-                Event::build(&reverse_event_path, Some(&orig_obs_data.to_json_str()));
+            let reverse_at_path = [dataset_id.as_str(), obs_id.as_str(), "set_content"];
+            let payload = orig_obs_data.to_json_str();
+            let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             AeonError::throw(format!(

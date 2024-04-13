@@ -1,7 +1,7 @@
-use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
-use crate::sketchbook::_tests_events::check_reverse;
+use crate::sketchbook::_tests_events::{check_reverse, stringify_path};
 use crate::sketchbook::data_structs::*;
+use crate::sketchbook::event_utils::mk_model_event;
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
@@ -17,9 +17,9 @@ fn test_add_var() {
 
     // test variable add event
     let payload = VariableData::new("b", "b", "").to_json_str();
-    let full_path = ["model", "variable", "add"];
-    let event = Event::build(&full_path, Some(payload.as_str()));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["variable", "add"];
+    let event = mk_model_event(&at_path, Some(&payload));
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check var was added correctly, and test reverse event
     assert_eq!(model.num_vars(), 2);
@@ -36,9 +36,9 @@ fn test_remove_var_simple() {
     let model_orig = model.clone();
 
     // test variable remove event
-    let full_path = ["model", "variable", "a", "remove"];
-    let event = Event::build(&full_path, None);
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["variable", "a", "remove"];
+    let event = mk_model_event(&at_path, None);
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check var was removed - result should be a simple `Consumed::Reversible` object
     assert_eq!(model.num_vars(), 1);
@@ -62,9 +62,9 @@ fn test_remove_var_complex() {
     model_expected.add_regulation_by_str("b -> b").unwrap();
 
     // test variable remove event
-    let full_path = ["model", "variable", "a", "remove"];
-    let event = Event::build(&full_path, None);
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["variable", "a", "remove"];
+    let event = mk_model_event(&at_path, None);
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // result should be a `Consumed::Restart` object with a vector of events which should simulate the individual
     // steps of the variable's removal
@@ -73,11 +73,9 @@ fn test_remove_var_complex() {
         assert_eq!(sub_events.len(), 4);
         sub_events.reverse();
         for e in sub_events {
-            let mut full_path = e.path.clone();
-            full_path.remove(0);
-            let full_path_str: Vec<&str> = full_path.iter().map(|s| s.as_str()).collect();
+            let at_path_str: Vec<&str> = e.path[2..].iter().map(|s| s.as_str()).collect();
             println!("{:?}", e);
-            model.perform_event(&e, &full_path_str).unwrap();
+            model.perform_event(&e, &at_path_str).unwrap();
         }
         assert_eq!(model, model_expected);
     } else {
@@ -96,18 +94,18 @@ fn test_set_var_name_id() {
     assert_eq!(model.get_var_name(&var_a).unwrap(), orig_name);
 
     // test variable rename event
-    let full_path = ["model", "variable", var_a.as_str(), "set_name"];
-    let event = Event::build(&full_path, Some(new_name));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["variable", var_a.as_str(), "set_name"];
+    let event = mk_model_event(&at_path, Some(new_name));
+    let result = model.perform_event(&event, &at_path).unwrap();
     // check var was renamed correctly, and test the reverse event
     assert_eq!(model.get_var_name(&var_a).unwrap(), new_name);
-    check_reverse(&mut model, &model_orig, result, &full_path[1..]);
+    check_reverse(&mut model, &model_orig, result, &at_path);
 
     // test id change event
     let new_id = model.generate_var_id("b");
-    let full_path = ["model", "variable", var_a.as_str(), "set_id"];
-    let event = Event::build(&full_path, Some(new_id.as_str()));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["variable", var_a.as_str(), "set_id"];
+    let event = mk_model_event(&at_path, Some(new_id.as_str()));
+    let result = model.perform_event(&event, &at_path).unwrap();
     // check id changed correctly, and test the reverse event
     assert!(!model.is_valid_var_id(&var_a));
     assert!(model.is_valid_var_id(&new_id));
@@ -125,9 +123,9 @@ fn test_set_update_fn() {
     let var_a = model.get_var_id("a").unwrap();
 
     // test update fn modification event
-    let full_path = ["model", "variable", var_a.as_str(), "set_update_fn"];
-    let event = Event::build(&full_path, Some(expression));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["variable", var_a.as_str(), "set_update_fn"];
+    let event = mk_model_event(&at_path, Some(expression));
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check that update fn was set correctly, and test the reverse event
     assert_eq!(model.get_update_fn_string(&var_a).unwrap(), expression);
@@ -144,21 +142,21 @@ fn test_invalid_var_events() {
     let model_orig = model.clone();
 
     // adding variable `a` again
-    let full_path = ["model", "variable", "add"];
-    let event = Event::build(&full_path, Some("a"));
-    assert!(model.perform_event(&event, &full_path[1..]).is_err());
+    let at_path = ["variable", "add"];
+    let event = mk_model_event(&at_path, Some("a"));
+    assert!(model.perform_event(&event, &at_path).is_err());
     assert_eq!(model, model_orig);
 
     // removing variable with wrong id
-    let full_path = ["model", "variable", "b", "remove"];
-    let event = Event::build(&full_path, None);
-    assert!(model.perform_event(&event, &full_path[1..]).is_err());
+    let at_path = ["variable", "b", "remove"];
+    let event = mk_model_event(&at_path, None);
+    assert!(model.perform_event(&event, &at_path).is_err());
     assert_eq!(model, model_orig);
 
     // variable rename event with wrong id
-    let full_path = ["model", "variable", "b", "set_name"];
-    let event = Event::build(&full_path, Some("new_name"));
-    assert!(model.perform_event(&event, &full_path[1..]).is_err());
+    let at_path = ["variable", "b", "set_name"];
+    let event = mk_model_event(&at_path, Some("new_name"));
+    assert!(model.perform_event(&event, &at_path).is_err());
     assert_eq!(model, model_orig);
 }
 
@@ -170,10 +168,10 @@ fn test_add_reg() {
     let model_orig = model.clone();
 
     // test regulation add event
-    let full_path = ["model", "regulation", "add"];
+    let at_path = ["regulation", "add"];
     let regulation_data = RegulationData::try_from_reg_str("a -> b").unwrap();
-    let event = Event::build(&full_path, Some(&regulation_data.to_json_str()));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let event = mk_model_event(&at_path, Some(&regulation_data.to_json_str()));
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check that regulation was added correctly, and test the reverse event
     assert_eq!(model.num_regulations(), 1);
@@ -191,10 +189,10 @@ fn test_change_reg_sign_essentiality() {
     let model_orig = model.clone();
 
     // test event for changing regulation's sign
-    let full_path = ["model", "regulation", "a", "b", "set_sign"];
+    let at_path = ["regulation", "a", "b", "set_sign"];
     let new_sign = Monotonicity::Inhibition.to_json_str();
-    let event = Event::build(&full_path, Some(&new_sign));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let event = mk_model_event(&at_path, Some(&new_sign));
+    let result = model.perform_event(&event, &at_path).unwrap();
     // check that regulation's sign was set correctly, and test the reverse event
     let reg = model.get_regulation_by_str("a", "b").unwrap();
     assert_eq!(reg.get_sign(), &Monotonicity::Inhibition);
@@ -202,10 +200,10 @@ fn test_change_reg_sign_essentiality() {
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 
     // test event for changing regulation's essentiality
-    let full_path = ["model", "regulation", "a", "b", "set_essentiality"];
+    let at_path = ["regulation", "a", "b", "set_essentiality"];
     let new_essentiality = Essentiality::False.to_json_str();
-    let event = Event::build(&full_path, Some(&new_essentiality));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let event = mk_model_event(&at_path, Some(&new_essentiality));
+    let result = model.perform_event(&event, &at_path).unwrap();
     // check that regulation's essentiality was set correctly, and test the reverse event
     let reg = model.get_regulation_by_str("a", "b").unwrap();
     assert_eq!(reg.get_essentiality(), &Essentiality::False);
@@ -222,9 +220,9 @@ fn test_remove_reg() {
     let model_orig = model.clone();
 
     // test regulation remove event
-    let full_path = ["model", "regulation", "a", "b", "remove"];
-    let event = Event::build(&full_path, None);
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["regulation", "a", "b", "remove"];
+    let event = mk_model_event(&at_path, None);
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check that regulation was removed correctly, and test the reverse event
     assert_eq!(model.num_regulations(), 0);
@@ -242,14 +240,14 @@ fn test_change_position() {
 
     // test position change event
     let payload = LayoutNodeData::new(layout_id.as_str(), var_id.as_str(), 2.5, 0.4).to_json_str();
-    let full_path = ["model", "layout", layout_id.as_str(), "update_position"];
-    let event = Event::build(&full_path, Some(payload.as_str()));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["layout", layout_id.as_str(), "update_position"];
+    let event = mk_model_event(&at_path, Some(&payload));
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check position changed correctly, and test reverse event
     let new_position = model.get_node_position(&layout_id, &var_id).unwrap();
     assert_eq!(new_position, &NodePosition(2.5, 0.4));
-    check_reverse(&mut model, &model_orig, result, &full_path[1..]);
+    check_reverse(&mut model, &model_orig, result, &at_path);
 }
 
 #[test]
@@ -261,10 +259,10 @@ fn test_change_fn_arg_monotonicity_essentiality() {
     let model_orig = model.clone();
 
     // test event for changing uninterpreted fn's monotonicity
-    let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_monotonicity"];
+    let at_path = ["uninterpreted_fn", f.as_str(), "set_monotonicity"];
     let change_data = ChangeArgMonotoneData::new(1, Monotonicity::Dual).to_json_str();
-    let event = Event::build(&full_path, Some(&change_data));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let event = mk_model_event(&at_path, Some(&change_data));
+    let result = model.perform_event(&event, &at_path).unwrap();
     // check if the argument's monotonicity changed correctly, and test reverse event
     let uninterpreted_fn = model.get_uninterpreted_fn(&f).unwrap();
     assert_eq!(uninterpreted_fn.get_monotonic(1), &Monotonicity::Dual);
@@ -272,10 +270,10 @@ fn test_change_fn_arg_monotonicity_essentiality() {
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 
     // test event for changing uninterpreted fn's expression
-    let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_essentiality"];
+    let at_path = ["uninterpreted_fn", f.as_str(), "set_essentiality"];
     let change_data = ChangeArgEssentialData::new(1, Essentiality::True).to_json_str();
-    let event = Event::build(&full_path, Some(&change_data));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let event = mk_model_event(&at_path, Some(&change_data));
+    let result = model.perform_event(&event, &at_path).unwrap();
     // check if the argument's essentiality changed correctly, and test reverse event
     let uninterpreted_fn = model.get_uninterpreted_fn(&f).unwrap();
     assert_eq!(uninterpreted_fn.get_essential(1), &Essentiality::True);
@@ -293,9 +291,9 @@ fn test_change_fn_expression() {
 
     // test event for changing uninterpreted fn's expression
     let expression = "var0 | var1";
-    let full_path = ["model", "uninterpreted_fn", f.as_str(), "set_expression"];
-    let event = Event::build(&full_path, Some(expression));
-    let result = model.perform_event(&event, &full_path[1..]).unwrap();
+    let at_path = ["uninterpreted_fn", f.as_str(), "set_expression"];
+    let event = mk_model_event(&at_path, Some(&expression));
+    let result = model.perform_event(&event, &at_path).unwrap();
 
     // check if the expression changed correctly, and test reverse event
     let uninterpreted_fn = model.get_uninterpreted_fn(&f).unwrap();
@@ -324,7 +322,7 @@ fn test_refresh() {
     model.set_update_fn(&var_b, expressions[1]).unwrap();
 
     // test variables getter
-    let full_path = ["model".to_string(), "get_variables".to_string()];
+    let full_path = stringify_path(&["sketch", "model", "get_variables"]);
     let event = model.refresh(&full_path, &["get_variables"]).unwrap();
     let var_list: Vec<VariableData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(var_list.len(), 2);
@@ -333,7 +331,7 @@ fn test_refresh() {
     assert_eq!(var_list[0].update_fn, expressions[0]);
 
     // test regulations getter
-    let full_path = ["model".to_string(), "get_regulations".to_string()];
+    let full_path = stringify_path(&["sketch", "model", "get_regulations"]);
     let event = model.refresh(&full_path, &["get_regulations"]).unwrap();
     let reg_list: Vec<RegulationData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(reg_list.len(), 3);
@@ -341,18 +339,14 @@ fn test_refresh() {
     assert_eq!(reg_list[0].regulator, var_a.to_string());
 
     // test layouts getter
-    let full_path = ["model".to_string(), "get_layouts".to_string()];
+    let full_path = stringify_path(&["sketch", "model", "get_layouts"]);
     let event = model.refresh(&full_path, &["get_layouts"]).unwrap();
     let layout_list: Vec<LayoutData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(layout_list.len(), 1);
     assert_eq!(layout_list[0].id, layout_id.clone());
 
     // test layout nodes getter
-    let full_path = [
-        "model".to_string(),
-        "get_layout_nodes".to_string(),
-        layout_id.clone(),
-    ];
+    let full_path = stringify_path(&["sketch", "model", "get_layout_nodes", &layout_id]);
     let event = model
         .refresh(&full_path, &["get_layout_nodes", &layout_id])
         .unwrap();
@@ -361,7 +355,7 @@ fn test_refresh() {
     assert_eq!(node_list[0].variable, var_a.to_string());
 
     // test uninterpreted functions getter
-    let full_path = ["model".to_string(), "get_uninterpreted_fns".to_string()];
+    let full_path = stringify_path(&["sketch", "model", "get_uninterpreted_fns"]);
     let event = model
         .refresh(&full_path, &["get_uninterpreted_fns"])
         .unwrap();
@@ -371,7 +365,7 @@ fn test_refresh() {
     assert_eq!(uninterpreted_fn_list[0].id, fn_f.to_string());
 
     // test whole model getter
-    let full_path = ["model".to_string(), "get_whole_model".to_string()];
+    let full_path = stringify_path(&["sketch", "model", "get_whole_model"]);
     let event = model.refresh(&full_path, &["get_whole_model"]).unwrap();
     let model_data: ModelData = ModelData::from_json_str(&event.payload.unwrap()).unwrap();
     assert_eq!(model_data.uninterpreted_fns, uninterpreted_fn_list);

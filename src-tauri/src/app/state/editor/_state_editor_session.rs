@@ -4,9 +4,7 @@ use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
-use crate::sketchbook::model::ModelState;
-use crate::sketchbook::observations::ObservationManager;
-use crate::sketchbook::properties::PropertyManager;
+use crate::sketchbook::sketch::Sketch;
 
 /// The state of one editor session.
 ///
@@ -16,9 +14,7 @@ pub struct EditorSession {
     id: String,
     undo_stack: UndoStack,
     tab_bar: TabBarState,
-    model: ModelState,
-    observations: ObservationManager,
-    properties: PropertyManager,
+    sketch: Sketch,
 }
 
 impl EditorSession {
@@ -27,9 +23,7 @@ impl EditorSession {
             id: id.to_string(),
             undo_stack: UndoStack::default(),
             tab_bar: TabBarState::default(),
-            model: ModelState::default(),
-            observations: ObservationManager::default(),
-            properties: PropertyManager::default(),
+            sketch: Sketch::default(),
         }
     }
 
@@ -199,12 +193,8 @@ impl SessionState for EditorSession {
             self.undo_stack.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
             self.tab_bar.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("model", at_path) {
-            self.model.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("observations", at_path) {
-            self.observations.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("properties", at_path) {
-            self.properties.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("sketch", at_path) {
+            self.sketch.perform_event(event, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }
@@ -215,12 +205,8 @@ impl SessionState for EditorSession {
             self.undo_stack.refresh(full_path, at_path)
         } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
             self.tab_bar.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("model", at_path) {
-            self.model.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("observations", at_path) {
-            self.observations.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("properties", at_path) {
-            self.properties.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("sketch", at_path) {
+            self.sketch.refresh(full_path, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

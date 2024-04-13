@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::RegulationData;
-use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
 use crate::sketchbook::JsonSerde;
@@ -25,14 +25,13 @@ impl ModelState {
         self.add_regulation(regulator_id, target_id, essential, sign)?;
 
         // prepare the state-change and reverse event (which is a remove event)
-        let reverse_path = [
-            "model",
+        let reverse_at_path = [
             "regulation",
             &regulation_data.regulator,
             &regulation_data.target,
             "remove",
         ];
-        let reverse_event = Event::build(&reverse_path, None);
+        let reverse_event = mk_model_event(&reverse_at_path, None);
         Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
@@ -55,11 +54,12 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move IDs from path to payload)
             self.remove_regulation(&regulator_id, &target_id)?;
-            let state_change = make_state_change(&["model", "regulation", "remove"], &reg_data);
+            let state_change = mk_model_state_change(&["regulation", "remove"], &reg_data);
 
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
-            let reverse_path = ["model", "regulation", "add"];
-            let reverse_event = Event::build(&reverse_path, Some(&reg_data.to_json_str()));
+            let reverse_at_path = ["regulation", "add"];
+            let payload = reg_data.to_json_str();
+            let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_sign", at_path).is_some() {
             // get the payload - a string for the "new_sign"
@@ -77,7 +77,7 @@ impl ModelState {
             self.change_regulation_sign(&regulator_id, &target_id, &new_sign)?;
             let new_reg = self.get_regulation(&regulator_id, &target_id)?;
             let reg_data = RegulationData::from_reg(new_reg);
-            let state_change = make_state_change(&["model", "regulation", "set_sign"], &reg_data);
+            let state_change = mk_model_state_change(&["regulation", "set_sign"], &reg_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
@@ -98,7 +98,7 @@ impl ModelState {
             let new_reg = self.get_regulation(&regulator_id, &target_id)?;
             let reg_data = RegulationData::from_reg(new_reg);
             let state_change =
-                make_state_change(&["model", "regulation", "set_essentiality"], &reg_data);
+                mk_model_state_change(&["regulation", "set_essentiality"], &reg_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();

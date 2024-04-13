@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{ChangeIdData, LayoutNodeData, VariableData};
-use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::ModelState;
@@ -20,8 +20,8 @@ impl ModelState {
         self.add_var_by_str(&variable_data.id, &variable_data.name)?;
 
         // prepare the state-change and reverse event (which is a remove event)
-        let reverse_path = ["model", "variable", &variable_data.id, "remove"];
-        let reverse_event = Event::build(&reverse_path, None);
+        let reverse_at_path = ["variable", &variable_data.id, "remove"];
+        let reverse_event = mk_model_event(&reverse_at_path, None);
         Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
@@ -57,31 +57,25 @@ impl ModelState {
                 );
                 // perform the event, prepare the state-change variant (move id from path to payload)
                 self.remove_var(&var_id)?;
-                let state_change = make_state_change(&["model", "variable", "remove"], &var_data);
+                let state_change = mk_model_state_change(&["variable", "remove"], &var_data);
 
                 // prepare the reverse event
-                let reverse_path = ["model", "variable", "add"];
-                let reverse_event = Event::build(&reverse_path, Some(&var_data.to_json_str()));
+                let payload = var_data.to_json_str();
+                let reverse_event = mk_model_event(&["variable", "add"], Some(&payload));
                 Ok(make_reversible(state_change, event, reverse_event))
             } else {
                 let mut event_list = Vec::new();
                 event_list.push(event.clone());
                 for l_id in self.layouts.keys() {
-                    let event_path = ["model", "layout", l_id.as_str(), "update_position"];
+                    let at_path = ["layout", l_id.as_str(), "update_position"];
                     let payload =
                         LayoutNodeData::new(l_id.as_str(), var_id.as_str(), 0., 0.).to_json_str();
-                    let move_event = Event::build(&event_path, Some(payload.as_str()));
+                    let move_event = mk_model_event(&at_path, Some(&payload));
                     event_list.push(move_event)
                 }
                 for reg in regulators {
-                    let event_path = [
-                        "model",
-                        "regulation",
-                        reg.as_str(),
-                        var_id.as_str(),
-                        "remove",
-                    ];
-                    let remove_event = Event::build(&event_path, None);
+                    let at_path = ["regulation", reg.as_str(), var_id.as_str(), "remove"];
+                    let remove_event = mk_model_event(&at_path, None);
                     event_list.push(remove_event)
                 }
                 for target in targets {
@@ -89,14 +83,8 @@ impl ModelState {
                     if var_id == *target {
                         continue;
                     }
-                    let event_path = [
-                        "model",
-                        "regulation",
-                        var_id.as_str(),
-                        target.as_str(),
-                        "remove",
-                    ];
-                    let remove_event = Event::build(&event_path, None);
+                    let at_path = ["regulation", var_id.as_str(), target.as_str(), "remove"];
+                    let remove_event = mk_model_event(&at_path, None);
                     event_list.push(remove_event)
                 }
                 Ok(Consumed::Restart(event_list))
@@ -116,7 +104,7 @@ impl ModelState {
                 self.get_variable(&var_id)?,
                 self.get_update_fn(&var_id)?,
             );
-            let state_change = make_state_change(&["model", "variable", "set_name"], &var_data);
+            let state_change = mk_model_state_change(&["variable", "set_name"], &var_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
@@ -135,11 +123,11 @@ impl ModelState {
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_id_by_str(var_id.as_str(), new_id.as_str())?;
             let id_change_data = ChangeIdData::new(var_id.as_str(), new_id.as_str());
-            let state_change = make_state_change(&["model", "variable", "set_id"], &id_change_data);
+            let state_change = mk_model_state_change(&["variable", "set_id"], &id_change_data);
 
             // prepare the reverse event
-            let reverse_event_path = ["model", "variable", new_id.as_str(), "set_id"];
-            let reverse_event = Event::build(&reverse_event_path, Some(var_id.as_str()));
+            let reverse_at_path = ["variable", new_id.as_str(), "set_id"];
+            let reverse_event = mk_model_event(&reverse_at_path, Some(var_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_update_fn", at_path).is_some() {
             // get the payload - string for "new_expression"
@@ -160,8 +148,7 @@ impl ModelState {
             }
 
             // prepare state-change and reverse events
-            let state_change =
-                make_state_change(&["model", "variable", "set_update_fn"], &var_data);
+            let state_change = mk_model_state_change(&["variable", "set_update_fn"], &var_data);
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_expression);
             Ok(make_reversible(state_change, event, reverse_event))

@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{LayoutData, LayoutNodeData};
-use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::LayoutId;
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::ModelState;
@@ -25,8 +25,8 @@ impl ModelState {
         self.add_layout_copy(layout_id, &name, &Self::get_default_layout_id())?;
 
         // prepare the state-change and reverse event (which is a remove event)
-        let reverse_path = ["model", "layout", &layout_id_str, "remove"];
-        let reverse_event = Event::build(&reverse_path, None);
+        let reverse_at_path = ["layout", &layout_id_str, "remove"];
+        let reverse_event = mk_model_event(&reverse_at_path, None);
         Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
@@ -62,8 +62,7 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move ID from path to payload)
             self.update_position(&layout_id, &var_id, new_node_data.px, new_node_data.py)?;
-            let state_change =
-                make_state_change(&["model", "layout", "update_position"], &new_pos_data);
+            let state_change = mk_model_state_change(&["layout", "update_position"], &new_pos_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
@@ -77,7 +76,7 @@ impl ModelState {
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.remove_layout(&layout_id)?;
-            let state_change = make_state_change(&["model", "layout", "remove"], &layout_data);
+            let state_change = mk_model_state_change(&["layout", "remove"], &layout_data);
 
             // todo make reversible in the future?
             Ok(Consumed::Irreversible {

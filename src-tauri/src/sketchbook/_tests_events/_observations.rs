@@ -1,6 +1,6 @@
 use crate::app::event::Event;
 use crate::app::state::SessionState;
-use crate::sketchbook::_tests_events::check_reverse;
+use crate::sketchbook::_tests_events::{check_reverse, stringify_path};
 use crate::sketchbook::data_structs::*;
 use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::{DataCategory, Dataset, Observation, ObservationManager};
@@ -211,29 +211,20 @@ fn test_refresh() {
     let manager = ObservationManager::from_datasets(dataset_list).unwrap();
 
     // test getter for all datasets
-    let full_path = ["observations".to_string(), "get_all_datasets".to_string()];
+    let full_path = stringify_path(&["sketch", "observations", "get_all_datasets"]);
     let event = manager.refresh(&full_path, &["get_all_datasets"]).unwrap();
     let dataset_list: Vec<DatasetData> = serde_json::from_str(&event.payload.unwrap()).unwrap();
     assert_eq!(dataset_list.len(), 2);
     assert_eq!(&dataset_list[0].id, "d1");
 
     // test getter for a single dataset
-    let full_path = [
-        "observations".to_string(),
-        "get_dataset".to_string(),
-        "d1".to_string(),
-    ];
+    let full_path = stringify_path(&["sketch", "observations", "get_dataset", "d1"]);
     let event = manager.refresh(&full_path, &["get_dataset", "d1"]).unwrap();
     let dataset_data = DatasetData::from_json_str(&event.payload.unwrap()).unwrap();
     assert_eq!(dataset_data.to_dataset().unwrap(), d1);
 
     // test getter for a single observation
-    let full_path = [
-        "observations".to_string(),
-        "get_observation".to_string(),
-        "d1".to_string(),
-        "o2".to_string(),
-    ];
+    let full_path = stringify_path(&["sketch", "observations", "get_observation", "d1", "o2"]);
     let at_path = ["get_observation", "d1", "o2"];
     let event = manager.refresh(&full_path, &at_path).unwrap();
     let obs_data = ObservationData::from_json_str(&event.payload.unwrap()).unwrap();

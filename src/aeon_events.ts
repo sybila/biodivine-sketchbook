@@ -755,56 +755,56 @@ export const aeonState: AeonState = {
     errorReceived: new Observable<string>(['error'])
   },
   model: {
-    modelRefreshed: new Observable<ModelData>(['model', 'get_whole_model']),
+    modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),
     refreshModel (): void {
-      aeonEvents.refresh(['model', 'get_whole_model'])
+      aeonEvents.refresh(['sketch', 'model', 'get_whole_model'])
     },
-    variablesRefreshed: new Observable<VariableData[]>(['model', 'get_variables']),
+    variablesRefreshed: new Observable<VariableData[]>(['sketch', 'model', 'get_variables']),
     refreshVariables (): void {
-      aeonEvents.refresh(['model', 'get_variables'])
+      aeonEvents.refresh(['sketch', 'model', 'get_variables'])
     },
-    uninterpretedFnsRefreshed: new Observable<UninterpretedFnData[]>(['model', 'get_uninterpreted_fns']),
+    uninterpretedFnsRefreshed: new Observable<UninterpretedFnData[]>(['sketch', 'model', 'get_uninterpreted_fns']),
     refreshUninterpretedFns (): void {
-      aeonEvents.refresh(['model', 'get_uninterpreted_fns'])
+      aeonEvents.refresh(['sketch', 'model', 'get_uninterpreted_fns'])
     },
-    regulationsRefreshed: new Observable<RegulationData[]>(['model', 'get_regulations']),
+    regulationsRefreshed: new Observable<RegulationData[]>(['sketch', 'model', 'get_regulations']),
     refreshRegulations (): void {
-      aeonEvents.refresh(['model', 'get_regulations'])
+      aeonEvents.refresh(['sketch', 'model', 'get_regulations'])
     },
-    layoutsRefreshed: new Observable<LayoutData[]>(['model', 'get_layouts']),
+    layoutsRefreshed: new Observable<LayoutData[]>(['sketch', 'model', 'get_layouts']),
     refreshLayouts (): void {
-      aeonEvents.refresh(['model', 'get_layouts'])
+      aeonEvents.refresh(['sketch', 'model', 'get_layouts'])
     },
-    layoutNodesRefreshed: new Observable<LayoutNodeData[]>(['model', 'get_layout_nodes']),
+    layoutNodesRefreshed: new Observable<LayoutNodeData[]>(['sketch', 'model', 'get_layout_nodes']),
     refreshLayoutNodes (layoutId: string): void {
-      aeonEvents.refresh(['model', 'get_layout_nodes', layoutId])
+      aeonEvents.refresh(['sketch', 'model', 'get_layout_nodes', layoutId])
     },
 
-    variableCreated: new Observable<VariableData>(['model', 'variable', 'add']),
-    variableRemoved: new Observable<VariableData>(['model', 'variable', 'remove']),
-    variableNameChanged: new Observable<VariableData>(['model', 'variable', 'set_name']),
-    variableIdChanged: new Observable<VariableIdUpdateData>(['model', 'variable', 'set_id']),
-    variableUpdateFnChanged: new Observable<VariableData>(['model', 'variable', 'set_update_fn']),
+    variableCreated: new Observable<VariableData>(['sketch', 'model', 'variable', 'add']),
+    variableRemoved: new Observable<VariableData>(['sketch', 'model', 'variable', 'remove']),
+    variableNameChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_name']),
+    variableIdChanged: new Observable<VariableIdUpdateData>(['sketch', 'model', 'variable', 'set_id']),
+    variableUpdateFnChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_update_fn']),
 
-    uninterpretedFnCreated: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'add']),
-    uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'remove']),
-    uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_name']),
-    uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_arity']),
-    uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'increment_arity']),
-    uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'decrement_arity']),
-    uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['model', 'uninterpreted_fn', 'set_id']),
-    uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_expression']),
-    uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_monotonicity']),
-    uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['model', 'uninterpreted_fn', 'set_essentiality']),
+    uninterpretedFnCreated: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'add']),
+    uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'remove']),
+    uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_name']),
+    uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_arity']),
+    uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'increment_arity']),
+    uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'decrement_arity']),
+    uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['sketch', 'model', 'uninterpreted_fn', 'set_id']),
+    uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_expression']),
+    uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_monotonicity']),
+    uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_essentiality']),
 
-    regulationCreated: new Observable<RegulationData>(['model', 'regulation', 'add']),
-    regulationRemoved: new Observable<RegulationData>(['model', 'regulation', 'remove']),
-    regulationSignChanged: new Observable<RegulationData>(['model', 'regulation', 'set_sign']),
-    regulationEssentialityChanged: new Observable<RegulationData>(['model', 'regulation', 'set_essentiality']),
+    regulationCreated: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'add']),
+    regulationRemoved: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'remove']),
+    regulationSignChanged: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'set_sign']),
+    regulationEssentialityChanged: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'set_essentiality']),
 
-    layoutCreated: new Observable<LayoutData>(['model', 'layout', 'add']),
-    layoutRemoved: new Observable<LayoutData>(['model', 'layout', 'remove']),
-    nodePositionChanged: new Observable<LayoutNodeData>(['model', 'layout', 'update_position']),
+    layoutCreated: new Observable<LayoutData>(['sketch', 'model', 'layout', 'add']),
+    layoutRemoved: new Observable<LayoutData>(['sketch', 'model', 'layout', 'remove']),
+    nodePositionChanged: new Observable<LayoutNodeData>(['sketch', 'model', 'layout', 'update_position']),
 
     addVariable (
       varId: string,
@@ -817,7 +817,7 @@ export const aeonState: AeonState = {
       const actions = []
       // First action creates the variable.
       actions.push({
-        path: ['model', 'variable', 'add'],
+        path: ['sketch', 'model', 'variable', 'add'],
         payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
       })
       // Subsequent actions position it in one or more layouts.
@@ -826,7 +826,7 @@ export const aeonState: AeonState = {
       }
       for (const p of position) {
         actions.push({
-          path: ['model', 'layout', p.layout, 'update_position'],
+          path: ['sketch', 'model', 'layout', p.layout, 'update_position'],
           payload: JSON.stringify({
             layout: p.layout,
             variable: varId,
@@ -839,25 +839,25 @@ export const aeonState: AeonState = {
     },
     removeVariable (varId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'variable', varId, 'remove'],
+        path: ['sketch', 'model', 'variable', varId, 'remove'],
         payload: null
       })
     },
     setVariableName (varId: string, newName: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'variable', varId, 'set_name'],
+        path: ['sketch', 'model', 'variable', varId, 'set_name'],
         payload: newName
       })
     },
     setVariableId (originalId: string, newId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'variable', originalId, 'set_id'],
+        path: ['sketch', 'model', 'variable', originalId, 'set_id'],
         payload: newId
       })
     },
     setVariableUpdateFn (varId: string, newExpression: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'variable', varId, 'set_update_fn'],
+        path: ['sketch', 'model', 'variable', varId, 'set_update_fn'],
         payload: newExpression.toString()
       })
     },
@@ -866,7 +866,7 @@ export const aeonState: AeonState = {
         uninterpretedFnName = uninterpretedFnId
       }
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', 'add'],
+        path: ['sketch', 'model', 'uninterpreted_fn', 'add'],
         payload: JSON.stringify({
           id: uninterpretedFnId,
           name: uninterpretedFnName,
@@ -877,61 +877,61 @@ export const aeonState: AeonState = {
     },
     removeUninterpretedFn (uninterpretedFnId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'remove'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'remove'],
         payload: null
       })
     },
     setUninterpretedFnName (uninterpretedFnId: string, newName: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
         payload: newName
       })
     },
     setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
         payload: newArity.toString()
       })
     },
     incrementUninterpretedFnArity (uninterpretedFnId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
         payload: null
       })
     },
     decrementUninterpretedFnArity (uninterpretedFnId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
         payload: null
       })
     },
     setUninterpretedFnId (originalId: string, newId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', originalId, 'set_id'],
+        path: ['sketch', 'model', 'uninterpreted_fn', originalId, 'set_id'],
         payload: newId
       })
     },
     setUninterpretedFnExpression (uninterpretedFnId: string, newExpression: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_expression'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_expression'],
         payload: newExpression.toString()
       })
     },
     setUninterpretedFnMonotonicity (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicity'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicity'],
         payload: JSON.stringify({ idx, monotonicity })
       })
     },
     setUninterpretedFnEssentiality (uninterpretedFnId: string, idx: number, essentiality: Essentiality): void {
       aeonEvents.emitAction({
-        path: ['model', 'uninterpreted_fn', uninterpretedFnId, 'set_essentiality'],
+        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_essentiality'],
         payload: JSON.stringify({ idx, essentiality })
       })
     },
     addRegulation (regulatorId: string, targetId: string, sign: string, essential: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', 'add'],
+        path: ['sketch', 'model', 'regulation', 'add'],
         payload: JSON.stringify({
           regulator: regulatorId,
           target: targetId,
@@ -942,73 +942,73 @@ export const aeonState: AeonState = {
     },
     removeRegulation (regulatorId: string, targetId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', regulatorId, targetId, 'remove'],
+        path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'remove'],
         payload: null
       })
     },
     setRegulationSign (regulatorId: string, targetId: string, newSign: Monotonicity): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', regulatorId, targetId, 'set_sign'],
+        path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'set_sign'],
         payload: JSON.stringify(newSign)
       })
     },
     setRegulationEssentiality (regulatorId: string, targetId: string, newEssentiality: Essentiality): void {
       aeonEvents.emitAction({
-        path: ['model', 'regulation', regulatorId, targetId, 'set_essentiality'],
+        path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'set_essentiality'],
         payload: JSON.stringify(newEssentiality)
       })
     },
     addLayout (layoutId: string, layoutName: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'layout', 'add'],
+        path: ['sketch', 'model', 'layout', 'add'],
         payload: JSON.stringify({ id: layoutId, name: layoutName })
       })
     },
     removeLayout (layoutId: string): void {
       aeonEvents.emitAction({
-        path: ['model', 'layout', layoutId, 'remove'],
+        path: ['sketch', 'model', 'layout', layoutId, 'remove'],
         payload: null
       })
     },
     changeNodePosition (layoutId: string, varId: string, newX: number, newY: number): void {
       aeonEvents.emitAction({
-        path: ['model', 'layout', layoutId, 'update_position'],
+        path: ['sketch', 'model', 'layout', layoutId, 'update_position'],
         payload: JSON.stringify({ layout: layoutId, variable: varId, px: newX, py: newY })
       })
     }
   },
   observations: {
-    datasetsRefreshed: new Observable<[DatasetData]>(['observations', 'get_all_datasets']),
+    datasetsRefreshed: new Observable<[DatasetData]>(['sketch', 'observations', 'get_all_datasets']),
     refreshDatasets (): void {
-      aeonEvents.refresh(['observations', 'get_all_datasets'])
+      aeonEvents.refresh(['sketch', 'observations', 'get_all_datasets'])
     },
-    singleDatasetRefreshed: new Observable<DatasetData>(['observations', 'get_dataset']),
+    singleDatasetRefreshed: new Observable<DatasetData>(['sketch', 'observations', 'get_dataset']),
     refreshSingleDataset (id: string): void {
-      aeonEvents.refresh(['observations', 'get_dataset', id])
+      aeonEvents.refresh(['sketch', 'observations', 'get_dataset', id])
     },
     observationRefreshed: new Observable<ObservationData>(['observations', 'get_observation']),
     refreshSingleObservation (datasetId: string, observationId: string): void {
-      aeonEvents.refresh(['observations', 'get_observation', datasetId, observationId])
+      aeonEvents.refresh(['sketch', 'observations', 'get_observation', datasetId, observationId])
     },
 
-    datasetCreated: new Observable<DatasetData>(['observations', 'add']),
-    datasetLoaded: new Observable<DatasetData>(['observations', 'load']),
-    datasetRemoved: new Observable<DatasetData>(['observations', 'remove']),
-    datasetIdChanged: new Observable<DatasetIdUpdateData>(['observations', 'set_id']),
-    datasetContentChanged: new Observable<DatasetData>(['observations', 'set_content']),
-    datasetCategoryChanged: new Observable<DatasetMetaData>(['observations', 'set_category']),
-    datasetVariableChanged: new Observable<DatasetMetaData>(['observations', 'set_var_id']),
-    datasetVariableRemoved: new Observable<DatasetMetaData>(['observations', 'remove_var']),
+    datasetCreated: new Observable<DatasetData>(['sketch', 'observations', 'add']),
+    datasetLoaded: new Observable<DatasetData>(['sketch', 'observations', 'load']),
+    datasetRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove']),
+    datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
+    datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
+    datasetCategoryChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_category']),
+    datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
+    datasetVariableRemoved: new Observable<DatasetMetaData>(['sketch', 'observations', 'remove_var']),
 
-    observationPushed: new Observable<ObservationData>(['observations', 'push_obs']),
-    observationPopped: new Observable<ObservationData>(['observations', 'pop_obs']),
-    observationRemoved: new Observable<ObservationData>(['observations', 'remove_obs']),
-    observationIdChanged: new Observable<ObservationIdUpdateData>(['observations', 'set_obs_id']),
-    observationContentChanged: new Observable<ObservationData>(['observations', 'set_obs_content']),
+    observationPushed: new Observable<ObservationData>(['sketch', 'observations', 'push_obs']),
+    observationPopped: new Observable<ObservationData>(['sketch', 'observations', 'pop_obs']),
+    observationRemoved: new Observable<ObservationData>(['sketch', 'observations', 'remove_obs']),
+    observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
+    observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
 
     addDataset (id: string, variables: [string], observations: [ObservationData], category: DataCategory = DataCategory.UNSPECIFIED): void {
       aeonEvents.emitAction({
-        path: ['observations', 'add'],
+        path: ['sketch', 'observations', 'add'],
         payload: JSON.stringify({
           id,
           variables,
@@ -1019,80 +1019,80 @@ export const aeonState: AeonState = {
     },
     loadDataset (path: string, id: string): void {
       aeonEvents.emitAction({
-        path: ['observations', 'load'],
+        path: ['sketch', 'observations', 'load'],
         payload: JSON.stringify({ path, id })
       })
     },
     removeDataset (id: string): void {
       aeonEvents.emitAction({
-        path: ['observations', id, 'remove'],
+        path: ['sketch', 'observations', id, 'remove'],
         payload: null
       })
     },
     setDatasetId (originalId: string, newId: string): void {
       aeonEvents.emitAction({
-        path: ['observations', originalId, 'set_id'],
+        path: ['sketch', 'observations', originalId, 'set_id'],
         payload: newId
       })
     },
     setDatasetContent (id: string, newContent: DatasetData): void {
       aeonEvents.emitAction({
-        path: ['observations', id, 'set_content'],
+        path: ['sketch', 'observations', id, 'set_content'],
         payload: JSON.stringify(newContent)
       })
     },
     setDatasetCategory (id: string, newCategory: DataCategory): void {
       aeonEvents.emitAction({
-        path: ['observations', id, 'set_category'],
+        path: ['sketch', 'observations', id, 'set_category'],
         payload: JSON.stringify(newCategory)
       })
     },
     setDatasetVariable (datasetId: string, originalId: string, newId: string): void {
       aeonEvents.emitAction({
-        path: ['observations', datasetId, 'set_variable'],
+        path: ['sketch', 'observations', datasetId, 'set_variable'],
         payload: JSON.stringify({ original_id: originalId, new_id: newId })
       })
     },
     removeDatasetVariable (datasetId: string, varId: string): void {
       aeonEvents.emitAction({
-        path: ['observations', datasetId, 'remove_var'],
+        path: ['sketch', 'observations', datasetId, 'remove_var'],
         payload: varId
       })
     },
     pushObservation (datasetId: string, observation?: ObservationData): void {
       if (observation === undefined) {
         aeonEvents.emitAction({
-          path: ['observations', datasetId, 'push_empty_obs'],
+          path: ['sketch', 'observations', datasetId, 'push_empty_obs'],
           payload: null
         })
       } else {
         aeonEvents.emitAction({
-          path: ['observations', datasetId, 'push_obs'],
+          path: ['sketch', 'observations', datasetId, 'push_obs'],
           payload: JSON.stringify(observation)
         })
       }
     },
     popObservation (datasetId: string): void {
       aeonEvents.emitAction({
-        path: ['observations', datasetId, 'pop_obs'],
+        path: ['sketch', 'observations', datasetId, 'pop_obs'],
         payload: null
       })
     },
     removeObservation (datasetId: string, observationId: string): void {
       aeonEvents.emitAction({
-        path: ['observations', datasetId, observationId, 'remove'],
+        path: ['sketch', 'observations', datasetId, observationId, 'remove'],
         payload: null
       })
     },
     setObservationId (datasetId: string, originalId: string, newId: string): void {
       aeonEvents.emitAction({
-        path: ['observations', datasetId, originalId, 'set_id'],
+        path: ['sketch', 'observations', datasetId, originalId, 'set_id'],
         payload: newId
       })
     },
     setObservationContent (datasetId: string, observation: ObservationData): void {
       aeonEvents.emitAction({
-        path: ['observations', datasetId, observation.id, 'set_content'],
+        path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
         payload: JSON.stringify(observation)
       })
     }
