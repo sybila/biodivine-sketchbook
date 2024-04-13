@@ -9,7 +9,13 @@ import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../util/config'
-import { aeonState, type DatasetData, type DatasetIdUpdateData, type ObservationData } from '../../../aeon_events'
+import {
+  aeonState,
+  type DatasetData,
+  type DatasetIdUpdateData,
+  type ObservationData,
+  type ObservationIdUpdateData
+} from '../../../aeon_events'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -29,6 +35,9 @@ export default class ObservationsEditor extends LitElement {
     aeonState.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
     this.addEventListener('remove-observation', this.removeObservation)
     aeonState.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
+    this.addEventListener('change-observation', this.changeObservation)
+    aeonState.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
     // TODO add all other events
 
     // refresh-event listeners
@@ -157,23 +166,10 @@ export default class ObservationsEditor extends LitElement {
     const observationSet = this.convertToIObservationSet(data)
     const index = this.datasets.findIndex(item => item.id === data.id)
     if (index === -1) return
+    const datasets = structuredClone(this.datasets)
 
-    this.datasets[index] = observationSet
-  }
-
-  getDummy = (): IObservation[] => Array(10).fill(0).map((_, index) => {
-    return this.singleDummy(index)
-  })
-
-  private singleDummy (index: number): IObservation {
-    const ret: IObservation = {
-      id: String(index).padStart(4, '0'),
-      name: 'obs' + String(index).padStart(4, '0')
-    }
-    this.contentData.variables.forEach(v => {
-      ret[v.name] = Math.round(Math.random())
-    })
-    return ret
+    datasets[index] = observationSet
+    this.datasets = datasets
   }
 
   updateDatasetId = debounce((newId: string, index: number) => {
@@ -186,7 +182,7 @@ export default class ObservationsEditor extends LitElement {
     console.log(data)
     const index = this.datasets.findIndex(d => d.id === data.original_id)
     if (index === -1) return
-    const datasets = [...this.datasets]
+    const datasets = structuredClone(this.datasets)
     datasets[index] = {
       ...datasets[index],
       id: data.new_id
@@ -203,7 +199,7 @@ export default class ObservationsEditor extends LitElement {
   #onObservationPushed (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = this.datasets
+    const datasets = structuredClone(this.datasets)
     datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
     this.datasets = datasets
   }
@@ -217,8 +213,41 @@ export default class ObservationsEditor extends LitElement {
   #onObservationRemoved (data: ObservationData): void {
     const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = this.datasets
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
     datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
+    this.datasets = datasets
+  }
+
+  private changeObservation (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const dataset = this.datasets.find(ds => ds.id === detail.dataset)
+    if (dataset === undefined) return
+    if (detail.id !== detail.observation.id) {
+      aeonState.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
+    }
+    const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
+    aeonState.observations.setObservationContent(detail.dataset, obsData)
+  }
+
+  #onObservationContentChanged (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.id)
+    if (obsIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
+    this.datasets = datasets
+  }
+
+  #onObservationIdChanged (data: ObservationIdUpdateData): void {
+    // data.metadata seems to be dataset todo: confirm with ondrej
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.metadata)
+    if (datasetIndex === -1) return
+    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.original_id)
+    if (obsIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations[obsIndex].id = data.new_id
+    datasets[datasetIndex].observations[obsIndex].name = data.new_id
     this.datasets = datasets
   }
 

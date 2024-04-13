@@ -14,6 +14,7 @@ export default class ObservationsSet extends LitElement {
   @property() declare data: IObservationSet
   @query('#table-wrapper') table: HTMLElement | undefined
   tabulator: Tabulator | undefined
+  tabulatorReady = false
 
   dialogs: Record<string, WebviewWindow | undefined> = {}
 
@@ -24,18 +25,13 @@ export default class ObservationsSet extends LitElement {
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
-    console.log('firstUpdated')
     super.firstUpdated(_changedProperties)
     await this.init()
-    this.tabulator?.redraw(true)
   }
 
   protected updated (_changedProperties: PropertyValues): void {
-    console.log('updated')
     super.updated(_changedProperties)
-    console.log(_changedProperties)
-    void this.tabulator?.updateOrAddData(this.data.observations)
-    this.tabulator?.redraw()
+    if (this.tabulatorReady) void this.tabulator?.setData(this.data.observations)
   }
 
   private async init (): Promise<void> {
@@ -69,14 +65,7 @@ export default class ObservationsSet extends LitElement {
       headerSort: false,
       hozAlign: 'center',
       cellClick: (_e: UIEvent, _cell: CellComponent) => {
-        this.dispatchEvent(new CustomEvent('remove-observation', {
-          detail: {
-            dataset: this.data.id,
-            id: (_cell.getRow().getData() as IObservation).id
-          },
-          bubbles: true,
-          composed: true
-        }))
+        this.removeObservation(_cell.getRow().getData() as IObservation)
       }
     })
     if (this.table !== undefined) {
@@ -85,18 +74,12 @@ export default class ObservationsSet extends LitElement {
         columns,
         data: this.data.observations,
         popupContainer: this.table,
+        reactiveData: true,
         rowContextMenu: [
           {
             label: 'Add Row',
             action: () => {
-              this.dispatchEvent(new CustomEvent('push-new-observation', {
-                detail: {
-                  id: this.data.id
-                },
-                bubbles: true,
-                composed: true
-              }))
-              this.requestUpdate()
+              this.pushNewObservation()
             }
           },
           {
@@ -108,21 +91,53 @@ export default class ObservationsSet extends LitElement {
           {
             label: 'Delete Row',
             action: (_, row) => {
-              this.dispatchEvent(new CustomEvent('remove-observation', {
-                detail: {
-                  dataset: this.data.id,
-                  id: (row.getData() as IObservation).id
-                },
-                bubbles: true,
-                composed: true
-              }))
+              this.removeObservation((row.getData() as IObservation))
             }
           }
         ]
       })
-      console.log('init')
-      this.tabulator.redraw(true)
+
+      this.tabulator.on('dataLoaded', () => {
+        this.tabulatorReady = true
+        this.tabulator?.on('cellEdited', (cell) => {
+          const data = cell.getData() as IObservation
+          this.changeObservation(data.id, data)
+        })
+      })
     }
+  }
+
+  private pushNewObservation (): void {
+    this.dispatchEvent(new CustomEvent('push-new-observation', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private removeObservation (obs: IObservation): void {
+    this.dispatchEvent(new CustomEvent('remove-observation', {
+      detail: {
+        dataset: this.data.id,
+        id: obs.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private changeObservation (id: string, observation: IObservation): void {
+    this.dispatchEvent(new CustomEvent('change-observation', {
+      detail: {
+        dataset: this.data.id,
+        id,
+        observation
+      },
+      bubbles: true,
+      composed: true
+    }))
   }
 
   private async editObservation (obs: IObservation): Promise<void> {
@@ -154,8 +169,7 @@ export default class ObservationsSet extends LitElement {
       this.dialogs[obs.id] = undefined
       const index = this.data.observations.findIndex(observation => observation.id === obs.id)
       if (index === -1) return
-      void this.tabulator?.updateRow(event.payload.id, event.payload.data)
-      console.log(event.payload)
+      this.changeObservation(obs.id, event.payload.data)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[obs.id] = undefined
