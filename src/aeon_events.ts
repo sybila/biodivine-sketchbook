@@ -39,211 +39,222 @@ interface AeonState {
     unpin: (id: number) => void
   }
 
-  /** The state of the main model. */
-  model: {
-    /** Refresh events. */
+  sketch: {
+    /** First, some general events regarding the whole sketch: */
 
-    /** The whole model instance. */
-    modelRefreshed: Observable<ModelData>
-    /** Refresh the whole model. */
-    refreshModel: () => void
-    /** List of model variables. */
-    variablesRefreshed: Observable<VariableData[]>
-    /** Refresh the variables. */
-    refreshVariables: () => void
-    /** List of model uninterpreted functions. */
-    uninterpretedFnsRefreshed: Observable<UninterpretedFnData[]>
-    /** Refresh the uninterpreted functions. */
-    refreshUninterpretedFns: () => void
-    /** List of model regulations. */
-    regulationsRefreshed: Observable<RegulationData[]>
-    /** Refresh the regulations. */
-    refreshRegulations: () => void
-    /** List of model layouts. */
-    layoutsRefreshed: Observable<LayoutData[]>
-    /** Refresh the layouts. */
-    refreshLayouts: () => void
-    /** List of nodes in a given layout. */
-    layoutNodesRefreshed: Observable<LayoutNodeData[]>
-    /** Refresh the nodes in a given layout. */
-    refreshLayoutNodes: (layoutId: string) => void
+    /** The whole sketch instance. */
+    sketchRefreshed: Observable<SketchData>
+    /** Refresh the whole sketch. */
+    refreshSketch: () => void
+    /** Export the sketch data to a file. */
+    exportSketch: (path: string) => void
 
-    /** Variable-related setter events */
+    /** The state of the main model. */
+    model: {
+      /** Refresh events: */
 
-    /** VariableData for a newly created variable. */
-    variableCreated: Observable<VariableData>
-    /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
-    addVariable: (varId: string, varName?: string, position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
-    /** VariableData of a removed variable. */
-    variableRemoved: Observable<VariableData>
-    /** Remove a variable with given ID. */
-    removeVariable: (varId: string) => void
-    /** VariableData (with updated `name`) for a renamed variable. */
-    variableNameChanged: Observable<VariableData>
-    /** Set a name of variable with given ID to a given new name. */
-    setVariableName: (varId: string, newName: string) => void
-    /** Object with `original_id` of a variable and its `new_id`. */
-    variableIdChanged: Observable<VariableIdUpdateData>
-    /** Set an ID of variable with given original ID to a new id. */
-    setVariableId: (originalId: string, newId: string) => void
-    /** VariableData (with updated `update_fn`) for a variable with modified update function. */
-    variableUpdateFnChanged: Observable<VariableData>
-    /** Set an expression of update function for variable with given ID. */
-    setVariableUpdateFn: (varId: string, newExpression: string) => void
+      /** The whole model instance. */
+      modelRefreshed: Observable<ModelData>
+      /** Refresh the whole model. */
+      refreshModel: () => void
+      /** List of model variables. */
+      variablesRefreshed: Observable<VariableData[]>
+      /** Refresh the variables. */
+      refreshVariables: () => void
+      /** List of model uninterpreted functions. */
+      uninterpretedFnsRefreshed: Observable<UninterpretedFnData[]>
+      /** Refresh the uninterpreted functions. */
+      refreshUninterpretedFns: () => void
+      /** List of model regulations. */
+      regulationsRefreshed: Observable<RegulationData[]>
+      /** Refresh the regulations. */
+      refreshRegulations: () => void
+      /** List of model layouts. */
+      layoutsRefreshed: Observable<LayoutData[]>
+      /** Refresh the layouts. */
+      refreshLayouts: () => void
+      /** List of nodes in a given layout. */
+      layoutNodesRefreshed: Observable<LayoutNodeData[]>
+      /** Refresh the nodes in a given layout. */
+      refreshLayoutNodes: (layoutId: string) => void
 
-    /** Uninterpreted function-related setter events */
+      /** Variable-related setter events: */
 
-    /** UninterpretedFnData for a newly created uninterpreted function. */
-    uninterpretedFnCreated: Observable<UninterpretedFnData>
-    /** Create new uninterpreted function with given arity, ID, and name.
-     * If name is not given, ID string is used for both ID and name. */
-    addUninterpretedFn: (uninterpretedFnId: string, arity: number, uninterpretedFnName?: string) => void
-    /** UninterpretedFnData of a removed uninterpreted function. */
-    uninterpretedFnRemoved: Observable<UninterpretedFnData>
-    /** Remove uninterpreted function with given ID. */
-    removeUninterpretedFn: (uninterpretedFnId: string) => void
-    /** UninterpretedFnData (with updated `name`) for a renamed uninterpreted function. */
-    uninterpretedFnNameChanged: Observable<UninterpretedFnData>
-    /** Set name of uninterpreted function with given ID. */
-    setUninterpretedFnName: (uninterpretedFnId: string, newName: string) => void
-    /** UninterpretedFnData (with updated `arity`) for a modified uninterpreted function. */
-    uninterpretedFnArityChanged: Observable<UninterpretedFnData>
-    /** Set arity of uninterpreted function with given ID. */
-    setUninterpretedFnArity: (uninterpretedFnId: string, newArity: number) => void
-    /** UninterpretedFnData (with incremented `arity`) for a modified uninterpreted function. */
-    uninterpretedFnArityIncremented: Observable<UninterpretedFnData>
-    /** Increment arity of uninterpreted function with given ID. */
-    incrementUninterpretedFnArity: (uninterpretedFnId: string) => void
-    /** UninterpretedFnData (with decremented `arity`) for a modified uninterpreted function. */
-    uninterpretedFnArityDecremented: Observable<UninterpretedFnData>
-    /** Decrement arity of uninterpreted function with given ID. */
-    decrementUninterpretedFnArity: (uninterpretedFnId: string) => void
-    /** Object with `original_id` of an uninterpreted function and its `new_id`. */
-    uninterpretedFnIdChanged: Observable<UninterpretedFnIdUpdateData>
-    /** Set an ID of an uninterpreted function with given original ID to a new id. */
-    setUninterpretedFnId: (originalId: string, newId: string) => void
-    /** UninterpretedFnData (with updated `expression`) for a modified uninterpreted function. */
-    uninterpretedFnExpressionChanged: Observable<UninterpretedFnData>
-    /** Set an expression of uninterpreted function with given ID. */
-    setUninterpretedFnExpression: (uninterpretedFnId: string, newExpression: string) => void
-    /** UninterpretedFnData (with updated `monotonicity` for one of the args) for a modified uninterpreted function. */
-    uninterpretedFnMonotonicityChanged: Observable<UninterpretedFnData>
-    /** Set a monotonicity of uninterpreted function with given ID. */
-    setUninterpretedFnMonotonicity: (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity) => void
-    /** UninterpretedFnData (with updated `essentiality` for one of the args) for a modified uninterpreted function. */
-    uninterpretedFnEssentialityChanged: Observable<UninterpretedFnData>
-    /** Set an essentiality of uninterpreted function with given ID. */
-    setUninterpretedFnEssentiality: (uninterpretedFnId: string, idx: number, essentiality: Essentiality) => void
+      /** VariableData for a newly created variable. */
+      variableCreated: Observable<VariableData>
+      /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
+      addVariable: (varId: string, varName?: string, position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
+      /** VariableData of a removed variable. */
+      variableRemoved: Observable<VariableData>
+      /** Remove a variable with given ID. */
+      removeVariable: (varId: string) => void
+      /** VariableData (with updated `name`) for a renamed variable. */
+      variableNameChanged: Observable<VariableData>
+      /** Set a name of variable with given ID to a given new name. */
+      setVariableName: (varId: string, newName: string) => void
+      /** Object with `original_id` of a variable and its `new_id`. */
+      variableIdChanged: Observable<VariableIdUpdateData>
+      /** Set an ID of variable with given original ID to a new id. */
+      setVariableId: (originalId: string, newId: string) => void
+      /** VariableData (with updated `update_fn`) for a variable with modified update function. */
+      variableUpdateFnChanged: Observable<VariableData>
+      /** Set an expression of update function for variable with given ID. */
+      setVariableUpdateFn: (varId: string, newExpression: string) => void
 
-    /** Regulation-related setter events */
+      /** Uninterpreted function-related setter events: */
 
-    /** RegulationData for a newly created regulation. */
-    regulationCreated: Observable<RegulationData>
-    /** Create new regulation specified by all of its four components. */
-    addRegulation: (regulatorId: string, targetId: string, sign: string, essential: string) => void
-    /** RegulationData of a removed regulation. */
-    regulationRemoved: Observable<RegulationData>
-    /** Create regulation specified by its regulator and target. */
-    removeRegulation: (regulatorId: string, targetId: string) => void
-    /** RegulationData (with updated `sign`) of a modified regulation. */
-    regulationSignChanged: Observable<RegulationData>
-    /** Set sign of a regulation specified by its regulator and target. */
-    setRegulationSign: (regulatorId: string, targetId: string, newSign: Monotonicity) => void
-    /** RegulationData (with updated `essentiality`) of a modified regulation. */
-    regulationEssentialityChanged: Observable<RegulationData>
-    /** Set essentiality of a regulation specified by its regulator and target. */
-    setRegulationEssentiality: (regulatorId: string, targetId: string, newEssentiality: Essentiality) => void
+      /** UninterpretedFnData for a newly created uninterpreted function. */
+      uninterpretedFnCreated: Observable<UninterpretedFnData>
+      /** Create new uninterpreted function with given arity, ID, and name.
+       * If name is not given, ID string is used for both ID and name. */
+      addUninterpretedFn: (uninterpretedFnId: string, arity: number, uninterpretedFnName?: string) => void
+      /** UninterpretedFnData of a removed uninterpreted function. */
+      uninterpretedFnRemoved: Observable<UninterpretedFnData>
+      /** Remove uninterpreted function with given ID. */
+      removeUninterpretedFn: (uninterpretedFnId: string) => void
+      /** UninterpretedFnData (with updated `name`) for a renamed uninterpreted function. */
+      uninterpretedFnNameChanged: Observable<UninterpretedFnData>
+      /** Set name of uninterpreted function with given ID. */
+      setUninterpretedFnName: (uninterpretedFnId: string, newName: string) => void
+      /** UninterpretedFnData (with updated `arity`) for a modified uninterpreted function. */
+      uninterpretedFnArityChanged: Observable<UninterpretedFnData>
+      /** Set arity of uninterpreted function with given ID. */
+      setUninterpretedFnArity: (uninterpretedFnId: string, newArity: number) => void
+      /** UninterpretedFnData (with incremented `arity`) for a modified uninterpreted function. */
+      uninterpretedFnArityIncremented: Observable<UninterpretedFnData>
+      /** Increment arity of uninterpreted function with given ID. */
+      incrementUninterpretedFnArity: (uninterpretedFnId: string) => void
+      /** UninterpretedFnData (with decremented `arity`) for a modified uninterpreted function. */
+      uninterpretedFnArityDecremented: Observable<UninterpretedFnData>
+      /** Decrement arity of uninterpreted function with given ID. */
+      decrementUninterpretedFnArity: (uninterpretedFnId: string) => void
+      /** Object with `original_id` of an uninterpreted function and its `new_id`. */
+      uninterpretedFnIdChanged: Observable<UninterpretedFnIdUpdateData>
+      /** Set an ID of an uninterpreted function with given original ID to a new id. */
+      setUninterpretedFnId: (originalId: string, newId: string) => void
+      /** UninterpretedFnData (with updated `expression`) for a modified uninterpreted function. */
+      uninterpretedFnExpressionChanged: Observable<UninterpretedFnData>
+      /** Set an expression of uninterpreted function with given ID. */
+      setUninterpretedFnExpression: (uninterpretedFnId: string, newExpression: string) => void
+      /** UninterpretedFnData (with updated `monotonicity` for one of the args) for a modified uninterpreted function. */
+      uninterpretedFnMonotonicityChanged: Observable<UninterpretedFnData>
+      /** Set a monotonicity of uninterpreted function with given ID. */
+      setUninterpretedFnMonotonicity: (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity) => void
+      /** UninterpretedFnData (with updated `essentiality` for one of the args) for a modified uninterpreted function. */
+      uninterpretedFnEssentialityChanged: Observable<UninterpretedFnData>
+      /** Set an essentiality of uninterpreted function with given ID. */
+      setUninterpretedFnEssentiality: (uninterpretedFnId: string, idx: number, essentiality: Essentiality) => void
 
-    /** Layout-related setter events */
+      /** Regulation-related setter events: */
 
-    /** LayoutData for a newly created layout. */
-    layoutCreated: Observable<LayoutData>
-    /** Create new layout with given ID and name. */
-    addLayout: (layoutId: string, layoutName: string) => void
-    /** LayoutData of a removed layout. */
-    layoutRemoved: Observable<LayoutData>
-    /** Remove a layout with given ID. */
-    removeLayout: (layoutId: string) => void
-    /** LayoutNodeData (with new `px` and `py`) for a modified layout node. */
-    nodePositionChanged: Observable<LayoutNodeData>
-    /** Change a position of a variable in a layout to new coordinates. */
-    changeNodePosition: (layoutId: string, varId: string, newX: number, newY: number) => void
-  }
+      /** RegulationData for a newly created regulation. */
+      regulationCreated: Observable<RegulationData>
+      /** Create new regulation specified by all of its four components. */
+      addRegulation: (regulatorId: string, targetId: string, sign: string, essential: string) => void
+      /** RegulationData of a removed regulation. */
+      regulationRemoved: Observable<RegulationData>
+      /** Create regulation specified by its regulator and target. */
+      removeRegulation: (regulatorId: string, targetId: string) => void
+      /** RegulationData (with updated `sign`) of a modified regulation. */
+      regulationSignChanged: Observable<RegulationData>
+      /** Set sign of a regulation specified by its regulator and target. */
+      setRegulationSign: (regulatorId: string, targetId: string, newSign: Monotonicity) => void
+      /** RegulationData (with updated `essentiality`) of a modified regulation. */
+      regulationEssentialityChanged: Observable<RegulationData>
+      /** Set essentiality of a regulation specified by its regulator and target. */
+      setRegulationEssentiality: (regulatorId: string, targetId: string, newEssentiality: Essentiality) => void
 
-  /** The state of the observations and datasets. */
-  observations: {
-    /** Refresh events. */
+      /** Layout-related setter events: */
 
-    /** List of all datasets. */
-    datasetsRefreshed: Observable<[DatasetData]>
-    /** Refresh all the datasets. */
-    refreshDatasets: () => void
-    /** A particular dataset. */
-    singleDatasetRefreshed: Observable<DatasetData>
-    /** Refresh a single dataset with a given ID. */
-    refreshSingleDataset: (id: string) => void
-    /** A particular refreshed observation. */
-    observationRefreshed: Observable<ObservationData>
-    /** Refresh a single observation from a specified dataset. */
-    refreshSingleObservation: (datasetId: string, observationId: string) => void
+      /** LayoutData for a newly created layout. */
+      layoutCreated: Observable<LayoutData>
+      /** Create new layout with given ID and name. */
+      addLayout: (layoutId: string, layoutName: string) => void
+      /** LayoutData of a removed layout. */
+      layoutRemoved: Observable<LayoutData>
+      /** Remove a layout with given ID. */
+      removeLayout: (layoutId: string) => void
+      /** LayoutNodeData (with new `px` and `py`) for a modified layout node. */
+      nodePositionChanged: Observable<LayoutNodeData>
+      /** Change a position of a variable in a layout to new coordinates. */
+      changeNodePosition: (layoutId: string, varId: string, newX: number, newY: number) => void
+    }
 
-    /** Events to edit datasets or observations. */
+    /** The state of the observations and datasets. */
+    observations: {
+      /** Refresh events: */
 
-    /** DatasetData for a newly created dataset. */
-    datasetCreated: Observable<DatasetData>
-    /** Create a new dataset with given ID, variables, observations, and category. */
-    addDataset: (id: string, variables: [string], observations: [ObservationData], category: DataCategory) => void
-    /** DatasetData for a newly loaded dataset (from a csv file).
-     *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
-    datasetLoaded: Observable<DatasetData>
-    /** Load a new dataset with a given ID from a CSV file. */
-    loadDataset: (path: string, id: string) => void
-    /** DatasetData of a removed dataset. */
-    datasetRemoved: Observable<DatasetData>
-    /** Remove dataset with given ID. */
-    removeDataset: (id: string) => void
-    /** Object with `original_id` of a dataset and its `new_id`. */
-    datasetIdChanged: Observable<DatasetIdUpdateData>
-    /** Set ID of dataset with given original ID to a new id. */
-    setDatasetId: (originalId: string, newId: string) => void
-    /** DatasetData of a fully modified dataset. */
-    datasetContentChanged: Observable<DatasetData>
-    /** Set content (variables, observations - everything) of dataset with given ID. */
-    setDatasetContent: (id: string, newContent: DatasetData) => void
-    /** DatasetMetaData (with updated `category`) of a modified dataset. */
-    datasetCategoryChanged: Observable<DatasetMetaData>
-    /** Set category of dataset with given ID. */
-    setDatasetCategory: (id: string, newCategory: DataCategory) => void
-    /** DatasetMetaData (with updated `variables`) of a modified dataset. */
-    datasetVariableChanged: Observable<DatasetMetaData>
-    /** Set variable's ID within a specified dataset. */
-    setDatasetVariable: (datasetId: string, originalId: string, newId: string) => void
-    /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
-    datasetVariableRemoved: Observable<DatasetMetaData>
-    /** Remove variable from a specified dataset (removing "a column" of a dataset's table). */
-    removeDatasetVariable: (datasetId: string, varId: string) => void
+      /** List of all datasets. */
+      datasetsRefreshed: Observable<[DatasetData]>
+      /** Refresh all the datasets. */
+      refreshDatasets: () => void
+      /** A particular dataset. */
+      singleDatasetRefreshed: Observable<DatasetData>
+      /** Refresh a single dataset with a given ID. */
+      refreshSingleDataset: (id: string) => void
+      /** A particular refreshed observation. */
+      observationRefreshed: Observable<ObservationData>
+      /** Refresh a single observation from a specified dataset. */
+      refreshSingleObservation: (datasetId: string, observationId: string) => void
 
-    /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
-    observationPushed: Observable<ObservationData>
-    /** Push a new observation with into a specified dataset. If observation data are not provided,
-     * the observation is newly generated on backend (with unspecified values). */
-    pushObservation: (datasetId: string, observation?: ObservationData) => void
-    /** ObservationData for a popped (removed from the end) observation (also contains corresponding dataset ID). */
-    observationPopped: Observable<ObservationData>
-    /** Pop (remove) observation from the end of a specified dataset. */
-    popObservation: (datasetId: string) => void
-    /** ObservationData for a removed observation (also contains corresponding dataset ID). */
-    observationRemoved: Observable<ObservationData>
-    /** Remove any observation from a specified dataset. */
-    removeObservation: (datasetId: string, observationId: string) => void
-    /** Object with `original_id` of a observation, its `new_id`. Dataset's ID is in the field `metadata`. */
-    observationIdChanged: Observable<ObservationIdUpdateData>
-    /** Set ID of observation (in a specified dataset) with given original ID to a new id. */
-    setObservationId: (datasetId: string, originalId: string, newId: string) => void
-    /** ObservationData for an observation with modified content (also contains corresponding dataset ID). */
-    observationContentChanged: Observable<ObservationData>
-    /** Modify a content of a particular observation.  */
-    setObservationContent: (datasetId: string, observation: ObservationData) => void
+      /** Events to edit datasets or observations: */
+
+      /** DatasetData for a newly created dataset. */
+      datasetCreated: Observable<DatasetData>
+      /** Create a new dataset with given ID, variables, observations, and category. */
+      addDataset: (id: string, variables: [string], observations: [ObservationData], category: DataCategory) => void
+      /** DatasetData for a newly loaded dataset (from a csv file).
+       *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
+      datasetLoaded: Observable<DatasetData>
+      /** Load a new dataset with a given ID from a CSV file. */
+      loadDataset: (path: string, id: string) => void
+      /** DatasetData of a removed dataset. */
+      datasetRemoved: Observable<DatasetData>
+      /** Remove dataset with given ID. */
+      removeDataset: (id: string) => void
+      /** Object with `original_id` of a dataset and its `new_id`. */
+      datasetIdChanged: Observable<DatasetIdUpdateData>
+      /** Set ID of dataset with given original ID to a new id. */
+      setDatasetId: (originalId: string, newId: string) => void
+      /** DatasetData of a fully modified dataset. */
+      datasetContentChanged: Observable<DatasetData>
+      /** Set content (variables, observations - everything) of dataset with given ID. */
+      setDatasetContent: (id: string, newContent: DatasetData) => void
+      /** DatasetMetaData (with updated `category`) of a modified dataset. */
+      datasetCategoryChanged: Observable<DatasetMetaData>
+      /** Set category of dataset with given ID. */
+      setDatasetCategory: (id: string, newCategory: DataCategory) => void
+      /** DatasetMetaData (with updated `variables`) of a modified dataset. */
+      datasetVariableChanged: Observable<DatasetMetaData>
+      /** Set variable's ID within a specified dataset. */
+      setDatasetVariable: (datasetId: string, originalId: string, newId: string) => void
+      /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
+      datasetVariableRemoved: Observable<DatasetMetaData>
+      /** Remove variable from a specified dataset (removing "a column" of a dataset's table). */
+      removeDatasetVariable: (datasetId: string, varId: string) => void
+
+      /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
+      observationPushed: Observable<ObservationData>
+      /** Push a new observation with into a specified dataset. If observation data are not provided,
+       * the observation is newly generated on backend (with unspecified values). */
+      pushObservation: (datasetId: string, observation?: ObservationData) => void
+      /** ObservationData for a popped (removed from the end) observation (also contains corresponding dataset ID). */
+      observationPopped: Observable<ObservationData>
+      /** Pop (remove) observation from the end of a specified dataset. */
+      popObservation: (datasetId: string) => void
+      /** ObservationData for a removed observation (also contains corresponding dataset ID). */
+      observationRemoved: Observable<ObservationData>
+      /** Remove any observation from a specified dataset. */
+      removeObservation: (datasetId: string, observationId: string) => void
+      /** Object with `original_id` of a observation, its `new_id`. Dataset's ID is in the field `metadata`. */
+      observationIdChanged: Observable<ObservationIdUpdateData>
+      /** Set ID of observation (in a specified dataset) with given original ID to a new id. */
+      setObservationId: (datasetId: string, originalId: string, newId: string) => void
+      /** ObservationData for an observation with modified content (also contains corresponding dataset ID). */
+      observationContentChanged: Observable<ObservationData>
+      /** Modify a content of a particular observation.  */
+      setObservationContent: (datasetId: string, observation: ObservationData) => void
+    }
   }
 
   /** The information about errors occurring when processing events on backend. */
@@ -251,6 +262,14 @@ interface AeonState {
     /** Error message provided by backend. */
     errorReceived: Observable<string>
   }
+}
+
+/** An object representing all relevant parts of the whole sketch. */
+export interface SketchData {
+  model: ModelData
+  datasets: DatasetData[]
+  dyn_properties: DynPropertyData[]
+  stat_properties: StatPropertyData[]
 }
 
 /** An object representing all relevant parts of a model. */
@@ -334,20 +353,37 @@ export interface DatasetMetaData {
   category: DataCategory
 }
 
+/** An object representing information needed for loading a dataset. */
+export interface DatasetLoadData { path: string, id: string }
+
+/** A PLACEHOLDER object representing a dynamic property. */
+export interface DynPropertyData {
+  id: string
+  formula: string
+}
+
+/** A PLACEHOLDER object representing a static property. */
+export interface StatPropertyData {
+  id: string
+}
+
 /** An object representing information needed for variable id change. */
 export interface VariableIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing information needed for uninterpreted function's id change. */
 export interface UninterpretedFnIdUpdateData { original_id: string, new_id: string }
 
-/** An object representing information needed for observation id change. */
+/** An object representing information needed for observation's id change. */
 export interface ObservationIdUpdateData { original_id: string, new_id: string, metadata: string }
 
-/** An object representing information needed for dataset id change. */
+/** An object representing information needed for dataset's id change. */
 export interface DatasetIdUpdateData { original_id: string, new_id: string }
 
-/** An object representing information needed for loading a dataset. */
-export interface DatasetLoadData { path: string, id: string }
+/** An object representing information needed for dynamic property's id change. */
+export interface DynPropUpdateData { original_id: string, new_id: string }
+
+/** An object representing information needed for static property's id change. */
+export interface StatPropIdUpdateData { original_id: string, new_id: string }
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -754,347 +790,360 @@ export const aeonState: AeonState = {
   error: {
     errorReceived: new Observable<string>(['error'])
   },
-  model: {
-    modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),
-    refreshModel (): void {
-      aeonEvents.refresh(['sketch', 'model', 'get_whole_model'])
+  sketch: {
+    sketchRefreshed: new Observable<SketchData>(['sketch', 'get_whole_sketch']),
+    refreshSketch (): void {
+      aeonEvents.refresh(['sketch', 'get_whole_sketch'])
     },
-    variablesRefreshed: new Observable<VariableData[]>(['sketch', 'model', 'get_variables']),
-    refreshVariables (): void {
-      aeonEvents.refresh(['sketch', 'model', 'get_variables'])
-    },
-    uninterpretedFnsRefreshed: new Observable<UninterpretedFnData[]>(['sketch', 'model', 'get_uninterpreted_fns']),
-    refreshUninterpretedFns (): void {
-      aeonEvents.refresh(['sketch', 'model', 'get_uninterpreted_fns'])
-    },
-    regulationsRefreshed: new Observable<RegulationData[]>(['sketch', 'model', 'get_regulations']),
-    refreshRegulations (): void {
-      aeonEvents.refresh(['sketch', 'model', 'get_regulations'])
-    },
-    layoutsRefreshed: new Observable<LayoutData[]>(['sketch', 'model', 'get_layouts']),
-    refreshLayouts (): void {
-      aeonEvents.refresh(['sketch', 'model', 'get_layouts'])
-    },
-    layoutNodesRefreshed: new Observable<LayoutNodeData[]>(['sketch', 'model', 'get_layout_nodes']),
-    refreshLayoutNodes (layoutId: string): void {
-      aeonEvents.refresh(['sketch', 'model', 'get_layout_nodes', layoutId])
-    },
-
-    variableCreated: new Observable<VariableData>(['sketch', 'model', 'variable', 'add']),
-    variableRemoved: new Observable<VariableData>(['sketch', 'model', 'variable', 'remove']),
-    variableNameChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_name']),
-    variableIdChanged: new Observable<VariableIdUpdateData>(['sketch', 'model', 'variable', 'set_id']),
-    variableUpdateFnChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_update_fn']),
-
-    uninterpretedFnCreated: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'add']),
-    uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'remove']),
-    uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_name']),
-    uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_arity']),
-    uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'increment_arity']),
-    uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'decrement_arity']),
-    uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['sketch', 'model', 'uninterpreted_fn', 'set_id']),
-    uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_expression']),
-    uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_monotonicity']),
-    uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_essentiality']),
-
-    regulationCreated: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'add']),
-    regulationRemoved: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'remove']),
-    regulationSignChanged: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'set_sign']),
-    regulationEssentialityChanged: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'set_essentiality']),
-
-    layoutCreated: new Observable<LayoutData>(['sketch', 'model', 'layout', 'add']),
-    layoutRemoved: new Observable<LayoutData>(['sketch', 'model', 'layout', 'remove']),
-    nodePositionChanged: new Observable<LayoutNodeData>(['sketch', 'model', 'layout', 'update_position']),
-
-    addVariable (
-      varId: string,
-      varName: string = '',
-      position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []
-    ): void {
-      if (varName === '') {
-        varName = varId
-      }
-      const actions = []
-      // First action creates the variable.
-      actions.push({
-        path: ['sketch', 'model', 'variable', 'add'],
-        payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
+    exportSketch (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'export_sketch'],
+        payload: path
       })
-      // Subsequent actions position it in one or more layouts.
-      if (!Array.isArray(position)) {
-        position = [position]
-      }
-      for (const p of position) {
+    },
+
+    model: {
+      modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),
+      refreshModel (): void {
+        aeonEvents.refresh(['sketch', 'model', 'get_whole_model'])
+      },
+      variablesRefreshed: new Observable<VariableData[]>(['sketch', 'model', 'get_variables']),
+      refreshVariables (): void {
+        aeonEvents.refresh(['sketch', 'model', 'get_variables'])
+      },
+      uninterpretedFnsRefreshed: new Observable<UninterpretedFnData[]>(['sketch', 'model', 'get_uninterpreted_fns']),
+      refreshUninterpretedFns (): void {
+        aeonEvents.refresh(['sketch', 'model', 'get_uninterpreted_fns'])
+      },
+      regulationsRefreshed: new Observable<RegulationData[]>(['sketch', 'model', 'get_regulations']),
+      refreshRegulations (): void {
+        aeonEvents.refresh(['sketch', 'model', 'get_regulations'])
+      },
+      layoutsRefreshed: new Observable<LayoutData[]>(['sketch', 'model', 'get_layouts']),
+      refreshLayouts (): void {
+        aeonEvents.refresh(['sketch', 'model', 'get_layouts'])
+      },
+      layoutNodesRefreshed: new Observable<LayoutNodeData[]>(['sketch', 'model', 'get_layout_nodes']),
+      refreshLayoutNodes (layoutId: string): void {
+        aeonEvents.refresh(['sketch', 'model', 'get_layout_nodes', layoutId])
+      },
+
+      variableCreated: new Observable<VariableData>(['sketch', 'model', 'variable', 'add']),
+      variableRemoved: new Observable<VariableData>(['sketch', 'model', 'variable', 'remove']),
+      variableNameChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_name']),
+      variableIdChanged: new Observable<VariableIdUpdateData>(['sketch', 'model', 'variable', 'set_id']),
+      variableUpdateFnChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_update_fn']),
+
+      uninterpretedFnCreated: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'add']),
+      uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'remove']),
+      uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_name']),
+      uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_arity']),
+      uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'increment_arity']),
+      uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'decrement_arity']),
+      uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['sketch', 'model', 'uninterpreted_fn', 'set_id']),
+      uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_expression']),
+      uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_monotonicity']),
+      uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_essentiality']),
+
+      regulationCreated: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'add']),
+      regulationRemoved: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'remove']),
+      regulationSignChanged: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'set_sign']),
+      regulationEssentialityChanged: new Observable<RegulationData>(['sketch', 'model', 'regulation', 'set_essentiality']),
+
+      layoutCreated: new Observable<LayoutData>(['sketch', 'model', 'layout', 'add']),
+      layoutRemoved: new Observable<LayoutData>(['sketch', 'model', 'layout', 'remove']),
+      nodePositionChanged: new Observable<LayoutNodeData>(['sketch', 'model', 'layout', 'update_position']),
+
+      addVariable (
+        varId: string,
+        varName: string = '',
+        position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []
+      ): void {
+        if (varName === '') {
+          varName = varId
+        }
+        const actions = []
+        // First action creates the variable.
         actions.push({
-          path: ['sketch', 'model', 'layout', p.layout, 'update_position'],
-          payload: JSON.stringify({
-            layout: p.layout,
-            variable: varId,
-            px: p.px,
-            py: p.py
+          path: ['sketch', 'model', 'variable', 'add'],
+          payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
+        })
+        // Subsequent actions position it in one or more layouts.
+        if (!Array.isArray(position)) {
+          position = [position]
+        }
+        for (const p of position) {
+          actions.push({
+            path: ['sketch', 'model', 'layout', p.layout, 'update_position'],
+            payload: JSON.stringify({
+              layout: p.layout,
+              variable: varId,
+              px: p.px,
+              py: p.py
+            })
           })
-        })
-      }
-      aeonEvents.emitAction(actions)
-    },
-    removeVariable (varId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'variable', varId, 'remove'],
-        payload: null
-      })
-    },
-    setVariableName (varId: string, newName: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'variable', varId, 'set_name'],
-        payload: newName
-      })
-    },
-    setVariableId (originalId: string, newId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'variable', originalId, 'set_id'],
-        payload: newId
-      })
-    },
-    setVariableUpdateFn (varId: string, newExpression: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'variable', varId, 'set_update_fn'],
-        payload: newExpression.toString()
-      })
-    },
-    addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
-      if (uninterpretedFnName === '') {
-        uninterpretedFnName = uninterpretedFnId
-      }
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', 'add'],
-        payload: JSON.stringify({
-          id: uninterpretedFnId,
-          name: uninterpretedFnName,
-          arguments: Array(arity).fill([Monotonicity.UNSPECIFIED, Essentiality.UNKNOWN]),
-          expression: ''
-        })
-      })
-    },
-    removeUninterpretedFn (uninterpretedFnId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'remove'],
-        payload: null
-      })
-    },
-    setUninterpretedFnName (uninterpretedFnId: string, newName: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
-        payload: newName
-      })
-    },
-    setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
-        payload: newArity.toString()
-      })
-    },
-    incrementUninterpretedFnArity (uninterpretedFnId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
-        payload: null
-      })
-    },
-    decrementUninterpretedFnArity (uninterpretedFnId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
-        payload: null
-      })
-    },
-    setUninterpretedFnId (originalId: string, newId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', originalId, 'set_id'],
-        payload: newId
-      })
-    },
-    setUninterpretedFnExpression (uninterpretedFnId: string, newExpression: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_expression'],
-        payload: newExpression.toString()
-      })
-    },
-    setUninterpretedFnMonotonicity (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicity'],
-        payload: JSON.stringify({ idx, monotonicity })
-      })
-    },
-    setUninterpretedFnEssentiality (uninterpretedFnId: string, idx: number, essentiality: Essentiality): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_essentiality'],
-        payload: JSON.stringify({ idx, essentiality })
-      })
-    },
-    addRegulation (regulatorId: string, targetId: string, sign: string, essential: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'regulation', 'add'],
-        payload: JSON.stringify({
-          regulator: regulatorId,
-          target: targetId,
-          sign,
-          essential
-        })
-      })
-    },
-    removeRegulation (regulatorId: string, targetId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'remove'],
-        payload: null
-      })
-    },
-    setRegulationSign (regulatorId: string, targetId: string, newSign: Monotonicity): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'set_sign'],
-        payload: JSON.stringify(newSign)
-      })
-    },
-    setRegulationEssentiality (regulatorId: string, targetId: string, newEssentiality: Essentiality): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'set_essentiality'],
-        payload: JSON.stringify(newEssentiality)
-      })
-    },
-    addLayout (layoutId: string, layoutName: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'layout', 'add'],
-        payload: JSON.stringify({ id: layoutId, name: layoutName })
-      })
-    },
-    removeLayout (layoutId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'layout', layoutId, 'remove'],
-        payload: null
-      })
-    },
-    changeNodePosition (layoutId: string, varId: string, newX: number, newY: number): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'model', 'layout', layoutId, 'update_position'],
-        payload: JSON.stringify({ layout: layoutId, variable: varId, px: newX, py: newY })
-      })
-    }
-  },
-  observations: {
-    datasetsRefreshed: new Observable<[DatasetData]>(['sketch', 'observations', 'get_all_datasets']),
-    refreshDatasets (): void {
-      aeonEvents.refresh(['sketch', 'observations', 'get_all_datasets'])
-    },
-    singleDatasetRefreshed: new Observable<DatasetData>(['sketch', 'observations', 'get_dataset']),
-    refreshSingleDataset (id: string): void {
-      aeonEvents.refresh(['sketch', 'observations', 'get_dataset', id])
-    },
-    observationRefreshed: new Observable<ObservationData>(['observations', 'get_observation']),
-    refreshSingleObservation (datasetId: string, observationId: string): void {
-      aeonEvents.refresh(['sketch', 'observations', 'get_observation', datasetId, observationId])
-    },
-
-    datasetCreated: new Observable<DatasetData>(['sketch', 'observations', 'add']),
-    datasetLoaded: new Observable<DatasetData>(['sketch', 'observations', 'load']),
-    datasetRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove']),
-    datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
-    datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
-    datasetCategoryChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_category']),
-    datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
-    datasetVariableRemoved: new Observable<DatasetMetaData>(['sketch', 'observations', 'remove_var']),
-
-    observationPushed: new Observable<ObservationData>(['sketch', 'observations', 'push_obs']),
-    observationPopped: new Observable<ObservationData>(['sketch', 'observations', 'pop_obs']),
-    observationRemoved: new Observable<ObservationData>(['sketch', 'observations', 'remove_obs']),
-    observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
-    observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
-
-    addDataset (id: string, variables: [string], observations: [ObservationData], category: DataCategory = DataCategory.UNSPECIFIED): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', 'add'],
-        payload: JSON.stringify({
-          id,
-          variables,
-          observations,
-          category
-        })
-      })
-    },
-    loadDataset (path: string, id: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', 'load'],
-        payload: JSON.stringify({ path, id })
-      })
-    },
-    removeDataset (id: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', id, 'remove'],
-        payload: null
-      })
-    },
-    setDatasetId (originalId: string, newId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', originalId, 'set_id'],
-        payload: newId
-      })
-    },
-    setDatasetContent (id: string, newContent: DatasetData): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', id, 'set_content'],
-        payload: JSON.stringify(newContent)
-      })
-    },
-    setDatasetCategory (id: string, newCategory: DataCategory): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', id, 'set_category'],
-        payload: JSON.stringify(newCategory)
-      })
-    },
-    setDatasetVariable (datasetId: string, originalId: string, newId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', datasetId, 'set_variable'],
-        payload: JSON.stringify({ original_id: originalId, new_id: newId })
-      })
-    },
-    removeDatasetVariable (datasetId: string, varId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', datasetId, 'remove_var'],
-        payload: varId
-      })
-    },
-    pushObservation (datasetId: string, observation?: ObservationData): void {
-      if (observation === undefined) {
+        }
+        aeonEvents.emitAction(actions)
+      },
+      removeVariable (varId: string): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, 'push_empty_obs'],
+          path: ['sketch', 'model', 'variable', varId, 'remove'],
           payload: null
         })
-      } else {
+      },
+      setVariableName (varId: string, newName: string): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, 'push_obs'],
+          path: ['sketch', 'model', 'variable', varId, 'set_name'],
+          payload: newName
+        })
+      },
+      setVariableId (originalId: string, newId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', originalId, 'set_id'],
+          payload: newId
+        })
+      },
+      setVariableUpdateFn (varId: string, newExpression: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', varId, 'set_update_fn'],
+          payload: newExpression.toString()
+        })
+      },
+      addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
+        if (uninterpretedFnName === '') {
+          uninterpretedFnName = uninterpretedFnId
+        }
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', 'add'],
+          payload: JSON.stringify({
+            id: uninterpretedFnId,
+            name: uninterpretedFnName,
+            arguments: Array(arity).fill([Monotonicity.UNSPECIFIED, Essentiality.UNKNOWN]),
+            expression: ''
+          })
+        })
+      },
+      removeUninterpretedFn (uninterpretedFnId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'remove'],
+          payload: null
+        })
+      },
+      setUninterpretedFnName (uninterpretedFnId: string, newName: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
+          payload: newName
+        })
+      },
+      setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
+          payload: newArity.toString()
+        })
+      },
+      incrementUninterpretedFnArity (uninterpretedFnId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
+          payload: null
+        })
+      },
+      decrementUninterpretedFnArity (uninterpretedFnId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
+          payload: null
+        })
+      },
+      setUninterpretedFnId (originalId: string, newId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', originalId, 'set_id'],
+          payload: newId
+        })
+      },
+      setUninterpretedFnExpression (uninterpretedFnId: string, newExpression: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_expression'],
+          payload: newExpression.toString()
+        })
+      },
+      setUninterpretedFnMonotonicity (uninterpretedFnId: string, idx: number, monotonicity: Monotonicity): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_monotonicity'],
+          payload: JSON.stringify({ idx, monotonicity })
+        })
+      },
+      setUninterpretedFnEssentiality (uninterpretedFnId: string, idx: number, essentiality: Essentiality): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_essentiality'],
+          payload: JSON.stringify({ idx, essentiality })
+        })
+      },
+      addRegulation (regulatorId: string, targetId: string, sign: string, essential: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'regulation', 'add'],
+          payload: JSON.stringify({
+            regulator: regulatorId,
+            target: targetId,
+            sign,
+            essential
+          })
+        })
+      },
+      removeRegulation (regulatorId: string, targetId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'remove'],
+          payload: null
+        })
+      },
+      setRegulationSign (regulatorId: string, targetId: string, newSign: Monotonicity): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'set_sign'],
+          payload: JSON.stringify(newSign)
+        })
+      },
+      setRegulationEssentiality (regulatorId: string, targetId: string, newEssentiality: Essentiality): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'regulation', regulatorId, targetId, 'set_essentiality'],
+          payload: JSON.stringify(newEssentiality)
+        })
+      },
+      addLayout (layoutId: string, layoutName: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'layout', 'add'],
+          payload: JSON.stringify({ id: layoutId, name: layoutName })
+        })
+      },
+      removeLayout (layoutId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'layout', layoutId, 'remove'],
+          payload: null
+        })
+      },
+      changeNodePosition (layoutId: string, varId: string, newX: number, newY: number): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'layout', layoutId, 'update_position'],
+          payload: JSON.stringify({ layout: layoutId, variable: varId, px: newX, py: newY })
+        })
+      }
+    },
+    observations: {
+      datasetsRefreshed: new Observable<[DatasetData]>(['sketch', 'observations', 'get_all_datasets']),
+      refreshDatasets (): void {
+        aeonEvents.refresh(['sketch', 'observations', 'get_all_datasets'])
+      },
+      singleDatasetRefreshed: new Observable<DatasetData>(['sketch', 'observations', 'get_dataset']),
+      refreshSingleDataset (id: string): void {
+        aeonEvents.refresh(['sketch', 'observations', 'get_dataset', id])
+      },
+      observationRefreshed: new Observable<ObservationData>(['observations', 'get_observation']),
+      refreshSingleObservation (datasetId: string, observationId: string): void {
+        aeonEvents.refresh(['sketch', 'observations', 'get_observation', datasetId, observationId])
+      },
+
+      datasetCreated: new Observable<DatasetData>(['sketch', 'observations', 'add']),
+      datasetLoaded: new Observable<DatasetData>(['sketch', 'observations', 'load']),
+      datasetRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove']),
+      datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
+      datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
+      datasetCategoryChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_category']),
+      datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
+      datasetVariableRemoved: new Observable<DatasetMetaData>(['sketch', 'observations', 'remove_var']),
+
+      observationPushed: new Observable<ObservationData>(['sketch', 'observations', 'push_obs']),
+      observationPopped: new Observable<ObservationData>(['sketch', 'observations', 'pop_obs']),
+      observationRemoved: new Observable<ObservationData>(['sketch', 'observations', 'remove_obs']),
+      observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
+      observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
+
+      addDataset (id: string, variables: [string], observations: [ObservationData], category: DataCategory = DataCategory.UNSPECIFIED): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', 'add'],
+          payload: JSON.stringify({
+            id,
+            variables,
+            observations,
+            category
+          })
+        })
+      },
+      loadDataset (path: string, id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', 'load'],
+          payload: JSON.stringify({ path, id })
+        })
+      },
+      removeDataset (id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'remove'],
+          payload: null
+        })
+      },
+      setDatasetId (originalId: string, newId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', originalId, 'set_id'],
+          payload: newId
+        })
+      },
+      setDatasetContent (id: string, newContent: DatasetData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'set_content'],
+          payload: JSON.stringify(newContent)
+        })
+      },
+      setDatasetCategory (id: string, newCategory: DataCategory): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'set_category'],
+          payload: JSON.stringify(newCategory)
+        })
+      },
+      setDatasetVariable (datasetId: string, originalId: string, newId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, 'set_variable'],
+          payload: JSON.stringify({ original_id: originalId, new_id: newId })
+        })
+      },
+      removeDatasetVariable (datasetId: string, varId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, 'remove_var'],
+          payload: varId
+        })
+      },
+      pushObservation (datasetId: string, observation?: ObservationData): void {
+        if (observation === undefined) {
+          aeonEvents.emitAction({
+            path: ['sketch', 'observations', datasetId, 'push_empty_obs'],
+            payload: null
+          })
+        } else {
+          aeonEvents.emitAction({
+            path: ['sketch', 'observations', datasetId, 'push_obs'],
+            payload: JSON.stringify(observation)
+          })
+        }
+      },
+      popObservation (datasetId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, 'pop_obs'],
+          payload: null
+        })
+      },
+      removeObservation (datasetId: string, observationId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, observationId, 'remove'],
+          payload: null
+        })
+      },
+      setObservationId (datasetId: string, originalId: string, newId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, originalId, 'set_id'],
+          payload: newId
+        })
+      },
+      setObservationContent (datasetId: string, observation: ObservationData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
           payload: JSON.stringify(observation)
         })
       }
-    },
-    popObservation (datasetId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', datasetId, 'pop_obs'],
-        payload: null
-      })
-    },
-    removeObservation (datasetId: string, observationId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', datasetId, observationId, 'remove'],
-        payload: null
-      })
-    },
-    setObservationId (datasetId: string, originalId: string, newId: string): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', datasetId, originalId, 'set_id'],
-        payload: newId
-      })
-    },
-    setObservationContent (datasetId: string, observation: ObservationData): void {
-      aeonEvents.emitAction({
-        path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
-        payload: JSON.stringify(observation)
-      })
     }
   }
 }

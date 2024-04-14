@@ -53,38 +53,38 @@ export default class RootComponent extends LitElement {
     this.addEventListener('load-dummy', () => { void this.loadDummy() })
     this.addEventListener('focus-function', this.focusFunction)
     this.addEventListener('add-variable', this.addVariable)
-    aeonState.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
+    aeonState.sketch.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
-    aeonState.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
+    aeonState.sketch.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
     this.addEventListener('set-update-function-expression', this.setVariableFunction)
-    aeonState.model.variableUpdateFnChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
+    aeonState.sketch.model.variableUpdateFnChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
     this.addEventListener('rename-variable', this.renameVariable)
-    aeonState.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
+    aeonState.sketch.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
     this.addEventListener('change-node-position', this.changeNodePosition)
-    aeonState.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
+    aeonState.sketch.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
     this.addEventListener('set-variable-id', this.setVariableId)
-    aeonState.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
+    aeonState.sketch.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
     this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
-    aeonState.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
+    aeonState.sketch.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
     this.addEventListener('toggle-regulation-monotonicity', this.toggleRegulationMonotonicity)
-    aeonState.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
+    aeonState.sketch.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
     this.addEventListener('remove-variable', (e) => {
       void this.removeVariable(e)
     })
-    aeonState.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
+    aeonState.sketch.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
     this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
-    aeonState.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
+    aeonState.sketch.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
 
     // refresh-event listeners
-    aeonState.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
-    aeonState.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
-    aeonState.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
-    aeonState.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
+    aeonState.sketch.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
+    aeonState.sketch.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
+    aeonState.sketch.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
+    aeonState.sketch.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
     // event listener to capture changes from FunctionEditor with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
 
     // refreshing content from backend
-    aeonState.model.refreshModel()
+    aeonState.sketch.model.refreshModel()
   }
 
   async #onErrorMessage (errorMessage: string): Promise<void> {
@@ -139,7 +139,7 @@ export default class RootComponent extends LitElement {
 
   renameVariable (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setVariableName(details.id, details.name)
+    aeonState.sketch.model.setVariableName(details.id, details.name)
   }
 
   #onVariableNameChanged (data: VariableData): void {
@@ -160,7 +160,7 @@ export default class RootComponent extends LitElement {
       px: details.position.x,
       py: details.position.y
     }
-    aeonState.model.addVariable(details.id, details.name, position)
+    aeonState.sketch.model.addVariable(details.id, details.name, position)
   }
 
   #onVariableCreated (data: VariableData): void {
@@ -175,7 +175,7 @@ export default class RootComponent extends LitElement {
 
   private addRegulation (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.addRegulation(details.source, details.target, details.monotonicity, details.essential)
+    aeonState.sketch.model.addRegulation(details.source, details.target, details.monotonicity, details.essential)
   }
 
   #onRegulationCreated (data: RegulationData): void {
@@ -193,7 +193,7 @@ export default class RootComponent extends LitElement {
   private async removeVariable (event: Event): Promise<void> {
     if (!await this.confirmDialog()) return
     const variableId = (event as CustomEvent).detail.id
-    aeonState.model.removeVariable(variableId)
+    aeonState.sketch.model.removeVariable(variableId)
   }
 
   #onVariableRemoved (data: VariableData): void {
@@ -227,7 +227,7 @@ export default class RootComponent extends LitElement {
 
   private changeNodePosition (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
+    aeonState.sketch.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
   }
 
   #onNodePositionChanged (data: LayoutNodeData): void {
@@ -242,7 +242,7 @@ export default class RootComponent extends LitElement {
 
   private setVariableId (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setVariableId(details.oldId, details.newId)
+    aeonState.sketch.model.setVariableId(details.oldId, details.newId)
   }
 
   #onVariableIdChanged (data: VariableIdUpdateData): void {
@@ -251,8 +251,8 @@ export default class RootComponent extends LitElement {
     // TODO: od this more efficiently (but still on backend)
     this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
     this.data.layout.delete(data.original_id)
-    aeonState.model.refreshVariables()
-    aeonState.model.refreshRegulations()
+    aeonState.sketch.model.refreshVariables()
+    aeonState.sketch.model.refreshRegulations()
 
     /*
     // older version that partially changes components directly follows
@@ -279,7 +279,7 @@ export default class RootComponent extends LitElement {
 
   private toggleRegulationEssentiality (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setRegulationEssentiality(details.source, details.target, getNextEssentiality(details.essential))
+    aeonState.sketch.model.setRegulationEssentiality(details.source, details.target, getNextEssentiality(details.essential))
   }
 
   #regulationEssentialityChanged (data: RegulationData): void {
@@ -295,7 +295,7 @@ export default class RootComponent extends LitElement {
 
   private toggleRegulationMonotonicity (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setRegulationSign(details.source, details.target, getNextMonotonicity(details.monotonicity))
+    aeonState.sketch.model.setRegulationSign(details.source, details.target, getNextMonotonicity(details.monotonicity))
   }
 
   #onRegulationMonotonicityChanged (data: RegulationData): void {
@@ -311,7 +311,7 @@ export default class RootComponent extends LitElement {
 
   private setVariableFunction (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setVariableUpdateFn(details.id, details.function)
+    aeonState.sketch.model.setVariableUpdateFn(details.id, details.function)
   }
 
   #onUpdateFnChanged (data: VariableData): void {
@@ -328,7 +328,7 @@ export default class RootComponent extends LitElement {
   private async removeRegulation (event: Event): Promise<void> {
     if (!await this.confirmDialog()) return
     const details = (event as CustomEvent).detail
-    aeonState.model.removeRegulation(details.source, details.target)
+    aeonState.sketch.model.removeRegulation(details.source, details.target)
   }
 
   #onRegulationRemoved (data: RegulationData): void {
@@ -399,43 +399,43 @@ export default class RootComponent extends LitElement {
 
     // 1) remove update/uninterpreted fn expressions (so that we can safely remove variables, functions)
     this.data.variables.forEach((variable) => {
-      aeonState.model.setVariableUpdateFn(variable.id, '')
+      aeonState.sketch.model.setVariableUpdateFn(variable.id, '')
     })
     this.data.functions.forEach((fn) => {
-      aeonState.model.setUninterpretedFnExpression(fn.id, '')
+      aeonState.sketch.model.setUninterpretedFnExpression(fn.id, '')
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
     // 2) remove regulations
     this.data.regulations.forEach((reg) => {
-      aeonState.model.removeRegulation(reg.source, reg.target)
+      aeonState.sketch.model.removeRegulation(reg.source, reg.target)
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
     // 3) finally remove uninterpreted functions and variables
     this.data.functions.forEach((fn) => {
-      aeonState.model.removeUninterpretedFn(fn.id)
+      aeonState.sketch.model.removeUninterpretedFn(fn.id)
     })
     this.data.variables.forEach((variable) => {
-      aeonState.model.removeVariable(variable.id)
+      aeonState.sketch.model.removeVariable(variable.id)
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
 
     // now we can saload the dummy data
     dummyData.variables.forEach((variable) => {
-      aeonState.model.addVariable(variable.id, variable.name, {
+      aeonState.sketch.model.addVariable(variable.id, variable.name, {
         layout: LAYOUT,
         px: (dummyData.layout.get(variable.id)?.x) ?? 0,
         py: (dummyData.layout.get(variable.id)?.y) ?? 0
       })
     })
     dummyData.functions.forEach((f) => {
-      aeonState.model.addUninterpretedFn(f.id, f.variables.length)
+      aeonState.sketch.model.addUninterpretedFn(f.id, f.variables.length)
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
     dummyData.regulations.forEach((regulation) => {
-      aeonState.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
+      aeonState.sketch.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
     })
     dummyData.variables.forEach((variable) => {
-      aeonState.model.setVariableUpdateFn(variable.id, variable.function)
+      aeonState.sketch.model.setVariableUpdateFn(variable.id, variable.function)
     })
     await new Promise(_resolve => setTimeout(_resolve, 250))
   }

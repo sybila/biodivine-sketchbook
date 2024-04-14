@@ -28,23 +28,23 @@ export default class ObservationsEditor extends LitElement {
     super()
 
     // observations-related event listeners
-    aeonState.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
-    aeonState.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
-    aeonState.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
+    aeonState.sketch.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
+    aeonState.sketch.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
+    aeonState.sketch.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
     this.addEventListener('push-new-observation', this.pushNewObservation)
-    aeonState.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
+    aeonState.sketch.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
     this.addEventListener('remove-observation', this.removeObservation)
-    aeonState.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
+    aeonState.sketch.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
     this.addEventListener('change-observation', this.changeObservation)
-    aeonState.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
-    aeonState.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
+    aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
     // TODO add all other events
 
     // refresh-event listeners
-    aeonState.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
+    aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
 
     // refreshing content from backend
-    aeonState.observations.refreshDatasets()
+    aeonState.sketch.observations.refreshDatasets()
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
@@ -120,7 +120,7 @@ export default class ObservationsEditor extends LitElement {
       fileName = handle
     }
 
-    aeonState.observations.loadDataset(fileName, 'dataset' + this.index)
+    aeonState.sketch.observations.loadDataset(fileName, 'dataset' + this.index)
   }
 
   #onDatasetLoaded (data: DatasetData): void {
@@ -158,7 +158,7 @@ export default class ObservationsEditor extends LitElement {
       // temporarily add the dataset in its current version, but also send an event to backend with changes
       this.datasets = this.datasets.concat(modifiedDataset)
       this.index++
-      aeonState.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
+      aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
     })
   }
 
@@ -174,7 +174,7 @@ export default class ObservationsEditor extends LitElement {
 
   updateDatasetId = debounce((newId: string, index: number) => {
     const originalId = this.datasets[index].id
-    aeonState.observations.setDatasetId(originalId, newId)
+    aeonState.sketch.observations.setDatasetId(originalId, newId)
   }, functionDebounceTimer
   )
 
@@ -193,7 +193,7 @@ export default class ObservationsEditor extends LitElement {
   private pushNewObservation (event: Event): void {
     // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
-    aeonState.observations.pushObservation(detail.id)
+    aeonState.sketch.observations.pushObservation(detail.id)
   }
 
   #onObservationPushed (data: ObservationData): void {
@@ -207,7 +207,7 @@ export default class ObservationsEditor extends LitElement {
   private removeObservation (event: Event): void {
     // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
-    aeonState.observations.removeObservation(detail.dataset, detail.id)
+    aeonState.sketch.observations.removeObservation(detail.dataset, detail.id)
   }
 
   #onObservationRemoved (data: ObservationData): void {
@@ -223,10 +223,10 @@ export default class ObservationsEditor extends LitElement {
     const dataset = this.datasets.find(ds => ds.id === detail.dataset)
     if (dataset === undefined) return
     if (detail.id !== detail.observation.id) {
-      aeonState.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
+      aeonState.sketch.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
     }
     const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
-    aeonState.observations.setObservationContent(detail.dataset, obsData)
+    aeonState.sketch.observations.setObservationContent(detail.dataset, obsData)
   }
 
   #onObservationContentChanged (data: ObservationData): void {

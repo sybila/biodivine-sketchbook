@@ -36,6 +36,11 @@ pub trait JsonSerde<'de>: Sized + Serialize + Deserialize<'de> {
         serde_json::to_string(self).unwrap()
     }
 
+    /// Wrapper for *pretty* json serialization with indentation.
+    fn to_pretty_json_str(&self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
+    }
+
     /// Wrapper for json de-serialization.
     fn from_json_str(s: &'de str) -> Result<Self, String> {
         serde_json::from_str(s).map_err(|e| e.to_string())

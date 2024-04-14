@@ -52,7 +52,7 @@ impl SessionState for Sketch {
             let path = Self::clone_payload_str(event, "sketch")?;
             let mut file = File::create(path).map_err(|e| e.to_string())?;
             // write sketch in JSON to the file
-            file.write_all(sketch_data.to_json_str().as_bytes())
+            file.write_all(sketch_data.to_pretty_json_str().as_bytes())
                 .map_err(|e| e.to_string())?;
             Ok(Consumed::NoChange)
         } else {
@@ -68,7 +68,7 @@ impl SessionState for Sketch {
             self.observations.refresh(full_path, at_path)
         } else if let Some(at_path) = Self::starts_with("properties", at_path) {
             self.properties.refresh(full_path, at_path)
-        } else if Self::starts_with("get_sketch", at_path).is_some() {
+        } else if Self::starts_with("get_whole_sketch", at_path).is_some() {
             let sketch_data = SketchData::new(&self.model, &self.observations, &self.properties);
             Ok(Event {
                 path: full_path.to_vec(),
