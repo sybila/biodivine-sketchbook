@@ -4,18 +4,17 @@ use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
-use crate::sketchbook::ModelState;
+use crate::sketchbook::sketch::Sketch;
 
 /// The state of one editor session.
 ///
 /// An editor session is the "main" app session where a model is created/edited and from which
 /// different analysis sessions can be started.
-///
 pub struct EditorSession {
     id: String,
     undo_stack: UndoStack,
     tab_bar: TabBarState,
-    model: ModelState,
+    sketch: Sketch,
 }
 
 impl EditorSession {
@@ -24,7 +23,7 @@ impl EditorSession {
             id: id.to_string(),
             undo_stack: UndoStack::default(),
             tab_bar: TabBarState::default(),
-            model: ModelState::default(),
+            sketch: Sketch::default(),
         }
     }
 
@@ -194,8 +193,8 @@ impl SessionState for EditorSession {
             self.undo_stack.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
             self.tab_bar.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("model", at_path) {
-            self.model.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("sketch", at_path) {
+            self.sketch.perform_event(event, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }
@@ -206,8 +205,8 @@ impl SessionState for EditorSession {
             self.undo_stack.refresh(full_path, at_path)
         } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
             self.tab_bar.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("model", at_path) {
-            self.model.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("sketch", at_path) {
+            self.sketch.refresh(full_path, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

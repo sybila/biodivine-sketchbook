@@ -1,10 +1,7 @@
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
-use crate::sketchbook::VarId;
-
-use crate::sketchbook::utils::assert_name_valid;
+use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
 use std::collections::HashMap;
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Methods for safely constructing or mutating instances of `Layout`.
 impl Layout {
@@ -34,6 +31,9 @@ impl Layout {
         name_str: &str,
         variable_ids: Vec<VarId>,
     ) -> Result<Layout, String> {
+        // before making any changes, check that all IDs are actually valid and unique
+        assert_ids_unique(&variable_ids)?;
+        // now we can safely add them
         let mut layout = Layout::new_empty(name_str)?;
         for var_id in variable_ids {
             layout.add_default_node(var_id.clone())?;
@@ -148,26 +148,10 @@ impl Layout {
     }
 }
 
-impl Display for Layout {
-    /// Use json serialization to convert `Layout` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for Layout {
-    type Err = String;
-
-    /// Use json de-serialization to construct `Layout` from string.
-    fn from_str(s: &str) -> Result<Layout, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use crate::sketchbook::ids::VarId;
     use crate::sketchbook::layout::{Layout, LayoutNode};
-    use crate::sketchbook::VarId;
 
     #[test]
     fn test_layout_basics() {

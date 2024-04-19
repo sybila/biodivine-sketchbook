@@ -1,52 +1,63 @@
-use crate::sketchbook::layout::{Layout, LayoutId};
+use crate::sketchbook::data_structs::LayoutNodeData;
+use crate::sketchbook::ids::LayoutId;
+use crate::sketchbook::layout::Layout;
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending simplified general data about `Layout` to the frontend.
 ///
-/// `LayoutData` does not have the exact same fields as `Layout` (for instance, there is an additional useful
-/// field `id` and the layout nodes are missing).
+/// `LayoutData` does not have the exact same fields as `Layout` (for instance, `id` is added).
 /// Some fields of `LayoutData` are simplified compared to `Layout` (e.g., pure `Strings` instead
 /// of more complex typesafe structs) to allow for easier (de)serialization.
 ///
-/// See also [LayoutNodeData] for similar structure to carry data regarding `NodeLayouts`.
+/// See also [LayoutNodeData] for a sub-structure to carry data regarding individual `NodeLayouts`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LayoutData {
     pub id: String,
     pub name: String,
+    pub nodes: Vec<LayoutNodeData>,
 }
 
+/// Structure for sending *metadata* about `Layout`. This includes id, and name,
+/// but excludes all actual nodes.
+///
+/// Some fields of `LayoutData` are simplified compared to `Layout` (e.g., pure `Strings` instead
+/// of more complex typesafe structs) to allow for easier (de)serialization.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LayoutMetaData {
+    pub id: String,
+    pub name: String,
+}
+
+impl<'de> JsonSerde<'de> for LayoutData {}
+impl<'de> JsonSerde<'de> for LayoutMetaData {}
+
 impl LayoutData {
-    /// Create new `LayoutData` object given a layout's name and id string slices.
-    pub fn new(layout_id: &str, layout_name: &str) -> LayoutData {
+    /// Create new `LayoutData` object given a `layout` and its id.
+    pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutData {
+        let nodes = layout
+            .layout_nodes()
+            .map(|(v_id, node)| LayoutNodeData::from_node(layout_id, v_id, node))
+            .collect();
         LayoutData {
+            id: layout_id.to_string(),
+            name: layout.get_layout_name().to_string(),
+            nodes,
+        }
+    }
+}
+
+impl LayoutMetaData {
+    /// Create new `LayoutMetaData` object given a layout's name and id string slices.
+    pub fn new(layout_id: &str, layout_name: &str) -> LayoutMetaData {
+        LayoutMetaData {
             id: layout_id.to_string(),
             name: layout_name.to_string(),
         }
     }
 
-    /// Create new `VariableData` object given a `variable` and its id.
-    pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutData {
-        LayoutData {
-            id: layout_id.to_string(),
-            name: layout.get_layout_name().to_string(),
-        }
-    }
-}
-
-impl Display for LayoutData {
-    /// Use json serialization to convert `LayoutData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for LayoutData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `LayoutData` from string.
-    fn from_str(s: &str) -> Result<LayoutData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
+    /// Create new `LayoutMetaData` object given a `layout` and its id.
+    pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutMetaData {
+        LayoutMetaData::new(layout_id.as_str(), layout.get_layout_name())
     }
 }

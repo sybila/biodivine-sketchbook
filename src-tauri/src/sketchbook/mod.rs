@@ -1,63 +1,109 @@
-use crate::sketchbook::layout::{Layout, LayoutId};
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
-/// **(internal)** Utility methods for `BinaryOp`.
-mod _binary_op;
-/// **(internal)** Utility methods for `Essentiality`.
-mod _essentiality;
-/// **(internal)** Utility methods for `FnTree`.
-mod _function_tree;
-/// **(internal)** Utility methods for `Identifier`.
-mod _identifier;
-/// **(internal)** Utility methods for `ModelState`.
-mod _model;
-/// **(internal)** Utility methods for `Monotonicity`.
-mod _monotonicity;
-/// **(internal)** Utility methods for `Regulation`.
-mod _regulation;
-/// **(internal)** Utility methods for `UninterpretedFn`.
-mod _uninterpreted_fn;
-/// **(internal)** Utility methods for `FnArgument`.
-mod _uninterpreted_fn_arg;
-/// **(internal)** Utility methods for `UninterpretedFnId`.
-mod _uninterpreted_fn_id;
-/// **(internal)** Utility methods for `UpdateFn`.
-mod _update_function;
-/// **(internal)** Utility methods for `VarId`.
-mod _var_id;
-/// **(internal)** Utility methods for `Variable`.
-mod _variable;
-
-/// Classes and utility methods that can be used for sending simplified data to frontend.
-/// This includes simplified "data carriers" for variables, regulations, and layouts.
+/// Structs and utility methods that can be used for communication with frontend.
 pub mod data_structs;
-/// Classes and utility methods regarding the layout of the Regulations editor.
+/// Definitions and utilities for type-safe identifiers of various components.
+pub mod ids;
+/// Structs and utility methods regarding the layout of the Regulations editor.
 pub mod layout;
-/// Utility functions used throughout the module.
-pub mod utils;
+/// Structs and utility methods regarding the model of the Regulations editor.
+pub mod model;
+/// Structs and utility methods regarding observations and datasets.
+pub mod observations;
+/// Classes and utility methods regarding properties.
+pub mod properties;
+/// The main `Sketch` manager object and its utilities.
+pub mod sketch;
 
-pub use _binary_op::BinaryOp;
-pub use _essentiality::Essentiality;
-pub use _function_tree::FnTree;
-pub use _identifier::Identifier;
-pub use _model::ModelState;
-pub use _monotonicity::Monotonicity;
-pub use _regulation::Regulation;
-pub use _uninterpreted_fn::UninterpretedFn;
-pub use _uninterpreted_fn_arg::FnArgument;
-pub use _uninterpreted_fn_id::UninterpretedFnId;
-pub use _update_function::UpdateFn;
-pub use _var_id::VarId;
-pub use _variable::Variable;
+/// **(internal)** Utility functions specifically related to events.
+mod event_utils;
+/// **(internal)** General utilities used throughout the module (e.g., serialization
+/// helper methods).
+mod utils;
 
-/// An iterator over all (`VarId`, `Variable`) pairs of a `ModelState`.
-pub type VariableIterator<'a> = std::collections::hash_map::Keys<'a, VarId, Variable>;
+/// **(internal)** Tests for the event-based API of various top-level components.
+#[cfg(test)]
+mod _tests_events;
 
-/// An iterator over all (`UninterpretedFnId`, `UninterpretedFn`) pairs of a `ModelState`.
-pub type UninterpretedFnIterator<'a> =
-    std::collections::hash_map::Keys<'a, UninterpretedFnId, UninterpretedFn>;
+/// Trait that implements `to_json_str` and `from_json_str` wrappers to serialize and
+/// deserialize objects, utilizing [serde_json].
+///
+/// All of the structs implementing `JsonSerde` must implement traits `Serialize` and `Deserialize`.
+pub trait JsonSerde<'de>: Sized + Serialize + Deserialize<'de> {
+    /// Wrapper for json serialization.
+    fn to_json_str(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
 
-/// An iterator over all `Regulations` of a `ModelState`.
-pub type RegulationIterator<'a> = std::collections::hash_set::Iter<'a, Regulation>;
+    /// Wrapper for *pretty* json serialization with indentation.
+    fn to_pretty_json_str(&self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
+    }
 
-/// An iterator over all (`LayoutId`, `Layout`) pairs of a `ModelState`.
-pub type LayoutIterator<'a> = std::collections::hash_map::Keys<'a, LayoutId, Layout>;
+    /// Wrapper for json de-serialization.
+    fn from_json_str(s: &'de str) -> Result<Self, String> {
+        serde_json::from_str(s).map_err(|e| e.to_string())
+    }
+}
+
+/// Trait implementing functionality relevant for all manager structs (such as `ModelState`,
+/// `ObservationManager`, ...).
+pub trait Manager {
+    /// Generate an ID of type `T` for a certain component of a manager (e.g., generate a
+    /// `VariableId` for a `Variable` in a `ModelState`).
+    ///
+    /// The id is generated based on provided `ideal_id`. In best case, it is used directly.
+    /// If this would cause some collisions, it is modified until the ID is unique.
+    ///
+    /// Method `is_taken` is provided to check whether a generated id is already taken (non-unique),
+    /// and `max_idx` specifies maximum number that the component might need appended to make it
+    /// unique (e.g., for a variable, it would be total number of variables in use).
+    fn generate_id<T>(
+        &self,
+        ideal_id: &str,
+        is_taken: &dyn Fn(&Self, &T) -> bool,
+        max_idx: usize,
+    ) -> T
+    where
+        T: FromStr,
+        <T as FromStr>::Err: std::fmt::Debug,
+    {
+        // first try to use the `ideal_id`
+        if let Ok(id) = T::from_str(ideal_id) {
+            // the id must not be valid in the network already (that would mean it is already used)
+            if !is_taken(self, &id) {
+                return id;
+            }
+        }
+
+        // try to transform the id by removing invalid characters
+        let mut transformed_id: String = ideal_id
+            .chars()
+            .filter(|ch| ch.is_alphanumeric() || *ch == '_')
+            .collect();
+        // and if the first character is not a letter, add prefix 'v_'
+        if transformed_id.starts_with(|ch: char| !ch.is_alphabetic()) {
+            transformed_id.insert_str(0, "v_");
+        }
+
+        if let Ok(id) = T::from_str(transformed_id.as_str()) {
+            // the id must not be valid in the network already (that would mean it is already used)
+            if !is_taken(self, &id) {
+                return id;
+            }
+        }
+
+        // finally, append a number at the end of id
+        // start searching at 0, until we try `max_idx` options
+        for n in 0..max_idx {
+            let id = T::from_str(format!("{}_{}", transformed_id, n).as_str()).unwrap();
+            if !is_taken(self, &id) {
+                return id;
+            }
+        }
+
+        // this must be valid, we already tried more than `max_idx` options
+        T::from_str(format!("{}_{}", transformed_id, max_idx).as_str()).unwrap()
+    }
+}

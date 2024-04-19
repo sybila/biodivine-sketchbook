@@ -19,25 +19,29 @@ export class FunctionsEditor extends LitElement {
 
   constructor () {
     super()
-    aeonState.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
-    this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
-    aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
-    this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
-    aeonState.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
-    this.addEventListener('rename-function-definition', this.setFunctionId)
-    aeonState.model.uninterpretedFnIdChanged.addEventListener(this.#onFunctionIdChanged.bind(this))
-    this.addEventListener('add-function-variable', this.addFunctionVariable)
-    aeonState.model.uninterpretedFnArityIncremented.addEventListener(this.#onFunctionArityIncremented.bind(this))
-    this.addEventListener('toggle-function-variable-monotonicity', this.toggleFunctionVariableMonotonicity)
-    aeonState.model.uninterpretedFnMonotonicityChanged.addEventListener(this.#onFunctionMonotonicityChanged.bind(this))
-    this.addEventListener('toggle-function-variable-essentiality', this.toggleFunctionVariableEssentiality)
-    aeonState.model.uninterpretedFnEssentialityChanged.addEventListener(this.#onFunctionEssentialityChanged.bind(this))
-    this.addEventListener('remove-function-variable', (e) => { void this.removeFunctionVariable(e) })
-    aeonState.model.uninterpretedFnArityDecremented.addEventListener(this.#onFunctionArityDecremented.bind(this))
-    this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
-    aeonState.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
 
-    aeonState.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
+    // functions-related event listeners
+    aeonState.sketch.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
+    this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
+    aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
+    this.addEventListener('rename-function-definition', this.setFunctionId)
+    aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onFunctionIdChanged.bind(this))
+    this.addEventListener('add-function-variable', this.addFunctionVariable)
+    aeonState.sketch.model.uninterpretedFnArityIncremented.addEventListener(this.#onFunctionArityIncremented.bind(this))
+    this.addEventListener('toggle-function-variable-monotonicity', this.toggleFunctionVariableMonotonicity)
+    aeonState.sketch.model.uninterpretedFnMonotonicityChanged.addEventListener(this.#onFunctionMonotonicityChanged.bind(this))
+    this.addEventListener('toggle-function-variable-essentiality', this.toggleFunctionVariableEssentiality)
+    aeonState.sketch.model.uninterpretedFnEssentialityChanged.addEventListener(this.#onFunctionEssentialityChanged.bind(this))
+    this.addEventListener('remove-function-variable', (e) => { void this.removeFunctionVariable(e) })
+    aeonState.sketch.model.uninterpretedFnArityDecremented.addEventListener(this.#onFunctionArityDecremented.bind(this))
+    this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
+    aeonState.sketch.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
+
+    // refresh-event listeners
+    aeonState.sketch.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
+
+    // note that the `refreshUninterpretedFns` or `refreshModel` events are triggered (after app refresh) directly
+    // from the root component (due to some dependency issues)
   }
 
   connectedCallback (): void {
@@ -52,6 +56,7 @@ export class FunctionsEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
+    this.index = this.contentData.functions.length
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
         callback(null, this.contentData.functions.map((func): Ace.Completion => ({
@@ -64,8 +69,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private saveFunctions (functions: IFunctionData[]): void {
-    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
-
     // propagate the current version of functions via event that will be captured by root component
     this.dispatchEvent(new CustomEvent('save-functions', {
       bubbles: true,
@@ -87,20 +90,12 @@ export class FunctionsEditor extends LitElement {
     const fns = functions.map((data): IFunctionData => {
       return this.convertToIFunction(data)
     })
+    this.index = fns.length
     this.saveFunctions(fns)
   }
 
   private addFunction (): void {
-    /*
-    this.functions.push({
-      id: 'func' + this.index,
-      function: '',
-      variables: []
-    })
-    this.index++
-    this.functions = [...this.functions]
-     */
-    aeonState.model.addUninterpretedFn('func' + this.index, 0)
+    aeonState.sketch.model.addUninterpretedFn('func' + this.index, 0)
   }
 
   #onFunctionCreated (data: UninterpretedFnData): void {
@@ -111,18 +106,9 @@ export class FunctionsEditor extends LitElement {
   }
 
   private async removeFunction (event: Event): Promise<void> {
-    /*
     if (!await this.confirmDialog()) return
     const id = (event as CustomEvent).detail.id
-    const index = this.functions.findIndex(fun => fun.id === id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions.splice(index, 1)
-    this.functions = functions
-     */
-    if (!await this.confirmDialog()) return
-    const id = (event as CustomEvent).detail.id
-    aeonState.model.removeUninterpretedFn(id)
+    aeonState.sketch.model.removeUninterpretedFn(id)
   }
 
   #onFunctionRemoved (data: UninterpretedFnData): void {
@@ -135,19 +121,8 @@ export class FunctionsEditor extends LitElement {
   }
 
   private setFunctionId (event: Event): void {
-    /*
     const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.oldId)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index] = {
-      ...functions[index],
-      id: detail.newId
-    }
-    this.functions = functions
-     */
-    const detail = (event as CustomEvent).detail
-    aeonState.model.setUninterpretedFnId(detail.oldId, detail.newId)
+    aeonState.sketch.model.setUninterpretedFnId(detail.oldId, detail.newId)
   }
 
   #onFunctionIdChanged (data: UninterpretedFnIdUpdateData): void {
@@ -162,27 +137,13 @@ export class FunctionsEditor extends LitElement {
 
     // TODO: this refresh is a temporary solution to get potentially modified update function and uninterpreted
     // functions' expressions
-    aeonState.model.refreshUninterpretedFns()
-    aeonState.model.refreshVariables()
+    aeonState.sketch.model.refreshUninterpretedFns()
+    aeonState.sketch.model.refreshVariables()
   }
 
   private addFunctionVariable (event: Event): void {
-    /*
     const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables.push({
-      id: detail.index,
-      source: detail.variable,
-      target: functions[index].id,
-      essential: Essentiality.UNKNOWN,
-      monotonicity: Monotonicity.UNSPECIFIED
-    })
-    this.functions = functions
-     */
-    const detail = (event as CustomEvent).detail
-    aeonState.model.incrementUninterpretedFnArity(detail.id)
+    aeonState.sketch.model.incrementUninterpretedFnArity(detail.id)
   }
 
   #onFunctionArityIncremented (data: UninterpretedFnData): void {
@@ -197,20 +158,9 @@ export class FunctionsEditor extends LitElement {
   }
 
   private toggleFunctionVariableMonotonicity (event: Event): void {
-    /*
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables[detail.index] = {
-      ...functions[index].variables[detail.index],
-      monotonicity: getNextMonotonicity(functions[index].variables[detail.index].monotonicity)
-    }
-    this.functions = functions
-     */
     const detail = (event as CustomEvent).detail
     const newMonotonicity = getNextMonotonicity(detail.monotonicity)
-    aeonState.model.setUninterpretedFnMonotonicity(detail.id, detail.index, newMonotonicity)
+    aeonState.sketch.model.setUninterpretedFnMonotonicity(detail.id, detail.index, newMonotonicity)
   }
 
   #onFunctionMonotonicityChanged (data: UninterpretedFnData): void {
@@ -225,20 +175,9 @@ export class FunctionsEditor extends LitElement {
   }
 
   private toggleFunctionVariableEssentiality (event: Event): void {
-    /*
-    const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables[detail.index] = {
-      ...functions[index].variables[detail.index],
-      essential: getNextEssentiality(functions[index].variables[detail.index].essential)
-    }
-    this.functions = functions
-     */
     const detail = (event as CustomEvent).detail
     const newEssentiality = getNextEssentiality(detail.essentiality)
-    aeonState.model.setUninterpretedFnEssentiality(detail.id, detail.index, newEssentiality)
+    aeonState.sketch.model.setUninterpretedFnEssentiality(detail.id, detail.index, newEssentiality)
   }
 
   #onFunctionEssentialityChanged (data: UninterpretedFnData): void {
@@ -254,7 +193,7 @@ export class FunctionsEditor extends LitElement {
 
   private setFunctionExpression (event: Event): void {
     const details = (event as CustomEvent).detail
-    aeonState.model.setUninterpretedFnExpression(details.id, details.function)
+    aeonState.sketch.model.setUninterpretedFnExpression(details.id, details.function)
   }
 
   #onFunctionExpressionChanged (data: UninterpretedFnData): void {
@@ -269,18 +208,9 @@ export class FunctionsEditor extends LitElement {
   }
 
   private async removeFunctionVariable (event: Event): Promise<void> {
-    /*
     if (!await this.confirmDialog()) return
     const detail = (event as CustomEvent).detail
-    const index = this.functions.findIndex(fun => fun.id === detail.id)
-    if (index === -1) return
-    const functions = [...this.functions]
-    functions[index].variables.splice(detail.index, 1)
-    this.functions = functions
-     */
-    if (!await this.confirmDialog()) return
-    const detail = (event as CustomEvent).detail
-    aeonState.model.decrementUninterpretedFnArity(detail.id)
+    aeonState.sketch.model.decrementUninterpretedFnArity(detail.id)
   }
 
   #onFunctionArityDecremented (data: UninterpretedFnData): void {

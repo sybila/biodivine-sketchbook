@@ -1,7 +1,6 @@
-use crate::sketchbook::{Essentiality, Monotonicity, Regulation};
+use crate::sketchbook::model::{Essentiality, Monotonicity, Regulation};
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending simplified data about `Regulation` to the frontend.
 ///
@@ -14,6 +13,8 @@ pub struct RegulationData {
     pub sign: Monotonicity,
     pub essential: Essentiality,
 }
+
+impl<'de> JsonSerde<'de> for RegulationData {}
 
 impl RegulationData {
     /// Create new `RegulationData` object given references to individual components.
@@ -33,33 +34,17 @@ impl RegulationData {
 
     /// Create new `RegulationData` object given a `regulation`.
     pub fn from_reg(regulation: &Regulation) -> RegulationData {
-        RegulationData {
-            regulator: regulation.get_regulator().to_string(),
-            target: regulation.get_target().to_string(),
-            essential: *regulation.get_essentiality(),
-            sign: *regulation.get_sign(),
-        }
+        RegulationData::new(
+            regulation.get_regulator().as_str(),
+            regulation.get_target().as_str(),
+            *regulation.get_essentiality(),
+            *regulation.get_sign(),
+        )
     }
 
     /// Try to create new `RegulationData` object given a string encoding a regulation.
     pub fn try_from_reg_str(regulation_str: &str) -> Result<RegulationData, String> {
         let regulation = Regulation::try_from_string(regulation_str)?;
         Ok(RegulationData::from_reg(&regulation))
-    }
-}
-
-impl Display for RegulationData {
-    /// Use json serialization to convert `RegulationData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for RegulationData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `RegulationData` from string.
-    fn from_str(s: &str) -> Result<RegulationData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
     }
 }
