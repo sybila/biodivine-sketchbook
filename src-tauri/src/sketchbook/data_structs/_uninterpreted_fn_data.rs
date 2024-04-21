@@ -1,5 +1,7 @@
 use crate::sketchbook::ids::UninterpretedFnId;
-use crate::sketchbook::model::{Essentiality, FnArgument, Monotonicity, UninterpretedFn};
+use crate::sketchbook::model::{
+    Essentiality, FnArgument, ModelState, Monotonicity, UninterpretedFn,
+};
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
@@ -49,6 +51,25 @@ impl UninterpretedFnData {
             uninterpreted_fn.get_name(),
             arguments,
             uninterpreted_fn.get_fn_expression(),
+        )
+    }
+
+    /// Extract new `UninterpretedFn` instance from this data (if the function's expression
+    /// is valid).
+    ///
+    /// Model is given for validity check during parsing the function's expression.
+    pub fn to_uninterpreted_fn(&self, model: &ModelState) -> Result<UninterpretedFn, String> {
+        let arguments = self
+            .arguments
+            .iter()
+            .map(|(m, e)| FnArgument::new(*e, *m))
+            .collect();
+        UninterpretedFn::new(
+            &self.name,
+            &self.expression,
+            arguments,
+            model,
+            &model.get_uninterpreted_fn_id(&self.id)?,
         )
     }
 }

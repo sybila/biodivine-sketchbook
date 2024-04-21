@@ -121,7 +121,9 @@ mod tests {
     #[test]
     fn test_layout_serde() {
         let mut layout = Layout::new_empty("layout_name").unwrap();
-        layout.add_node(VarId::new("v1").unwrap(), 1., 1.).unwrap();
+        layout
+            .add_node_by_coords(VarId::new("v1").unwrap(), 1., 1.)
+            .unwrap();
 
         // Serialization
         let layout_serialized = serde_json::to_string(&layout).unwrap();

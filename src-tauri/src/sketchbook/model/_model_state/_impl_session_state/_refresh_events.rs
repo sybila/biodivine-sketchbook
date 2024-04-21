@@ -12,7 +12,7 @@ use crate::sketchbook::JsonSerde;
 impl ModelState {
     /// Get a whole model.
     pub(super) fn refresh_whole_model(&self, full_path: &[String]) -> Result<Event, DynError> {
-        let model_data = ModelData::new(self);
+        let model_data = ModelData::from_model(self);
         Ok(Event {
             path: full_path.to_vec(),
             payload: Some(model_data.to_json_str()),

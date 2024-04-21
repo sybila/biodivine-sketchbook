@@ -1,8 +1,9 @@
 use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
 use crate::sketchbook::properties::{
-    DynPropIterator, DynProperty, PropertyManager, StatPropIterator,
+    DynPropIterator, DynProperty, PropertyManager, StatPropIterator, StatProperty,
 };
-use std::collections::{HashMap, HashSet};
+use crate::sketchbook::utils::assert_ids_unique;
+use std::collections::HashMap;
 
 impl PropertyManager {
     /// Instantiate `PropertyManager` with empty sets of properties.
@@ -13,25 +14,56 @@ impl PropertyManager {
         }
     }
 
-    /// Instantiate `PropertyManager` with dynamic properties given as a list of ID-formula pairs.
-    pub fn new_from_dyn_properties(
-        properties: Vec<(&str, &str)>,
+    /// Instantiate `PropertyManager` with dynamic and static properties given as a list
+    /// of ID-formula pairs.
+    pub fn new_from_formulae(
+        dyn_properties: Vec<(&str, &str)>,
+        stat_properties: Vec<(&str, &str)>,
     ) -> Result<PropertyManager, String> {
         let mut manager = PropertyManager::new_empty();
 
-        let prop_id_set = properties.iter().map(|pair| pair.0).collect::<HashSet<_>>();
-        if prop_id_set.len() != properties.len() {
-            return Err(format!(
-                "Properties {:?} contain duplicate IDs.",
-                properties
-            ));
-        }
+        let dyn_prop_ids = dyn_properties.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&dyn_prop_ids)?;
 
-        for (id, formula) in properties {
+        let stat_prop_ids = stat_properties.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&stat_prop_ids)?;
+
+        for (id, formula) in dyn_properties {
             let prop_id = DynPropertyId::new(id)?;
             manager
                 .dyn_properties
                 .insert(prop_id, DynProperty::try_from_str(formula)?);
+        }
+        for (id, formula) in stat_properties {
+            let prop_id = StatPropertyId::new(id)?;
+            manager
+                .stat_properties
+                .insert(prop_id, StatProperty::try_from_str(formula)?);
+        }
+        Ok(manager)
+    }
+
+    /// Instantiate `PropertyManager` with dynamic and static properties given as a list
+    /// of ID-property pairs.
+    pub fn new_from_properties(
+        dyn_properties: Vec<(&str, DynProperty)>,
+        stat_properties: Vec<(&str, StatProperty)>,
+    ) -> Result<PropertyManager, String> {
+        let mut manager = PropertyManager::new_empty();
+
+        let dyn_prop_ids = dyn_properties.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&dyn_prop_ids)?;
+
+        let stat_prop_ids = stat_properties.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&stat_prop_ids)?;
+
+        for (id, prop) in dyn_properties {
+            manager.dyn_properties.insert(DynPropertyId::new(id)?, prop);
+        }
+        for (id, prop) in stat_properties {
+            manager
+                .stat_properties
+                .insert(StatPropertyId::new(id)?, prop);
         }
         Ok(manager)
     }

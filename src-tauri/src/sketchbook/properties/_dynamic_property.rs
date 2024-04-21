@@ -11,9 +11,9 @@ pub struct DynProperty {
     formula: String,
 }
 
-/// Creating properties.
+/// Creating dynamic properties.
 impl DynProperty {
-    /// Create ` DynProperty` object directly from a formula, which must be in a correct format.
+    /// Create `DynProperty` object directly from a formula, which must be in a correct format.
     ///
     /// TODO: add syntax check.
     pub fn try_from_str(formula: &str) -> Result<DynProperty, String> {
@@ -21,7 +21,7 @@ impl DynProperty {
         Ok(DynProperty::new_raw(formula))
     }
 
-    /// **internal** Create ` DynProperty` object directly from a string formula,
+    /// **internal** Create `DynProperty` object directly from a string formula,
     /// without any syntax checks on it.
     fn new_raw(formula: &str) -> Self {
         DynProperty {
@@ -61,12 +61,12 @@ impl DynProperty {
     }
 }
 
-/// Editing properties.
+/// Editing dynamic properties.
 impl DynProperty {
     // TODO
 }
 
-/// Observing properties.
+/// Observing dynamic properties.
 impl DynProperty {
     pub fn get_formula(&self) -> &str {
         &self.formula

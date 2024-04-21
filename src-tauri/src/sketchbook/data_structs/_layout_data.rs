@@ -33,7 +33,7 @@ impl<'de> JsonSerde<'de> for LayoutData {}
 impl<'de> JsonSerde<'de> for LayoutMetaData {}
 
 impl LayoutData {
-    /// Create new `LayoutData` object given a `layout` and its id.
+    /// Create new `LayoutData` instance given a `layout` and its id.
     pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutData {
         let nodes = layout
             .layout_nodes()
@@ -45,10 +45,20 @@ impl LayoutData {
             nodes,
         }
     }
+
+    /// Extract new `Layout` instance from this data.
+    pub fn to_layout(&self) -> Result<Layout, String> {
+        let var_node_pairs = self
+            .nodes
+            .iter()
+            .map(|node_data| (node_data.variable.as_str(), node_data.to_node()))
+            .collect();
+        Layout::new(&self.name, var_node_pairs)
+    }
 }
 
 impl LayoutMetaData {
-    /// Create new `LayoutMetaData` object given a layout's name and id string slices.
+    /// Create new `LayoutMetaData` instance given a layout's name and id string slices.
     pub fn new(layout_id: &str, layout_name: &str) -> LayoutMetaData {
         LayoutMetaData {
             id: layout_id.to_string(),
@@ -56,7 +66,7 @@ impl LayoutMetaData {
         }
     }
 
-    /// Create new `LayoutMetaData` object given a `layout` and its id.
+    /// Create new `LayoutMetaData` instance given a `layout` and its id.
     pub fn from_layout(layout_id: &LayoutId, layout: &Layout) -> LayoutMetaData {
         LayoutMetaData::new(layout_id.as_str(), layout.get_layout_name())
     }

@@ -4,6 +4,10 @@ import style_less from './menu.less?inline'
 import { map } from 'lit/directives/map.js'
 import { open, save } from '@tauri-apps/api/dialog'
 import { appWindow } from '@tauri-apps/api/window'
+import {
+  aeonState
+} from '../../../aeon_events'
+import { dialog } from '@tauri-apps/api'
 
 // TODO: close menu when clicked outside
 
@@ -15,23 +19,31 @@ export default class Menu extends LitElement {
   @state() menuItems: IMenuItem[] = [
     {
       label: 'New sketch',
-      action: () => { console.log('new') }
+      action: () => { void this.newSketch() }
     },
     {
       label: 'Import...',
-      action: () => { void this.import() }
+      action: () => { void this.importSketch() }
     },
     {
       label: 'Export...',
-      action: () => { void this.export() }
+      action: () => { void this.exportSketch() }
     },
     {
       label: 'Quit',
-      action: this.quit
+      action: () => { void this.quit() }
     }
   ]
 
-  async import (): Promise<void> {
+  async importSketch (): Promise<void> {
+    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+      type: 'warning',
+      okLabel: 'Import',
+      cancelLabel: 'Cancel',
+      title: 'Import new sketch'
+    })
+    if (!confirmation) return
+
     let selected = await open({
       title: 'Import sketch...',
       multiple: false,
@@ -46,9 +58,10 @@ export default class Menu extends LitElement {
     }
 
     console.log('importing', selected)
+    aeonState.sketch.importSketch(selected)
   }
 
-  async export (): Promise<void> {
+  async exportSketch (): Promise<void> {
     const filePath = await save({
       title: 'Export sketch...',
       filters: [{
@@ -60,9 +73,31 @@ export default class Menu extends LitElement {
     if (filePath === null) return
 
     console.log('exporting to', filePath)
+    aeonState.sketch.exportSketch(filePath)
   }
 
-  quit (): void {
+  async newSketch (): Promise<void> {
+    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+      type: 'warning',
+      okLabel: 'New sketch',
+      cancelLabel: 'Cancel',
+      title: 'Start new sketch'
+    })
+    if (!confirmation) return
+
+    console.log('loading new sketch')
+    aeonState.sketch.newSketch()
+  }
+
+  async quit (): Promise<void> {
+    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+      type: 'warning',
+      okLabel: 'Quit',
+      cancelLabel: 'Cancel',
+      title: 'Quit'
+    })
+    if (!confirmation) return
+
     void appWindow.close()
   }
 

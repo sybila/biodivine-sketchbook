@@ -1,5 +1,6 @@
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::LayoutNode;
+use crate::sketchbook::Manager;
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
@@ -16,6 +17,8 @@ pub struct Layout {
     name: String,
     nodes: HashMap<VarId, LayoutNode>,
 }
+
+impl Manager for Layout {}
 
 impl Display for Layout {
     /// Use json serialization to convert `Layout` to string.

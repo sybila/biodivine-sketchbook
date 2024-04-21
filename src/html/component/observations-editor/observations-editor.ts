@@ -14,7 +14,8 @@ import {
   type DatasetData,
   type DatasetIdUpdateData,
   type ObservationData,
-  type ObservationIdUpdateData
+  type ObservationIdUpdateData,
+  type SketchData
 } from '../../../aeon_events'
 
 @customElement('observations-editor')
@@ -42,6 +43,9 @@ export default class ObservationsEditor extends LitElement {
 
     // refresh-event listeners
     aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
+    // when refreshing/replacing whole sketch, this component is responsible for updating the `Datasets` part
+    aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
+    aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
 
     // refreshing content from backend
     aeonState.sketch.observations.refreshDatasets()
@@ -85,6 +89,11 @@ export default class ObservationsEditor extends LitElement {
       variables: dataset.variables,
       category: dataset.category
     }
+  }
+
+  #onSketchRefreshed (sketch: SketchData): void {
+    // when refreshing/replacing whole sketch, this component is responsible for updating the `Datasets` part
+    this.#onDatasetsRefreshed(sketch.datasets)
   }
 
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {

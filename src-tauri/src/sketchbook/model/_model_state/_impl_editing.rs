@@ -1,9 +1,12 @@
+use crate::sketchbook::data_structs::ModelData;
 use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::layout::Layout;
 use crate::sketchbook::model::{
-    Essentiality, ModelState, Monotonicity, Regulation, UninterpretedFn, UpdateFn, Variable,
+    Essentiality, FnArgument, ModelState, Monotonicity, Regulation, UninterpretedFn, UpdateFn,
+    Variable,
 };
 use crate::sketchbook::utils::assert_ids_unique;
+use crate::sketchbook::Manager;
 use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 
@@ -14,7 +17,7 @@ use std::collections::{HashMap, HashSet};
 impl ModelState {
     /// Create a new `ModelState` that does not contain any `Variables`, `Uninterpreted Functions`,
     /// or `Regulations` yet. It contains a single empty default `Layout`.
-    pub fn new() -> ModelState {
+    pub fn new_empty() -> ModelState {
         let default_layout_id = ModelState::get_default_layout_id();
         // `get_default_layout_name()` returns a valid name, so we can safely unwrap
         let default_layout = Layout::new_empty(ModelState::get_default_layout_name()).unwrap();
@@ -28,6 +31,63 @@ impl ModelState {
         }
     }
 
+    /// Create a new `ModelState` given a corresponding `ModelData` instance.
+    ///
+    /// It is not that efficient currently, but should result in correct/consistent model.
+    /// TODO: try to rewrite more efficiently without compromising the correctness.
+    pub fn new_from_model_data(model_data: &ModelData) -> Result<ModelState, String> {
+        // start with variables and plain function symbols (so that they can be used in expressions later)
+        let variables = model_data
+            .variables
+            .iter()
+            .map(|v| (v.id.as_str(), v.name.as_str()))
+            .collect();
+        let plain_functions = model_data
+            .uninterpreted_fns
+            .iter()
+            .map(|f| (f.id.as_str(), f.name.as_str(), f.arguments.len()))
+            .collect();
+        let mut model = ModelState::new_from_vars(variables)?;
+        model.add_multiple_uninterpreted_fns(plain_functions)?;
+
+        // add regulations
+        model_data.regulations.iter().try_for_each(|r| {
+            model.add_regulation(
+                VarId::new(&r.regulator)?,
+                VarId::new(&r.target)?,
+                r.essential,
+                r.sign,
+            )
+        })?;
+
+        // add layouts
+        for layout_data in &model_data.layouts {
+            let layout = layout_data.to_layout()?;
+            // check layout has valid variables
+            model.add_or_update_layout_raw(LayoutId::new(&layout_data.id)?, layout)?;
+        }
+
+        // set update fns
+        let update_fns = model_data
+            .variables
+            .iter()
+            .map(|v| (v.id.as_str(), v.update_fn.as_str()))
+            .collect();
+        model.set_multiple_update_fns(update_fns)?;
+
+        // set expressions and arguments for uninterpreted fns
+        for f in &model_data.uninterpreted_fns {
+            model.set_uninterpreted_fn_expression_by_str(&f.id, &f.expression)?;
+            let arguments = f
+                .arguments
+                .iter()
+                .map(|(m, e)| FnArgument::new(*e, *m))
+                .collect();
+            model.set_uninterpreted_fn_all_args_by_str(&f.id, arguments)?;
+        }
+        Ok(model)
+    }
+
     /// Create new `ModelState` using provided variable ID-name pairs, both strings.
     /// All variables have default (empty) update functions.
     /// Result will contain no `UninterpretedFns` or `Regulations`, and a single default `Layout`.
@@ -37,7 +97,7 @@ impl ModelState {
     ///
     /// Return `Err` in case the IDs are not unique.
     pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<ModelState, String> {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let var_ids = variables.iter().map(|pair| pair.0).collect();
         assert_ids_unique(&var_ids)?;
 
@@ -90,8 +150,8 @@ impl ModelState {
         id_name_pairs: Vec<(&str, &str)>,
     ) -> Result<(), String> {
         // before making any changes, check that all IDs are actually valid and unique
-        let var_ids = id_name_pairs.iter().map(|pair| pair.0).collect();
-        assert_ids_unique(&var_ids)?;
+        let var_ids: Vec<&str> = id_name_pairs.iter().map(|pair| pair.0).collect();
+        self.assert_ids_unique_and_new(&var_ids, &(Self::assert_no_variable))?;
         for id in var_ids {
             let var_id = VarId::new(id)?;
             self.assert_no_variable(&var_id)?;
@@ -103,12 +163,28 @@ impl ModelState {
         Ok(())
     }
 
+    /// Add a new uninterpreted fn given by its components.
+    pub fn add_uninterpreted_fn(
+        &mut self,
+        fn_id: UninterpretedFnId,
+        name: &str,
+        arguments: Vec<FnArgument>,
+        expression: &str,
+    ) -> Result<(), String> {
+        self.assert_no_uninterpreted_fn(&fn_id)?;
+        let arity = arguments.len();
+        let f = UninterpretedFn::new(name, expression, arguments, self, &fn_id)?;
+        self.uninterpreted_fns.insert(fn_id, f);
+        self.add_placeholder_vars_if_needed(arity);
+        Ok(())
+    }
+
     /// Add a new uninterpreted fn with given `id`, `name` and `arity` to this `ModelState`.
     /// Note that constraints regarding monotonicity or essentiality must be added separately.
     ///
     /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_new_uninterpreted_fn(
+    pub fn add_empty_uninterpreted_fn(
         &mut self,
         fn_id: UninterpretedFnId,
         name: &str,
@@ -116,7 +192,7 @@ impl ModelState {
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
         self.uninterpreted_fns.insert(
-            fn_id.clone(),
+            fn_id,
             UninterpretedFn::new_without_constraints(name, arity)?,
         );
         self.add_placeholder_vars_if_needed(arity);
@@ -134,7 +210,7 @@ impl ModelState {
         arity: usize,
     ) -> Result<(), String> {
         let fn_id = UninterpretedFnId::new(id)?;
-        self.add_new_uninterpreted_fn(fn_id, name, arity)
+        self.add_empty_uninterpreted_fn(fn_id, name, arity)
     }
 
     /// Shorthand to add a list of new uninterpreted fns, each with a string ID, name, and arity,
@@ -151,11 +227,7 @@ impl ModelState {
             .iter()
             .map(|triplet| triplet.0)
             .collect();
-        assert_ids_unique(&fn_ids)?;
-        for id in fn_ids {
-            let fn_id = UninterpretedFnId::new(id)?;
-            self.assert_no_uninterpreted_fn(&fn_id)?;
-        }
+        self.assert_ids_unique_and_new(&fn_ids, &(Self::assert_no_uninterpreted_fn))?;
         // now we can safely add them
         for (id, name, arity) in id_name_arity_tuples {
             self.add_uninterpreted_fn_by_str(id, name, arity)?;
@@ -487,6 +559,28 @@ impl ModelState {
         self.set_uninterpreted_fn_monotonicity(&fn_id, monotonicity, index)
     }
 
+    /// Set constraints on all arguments of given uninterpreted fn.
+    pub fn set_uninterpreted_fn_all_args(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        fn_arguments: Vec<FnArgument>,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_all_arguments(fn_arguments)?;
+        Ok(())
+    }
+
+    /// Set constraints on all arguments of given uninterpreted fn.
+    pub fn set_uninterpreted_fn_all_args_by_str(
+        &mut self,
+        id: &str,
+        fn_arguments: Vec<FnArgument>,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_uninterpreted_fn_all_args(&fn_id, fn_arguments)
+    }
+
     /// Set the id of an uninterpreted fn with `original_id` to `new_id`.
     ///
     /// Note that this operation may be costly as it affects several components of the state.
@@ -647,6 +741,28 @@ impl ModelState {
         Ok(())
     }
 
+    /// Set update functions for multiple variables (given ID-function pairs).
+    /// The IDs must be unique valid identifiers.
+    pub fn set_multiple_update_fns(
+        &mut self,
+        update_functions: Vec<(&str, &str)>,
+    ) -> Result<(), String> {
+        // before making any changes, we must perform all validity checks
+        // -> check IDs are unique, correspond to existing variables, and that expressions are valid
+        let var_ids = update_functions.iter().map(|pair| pair.0).collect();
+        self.assert_ids_unique_and_used(&var_ids, &(Self::assert_valid_variable))?;
+        let parsed_fns = update_functions
+            .iter()
+            .map(|(_, expression)| UpdateFn::try_from_str(expression, self))
+            .collect::<Result<Vec<UpdateFn>, String>>()?;
+
+        // now we can just simply add them all
+        for (i, parsed_fn) in parsed_fns.into_iter().enumerate() {
+            self.update_fns.insert(VarId::new(var_ids[i])?, parsed_fn);
+        }
+        Ok(())
+    }
+
     /// **(internal)** Utility method to add as many placeholder variables as is required by
     /// an addition (or update) of an uninterpreted fn of given arity.
     fn add_placeholder_vars_if_needed(&mut self, arity: usize) {
@@ -700,6 +816,20 @@ impl ModelState {
         let variable_ids = self.variables.clone().into_keys().collect();
         let layout = Layout::new_from_vars_default(name, variable_ids)?;
         self.layouts.insert(layout_id, layout);
+        Ok(())
+    }
+
+    /// Add a new (pre-generated) `Layout` with given `id` to this `ModelState`, or update
+    /// existing if the `id` is already used. The layout must contain nodes for exactly all model's
+    /// variables.
+    pub fn add_or_update_layout_raw(&mut self, id: LayoutId, layout: Layout) -> Result<(), String> {
+        let model_vars: HashSet<_> = self.variables.keys().collect();
+        let layout_vars: HashSet<_> = layout.layout_nodes().map(|(v, _)| v).collect();
+        if model_vars != layout_vars {
+            return Err("Model variables and layout variables are different.".to_string());
+        }
+
+        self.layouts.insert(id, layout);
         Ok(())
     }
 
@@ -902,7 +1032,7 @@ mod tests {
     /// Test generating new default variant of the `ModelState`.
     #[test]
     fn test_new_default() {
-        let model = ModelState::new();
+        let model = ModelState::new_empty();
         assert_eq!(model.num_vars(), 0);
         assert_eq!(model.num_uninterpreted_fns(), 0);
         assert_eq!(model.num_placeholder_vars(), 0);
@@ -933,7 +1063,7 @@ mod tests {
     /// Test adding variables (both incrementally and at once).
     #[test]
     fn test_adding_variables() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
 
         // one by one add variables a, b, c
         model.add_var_by_str("a", "a_name").unwrap();
@@ -952,7 +1082,7 @@ mod tests {
     /// Test adding uninterpreted functions (both incrementally and at once).
     #[test]
     fn test_adding_uninterpreted_fns() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
 
         model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
         model.add_uninterpreted_fn_by_str("g", "g", 0).unwrap();
@@ -1000,7 +1130,7 @@ mod tests {
     /// covered by other tests.
     #[test]
     fn test_manually_editing_regulation_graph() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
 
         // add variables a, b, c
         let variables = vec![("a", "a_name"), ("b", "b_name"), ("c", "c_name")];
@@ -1033,7 +1163,7 @@ mod tests {
     /// Test manually creating `ModelState` and mutating it by adding/removing uninterpreted fns.
     #[test]
     fn test_manually_editing_uninterpreted_fns() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let uninterpreted_fns = vec![("f", "f", 4), ("g", "g", 1)];
         model
             .add_multiple_uninterpreted_fns(uninterpreted_fns)
@@ -1118,7 +1248,7 @@ mod tests {
     /// Test adding invalid variables.
     #[test]
     fn test_add_invalid_vars() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         // same names should not be an issue
         let variables = vec![("a", "a_name"), ("b", "b_name")];
         model.add_multiple_variables(variables).unwrap();
@@ -1137,7 +1267,7 @@ mod tests {
     /// Test adding invalid regulations.
     #[test]
     fn test_add_invalid_regs() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let variables = vec![("a", "a_name"), ("b", "b_name")];
         model.add_multiple_variables(variables).unwrap();
         let var_a = model.get_var_id("a").unwrap();
@@ -1165,7 +1295,7 @@ mod tests {
     /// Test that changing variable's name works correctly.
     #[test]
     fn test_var_name_change() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let variables = vec![("a", "a_name"), ("b", "b_name")];
         model.add_multiple_variables(variables).unwrap();
         let var_a = model.get_var_id("a").unwrap();
@@ -1182,7 +1312,7 @@ mod tests {
     /// Test that changing variable's ID works correctly.
     #[test]
     fn test_var_id_change() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let var_a = model.generate_var_id("a");
         model.add_var(var_a.clone(), "a_name").unwrap();
         let var_b = model.generate_var_id("b");

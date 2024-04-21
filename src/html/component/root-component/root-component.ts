@@ -11,6 +11,7 @@ import {
   type LayoutNodeDataPrototype,
   type ModelData,
   type RegulationData,
+  type SketchData,
   type UninterpretedFnData,
   type VariableData,
   type VariableIdUpdateData
@@ -80,6 +81,9 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.sketch.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.sketch.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
+    // when refreshing/replacing whole sketch, this component is responsible for updating the `Model` part
+    aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
+    aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
     // event listener to capture changes from FunctionEditor with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
 
@@ -353,6 +357,11 @@ export default class RootComponent extends LitElement {
       function: fnData.expression,
       variables
     }
+  }
+
+  #onSketchRefreshed (sketch: SketchData): void {
+    // when refreshing/replacing whole sketch, this component is responsible for updating the `Model` part
+    this.#onModelRefreshed(sketch.model)
   }
 
   #onModelRefreshed (model: ModelData): void {

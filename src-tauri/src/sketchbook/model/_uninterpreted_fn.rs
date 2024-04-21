@@ -30,6 +30,23 @@ impl UninterpretedFn {
         })
     }
 
+    /// Create new `UninterpretedFn` instance given its components.
+    /// Model and ID are used for validity check during argument parsing.
+    pub fn new(
+        name: &str,
+        expression: &str,
+        arguments: Vec<FnArgument>,
+        model: &ModelState,
+        own_id: &UninterpretedFnId,
+    ) -> Result<UninterpretedFn, String> {
+        assert_name_valid(name)?;
+        let arity = arguments.len();
+        let mut f = UninterpretedFn::new_without_constraints(name, arity)?;
+        f.set_all_arguments(arguments)?;
+        f.set_fn_expression(expression, model, own_id)?;
+        Ok(f)
+    }
+
     /// Create uninterpreted function using another one as a template, but changing the expression.
     /// The provided original function object is consumed.
     pub fn with_new_expression(
@@ -297,7 +314,7 @@ mod tests {
         // this test is a hack, normally just edit the function's expression through the `ModelState`
         // object that owns it
 
-        let mut context = ModelState::new();
+        let mut context = ModelState::new_empty();
         context.add_uninterpreted_fn_by_str("f", "f", 3).unwrap();
 
         let fn_id = UninterpretedFnId::new("f").unwrap();

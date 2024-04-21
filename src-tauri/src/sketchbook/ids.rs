@@ -13,7 +13,7 @@ lazy_static! {
 
 /// **(internal)** A base class to derive type-safe identifiers from (using a macro below).
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
-struct BaseId {
+pub struct BaseId {
     id: String,
 }
 

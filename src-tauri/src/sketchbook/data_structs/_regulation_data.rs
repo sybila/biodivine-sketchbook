@@ -1,3 +1,4 @@
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::model::{Essentiality, Monotonicity, Regulation};
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
@@ -46,5 +47,15 @@ impl RegulationData {
     pub fn try_from_reg_str(regulation_str: &str) -> Result<RegulationData, String> {
         let regulation = Regulation::try_from_string(regulation_str)?;
         Ok(RegulationData::from_reg(&regulation))
+    }
+
+    /// Extract new `Regulation` instance from this data.
+    pub fn to_reg(&self) -> Result<Regulation, String> {
+        Ok(Regulation::new(
+            VarId::new(&self.regulator)?,
+            VarId::new(&self.target)?,
+            self.essential,
+            self.sign,
+        ))
     }
 }
