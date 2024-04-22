@@ -2,39 +2,10 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::SketchData;
-use crate::sketchbook::model::ModelState;
-use crate::sketchbook::observations::ObservationManager;
-use crate::sketchbook::properties::PropertyManager;
-use crate::sketchbook::{JsonSerde, Manager};
-use serde::{Deserialize, Serialize};
+use crate::sketchbook::event_utils::make_state_change;
+use crate::sketchbook::{JsonSerde, Sketch};
 use std::fs::File;
-use std::io::Write;
-
-/// Object encompassing all of the individual modules of the Boolean network sketch.
-///
-/// Most of the actual functionality is implemented by the modules themselves, `Sketch`
-/// currently only distributes events and handles situations when cooperation between
-/// modules is needed.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Sketch {
-    model: ModelState,
-    observations: ObservationManager,
-    properties: PropertyManager,
-}
-
-impl<'de> JsonSerde<'de> for Sketch {}
-impl Manager for Sketch {}
-
-impl Default for Sketch {
-    /// Default empty sketch.
-    fn default() -> Sketch {
-        Sketch {
-            model: ModelState::default(),
-            observations: ObservationManager::default(),
-            properties: PropertyManager::default(),
-        }
-    }
-}
+use std::io::{Read, Write};
 
 impl SessionHelper for Sketch {}
 
@@ -47,6 +18,15 @@ impl SessionState for Sketch {
             self.observations.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with("properties", at_path) {
             self.properties.perform_event(event, at_path)
+        } else if Self::starts_with("new_sketch", at_path).is_some() {
+            self.set_to_empty();
+            let sketch_data = SketchData::new(&self.model, &self.observations, &self.properties);
+            let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
+            // this is probably one of the real irreversible changes
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: true,
+            })
         } else if Self::starts_with("export_sketch", at_path).is_some() {
             let sketch_data = SketchData::new(&self.model, &self.observations, &self.properties);
             let path = Self::clone_payload_str(event, "sketch")?;
@@ -55,6 +35,23 @@ impl SessionState for Sketch {
             file.write_all(sketch_data.to_pretty_json_str().as_bytes())
                 .map_err(|e| e.to_string())?;
             Ok(Consumed::NoChange)
+        } else if Self::starts_with("import_sketch", at_path).is_some() {
+            let file_path = Self::clone_payload_str(event, "sketch")?;
+            // read the file contents
+            let mut file = File::open(file_path)?;
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)?;
+
+            // parse the SketchData, modify the sketch
+            let sketch_data = SketchData::from_json_str(&contents)?;
+            self.modify_from_sketch_data(&sketch_data)?;
+
+            let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
+            // this is probably one of the real irreversible changes
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: true,
+            })
         } else {
             Self::invalid_path_error_generic(at_path)
         }

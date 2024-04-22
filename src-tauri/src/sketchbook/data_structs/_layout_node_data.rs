@@ -22,6 +22,7 @@ pub struct LayoutNodeData {
 impl<'de> JsonSerde<'de> for LayoutNodeData {}
 
 impl LayoutNodeData {
+    /// Create new `LayoutNodeData` instance given a node's layout ID, variable ID, and coordinates.
     pub fn new(layout_id: &str, var_id: &str, px: f32, py: f32) -> LayoutNodeData {
         LayoutNodeData {
             layout: layout_id.to_string(),
@@ -31,6 +32,8 @@ impl LayoutNodeData {
         }
     }
 
+    /// Create new `LayoutNodeData` instance given a node's layout ID, variable ID,
+    /// and corresponding `LayoutNode`.
     pub fn from_node(layout_id: &LayoutId, var_id: &VarId, node: &LayoutNode) -> LayoutNodeData {
         LayoutNodeData::new(
             layout_id.as_str(),
@@ -38,5 +41,10 @@ impl LayoutNodeData {
             node.get_px(),
             node.get_py(),
         )
+    }
+
+    /// Extract new `LayoutNode` instance from this data.
+    pub fn to_node(&self) -> LayoutNode {
+        LayoutNode::new(self.px, self.py)
     }
 }

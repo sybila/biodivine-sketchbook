@@ -321,7 +321,7 @@ mod tests {
     #[test]
     /// Test parsing of a valid uninterpreted function's expression.
     fn test_valid_uninterpreted_fn() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let arity = 2;
         model.add_uninterpreted_fn_by_str("f", "f", arity).unwrap();
         model.add_uninterpreted_fn_by_str("g", "g", arity).unwrap();

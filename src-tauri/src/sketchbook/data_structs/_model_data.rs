@@ -18,7 +18,7 @@ impl<'de> JsonSerde<'de> for ModelData {}
 
 impl ModelData {
     /// Create new `SketchData` instance given a reference to a model manager instance.
-    pub fn new(model: &ModelState) -> ModelData {
+    pub fn from_model(model: &ModelState) -> ModelData {
         let mut variables: Vec<_> = model
             .variables()
             .map(|(id, v)| VariableData::from_var(id, v, model.get_update_fn(id).unwrap()))

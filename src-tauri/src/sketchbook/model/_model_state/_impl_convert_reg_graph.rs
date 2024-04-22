@@ -50,7 +50,7 @@ impl ModelState {
     ///
     /// Note that only the default layout (all nodes at 0,0) is created for the `ModelState`.
     pub fn from_reg_graph(reg_graph: RegulatoryGraph) -> Result<ModelState, String> {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
 
         // variables
         for v in reg_graph.variables() {

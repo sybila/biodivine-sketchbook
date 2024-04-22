@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn test_model_state_serde() {
         // test on very simple `ModelState` with one var and no regulations
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let var_id = VarId::new("a").unwrap();
         model.add_var(var_id, "a").unwrap();
 

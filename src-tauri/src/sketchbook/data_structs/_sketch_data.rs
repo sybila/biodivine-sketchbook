@@ -33,11 +33,11 @@ impl SketchData {
             .collect();
         let stat_properties = properties
             .stat_props()
-            .map(|(p_id, _)| StatPropertyData::new(p_id.as_str()))
+            .map(|(p_id, p)| StatPropertyData::from_property(p_id, p))
             .collect();
 
         SketchData {
-            model: ModelData::new(model),
+            model: ModelData::from_model(model),
             datasets,
             dyn_properties,
             stat_properties,

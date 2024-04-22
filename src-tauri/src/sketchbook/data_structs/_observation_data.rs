@@ -18,7 +18,7 @@ pub struct ObservationData {
 impl<'de> JsonSerde<'de> for ObservationData {}
 
 impl ObservationData {
-    /// Create new `ObservationData` object given `id` and values string slices.
+    /// Create new `ObservationData` instance given `id` and values string slices.
     pub fn new(obs_id: &str, dataset_id: &str, values: &str) -> ObservationData {
         ObservationData {
             id: obs_id.to_string(),
@@ -27,7 +27,7 @@ impl ObservationData {
         }
     }
 
-    /// Create new `ObservationData` object given a reference to a observation, and ID of
+    /// Create new `ObservationData` instance given a reference to a observation, and ID of
     /// its dataset.
     pub fn from_obs(obs: &Observation, dataset_id: &DatasetId) -> ObservationData {
         ObservationData::new(

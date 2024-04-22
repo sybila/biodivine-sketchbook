@@ -83,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_layout_id_generating() {
-        let mut model = ModelState::new();
+        let mut model = ModelState::new_empty();
         let layout_id = LayoutId::new("l_0").unwrap();
         let default_layout_id = ModelState::get_default_layout_id();
         model.add_layout_simple(layout_id, "name").unwrap();

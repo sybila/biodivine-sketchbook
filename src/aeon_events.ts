@@ -46,8 +46,15 @@ interface AeonState {
     sketchRefreshed: Observable<SketchData>
     /** Refresh the whole sketch. */
     refreshSketch: () => void
+
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
+    /** Import the sketch data from a file. */
+    importSketch: (path: string) => void
+    /** Set the sketch to a "default" mode, essentially emptying it and starting anew. */
+    newSketch: () => void
+    /** The whole modified sketch instance (after importing or starting a new sketch). */
+    sketchReplaced: Observable<SketchData>
 
     /** The state of the main model. */
     model: {
@@ -365,6 +372,7 @@ export interface DynPropertyData {
 /** A PLACEHOLDER object representing a static property. */
 export interface StatPropertyData {
   id: string
+  formula: string
 }
 
 /** An object representing information needed for variable id change. */
@@ -799,6 +807,19 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['sketch', 'export_sketch'],
         payload: path
+      })
+    },
+    sketchReplaced: new Observable<SketchData>(['sketch', 'set_all']),
+    importSketch (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'import_sketch'],
+        payload: path
+      })
+    },
+    newSketch (): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'new_sketch'],
+        payload: null
       })
     },
 

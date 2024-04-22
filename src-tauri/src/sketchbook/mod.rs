@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
+use std::hash::Hash;
 use std::str::FromStr;
+use utils::assert_ids_unique;
 
 /// Structs and utility methods that can be used for communication with frontend.
 pub mod data_structs;
@@ -13,9 +16,9 @@ pub mod model;
 pub mod observations;
 /// Classes and utility methods regarding properties.
 pub mod properties;
-/// The main `Sketch` manager object and its utilities.
-pub mod sketch;
 
+/// The main `Sketch` manager object and its utilities.
+mod _sketch;
 /// **(internal)** Utility functions specifically related to events.
 mod event_utils;
 /// **(internal)** General utilities used throughout the module (e.g., serialization
@@ -25,6 +28,8 @@ mod utils;
 /// **(internal)** Tests for the event-based API of various top-level components.
 #[cfg(test)]
 mod _tests_events;
+
+pub use crate::sketchbook::_sketch::Sketch;
 
 /// Trait that implements `to_json_str` and `from_json_str` wrappers to serialize and
 /// deserialize objects, utilizing [serde_json].
@@ -67,7 +72,7 @@ pub trait Manager {
     ) -> T
     where
         T: FromStr,
-        <T as FromStr>::Err: std::fmt::Debug,
+        <T as FromStr>::Err: Debug,
     {
         // first try to use the `ideal_id`
         if let Ok(id) = T::from_str(ideal_id) {
@@ -105,5 +110,50 @@ pub trait Manager {
 
         // this must be valid, we already tried more than `max_idx` options
         T::from_str(format!("{}_{}", transformed_id, max_idx).as_str()).unwrap()
+    }
+
+    /// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates),
+    /// and check that all of the IDs are already managed by the manager instance (this is
+    /// important, for instance, when we need to change already existing elements).
+    ///
+    /// Manager class' method to assert ID validity must be provided.
+    fn assert_ids_unique_and_used<T>(
+        &self,
+        id_list: &Vec<&str>,
+        assert_id_is_managed: &dyn Fn(&Self, &T) -> Result<(), String>,
+    ) -> Result<(), String>
+    where
+        T: Eq + Hash + Debug + FromStr,
+        <T as FromStr>::Err: Debug,
+    {
+        assert_ids_unique(id_list)?;
+        for &id_str in id_list {
+            let id = T::from_str(id_str).map_err(|e| format!("{e:?}"))?;
+            assert_id_is_managed(self, &id)?;
+        }
+        Ok(())
+    }
+
+    /// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates),
+    /// and check that all of the IDs are NOT yet managed by the manager instance, i.e.,
+    /// they are fresh new values (this is important, for instance, when we need to add several new
+    /// elements).
+    ///
+    /// Manager class' method to assert ID validity must be provided.
+    fn assert_ids_unique_and_new<T>(
+        &self,
+        id_list: &Vec<&str>,
+        assert_id_is_new: &dyn Fn(&Self, &T) -> Result<(), String>,
+    ) -> Result<(), String>
+    where
+        T: Eq + Hash + Debug + FromStr,
+        <T as FromStr>::Err: Debug,
+    {
+        assert_ids_unique(id_list)?;
+        for &id_str in id_list {
+            let id = T::from_str(id_str).map_err(|e| format!("{e:?}"))?;
+            assert_id_is_new(self, &id)?;
+        }
+        Ok(())
     }
 }

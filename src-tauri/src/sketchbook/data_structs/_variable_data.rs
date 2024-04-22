@@ -36,4 +36,9 @@ impl VariableData {
             update_fn.get_fn_expression(),
         )
     }
+
+    /// Extract new `Variable` instance from this data.
+    pub fn to_var(&self) -> Result<Variable, String> {
+        Variable::new(self.name.as_str())
+    }
 }

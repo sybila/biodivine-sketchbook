@@ -57,7 +57,7 @@ fn test_remove_var_complex() {
     model.update_position(layout_id, &var_a, 1., 1.).unwrap();
 
     // expected result
-    let mut model_expected = ModelState::new();
+    let mut model_expected = ModelState::new_empty();
     model_expected.add_var_by_str("b", "b").unwrap();
     model_expected.add_regulation_by_str("b -> b").unwrap();
 
@@ -136,7 +136,7 @@ fn test_set_update_fn() {
 #[test]
 /// Test that several kinds of invalid operations fail successfully.
 fn test_invalid_var_events() {
-    let mut model = ModelState::new();
+    let mut model = ModelState::new_empty();
     let var_id = model.generate_var_id("a");
     model.add_var(var_id.clone(), "a-name").unwrap();
     let model_orig = model.clone();
@@ -232,7 +232,7 @@ fn test_remove_reg() {
 #[test]
 /// Test changing position of a layout node via event.
 fn test_change_position() {
-    let mut model = ModelState::new();
+    let mut model = ModelState::new_empty();
     let layout_id = ModelState::get_default_layout_id();
     let var_id = model.generate_var_id("a");
     model.add_var(var_id.clone(), "a_name").unwrap();
@@ -253,9 +253,9 @@ fn test_change_position() {
 #[test]
 /// Test changing monotonicity and essentiality of uninterpreted function's argument via event.
 fn test_change_fn_arg_monotonicity_essentiality() {
-    let mut model = ModelState::new();
+    let mut model = ModelState::new_empty();
     let f = model.generate_uninterpreted_fn_id("f");
-    model.add_new_uninterpreted_fn(f.clone(), "f", 2).unwrap();
+    model.add_empty_uninterpreted_fn(f.clone(), "f", 2).unwrap();
     let model_orig = model.clone();
 
     // test event for changing uninterpreted fn's monotonicity
@@ -284,9 +284,9 @@ fn test_change_fn_arg_monotonicity_essentiality() {
 #[test]
 /// Test changing uninterpreted function's expression via event.
 fn test_change_fn_expression() {
-    let mut model = ModelState::new();
+    let mut model = ModelState::new_empty();
     let f = model.generate_uninterpreted_fn_id("f");
-    model.add_new_uninterpreted_fn(f.clone(), "f", 2).unwrap();
+    model.add_empty_uninterpreted_fn(f.clone(), "f", 2).unwrap();
     let model_orig = model.clone();
 
     // test event for changing uninterpreted fn's expression
