@@ -1,18 +1,15 @@
-/// **(internal)** Definition and methods for `DynProperty`.
-mod _dynamic_property;
+use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
+
 /// **(internal)** Definition and methods for `PropertyManager`.
 mod _manager;
-/// **(internal)** Definition and methods for `StatProperty`.
-mod _static_property;
+/// Structs and utilities regarding dynamic properties.
+pub mod dynamic_props;
+/// Structs and utilities regarding static properties.
+pub mod static_props;
 
-/// **(internal)** Utility functions for automatically generating HCTL formulae.
-#[allow(dead_code)]
-mod _mk_hctl_formulas;
-
-use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
-pub use _dynamic_property::DynProperty;
 pub use _manager::PropertyManager;
-pub use _static_property::StatProperty;
+pub use dynamic_props::{DynProperty, HctlFormula};
+pub use static_props::{FirstOrderFormula, StatProperty};
 
 /// An iterator over all <`DynPropertyId`, `DynProperty`> pairs of a `PropertyManager`.
 pub type DynPropIterator<'a> = std::collections::hash_map::Iter<'a, DynPropertyId, DynProperty>;

@@ -277,7 +277,7 @@ pub fn mk_formula_reachability_chain(states_sequence: &[String]) -> String {
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
-    use crate::sketchbook::properties::_mk_hctl_formulas::*;
+    use crate::sketchbook::properties::dynamic_props::_mk_hctl_formulas::*;
 
     #[test]
     /// Test encoding of an observation.

@@ -366,12 +366,14 @@ export interface DatasetLoadData { path: string, id: string }
 /** A PLACEHOLDER object representing a dynamic property. */
 export interface DynPropertyData {
   id: string
+  name: string
   formula: string
 }
 
 /** A PLACEHOLDER object representing a static property. */
 export interface StatPropertyData {
   id: string
+  name: string
   formula: string
 }
 

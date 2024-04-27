@@ -14,11 +14,11 @@ impl PropertyManager {
         }
     }
 
-    /// Instantiate `PropertyManager` with dynamic and static properties given as a list
-    /// of ID-formula pairs.
+    /// Instantiate `PropertyManager` with (generic) dynamic and static properties given as a list
+    /// of ID-name-formula tuples.
     pub fn new_from_formulae(
-        dyn_properties: Vec<(&str, &str)>,
-        stat_properties: Vec<(&str, &str)>,
+        dyn_properties: Vec<(&str, &str, &str)>,
+        stat_properties: Vec<(&str, &str, &str)>,
     ) -> Result<PropertyManager, String> {
         let mut manager = PropertyManager::new_empty();
 
@@ -28,17 +28,17 @@ impl PropertyManager {
         let stat_prop_ids = stat_properties.iter().map(|pair| pair.0).collect();
         assert_ids_unique(&stat_prop_ids)?;
 
-        for (id, formula) in dyn_properties {
+        for (id, name, formula) in dyn_properties {
             let prop_id = DynPropertyId::new(id)?;
             manager
                 .dyn_properties
-                .insert(prop_id, DynProperty::try_from_str(formula)?);
+                .insert(prop_id, DynProperty::mk_generic(name, formula)?);
         }
-        for (id, formula) in stat_properties {
+        for (id, name, formula) in stat_properties {
             let prop_id = StatPropertyId::new(id)?;
             manager
                 .stat_properties
-                .insert(prop_id, StatProperty::try_from_str(formula)?);
+                .insert(prop_id, StatProperty::mk_generic(name, formula)?);
         }
         Ok(manager)
     }
