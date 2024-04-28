@@ -1,5 +1,5 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
 import { ContentData, type IObservation, type IObservationSet, DataCategory } from '../../util/data-interfaces'
@@ -22,7 +22,6 @@ import {
 export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData = ContentData.create()
-  @state() datasets: IObservationSet[] = []
   index = 0
 
   constructor () {
@@ -52,7 +51,7 @@ export default class ObservationsEditor extends LitElement {
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = { id: observationData.id, name: observationData.id }
+    const obs: IObservation = { id: observationData.id, name: observationData.id, selected: false }
     variables.forEach(((v, idx) => {
       const value = observationData.values[idx]
       obs[v] = (value === '*') ? '' : value
@@ -99,7 +98,7 @@ export default class ObservationsEditor extends LitElement {
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
     const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
     this.index = datasets.length
-    this.datasets = datasets
+    this.updateObservations(datasets)
   }
 
   private async loadDataset (): Promise<void> {
@@ -165,7 +164,7 @@ export default class ObservationsEditor extends LitElement {
         category: DataCategory.UNSPECIFIED
       }
       // temporarily add the dataset in its current version, but also send an event to backend with changes
-      this.datasets = this.datasets.concat(modifiedDataset)
+      this.updateObservations(this.contentData.observations.concat(modifiedDataset))
       this.index++
       aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
     })
@@ -173,30 +172,30 @@ export default class ObservationsEditor extends LitElement {
 
   #onDatasetContentChanged (data: DatasetData): void {
     const observationSet = this.convertToIObservationSet(data)
-    const index = this.datasets.findIndex(item => item.id === data.id)
+    const index = this.contentData.observations.findIndex(item => item.id === data.id)
     if (index === -1) return
-    const datasets = structuredClone(this.datasets)
+    const datasets = structuredClone(this.contentData.observations)
 
     datasets[index] = observationSet
-    this.datasets = datasets
+    this.updateObservations(datasets)
   }
 
   updateDatasetId = debounce((newId: string, index: number) => {
-    const originalId = this.datasets[index].id
+    const originalId = this.contentData.observations[index].id
     aeonState.sketch.observations.setDatasetId(originalId, newId)
   }, functionDebounceTimer
   )
 
   #onDatasetIdChanged (data: DatasetIdUpdateData): void {
     console.log(data)
-    const index = this.datasets.findIndex(d => d.id === data.original_id)
+    const index = this.contentData.observations.findIndex(d => d.id === data.original_id)
     if (index === -1) return
-    const datasets = structuredClone(this.datasets)
+    const datasets = structuredClone(this.contentData.observations)
     datasets[index] = {
       ...datasets[index],
       id: data.new_id
     }
-    this.datasets = datasets
+    this.updateObservations(datasets)
   }
 
   private pushNewObservation (event: Event): void {
@@ -206,11 +205,11 @@ export default class ObservationsEditor extends LitElement {
   }
 
   #onObservationPushed (data: ObservationData): void {
-    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets = structuredClone(this.datasets)
+    const datasets = structuredClone(this.contentData.observations)
     datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
-    this.datasets = datasets
+    this.updateObservations(datasets)
   }
 
   private removeObservation (event: Event): void {
@@ -220,16 +219,16 @@ export default class ObservationsEditor extends LitElement {
   }
 
   #onObservationRemoved (data: ObservationData): void {
-    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    const datasets: IObservationSet[] = structuredClone(this.contentData.observations)
     datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
-    this.datasets = datasets
+    this.updateObservations(datasets)
   }
 
   private changeObservation (event: Event): void {
     const detail = (event as CustomEvent).detail
-    const dataset = this.datasets.find(ds => ds.id === detail.dataset)
+    const dataset = this.contentData.observations.find(ds => ds.id === detail.dataset)
     if (dataset === undefined) return
     if (detail.id !== detail.observation.id) {
       aeonState.sketch.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
@@ -239,25 +238,35 @@ export default class ObservationsEditor extends LitElement {
   }
 
   #onObservationContentChanged (data: ObservationData): void {
-    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
-    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.id)
+    const obsIndex = this.contentData.observations[datasetIndex].observations.findIndex(obs => obs.id === data.id)
     if (obsIndex === -1) return
-    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    const datasets: IObservationSet[] = structuredClone(this.contentData.observations)
     datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
-    this.datasets = datasets
+    this.updateObservations(datasets)
   }
 
   #onObservationIdChanged (data: ObservationIdUpdateData): void {
     // data.metadata seems to be dataset todo: confirm with ondrej
-    const datasetIndex = this.datasets.findIndex(d => d.id === data.metadata)
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.metadata)
     if (datasetIndex === -1) return
-    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.original_id)
+    const obsIndex = this.contentData.observations[datasetIndex].observations.findIndex(obs => obs.id === data.original_id)
     if (obsIndex === -1) return
-    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    const datasets: IObservationSet[] = structuredClone(this.contentData.observations)
     datasets[datasetIndex].observations[obsIndex].id = data.new_id
     datasets[datasetIndex].observations[obsIndex].name = data.new_id
-    this.datasets = datasets
+    this.updateObservations(datasets)
+  }
+
+  updateObservations (datasets: IObservationSet[]): void {
+    this.dispatchEvent(new CustomEvent('save-observations', {
+      detail: {
+        datasets
+      },
+      bubbles: true,
+      composed: true
+    }))
   }
 
   render (): TemplateResult {
@@ -270,7 +279,7 @@ export default class ObservationsEditor extends LitElement {
         </div>
         <div class="accordion-body">
           <div class="accordion">
-            ${map(this.datasets, (dataset, index) => html`
+            ${map(this.contentData.observations, (dataset, index) => html`
           <div class="container" id="${'container' + index}">
             <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
               <input 

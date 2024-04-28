@@ -48,6 +48,7 @@ export class ContentData extends Data {
   functions: IFunctionData[] = []
   layout: ILayoutData = new Map()
   regulations: IRegulationData[] = []
+  observations: IObservationSet[] = []
 }
 
 export interface IFunctionData {
@@ -74,5 +75,4 @@ export interface IProperty {
   id: string
   name: string
   value: string
-  static: boolean
 }
