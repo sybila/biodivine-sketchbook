@@ -1,7 +1,12 @@
 import { css, unsafeCSS, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './property-tile.less?inline'
-import { type IFixedPointDynamicProperty, type IProperty, type ITrapSpaceDynamicProperty } from '../../../util/data-interfaces'
+import {
+  type IExistsTrajectoryProperty,
+  type IFixedPointDynamicProperty,
+  type IProperty,
+  type ITrapSpaceDynamicProperty
+} from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../util/config'
 
@@ -23,7 +28,7 @@ export default class PropertyTile extends LitElement {
   }, functionDebounceTimer)
 
   // TODO: there has to be a better way to handle types
-  updateProperty (property: IFixedPointDynamicProperty | ITrapSpaceDynamicProperty): void {
+  updateProperty (property: IFixedPointDynamicProperty | ITrapSpaceDynamicProperty | IExistsTrajectoryProperty): void {
     this.dispatchEvent(new CustomEvent('property-changed', {
       detail: {
         property,

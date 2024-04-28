@@ -71,15 +71,24 @@ export interface IObservationSet {
   category: DataCategory
 }
 
-export enum PropertyType {
-  GenericStatic,
-  FixedPointDynamic,
-  TrapSpaceDynamic
+export enum StaticPropertyType {
+  Generic,
+  FunctionInputEssential,
+  FunctionInputMonotonic
+}
+
+export enum DynamicPropertyType {
+  Generic,
+  FixedPoint,
+  TrapSpace,
+  ExistsTrajectory,
+  AttractorCount,
+  HasAttractor
 }
 export interface IProperty {
   id: string
   name: string
-  type: PropertyType
+  type: DynamicPropertyType | StaticPropertyType
 }
 
 export interface IFixedPointDynamicProperty extends IProperty {
@@ -92,6 +101,20 @@ export interface ITrapSpaceDynamicProperty extends IProperty {
   observation: string
   minimal: boolean
   nonpercolable: boolean
+}
+
+export interface IExistsTrajectoryProperty extends IProperty {
+  dataset: string
+}
+
+export interface IAttractorCount extends IProperty {
+  lower: number
+  upper: number
+}
+
+export interface IHasAttractorProperty extends IProperty {
+  dataset: string
+  observation: string
 }
 
 export interface IGenericStaticProperty extends IProperty {

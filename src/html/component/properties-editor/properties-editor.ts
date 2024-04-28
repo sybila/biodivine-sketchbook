@@ -6,13 +6,8 @@ import './property-tile/property-tile'
 import './dynamic/dynamic-fixed-point/dynamic-fixed-point'
 import './dynamic/dynamic-trap-space/dynamic-trap-space'
 import './static/static-generic/static-generic'
-import {
-  ContentData,
-  type IFixedPointDynamicProperty,
-  type IProperty,
-  type ITrapSpaceDynamicProperty,
-  PropertyType
-} from '../../util/data-interfaces'
+import { ContentData, DynamicPropertyType, type IProperty, StaticPropertyType } from '../../util/data-interfaces'
+import { fixedPointDynamic, trapSpaceDynamic } from './default-properties'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -25,25 +20,27 @@ export default class PropertiesEditor extends LitElement {
 
     this.addEventListener('property-changed', this.propertyChanged)
 
-    const trapSpace: ITrapSpaceDynamicProperty = {
-      id: '1',
-      name: 'dynamic-trap-space',
-      type: PropertyType.TrapSpaceDynamic,
-      dataset: '',
-      observation: '',
-      minimal: false,
-      nonpercolable: false
-    }
-    this.properties.push(trapSpace)
+    this.addDynamicProperty(DynamicPropertyType.FixedPoint)
+    this.addDynamicProperty(DynamicPropertyType.TrapSpace)
+  }
 
-    const fixedPoint: IFixedPointDynamicProperty = {
-      id: '0',
-      name: 'fixed-point',
-      type: PropertyType.FixedPointDynamic,
-      dataset: '',
-      observation: ''
+  addDynamicProperty (type: DynamicPropertyType): void {
+    switch (type) {
+      case DynamicPropertyType.Generic:
+        break
+      case DynamicPropertyType.FixedPoint:
+        this.properties.push(fixedPointDynamic('' + this.properties.length))
+        break
+      case DynamicPropertyType.TrapSpace:
+        this.properties.push(trapSpaceDynamic('' + this.properties.length))
+        break
+      case DynamicPropertyType.ExistsTrajectory:
+        break
+      case DynamicPropertyType.AttractorCount:
+        break
+      case DynamicPropertyType.HasAttractor:
+        break
     }
-    this.properties.push(fixedPoint)
   }
 
   propertyChanged (event: Event): void {
@@ -61,7 +58,7 @@ export default class PropertiesEditor extends LitElement {
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.properties, (prop, index) => {
               switch (prop.type) {
-                case PropertyType.GenericStatic:
+                case StaticPropertyType.Generic:
                   return html`<static-generic .index=${index}
                                               .property=${prop}
                   ></static-generic>`
@@ -76,13 +73,13 @@ export default class PropertiesEditor extends LitElement {
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.properties, (prop, index) => {
               switch (prop.type) {
-                case PropertyType.FixedPointDynamic:
+                case DynamicPropertyType.FixedPoint:
                   return html`
                     <dynamic-fixed-point .index=${index} 
                                          .property=${prop}
                                          .observations=${this.contentData.observations}>
                     </dynamic-fixed-point>`
-                case PropertyType.TrapSpaceDynamic:
+                case DynamicPropertyType.TrapSpace:
                   return html`
                   <dynamic-trap-space .index=${index}
                                       .property=${prop}
