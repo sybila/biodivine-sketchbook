@@ -26,6 +26,13 @@ export enum Essentiality {
   UNKNOWN = 'Unknown'
 }
 
+export enum DataCategory {
+  ATTRACTOR = 'Attractor',
+  FIXEDPOINT = 'FixedPoint',
+  TIMESERIES = 'TimeSeries',
+  UNSPECIFIED = 'Unspecified',
+}
+
 export interface IRegulationData {
   id: string
   source: string
@@ -57,9 +64,10 @@ export interface IObservation {
 }
 
 export interface IObservationSet {
-  name: string
+  id: string
   observations: IObservation[]
   variables: string[]
+  category: DataCategory
 }
 
 export interface IProperty {

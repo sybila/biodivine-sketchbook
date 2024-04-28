@@ -1,27 +1,38 @@
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
-use crate::sketchbook::VarId;
-
-use crate::sketchbook::utils::assert_name_valid;
+use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
 use std::collections::HashMap;
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Methods for safely constructing or mutating instances of `Layout`.
 impl Layout {
     /// Create new empty `Layout` (i.e., with no nodes) with a given name.
-    pub fn new_empty(name_str: &str) -> Result<Layout, String> {
-        assert_name_valid(name_str)?;
+    pub fn new_empty(name: &str) -> Result<Layout, String> {
+        assert_name_valid(name)?;
         Ok(Layout {
-            name: name_str.to_string(),
+            name: name.to_string(),
             nodes: HashMap::new(),
         })
     }
 
+    /// Create new `Layout` with a given name and nodes.
+    pub fn new(name: &str, var_node_pairs: Vec<(&str, LayoutNode)>) -> Result<Layout, String> {
+        // before making any changes, check that all IDs are actually valid and unique
+        let var_ids: Vec<&str> = var_node_pairs.iter().map(|pair| pair.0).collect();
+        assert_ids_unique(&var_ids)?;
+
+        // now we can safely add them
+        let mut layout = Layout::new_empty(name)?;
+        for (var_id, node) in var_node_pairs {
+            layout.add_node(VarId::new(var_id)?, node)?;
+        }
+        Ok(layout)
+    }
+
     /// Create new `Layout` with a given name, that is a direct copy of another existing
     /// valid `template_layout`.
-    pub fn new_from_another_copy(name_str: &str, template_layout: &Layout) -> Layout {
+    pub fn new_from_another_copy(name: &str, template_layout: &Layout) -> Layout {
         Layout {
-            name: name_str.to_string(),
+            name: name.to_string(),
             nodes: template_layout.nodes.clone(),
         }
     }
@@ -30,21 +41,32 @@ impl Layout {
     /// all of the nodes will be located at a default position.
     ///
     /// Returns `Error` if given ids contain duplicates.
-    pub fn new_from_vars_default(
-        name_str: &str,
-        variable_ids: Vec<VarId>,
-    ) -> Result<Layout, String> {
-        let mut layout = Layout::new_empty(name_str)?;
-        for var_id in variable_ids {
+    pub fn new_from_vars_default(name: &str, variables: Vec<VarId>) -> Result<Layout, String> {
+        // before making any changes, check that all IDs are actually valid and unique
+        assert_ids_unique(&variables)?;
+        // now we can safely add them
+        let mut layout = Layout::new_empty(name)?;
+        for var_id in variables {
             layout.add_default_node(var_id.clone())?;
         }
         Ok(layout)
     }
 
     /// Rename this `Layout`.
-    pub fn set_layout_name(&mut self, name_str: &str) -> Result<(), String> {
-        assert_name_valid(name_str)?;
-        self.name = name_str.to_string();
+    pub fn set_layout_name(&mut self, name: &str) -> Result<(), String> {
+        assert_name_valid(name)?;
+        self.name = name.to_string();
+        Ok(())
+    }
+
+    /// Add a new (pre-generated) node.
+    ///
+    /// You must ensure that the `variable` is valid before adding it to the layout.
+    ///
+    /// Returns `Err` if there already is a node for this variable.
+    pub fn add_node(&mut self, var: VarId, node: LayoutNode) -> Result<(), String> {
+        self.assert_no_variable(&var)?;
+        self.nodes.insert(var, node);
         Ok(())
     }
 
@@ -54,11 +76,9 @@ impl Layout {
     /// You must ensure that the `variable` is valid before adding it to the layout.
     ///
     /// Returns `Err` if there already is a node for this variable.
-    pub fn add_node(&mut self, variable: VarId, p_x: f32, p_y: f32) -> Result<(), String> {
-        if self.nodes.contains_key(&variable) {
-            return Err(format!("Layout data for {variable} already exist."));
-        }
-        self.nodes.insert(variable, LayoutNode::new(p_x, p_y));
+    pub fn add_node_by_coords(&mut self, var: VarId, p_x: f32, p_y: f32) -> Result<(), String> {
+        self.assert_no_variable(&var)?;
+        self.nodes.insert(var, LayoutNode::new(p_x, p_y));
         Ok(())
     }
 
@@ -68,9 +88,7 @@ impl Layout {
     ///
     /// Returns `Err` if there already is a node for this variable.
     pub fn add_default_node(&mut self, variable: VarId) -> Result<(), String> {
-        if self.nodes.contains_key(&variable) {
-            return Err(format!("Layout data for {variable} already exist."));
-        }
+        self.assert_no_variable(&variable)?;
         self.nodes.insert(variable, LayoutNode::default());
         Ok(())
     }
@@ -84,11 +102,10 @@ impl Layout {
         new_x: f32,
         new_y: f32,
     ) -> Result<(), String> {
+        self.assert_valid_variable(variable)?;
         self.nodes
             .get_mut(variable)
-            .ok_or(format!(
-                "Variable {variable} doesn't have a layout information to remove."
-            ))?
+            .unwrap()
             .change_position(new_x, new_y);
         Ok(())
     }
@@ -97,24 +114,39 @@ impl Layout {
     ///
     /// Return `Err` if variable did not have a corresponding node in this layout.
     pub fn remove_node(&mut self, variable: &VarId) -> Result<(), String> {
-        if self.nodes.remove(variable).is_none() {
-            return Err(format!(
-                "Variable {variable} doesn't have a layout information to remove."
-            ));
-        }
+        self.assert_valid_variable(variable)?;
+        self.nodes.remove(variable);
         Ok(())
     }
 
     /// Change id of a variable with `original_id` to `new_id`.
     pub fn change_node_id(&mut self, original_id: &VarId, new_id: VarId) -> Result<(), String> {
+        self.assert_valid_variable(original_id)?;
         if let Some(node_layout) = self.nodes.remove(original_id) {
             self.nodes.insert(new_id.clone(), node_layout);
-        } else {
-            return Err(format!(
-                "Variable {original_id} doesn't have a layout information to remove."
-            ));
         }
         Ok(())
+    }
+}
+
+/// Utility methods to assert (non-)existence of nodes in the layout.
+impl Layout {
+    /// **(internal)** Utility method to ensure there is no node for the variable with given Id yet.
+    fn assert_no_variable(&self, var_id: &VarId) -> Result<(), String> {
+        if self.nodes.contains_key(var_id) {
+            Err(format!("Layout node for {var_id} already exists."))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// **(internal)** Utility method to ensure there is a node for a variable with given Id.
+    fn assert_valid_variable(&self, var_id: &VarId) -> Result<(), String> {
+        if self.nodes.contains_key(var_id) {
+            Ok(())
+        } else {
+            Err(format!("Layout node for {var_id} does not exist."))
+        }
     }
 }
 
@@ -148,26 +180,10 @@ impl Layout {
     }
 }
 
-impl Display for Layout {
-    /// Use json serialization to convert `Layout` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for Layout {
-    type Err = String;
-
-    /// Use json de-serialization to construct `Layout` from string.
-    fn from_str(s: &str) -> Result<Layout, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use crate::sketchbook::ids::VarId;
     use crate::sketchbook::layout::{Layout, LayoutNode};
-    use crate::sketchbook::VarId;
 
     #[test]
     fn test_layout_basics() {
@@ -188,8 +204,8 @@ mod tests {
         // add node v1, node v2, and try adding v1 again (should fail)
         layout.add_default_node(var_id1.clone()).unwrap();
         assert_eq!(layout.get_node(&var_id1).unwrap(), &default_node);
-        layout.add_node(var_id2.clone(), 1., 2.).unwrap();
-        assert!(layout.add_node(var_id1_again, 1., 2.).is_err());
+        layout.add_node_by_coords(var_id2.clone(), 1., 2.).unwrap();
+        assert!(layout.add_node_by_coords(var_id1_again, 1., 2.).is_err());
         assert_eq!(layout.get_num_nodes(), 2);
 
         // change position of node v1, and try changing position of node thats not in the network

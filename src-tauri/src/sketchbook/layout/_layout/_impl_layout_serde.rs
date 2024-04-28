@@ -1,5 +1,5 @@
 use crate::sketchbook::layout::{Layout, LayoutNode};
-use crate::sketchbook::utils::{parse_map_keys, stringify_map_keys};
+use crate::sketchbook::utils::{parse_map_keys, stringify_and_order_keys};
 
 use std::collections::HashMap;
 use std::fmt::{self, Formatter};
@@ -19,7 +19,7 @@ impl Serialize for Layout {
         state.serialize_field("name", &self.name)?;
 
         // Serialize `nodes` field (HashMap with non-String keys) as a HashMap with String keys
-        let nodes_map = stringify_map_keys(&self.nodes);
+        let nodes_map = stringify_and_order_keys(&self.nodes);
         state.serialize_field("nodes", &nodes_map)?;
 
         state.end()
@@ -114,14 +114,16 @@ impl<'de> Deserialize<'de> for Layout {
 
 #[cfg(test)]
 mod tests {
+    use crate::sketchbook::ids::VarId;
     use crate::sketchbook::layout::Layout;
-    use crate::sketchbook::VarId;
     use std::str::FromStr;
 
     #[test]
     fn test_layout_serde() {
         let mut layout = Layout::new_empty("layout_name").unwrap();
-        layout.add_node(VarId::new("v1").unwrap(), 1., 1.).unwrap();
+        layout
+            .add_node_by_coords(VarId::new("v1").unwrap(), 1., 1.)
+            .unwrap();
 
         // Serialization
         let layout_serialized = serde_json::to_string(&layout).unwrap();

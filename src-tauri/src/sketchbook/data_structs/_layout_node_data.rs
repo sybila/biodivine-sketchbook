@@ -1,8 +1,7 @@
-use crate::sketchbook::layout::{LayoutId, LayoutNode};
-use crate::sketchbook::VarId;
+use crate::sketchbook::ids::{LayoutId, VarId};
+use crate::sketchbook::layout::LayoutNode;
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-use std::str::FromStr;
 
 /// Structure for sending data about `NodeLayout` to frontend.
 ///
@@ -20,7 +19,10 @@ pub struct LayoutNodeData {
     pub py: f32,
 }
 
+impl<'de> JsonSerde<'de> for LayoutNodeData {}
+
 impl LayoutNodeData {
+    /// Create new `LayoutNodeData` instance given a node's layout ID, variable ID, and coordinates.
     pub fn new(layout_id: &str, var_id: &str, px: f32, py: f32) -> LayoutNodeData {
         LayoutNodeData {
             layout: layout_id.to_string(),
@@ -30,28 +32,19 @@ impl LayoutNodeData {
         }
     }
 
+    /// Create new `LayoutNodeData` instance given a node's layout ID, variable ID,
+    /// and corresponding `LayoutNode`.
     pub fn from_node(layout_id: &LayoutId, var_id: &VarId, node: &LayoutNode) -> LayoutNodeData {
-        LayoutNodeData {
-            layout: layout_id.to_string(),
-            variable: var_id.to_string(),
-            px: node.get_px(),
-            py: node.get_py(),
-        }
+        LayoutNodeData::new(
+            layout_id.as_str(),
+            var_id.as_str(),
+            node.get_px(),
+            node.get_py(),
+        )
     }
-}
 
-impl Display for LayoutNodeData {
-    /// Use json serialization to convert `LayoutNodeData` to string.
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}
-
-impl FromStr for LayoutNodeData {
-    type Err = String;
-
-    /// Use json de-serialization to construct `LayoutNodeData` from string.
-    fn from_str(s: &str) -> Result<LayoutNodeData, String> {
-        serde_json::from_str(s).map_err(|e| e.to_string())
+    /// Extract new `LayoutNode` instance from this data.
+    pub fn to_node(&self) -> LayoutNode {
+        LayoutNode::new(self.px, self.py)
     }
 }

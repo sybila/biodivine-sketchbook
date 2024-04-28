@@ -2,53 +2,107 @@ import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
-import { ContentData, type IObservation, type IObservationSet } from '../../util/data-interfaces'
+import { ContentData, type IObservation, type IObservationSet, DataCategory } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { basename } from '@tauri-apps/api/path'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../util/config'
+import {
+  aeonState,
+  type DatasetData,
+  type DatasetIdUpdateData,
+  type ObservationData,
+  type ObservationIdUpdateData,
+  type SketchData
+} from '../../../aeon_events'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData = ContentData.create()
-  @state() sets: IObservationSet[] = []
+  @state() datasets: IObservationSet[] = []
+  index = 0
 
   constructor () {
     super()
-    this.addEventListener('add-observation', this.addObservation)
-    this.addEventListener('edit-observation', this.updateObservation)
+
+    // observations-related event listeners
+    aeonState.sketch.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
+    aeonState.sketch.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
+    aeonState.sketch.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
+    this.addEventListener('push-new-observation', this.pushNewObservation)
+    aeonState.sketch.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
     this.addEventListener('remove-observation', this.removeObservation)
+    aeonState.sketch.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
+    this.addEventListener('change-observation', this.changeObservation)
+    aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
+    // TODO add all other events
+
+    // refresh-event listeners
+    aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
+    // when refreshing/replacing whole sketch, this component is responsible for updating the `Datasets` part
+    aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
+    aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
+
+    // refreshing content from backend
+    aeonState.sketch.observations.refreshDatasets()
   }
 
-  private addObservation (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    const setIndex = this.sets.findIndex(set => set.name === detail.id)
-    if (setIndex === -1) return
-    this.sets[setIndex].observations.push(this.singleDummy(this.sets[setIndex].observations.length, true))
-    this.sets = [...this.sets]
+  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
+    const obs: IObservation = { id: observationData.id, name: observationData.id }
+    variables.forEach(((v, idx) => {
+      const value = observationData.values[idx]
+      obs[v] = (value === '*') ? '' : value
+    }))
+    return obs
   }
 
-  getDummy = (): IObservation[] => Array(100).fill(0).map((_, index) => {
-    return this.singleDummy(index)
-  })
+  private convertFromIObservation (observation: IObservation, datasetId: string, variables: string[]): ObservationData {
+    const valueString = variables.map(v => {
+      return (observation[v] === '') ? '*' : observation[v]
+    }).join('')
+    return { id: observation.id, dataset: datasetId, values: valueString }
+  }
 
-  private singleDummy (index: number, empty = false): IObservation {
-    const ret: IObservation = {
-      selected: false,
-      id: String(index).padStart(4, '0'),
-      name: 'obs' + String(index).padStart(4, '0')
+  private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
+    const observations = datasetData.observations.map(
+      observationData => this.convertToIObservation(observationData, datasetData.variables)
+    )
+    return {
+      id: datasetData.id,
+      observations,
+      variables: datasetData.variables,
+      category: datasetData.category
     }
-    this.contentData.variables.forEach(v => {
-      ret[v.name] = empty ? '' : Math.round(Math.random())
-    })
-    return ret
   }
 
-  private async import (): Promise<void> {
+  private convertFromIObservationSet (dataset: IObservationSet): DatasetData {
+    const observations = dataset.observations.map(
+      obs => this.convertFromIObservation(obs, dataset.id, dataset.variables)
+    )
+    return {
+      id: dataset.id,
+      observations,
+      variables: dataset.variables,
+      category: dataset.category
+    }
+  }
+
+  #onSketchRefreshed (sketch: SketchData): void {
+    // when refreshing/replacing whole sketch, this component is responsible for updating the `Datasets` part
+    this.#onDatasetsRefreshed(sketch.datasets)
+  }
+
+  #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
+    const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
+    this.index = datasets.length
+    this.datasets = datasets
+  }
+
+  private async loadDataset (): Promise<void> {
     const handle = await dialog.open({
       title: 'Import observation set...',
       multiple: false,
@@ -74,8 +128,14 @@ export default class ObservationsEditor extends LitElement {
     } else {
       fileName = handle
     }
-    const name = await basename(fileName)
-    void this.importObservations(name, this.getDummy(), this.contentData.variables.map(v => v.name))
+
+    aeonState.sketch.observations.loadDataset(fileName, 'dataset' + this.index)
+  }
+
+  #onDatasetLoaded (data: DatasetData): void {
+    const newDataset = this.convertToIObservationSet(data)
+    // just call import dialog, dataset will be filtered and then added
+    void this.importObservations(newDataset.id, newDataset.observations, newDataset.variables)
   }
 
   private async importObservations (name: string, data: IObservation[], variables: string[]): Promise<void> {
@@ -94,44 +154,110 @@ export default class ObservationsEditor extends LitElement {
     void importDialog.once('loaded', () => {
       void importDialog.emit('observations_import_update', {
         data,
-        variables: this.contentData.variables.map(v => v.name)
-      })
-    })
-    void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
-      this.sets = this.sets.concat({
-        name,
-        observations: event.payload,
         variables
       })
     })
+    void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
+      const modifiedDataset: IObservationSet = {
+        id: name,
+        observations: event.payload,
+        variables,
+        category: DataCategory.UNSPECIFIED
+      }
+      // temporarily add the dataset in its current version, but also send an event to backend with changes
+      this.datasets = this.datasets.concat(modifiedDataset)
+      this.index++
+      aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
+    })
   }
 
-  updateSetName = debounce((name: string, index: number) => {
-    this.saveSets(index, { ...this.sets[index], name })
+  #onDatasetContentChanged (data: DatasetData): void {
+    const observationSet = this.convertToIObservationSet(data)
+    const index = this.datasets.findIndex(item => item.id === data.id)
+    if (index === -1) return
+    const datasets = structuredClone(this.datasets)
+
+    datasets[index] = observationSet
+    this.datasets = datasets
+  }
+
+  updateDatasetId = debounce((newId: string, index: number) => {
+    const originalId = this.datasets[index].id
+    aeonState.sketch.observations.setDatasetId(originalId, newId)
   }, functionDebounceTimer
   )
 
-  private updateObservation (event: Event): void {
+  #onDatasetIdChanged (data: DatasetIdUpdateData): void {
+    console.log(data)
+    const index = this.datasets.findIndex(d => d.id === data.original_id)
+    if (index === -1) return
+    const datasets = structuredClone(this.datasets)
+    datasets[index] = {
+      ...datasets[index],
+      id: data.new_id
+    }
+    this.datasets = datasets
+  }
+
+  private pushNewObservation (event: Event): void {
+    // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
-    const set = { ...this.sets[detail.id] }
-    const obsIndex = set.observations.findIndex(obs => obs.id === detail.obsID)
-    if (obsIndex === -1) return
-    set.observations[obsIndex] = detail.data
-    console.log(detail)
-    this.saveSets(detail.id, set)
+    aeonState.sketch.observations.pushObservation(detail.id)
+  }
+
+  #onObservationPushed (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    const datasets = structuredClone(this.datasets)
+    datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
+    this.datasets = datasets
   }
 
   private removeObservation (event: Event): void {
+    // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
-    const set = { ...this.sets[detail.id] }
-    set.observations = set.observations.filter(obs => obs.id !== detail.obsID)
-    this.saveSets(detail.id, set)
+    aeonState.sketch.observations.removeObservation(detail.dataset, detail.id)
   }
 
-  saveSets (index: number, set: IObservationSet): void {
-    const sets = [...this.sets]
-    sets[index] = set
-    this.sets = sets
+  #onObservationRemoved (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations = datasets[datasetIndex].observations.filter(obs => obs.id !== data.id)
+    this.datasets = datasets
+  }
+
+  private changeObservation (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    const dataset = this.datasets.find(ds => ds.id === detail.dataset)
+    if (dataset === undefined) return
+    if (detail.id !== detail.observation.id) {
+      aeonState.sketch.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
+    }
+    const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
+    aeonState.sketch.observations.setObservationContent(detail.dataset, obsData)
+  }
+
+  #onObservationContentChanged (data: ObservationData): void {
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.dataset)
+    if (datasetIndex === -1) return
+    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.id)
+    if (obsIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
+    this.datasets = datasets
+  }
+
+  #onObservationIdChanged (data: ObservationIdUpdateData): void {
+    // data.metadata seems to be dataset todo: confirm with ondrej
+    const datasetIndex = this.datasets.findIndex(d => d.id === data.metadata)
+    if (datasetIndex === -1) return
+    const obsIndex = this.datasets[datasetIndex].observations.findIndex(obs => obs.id === data.original_id)
+    if (obsIndex === -1) return
+    const datasets: IObservationSet[] = structuredClone(this.datasets)
+    datasets[datasetIndex].observations[obsIndex].id = data.new_id
+    datasets[datasetIndex].observations[obsIndex].name = data.new_id
+    this.datasets = datasets
   }
 
   render (): TemplateResult {
@@ -140,28 +266,27 @@ export default class ObservationsEditor extends LitElement {
         <div class="header">
           <div></div>
           <h1 class="heading uk-heading-line uk-text-center">Observations</h1>
-          <button @click="${this.import}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
+          <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
         </div>
         <div class="accordion-body">
           <div class="accordion">
-            ${map(this.sets, (set, index) => html`
+            ${map(this.datasets, (dataset, index) => html`
           <div class="container" id="${'container' + index}">
             <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
               <input 
                   @input="${(e: InputEvent) => {
-                    this.updateSetName((e.target as HTMLInputElement).value, index)
+                    this.updateDatasetId((e.target as HTMLInputElement).value, index)
                   }}"
                   ?readonly="${true}"
                   @dblclick="${(e: InputEvent) => {
                     (e.target as HTMLInputElement).readOnly = !(e.target as HTMLInputElement).readOnly
                   }}"
                   class="set-name heading uk-input uk-form-blank"
-                  value="${set.name}"/>
+                  value="${dataset.id}"/>
             </div>
             <div class="content">
               <observations-set
-                  .index="${index}"
-                  .data="${set}">
+                  .data="${dataset}">
               </observations-set>
             </div>
           </div>

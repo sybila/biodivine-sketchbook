@@ -154,9 +154,7 @@ impl UndoStack {
     /// [UserAction] originally supplied to [Self::do_action].
     #[must_use]
     pub fn undo_action(&mut self) -> Option<UserAction> {
-        let Some(entry) = self.undo_stack.pop_back() else {
-            return None;
-        };
+        let entry = self.undo_stack.pop_back()?;
 
         let result = Some(entry.reverse_action.clone());
         self.current_payload_size -= entry.payload_size();
@@ -169,9 +167,7 @@ impl UndoStack {
     /// [UserAction] originally supplied to [Self::do_action].
     #[must_use]
     pub fn redo_action(&mut self) -> Option<UserAction> {
-        let Some(entry) = self.redo_stack.pop_back() else {
-            return None;
-        };
+        let entry = self.redo_stack.pop_back()?;
 
         let result = Some(entry.perform_action.clone());
         self.current_payload_size += entry.payload_size();
