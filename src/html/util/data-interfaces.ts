@@ -71,8 +71,29 @@ export interface IObservationSet {
   category: DataCategory
 }
 
+export enum PropertyType {
+  GenericStatic,
+  FixedPointDynamic,
+  TrapSpaceDynamic
+}
 export interface IProperty {
   id: string
   name: string
+  type: PropertyType
+}
+
+export interface IFixedPointDynamicProperty extends IProperty {
+  dataset: string
+  observation: string
+}
+
+export interface ITrapSpaceDynamicProperty extends IProperty {
+  dataset: string
+  observation: string
+  minimal: boolean
+  nonpercolable: boolean
+}
+
+export interface IGenericStaticProperty extends IProperty {
   value: string
 }

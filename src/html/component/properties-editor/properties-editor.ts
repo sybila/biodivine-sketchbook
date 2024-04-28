@@ -1,10 +1,18 @@
-import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
+import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './properties-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './property-tile/property-tile'
-
-import { ContentData, type IProperty } from '../../util/data-interfaces'
+import './dynamic/dynamic-fixed-point/dynamic-fixed-point'
+import './dynamic/dynamic-trap-space/dynamic-trap-space'
+import './static/static-generic/static-generic'
+import {
+  ContentData,
+  type IFixedPointDynamicProperty,
+  type IProperty,
+  type ITrapSpaceDynamicProperty,
+  PropertyType
+} from '../../util/data-interfaces'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -14,38 +22,35 @@ export default class PropertiesEditor extends LitElement {
 
   constructor () {
     super()
-    this.addEventListener('property-name-changed', this.propNameChanged)
-    this.addEventListener('property-value-changed', this.propValueChanged)
 
-    this.properties = [{
+    this.addEventListener('property-changed', this.propertyChanged)
+
+    const trapSpace: ITrapSpaceDynamicProperty = {
       id: '1',
-      name: 'static property',
-      value: 'static property value',
-      static: true
-    }, {
-      id: '2',
-      name: 'dynamic property',
-      value: 'dynamic property value',
-      static: false
-    }]
+      name: 'dynamic-trap-space',
+      type: PropertyType.TrapSpaceDynamic,
+      dataset: '',
+      observation: '',
+      minimal: false,
+      nonpercolable: false
+    }
+    this.properties.push(trapSpace)
+
+    const fixedPoint: IFixedPointDynamicProperty = {
+      id: '0',
+      name: 'fixed-point',
+      type: PropertyType.FixedPointDynamic,
+      dataset: '',
+      observation: ''
+    }
+    this.properties.push(fixedPoint)
   }
 
-  propNameChanged (event: Event): void {
+  propertyChanged (event: Event): void {
     const detail = (event as CustomEvent).detail
-    const properties = [...this.properties]
-    const index = properties.findIndex(prop => prop.id === detail.id)
-    if (index === -1) return
-    properties[index].name = detail.name
-    this.properties = properties
-  }
-
-  propValueChanged (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    const properties = [...this.properties]
-    const index = properties.findIndex(prop => prop.id === detail.id)
-    if (index === -1) return
-    properties[index].value = detail.value
-    this.properties = properties
+    const props = [...this.properties]
+    props[detail.index] = detail.property
+    this.properties = props
   }
 
   render (): TemplateResult {
@@ -54,19 +59,39 @@ export default class PropertiesEditor extends LitElement {
         <div class="section" id="functions">
           <h2 class="heading uk-text-center">Static</h2>
           <div class="uk-list uk-list-divider uk-text-center">
-            ${map(this.properties.filter(p => p.static), (prop) => html`
-              <property-tile .prop="${prop}">
-              </property-tile>
-            `)}
+            ${map(this.properties, (prop, index) => {
+              switch (prop.type) {
+                case PropertyType.GenericStatic:
+                  return html`<static-generic .index=${index}
+                                              .property=${prop}
+                  ></static-generic>`
+                default:
+                  return ''
+              }
+            })}
           </div>
         </div>
         <div class="section" id="variables">
           <h2 class="heading uk-text-center">Dynamic</h2>
           <div class="uk-list uk-list-divider uk-text-center">
-            ${map(this.properties.filter(p => !p.static), (prop) => html`
-              <property-tile .prop=${prop}>
-              </property-tile>
-            `)}
+            ${map(this.properties, (prop, index) => {
+              switch (prop.type) {
+                case PropertyType.FixedPointDynamic:
+                  return html`
+                    <dynamic-fixed-point .index=${index} 
+                                         .property=${prop}
+                                         .observations=${this.contentData.observations}>
+                    </dynamic-fixed-point>`
+                case PropertyType.TrapSpaceDynamic:
+                  return html`
+                  <dynamic-trap-space .index=${index}
+                                      .property=${prop}
+                                      .observations=${this.contentData.observations}>
+                  </dynamic-trap-space>`
+                default:
+                  return ''
+              }
+            })}
           </div>
         </div>
       </div>    `
