@@ -6,13 +6,13 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import PropertyTile from '../../property-tile/property-tile'
 import { map } from 'lit/directives/map.js'
 
-import { type IExistsTrajectoryProperty, type IObservationSet } from '../../../../util/data-interfaces'
+import { type IExistsTrajectoryDynamicProperty, type IObservationSet } from '../../../../util/data-interfaces'
 
 @customElement('dynamic-trajectory')
 export default class DynamicTrajectory extends PropertyTile {
   static styles = css`${unsafeCSS(style_less)}`
   @query('#observation') declare observationSelector: HTMLSelectElement
-  @property() declare property: IExistsTrajectoryProperty
+  @property() declare property: IExistsTrajectoryDynamicProperty
   @property() observations: IObservationSet[] = []
 
   datasetChanged (event: Event): void {
@@ -29,7 +29,7 @@ export default class DynamicTrajectory extends PropertyTile {
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="uk-input uk-text-center" value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="uk-button uk-button-small">
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeProperty}">
             ${icon(faTrash).node}
           </button>
         </div>

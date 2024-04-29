@@ -61,6 +61,7 @@ export interface IObservation {
   selected: boolean
   id: string
   name: string
+
   [key: string]: string | number | boolean
 }
 
@@ -72,19 +73,20 @@ export interface IObservationSet {
 }
 
 export enum StaticPropertyType {
-  Generic,
+  Generic = 100,
   FunctionInputEssential,
   FunctionInputMonotonic
 }
 
 export enum DynamicPropertyType {
-  Generic,
+  Generic = 200,
   FixedPoint,
   TrapSpace,
   ExistsTrajectory,
   AttractorCount,
   HasAttractor
 }
+
 export interface IProperty {
   id: string
   name: string
@@ -103,18 +105,48 @@ export interface ITrapSpaceDynamicProperty extends IProperty {
   nonpercolable: boolean
 }
 
-export interface IExistsTrajectoryProperty extends IProperty {
+export interface IExistsTrajectoryDynamicProperty extends IProperty {
   dataset: string
 }
 
-export interface IAttractorCount extends IProperty {
+export interface IAttractorCountDynamicProperty extends IProperty {
   lower: number
   upper: number
 }
 
-export interface IHasAttractorProperty extends IProperty {
+export interface IHasAttractorDynamicProperty extends IProperty {
   dataset: string
   observation: string
+}
+
+export interface IGenericDynamicProperty extends IProperty {
+  value: string
+}
+
+export type DynamicProperty =
+  IFixedPointDynamicProperty
+  | ITrapSpaceDynamicProperty
+  | IExistsTrajectoryDynamicProperty
+  | IAttractorCountDynamicProperty
+  | IHasAttractorDynamicProperty
+  | IGenericDynamicProperty
+
+export interface IFunctionInputEssentialStaticProperty extends IProperty {
+  function: string
+  variable: string
+  essential: Essentiality
+}
+
+export interface IFunctionInputMonotonicStaticProperty extends IProperty {
+  function: string
+  variable: string
+  monotonic: Monotonicity
+}
+
+export interface IFunctionInputWithConditionStaticProperty extends IProperty {
+  function: string
+  variable: string
+  monotonic: Monotonicity
 }
 
 export interface IGenericStaticProperty extends IProperty {

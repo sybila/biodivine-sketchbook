@@ -1,12 +1,7 @@
-import { css, unsafeCSS, LitElement } from 'lit'
+import { css, LitElement, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './property-tile.less?inline'
-import {
-  type IExistsTrajectoryProperty,
-  type IFixedPointDynamicProperty,
-  type IProperty,
-  type ITrapSpaceDynamicProperty
-} from '../../../util/data-interfaces'
+import { type DynamicProperty, type IProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../util/config'
 
@@ -17,18 +12,29 @@ export default class PropertyTile extends LitElement {
   @property() declare index: number
 
   nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('property-name-changed', {
+    this.dispatchEvent(new CustomEvent('property-changed', {
       detail: {
-        id: this.property.id,
-        name
+        property: {
+          ...this.property,
+          name
+        }
       },
-      composed: true,
-      bubbles: true
+      bubbles: true,
+      composed: true
     }))
   }, functionDebounceTimer)
 
-  // TODO: there has to be a better way to handle types
-  updateProperty (property: IFixedPointDynamicProperty | ITrapSpaceDynamicProperty | IExistsTrajectoryProperty): void {
+  removeProperty (): void {
+    this.dispatchEvent(new CustomEvent('property-removed', {
+      detail: {
+        index: this.index
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  updateProperty (property: DynamicProperty): void {
     this.dispatchEvent(new CustomEvent('property-changed', {
       detail: {
         property,

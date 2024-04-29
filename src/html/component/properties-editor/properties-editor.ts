@@ -3,11 +3,33 @@ import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './properties-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './property-tile/property-tile'
+import './dynamic/dynamic-attractor-count/dynamic-attractor-count'
 import './dynamic/dynamic-fixed-point/dynamic-fixed-point'
+import './dynamic/dynamic-generic/dynamic-generic'
+import './dynamic/dynamic-has-attractor/dynamic-has-attractor'
+import './dynamic/dynamic-trajectory/dynamic-trajectory'
 import './dynamic/dynamic-trap-space/dynamic-trap-space'
+
 import './static/static-generic/static-generic'
-import { ContentData, DynamicPropertyType, type IProperty, StaticPropertyType } from '../../util/data-interfaces'
-import { fixedPointDynamic, trapSpaceDynamic } from './default-properties'
+import {
+  ContentData,
+  DynamicPropertyType,
+  Essentiality,
+  type IProperty,
+  Monotonicity,
+  StaticPropertyType
+} from '../../util/data-interfaces'
+import {
+  attractorCountDynamic,
+  existsTrajectoryDynamic,
+  fixedPointDynamic,
+  functionInputEssential,
+  functionInputMonotonic,
+  genericDynamic,
+  genericStatic,
+  hasAttractorDynamic,
+  trapSpaceDynamic
+} from './default-properties'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -19,34 +41,68 @@ export default class PropertiesEditor extends LitElement {
     super()
 
     this.addEventListener('property-changed', this.propertyChanged)
+    this.addEventListener('property-removed', this.propertyRemoved)
 
     this.addDynamicProperty(DynamicPropertyType.FixedPoint)
     this.addDynamicProperty(DynamicPropertyType.TrapSpace)
+    this.addDynamicProperty(DynamicPropertyType.ExistsTrajectory)
+    this.addDynamicProperty(DynamicPropertyType.AttractorCount)
+    this.addDynamicProperty(DynamicPropertyType.HasAttractor)
+    this.addDynamicProperty(DynamicPropertyType.Generic)
+  }
+
+  addStaticProperty (type: StaticPropertyType): void {
+    const id = '' + this.properties.length
+    switch (type) {
+      case StaticPropertyType.Generic:
+        this.properties.push(genericStatic(id))
+        break
+      case StaticPropertyType.FunctionInputEssential:
+        this.properties.push(functionInputEssential(id, 'func', 'var', Essentiality.TRUE))
+        break
+      case StaticPropertyType.FunctionInputMonotonic:
+        this.properties.push(functionInputMonotonic(id, 'func', 'var', Monotonicity.ACTIVATION))
+        break
+    }
   }
 
   addDynamicProperty (type: DynamicPropertyType): void {
+    const id = '' + this.properties.length
     switch (type) {
       case DynamicPropertyType.Generic:
+        this.properties.push(genericDynamic(id))
         break
       case DynamicPropertyType.FixedPoint:
-        this.properties.push(fixedPointDynamic('' + this.properties.length))
+        this.properties.push(fixedPointDynamic(id))
         break
       case DynamicPropertyType.TrapSpace:
-        this.properties.push(trapSpaceDynamic('' + this.properties.length))
+        this.properties.push(trapSpaceDynamic(id))
         break
       case DynamicPropertyType.ExistsTrajectory:
+        this.properties.push(existsTrajectoryDynamic(id))
         break
       case DynamicPropertyType.AttractorCount:
+        this.properties.push(attractorCountDynamic(id))
         break
       case DynamicPropertyType.HasAttractor:
+        this.properties.push(hasAttractorDynamic(id))
         break
     }
   }
 
   propertyChanged (event: Event): void {
     const detail = (event as CustomEvent).detail
+    console.log('property changed', detail.property)
     const props = [...this.properties]
     props[detail.index] = detail.property
+    this.properties = props
+  }
+
+  propertyRemoved (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log('property removed', detail.index)
+    const props = [...this.properties]
+    props.splice(detail.index, 1)
     this.properties = props
   }
 
@@ -85,6 +141,28 @@ export default class PropertiesEditor extends LitElement {
                                       .property=${prop}
                                       .observations=${this.contentData.observations}>
                   </dynamic-trap-space>`
+                case DynamicPropertyType.ExistsTrajectory:
+                  return html`
+                  <dynamic-trajectory .index=${index}
+                                      .property=${prop}
+                                      .observations=${this.contentData.observations}>
+                  </dynamic-trajectory>`
+                case DynamicPropertyType.AttractorCount:
+                  return html`
+                    <dynamic-attractor-count .index=${index}
+                                             .property=${prop}>
+                    </dynamic-attractor-count>`
+                case DynamicPropertyType.HasAttractor:
+                  return html`
+                  <dynamic-has-attractor  .index=${index}
+                                          .property=${prop}
+                                          .observations=${this.contentData.observations}>
+                  </dynamic-has-attractor>`
+                case DynamicPropertyType.Generic:
+                  return html`
+                    <dynamic-generic .index=${index}
+                                     .property=${prop}>
+                    </dynamic-generic>`
                 default:
                   return ''
               }
