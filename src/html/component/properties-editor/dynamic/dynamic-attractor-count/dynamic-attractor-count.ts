@@ -84,14 +84,14 @@ export default class DynamicAttractorCount extends AbstractProperty {
             () => html`
               <div class="uk-flex uk-flex-row uk-flex-around uk-width-auto">
                 <div class="uk-flex uk-flex-row uk-flex-middle uk-flex-center uk-width-1-2">
-                  <label for="lower">Lower:</label>
+                  <label for="lower">Min:</label>
                   <div class="uk-width-1-2">
                     <input class="uk-input uk-margin-small-left" id="lower" name="lower" type="number" min="0" max="${this.property.upper}"
                            value="${this.property.lower}" @change="${this.lowerChanged}">
                   </div>
                 </div>
                 <div class="uk-flex uk-flex-row uk-flex-middle uk-flex-center uk-width-1-2">
-                  <label for="upper">Upper:</label>
+                  <label for="upper">Max:</label>
                   <div class="uk-width-1-2">
                     <input class="uk-input uk-margin-small-left" id="upper" name="upper" type="number" min="${this.property.lower}"
                            value="${this.property.upper}" @change="${this.upperChanged}">

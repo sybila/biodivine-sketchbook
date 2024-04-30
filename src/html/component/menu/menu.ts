@@ -44,7 +44,7 @@ export default class Menu extends LitElement {
     })
     if (!confirmation) return
 
-    let selected = await open({
+    const selected = await open({
       title: 'Import sketch...',
       multiple: false,
       filters: [{
@@ -53,12 +53,16 @@ export default class Menu extends LitElement {
       }]
     })
     if (selected === null) return
+    let importFile = ''
     if (Array.isArray(selected)) {
-      if (selected.length > 0) { selected = selected[0] }
+      if (selected.length === 0) return
+      importFile = selected[0]
+    } else {
+      importFile = selected
     }
 
-    console.log('importing', selected)
-    aeonState.sketch.importSketch(selected)
+    console.log('importing', importFile)
+    aeonState.sketch.importSketch(importFile)
   }
 
   async exportSketch (): Promise<void> {
