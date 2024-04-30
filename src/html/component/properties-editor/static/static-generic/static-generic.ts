@@ -3,11 +3,11 @@ import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-generic.less?inline'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import PropertyTile from '../../property-tile/property-tile'
+import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IGenericStaticProperty } from '../../../../util/data-interfaces'
 
 @customElement('static-generic')
-export default class StaticGeneric extends PropertyTile {
+export default class StaticGeneric extends AbstractProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IGenericStaticProperty
 

@@ -1,12 +1,12 @@
 import { css, LitElement, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import style_less from './property-tile.less?inline'
+import style_less from './abstract-property.less?inline'
 import { type DynamicProperty, type IProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../util/config'
 
-@customElement('property-tile')
-export default class PropertyTile extends LitElement {
+@customElement('abstract-property')
+export default class AbstractProperty extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IProperty
   @property() declare index: number
