@@ -15,9 +15,9 @@ export default class StaticGeneric extends AbstractProperty {
     return html`
       <div class="uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="uk-input uk-text-center" readonly value="${this.property.name}"
+          <input id="name-field" class="name-field" value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="uk-button uk-button-small">
+          <button class="remove-property" @click="${this.removeProperty}">
             ${icon(faTrash).node}
           </button>
         </div>

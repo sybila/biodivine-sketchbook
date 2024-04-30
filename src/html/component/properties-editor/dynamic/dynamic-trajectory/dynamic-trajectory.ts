@@ -27,9 +27,9 @@ export default class DynamicTrajectory extends AbstractProperty {
     return html`
       <div class="property-body uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="uk-input uk-text-center" value="${this.property.name}"
+          <input id="name-field" class="name-field" value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeProperty}">
+          <button class="remove-property" @click="${this.removeProperty}">
             ${icon(faTrash).node}
           </button>
         </div>
