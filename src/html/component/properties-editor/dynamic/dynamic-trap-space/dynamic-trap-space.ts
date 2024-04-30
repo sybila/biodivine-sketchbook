@@ -48,7 +48,7 @@ export default class DynamicTrapSpace extends AbstractProperty {
 
   render (): TemplateResult {
     return html`
-      <div class="property-body uk-flex uk-flex-column uk-margin-small-bottom">
+      <div class="property-body">
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="name-field" value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
@@ -83,15 +83,15 @@ export default class DynamicTrapSpace extends AbstractProperty {
           </div>
         </div>
         <div class="uk-flex uk-flex-row uk-flex-around">
-          <div>
+          <div class="toggle">
             <input class="uk-checkbox" type="checkbox" id="minimal" name="minimal" value=${this.property.minimal}
                    @change=${this.minimalChanged}  />
-            <label for="minimal">minimal</label>
+            <label class="pointer" for="minimal">minimal</label>
           </div>
-          <div>
+          <div class="pointer">
             <input class="uk-checkbox" type="checkbox" id="non-percolable" name="non-percolable"
                    value=${this.property.nonpercolable} @change=${this.nonpercolableChanged} />
-            <label for="non-percolable">non-percolable</label>
+            <label class="pointer" for="non-percolable">non-percolable</label>
           </div>
         </div>
       </div>

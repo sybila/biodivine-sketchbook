@@ -12,6 +12,23 @@
 @button-light: rgb(222, 222, 222);
 @button-dark: rgb(34, 34, 34);
 
+@text-dark: #ffffff;
+@text-light: #000000;
+
+
+@text: @text-light;
+@button: @button-light;
+
+@media (prefers-color-scheme: dark) {
+  @text: @text-dark;
+  @button: @button-dark;
+}
+
+@media (prefers-color-scheme: light) {
+  @text: @text-light;
+  @button: @button-light;
+}
+
 body {
   margin: 0;
   height: 100vh;

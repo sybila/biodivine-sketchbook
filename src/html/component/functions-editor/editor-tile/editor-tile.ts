@@ -122,15 +122,4 @@ export abstract class EditorTile extends LitElement {
   abstract toggleEssentiality (regulation: IRegulationData): void
   abstract toggleMonotonicity (regulation: IRegulationData): void
   abstract removeVariable (): void
-
-  protected getEssentialityText (essentiality: Essentiality): string {
-    switch (essentiality) {
-      case Essentiality.FALSE:
-        return 'non-essential'
-      case Essentiality.TRUE:
-        return 'essential'
-      default:
-        return 'unknown'
-    }
-  }
 }

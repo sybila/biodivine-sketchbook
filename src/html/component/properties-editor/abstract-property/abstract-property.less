@@ -5,6 +5,10 @@
 }
 
 .property-body {
+  .uk-flex;
+  .uk-flex-column;
+  .uk-margin-small-bottom;
+
   gap: 0.5em;
 }
 
@@ -19,14 +23,32 @@
   .uk-text-center;
 }
 
+.static-name-field {
+  .uk-form-blank;
+  .uk-h4;
+  margin: 0;
+}
+
+.uk-button {
+  cursor: pointer;
+}
+
 @media (prefers-color-scheme: dark) {
   .uk-button-secondary {
-    background: rgb(34, 34, 34);
+    background: @button-dark
+  }
+
+  .static-name-field {
+    color: @text-dark;
   }
 }
 
 @media (prefers-color-scheme: light) {
   .uk-button-secondary {
-    background: rgb(222, 222, 222);
+    background: @button-light;
+  }
+
+  .static-name-field {
+    color: @text-light;
   }
 }

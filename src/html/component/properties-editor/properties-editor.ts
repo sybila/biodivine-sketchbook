@@ -9,8 +9,9 @@ import './dynamic/dynamic-generic/dynamic-generic'
 import './dynamic/dynamic-has-attractor/dynamic-has-attractor'
 import './dynamic/dynamic-trajectory/dynamic-trajectory'
 import './dynamic/dynamic-trap-space/dynamic-trap-space'
-
 import './static/static-generic/static-generic'
+import './static/static-input-essential/static-input-essential'
+import './static/static-input-monotonic/static-input-monotonic'
 import {
   ContentData,
   DynamicPropertyType,
@@ -49,6 +50,10 @@ export default class PropertiesEditor extends LitElement {
     this.addDynamicProperty(DynamicPropertyType.AttractorCount)
     this.addDynamicProperty(DynamicPropertyType.HasAttractor)
     this.addDynamicProperty(DynamicPropertyType.Generic)
+
+    this.addStaticProperty(StaticPropertyType.Generic)
+    this.addStaticProperty(StaticPropertyType.FunctionInputEssential)
+    this.addStaticProperty(StaticPropertyType.FunctionInputMonotonic)
   }
 
   addStaticProperty (type: StaticPropertyType): void {
@@ -110,14 +115,29 @@ export default class PropertiesEditor extends LitElement {
     return html`
       <div class="property-list">
         <div class="section" id="functions">
-          <h2 class="heading uk-text-center">Static</h2>
+          <div class="header">
+            <div></div>
+            <h2 class="heading">Static</h2>
+            <div></div>
+          </div>
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.properties, (prop, index) => {
               switch (prop.type) {
                 case StaticPropertyType.Generic:
-                  return html`<static-generic .index=${index}
-                                              .property=${prop}
-                  ></static-generic>`
+                  return html`
+                    <static-generic .index=${index}
+                                    .property=${prop}>
+                    </static-generic>`
+                case StaticPropertyType.FunctionInputEssential:
+                  return html`
+                    <static-input-essential .index=${index}
+                                            .property=${prop}>
+                    </static-input-essential>`
+                case StaticPropertyType.FunctionInputMonotonic:
+                  return html`
+                    <static-input-monotonic .index=${index}
+                                            .property=${prop}>
+                    </static-input-monotonic>`
                 default:
                   return ''
               }
@@ -125,28 +145,32 @@ export default class PropertiesEditor extends LitElement {
           </div>
         </div>
         <div class="section" id="variables">
-          <h2 class="heading uk-text-center">Dynamic</h2>
+          <div class="header">
+            <div></div>
+            <h2 class="heading">Dynamic</h2>
+            <button class="add-dynamic-property">+</button>
+          </div>
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.properties, (prop, index) => {
               switch (prop.type) {
                 case DynamicPropertyType.FixedPoint:
                   return html`
-                    <dynamic-fixed-point .index=${index} 
+                    <dynamic-fixed-point .index=${index}
                                          .property=${prop}
                                          .observations=${this.contentData.observations}>
                     </dynamic-fixed-point>`
                 case DynamicPropertyType.TrapSpace:
                   return html`
-                  <dynamic-trap-space .index=${index}
-                                      .property=${prop}
-                                      .observations=${this.contentData.observations}>
-                  </dynamic-trap-space>`
+                    <dynamic-trap-space .index=${index}
+                                        .property=${prop}
+                                        .observations=${this.contentData.observations}>
+                    </dynamic-trap-space>`
                 case DynamicPropertyType.ExistsTrajectory:
                   return html`
-                  <dynamic-trajectory .index=${index}
-                                      .property=${prop}
-                                      .observations=${this.contentData.observations}>
-                  </dynamic-trajectory>`
+                    <dynamic-trajectory .index=${index}
+                                        .property=${prop}
+                                        .observations=${this.contentData.observations}>
+                    </dynamic-trajectory>`
                 case DynamicPropertyType.AttractorCount:
                   return html`
                     <dynamic-attractor-count .index=${index}
@@ -154,10 +178,10 @@ export default class PropertiesEditor extends LitElement {
                     </dynamic-attractor-count>`
                 case DynamicPropertyType.HasAttractor:
                   return html`
-                  <dynamic-has-attractor  .index=${index}
-                                          .property=${prop}
-                                          .observations=${this.contentData.observations}>
-                  </dynamic-has-attractor>`
+                    <dynamic-has-attractor .index=${index}
+                                           .property=${prop}
+                                           .observations=${this.contentData.observations}>
+                    </dynamic-has-attractor>`
                 case DynamicPropertyType.Generic:
                   return html`
                     <dynamic-generic .index=${index}

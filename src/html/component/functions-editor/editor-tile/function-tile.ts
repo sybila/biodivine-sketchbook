@@ -10,6 +10,7 @@ import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
 import { functionDebounceTimer } from '../../../util/config'
+import { getEssentialityText } from '../../../util/utilities'
 
 library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp)
 
@@ -172,7 +173,7 @@ export class FunctionTile extends EditorTile {
                    @click="${() => {
                      this.toggleEssentiality(variable)
                    }}">
-                ${this.getEssentialityText(variable.essential)}
+                ${getEssentialityText(variable.essential)}
               </div>
               <div class="regulation-property ${this.monotonicityClass(variable.monotonicity)}"
                    @click="${() => {

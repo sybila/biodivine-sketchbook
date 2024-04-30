@@ -22,12 +22,23 @@
   padding: 0.5em;
 }
 
+.header {
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-between;
+  .uk-flex-middle;
+}
+
+.heading {
+  .uk-margin-remove-top;
+}
+
 @media (prefers-color-scheme: dark) {
   .heading {
     color: white;
   }
-  .uk-button {
-    background: rgb(34, 34, 34);
+  .uk-button-secondary {
+    background: @button-dark;
   }
   .section + .section {
     border-left: 1px solid white;
@@ -35,8 +46,8 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .uk-button {
-    background: rgb(222, 222, 222);
+  .uk-button-secondary {
+    background: @button-light;
   }
 
   .section + .section {

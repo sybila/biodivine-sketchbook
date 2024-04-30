@@ -11,6 +11,17 @@ export function getNextEssentiality (essentiality: Essentiality): Essentiality {
   }
 }
 
+export function getEssentialityText (essentiality: Essentiality): string {
+  switch (essentiality) {
+    case Essentiality.FALSE:
+      return 'non-essential'
+    case Essentiality.TRUE:
+      return 'essential'
+    default:
+      return 'unknown'
+  }
+}
+
 export function getNextMonotonicity (monotonicity: Monotonicity): Monotonicity {
   switch (monotonicity) {
     case Monotonicity.ACTIVATION:

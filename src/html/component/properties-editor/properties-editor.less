@@ -22,12 +22,35 @@
   padding: 0.5em;
 }
 
+.header {
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-center;
+  .uk-flex-middle;
+  .uk-flex-between;
+  .uk-margin-small-bottom;
+}
+
+.add-dynamic-property {
+  .uk-button;
+  .uk-button-small;
+  .uk-button-primary;
+  right: -1em;
+  padding: 0 1em;
+  cursor: pointer;
+}
+
+.heading {
+  .uk-text-center;
+  margin: 0;
+}
+
 @media (prefers-color-scheme: dark) {
   .heading {
     color: white;
   }
-  .uk-button {
-    background: rgb(34, 34, 34);
+  .uk-button-secondary {
+    background: @button-dark;
   }
   .section + .section {
     border-left: 1px solid white;
@@ -35,8 +58,8 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .uk-button {
-    background: rgb(222, 222, 222);
+  .uk-button-secondary {
+    background: @button-light;
   }
 
   .section + .section {

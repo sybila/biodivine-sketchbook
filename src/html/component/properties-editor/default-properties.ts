@@ -101,6 +101,6 @@ export const genericStatic = (id: string): IGenericStaticProperty => {
     id,
     name: 'generic-static',
     type: StaticPropertyType.Generic,
-    value: ''
+    value: 'generic-static-value'
   }
 }

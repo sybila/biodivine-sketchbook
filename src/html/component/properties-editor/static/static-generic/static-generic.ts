@@ -1,8 +1,6 @@
 import { html, css, unsafeCSS, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-generic.less?inline'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IGenericStaticProperty } from '../../../../util/data-interfaces'
 
@@ -13,16 +11,11 @@ export default class StaticGeneric extends AbstractProperty {
 
   render (): TemplateResult {
     return html`
-      <div class="uk-flex uk-flex-column uk-margin-small-bottom">
+      <div class="property-body">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field" value="${this.property.name}"
-                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
+          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
         </div>
-        <span class="uk-align-left uk-text-left uk-margin-remove">Value:</span>
-        <input id="value-editor" class="uk-input" value="${this.property.value}">
+        <input id="value-editor" class="uk-input" value="${this.property.value}" readonly>
       </div>
       <hr>
     `
