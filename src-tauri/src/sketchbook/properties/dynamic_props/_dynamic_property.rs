@@ -21,8 +21,6 @@ pub struct DynProperty {
 impl DynProperty {
     /// Create "generic" `DynProperty` instance directly from a formula, which must be in a
     /// correct format (which is verified).
-    ///
-    /// TODO: `HctlFormula` struct currently lacks syntax check
     pub fn mk_generic(name: &str, raw_formula: &str) -> Result<DynProperty, String> {
         let property = GenericDynProp {
             raw_formula: raw_formula.to_string(),
