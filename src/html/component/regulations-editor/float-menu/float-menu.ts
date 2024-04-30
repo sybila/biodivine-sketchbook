@@ -195,29 +195,15 @@ export default class FloatMenu extends LitElement {
   }
 
   private toggleMonotonicity (): void {
-    let monotonicity
-    switch (this.data?.monotonicity) {
-      case Monotonicity.ACTIVATION:
-        monotonicity = Monotonicity.INHIBITION
-        break
-      case Monotonicity.INHIBITION:
-        monotonicity = Monotonicity.DUAL
-        break
-      case Monotonicity.DUAL:
-        monotonicity = Monotonicity.UNSPECIFIED
-        break
-      default:
-        monotonicity = Monotonicity.ACTIVATION
-        break
+    if (this.data !== undefined) {
+      this.dispatchEvent(new CustomEvent('toggle-regulation-monotonicity', {
+        detail: {
+          ...this.data
+        },
+        bubbles: true,
+        composed: true
+      }))
     }
-    if (this.data !== undefined) this.data = { ...this.data, monotonicity }
-    this.dispatchEvent(new CustomEvent('toggle-regulation-monotonicity', {
-      detail: {
-        ...this.data
-      },
-      bubbles: true,
-      composed: true
-    }))
   }
 
   private renameNode (): void {
