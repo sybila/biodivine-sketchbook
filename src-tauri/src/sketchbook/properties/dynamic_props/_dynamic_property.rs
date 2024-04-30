@@ -1,12 +1,13 @@
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::properties::dynamic_props::*;
+use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
 
 /// A typesafe representation wrapping various kinds of dynamic properties.
-/// Each property has a `name` and (often "inner") HCTL `formula`.
+/// Each property has a `name` and field `variant` encompassing inner data.
 ///
-/// The formula that will be (usually, apart from generic variant) internally created depends o
-/// n particular type of the property - there are multiple `variants` of properties, each carrying
+/// The formula that will be internally created (usually, apart from generic variant) depends on
+/// particular type of the property - there are multiple `variants` of properties, each carrying
 /// its own different metadata that are later used to build the formula.
 ///
 /// todo: decide which class will be responsible for the encoding of predefined properties to formulas (probably PropertyManager).
@@ -114,7 +115,12 @@ impl DynProperty {
 
 /// Editing dynamic properties.
 impl DynProperty {
-    // TODO
+    /// Set property's name.
+    pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
+        assert_name_valid(new_name)?;
+        self.name = new_name.to_string();
+        Ok(())
+    }
 }
 
 /// Observing dynamic properties.

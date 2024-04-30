@@ -2,12 +2,17 @@ use crate::sketchbook::ids::{UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::static_props::*;
 use crate::sketchbook::properties::FirstOrderFormula;
+use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
 
 /// A typesafe representation of various kinds of dynamic properties.
-/// Each property has a `name` and a first-order `formula`. The formula depends on particular
-/// type of the property - there are multiple kinds of static properties, each carrying
-/// different metadata from which the formula is built.
+/// Each property has a `name` and field `variant` encompassing inner data.
+///
+/// The formula that will be internally created (usually, apart from generic variant) depends on
+/// particular type of the property - there are multiple `variants` of properties, each carrying
+/// its own different metadata that are later used to build the formula.
+///
+/// todo: decide which class will be responsible for the encoding of predefined properties to formulas (probably PropertyManager).
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct StatProperty {
     name: String,
@@ -128,7 +133,12 @@ impl StatProperty {
 
 /// Editing static properties.
 impl StatProperty {
-    // TODO
+    /// Set property's name.
+    pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
+        assert_name_valid(new_name)?;
+        self.name = new_name.to_string();
+        Ok(())
+    }
 }
 
 /// Observing static properties.
