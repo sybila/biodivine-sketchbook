@@ -45,6 +45,22 @@
   margin: 0;
 }
 
+.menu-content {
+  flex-direction: column;
+  position: absolute;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.menu-item {
+  padding: 0.1em 1em;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: @primary-color;
+}
+
 @media (prefers-color-scheme: dark) {
   .heading {
     color: white;
@@ -54,6 +70,14 @@
   }
   .section + .section {
     border-left: 1px solid white;
+  }
+
+  .menu-content {
+    background-color: @background-dark;
+  }
+
+  .menu-item > a {
+    color: @text-dark;
   }
 }
 
@@ -65,9 +89,17 @@
   .section + .section {
     border-left: 1px solid black;
   }
+
+  .menu-content {
+    background-color: @background-light;
+  }
+
+  .menu-item > a {
+    color: @text-light;
+  }
 }
 
-@container function-list (max-width: 52em) {
+@container property-list (max-width: 52em) {
   .section + .section {
     border-left: none;
   }

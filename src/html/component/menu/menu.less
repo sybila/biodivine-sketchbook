@@ -1,12 +1,18 @@
 @import '/src/uikit-theme';
 
+.menu-button {
+  .uk-button;
+  .uk-button-small;
+  .uk-margin-small-left;
+  .uk-button-secondary;
+  cursor: pointer;
+}
+
 .menu-content {
-  display: none;
   flex-direction: column;
   position: absolute;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
   z-index: 100;
-  margin-left: 0.5em;
 }
 
 .menu-item {
@@ -18,12 +24,8 @@
     background: @primary-color;
 }
 
-.show {
-  display: flex;
-}
-
 @media (prefers-color-scheme: dark) {
-  .uk-button {
+  .uk-button-secondary {
     background: @button-dark;
   }
 
@@ -32,14 +34,12 @@
   }
 
   .menu-item > a {
-    color: white;
+    color: @text-dark;
   }
-
-
 }
 
 @media (prefers-color-scheme: light) {
-  .uk-button {
+  .uk-button-secondary {
     background: @button-light;
   }
 
@@ -47,7 +47,7 @@
     background-color: @background-light;
   }
 
-  .menu-item {
-    color: black;
+  .menu-item > a {
+    color: @text-light;
   }
 }

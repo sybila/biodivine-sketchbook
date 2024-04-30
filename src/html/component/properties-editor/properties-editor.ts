@@ -1,5 +1,5 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './properties-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './abstract-property/abstract-property'
@@ -31,12 +31,39 @@ import {
   hasAttractorDynamic,
   trapSpaceDynamic
 } from './default-properties'
+import { when } from 'lit/directives/when.js'
+import { computePosition } from '@floating-ui/dom'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData: ContentData = ContentData.create()
+  @query('#dynamic-property-menu') declare dynamicPropertyMenuElement: HTMLElement
+  @query('#add-dynamic-property-button') declare addDynamicPropertyElement: HTMLElement
   @state() properties: IProperty[] = []
+  @state() addMenuVisible = false
+  addPropertyMenu: IAddPropertyItem[] = [
+    {
+      label: 'Trap space',
+      action: () => { this.addProperty(DynamicPropertyType.TrapSpace) }
+    },
+    {
+      label: 'Fixed point',
+      action: () => { this.addProperty(DynamicPropertyType.FixedPoint) }
+    },
+    {
+      label: 'Exists trajectory',
+      action: () => { this.addProperty(DynamicPropertyType.ExistsTrajectory) }
+    },
+    {
+      label: 'Attractor count',
+      action: () => { this.addProperty(DynamicPropertyType.AttractorCount) }
+    },
+    {
+      label: 'Has attractor',
+      action: () => { this.addProperty(DynamicPropertyType.Generic) }
+    }
+  ]
 
   constructor () {
     super()
@@ -44,19 +71,14 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('property-changed', this.propertyChanged)
     this.addEventListener('property-removed', this.propertyRemoved)
 
-    this.addDynamicProperty(DynamicPropertyType.FixedPoint)
-    this.addDynamicProperty(DynamicPropertyType.TrapSpace)
-    this.addDynamicProperty(DynamicPropertyType.ExistsTrajectory)
-    this.addDynamicProperty(DynamicPropertyType.AttractorCount)
-    this.addDynamicProperty(DynamicPropertyType.HasAttractor)
-    this.addDynamicProperty(DynamicPropertyType.Generic)
+    document.addEventListener('click', this.closeMenu.bind(this))
 
-    this.addStaticProperty(StaticPropertyType.Generic)
-    this.addStaticProperty(StaticPropertyType.FunctionInputEssential)
-    this.addStaticProperty(StaticPropertyType.FunctionInputMonotonic)
+    this.addProperty(StaticPropertyType.Generic)
+    this.addProperty(StaticPropertyType.FunctionInputEssential)
+    this.addProperty(StaticPropertyType.FunctionInputMonotonic)
   }
 
-  addStaticProperty (type: StaticPropertyType): void {
+  addProperty (type: DynamicPropertyType | StaticPropertyType): void {
     const id = '' + this.properties.length
     switch (type) {
       case StaticPropertyType.Generic:
@@ -68,12 +90,6 @@ export default class PropertiesEditor extends LitElement {
       case StaticPropertyType.FunctionInputMonotonic:
         this.properties.push(functionInputMonotonic(id, 'func', 'var', Monotonicity.ACTIVATION))
         break
-    }
-  }
-
-  addDynamicProperty (type: DynamicPropertyType): void {
-    const id = '' + this.properties.length
-    switch (type) {
       case DynamicPropertyType.Generic:
         this.properties.push(genericDynamic(id))
         break
@@ -111,8 +127,44 @@ export default class PropertiesEditor extends LitElement {
     this.properties = props
   }
 
+  async openAddPropertyMenu (): Promise<void> {
+    this.addMenuVisible = true
+    void computePosition(this.addDynamicPropertyElement, this.dynamicPropertyMenuElement,
+      { placement: 'bottom-end' })
+      .then(({ x, y }) => {
+        this.dynamicPropertyMenuElement.style.left = x + 'px'
+        this.dynamicPropertyMenuElement.style.top = y + 'px'
+      })
+  }
+
+  itemClick (action: () => void): void {
+    this.addMenuVisible = false
+    action()
+  }
+
+  closeMenu (event: Event): void {
+    if (!(event.composedPath()[0] as HTMLElement).matches('.add-dynamic-property')) {
+      this.addMenuVisible = false
+    }
+  }
+
   render (): TemplateResult {
     return html`
+      <div id="dynamic-property-menu" class="menu-content">
+      ${when(this.addMenuVisible,
+          () => html`        
+            <ul class="uk-nav">
+            ${map(this.addPropertyMenu, (item) => html`
+            <li class="menu-item" @click="${() => {
+              this.itemClick(item.action)
+            }}">
+              <a>
+                ${item.label}
+              </a>
+            </li>
+          `)}
+          </ul>`)}
+      </div>
       <div class="property-list">
         <div class="section" id="functions">
           <div class="header">
@@ -148,7 +200,7 @@ export default class PropertiesEditor extends LitElement {
           <div class="header">
             <div></div>
             <h2 class="heading">Dynamic</h2>
-            <button class="add-dynamic-property">+</button>
+            <button id="add-dynamic-property-button" class="add-dynamic-property" @click="${this.openAddPropertyMenu}">+</button>
           </div>
           <div class="uk-list uk-list-divider uk-text-center">
             ${map(this.properties, (prop, index) => {
@@ -195,4 +247,9 @@ export default class PropertiesEditor extends LitElement {
         </div>
       </div>    `
   }
+}
+
+interface IAddPropertyItem {
+  label: string
+  action: () => void
 }
