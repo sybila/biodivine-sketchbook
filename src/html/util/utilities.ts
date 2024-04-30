@@ -34,3 +34,18 @@ export function getNextMonotonicity (monotonicity: Monotonicity): Monotonicity {
       return Monotonicity.ACTIVATION
   }
 }
+
+export function getMonotonicityClass (monotonicity: Monotonicity): string {
+  switch (monotonicity) {
+    case Monotonicity.INHIBITION:
+      return 'monotonicity-inhibition'
+    case Monotonicity.ACTIVATION:
+      return 'monotonicity-activation'
+    case Monotonicity.DUAL:
+      return 'monotonicity-dual'
+    case Monotonicity.UNSPECIFIED:
+      return 'monotonicity-unspecified'
+    default:
+      return ''
+  }
+}

@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-monotonic.less?inline'
 import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IFunctionInputMonotonicStaticProperty, Monotonicity } from '../../../../util/data-interfaces'
+import { getMonotonicityClass } from '../../../../util/utilities'
 
 @customElement('static-input-monotonic')
 export default class StaticInputMonotonic extends AbstractProperty {
@@ -40,7 +41,7 @@ export default class StaticInputMonotonic extends AbstractProperty {
           <div @click="${() => {
             this.toggleMonotonicity()
           }}">
-            (<span class="monotonicity">${this.property.monotonic.toLowerCase()}</span>)
+            (<span class="monotonicity ${getMonotonicityClass(this.property.monotonic)}">${this.property.monotonic.toLowerCase()}</span>)
           </div>
         </div>
       </div>
