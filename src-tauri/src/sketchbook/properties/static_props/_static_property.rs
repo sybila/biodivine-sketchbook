@@ -11,8 +11,6 @@ use serde::{Deserialize, Serialize};
 /// The formula that will be internally created (usually, apart from generic variant) depends on
 /// particular type of the property - there are multiple `variants` of properties, each carrying
 /// its own different metadata that are later used to build the formula.
-///
-/// todo: decide which class will be responsible for the encoding of predefined properties to formulas (probably PropertyManager).
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct StatProperty {
     name: String,
@@ -138,6 +136,129 @@ impl StatProperty {
         assert_name_valid(new_name)?;
         self.name = new_name.to_string();
         Ok(())
+    }
+
+    /// Update property's sub-field for input variable (of an update fn), where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_input_var(&mut self, new_var: VarId) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::UpdateFnInputEssential(prop) => prop.input = new_var,
+            StatPropertyType::UpdateFnInputMonotonic(prop) => prop.input = new_var,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for input variable."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update property's sub-field for index of input (of an uninterpreted fn), where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_input_index(&mut self, new_idx: usize) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::FnInputEssential(prop) => prop.input_index = new_idx,
+            StatPropertyType::FnInputMonotonic(prop) => prop.input_index = new_idx,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for input index."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update property's sub-field for target uninterpreted fn, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_target_fn(&mut self, new_target: UninterpretedFnId) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::FnInputEssential(prop) => prop.target = new_target,
+            StatPropertyType::FnInputMonotonic(prop) => prop.target = new_target,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for target uninterpreted fn."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update property's sub-field for target variable, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_target_var(&mut self, new_target: VarId) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::UpdateFnInputEssential(prop) => prop.target = new_target,
+            StatPropertyType::UpdateFnInputMonotonic(prop) => prop.target = new_target,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for target uninterpreted var."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update property's sub-field for monotonicity, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_monotonicity(&mut self, monotonicity: Monotonicity) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::FnInputMonotonic(prop) => prop.value = monotonicity,
+            StatPropertyType::UpdateFnInputMonotonic(prop) => prop.value = monotonicity,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for monotonicity."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update property's sub-field for essentiality, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_essentiality(&mut self, essentiality: Essentiality) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::FnInputEssential(prop) => prop.value = essentiality,
+            StatPropertyType::UpdateFnInputEssential(prop) => prop.value = essentiality,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for essentiality."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update property's sub-field for context, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_context(&mut self, context: Option<String>) -> Result<(), String> {
+        match &mut self.variant {
+            StatPropertyType::FnInputEssential(prop) => prop.context = context,
+            StatPropertyType::FnInputMonotonic(prop) => prop.context = context,
+            StatPropertyType::UpdateFnInputEssential(prop) => prop.context = context,
+            StatPropertyType::UpdateFnInputMonotonic(prop) => prop.context = context,
+            other_variant => {
+                return Err(format!(
+                    "{other_variant:?} does not have a field for context."
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Update generic property's formula. If not applicable (different variant), return `Err`.
+    pub fn set_formula(&mut self, new_formula: &str) -> Result<(), String> {
+        if let StatPropertyType::GenericStatProp(prop) = &mut self.variant {
+            // first check everything is valid, then update fields
+            let parsed_formula = FirstOrderFormula::try_from_str(new_formula)?;
+            prop.processed_formula = parsed_formula;
+            prop.raw_formula = new_formula.to_string();
+            Ok(())
+        } else {
+            Err(format!(
+                "{:?} does not have a formula to update.",
+                self.variant
+            ))
+        }
     }
 }
 

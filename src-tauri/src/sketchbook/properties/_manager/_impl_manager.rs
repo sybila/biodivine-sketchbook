@@ -83,11 +83,23 @@ impl PropertyManager {
         Ok(())
     }
 
+    /// Add pre-generated dynamic property with id given by str.
+    pub fn add_raw_dynamic_by_str(&mut self, id: &str, prop: DynProperty) -> Result<(), String> {
+        let id = DynPropertyId::new(id)?;
+        self.add_raw_dynamic(id, prop)
+    }
+
     /// Add pre-generated static property.
     pub fn add_raw_static(&mut self, id: StatPropertyId, prop: StatProperty) -> Result<(), String> {
         self.assert_no_static(&id)?;
         self.stat_properties.insert(id, prop);
         Ok(())
+    }
+
+    /// Add pre-generated static property with id given by str.
+    pub fn add_raw_static_by_str(&mut self, id: &str, prop: StatProperty) -> Result<(), String> {
+        let id = StatPropertyId::new(id)?;
+        self.add_raw_static(id, prop)
     }
 
     /// Add a new "generic" `DynProperty` instance with a given formula, which must be in a
@@ -276,6 +288,182 @@ impl PropertyManager {
         self.assert_valid_static(id)?;
         let prop = self.stat_properties.get_mut(id).unwrap();
         prop.set_name(new_name)
+    }
+
+    /// Update dynamic property's sub-field `dataset` where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_dyn_dataset(
+        &mut self,
+        id: &DynPropertyId,
+        new_dataset: DatasetId,
+    ) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        let prop = self.dyn_properties.get_mut(id).unwrap();
+        prop.set_dataset(new_dataset)
+    }
+
+    /// Update dynamic property's sub-field `observation` where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_dyn_observation(
+        &mut self,
+        id: &DynPropertyId,
+        new_obs: ObservationId,
+    ) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        let prop = self.dyn_properties.get_mut(id).unwrap();
+        prop.set_observation(new_obs)
+    }
+
+    /// Update generic dynamic property's formula.
+    /// If not applicable (different variant), return `Err`.
+    pub fn set_dyn_formula(&mut self, id: &DynPropertyId, new_formula: &str) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        let prop = self.dyn_properties.get_mut(id).unwrap();
+        prop.set_formula(new_formula)
+    }
+
+    /// Update dynamic property's sub-field `observation` to None where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_dyn_none_observation(&mut self, id: &DynPropertyId) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        let prop = self.dyn_properties.get_mut(id).unwrap();
+        prop.remove_observation()
+    }
+
+    /// Update dynamic property's sub-fields, if the property is of `AttractorCount` variant.
+    /// If not applicable, return `Err`.
+    pub fn set_dyn_attr_count(
+        &mut self,
+        id: &DynPropertyId,
+        minimal: usize,
+        maximal: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        let prop = self.dyn_properties.get_mut(id).unwrap();
+        prop.set_attr_count(minimal, maximal)
+    }
+
+    /// Update dynamic property's sub-fields, if the property is of `ExistsTrapSpace` variant.
+    /// If not applicable, return `Err`.
+    pub fn set_dyn_trap_space_details(
+        &mut self,
+        id: &DynPropertyId,
+        is_minimal: bool,
+        non_percolable: bool,
+    ) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        let prop = self.dyn_properties.get_mut(id).unwrap();
+        prop.set_trap_space_details(is_minimal, non_percolable)
+    }
+
+    /// Update generic static property's formula.
+    /// If not applicable (different variant), return `Err`.
+    pub fn set_stat_formula(
+        &mut self,
+        id: &StatPropertyId,
+        new_formula: &str,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_formula(new_formula)
+    }
+
+    /// Update static property's sub-field for input variable (of an update fn), where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_stat_input_var(
+        &mut self,
+        id: &StatPropertyId,
+        new_var: VarId,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_input_var(new_var)
+    }
+
+    /// Update static property's sub-field for index of input (of an uninterpreted fn),
+    /// where applicable. If not applicable, return `Err`.
+    pub fn set_stat_input_index(
+        &mut self,
+        id: &StatPropertyId,
+        new_idx: usize,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_input_index(new_idx)
+    }
+
+    /// Update static property's sub-field for target uninterpreted fn, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_stat_target_fn(
+        &mut self,
+        id: &StatPropertyId,
+        new_target: UninterpretedFnId,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_target_fn(new_target)
+    }
+
+    /// Update static property's sub-field for target variable, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_stat_target_var(
+        &mut self,
+        id: &StatPropertyId,
+        new_target: VarId,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_target_var(new_target)
+    }
+
+    /// Update static property's sub-field for monotonicity, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_stat_monotonicity(
+        &mut self,
+        id: &StatPropertyId,
+        monotonicity: Monotonicity,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_monotonicity(monotonicity)
+    }
+
+    /// Update static property's sub-field for essentiality, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_stat_essentiality(
+        &mut self,
+        id: &StatPropertyId,
+        essentiality: Essentiality,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_essentiality(essentiality)
+    }
+
+    /// Update static property's sub-field for context, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn set_stat_context(
+        &mut self,
+        id: &StatPropertyId,
+        context: Option<String>,
+    ) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        let prop = self.stat_properties.get_mut(id).unwrap();
+        prop.set_context(context)
+    }
+
+    /// Remove dynamic property.
+    pub fn remove_dynamic(&mut self, id: &DynPropertyId) -> Result<(), String> {
+        self.assert_valid_dynamic(id)?;
+        self.dyn_properties.remove(id).unwrap();
+        Ok(())
+    }
+
+    /// Remove static property.
+    pub fn remove_static(&mut self, id: &StatPropertyId) -> Result<(), String> {
+        self.assert_valid_static(id)?;
+        self.stat_properties.remove(id).unwrap();
+        Ok(())
     }
 }
 
