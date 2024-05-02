@@ -4,6 +4,7 @@ import style_less from './static-input-monotonic.less?inline'
 import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IFunctionInputMonotonicStaticProperty, Monotonicity } from '../../../../util/data-interfaces'
 import { getMonotonicityClass } from '../../../../util/utilities'
+import { when } from 'lit/directives/when.js'
 
 @customElement('static-input-monotonic')
 export default class StaticInputMonotonic extends AbstractProperty {
@@ -11,7 +12,6 @@ export default class StaticInputMonotonic extends AbstractProperty {
   @property() declare property: IFunctionInputMonotonicStaticProperty
 
   toggleMonotonicity (): void {
-
   }
 
   private getMonotonicitySymbol (): string {
@@ -33,17 +33,31 @@ export default class StaticInputMonotonic extends AbstractProperty {
         <div class="uk-flex uk-flex-row uk-flex-center">
           <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
         </div>
-        <div
-            class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
-          <div class="uk-width-1-6">${this.property.variable}</div>
-          <div class="uk-width-1-6">${this.getMonotonicitySymbol()}</div>
-          <div class="uk-width-1-6">${this.property.function}</div>
-          <div @click="${() => {
+        <div class="value-section">
+          <div class="value-symbol">
+            <div class="uk-margin-small-right">${this.property.variable}</div>
+            <div class="uk-margin-small-right">${this.getMonotonicitySymbol()}</div>
+            <div class="uk-margin-small-right">${this.property.function}</div>
+          </div>
+          <div class="value-symbol" @click="${() => {
             this.toggleMonotonicity()
           }}">
-            (<span class="monotonicity ${getMonotonicityClass(this.property.monotonic)}">${this.property.monotonic.toLowerCase()}</span>)
+            <span>(</span>
+            <span class="monotonicity ${getMonotonicityClass(this.property.monotonic)}">
+              ${this.property.monotonic.toLowerCase()}
+            </span>
+            <span>)</span>
           </div>
         </div>
+        ${when(this.property.condition !== '',
+            () => html`
+              <div class="uk-flex uk-flex-column uk-flex-left">
+                <label class="condition-label">Condition:</label>
+                <div class="uk-flex uk-flex-row">
+                  <input id="condition-field" class="condition-field" value="${this.property.condition}" readonly/>
+                </div>
+              </div>`
+        )}
       </div>
       </div>
       <hr>

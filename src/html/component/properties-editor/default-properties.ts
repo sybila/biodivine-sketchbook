@@ -74,33 +74,35 @@ export const genericDynamic = (id: string): IGenericDynamicProperty => {
   }
 }
 
-export const functionInputEssential = (id: string, func: string, variable: string, essential: Essentiality): IFunctionInputEssentialStaticProperty => {
+export const functionInputEssential = (id: string, func: string, variable: string, essential: Essentiality, condition: string = ''): IFunctionInputEssentialStaticProperty => {
   return {
     id,
     name: 'function-input-essential',
     type: StaticPropertyType.FunctionInputEssential,
     function: func,
     variable,
-    essential
+    essential,
+    condition
   }
 }
 
-export const functionInputMonotonic = (id: string, func: string, variable: string, monotonic: Monotonicity): IFunctionInputMonotonicStaticProperty => {
+export const functionInputMonotonic = (id: string, func: string, variable: string, monotonic: Monotonicity, condition: string = ''): IFunctionInputMonotonicStaticProperty => {
   return {
     id,
     name: 'function-input-monotonic',
     type: StaticPropertyType.FunctionInputMonotonic,
     function: func,
     variable,
-    monotonic
+    monotonic,
+    condition
   }
 }
 
-export const genericStatic = (id: string): IGenericStaticProperty => {
+export const genericStatic = (id: string, name: string, value: string): IGenericStaticProperty => {
   return {
     id,
-    name: 'generic-static',
+    name,
     type: StaticPropertyType.Generic,
-    value: 'generic-static-value'
+    value
   }
 }

@@ -135,18 +135,14 @@ export interface IFunctionInputEssentialStaticProperty extends IProperty {
   function: string
   variable: string
   essential: Essentiality
+  condition: string
 }
 
 export interface IFunctionInputMonotonicStaticProperty extends IProperty {
   function: string
   variable: string
   monotonic: Monotonicity
-}
-
-export interface IFunctionInputWithConditionStaticProperty extends IProperty {
-  function: string
-  variable: string
-  monotonic: Monotonicity
+  condition: string
 }
 
 export interface IGenericStaticProperty extends IProperty {

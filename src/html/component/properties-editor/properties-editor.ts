@@ -73,23 +73,16 @@ export default class PropertiesEditor extends LitElement {
 
     document.addEventListener('click', this.closeMenu.bind(this))
 
-    this.addProperty(StaticPropertyType.Generic)
-    this.addProperty(StaticPropertyType.FunctionInputEssential)
-    this.addProperty(StaticPropertyType.FunctionInputMonotonic)
+    this.properties.push(genericStatic('a', 'generic-static', 'generic-static-value'))
+    this.properties.push(functionInputEssential('b', 'func', 'var', Essentiality.TRUE))
+    this.properties.push(functionInputEssential('c', 'func', 'var', Essentiality.FALSE, 'condition'))
+    this.properties.push(functionInputMonotonic('d', 'func', 'var', Monotonicity.ACTIVATION))
+    this.properties.push(functionInputMonotonic('e', 'func', 'var', Monotonicity.DUAL, 'condition'))
   }
 
-  addProperty (type: DynamicPropertyType | StaticPropertyType): void {
+  addProperty (type: DynamicPropertyType): void {
     const id = '' + this.properties.length
     switch (type) {
-      case StaticPropertyType.Generic:
-        this.properties.push(genericStatic(id))
-        break
-      case StaticPropertyType.FunctionInputEssential:
-        this.properties.push(functionInputEssential(id, 'func', 'var', Essentiality.TRUE))
-        break
-      case StaticPropertyType.FunctionInputMonotonic:
-        this.properties.push(functionInputMonotonic(id, 'func', 'var', Monotonicity.ACTIVATION))
-        break
       case DynamicPropertyType.Generic:
         this.properties.push(genericDynamic(id))
         break
@@ -151,19 +144,19 @@ export default class PropertiesEditor extends LitElement {
   render (): TemplateResult {
     return html`
       <div id="dynamic-property-menu" class="menu-content">
-      ${when(this.addMenuVisible,
-          () => html`        
-            <ul class="uk-nav">
-            ${map(this.addPropertyMenu, (item) => html`
-            <li class="menu-item" @click="${() => {
-              this.itemClick(item.action)
-            }}">
-              <a>
-                ${item.label}
-              </a>
-            </li>
-          `)}
-          </ul>`)}
+        ${when(this.addMenuVisible,
+            () => html`
+              <ul class="uk-nav">
+                ${map(this.addPropertyMenu, (item) => html`
+                  <li class="menu-item" @click="${() => {
+                    this.itemClick(item.action)
+                  }}">
+                    <a>
+                      ${item.label}
+                    </a>
+                  </li>
+                `)}
+              </ul>`)}
       </div>
       <div class="property-list">
         <div class="section" id="functions">
@@ -172,7 +165,7 @@ export default class PropertiesEditor extends LitElement {
             <h2 class="heading">Static</h2>
             <div></div>
           </div>
-          <div class="uk-list uk-list-divider uk-text-center">
+          <div class="uk-list uk-text-center">
             ${map(this.properties, (prop, index) => {
               switch (prop.type) {
                 case StaticPropertyType.Generic:
@@ -200,9 +193,11 @@ export default class PropertiesEditor extends LitElement {
           <div class="header">
             <div></div>
             <h2 class="heading">Dynamic</h2>
-            <button id="add-dynamic-property-button" class="add-dynamic-property" @click="${this.openAddPropertyMenu}">+</button>
+            <button id="add-dynamic-property-button" class="add-dynamic-property" @click="${this.openAddPropertyMenu}">
+              +
+            </button>
           </div>
-          <div class="uk-list uk-list-divider uk-text-center">
+          <div class="uk-list uk-text-center">
             ${map(this.properties, (prop, index) => {
               switch (prop.type) {
                 case DynamicPropertyType.FixedPoint:
