@@ -192,7 +192,7 @@ interface AeonState {
       /** Refresh events: */
 
       /** List of all datasets. */
-      datasetsRefreshed: Observable<[DatasetData]>
+      datasetsRefreshed: Observable<DatasetData[]>
       /** Refresh all the datasets. */
       refreshDatasets: () => void
       /** A particular dataset. */
@@ -209,7 +209,7 @@ interface AeonState {
       /** DatasetData for a newly created dataset. */
       datasetCreated: Observable<DatasetData>
       /** Create a new dataset with given ID, variables, observations, and category. */
-      addDataset: (id: string, variables: [string], observations: [ObservationData], category: DataCategory) => void
+      addDataset: (id: string, variables: string[], observations: ObservationData[], category: DataCategory) => void
       /** DatasetData for a newly loaded dataset (from a csv file).
        *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
       datasetLoaded: Observable<DatasetData>
@@ -261,6 +261,20 @@ interface AeonState {
       observationContentChanged: Observable<ObservationData>
       /** Modify a content of a particular observation.  */
       setObservationContent: (datasetId: string, observation: ObservationData) => void
+    }
+
+    /** The state of the dynamic and static properties. */
+    properties: {
+      /** Refresh events: */
+
+      /** List of all dynamic properties. */
+      dynamicPropsRefreshed: Observable<DynPropertyData[]>
+      /** Refresh all dynamic properties. */
+      refreshDynamicProps: () => void
+      /** List of all static properties. */
+      staticPropsRefreshed: Observable<StatPropertyData[]>
+      /** Refresh all static properties. */
+      refreshStaticProps: () => void
     }
   }
 
@@ -363,18 +377,97 @@ export interface DatasetMetaData {
 /** An object representing information needed for loading a dataset. */
 export interface DatasetLoadData { path: string, id: string }
 
+interface GenericDynProp {
+  formula: string
+}
+
+interface ExistsFixedPointProp {
+  dataset: string
+  observation: string
+}
+
+interface ExistsTrapSpaceProp {
+  dataset: string
+  observation: string
+  minimal: boolean
+  non_percolable: boolean
+}
+
+interface ExistsTrajectoryProp {
+  dataset: string
+}
+
+interface AttractorCountProp {
+  minimal: number
+  maximal: number
+}
+
+interface HasAttractorProp {
+  dataset: string
+  observation?: string
+}
+
+// Using a union type for DynPropertyType
+type DynPropertyType =
+    { type: 'GenericDynProp', value: GenericDynProp } |
+    { type: 'ExistsFixedPoint', value: ExistsFixedPointProp } |
+    { type: 'ExistsTrapSpace', value: ExistsTrapSpaceProp } |
+    { type: 'ExistsTrajectory', value: ExistsTrajectoryProp } |
+    { type: 'AttractorCount', value: AttractorCountProp } |
+    { type: 'HasAttractor', value: HasAttractorProp }
+
 /** A PLACEHOLDER object representing a dynamic property. */
 export interface DynPropertyData {
   id: string
   name: string
+  variant: DynPropertyType
+}
+
+interface GenericStatProp {
   formula: string
 }
+
+interface UpdateFnInputEssentialProp {
+  input: string
+  target: string
+  value: Essentiality
+  context?: string
+}
+
+interface UpdateFnInputMonotonicProp {
+  input: string
+  target: string
+  value: Monotonicity
+  context?: string
+}
+
+interface FnInputEssentialProp {
+  input_index: number
+  target: string
+  value: Essentiality
+  context?: string
+}
+
+interface FnInputMonotonicProp {
+  input_index: number
+  target: string
+  value: Monotonicity
+  context?: string
+}
+
+// Discriminated Union for StatPropertyType
+type StatPropertyType =
+    { type: 'FnInputEssential', value: FnInputEssentialProp } |
+    { type: 'FnInputMonotonic', value: FnInputMonotonicProp } |
+    { type: 'UpdateFnInputEssential', value: UpdateFnInputEssentialProp } |
+    { type: 'UpdateFnInputMonotonic', value: UpdateFnInputMonotonicProp } |
+    { type: 'GenericStatProp', value: GenericStatProp }
 
 /** A PLACEHOLDER object representing a static property. */
 export interface StatPropertyData {
   id: string
   name: string
-  formula: string
+  variant: StatPropertyType
 }
 
 /** An object representing information needed for variable id change. */
@@ -1049,7 +1142,7 @@ export const aeonState: AeonState = {
       }
     },
     observations: {
-      datasetsRefreshed: new Observable<[DatasetData]>(['sketch', 'observations', 'get_all_datasets']),
+      datasetsRefreshed: new Observable<DatasetData[]>(['sketch', 'observations', 'get_all_datasets']),
       refreshDatasets (): void {
         aeonEvents.refresh(['sketch', 'observations', 'get_all_datasets'])
       },
@@ -1077,7 +1170,7 @@ export const aeonState: AeonState = {
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
 
-      addDataset (id: string, variables: [string], observations: [ObservationData], category: DataCategory = DataCategory.UNSPECIFIED): void {
+      addDataset (id: string, variables: string[], observations: ObservationData[], category: DataCategory = DataCategory.UNSPECIFIED): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', 'add'],
           payload: JSON.stringify({
@@ -1166,6 +1259,16 @@ export const aeonState: AeonState = {
           path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
           payload: JSON.stringify(observation)
         })
+      }
+    },
+    properties: {
+      dynamicPropsRefreshed: new Observable<DynPropertyData[]>(['sketch', 'properties', 'get_all_dynamic']),
+      refreshDynamicProps (): void {
+        aeonEvents.refresh(['sketch', 'properties', 'get_all_dynamic'])
+      },
+      staticPropsRefreshed: new Observable<StatPropertyData[]>(['sketch', 'properties', 'get_all_static']),
+      refreshStaticProps (): void {
+        aeonEvents.refresh(['sketch', 'properties', 'get_all_static'])
       }
     }
   }
