@@ -1,17 +1,26 @@
 @import '/src/uikit-theme';
 
+.container {
+  container-name: property-list;
+  container-type: inline-size;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
 .property-list {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   width: 100%;
-  max-height: inherit;
-  align-content: start;
-  align-items: stretch;
   height: 100%;
+  align-items: center;
+  align-content: start;
   overflow: auto;
-  container-name: property-list;
-  container-type: inline-size;
+}
+
+.svg-inline--fa {
+  height: 1em;
 }
 
 .section {
@@ -19,16 +28,22 @@
   flex-direction: column;
   flex: 1;
   min-width: 25em;
-  padding: 0.5em;
+  height: 100%;
+  max-width: 40em;
+  overflow: auto;
+  width: 50%;
 }
 
 .header {
   .uk-flex;
   .uk-flex-row;
-  .uk-flex-center;
-  .uk-flex-middle;
   .uk-flex-between;
-  .uk-margin-small-bottom;
+  .uk-flex-middle;
+  .uk-box-shadow-large;
+  position: sticky;
+  top: 0;
+  background: @background-light;
+  z-index: 99;
 }
 
 .add-dynamic-property {
@@ -42,7 +57,7 @@
 
 .heading {
   .uk-text-center;
-  margin: 0;
+  .uk-margin-remove-top;
 }
 
 .menu-content {
@@ -62,8 +77,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .header {
+    background: @background-dark;
+  }
+
   .heading {
-    color: white;
+    color: @text-dark;
   }
   .uk-button-secondary {
     background: @button-dark;
@@ -102,5 +121,15 @@
 @container property-list (max-width: 52em) {
   .section + .section {
     border-left: none;
+  }
+
+  .section {
+    width: 100%;
+    overflow: unset;
+    height: fit-content();
+  }
+
+  .property-list {
+    flex-direction: column;
   }
 }

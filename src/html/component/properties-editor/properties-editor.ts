@@ -1,4 +1,4 @@
-import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
+import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './properties-editor.less?inline'
 import { map } from 'lit/directives/map.js'
@@ -32,7 +32,10 @@ import {
   trapSpaceDynamic
 } from './default-properties'
 import { when } from 'lit/directives/when.js'
-import { computePosition } from '@floating-ui/dom'
+import { computePosition, flip } from '@floating-ui/dom'
+import UIkit from 'uikit'
+import { icon } from '@fortawesome/fontawesome-svg-core'
+import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -72,12 +75,17 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('property-removed', this.propertyRemoved)
 
     document.addEventListener('click', this.closeMenu.bind(this))
-
+    // seed dummy data
     this.properties.push(genericStatic('a', 'generic-static', 'generic-static-value'))
     this.properties.push(functionInputEssential('b', 'func', 'var', Essentiality.TRUE))
     this.properties.push(functionInputEssential('c', 'func', 'var', Essentiality.FALSE, 'condition'))
     this.properties.push(functionInputMonotonic('d', 'func', 'var', Monotonicity.ACTIVATION))
     this.properties.push(functionInputMonotonic('e', 'func', 'var', Monotonicity.DUAL, 'condition'))
+  }
+
+  protected firstUpdated (_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+    UIkit.sticky(this.shadowRoot?.querySelector('.header') as HTMLElement)
   }
 
   addProperty (type: DynamicPropertyType): void {
@@ -123,7 +131,10 @@ export default class PropertiesEditor extends LitElement {
   async openAddPropertyMenu (): Promise<void> {
     this.addMenuVisible = true
     void computePosition(this.addDynamicPropertyElement, this.dynamicPropertyMenuElement,
-      { placement: 'bottom-end' })
+      {
+        middleware: [flip()],
+        placement: 'bottom-end'
+      })
       .then(({ x, y }) => {
         this.dynamicPropertyMenuElement.style.left = x + 'px'
         this.dynamicPropertyMenuElement.style.top = y + 'px'
@@ -158,89 +169,92 @@ export default class PropertiesEditor extends LitElement {
                 `)}
               </ul>`)}
       </div>
-      <div class="property-list">
-        <div class="section" id="functions">
-          <div class="header">
-            <div></div>
-            <h2 class="heading">Static</h2>
-            <div></div>
+      <div class="container">
+        <div class="property-list">
+          <div class="section" id="functions">
+            <div class="header">
+              <div></div>
+              <h2 class="heading">Static</h2>
+              <div></div>
+            </div>
+            <div class="uk-list uk-text-center">
+              ${map(this.properties, (prop, index) => {
+                switch (prop.type) {
+                  case StaticPropertyType.Generic:
+                    return html`
+                      <static-generic .index=${index}
+                                      .property=${prop}>
+                      </static-generic>`
+                  case StaticPropertyType.FunctionInputEssential:
+                    return html`
+                      <static-input-essential .index=${index}
+                                              .property=${prop}>
+                      </static-input-essential>`
+                  case StaticPropertyType.FunctionInputMonotonic:
+                    return html`
+                      <static-input-monotonic .index=${index}
+                                              .property=${prop}>
+                      </static-input-monotonic>`
+                  default:
+                    return ''
+                }
+              })}
+            </div>
           </div>
-          <div class="uk-list uk-text-center">
-            ${map(this.properties, (prop, index) => {
-              switch (prop.type) {
-                case StaticPropertyType.Generic:
-                  return html`
-                    <static-generic .index=${index}
-                                    .property=${prop}>
-                    </static-generic>`
-                case StaticPropertyType.FunctionInputEssential:
-                  return html`
-                    <static-input-essential .index=${index}
-                                            .property=${prop}>
-                    </static-input-essential>`
-                case StaticPropertyType.FunctionInputMonotonic:
-                  return html`
-                    <static-input-monotonic .index=${index}
-                                            .property=${prop}>
-                    </static-input-monotonic>`
-                default:
-                  return ''
-              }
-            })}
-          </div>
-        </div>
-        <div class="section" id="variables">
-          <div class="header">
-            <div></div>
-            <h2 class="heading">Dynamic</h2>
-            <button id="add-dynamic-property-button" class="add-dynamic-property" @click="${this.openAddPropertyMenu}">
-              +
-            </button>
-          </div>
-          <div class="uk-list uk-text-center">
-            ${map(this.properties, (prop, index) => {
-              switch (prop.type) {
-                case DynamicPropertyType.FixedPoint:
-                  return html`
-                    <dynamic-fixed-point .index=${index}
-                                         .property=${prop}
-                                         .observations=${this.contentData.observations}>
-                    </dynamic-fixed-point>`
-                case DynamicPropertyType.TrapSpace:
-                  return html`
-                    <dynamic-trap-space .index=${index}
-                                        .property=${prop}
-                                        .observations=${this.contentData.observations}>
-                    </dynamic-trap-space>`
-                case DynamicPropertyType.ExistsTrajectory:
-                  return html`
-                    <dynamic-trajectory .index=${index}
-                                        .property=${prop}
-                                        .observations=${this.contentData.observations}>
-                    </dynamic-trajectory>`
-                case DynamicPropertyType.AttractorCount:
-                  return html`
-                    <dynamic-attractor-count .index=${index}
-                                             .property=${prop}>
-                    </dynamic-attractor-count>`
-                case DynamicPropertyType.HasAttractor:
-                  return html`
-                    <dynamic-has-attractor .index=${index}
+          <div class="section" id="variables">
+            <div class="header">
+              <div></div>
+              <h2 class="heading">Dynamic</h2>
+              <button id="add-dynamic-property-button" class="add-dynamic-property"
+                      @click="${this.openAddPropertyMenu}">
+                Add ${icon(faAngleDown).node}
+              </button>
+            </div>
+            <div class="uk-list uk-text-center">
+              ${map(this.properties, (prop, index) => {
+                switch (prop.type) {
+                  case DynamicPropertyType.FixedPoint:
+                    return html`
+                      <dynamic-fixed-point .index=${index}
                                            .property=${prop}
                                            .observations=${this.contentData.observations}>
-                    </dynamic-has-attractor>`
-                case DynamicPropertyType.Generic:
-                  return html`
-                    <dynamic-generic .index=${index}
-                                     .property=${prop}>
-                    </dynamic-generic>`
-                default:
-                  return ''
-              }
-            })}
+                      </dynamic-fixed-point>`
+                  case DynamicPropertyType.TrapSpace:
+                    return html`
+                      <dynamic-trap-space .index=${index}
+                                          .property=${prop}
+                                          .observations=${this.contentData.observations}>
+                      </dynamic-trap-space>`
+                  case DynamicPropertyType.ExistsTrajectory:
+                    return html`
+                      <dynamic-trajectory .index=${index}
+                                          .property=${prop}
+                                          .observations=${this.contentData.observations}>
+                      </dynamic-trajectory>`
+                  case DynamicPropertyType.AttractorCount:
+                    return html`
+                      <dynamic-attractor-count .index=${index}
+                                               .property=${prop}>
+                      </dynamic-attractor-count>`
+                  case DynamicPropertyType.HasAttractor:
+                    return html`
+                      <dynamic-has-attractor .index=${index}
+                                             .property=${prop}
+                                             .observations=${this.contentData.observations}>
+                      </dynamic-has-attractor>`
+                  case DynamicPropertyType.Generic:
+                    return html`
+                      <dynamic-generic .index=${index}
+                                       .property=${prop}>
+                      </dynamic-generic>`
+                  default:
+                    return ''
+                }
+              })}
+            </div>
           </div>
         </div>
-      </div>    `
+      </div>`
   }
 }
 

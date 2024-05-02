@@ -1,17 +1,22 @@
 @import '/src/uikit-theme';
 
+.container {
+  container-name: function-list;
+  container-type: inline-size;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
 .function-list {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   width: 100%;
-  max-height: inherit;
-  align-content: start;
-  align-items: stretch;
   height: 100%;
+  align-items: center;
+  align-content: start;
   overflow: auto;
-  container-name: function-list;
-  container-type: inline-size;
 }
 
 .section {
@@ -19,7 +24,10 @@
   flex-direction: column;
   flex: 1;
   min-width: 25em;
-  padding: 0.5em;
+  height: 100%;
+  max-width: 40em;
+  overflow: auto;
+  width: 50%;
 }
 
 .header {
@@ -27,6 +35,11 @@
   .uk-flex-row;
   .uk-flex-between;
   .uk-flex-middle;
+  .uk-box-shadow-large;
+  position: sticky;
+  top: 0;
+  background: @background-light;
+  z-index: 99;
 }
 
 .heading {
@@ -34,6 +47,9 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .header {
+    background: @background-dark;
+  }
   .heading {
     color: white;
   }
@@ -58,5 +74,15 @@
 @container function-list (max-width: 52em) {
   .section + .section {
     border-left: none;
+  }
+
+  .section {
+    width: 100%;
+    overflow: unset;
+    height: fit-content();
+  }
+
+  .function-list {
+    flex-direction: column;
   }
 }
