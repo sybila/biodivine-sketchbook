@@ -13,21 +13,10 @@ use std::str::FromStr;
 impl PropertyManager {
     /// Instantiate `PropertyManager` with empty sets of properties.
     pub fn new_empty() -> PropertyManager {
-        let mut man = PropertyManager {
-            dyn_properties: HashMap::new(),
-            stat_properties: HashMap::new(),
-        };
-        let s = StatProperty::mk_generic("s", "formula").unwrap();
-        let d = DynProperty::mk_generic("d", "formula").unwrap();
-        man.add_raw_static_by_str("f", s).unwrap();
-        man.add_raw_dynamic_by_str("f", d).unwrap();
-        man
-        /*
         PropertyManager {
             dyn_properties: HashMap::new(),
             stat_properties: HashMap::new(),
-        };
-         */
+        }
     }
 
     /// Instantiate `PropertyManager` with (generic) dynamic and static properties given as a list

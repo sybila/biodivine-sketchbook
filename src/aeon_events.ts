@@ -275,6 +275,28 @@ interface AeonState {
       staticPropsRefreshed: Observable<StatPropertyData[]>
       /** Refresh all static properties. */
       refreshStaticProps: () => void
+
+      /** Events regarding dynamic properties. */
+
+      /** DynPropertyData for a newly created dynamic property. */
+      dynamicCreated: Observable<DynPropertyData>
+      /** Create a new dynamic property with given ID, variables, of given `variant` (with corresponding data). */
+      addDynamic: (id: string, name: string, variant: DynPropertyData) => void
+      /** DynPropertyData for a removed dynamic property. */
+      dynamicRemoved: Observable<DynPropertyData>
+      /** Remove dynamic proeprty with given ID. */
+      removeDynamic: (id: string) => void
+
+      /** Events regarding static properties. */
+
+      /** StatPropertyData for a newly created static property. */
+      staticCreated: Observable<StatPropertyData>
+      /** Create a new static property with given ID, variables, of given `variant` (with corresponding data). */
+      addStatic: (id: string, name: string, variant: StatPropertyData) => void
+      /** StatPropertyData for a removed static property. */
+      staticRemoved: Observable<StatPropertyData>
+      /** Remove static proeprty with given ID. */
+      removeStatic: (id: string) => void
     }
   }
 
@@ -1269,6 +1291,44 @@ export const aeonState: AeonState = {
       staticPropsRefreshed: new Observable<StatPropertyData[]>(['sketch', 'properties', 'get_all_static']),
       refreshStaticProps (): void {
         aeonEvents.refresh(['sketch', 'properties', 'get_all_static'])
+      },
+
+      dynamicCreated: new Observable<DynPropertyData>(['sketch', 'properties', 'dynamic', 'add']),
+      dynamicRemoved: new Observable<DynPropertyData>(['sketch', 'properties', 'dynamic', 'remove']),
+      staticCreated: new Observable<StatPropertyData>(['sketch', 'properties', 'static', 'add']),
+      staticRemoved: new Observable<StatPropertyData>(['sketch', 'properties', 'static', 'remove']),
+
+      addDynamic (id: string, name: string, variant: DynPropertyData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', 'add'],
+          payload: JSON.stringify({
+            id,
+            name,
+            variant
+          })
+        })
+      },
+      removeDynamic (id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', id, 'remove'],
+          payload: null
+        })
+      },
+      addStatic (id: string, name: string, variant: StatPropertyData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', 'add'],
+          payload: JSON.stringify({
+            id,
+            name,
+            variant
+          })
+        })
+      },
+      removeStatic (id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', id, 'remove'],
+          payload: null
+        })
       }
     }
   }

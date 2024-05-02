@@ -2,8 +2,13 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{DynPropertyData, StatPropertyData};
-use crate::sketchbook::event_utils::make_refresh_event;
+use crate::sketchbook::event_utils::{
+    make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
+    mk_stat_prop_event, mk_stat_prop_state_change,
+};
+use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
 use crate::sketchbook::properties::PropertyManager;
+use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for PropertyManager {}
 
@@ -11,12 +16,35 @@ impl SessionState for PropertyManager {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         let component_name = "properties";
 
-        // TODO - make `perform` events available
+        // the first part of the `at_path` is always "static" or "dynamic"
+        // when adding new property, the `at_path` continues with "add"
+        // when editing existing properties, the `at_path` continues with "property_id" and "action"
 
-        panic!(
-            "{component_name} cannot consume {:?}, at {:?} no events for properties yet.",
-            event, at_path
-        );
+        match at_path.first() {
+            Some(&"dynamic") => {
+                if Self::starts_with("add", at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    self.event_add_dynamic(event)
+                } else {
+                    Self::assert_path_length(at_path, 2, component_name)?;
+                    let prop_id_str = at_path.first().unwrap();
+                    let prop_id = self.get_dyn_prop_id(prop_id_str)?;
+                    self.event_modify_dynamic(event, &at_path[1..], prop_id)
+                }
+            }
+            Some(&"static") => {
+                if Self::starts_with("add", at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    self.event_add_static(event)
+                } else {
+                    Self::assert_path_length(at_path, 2, component_name)?;
+                    let prop_id_str = at_path.first().unwrap();
+                    let prop_id = self.get_stat_prop_id(prop_id_str)?;
+                    self.event_modify_static(event, &at_path[1..], prop_id)
+                }
+            }
+            _ => Self::invalid_path_error_generic(at_path),
+        }
     }
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
@@ -47,6 +75,102 @@ impl SessionState for PropertyManager {
                 make_refresh_event(full_path, properties_list)
             }
             _ => Self::invalid_path_error_generic(at_path),
+        }
+    }
+}
+
+/// Implementation for events related to modifying `dynamic` properties.
+impl PropertyManager {
+    /// Perform event of adding a new `dynamic property` to this `PropertyManager`.
+    pub(super) fn event_add_dynamic(&mut self, event: &Event) -> Result<Consumed, DynError> {
+        let component_name = "properties/dynamic";
+
+        // get payload components and perform the event
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let prop_data = DynPropertyData::from_json_str(payload.as_str())?;
+        let property = prop_data.to_property()?;
+        self.add_raw_dynamic_by_str(&prop_data.id, property)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_event = mk_dyn_prop_event(&[&prop_data.id, "remove"], None);
+        Ok(make_reversible(event.clone(), event, reverse_event))
+    }
+
+    /// Perform event of modifying or removing existing `dynamic property` of this
+    /// `PropertyManager`.
+    pub(super) fn event_modify_dynamic(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+        prop_id: DynPropertyId,
+    ) -> Result<Consumed, DynError> {
+        let component_name = "properties/dynamic";
+
+        if Self::starts_with("remove", at_path).is_some() {
+            Self::assert_payload_empty(event, component_name)?;
+
+            // save the original property data for state change and reverse event
+            let original_prop = self.get_dyn_prop(&prop_id)?.clone();
+            let prop_data = DynPropertyData::from_property(&prop_id, &original_prop);
+
+            // perform the event, prepare the state-change variant (move IDs from path to payload)
+            self.remove_dynamic(&prop_id)?;
+            let state_change = mk_dyn_prop_state_change(&["remove"], &prop_data);
+
+            // prepare the reverse 'add' event (path has no ids, all info carried by payload)
+            let payload = prop_data.to_json_str();
+            let reverse_event = mk_dyn_prop_event(&["add"], Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else {
+            Self::invalid_path_error_specific(at_path, component_name)
+        }
+    }
+}
+
+/// Implementation for events related to modifying `static` properties.
+impl PropertyManager {
+    /// Perform event of adding a new `static property` to this `PropertyManager`.
+    pub(super) fn event_add_static(&mut self, event: &Event) -> Result<Consumed, DynError> {
+        let component_name = "properties/static";
+
+        // get payload components and perform the event
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let prop_data = StatPropertyData::from_json_str(payload.as_str())?;
+        let property = prop_data.to_property()?;
+        self.add_raw_static_by_str(&prop_data.id, property)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_event = mk_stat_prop_event(&[&prop_data.id, "remove"], None);
+        Ok(make_reversible(event.clone(), event, reverse_event))
+    }
+
+    /// Perform event of modifying or removing existing `static property` of this
+    /// `PropertyManager`.
+    pub(super) fn event_modify_static(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+        prop_id: StatPropertyId,
+    ) -> Result<Consumed, DynError> {
+        let component_name = "properties/static";
+
+        if Self::starts_with("remove", at_path).is_some() {
+            Self::assert_payload_empty(event, component_name)?;
+
+            // save the original property data for state change and reverse event
+            let original_prop = self.get_stat_prop(&prop_id)?.clone();
+            let prop_data = StatPropertyData::from_property(&prop_id, &original_prop);
+
+            // perform the event, prepare the state-change variant (move IDs from path to payload)
+            self.remove_static(&prop_id)?;
+            let state_change = mk_stat_prop_state_change(&["remove"], &prop_data);
+
+            // prepare the reverse 'add' event (path has no ids, all info carried by payload)
+            let payload = prop_data.to_json_str();
+            let reverse_event = mk_stat_prop_event(&["add"], Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else {
+            Self::invalid_path_error_specific(at_path, component_name)
         }
     }
 }
