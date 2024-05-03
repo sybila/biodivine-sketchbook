@@ -14,10 +14,10 @@ import './static/static-input-essential/static-input-essential'
 import './static/static-input-monotonic/static-input-monotonic'
 import {
   ContentData,
+  type DynamicProperty,
   DynamicPropertyType,
-  Essentiality,
-  type IProperty,
-  Monotonicity,
+  type PropertyType,
+  type StaticProperty,
   StaticPropertyType
 } from '../../util/data-interfaces'
 import {
@@ -25,7 +25,9 @@ import {
   existsTrajectoryDynamic,
   fixedPointDynamic,
   functionInputEssential,
+  functionInputEssentialWithCondition,
   functionInputMonotonic,
+  functionInputMonotonicWithCondition,
   genericDynamic,
   genericStatic,
   hasAttractorDynamic,
@@ -43,28 +45,44 @@ export default class PropertiesEditor extends LitElement {
   @property() contentData: ContentData = ContentData.create()
   @query('#dynamic-property-menu') declare dynamicPropertyMenuElement: HTMLElement
   @query('#add-dynamic-property-button') declare addDynamicPropertyElement: HTMLElement
-  @state() properties: IProperty[] = []
-  @state() addMenuVisible = false
-  addPropertyMenu: IAddPropertyItem[] = [
+  @query('#static-property-menu') declare staticPropertyMenuElement: HTMLElement
+  @query('#add-static-property-button') declare addStaticPropertyElement: HTMLElement
+  @state() properties: Array<DynamicProperty | StaticProperty> = []
+  @state() addDynamicMenuVisible = false
+  @state() addStaticMenuVisible = false
+
+  addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
       label: 'Trap space',
       action: () => { this.addProperty(DynamicPropertyType.TrapSpace) }
-    },
-    {
+    }, {
       label: 'Fixed point',
       action: () => { this.addProperty(DynamicPropertyType.FixedPoint) }
-    },
-    {
+    }, {
       label: 'Exists trajectory',
       action: () => { this.addProperty(DynamicPropertyType.ExistsTrajectory) }
-    },
-    {
+    }, {
       label: 'Attractor count',
       action: () => { this.addProperty(DynamicPropertyType.AttractorCount) }
-    },
-    {
+    }, {
       label: 'Has attractor',
+      action: () => { this.addProperty(DynamicPropertyType.HasAttractor) }
+    }, {
+      label: 'Generic',
       action: () => { this.addProperty(DynamicPropertyType.Generic) }
+    }
+  ]
+
+  addStaticPropertyMenu: IAddPropertyItem[] = [
+    {
+      label: 'Essential with condition',
+      action: () => { this.addProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
+    }, {
+      label: 'Monotonic with condition',
+      action: () => { this.addProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
+    }, {
+      label: 'Generic',
+      action: () => { this.addProperty(StaticPropertyType.Generic) }
     }
   ]
 
@@ -76,11 +94,8 @@ export default class PropertiesEditor extends LitElement {
 
     document.addEventListener('click', this.closeMenu.bind(this))
     // seed dummy data
-    this.properties.push(genericStatic('a', 'generic-static', 'generic-static-value'))
-    this.properties.push(functionInputEssential('b', 'func', 'var', Essentiality.TRUE))
-    this.properties.push(functionInputEssential('c', 'func', 'var', Essentiality.FALSE, 'condition'))
-    this.properties.push(functionInputMonotonic('d', 'func', 'var', Monotonicity.ACTIVATION))
-    this.properties.push(functionInputMonotonic('e', 'func', 'var', Monotonicity.DUAL, 'condition'))
+    this.properties.push(functionInputEssential('a'))
+    this.properties.push(functionInputMonotonic('b'))
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
@@ -88,7 +103,7 @@ export default class PropertiesEditor extends LitElement {
     UIkit.sticky(this.shadowRoot?.querySelector('.header') as HTMLElement)
   }
 
-  addProperty (type: DynamicPropertyType): void {
+  addProperty (type: PropertyType): void {
     const id = '' + this.properties.length
     switch (type) {
       case DynamicPropertyType.Generic:
@@ -109,6 +124,14 @@ export default class PropertiesEditor extends LitElement {
       case DynamicPropertyType.HasAttractor:
         this.properties.push(hasAttractorDynamic(id))
         break
+      case StaticPropertyType.FunctionInputMonotonicWithCondition:
+        this.properties.push(functionInputMonotonicWithCondition(id))
+        break
+      case StaticPropertyType.FunctionInputEssentialWithCondition:
+        this.properties.push(functionInputEssentialWithCondition(id))
+        break
+      case StaticPropertyType.Generic:
+        this.properties.push(genericStatic(id))
     }
   }
 
@@ -128,8 +151,8 @@ export default class PropertiesEditor extends LitElement {
     this.properties = props
   }
 
-  async openAddPropertyMenu (): Promise<void> {
-    this.addMenuVisible = true
+  async openAddDynamicPropertyMenu (): Promise<void> {
+    this.addDynamicMenuVisible = true
     void computePosition(this.addDynamicPropertyElement, this.dynamicPropertyMenuElement,
       {
         middleware: [flip()],
@@ -141,24 +164,55 @@ export default class PropertiesEditor extends LitElement {
       })
   }
 
+  async openAddStaticPropertyMenu (): Promise<void> {
+    this.addStaticMenuVisible = true
+    void computePosition(this.addStaticPropertyElement, this.staticPropertyMenuElement,
+      {
+        middleware: [flip()],
+        placement: 'bottom-end'
+      })
+      .then(({ x, y }) => {
+        this.staticPropertyMenuElement.style.left = x + 'px'
+        this.staticPropertyMenuElement.style.top = y + 'px'
+      })
+  }
+
   itemClick (action: () => void): void {
-    this.addMenuVisible = false
+    this.addDynamicMenuVisible = false
     action()
   }
 
   closeMenu (event: Event): void {
     if (!(event.composedPath()[0] as HTMLElement).matches('.add-dynamic-property')) {
-      this.addMenuVisible = false
+      this.addDynamicMenuVisible = false
+    }
+    if (!(event.composedPath()[0] as HTMLElement).matches('.add-static-property')) {
+      this.addStaticMenuVisible = false
     }
   }
 
   render (): TemplateResult {
     return html`
       <div id="dynamic-property-menu" class="menu-content">
-        ${when(this.addMenuVisible,
+        ${when(this.addDynamicMenuVisible,
             () => html`
               <ul class="uk-nav">
-                ${map(this.addPropertyMenu, (item) => html`
+                ${map(this.addDynamicPropertyMenu, (item) => html`
+                  <li class="menu-item" @click="${() => {
+                    this.itemClick(item.action)
+                  }}">
+                    <a>
+                      ${item.label}
+                    </a>
+                  </li>
+                `)}
+              </ul>`)}
+      </div>
+      <div id="static-property-menu" class="menu-content">
+        ${when(this.addStaticMenuVisible,
+            () => html`
+              <ul class="uk-nav">
+                ${map(this.addStaticPropertyMenu, (item) => html`
                   <li class="menu-item" @click="${() => {
                     this.itemClick(item.action)
                   }}">
@@ -175,7 +229,10 @@ export default class PropertiesEditor extends LitElement {
             <div class="header">
               <div></div>
               <h2 class="heading">Static</h2>
-              <div></div>
+              <button id="add-static-property-button" class="add-property add-static-property"
+                      @click="${this.openAddStaticPropertyMenu}">
+                Add ${icon(faAngleDown).node}
+              </button>
             </div>
             <div class="uk-list uk-text-center">
               ${map(this.properties, (prop, index) => {
@@ -186,11 +243,13 @@ export default class PropertiesEditor extends LitElement {
                                       .property=${prop}>
                       </static-generic>`
                   case StaticPropertyType.FunctionInputEssential:
+                  case StaticPropertyType.FunctionInputEssentialWithCondition:
                     return html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
                       </static-input-essential>`
                   case StaticPropertyType.FunctionInputMonotonic:
+                  case StaticPropertyType.FunctionInputMonotonicWithCondition:
                     return html`
                       <static-input-monotonic .index=${index}
                                               .property=${prop}>
@@ -205,8 +264,8 @@ export default class PropertiesEditor extends LitElement {
             <div class="header">
               <div></div>
               <h2 class="heading">Dynamic</h2>
-              <button id="add-dynamic-property-button" class="add-dynamic-property"
-                      @click="${this.openAddPropertyMenu}">
+              <button id="add-dynamic-property-button" class="add-property add-dynamic-property"
+                      @click="${this.openAddDynamicPropertyMenu}">
                 Add ${icon(faAngleDown).node}
               </button>
             </div>

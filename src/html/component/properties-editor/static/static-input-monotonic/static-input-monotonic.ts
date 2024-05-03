@@ -1,8 +1,12 @@
-import { html, css, unsafeCSS, type TemplateResult } from 'lit'
+import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-monotonic.less?inline'
 import AbstractProperty from '../../abstract-property/abstract-property'
-import { type IFunctionInputMonotonicStaticProperty, Monotonicity } from '../../../../util/data-interfaces'
+import {
+  type IFunctionInputMonotonicStaticProperty,
+  Monotonicity,
+  StaticPropertyType
+} from '../../../../util/data-interfaces'
 import { getMonotonicityClass } from '../../../../util/utilities'
 import { when } from 'lit/directives/when.js'
 
@@ -49,10 +53,10 @@ export default class StaticInputMonotonic extends AbstractProperty {
             <span>)</span>
           </div>
         </div>
-        ${when(this.property.condition !== '',
+        ${when(this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition,
             () => html`
               <div class="uk-flex uk-flex-column uk-flex-left">
-                <label class="condition-label">Condition:</label>
+                <label class="condition-label">Context formula:</label>
                 <div class="uk-flex uk-flex-row">
                   <input id="condition-field" class="condition-field" value="${this.property.condition}" readonly/>
                 </div>

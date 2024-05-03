@@ -75,7 +75,9 @@ export interface IObservationSet {
 export enum StaticPropertyType {
   Generic = 100,
   FunctionInputEssential,
-  FunctionInputMonotonic
+  FunctionInputEssentialWithCondition,
+  FunctionInputMonotonic,
+  FunctionInputMonotonicWithCondition
 }
 
 export enum DynamicPropertyType {
@@ -87,10 +89,12 @@ export enum DynamicPropertyType {
   HasAttractor
 }
 
+export type PropertyType = StaticPropertyType | DynamicPropertyType
+
 export interface IProperty {
   id: string
   name: string
-  type: DynamicPropertyType | StaticPropertyType
+  type: PropertyType
 }
 
 export interface IFixedPointDynamicProperty extends IProperty {
@@ -148,3 +152,8 @@ export interface IFunctionInputMonotonicStaticProperty extends IProperty {
 export interface IGenericStaticProperty extends IProperty {
   value: string
 }
+
+export type StaticProperty =
+  IFunctionInputEssentialStaticProperty
+  | IFunctionInputMonotonicStaticProperty
+  | IGenericStaticProperty

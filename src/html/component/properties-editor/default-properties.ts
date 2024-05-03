@@ -1,6 +1,6 @@
 import {
   DynamicPropertyType,
-  type Essentiality,
+  Essentiality,
   type IAttractorCountDynamicProperty,
   type IExistsTrajectoryDynamicProperty,
   type IFixedPointDynamicProperty,
@@ -10,7 +10,7 @@ import {
   type IGenericStaticProperty,
   type IHasAttractorDynamicProperty,
   type ITrapSpaceDynamicProperty,
-  type Monotonicity,
+  Monotonicity,
   StaticPropertyType
 } from '../../util/data-interfaces'
 
@@ -74,35 +74,59 @@ export const genericDynamic = (id: string): IGenericDynamicProperty => {
   }
 }
 
-export const functionInputEssential = (id: string, func: string, variable: string, essential: Essentiality, condition: string = ''): IFunctionInputEssentialStaticProperty => {
+export const functionInputEssential = (id: string): IFunctionInputEssentialStaticProperty => {
   return {
     id,
     name: 'function-input-essential',
     type: StaticPropertyType.FunctionInputEssential,
-    function: func,
-    variable,
-    essential,
-    condition
+    function: 'func',
+    variable: 'var',
+    essential: Essentiality.FALSE,
+    condition: ''
   }
 }
 
-export const functionInputMonotonic = (id: string, func: string, variable: string, monotonic: Monotonicity, condition: string = ''): IFunctionInputMonotonicStaticProperty => {
+export const functionInputEssentialWithCondition = (id: string): IFunctionInputEssentialStaticProperty => {
+  return {
+    id,
+    name: 'function-input-essential',
+    type: StaticPropertyType.FunctionInputEssentialWithCondition,
+    function: 'func',
+    variable: 'var',
+    essential: Essentiality.TRUE,
+    condition: ''
+  }
+}
+
+export const functionInputMonotonic = (id: string): IFunctionInputMonotonicStaticProperty => {
   return {
     id,
     name: 'function-input-monotonic',
     type: StaticPropertyType.FunctionInputMonotonic,
-    function: func,
-    variable,
-    monotonic,
-    condition
+    function: 'func',
+    variable: 'var',
+    monotonic: Monotonicity.ACTIVATION,
+    condition: ''
   }
 }
 
-export const genericStatic = (id: string, name: string, value: string): IGenericStaticProperty => {
+export const functionInputMonotonicWithCondition = (id: string): IFunctionInputMonotonicStaticProperty => {
   return {
     id,
-    name,
+    name: 'function-input-monotonic',
+    type: StaticPropertyType.FunctionInputMonotonicWithCondition,
+    function: 'func',
+    variable: 'var',
+    monotonic: Monotonicity.DUAL,
+    condition: ''
+  }
+}
+
+export const genericStatic = (id: string): IGenericStaticProperty => {
+  return {
+    id,
+    name: '',
     type: StaticPropertyType.Generic,
-    value
+    value: ''
   }
 }

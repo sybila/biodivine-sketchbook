@@ -2,7 +2,11 @@ import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-essential.less?inline'
 import AbstractProperty from '../../abstract-property/abstract-property'
-import { Essentiality, type IFunctionInputEssentialStaticProperty } from '../../../../util/data-interfaces'
+import {
+  Essentiality,
+  type IFunctionInputEssentialStaticProperty,
+  StaticPropertyType
+} from '../../../../util/data-interfaces'
 import { getEssentialityText } from '../../../../util/utilities'
 import { when } from 'lit/directives/when.js'
 
@@ -47,10 +51,10 @@ export default class StaticInputEssential extends AbstractProperty {
             <span>)</span>
           </div>
         </div>
-        ${when(this.property.condition !== '',
+        ${when(this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition,
             () => html`
               <div class="uk-flex uk-flex-column uk-flex-left">
-                <label class="condition-label">Condition:</label>
+                <label class="condition-label">Context formula:</label>
                 <div class="uk-flex uk-flex-row">
                   <input id="condition-field" class="condition-field" value="${this.property.condition}" readonly/>
                 </div>
