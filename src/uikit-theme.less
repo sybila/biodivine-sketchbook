@@ -40,6 +40,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.uk-button-secondary {
+  background: @button-light;
+  color: @text-light;
+}
+
 @media (prefers-color-scheme: dark) {
   @text: @text-dark;
   @button: @button-dark;
@@ -51,5 +56,10 @@
 
   a:hover {
     color: #24c8db;
+  }
+
+  .uk-button-secondary {
+    background: @button-dark;
+    color: @text-dark;
   }
 }

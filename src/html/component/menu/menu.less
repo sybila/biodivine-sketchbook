@@ -24,6 +24,14 @@
     background: @primary-color;
 }
 
+.menu-content {
+  background-color: @background-light;
+}
+
+.menu-item > a {
+  color: @text-light;
+}
+
 @media (prefers-color-scheme: dark) {
   .uk-button-secondary {
     background: @button-dark;
@@ -35,19 +43,5 @@
 
   .menu-item > a {
     color: @text-dark;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .uk-button-secondary {
-    background: @button-light;
-  }
-
-  .menu-content {
-    background-color: @background-light;
-  }
-
-  .menu-item > a {
-    color: @text-light;
   }
 }
