@@ -9,13 +9,27 @@ export default class StaticGeneric extends AbstractProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IGenericStaticProperty
 
+  valueChanged (value: string): void {
+    this.updateProperty({
+      ...this.property,
+      value
+    })
+  }
+
   render (): TemplateResult {
     return html`
       <div class="property-body">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
+          <input id="name-field" class="name-field" value="${this.property.name}" 
+          @change="${(e: Event) => { this.nameUpdated((e.target as HTMLInputElement).value) }}" />
         </div>
-        <input id="value-editor" class="uk-input" value="${this.property.value}" readonly>
+        <div class="uk-flex uk-flex-column uk-flex-left">
+          <label class="value-label">Context formula:</label>
+          <div class="uk-flex uk-flex-row">
+            <input id="value-editor" class="uk-input" value="${this.property.value}"
+                   @change="${(e: Event) => { this.valueChanged((e.target as HTMLInputElement).value) }}"/>
+          </div>
+        </div>
       </div>
       <hr>
     `

@@ -7,8 +7,9 @@ import {
   type IFunctionInputEssentialStaticProperty,
   StaticPropertyType
 } from '../../../../util/data-interfaces'
-import { getEssentialityText } from '../../../../util/utilities'
+import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
 import { when } from 'lit/directives/when.js'
+import { choose } from 'lit/directives/choose.js'
 
 @customElement('static-input-essential')
 export default class StaticInputEssential extends AbstractProperty {
@@ -27,14 +28,38 @@ export default class StaticInputEssential extends AbstractProperty {
   }
 
   toggleEssentiality (): void {
+    let essential = getNextEssentiality(this.property.essential)
+    if (essential === Essentiality.UNKNOWN) {
+      essential = getNextEssentiality(essential)
+    }
+    this.updateProperty({
+      ...this.property,
+      essential
+    })
+  }
+
+  conditionChanged (condition: string): void {
+    this.updateProperty({
+      ...this.property,
+      condition
+    })
   }
 
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-        </div>
+        ${choose(this.property.type, [
+          [StaticPropertyType.FunctionInputEssential, () => html`
+            <div class="uk-flex uk-flex-row">
+              <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
+            </div>`],
+          [StaticPropertyType.FunctionInputEssentialWithCondition, () => html`
+            <div class="uk-flex uk-flex-row">
+              <input id="name-field" class="name-field" value="${this.property.name}" 
+                     @change="${(e: Event) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+            </div>`]
+        ])}
+
         <div class="value-section">
           <div class="value-symbol">
             <div class="uk-margin-small-right">${this.property.variable}</div>
@@ -56,7 +81,8 @@ export default class StaticInputEssential extends AbstractProperty {
               <div class="uk-flex uk-flex-column uk-flex-left">
                 <label class="condition-label">Context formula:</label>
                 <div class="uk-flex uk-flex-row">
-                  <input id="condition-field" class="condition-field" value="${this.property.condition}" readonly/>
+                  <input id="condition-field" class="condition-field" value="${this.property.condition}"
+                  @change="${(e: Event) => { this.conditionChanged((e.target as HTMLInputElement).value) }}"/>
                 </div>
               </div>`
         )}

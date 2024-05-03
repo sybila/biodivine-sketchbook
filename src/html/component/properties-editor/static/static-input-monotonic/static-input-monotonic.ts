@@ -7,8 +7,9 @@ import {
   Monotonicity,
   StaticPropertyType
 } from '../../../../util/data-interfaces'
-import { getMonotonicityClass } from '../../../../util/utilities'
+import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { when } from 'lit/directives/when.js'
+import { choose } from 'lit/directives/choose.js'
 
 @customElement('static-input-monotonic')
 export default class StaticInputMonotonic extends AbstractProperty {
@@ -16,6 +17,21 @@ export default class StaticInputMonotonic extends AbstractProperty {
   @property() declare property: IFunctionInputMonotonicStaticProperty
 
   toggleMonotonicity (): void {
+    let monotonic = getNextMonotonicity(this.property.monotonic)
+    if (monotonic === Monotonicity.UNSPECIFIED) {
+      monotonic = getNextMonotonicity(monotonic)
+    }
+    this.updateProperty({
+      ...this.property,
+      monotonic
+    })
+  }
+
+  conditionChanged (condition: string): void {
+    this.updateProperty({
+      ...this.property,
+      condition
+    })
   }
 
   private getMonotonicitySymbol (): string {
@@ -34,9 +50,17 @@ export default class StaticInputMonotonic extends AbstractProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row uk-flex-center">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-        </div>
+        ${choose(this.property.type, [
+          [StaticPropertyType.FunctionInputMonotonic, () => html`
+            <div class="uk-flex uk-flex-row">
+              <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
+            </div>`],
+          [StaticPropertyType.FunctionInputMonotonicWithCondition, () => html`
+            <div class="uk-flex uk-flex-row">
+              <input id="name-field" class="name-field" value="${this.property.name}" 
+                     @change="${(e: Event) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+            </div>`]
+        ])}
         <div class="value-section">
           <div class="value-symbol">
             <div class="uk-margin-small-right">${this.property.variable}</div>
@@ -58,7 +82,9 @@ export default class StaticInputMonotonic extends AbstractProperty {
               <div class="uk-flex uk-flex-column uk-flex-left">
                 <label class="condition-label">Context formula:</label>
                 <div class="uk-flex uk-flex-row">
-                  <input id="condition-field" class="condition-field" value="${this.property.condition}" readonly/>
+                  <input id="condition-field" class="condition-field" value="${this.property.condition}"
+                         @change="${(e: Event) => { this.conditionChanged((e.target as HTMLInputElement).value) }}"/>
+
                 </div>
               </div>`
         )}

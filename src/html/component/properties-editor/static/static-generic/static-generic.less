@@ -1,1 +1,12 @@
 @import "../../abstract-property/abstract-property";
+
+.value-label {
+  .uk-form-label;
+  .uk-text-left;
+}
+
+@media (prefers-color-scheme: dark) {
+  .value-label {
+    color: @text-dark;
+  }
+}
