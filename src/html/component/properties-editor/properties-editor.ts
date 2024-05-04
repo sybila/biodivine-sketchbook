@@ -13,6 +13,7 @@ import './static/static-generic/static-generic'
 import './static/static-input-essential/static-input-essential'
 import './static/static-input-essential-condition/static-input-essential-condition'
 import './static/static-input-monotonic/static-input-monotonic'
+import './static/static-input-monotonic-condition/static-input-monotonic-condition'
 import {
   ContentData,
   type DynamicProperty,
@@ -24,8 +25,9 @@ import {
 import {
   attractorCountDynamic,
   existsTrajectoryDynamic,
-  fixedPointDynamic,
+  fixedPointDynamic, functionInputEssential,
   functionInputEssentialWithCondition,
+  functionInputMonotonic,
   functionInputMonotonicWithCondition,
   genericDynamic,
   genericStatic,
@@ -99,13 +101,8 @@ export default class PropertiesEditor extends LitElement {
 
     document.addEventListener('click', this.closeMenu.bind(this))
     // seed dummy data
-    this.addProperty(StaticPropertyType.FunctionInputMonotonicWithCondition)
-    this.addProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition)
-    this.addProperty(StaticPropertyType.FunctionInputEssentialWithCondition)
-    this.addProperty(StaticPropertyType.VariableRegulationEssentialWithCondition)
-    console.log(this.properties)
-    // this.properties.push(functionInputEssential('a'))
-    // this.properties.push(functionInputMonotonic('b'))
+    this.properties.push(functionInputEssential('a'))
+    this.properties.push(functionInputMonotonic('b'))
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
@@ -271,11 +268,17 @@ export default class PropertiesEditor extends LitElement {
                                                         .property=${prop}>
                       </static-input-essential-condition>`
                   case StaticPropertyType.FunctionInputMonotonic:
-                  case StaticPropertyType.FunctionInputMonotonicWithCondition:
                     return html`
                       <static-input-monotonic .index=${index}
                                               .property=${prop}>
                       </static-input-monotonic>`
+                  case StaticPropertyType.FunctionInputMonotonicWithCondition:
+                  case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+                    return html`
+                      <static-input-monotonic-condition .index=${index}
+                                                        .contentData=${this.contentData}
+                                                        .property=${prop}>
+                      </static-input-monotonic-condition>`
                   default:
                     return ''
                 }

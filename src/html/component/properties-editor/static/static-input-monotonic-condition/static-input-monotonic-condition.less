@@ -1,0 +1,60 @@
+@import "../../abstract-property/abstract-property";
+
+.monotonicity:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.monotonicity {
+  user-select: none;
+}
+
+.monotonicity-inhibition {
+  color: @monotonicity-inhibition;
+}
+
+.monotonicity-activation {
+  color: @monotonicity-activation;
+}
+
+.monotonicity-dual {
+  color: @monotonicity-dual;
+}
+
+.monotonicity-unspecified {
+  color: @monotonicity-unspecified;
+}
+
+.value-section {
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-middle;
+  .uk-flex-center;
+  .uk-margin-remove;
+  .uk-text-center;
+  .uk-text-nowrap;
+}
+
+.value-symbol {
+  .uk-width-1-2;
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-center;
+  .uk-flex-middle;
+  gap: 1em;
+}
+
+.condition-label {
+  .uk-form-label;
+  .uk-text-left;
+}
+
+@media (prefers-color-scheme: dark) {
+  .condition-label {
+    color: @text-dark;
+  }
+}
+
+.condition-field {
+  .uk-input;
+}

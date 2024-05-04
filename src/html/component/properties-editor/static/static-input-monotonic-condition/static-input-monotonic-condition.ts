@@ -1,47 +1,36 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
-import style_less from './static-input-essential-condition.less?inline'
+import style_less from './static-input-monotonic-condition.less?inline'
 import AbstractProperty from '../../abstract-property/abstract-property'
 import {
   type ContentData,
-  Essentiality,
-  type IFunctionInputEssentialStaticProperty,
+  type IFunctionInputMonotonicStaticProperty,
   type IVariableData,
-  type IVariableRegulatorEssentialStaticProperty,
+  type IVariableRegulatorMonotonicStaticProperty,
+  Monotonicity,
   StaticPropertyType
 } from '../../../../util/data-interfaces'
-import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
+import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
 
-@customElement('static-input-essential-condition')
-export default class StaticInputEssentialCondition extends AbstractProperty {
+@customElement('static-input-monotonic-condition')
+export default class StaticInputMonotonicCondition extends AbstractProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare contentData: ContentData
-  @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
+  @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty
   @state() selectedVariable: IVariableData | undefined
   @query('#second-selector') declare secondSelector: HTMLSelectElement
 
-  private getEssentialitySymbol (): string {
-    switch (this.property.essential) {
-      case Essentiality.TRUE:
-        return '<-'
-      case Essentiality.FALSE:
-        return '</-'
-      default:
-        return '??'
-    }
-  }
-
-  toggleEssentiality (): void {
-    let essential = getNextEssentiality(this.property.essential)
-    if (essential === Essentiality.UNKNOWN) {
-      essential = getNextEssentiality(essential)
+  toggleMonotonicity (): void {
+    let monotonic = getNextMonotonicity(this.property.monotonic)
+    if (monotonic === Monotonicity.UNSPECIFIED) {
+      monotonic = getNextMonotonicity(monotonic)
     }
     this.updateProperty({
       ...this.property,
-      essential
+      monotonic
     })
   }
 
@@ -52,15 +41,29 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
     })
   }, functionDebounceTimer)
 
+  private getMonotonicitySymbol (): string {
+    switch (this.property.monotonic) {
+      case Monotonicity.ACTIVATION:
+        return '<-'
+      case Monotonicity.DUAL:
+        return '*-'
+      case Monotonicity.INHIBITION:
+        return '|-'
+      default:
+        return '??'
+    }
+  }
+
   firstChanged (event: Event): void {
     const value = (event.target as HTMLSelectElement).value
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    console.log(value)
+    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
         function: value,
         variable: undefined
       })
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
         variable: value,
@@ -72,12 +75,12 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
 
   secondChanged (event: Event): void {
     const value = (event.target as HTMLSelectElement).value
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
         variable: value
       })
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
         regulator: value
@@ -86,22 +89,22 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
   }
 
   getFirstSelectorItems (): string[] {
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       return this.contentData.functions.map(func => func.id)
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       return this.contentData.variables.map(variable => variable.id)
     }
     return []
   }
 
   getSecondSelectorItems (): string[] {
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       return this.contentData.functions
-        .find(func => func.id === (this.property as IFunctionInputEssentialStaticProperty).function)
+        .find(func => func.id === (this.property as IFunctionInputMonotonicStaticProperty).function)
         ?.variables.map(variable => variable.source) ?? []
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       return this.contentData.regulations
-        .filter(regulation => regulation.target === (this.property as IVariableRegulatorEssentialStaticProperty).variable)
+        .filter(regulation => regulation.target === (this.property as IVariableRegulatorMonotonicStaticProperty).variable)
         .map(regulation => regulation.source)
     }
     return []
@@ -121,7 +124,7 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
                 <option value="${item}">${item}</option>
               `)}
             </select>
-            <span>${this.getEssentialitySymbol()}</span>
+            <span>${this.getMonotonicitySymbol()}</span>
             <select id="second-selector" class="uk-select" @change="${this.secondChanged}">
               <option value="${undefined}">---</option>
               ${map(this.getSecondSelectorItems(), (item) => html`
@@ -130,11 +133,11 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
             </select>
           </div>
           <div class="value-symbol" @click="${() => {
-            this.toggleEssentiality()
+            this.toggleMonotonicity()
           }}">
             <span>(</span>
-            <span class="essentiality">
-              ${getEssentialityText(this.property.essential)}
+            <span class="monotonicity ${getMonotonicityClass(this.property.monotonic)}">
+              ${this.property.monotonic.toLowerCase()}
             </span>
             <span>)</span>
           </div>
