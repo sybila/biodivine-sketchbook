@@ -11,6 +11,7 @@ import './dynamic/dynamic-trajectory/dynamic-trajectory'
 import './dynamic/dynamic-trap-space/dynamic-trap-space'
 import './static/static-generic/static-generic'
 import './static/static-input-essential/static-input-essential'
+import './static/static-input-essential-condition/static-input-essential-condition'
 import './static/static-input-monotonic/static-input-monotonic'
 import {
   ContentData,
@@ -24,14 +25,12 @@ import {
   attractorCountDynamic,
   existsTrajectoryDynamic,
   fixedPointDynamic,
-  functionInputEssential,
   functionInputEssentialWithCondition,
-  functionInputMonotonic,
   functionInputMonotonicWithCondition,
   genericDynamic,
   genericStatic,
   hasAttractorDynamic,
-  trapSpaceDynamic
+  trapSpaceDynamic, variableRegulationEssentialWithCondition, variableRegulationMonotonicWithCondition
 } from './default-properties'
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
@@ -75,11 +74,17 @@ export default class PropertiesEditor extends LitElement {
 
   addStaticPropertyMenu: IAddPropertyItem[] = [
     {
-      label: 'Essential with condition',
+      label: 'Essential function input',
       action: () => { this.addProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
     }, {
-      label: 'Monotonic with condition',
+      label: 'Essential variable regulation',
+      action: () => { this.addProperty(StaticPropertyType.VariableRegulationEssentialWithCondition) }
+    }, {
+      label: 'Monotonic function input',
       action: () => { this.addProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
+    }, {
+      label: 'Monotonic variable regulation',
+      action: () => { this.addProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition) }
     }, {
       label: 'Generic',
       action: () => { this.addProperty(StaticPropertyType.Generic) }
@@ -94,8 +99,13 @@ export default class PropertiesEditor extends LitElement {
 
     document.addEventListener('click', this.closeMenu.bind(this))
     // seed dummy data
-    this.properties.push(functionInputEssential('a'))
-    this.properties.push(functionInputMonotonic('b'))
+    this.addProperty(StaticPropertyType.FunctionInputMonotonicWithCondition)
+    this.addProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition)
+    this.addProperty(StaticPropertyType.FunctionInputEssentialWithCondition)
+    this.addProperty(StaticPropertyType.VariableRegulationEssentialWithCondition)
+    console.log(this.properties)
+    // this.properties.push(functionInputEssential('a'))
+    // this.properties.push(functionInputMonotonic('b'))
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
@@ -129,6 +139,12 @@ export default class PropertiesEditor extends LitElement {
         break
       case StaticPropertyType.FunctionInputEssentialWithCondition:
         this.properties.push(functionInputEssentialWithCondition(id))
+        break
+      case StaticPropertyType.VariableRegulationEssentialWithCondition:
+        this.properties.push(variableRegulationEssentialWithCondition(id))
+        break
+      case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+        this.properties.push(variableRegulationMonotonicWithCondition(id))
         break
       case StaticPropertyType.Generic:
         this.properties.push(genericStatic(id))
@@ -234,7 +250,7 @@ export default class PropertiesEditor extends LitElement {
                 Add ${icon(faAngleDown).node}
               </button>
             </div>
-            <div class="uk-list uk-text-center">
+            <div class="section-list">
               ${map(this.properties, (prop, index) => {
                 switch (prop.type) {
                   case StaticPropertyType.Generic:
@@ -243,11 +259,17 @@ export default class PropertiesEditor extends LitElement {
                                       .property=${prop}>
                       </static-generic>`
                   case StaticPropertyType.FunctionInputEssential:
-                  case StaticPropertyType.FunctionInputEssentialWithCondition:
                     return html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
                       </static-input-essential>`
+                  case StaticPropertyType.FunctionInputEssentialWithCondition:
+                  case StaticPropertyType.VariableRegulationEssentialWithCondition:
+                    return html`
+                      <static-input-essential-condition .index=${index}
+                                                        .contentData=${this.contentData}
+                                                        .property=${prop}>
+                      </static-input-essential-condition>`
                   case StaticPropertyType.FunctionInputMonotonic:
                   case StaticPropertyType.FunctionInputMonotonicWithCondition:
                     return html`
@@ -269,7 +291,7 @@ export default class PropertiesEditor extends LitElement {
                 Add ${icon(faAngleDown).node}
               </button>
             </div>
-            <div class="uk-list uk-text-center">
+            <div class="section-list">
               ${map(this.properties, (prop, index) => {
                 switch (prop.type) {
                   case DynamicPropertyType.FixedPoint:

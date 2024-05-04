@@ -76,8 +76,10 @@ export enum StaticPropertyType {
   Generic = 100,
   FunctionInputEssential,
   FunctionInputEssentialWithCondition,
+  VariableRegulationEssentialWithCondition,
   FunctionInputMonotonic,
-  FunctionInputMonotonicWithCondition
+  FunctionInputMonotonicWithCondition,
+  VariableRegulationMonotonicWithCondition
 }
 
 export enum DynamicPropertyType {
@@ -136,15 +138,15 @@ export type DynamicProperty =
   | IGenericDynamicProperty
 
 export interface IFunctionInputEssentialStaticProperty extends IProperty {
-  function: string
-  variable: string
+  function: string | undefined
+  variable: string | undefined
   essential: Essentiality
   condition: string
 }
 
 export interface IFunctionInputMonotonicStaticProperty extends IProperty {
-  function: string
-  variable: string
+  function: string | undefined
+  variable: string | undefined
   monotonic: Monotonicity
   condition: string
 }
@@ -153,7 +155,23 @@ export interface IGenericStaticProperty extends IProperty {
   value: string
 }
 
+export interface IVariableRegulatorMonotonicStaticProperty extends IProperty {
+  variable: string | undefined
+  regulator: string | undefined
+  monotonic: Monotonicity
+  condition: string
+}
+
+export interface IVariableRegulatorEssentialStaticProperty extends IProperty {
+  variable: string | undefined
+  regulator: string | undefined
+  essential: Essentiality
+  condition: string
+}
+
 export type StaticProperty =
   IFunctionInputEssentialStaticProperty
   | IFunctionInputMonotonicStaticProperty
+  | IVariableRegulatorMonotonicStaticProperty
+  | IVariableRegulatorEssentialStaticProperty
   | IGenericStaticProperty

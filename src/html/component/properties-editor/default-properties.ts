@@ -9,7 +9,7 @@ import {
   type IGenericDynamicProperty,
   type IGenericStaticProperty,
   type IHasAttractorDynamicProperty,
-  type ITrapSpaceDynamicProperty,
+  type ITrapSpaceDynamicProperty, type IVariableRegulatorEssentialStaticProperty, type IVariableRegulatorMonotonicStaticProperty,
   Monotonicity,
   StaticPropertyType
 } from '../../util/data-interfaces'
@@ -115,9 +115,33 @@ export const functionInputMonotonicWithCondition = (id: string): IFunctionInputM
     id,
     name: 'function-input-monotonic',
     type: StaticPropertyType.FunctionInputMonotonicWithCondition,
-    function: 'func',
-    variable: 'var',
-    monotonic: Monotonicity.DUAL,
+    function: undefined,
+    variable: undefined,
+    monotonic: Monotonicity.ACTIVATION,
+    condition: ''
+  }
+}
+
+export const variableRegulationMonotonicWithCondition = (id: string): IVariableRegulatorMonotonicStaticProperty => {
+  return {
+    id,
+    name: 'variable-regulation-monotonic',
+    type: StaticPropertyType.VariableRegulationMonotonicWithCondition,
+    variable: undefined,
+    regulator: undefined,
+    monotonic: Monotonicity.ACTIVATION,
+    condition: ''
+  }
+}
+
+export const variableRegulationEssentialWithCondition = (id: string): IVariableRegulatorEssentialStaticProperty => {
+  return {
+    id,
+    name: 'variable-regulation-essential',
+    type: StaticPropertyType.VariableRegulationEssentialWithCondition,
+    variable: undefined,
+    regulator: undefined,
+    essential: Essentiality.TRUE,
     condition: ''
   }
 }
