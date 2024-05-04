@@ -1,0 +1,39 @@
+@import "../../abstract-property/abstract-property";
+
+.essentiality:hover {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.essentiality {
+  user-select: none;
+}
+
+.value-section {
+  .uk-grid;
+  .uk-margin-remove;
+  .uk-text-center;
+  .uk-text-nowrap;
+}
+
+.value-symbol {
+  .uk-width-1-2;
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-center;
+}
+
+.condition-label {
+  .uk-form-label;
+  .uk-text-left;
+}
+
+@media (prefers-color-scheme: dark) {
+  .condition-label {
+    color: @text-dark;
+  }
+}
+
+.condition-field {
+  .uk-input;
+}

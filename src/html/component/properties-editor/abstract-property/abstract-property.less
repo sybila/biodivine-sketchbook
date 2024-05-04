@@ -1,0 +1,54 @@
+@import '/src/uikit-theme';
+
+.svg-inline--fa {
+  height: 1em;
+}
+
+.property-body {
+  .uk-flex;
+  .uk-flex-column;
+  padding: 0 0.5em;
+  gap: 0.5em;
+}
+
+.remove-property {
+  .uk-button;
+  .uk-button-small;
+  .uk-button-secondary;
+}
+
+.name-field {
+  .uk-input;
+  .uk-text-center;
+}
+
+.static-name-field {
+  .uk-form-blank;
+  .uk-h4;
+  margin: 0;
+}
+
+.uk-button {
+  cursor: pointer;
+}
+
+.remove-property{
+  background: @button-light;
+  color: @text-light;
+}
+
+.static-name-field {
+  color: @text-light;
+}
+
+@media (prefers-color-scheme: dark) {
+  .remove-property {
+    background: @button-dark;
+    color: @text-dark;
+  }
+
+  .static-name-field {
+    color: @text-dark;
+  }
+}
+

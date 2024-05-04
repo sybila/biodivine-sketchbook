@@ -8,13 +8,14 @@ import {
   aeonState
 } from '../../../aeon_events'
 import { dialog } from '@tauri-apps/api'
-
-// TODO: close menu when clicked outside
+import { when } from 'lit/directives/when.js'
+import { computePosition } from '@floating-ui/dom'
 
 @customElement('hamburger-menu')
 export default class Menu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @query('.menu-content') declare menuContentElement: HTMLElement
+  @query('#menu-content') declare menuContentElement: HTMLElement
+  @query('#menu-button') declare menuButtonElement: HTMLElement
   @state() menuVisible = false
   @state() menuItems: IMenuItem[] = [
     {
@@ -35,6 +36,11 @@ export default class Menu extends LitElement {
     }
   ]
 
+  constructor () {
+    super()
+    document.addEventListener('click', this.closeMenu.bind(this))
+  }
+
   async importSketch (): Promise<void> {
     const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
       type: 'warning',
@@ -44,7 +50,7 @@ export default class Menu extends LitElement {
     })
     if (!confirmation) return
 
-    let selected = await open({
+    const selected = await open({
       title: 'Import sketch...',
       multiple: false,
       filters: [{
@@ -53,12 +59,16 @@ export default class Menu extends LitElement {
       }]
     })
     if (selected === null) return
+    let importFile = ''
     if (Array.isArray(selected)) {
-      if (selected.length > 0) { selected = selected[0] }
+      if (selected.length === 0) return
+      importFile = selected[0]
+    } else {
+      importFile = selected
     }
 
-    console.log('importing', selected)
-    aeonState.sketch.importSketch(selected)
+    console.log('importing', importFile)
+    aeonState.sketch.importSketch(importFile)
   }
 
   async exportSketch (): Promise<void> {
@@ -101,32 +111,47 @@ export default class Menu extends LitElement {
     void appWindow.close()
   }
 
-  private toggleMenu (): void {
-    this.menuVisible = !this.menuVisible
+  private itemClick (action: () => void): void {
+    this.menuVisible = false
+    action()
   }
 
-  private itemClick (action: () => void): void {
-    this.toggleMenu()
-    action()
+  openMenu (): void {
+    this.menuVisible = true
+    console.log(this.menuButtonElement, this.menuContentElement)
+    void computePosition(this.menuButtonElement, this.menuContentElement,
+      { placement: 'bottom-start' })
+      .then(({ x, y }) => {
+        this.menuContentElement.style.left = x + 'px'
+        this.menuContentElement.style.top = y + 'px'
+      })
+  }
+
+  closeMenu (event: Event): void {
+    if (!(event.composedPath()[0] as HTMLElement).matches('.menu-button')) {
+      this.menuVisible = false
+    }
   }
 
   render (): TemplateResult {
     return html`
-      <button class="uk-button uk-button-small hamburger-menu uk-margin-small-left"
-      @click="${this.toggleMenu}">☰</button>
-      <div class="menu-content ${this.menuVisible ? 'show' : ''}">
-        <ul class="uk-nav">
-          ${map(this.menuItems, (item) => html`
-            <li class="menu-item" @click="${() => {
-              this.itemClick(item.action)
-            }}">
-              <a>
-                ${item.label}
-              </a>
-            </li>
+      <div id="menu-content" class="menu-content">
+      ${when(this.menuVisible,
+          () => html`
+            <ul class="uk-nav">
+              ${map(this.menuItems, (item) => html`
+                <li class="menu-item" @click="${() => {
+                  this.itemClick(item.action)
+                }}">
+                  <a>
+                    ${item.label}
+                  </a>
+                </li>
+              `)}
+            </ul>
           `)}
-        </ul>
       </div>
+      <button id="menu-button" class="menu-button" @click="${this.openMenu}">☰</button>      
     `
   }
 }

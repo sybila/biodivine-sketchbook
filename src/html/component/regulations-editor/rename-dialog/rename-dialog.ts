@@ -55,23 +55,23 @@ export class RenameDialog extends LitElement {
 
   render (): TemplateResult {
     return html`
-            <form class="uk-form-horizontal">
-                <div class="uk-margin-small">
-                    <label class="uk-form-label" for="form-horizontal-text">Node ID</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" @input="${this.handleIdUpdate}" id="node-id" type="text" placeholder="ID" />
-                    </div>
-                </div>
-                <div class="uk-margin-small">
-                    <label class="uk-form-label" for="form-horizontal-text">Node Name</label>
-                    <div class="uk-flex uk-flex-row">
-                        <input class="uk-input" @input="${this.handleNameUpdate}" id="node-name" type="text" placeholder="Name" />
-                    </div>
-                </div>
-                
-            
-            <button class="uk-button uk-width-1-1" @click="${this.handleSubmit}">Submit</button>
-            </form>
+      <div class="uk-container">
+        <form class="uk-form-horizontal">
+          <div class="uk-margin-small">
+            <label class="uk-form-label" for="form-horizontal-text">Node ID</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" @input="${this.handleIdUpdate}" id="node-id" type="text" placeholder="ID" />
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <label class="uk-form-label" for="form-horizontal-text">Node Name</label>
+            <div class="uk-flex uk-flex-row">
+              <input class="uk-input" @input="${this.handleNameUpdate}" id="node-name" type="text" placeholder="Name" />
+            </div>
+          </div>
+          <button class="uk-button uk-button-primary uk-width-1-1" @click="${this.handleSubmit}">Submit</button>
+        </form>
+      </div>
     `
   }
 }

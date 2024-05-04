@@ -48,6 +48,7 @@ export class ContentData extends Data {
   functions: IFunctionData[] = []
   layout: ILayoutData = new Map()
   regulations: IRegulationData[] = []
+  observations: IObservationSet[] = []
 }
 
 export interface IFunctionData {
@@ -57,9 +58,11 @@ export interface IFunctionData {
 }
 
 export interface IObservation {
+  selected: boolean
   id: string
   name: string
-  [key: string]: string | number
+
+  [key: string]: string | number | boolean
 }
 
 export interface IObservationSet {
@@ -68,3 +71,107 @@ export interface IObservationSet {
   variables: string[]
   category: DataCategory
 }
+
+export enum StaticPropertyType {
+  Generic = 100,
+  FunctionInputEssential,
+  FunctionInputEssentialWithCondition,
+  VariableRegulationEssentialWithCondition,
+  FunctionInputMonotonic,
+  FunctionInputMonotonicWithCondition,
+  VariableRegulationMonotonicWithCondition
+}
+
+export enum DynamicPropertyType {
+  Generic = 200,
+  FixedPoint,
+  TrapSpace,
+  ExistsTrajectory,
+  AttractorCount,
+  HasAttractor
+}
+
+export type PropertyType = StaticPropertyType | DynamicPropertyType
+
+export interface IProperty {
+  id: string
+  name: string
+  type: PropertyType
+}
+
+export interface IFixedPointDynamicProperty extends IProperty {
+  dataset: string
+  observation: string
+}
+
+export interface ITrapSpaceDynamicProperty extends IProperty {
+  dataset: string
+  observation: string
+  minimal: boolean
+  nonpercolable: boolean
+}
+
+export interface IExistsTrajectoryDynamicProperty extends IProperty {
+  dataset: string
+}
+
+export interface IAttractorCountDynamicProperty extends IProperty {
+  lower: number
+  upper: number
+}
+
+export interface IHasAttractorDynamicProperty extends IProperty {
+  dataset: string
+  observation: string
+}
+
+export interface IGenericDynamicProperty extends IProperty {
+  value: string
+}
+
+export type DynamicProperty =
+  IFixedPointDynamicProperty
+  | ITrapSpaceDynamicProperty
+  | IExistsTrajectoryDynamicProperty
+  | IAttractorCountDynamicProperty
+  | IHasAttractorDynamicProperty
+  | IGenericDynamicProperty
+
+export interface IFunctionInputEssentialStaticProperty extends IProperty {
+  function: string | undefined
+  variable: string | undefined
+  essential: Essentiality
+  condition: string
+}
+
+export interface IFunctionInputMonotonicStaticProperty extends IProperty {
+  function: string | undefined
+  variable: string | undefined
+  monotonic: Monotonicity
+  condition: string
+}
+
+export interface IGenericStaticProperty extends IProperty {
+  value: string
+}
+
+export interface IVariableRegulatorMonotonicStaticProperty extends IProperty {
+  variable: string | undefined
+  regulator: string | undefined
+  monotonic: Monotonicity
+  condition: string
+}
+
+export interface IVariableRegulatorEssentialStaticProperty extends IProperty {
+  variable: string | undefined
+  regulator: string | undefined
+  essential: Essentiality
+  condition: string
+}
+
+export type StaticProperty =
+  IFunctionInputEssentialStaticProperty
+  | IFunctionInputMonotonicStaticProperty
+  | IVariableRegulatorMonotonicStaticProperty
+  | IVariableRegulatorEssentialStaticProperty
+  | IGenericStaticProperty

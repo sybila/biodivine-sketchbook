@@ -1,0 +1,130 @@
+@import '/src/uikit-theme';
+
+.container {
+  container-name: property-list;
+  container-type: inline-size;
+  height: 100%;
+  width: 100%;
+}
+
+.property-list {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  overflow: auto;
+}
+
+.svg-inline--fa {
+  height: 1em;
+}
+
+.section {
+  min-width: 25em;
+  max-width: 40em;
+  overflow: auto;
+  width: 50%;
+}
+
+.header {
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-between;
+  .uk-flex-middle;
+  .uk-box-shadow-small;
+  padding: 0.5em 1em;
+  position: sticky;
+  top: 0;
+  background: @background-light;
+  z-index: 99;
+}
+
+.add-property {
+  .uk-button;
+  .uk-button-small;
+  .uk-button-primary;
+  right: -1em;
+  padding: 0 1em;
+  cursor: pointer;
+}
+
+.heading {
+  .uk-text-center;
+  .uk-margin-remove-top;
+}
+
+.menu-content {
+  flex-direction: column;
+  position: absolute;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.menu-item {
+  padding: 0.1em 1em;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: @primary-color;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    background: @background-dark;
+  }
+
+  .heading {
+    color: @text-dark;
+  }
+  .uk-button-secondary {
+    background: @button-dark;
+  }
+  .section + .section {
+    border-left: 1px solid white;
+  }
+
+  .menu-content {
+    background-color: @background-dark;
+  }
+
+  .menu-item > a {
+    color: @text-dark;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .uk-button-secondary {
+    background: @button-light;
+  }
+
+  .section + .section {
+    border-left: 1px solid black;
+  }
+
+  .menu-content {
+    background-color: @background-light;
+  }
+
+  .menu-item > a {
+    color: @text-light;
+  }
+}
+
+@container property-list (max-width: 52em) {
+  .section + .section {
+    border-left: none;
+  }
+
+  .section {
+    width: 100%;
+    overflow: unset;
+  }
+
+  .property-list {
+    flex-direction: column;
+    justify-content: unset;
+    align-items: center;
+  }
+}

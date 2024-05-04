@@ -4,6 +4,11 @@
   font-weight: bold;
 }
 
+.regulation-property {
+  cursor: pointer;
+  user-select: none;
+}
+
 .svg-inline--fa {
   height: 1em;
 }
@@ -16,6 +21,30 @@
   height: inherit;
   width: 3em;
   align-self: start;
+}
+
+.functions-body {
+  flex-direction: column;
+}
+
+.container {
+  padding: 0 0.5em;
+}
+
+.monotonicity-inhibition {
+  color: @monotonicity-inhibition;
+}
+
+.monotonicity-activation {
+  color: @monotonicity-activation;
+}
+
+.monotonicity-dual {
+  color: @monotonicity-dual;
+}
+
+.monotonicity-unspecified {
+  color: @monotonicity-unspecified;
 }
 
 @media (prefers-color-scheme: dark) {

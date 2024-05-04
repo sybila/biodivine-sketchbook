@@ -20,7 +20,7 @@ import { tabList } from '../../util/config'
 import {
   ContentData,
   type IFunctionData,
-  type ILayoutData,
+  type ILayoutData, type IObservationSet,
   type IRegulationData,
   type IVariableData
 } from '../../util/data-interfaces'
@@ -86,6 +86,7 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
     // event listener to capture changes from FunctionEditor with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
+    this.addEventListener('save-observations', this.saveObservationData.bind(this))
 
     // refreshing content from backend
     aeonState.sketch.model.refreshModel()
@@ -120,6 +121,12 @@ export default class RootComponent extends LitElement {
     // update functions using modified data propagated from FunctionsEditor
     const functions: IFunctionData[] = (event as CustomEvent).detail.functions
     this.saveFunctions(functions)
+  }
+
+  saveObservationData (event: Event): void {
+    // update functions using modified data propagated from FunctionsEditor
+    const datasets: IObservationSet[] = (event as CustomEvent).detail.datasets
+    this.data = this.data.copy({ observations: datasets })
   }
 
   private saveFunctions (functions: IFunctionData[]): void {
