@@ -32,9 +32,19 @@
   cursor: pointer;
 }
 
+.remove-property{
+  background: @button-light;
+  color: @text-light;
+}
+
+.static-name-field {
+  color: @text-light;
+}
+
 @media (prefers-color-scheme: dark) {
-  .uk-button-secondary {
-    background: @button-dark
+  .remove-property {
+    background: @button-dark;
+    color: @text-dark;
   }
 
   .static-name-field {
@@ -42,12 +52,3 @@
   }
 }
 
-@media (prefers-color-scheme: light) {
-  .uk-button-secondary {
-    background: @button-light;
-  }
-
-  .static-name-field {
-    color: @text-light;
-  }
-}

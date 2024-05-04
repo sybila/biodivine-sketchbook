@@ -2,9 +2,9 @@
 
 .menu-button {
   .uk-button;
+  .uk-button-secondary;
   .uk-button-small;
   .uk-margin-small-left;
-  .uk-button-secondary;
   cursor: pointer;
 }
 
@@ -32,11 +32,16 @@
   color: @text-light;
 }
 
-@media (prefers-color-scheme: dark) {
-  .uk-button-secondary {
-    background: @button-dark;
-  }
+.menu-button {
+  background: @button-light;
+  color: @text-light;
+}
 
+@media (prefers-color-scheme: dark) {
+  .menu-button {
+    background: @button-dark;
+    color: @text-dark;
+  }
   .menu-content {
     background-color: @background-dark;
   }
