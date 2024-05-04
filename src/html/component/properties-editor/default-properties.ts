@@ -149,7 +149,7 @@ export const variableRegulationEssentialWithCondition = (id: string): IVariableR
 export const genericStatic = (id: string): IGenericStaticProperty => {
   return {
     id,
-    name: '',
+    name: 'generic-static',
     type: StaticPropertyType.Generic,
     value: ''
   }

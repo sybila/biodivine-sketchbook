@@ -14,6 +14,8 @@ import { getEssentialityText, getNextEssentiality } from '../../../../util/utili
 import { map } from 'lit/directives/map.js'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { icon } from '@fortawesome/fontawesome-svg-core'
 
 @customElement('static-input-essential-condition')
 export default class StaticInputEssentialCondition extends AbstractProperty {
@@ -112,6 +114,9 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
       <div class="property-body">
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
+          <button class="remove-property" @click="${this.removeProperty}">
+            ${icon(faTrash).node}
+          </button>
         </div>
         <div class="value-section">
           <div class="value-symbol">
