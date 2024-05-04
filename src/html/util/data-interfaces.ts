@@ -73,22 +73,22 @@ export interface IObservationSet {
 }
 
 export enum StaticPropertyType {
-  Generic = 100,
-  FunctionInputEssential,
-  FunctionInputEssentialWithCondition,
-  VariableRegulationEssentialWithCondition,
-  FunctionInputMonotonic,
-  FunctionInputMonotonicWithCondition,
-  VariableRegulationMonotonicWithCondition
+  Generic = 'GenericStatProp',
+  FunctionInputEssential = 'FnInputEssential',
+  FunctionInputEssentialWithCondition = 'FnInputEssentialContext',
+  VariableRegulationEssentialWithCondition = 'RegulationEssentialContext',
+  FunctionInputMonotonic = 'FnInputMonotonic',
+  FunctionInputMonotonicWithCondition = 'FnInputMonotonicContext',
+  VariableRegulationMonotonicWithCondition = 'RegulationMonotonicContext'
 }
 
 export enum DynamicPropertyType {
-  Generic = 200,
-  FixedPoint,
-  TrapSpace,
-  ExistsTrajectory,
-  AttractorCount,
-  HasAttractor
+  Generic = 'GenericDynProp',
+  FixedPoint = 'ExistsFixedPoint',
+  TrapSpace = 'ExistsTrapSpace',
+  ExistsTrajectory = 'ExistsTrajectory',
+  AttractorCount = 'AttractorCount',
+  HasAttractor = 'HasAttractor'
 }
 
 export type PropertyType = StaticPropertyType | DynamicPropertyType
@@ -96,7 +96,7 @@ export type PropertyType = StaticPropertyType | DynamicPropertyType
 export interface IProperty {
   id: string
   name: string
-  type: PropertyType
+  variant: PropertyType
 }
 
 export interface IFixedPointDynamicProperty extends IProperty {
@@ -116,8 +116,8 @@ export interface IExistsTrajectoryDynamicProperty extends IProperty {
 }
 
 export interface IAttractorCountDynamicProperty extends IProperty {
-  lower: number
-  upper: number
+  minimal: number
+  maximal: number
 }
 
 export interface IHasAttractorDynamicProperty extends IProperty {
@@ -126,7 +126,7 @@ export interface IHasAttractorDynamicProperty extends IProperty {
 }
 
 export interface IGenericDynamicProperty extends IProperty {
-  value: string
+  formula: string
 }
 
 export type DynamicProperty =
@@ -138,35 +138,35 @@ export type DynamicProperty =
   | IGenericDynamicProperty
 
 export interface IFunctionInputEssentialStaticProperty extends IProperty {
-  function: string | undefined
-  variable: string | undefined
-  essential: Essentiality
-  condition: string
+  input: string | undefined
+  target: string | undefined
+  value: Essentiality
+  context: string
 }
 
 export interface IFunctionInputMonotonicStaticProperty extends IProperty {
-  function: string | undefined
-  variable: string | undefined
-  monotonic: Monotonicity
-  condition: string
+  input: string | undefined
+  target: string | undefined
+  value: Monotonicity
+  context: string
 }
 
 export interface IGenericStaticProperty extends IProperty {
-  value: string
+  formula: string
 }
 
 export interface IVariableRegulatorMonotonicStaticProperty extends IProperty {
-  variable: string | undefined
-  regulator: string | undefined
-  monotonic: Monotonicity
-  condition: string
+  input: string | undefined
+  target: string | undefined
+  value: Monotonicity
+  context: string
 }
 
 export interface IVariableRegulatorEssentialStaticProperty extends IProperty {
-  variable: string | undefined
-  regulator: string | undefined
-  essential: Essentiality
-  condition: string
+  input: string | undefined
+  target: string | undefined
+  value: Essentiality
+  context: string
 }
 
 export type StaticProperty =

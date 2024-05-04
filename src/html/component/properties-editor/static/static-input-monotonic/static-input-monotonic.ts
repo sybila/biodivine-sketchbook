@@ -17,25 +17,25 @@ export default class StaticInputMonotonic extends AbstractProperty {
   @property() declare property: IFunctionInputMonotonicStaticProperty
 
   toggleMonotonicity (): void {
-    let monotonic = getNextMonotonicity(this.property.monotonic)
-    if (monotonic === Monotonicity.UNSPECIFIED) {
-      monotonic = getNextMonotonicity(monotonic)
+    let value = getNextMonotonicity(this.property.value)
+    if (value === Monotonicity.UNSPECIFIED) {
+      value = getNextMonotonicity(value)
     }
     this.updateProperty({
       ...this.property,
-      monotonic
+      value
     })
   }
 
-  conditionChanged (condition: string): void {
+  conditionChanged (context: string): void {
     this.updateProperty({
       ...this.property,
-      condition
+      context
     })
   }
 
   private getMonotonicitySymbol (): string {
-    switch (this.property.monotonic) {
+    switch (this.property.value) {
       case Monotonicity.ACTIVATION:
         return '->'
       case Monotonicity.DUAL:
@@ -50,7 +50,7 @@ export default class StaticInputMonotonic extends AbstractProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        ${choose(this.property.type, [
+        ${choose(this.property.variant, [
           [StaticPropertyType.FunctionInputMonotonic, () => html`
             <div class="uk-flex uk-flex-row">
               <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
@@ -63,26 +63,26 @@ export default class StaticInputMonotonic extends AbstractProperty {
         ])}
         <div class="value-section">
           <div class="value-symbol">
-            <div class="uk-margin-small-right">${this.property.variable}</div>
+            <div class="uk-margin-small-right">${this.property.input}</div>
             <div class="uk-margin-small-right">${this.getMonotonicitySymbol()}</div>
-            <div class="uk-margin-small-right">${this.property.function}</div>
+            <div class="uk-margin-small-right">${this.property.target}</div>
           </div>
           <div class="value-symbol" @click="${() => {
             this.toggleMonotonicity()
           }}">
             <span>(</span>
-            <span class="monotonicity ${getMonotonicityClass(this.property.monotonic)}">
-              ${this.property.monotonic.toLowerCase()}
+            <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
+              ${this.property.value.toLowerCase()}
             </span>
             <span>)</span>
           </div>
         </div>
-        ${when(this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition,
+        ${when(this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition,
             () => html`
               <div class="uk-flex uk-flex-column uk-flex-left">
                 <label class="condition-label">Context formula:</label>
                 <div class="uk-flex uk-flex-row">
-                  <input id="condition-field" class="condition-field" value="${this.property.condition}"
+                  <input id="condition-field" class="condition-field" value="${this.property.context}"
                          @change="${(e: Event) => { this.conditionChanged((e.target as HTMLInputElement).value) }}"/>
 
                 </div>

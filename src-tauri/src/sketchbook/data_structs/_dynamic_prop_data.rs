@@ -11,21 +11,21 @@ pub struct GenericDynPropData {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ExistsFixedPointData {
-    pub dataset: String,
-    pub observation: String,
+    pub dataset: Option<String>,
+    pub observation: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ExistsTrapSpaceData {
-    pub dataset: String,
-    pub observation: String,
+    pub dataset: Option<String>,
+    pub observation: Option<String>,
     pub minimal: bool,
-    pub non_percolable: bool,
+    pub nonpercolable: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ExistsTrajectoryData {
-    pub dataset: String,
+    pub dataset: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -36,12 +36,12 @@ pub struct AttractorCountData {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HasAttractorData {
-    pub dataset: String,
+    pub dataset: Option<String>,
     pub observation: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type", content = "value")]
+#[serde(tag = "variant")]
 pub enum DynPropertyTypeData {
     GenericDynProp(GenericDynPropData),
     ExistsFixedPoint(ExistsFixedPointData),
@@ -60,7 +60,7 @@ pub struct DynPropertyData {
     pub id: String,
     pub name: String,
     #[serde(flatten)]
-    variant: DynPropertyTypeData,
+    pub variant: DynPropertyTypeData,
 }
 
 impl<'de> JsonSerde<'de> for DynPropertyData {}
@@ -86,27 +86,27 @@ impl DynPropertyData {
             }
             DynPropertyType::ExistsFixedPoint(p) => {
                 DynPropertyTypeData::ExistsFixedPoint(ExistsFixedPointData {
-                    dataset: p.dataset.to_string(),
-                    observation: p.observation.to_string(),
+                    dataset: p.dataset.as_ref().map(|i| i.to_string()),
+                    observation: p.observation.as_ref().map(|i| i.to_string()),
                 })
             }
             DynPropertyType::ExistsTrapSpace(p) => {
                 DynPropertyTypeData::ExistsTrapSpace(ExistsTrapSpaceData {
-                    dataset: p.dataset.to_string(),
-                    observation: p.observation.to_string(),
+                    dataset: p.dataset.clone().map(|i| i.to_string()),
+                    observation: p.observation.clone().map(|i| i.to_string()),
                     minimal: p.minimal,
-                    non_percolable: p.non_percolable,
+                    nonpercolable: p.nonpercolable,
                 })
             }
             DynPropertyType::ExistsTrajectory(p) => {
                 DynPropertyTypeData::ExistsTrajectory(ExistsTrajectoryData {
-                    dataset: p.dataset.to_string(),
+                    dataset: p.dataset.as_ref().map(|i| i.to_string()),
                 })
             }
             DynPropertyType::HasAttractor(p) => {
                 DynPropertyTypeData::HasAttractor(HasAttractorData {
-                    dataset: p.dataset.to_string(),
-                    observation: p.observation.clone().map(|o| o.to_string()),
+                    dataset: p.dataset.as_ref().map(|i| i.to_string()),
+                    observation: p.observation.as_ref().map(|o| o.to_string()),
                 })
             }
             DynPropertyType::AttractorCount(p) => {
@@ -126,26 +126,31 @@ impl DynPropertyData {
             DynPropertyTypeData::GenericDynProp(p) => DynProperty::mk_generic(name, &p.formula),
             DynPropertyTypeData::ExistsFixedPoint(p) => DynProperty::mk_fixed_point(
                 name,
-                DatasetId::new(&p.dataset)?,
-                ObservationId::new(&p.observation)?,
+                p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
+                p.observation
+                    .as_ref()
+                    .and_then(|t| ObservationId::new(t).ok()),
             ),
             DynPropertyTypeData::ExistsTrapSpace(p) => DynProperty::mk_trap_space(
                 name,
-                DatasetId::new(&p.dataset)?,
-                ObservationId::new(&p.observation)?,
+                p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
+                p.observation
+                    .as_ref()
+                    .and_then(|t| ObservationId::new(t).ok()),
                 p.minimal,
-                p.non_percolable,
+                p.nonpercolable,
             ),
             DynPropertyTypeData::ExistsTrajectory(p) => {
-                DynProperty::mk_trajectory(name, DatasetId::new(&p.dataset)?)
+                let dataset = p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok());
+                DynProperty::mk_trajectory(name, dataset)
             }
-            DynPropertyTypeData::HasAttractor(p) => {
-                let obs = match &p.observation {
-                    Some(o) => Some(ObservationId::new(o)?),
-                    None => None,
-                };
-                DynProperty::mk_has_attractor(name, DatasetId::new(&p.dataset)?, obs)
-            }
+            DynPropertyTypeData::HasAttractor(p) => DynProperty::mk_has_attractor(
+                name,
+                p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
+                p.observation
+                    .as_ref()
+                    .and_then(|t| ObservationId::new(t).ok()),
+            ),
             DynPropertyTypeData::AttractorCount(p) => {
                 DynProperty::mk_attractor_count(name, p.minimal, p.maximal)
             }

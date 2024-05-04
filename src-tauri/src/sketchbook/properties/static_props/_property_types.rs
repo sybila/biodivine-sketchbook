@@ -10,42 +10,74 @@ pub struct GenericStatProp {
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub struct UpdateFnInputEssential {
-    pub input: VarId,
-    pub target: VarId,
+pub struct RegulationEssential {
+    pub input: Option<VarId>,
+    pub target: Option<VarId>,
     pub value: Essentiality,
-    pub context: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub struct UpdateFnInputMonotonic {
-    pub input: VarId,
-    pub target: VarId,
+pub struct RegulationEssentialContext {
+    pub input: Option<VarId>,
+    pub target: Option<VarId>,
+    pub value: Essentiality,
+    pub context: String,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct RegulationMonotonic {
+    pub input: Option<VarId>,
+    pub target: Option<VarId>,
     pub value: Monotonicity,
-    pub context: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct RegulationMonotonicContext {
+    pub input: Option<VarId>,
+    pub target: Option<VarId>,
+    pub value: Monotonicity,
+    pub context: String,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct FnInputEssential {
-    pub input_index: usize,
-    pub target: UninterpretedFnId,
+    pub input_index: Option<usize>,
+    pub target: Option<UninterpretedFnId>,
     pub value: Essentiality,
-    pub context: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct FnInputEssentialContext {
+    pub input_index: Option<usize>,
+    pub target: Option<UninterpretedFnId>,
+    pub value: Essentiality,
+    pub context: String,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct FnInputMonotonic {
-    pub input_index: usize,
-    pub target: UninterpretedFnId,
+    pub input_index: Option<usize>,
+    pub target: Option<UninterpretedFnId>,
     pub value: Monotonicity,
-    pub context: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct FnInputMonotonicContext {
+    pub input_index: Option<usize>,
+    pub target: Option<UninterpretedFnId>,
+    pub value: Monotonicity,
+    pub context: String,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum StatPropertyType {
     FnInputEssential(FnInputEssential),
     FnInputMonotonic(FnInputMonotonic),
-    UpdateFnInputEssential(UpdateFnInputEssential),
-    UpdateFnInputMonotonic(UpdateFnInputMonotonic),
+    FnInputEssentialContext(FnInputEssentialContext),
+    FnInputMonotonicContext(FnInputMonotonicContext),
+    RegulationEssential(RegulationEssential),
+    RegulationMonotonic(RegulationMonotonic),
+    RegulationEssentialContext(RegulationEssentialContext),
+    RegulationMonotonicContext(RegulationMonotonicContext),
     GenericStatProp(GenericStatProp),
 }

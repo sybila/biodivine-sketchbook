@@ -1,6 +1,6 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
-import { Monotonicity, Essentiality, DataCategory } from './html/util/data-interfaces'
+import { Monotonicity, Essentiality, DataCategory, type DynamicProperty, type StaticProperty } from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -268,33 +268,33 @@ interface AeonState {
       /** Refresh events: */
 
       /** List of all dynamic properties. */
-      dynamicPropsRefreshed: Observable<DynPropertyData[]>
+      dynamicPropsRefreshed: Observable<DynamicProperty[]>
       /** Refresh all dynamic properties. */
       refreshDynamicProps: () => void
       /** List of all static properties. */
-      staticPropsRefreshed: Observable<StatPropertyData[]>
+      staticPropsRefreshed: Observable<StaticProperty[]>
       /** Refresh all static properties. */
       refreshStaticProps: () => void
 
       /** Events regarding dynamic properties. */
 
       /** DynPropertyData for a newly created dynamic property. */
-      dynamicCreated: Observable<DynPropertyData>
+      dynamicCreated: Observable<DynamicProperty>
       /** Create a new dynamic property with given ID, variables, of given `variant` (with corresponding data). */
-      addDynamic: (id: string, name: string, variant: DynPropertyData) => void
+      addDynamic: (id: string, name: string, variant: DynamicProperty) => void
       /** DynPropertyData for a removed dynamic property. */
-      dynamicRemoved: Observable<DynPropertyData>
+      dynamicRemoved: Observable<DynamicProperty>
       /** Remove dynamic proeprty with given ID. */
       removeDynamic: (id: string) => void
 
       /** Events regarding static properties. */
 
       /** StatPropertyData for a newly created static property. */
-      staticCreated: Observable<StatPropertyData>
+      staticCreated: Observable<StaticProperty>
       /** Create a new static property with given ID, variables, of given `variant` (with corresponding data). */
-      addStatic: (id: string, name: string, variant: StatPropertyData) => void
+      addStatic: (id: string, name: string, variant: StaticProperty) => void
       /** StatPropertyData for a removed static property. */
-      staticRemoved: Observable<StatPropertyData>
+      staticRemoved: Observable<StaticProperty>
       /** Remove static proeprty with given ID. */
       removeStatic: (id: string) => void
     }
@@ -311,8 +311,8 @@ interface AeonState {
 export interface SketchData {
   model: ModelData
   datasets: DatasetData[]
-  dyn_properties: DynPropertyData[]
-  stat_properties: StatPropertyData[]
+  dyn_properties: DynamicProperty[]
+  stat_properties: StaticProperty[]
 }
 
 /** An object representing all relevant parts of a model. */
@@ -398,99 +398,6 @@ export interface DatasetMetaData {
 
 /** An object representing information needed for loading a dataset. */
 export interface DatasetLoadData { path: string, id: string }
-
-interface GenericDynProp {
-  formula: string
-}
-
-interface ExistsFixedPointProp {
-  dataset: string
-  observation: string
-}
-
-interface ExistsTrapSpaceProp {
-  dataset: string
-  observation: string
-  minimal: boolean
-  non_percolable: boolean
-}
-
-interface ExistsTrajectoryProp {
-  dataset: string
-}
-
-interface AttractorCountProp {
-  minimal: number
-  maximal: number
-}
-
-interface HasAttractorProp {
-  dataset: string
-  observation?: string
-}
-
-// Using a union type for DynPropertyType
-type DynPropertyType =
-    { type: 'GenericDynProp', value: GenericDynProp } |
-    { type: 'ExistsFixedPoint', value: ExistsFixedPointProp } |
-    { type: 'ExistsTrapSpace', value: ExistsTrapSpaceProp } |
-    { type: 'ExistsTrajectory', value: ExistsTrajectoryProp } |
-    { type: 'AttractorCount', value: AttractorCountProp } |
-    { type: 'HasAttractor', value: HasAttractorProp }
-
-/** A PLACEHOLDER object representing a dynamic property. */
-export interface DynPropertyData {
-  id: string
-  name: string
-  variant: DynPropertyType
-}
-
-interface GenericStatProp {
-  formula: string
-}
-
-interface UpdateFnInputEssentialProp {
-  input: string
-  target: string
-  value: Essentiality
-  context?: string
-}
-
-interface UpdateFnInputMonotonicProp {
-  input: string
-  target: string
-  value: Monotonicity
-  context?: string
-}
-
-interface FnInputEssentialProp {
-  input_index: number
-  target: string
-  value: Essentiality
-  context?: string
-}
-
-interface FnInputMonotonicProp {
-  input_index: number
-  target: string
-  value: Monotonicity
-  context?: string
-}
-
-// Discriminated Union for StatPropertyType
-type StatPropertyType =
-    { type: 'FnInputEssential', value: FnInputEssentialProp } |
-    { type: 'FnInputMonotonic', value: FnInputMonotonicProp } |
-    { type: 'UpdateFnInputEssential', value: UpdateFnInputEssentialProp } |
-    { type: 'UpdateFnInputMonotonic', value: UpdateFnInputMonotonicProp } |
-    { type: 'GenericStatProp', value: GenericStatProp }
-
-/** A PLACEHOLDER object representing a static property. */
-export interface StatPropertyData {
-  id: string
-  name: string
-  variant: StatPropertyType
-}
 
 /** An object representing information needed for variable id change. */
 export interface VariableIdUpdateData { original_id: string, new_id: string }
@@ -1284,21 +1191,21 @@ export const aeonState: AeonState = {
       }
     },
     properties: {
-      dynamicPropsRefreshed: new Observable<DynPropertyData[]>(['sketch', 'properties', 'get_all_dynamic']),
+      dynamicPropsRefreshed: new Observable<DynamicProperty[]>(['sketch', 'properties', 'get_all_dynamic']),
       refreshDynamicProps (): void {
         aeonEvents.refresh(['sketch', 'properties', 'get_all_dynamic'])
       },
-      staticPropsRefreshed: new Observable<StatPropertyData[]>(['sketch', 'properties', 'get_all_static']),
+      staticPropsRefreshed: new Observable<StaticProperty[]>(['sketch', 'properties', 'get_all_static']),
       refreshStaticProps (): void {
         aeonEvents.refresh(['sketch', 'properties', 'get_all_static'])
       },
 
-      dynamicCreated: new Observable<DynPropertyData>(['sketch', 'properties', 'dynamic', 'add']),
-      dynamicRemoved: new Observable<DynPropertyData>(['sketch', 'properties', 'dynamic', 'remove']),
-      staticCreated: new Observable<StatPropertyData>(['sketch', 'properties', 'static', 'add']),
-      staticRemoved: new Observable<StatPropertyData>(['sketch', 'properties', 'static', 'remove']),
+      dynamicCreated: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'add']),
+      dynamicRemoved: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'remove']),
+      staticCreated: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'add']),
+      staticRemoved: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'remove']),
 
-      addDynamic (id: string, name: string, variant: DynPropertyData): void {
+      addDynamic (id: string, name: string, variant: DynamicProperty): void {
         aeonEvents.emitAction({
           path: ['sketch', 'properties', 'dynamic', 'add'],
           payload: JSON.stringify({
@@ -1314,7 +1221,7 @@ export const aeonState: AeonState = {
           payload: null
         })
       },
-      addStatic (id: string, name: string, variant: StatPropertyData): void {
+      addStatic (id: string, name: string, variant: StaticProperty): void {
         aeonEvents.emitAction({
           path: ['sketch', 'properties', 'static', 'add'],
           payload: JSON.stringify({

@@ -17,7 +17,7 @@ export default class StaticInputEssential extends AbstractProperty {
   @property() declare property: IFunctionInputEssentialStaticProperty
 
   private getEssentialitySymbol (): string {
-    switch (this.property.essential) {
+    switch (this.property.value) {
       case Essentiality.TRUE:
         return '->'
       case Essentiality.FALSE:
@@ -28,27 +28,27 @@ export default class StaticInputEssential extends AbstractProperty {
   }
 
   toggleEssentiality (): void {
-    let essential = getNextEssentiality(this.property.essential)
-    if (essential === Essentiality.UNKNOWN) {
-      essential = getNextEssentiality(essential)
+    let value = getNextEssentiality(this.property.value)
+    if (value === Essentiality.UNKNOWN) {
+      value = getNextEssentiality(value)
     }
     this.updateProperty({
       ...this.property,
-      essential
+      value
     })
   }
 
-  conditionChanged (condition: string): void {
+  conditionChanged (context: string): void {
     this.updateProperty({
       ...this.property,
-      condition
+      context
     })
   }
 
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        ${choose(this.property.type, [
+        ${choose(this.property.variant, [
           [StaticPropertyType.FunctionInputEssential, () => html`
             <div class="uk-flex uk-flex-row">
               <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
@@ -62,26 +62,26 @@ export default class StaticInputEssential extends AbstractProperty {
 
         <div class="value-section">
           <div class="value-symbol">
-            <div class="uk-margin-small-right">${this.property.variable}</div>
+            <div class="uk-margin-small-right">${this.property.input}</div>
             <div class="uk-margin-small-right">${this.getEssentialitySymbol()}</div>
-            <div class="uk-margin-small-right">${this.property.function}</div>
+            <div class="uk-margin-small-right">${this.property.target}</div>
           </div>
           <div class="value-symbol" @click="${() => {
             this.toggleEssentiality()
           }}">
             <span>(</span>
             <span class="essentiality">
-              ${getEssentialityText(this.property.essential)}
+              ${getEssentialityText(this.property.value)}
             </span>
             <span>)</span>
           </div>
         </div>
-        ${when(this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition,
+        ${when(this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition,
             () => html`
               <div class="uk-flex uk-flex-column uk-flex-left">
                 <label class="condition-label">Context formula:</label>
                 <div class="uk-flex uk-flex-row">
-                  <input id="condition-field" class="condition-field" value="${this.property.condition}"
+                  <input id="condition-field" class="condition-field" value="${this.property.context}"
                   @change="${(e: Event) => { this.conditionChanged((e.target as HTMLInputElement).value) }}"/>
                 </div>
               </div>`

@@ -10,21 +10,21 @@ pub struct GenericDynProp {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ExistsFixedPoint {
-    pub dataset: DatasetId,
-    pub observation: ObservationId,
+    pub dataset: Option<DatasetId>,
+    pub observation: Option<ObservationId>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ExistsTrapSpace {
-    pub dataset: DatasetId,
-    pub observation: ObservationId,
+    pub dataset: Option<DatasetId>,
+    pub observation: Option<ObservationId>,
     pub minimal: bool,
-    pub non_percolable: bool,
+    pub nonpercolable: bool,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ExistsTrajectory {
-    pub dataset: DatasetId,
+    pub dataset: Option<DatasetId>,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -35,7 +35,7 @@ pub struct AttractorCount {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct HasAttractor {
-    pub dataset: DatasetId,
+    pub dataset: Option<DatasetId>,
     pub observation: Option<ObservationId>,
 }
 

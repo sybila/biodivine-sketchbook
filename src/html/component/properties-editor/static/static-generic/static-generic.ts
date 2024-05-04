@@ -13,10 +13,10 @@ export default class StaticGeneric extends AbstractProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IGenericStaticProperty
 
-  valueChanged = debounce((value: string): void => {
+  valueChanged = debounce((formula: string): void => {
     this.updateProperty({
       ...this.property,
-      value
+      formula
     })
   }, functionDebounceTimer)
 
@@ -32,7 +32,7 @@ export default class StaticGeneric extends AbstractProperty {
         <div class="uk-flex uk-flex-column uk-flex-left">
           <label class="value-label">Context formula:</label>
           <div class="uk-flex uk-flex-row">
-            <input id="value-editor" class="uk-input" value="${this.property.value}"
+            <input id="value-editor" class="uk-input" value="${this.property.formula}"
                    @input="${(e: Event) => { this.valueChanged((e.target as HTMLInputElement).value) }}"/>
           </div>
         </div>

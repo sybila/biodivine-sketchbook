@@ -13,10 +13,10 @@ export default class DynamicGeneric extends AbstractProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IGenericDynamicProperty
 
-  valueUpdated = debounce((value: string) => {
+  valueUpdated = debounce((formula: string) => {
     this.updateProperty({
       ...this.property,
-      value
+      formula
     })
   }, functionDebounceTimer)
 
@@ -30,7 +30,7 @@ export default class DynamicGeneric extends AbstractProperty {
             ${icon(faTrash).node}
           </button>
         </div>
-        <input id="value-editor" class="uk-input" value="${this.property.value}"
+        <input id="value-editor" class="uk-input" value="${this.property.formula}"
                @input="${(e: Event) => { this.valueUpdated((e.target as HTMLInputElement).value) }}">
       </div>
       <hr>

@@ -17,7 +17,7 @@ export default class DynamicAttractorCount extends AbstractProperty {
     if (exact) {
       this.updateProperty({
         ...this.property,
-        upper: this.property.lower
+        maximal: this.property.maximal
       })
     }
     this.exact = exact
@@ -27,8 +27,8 @@ export default class DynamicAttractorCount extends AbstractProperty {
     const value = +(event.target as HTMLInputElement).value
     this.updateProperty({
       ...this.property,
-      upper: value,
-      lower: value
+      maximal: value,
+      minimal: value
     })
   }
 
@@ -36,7 +36,7 @@ export default class DynamicAttractorCount extends AbstractProperty {
     const value = +(event.target as HTMLInputElement).value
     this.updateProperty({
       ...this.property,
-      lower: value
+      minimal: value
     })
   }
 
@@ -44,7 +44,7 @@ export default class DynamicAttractorCount extends AbstractProperty {
     const value = +(event.target as HTMLInputElement).value
     this.updateProperty({
       ...this.property,
-      upper: value
+      maximal: value
     })
   }
 
@@ -77,7 +77,7 @@ export default class DynamicAttractorCount extends AbstractProperty {
                   <label for="exact">Attractor count:</label>
                   <div class="uk-width-1-2">
                     <input class="uk-input uk-margin-small-left" id="exact" name="exact" type="number" min="0"
-                           value="${this.property.lower}" @change="${this.exactChanged}">
+                           value="${this.property.minimal}" @change="${this.exactChanged}">
                   </div>
                 </div>
               </div>`,
@@ -86,15 +86,15 @@ export default class DynamicAttractorCount extends AbstractProperty {
                 <div class="uk-flex uk-flex-row uk-flex-middle uk-flex-center uk-width-1-2">
                   <label for="lower">Min:</label>
                   <div class="uk-width-1-2">
-                    <input class="uk-input uk-margin-small-left" id="lower" name="lower" type="number" min="0" max="${this.property.upper}"
-                           value="${this.property.lower}" @change="${this.lowerChanged}">
+                    <input class="uk-input uk-margin-small-left" id="lower" name="lower" type="number" min="0" max="${this.property.maximal}"
+                           value="${this.property.minimal}" @change="${this.lowerChanged}">
                   </div>
                 </div>
                 <div class="uk-flex uk-flex-row uk-flex-middle uk-flex-center uk-width-1-2">
                   <label for="upper">Max:</label>
                   <div class="uk-width-1-2">
-                    <input class="uk-input uk-margin-small-left" id="upper" name="upper" type="number" min="${this.property.lower}"
-                           value="${this.property.upper}" @change="${this.upperChanged}">
+                    <input class="uk-input uk-margin-small-left" id="upper" name="upper" type="number" min="${this.property.minimal}"
+                           value="${this.property.maximal}" @change="${this.upperChanged}">
                   </div>
                 </div>
               </div>`)}

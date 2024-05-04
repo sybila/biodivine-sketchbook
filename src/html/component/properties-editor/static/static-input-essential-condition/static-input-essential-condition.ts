@@ -26,7 +26,7 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
   @query('#second-selector') declare secondSelector: HTMLSelectElement
 
   private getEssentialitySymbol (): string {
-    switch (this.property.essential) {
+    switch (this.property.value) {
       case Essentiality.TRUE:
         return '<-'
       case Essentiality.FALSE:
@@ -37,36 +37,36 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
   }
 
   toggleEssentiality (): void {
-    let essential = getNextEssentiality(this.property.essential)
-    if (essential === Essentiality.UNKNOWN) {
-      essential = getNextEssentiality(essential)
+    let value = getNextEssentiality(this.property.value)
+    if (value === Essentiality.UNKNOWN) {
+      value = getNextEssentiality(value)
     }
     this.updateProperty({
       ...this.property,
-      essential
+      value
     })
   }
 
-  conditionChanged = debounce((condition: string): void => {
+  conditionChanged = debounce((context: string): void => {
     this.updateProperty({
       ...this.property,
-      condition
+      context
     })
   }, functionDebounceTimer)
 
   firstChanged (event: Event): void {
     const value = (event.target as HTMLSelectElement).value
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
-        function: value,
-        variable: undefined
+        target: value,
+        input: undefined
       })
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
-        variable: value,
-        regulator: undefined
+        target: value,
+        input: undefined
       })
     }
     this.secondSelector.selectedIndex = 0
@@ -74,36 +74,36 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
 
   secondChanged (event: Event): void {
     const value = (event.target as HTMLSelectElement).value
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
-        variable: value
+        input: value
       })
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
-        regulator: value
+        input: value
       })
     }
   }
 
   getFirstSelectorItems (): string[] {
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       return this.contentData.functions.map(func => func.id)
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
       return this.contentData.variables.map(variable => variable.id)
     }
     return []
   }
 
   getSecondSelectorItems (): string[] {
-    if (this.property.type === StaticPropertyType.FunctionInputEssentialWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       return this.contentData.functions
-        .find(func => func.id === (this.property as IFunctionInputEssentialStaticProperty).function)
+        .find(func => func.id === (this.property as IFunctionInputEssentialStaticProperty).target)
         ?.variables.map(variable => variable.source) ?? []
-    } else if (this.property.type === StaticPropertyType.VariableRegulationEssentialWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
       return this.contentData.regulations
-        .filter(regulation => regulation.target === (this.property as IVariableRegulatorEssentialStaticProperty).variable)
+        .filter(regulation => regulation.target === (this.property as IVariableRegulatorEssentialStaticProperty).target)
         .map(regulation => regulation.source)
     }
     return []
@@ -139,7 +139,7 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
           }}">
             <span>(</span>
             <span class="essentiality">
-              ${getEssentialityText(this.property.essential)}
+              ${getEssentialityText(this.property.value)}
             </span>
             <span>)</span>
           </div>
@@ -147,7 +147,7 @@ export default class StaticInputEssentialCondition extends AbstractProperty {
         <div class="uk-flex uk-flex-column uk-flex-left">
           <label class="condition-label">Context formula:</label>
           <div class="uk-flex uk-flex-row">
-            <input id="condition-field" class="condition-field" value="${this.property.condition}"
+            <input id="condition-field" class="condition-field" value="${this.property.context}"
                    @input="${(e: Event) => {
                      this.conditionChanged((e.target as HTMLInputElement).value)
                    }}"/>

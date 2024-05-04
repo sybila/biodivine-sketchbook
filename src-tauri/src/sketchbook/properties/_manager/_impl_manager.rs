@@ -13,10 +13,17 @@ use std::str::FromStr;
 impl PropertyManager {
     /// Instantiate `PropertyManager` with empty sets of properties.
     pub fn new_empty() -> PropertyManager {
-        PropertyManager {
+        let mut m = PropertyManager {
             dyn_properties: HashMap::new(),
             stat_properties: HashMap::new(),
-        }
+        };
+
+        m.add_dyn_generic(DynPropertyId::new("d").unwrap(), "name", "prop")
+            .unwrap();
+        m.add_stat_generic(StatPropertyId::new("s").unwrap(), "name", "prop")
+            .unwrap();
+
+        m
     }
 
     /// Instantiate `PropertyManager` with (generic) dynamic and static properties given as a list
@@ -122,8 +129,8 @@ impl PropertyManager {
         &mut self,
         id: DynPropertyId,
         name: &str,
-        dataset: DatasetId,
-        observation: ObservationId,
+        dataset: Option<DatasetId>,
+        observation: Option<ObservationId>,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
         let property = DynProperty::mk_fixed_point(name, dataset, observation)?;
@@ -137,8 +144,8 @@ impl PropertyManager {
         &mut self,
         id: DynPropertyId,
         name: &str,
-        dataset: DatasetId,
-        observation: ObservationId,
+        dataset: Option<DatasetId>,
+        observation: Option<ObservationId>,
         minimal: bool,
         non_percolable: bool,
     ) -> Result<(), String> {
@@ -155,7 +162,7 @@ impl PropertyManager {
         &mut self,
         id: DynPropertyId,
         name: &str,
-        dataset: DatasetId,
+        dataset: Option<DatasetId>,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
         let property = DynProperty::mk_trajectory(name, dataset)?;
@@ -183,7 +190,7 @@ impl PropertyManager {
         &mut self,
         id: DynPropertyId,
         name: &str,
-        dataset: DatasetId,
+        dataset: Option<DatasetId>,
         observation: Option<ObservationId>,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
@@ -206,36 +213,70 @@ impl PropertyManager {
         Ok(())
     }
 
-    /// Add new `StatProperty` instance describing that an input of an update function is essential.
-    pub fn add_stat_update_fn_input_essential(
+    /// Add new `StatProperty` instance describing that a regulation is essential (i.e., an input
+    /// of an update function is essential).
+    pub fn add_stat_reg_essential(
         &mut self,
         id: StatPropertyId,
         name: &str,
-        input: VarId,
-        target: VarId,
+        input: Option<VarId>,
+        target: Option<VarId>,
         value: Essentiality,
-        context: Option<String>,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
-        let property =
-            StatProperty::mk_update_fn_input_essential(name, input, target, value, context)?;
+        let property = StatProperty::mk_regulation_essential(name, input, target, value)?;
         self.stat_properties.insert(id, property);
         Ok(())
     }
 
-    /// Add new `StatProperty` instance describing that an input of an update function is monotonic.
-    pub fn add_stat_update_fn_input_monotonic(
+    /// Add new `StatProperty` instance describing that a regulation is essential (i.e., an input
+    /// of an update function is essential) in a given context.
+    pub fn add_stat_reg_essential_context(
         &mut self,
         id: StatPropertyId,
         name: &str,
-        input: VarId,
-        target: VarId,
-        value: Monotonicity,
-        context: Option<String>,
+        input: Option<VarId>,
+        target: Option<VarId>,
+        value: Essentiality,
+        context: String,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_update_fn_input_monotonic(name, input, target, value, context)?;
+            StatProperty::mk_regulation_essential_context(name, input, target, value, context)?;
+        self.stat_properties.insert(id, property);
+        Ok(())
+    }
+
+    /// Add new `StatProperty` instance describing that a regulation is monotonic (i.e., an input
+    /// of an update function is monotonic).
+    pub fn add_stat_reg_monotonic(
+        &mut self,
+        id: StatPropertyId,
+        name: &str,
+        input: Option<VarId>,
+        target: Option<VarId>,
+        value: Monotonicity,
+    ) -> Result<(), String> {
+        self.assert_no_static(&id)?;
+        let property = StatProperty::mk_regulation_monotonic(name, input, target, value)?;
+        self.stat_properties.insert(id, property);
+        Ok(())
+    }
+
+    /// Add new `StatProperty` instance describing that a regulation is monotonic (i.e., an input
+    /// of an update function is monotonic) in a given context.
+    pub fn add_stat_reg_monotonic_context(
+        &mut self,
+        id: StatPropertyId,
+        name: &str,
+        input: Option<VarId>,
+        target: Option<VarId>,
+        value: Monotonicity,
+        context: String,
+    ) -> Result<(), String> {
+        self.assert_no_static(&id)?;
+        let property =
+            StatProperty::mk_regulation_monotonic_context(name, input, target, value, context)?;
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -246,14 +287,30 @@ impl PropertyManager {
         &mut self,
         id: StatPropertyId,
         name: &str,
-        input_index: usize,
-        target: UninterpretedFnId,
+        input_index: Option<usize>,
+        target: Option<UninterpretedFnId>,
         value: Essentiality,
-        context: Option<String>,
+    ) -> Result<(), String> {
+        self.assert_no_static(&id)?;
+        let property = StatProperty::mk_fn_input_essential(name, input_index, target, value)?;
+        self.stat_properties.insert(id, property);
+        Ok(())
+    }
+
+    /// Add new `StatProperty` instance describing that an input of an uninterpreted function
+    /// is essential in a certain context.
+    pub fn add_stat_fn_input_essential_context(
+        &mut self,
+        id: StatPropertyId,
+        name: &str,
+        input_index: Option<usize>,
+        target: Option<UninterpretedFnId>,
+        value: Essentiality,
+        context: String,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_fn_input_essential(name, input_index, target, value, context)?;
+            StatProperty::mk_fn_input_essential_context(name, input_index, target, value, context)?;
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -264,14 +321,30 @@ impl PropertyManager {
         &mut self,
         id: StatPropertyId,
         name: &str,
-        input_index: usize,
-        target: UninterpretedFnId,
+        input_index: Option<usize>,
+        target: Option<UninterpretedFnId>,
         value: Monotonicity,
-        context: Option<String>,
+    ) -> Result<(), String> {
+        self.assert_no_static(&id)?;
+        let property = StatProperty::mk_fn_input_monotonic(name, input_index, target, value)?;
+        self.stat_properties.insert(id, property);
+        Ok(())
+    }
+
+    /// Add new `StatProperty` instance describing that an input of an uninterpreted function
+    /// is monotonic in a certain context.
+    pub fn add_stat_fn_input_monotonic_context(
+        &mut self,
+        id: StatPropertyId,
+        name: &str,
+        input_index: Option<usize>,
+        target: Option<UninterpretedFnId>,
+        value: Monotonicity,
+        context: String,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_fn_input_monotonic(name, input_index, target, value, context)?;
+            StatProperty::mk_fn_input_monotonic_context(name, input_index, target, value, context)?;
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -442,11 +515,7 @@ impl PropertyManager {
 
     /// Update static property's sub-field for context, where applicable.
     /// If not applicable, return `Err`.
-    pub fn set_stat_context(
-        &mut self,
-        id: &StatPropertyId,
-        context: Option<String>,
-    ) -> Result<(), String> {
+    pub fn set_stat_context(&mut self, id: &StatPropertyId, context: String) -> Result<(), String> {
         self.assert_valid_static(id)?;
         let prop = self.stat_properties.get_mut(id).unwrap();
         prop.set_context(context)

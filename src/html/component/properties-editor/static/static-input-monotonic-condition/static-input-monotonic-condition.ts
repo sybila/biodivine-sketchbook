@@ -26,25 +26,25 @@ export default class StaticInputMonotonicCondition extends AbstractProperty {
   @query('#second-selector') declare secondSelector: HTMLSelectElement
 
   toggleMonotonicity (): void {
-    let monotonic = getNextMonotonicity(this.property.monotonic)
-    if (monotonic === Monotonicity.UNSPECIFIED) {
-      monotonic = getNextMonotonicity(monotonic)
+    let value = getNextMonotonicity(this.property.value)
+    if (value === Monotonicity.UNSPECIFIED) {
+      value = getNextMonotonicity(value)
     }
     this.updateProperty({
       ...this.property,
-      monotonic
+      value
     })
   }
 
-  conditionChanged = debounce((condition: string): void => {
+  conditionChanged = debounce((context: string): void => {
     this.updateProperty({
       ...this.property,
-      condition
+      context
     })
   }, functionDebounceTimer)
 
   private getMonotonicitySymbol (): string {
-    switch (this.property.monotonic) {
+    switch (this.property.value) {
       case Monotonicity.ACTIVATION:
         return '<-'
       case Monotonicity.DUAL:
@@ -59,17 +59,17 @@ export default class StaticInputMonotonicCondition extends AbstractProperty {
   firstChanged (event: Event): void {
     const value = (event.target as HTMLSelectElement).value
     console.log(value)
-    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
-        function: value,
-        variable: undefined
+        target: value,
+        input: undefined
       })
-    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
-        variable: value,
-        regulator: undefined
+        target: value,
+        input: undefined
       })
     }
     this.secondSelector.selectedIndex = 0
@@ -77,36 +77,36 @@ export default class StaticInputMonotonicCondition extends AbstractProperty {
 
   secondChanged (event: Event): void {
     const value = (event.target as HTMLSelectElement).value
-    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
-        variable: value
+        target: value
       })
-    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
-        regulator: value
+        input: value
       })
     }
   }
 
   getFirstSelectorItems (): string[] {
-    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       return this.contentData.functions.map(func => func.id)
-    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       return this.contentData.variables.map(variable => variable.id)
     }
     return []
   }
 
   getSecondSelectorItems (): string[] {
-    if (this.property.type === StaticPropertyType.FunctionInputMonotonicWithCondition) {
+    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       return this.contentData.functions
-        .find(func => func.id === (this.property as IFunctionInputMonotonicStaticProperty).function)
+        .find(func => func.id === (this.property as IFunctionInputMonotonicStaticProperty).target)
         ?.variables.map(variable => variable.source) ?? []
-    } else if (this.property.type === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
+    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       return this.contentData.regulations
-        .filter(regulation => regulation.target === (this.property as IVariableRegulatorMonotonicStaticProperty).variable)
+        .filter(regulation => regulation.target === (this.property as IVariableRegulatorMonotonicStaticProperty).target)
         .map(regulation => regulation.source)
     }
     return []
@@ -141,8 +141,8 @@ export default class StaticInputMonotonicCondition extends AbstractProperty {
             this.toggleMonotonicity()
           }}">
             <span>(</span>
-            <span class="monotonicity ${getMonotonicityClass(this.property.monotonic)}">
-              ${this.property.monotonic.toLowerCase()}
+            <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
+              ${this.property.value.toLowerCase()}
             </span>
             <span>)</span>
           </div>
@@ -150,7 +150,7 @@ export default class StaticInputMonotonicCondition extends AbstractProperty {
         <div class="uk-flex uk-flex-column uk-flex-left">
           <label class="condition-label">Context formula:</label>
           <div class="uk-flex uk-flex-row">
-            <input id="condition-field" class="condition-field" value="${this.property.condition}"
+            <input id="condition-field" class="condition-field" value="${this.property.context}"
                    @input="${(e: Event) => {
                      this.conditionChanged((e.target as HTMLInputElement).value)
                    }}"/>

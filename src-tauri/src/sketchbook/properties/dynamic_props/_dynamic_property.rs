@@ -34,8 +34,8 @@ impl DynProperty {
     /// a given observation.
     pub fn mk_fixed_point(
         name: &str,
-        dataset: DatasetId,
-        observation: ObservationId,
+        dataset: Option<DatasetId>,
+        observation: Option<ObservationId>,
     ) -> Result<DynProperty, String> {
         let property = ExistsFixedPoint {
             dataset,
@@ -51,16 +51,16 @@ impl DynProperty {
     /// a given observation.
     pub fn mk_trap_space(
         name: &str,
-        dataset: DatasetId,
-        observation: ObservationId,
+        dataset: Option<DatasetId>,
+        observation: Option<ObservationId>,
         minimal: bool,
-        non_percolable: bool,
+        nonpercolable: bool,
     ) -> Result<DynProperty, String> {
         let property = ExistsTrapSpace {
             dataset,
             observation,
             minimal,
-            non_percolable,
+            nonpercolable,
         };
         Ok(DynProperty {
             name: name.to_string(),
@@ -70,7 +70,7 @@ impl DynProperty {
 
     /// Create `DynProperty` instance describing existence of a trajectory corresponding to
     /// observations from a given observation (in the given order).
-    pub fn mk_trajectory(name: &str, dataset: DatasetId) -> Result<DynProperty, String> {
+    pub fn mk_trajectory(name: &str, dataset: Option<DatasetId>) -> Result<DynProperty, String> {
         let property = ExistsTrajectory { dataset };
         Ok(DynProperty {
             name: name.to_string(),
@@ -95,7 +95,7 @@ impl DynProperty {
     /// a corresponding dataset, or some specific observation in it.
     pub fn mk_has_attractor(
         name: &str,
-        dataset: DatasetId,
+        dataset: Option<DatasetId>,
         observation: Option<ObservationId>,
     ) -> Result<DynProperty, String> {
         let property = HasAttractor {
@@ -120,6 +120,7 @@ impl DynProperty {
 
     /// Update property's sub-field `dataset` where applicable. If not applicable, return `Err`.
     pub fn set_dataset(&mut self, new_dataset: DatasetId) -> Result<(), String> {
+        let new_dataset = Some(new_dataset);
         match &mut self.variant {
             DynPropertyType::ExistsFixedPoint(prop) => prop.dataset = new_dataset,
             DynPropertyType::ExistsTrapSpace(prop) => prop.dataset = new_dataset,
@@ -137,10 +138,11 @@ impl DynProperty {
 
     /// Update property's sub-field `observation` where applicable. If not applicable, return `Err`.
     pub fn set_observation(&mut self, new_obs: ObservationId) -> Result<(), String> {
+        let new_obs = Some(new_obs);
         match &mut self.variant {
             DynPropertyType::ExistsFixedPoint(prop) => prop.observation = new_obs,
             DynPropertyType::ExistsTrapSpace(prop) => prop.observation = new_obs,
-            DynPropertyType::HasAttractor(prop) => prop.observation = Some(new_obs),
+            DynPropertyType::HasAttractor(prop) => prop.observation = new_obs,
             // Other cases do not have a observation field
             other_variant => {
                 return Err(format!(
@@ -201,11 +203,11 @@ impl DynProperty {
     pub fn set_trap_space_details(
         &mut self,
         is_minimal: bool,
-        non_percolable: bool,
+        nonpercolable: bool,
     ) -> Result<(), String> {
         if let DynPropertyType::ExistsTrapSpace(prop) = &mut self.variant {
             prop.minimal = is_minimal;
-            prop.non_percolable = non_percolable;
+            prop.nonpercolable = nonpercolable;
             Ok(())
         } else {
             Err(format!(

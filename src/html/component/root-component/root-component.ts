@@ -124,7 +124,7 @@ export default class RootComponent extends LitElement {
   }
 
   saveObservationData (event: Event): void {
-    // update functions using modified data propagated from FunctionsEditor
+    // update functions using modified data propagated from ObservationsEditor
     const datasets: IObservationSet[] = (event as CustomEvent).detail.datasets
     this.data = this.data.copy({ observations: datasets })
   }

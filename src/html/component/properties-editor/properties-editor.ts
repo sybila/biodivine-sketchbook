@@ -39,6 +39,7 @@ import { computePosition, flip } from '@floating-ui/dom'
 import UIkit from 'uikit'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { aeonState } from '../../../aeon_events'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -100,9 +101,28 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('property-removed', this.propertyRemoved)
 
     document.addEventListener('click', this.closeMenu.bind(this))
+
+    // refresh-event listeners
+    aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
+    aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
+
+    // refreshing content from backend - placeholders
+    aeonState.sketch.properties.refreshDynamicProps()
+    aeonState.sketch.properties.refreshStaticProps()
+
     // seed dummy data
     this.properties.push(functionInputEssential('a'))
     this.properties.push(functionInputMonotonic('b'))
+  }
+
+  #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
+    // TODO
+    console.log(refreshedDynamic)
+  }
+
+  #onStaticRefreshed (refreshedStatic: StaticProperty[]): void {
+    // TODO
+    console.log(refreshedStatic)
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {
@@ -249,7 +269,7 @@ export default class PropertiesEditor extends LitElement {
             </div>
             <div class="section-list">
               ${map(this.properties, (prop, index) => {
-                switch (prop.type) {
+                switch (prop.variant) {
                   case StaticPropertyType.Generic:
                     return html`
                       <static-generic .index=${index}
@@ -296,7 +316,7 @@ export default class PropertiesEditor extends LitElement {
             </div>
             <div class="section-list">
               ${map(this.properties, (prop, index) => {
-                switch (prop.type) {
+                switch (prop.variant) {
                   case DynamicPropertyType.FixedPoint:
                     return html`
                       <dynamic-fixed-point .index=${index}
