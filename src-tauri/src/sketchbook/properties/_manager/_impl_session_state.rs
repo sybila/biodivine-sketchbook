@@ -121,6 +121,26 @@ impl PropertyManager {
             let payload = prop_data.to_json_str();
             let reverse_event = mk_dyn_prop_event(&["add"], Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_content", at_path).is_some() {
+            // get the payload - json string encoding a new property data
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_property_data = DynPropertyData::from_json_str(&payload)?;
+            let new_property = new_property_data.to_property()?;
+            let orig_property = self.get_dyn_prop(&prop_id)?;
+            if orig_property == &new_property {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            let orig_prop_data = DynPropertyData::from_property(&prop_id, orig_property);
+            self.swap_dyn_content(&prop_id, new_property)?;
+            let state_change = mk_dyn_prop_state_change(&["set_content"], &new_property_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let reverse_at_path = [prop_id.as_str(), "set_content"];
+            let payload = orig_prop_data.to_json_str();
+            let reverse_event = mk_dyn_prop_event(&reverse_at_path, Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
         }
@@ -168,6 +188,26 @@ impl PropertyManager {
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let payload = prop_data.to_json_str();
             let reverse_event = mk_stat_prop_event(&["add"], Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_content", at_path).is_some() {
+            // get the payload - json string encoding a new property data
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_property_data = StatPropertyData::from_json_str(&payload)?;
+            let new_property = new_property_data.to_property()?;
+            let orig_property = self.get_stat_prop(&prop_id)?;
+            if orig_property == &new_property {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            let orig_prop_data = StatPropertyData::from_property(&prop_id, orig_property);
+            self.swap_stat_content(&prop_id, new_property)?;
+            let state_change = mk_stat_prop_state_change(&["set_content"], &new_property_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let reverse_at_path = [prop_id.as_str(), "set_content"];
+            let payload = orig_prop_data.to_json_str();
+            let reverse_event = mk_stat_prop_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)

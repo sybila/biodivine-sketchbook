@@ -2,6 +2,7 @@ use crate::sketchbook::ids::{UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::FirstOrderFormula;
 use serde::{Deserialize, Serialize};
+use std::mem::discriminant;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct GenericStatProp {
@@ -52,4 +53,9 @@ pub enum StatPropertyType {
     RegulationEssentialContext(RegulationEssential),
     RegulationMonotonicContext(RegulationMonotonic),
     GenericStatProp(GenericStatProp),
+}
+
+/// Check if two StatPropertyType instances are of the same variant.
+pub fn are_same_stat_variant(a: &StatPropertyType, b: &StatPropertyType) -> bool {
+    discriminant(a) == discriminant(b)
 }

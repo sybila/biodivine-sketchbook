@@ -278,25 +278,33 @@ interface AeonState {
 
       /** Events regarding dynamic properties. */
 
-      /** DynPropertyData for a newly created dynamic property. */
+      /** Newly created dynamic property. */
       dynamicCreated: Observable<DynamicProperty>
       /** Create a new dynamic property with given ID, variables, of given `variant` (with corresponding data). */
       addDynamic: (id: string, name: string, variant: DynamicProperty) => void
-      /** DynPropertyData for a removed dynamic property. */
+      /** Data of a removed dynamic property. */
       dynamicRemoved: Observable<DynamicProperty>
-      /** Remove dynamic proeprty with given ID. */
+      /** Remove dynamic property with given ID. */
       removeDynamic: (id: string) => void
+      /** Data of a modified dynamic property. */
+      dynamicContentChanged: Observable<DynamicProperty>
+      /** Set content of dynamic property with given ID. */
+      setDynamicContent: (id: string, newContent: DynamicProperty) => void
 
       /** Events regarding static properties. */
 
-      /** StatPropertyData for a newly created static property. */
+      /** Data of a newly created static property. */
       staticCreated: Observable<StaticProperty>
       /** Create a new static property with given ID, variables, of given `variant` (with corresponding data). */
       addStatic: (id: string, name: string, variant: StaticProperty) => void
-      /** StatPropertyData for a removed static property. */
+      /** Data of a removed static property. */
       staticRemoved: Observable<StaticProperty>
-      /** Remove static proeprty with given ID. */
+      /** Remove static property with given ID. */
       removeStatic: (id: string) => void
+      /** Data of a modified static property. */
+      staticContentChanged: Observable<StaticProperty>
+      /** Set content of static property with given ID. */
+      setStaticContent: (id: string, newContent: StaticProperty) => void
     }
   }
 
@@ -1201,8 +1209,10 @@ export const aeonState: AeonState = {
       },
 
       dynamicCreated: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'add']),
+      dynamicContentChanged: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'set_content']),
       dynamicRemoved: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'remove']),
       staticCreated: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'add']),
+      staticContentChanged: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'set_content']),
       staticRemoved: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'remove']),
 
       addDynamic (id: string, name: string, variant: DynamicProperty): void {
@@ -1213,6 +1223,12 @@ export const aeonState: AeonState = {
             name,
             variant
           })
+        })
+      },
+      setDynamicContent (id: string, newContent: DynamicProperty): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', id, 'set_content'],
+          payload: JSON.stringify(newContent)
         })
       },
       removeDynamic (id: string): void {
@@ -1229,6 +1245,12 @@ export const aeonState: AeonState = {
             name,
             variant
           })
+        })
+      },
+      setStaticContent (id: string, newContent: StaticProperty): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', id, 'set_content'],
+          payload: JSON.stringify(newContent)
         })
       },
       removeStatic (id: string): void {

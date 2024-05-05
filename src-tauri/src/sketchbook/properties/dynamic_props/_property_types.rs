@@ -1,6 +1,7 @@
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::properties::HctlFormula;
 use serde::{Deserialize, Serialize};
+use std::mem::discriminant;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct GenericDynProp {
@@ -47,4 +48,9 @@ pub enum DynPropertyType {
     ExistsTrajectory(ExistsTrajectory),
     AttractorCount(AttractorCount),
     HasAttractor(HasAttractor),
+}
+
+/// Check if two DynPropertyType instances are of the same variant.
+pub fn are_same_dyn_variant(a: &DynPropertyType, b: &DynPropertyType) -> bool {
+    discriminant(a) == discriminant(b)
 }

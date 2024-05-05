@@ -2,6 +2,8 @@ use crate::sketchbook::ids::{
     DatasetId, DynPropertyId, ObservationId, StatPropertyId, UninterpretedFnId, VarId,
 };
 use crate::sketchbook::model::{Essentiality, Monotonicity};
+use crate::sketchbook::properties::dynamic_props::are_same_dyn_variant;
+use crate::sketchbook::properties::static_props::are_same_stat_variant;
 use crate::sketchbook::properties::{
     DynPropIterator, DynProperty, PropertyManager, StatPropIterator, StatProperty,
 };
@@ -537,6 +539,58 @@ impl PropertyManager {
         self.assert_valid_static(id)?;
         let prop = self.stat_properties.get_mut(id).unwrap();
         prop.set_context(context)
+    }
+
+    /// Swap content of a dynamic property with given `id`. The ID must be valid identifier.
+    /// The variant of the prop. must stay the same (i.e., we only change attributes, not variant).
+    pub fn swap_dyn_content(
+        &mut self,
+        id: &DynPropertyId,
+        new_content: DynProperty,
+    ) -> Result<(), String> {
+        let orig_content = self.get_dyn_prop(id)?;
+        if !are_same_dyn_variant(new_content.get_prop_data(), orig_content.get_prop_data()) {
+            return Err("Variant of the dynamic property cannot change.".to_string());
+        }
+        self.dyn_properties.insert(id.clone(), new_content);
+        Ok(())
+    }
+
+    /// Swap content of a dynamic property with given `id`. The ID must be valid identifier.
+    /// The variant of the prop. must stay the same (i.e., we only change attributes, not variant).
+    pub fn swap_dyn_content_by_str(
+        &mut self,
+        id: &str,
+        new_content: DynProperty,
+    ) -> Result<(), String> {
+        let prop_id = DynPropertyId::new(id)?;
+        self.swap_dyn_content(&prop_id, new_content)
+    }
+
+    /// Swap content of a static property with given `id`. The ID must be valid identifier.
+    /// The variant of the prop. must stay the same (i.e., we only change attributes, not variant).
+    pub fn swap_stat_content(
+        &mut self,
+        id: &StatPropertyId,
+        new_content: StatProperty,
+    ) -> Result<(), String> {
+        let orig_content = self.get_stat_prop(id)?;
+        if !are_same_stat_variant(new_content.get_prop_data(), orig_content.get_prop_data()) {
+            return Err("Variant of the static property cannot change.".to_string());
+        }
+        self.stat_properties.insert(id.clone(), new_content);
+        Ok(())
+    }
+
+    /// Swap content of a static property with given `id`. The ID must be valid identifier.
+    /// The variant of the prop. must stay the same (i.e., we only change attributes, not variant).
+    pub fn swap_stat_content_by_str(
+        &mut self,
+        id: &str,
+        new_content: StatProperty,
+    ) -> Result<(), String> {
+        let prop_id = StatPropertyId::new(id)?;
+        self.swap_stat_content(&prop_id, new_content)
     }
 
     /// Remove dynamic property.
