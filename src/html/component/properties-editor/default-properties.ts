@@ -50,8 +50,8 @@ export const attractorCountDynamic = (id: string): IAttractorCountDynamicPropert
     id,
     name: 'attractor-count-dynamic',
     variant: DynamicPropertyType.AttractorCount,
-    minimal: 0,
-    maximal: 0
+    minimal: 1,
+    maximal: 1
   }
 }
 
