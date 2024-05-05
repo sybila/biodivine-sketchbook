@@ -49,56 +49,60 @@ export default class PropertiesEditor extends LitElement {
   @query('#add-dynamic-property-button') declare addDynamicPropertyElement: HTMLElement
   @query('#static-property-menu') declare staticPropertyMenuElement: HTMLElement
   @query('#add-static-property-button') declare addStaticPropertyElement: HTMLElement
-  @state() properties: Array<DynamicProperty | StaticProperty> = []
+  @state() staticProperties: StaticProperty[] = []
+  @state() dynamicProperties: DynamicProperty[] = []
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
+  propIndex = 0
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
       label: 'Trap space',
-      action: () => { this.addProperty(DynamicPropertyType.TrapSpace) }
+      action: () => { this.addDynamicProperty(DynamicPropertyType.TrapSpace) }
     }, {
       label: 'Fixed point',
-      action: () => { this.addProperty(DynamicPropertyType.FixedPoint) }
+      action: () => { this.addDynamicProperty(DynamicPropertyType.FixedPoint) }
     }, {
       label: 'Exists trajectory',
-      action: () => { this.addProperty(DynamicPropertyType.ExistsTrajectory) }
+      action: () => { this.addDynamicProperty(DynamicPropertyType.ExistsTrajectory) }
     }, {
       label: 'Attractor count',
-      action: () => { this.addProperty(DynamicPropertyType.AttractorCount) }
+      action: () => { this.addDynamicProperty(DynamicPropertyType.AttractorCount) }
     }, {
       label: 'Has attractor',
-      action: () => { this.addProperty(DynamicPropertyType.HasAttractor) }
+      action: () => { this.addDynamicProperty(DynamicPropertyType.HasAttractor) }
     }, {
       label: 'Generic',
-      action: () => { this.addProperty(DynamicPropertyType.Generic) }
+      action: () => { this.addDynamicProperty(DynamicPropertyType.Generic) }
     }
   ]
 
   addStaticPropertyMenu: IAddPropertyItem[] = [
     {
       label: 'Essential function input',
-      action: () => { this.addProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
+      action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
     }, {
       label: 'Essential variable regulation',
-      action: () => { this.addProperty(StaticPropertyType.VariableRegulationEssentialWithCondition) }
+      action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationEssentialWithCondition) }
     }, {
       label: 'Monotonic function input',
-      action: () => { this.addProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
+      action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
     }, {
       label: 'Monotonic variable regulation',
-      action: () => { this.addProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition) }
+      action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition) }
     }, {
       label: 'Generic',
-      action: () => { this.addProperty(StaticPropertyType.Generic) }
+      action: () => { this.addStaticProperty(StaticPropertyType.Generic) }
     }
   ]
 
   constructor () {
     super()
 
-    this.addEventListener('property-changed', this.propertyChanged)
-    this.addEventListener('property-removed', this.propertyRemoved)
+    this.addEventListener('static-property-changed', this.staticPropertyChanged)
+    this.addEventListener('dynamic-property-changed', this.dynamicPropertyChanged)
+    this.addEventListener('static-property-removed', this.staticPropertyRemoved)
+    this.addEventListener('dynamic-property-removed', this.dynamicPropertyRemoved)
 
     document.addEventListener('click', this.closeMenu.bind(this))
 
@@ -111,8 +115,8 @@ export default class PropertiesEditor extends LitElement {
     aeonState.sketch.properties.refreshStaticProps()
 
     // seed dummy data
-    this.properties.push(functionInputEssential('a'))
-    this.properties.push(functionInputMonotonic('b'))
+    this.staticProperties.push(functionInputEssential('a'))
+    this.staticProperties.push(functionInputMonotonic('b'))
   }
 
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
@@ -130,58 +134,80 @@ export default class PropertiesEditor extends LitElement {
     UIkit.sticky(this.shadowRoot?.querySelector('.header') as HTMLElement)
   }
 
-  addProperty (type: PropertyType): void {
-    const id = '' + this.properties.length
+  addDynamicProperty (type: PropertyType): void {
+    const id = '' + this.propIndex++
     switch (type) {
       case DynamicPropertyType.Generic:
-        this.properties.push(genericDynamic(id))
+        this.dynamicProperties.push(genericDynamic(id))
         break
       case DynamicPropertyType.FixedPoint:
-        this.properties.push(fixedPointDynamic(id))
+        this.dynamicProperties.push(fixedPointDynamic(id))
         break
       case DynamicPropertyType.TrapSpace:
-        this.properties.push(trapSpaceDynamic(id))
+        this.dynamicProperties.push(trapSpaceDynamic(id))
         break
       case DynamicPropertyType.ExistsTrajectory:
-        this.properties.push(existsTrajectoryDynamic(id))
+        this.dynamicProperties.push(existsTrajectoryDynamic(id))
         break
       case DynamicPropertyType.AttractorCount:
-        this.properties.push(attractorCountDynamic(id))
+        this.dynamicProperties.push(attractorCountDynamic(id))
         break
       case DynamicPropertyType.HasAttractor:
-        this.properties.push(hasAttractorDynamic(id))
+        this.dynamicProperties.push(hasAttractorDynamic(id))
         break
-      case StaticPropertyType.FunctionInputMonotonicWithCondition:
-        this.properties.push(functionInputMonotonicWithCondition(id))
-        break
-      case StaticPropertyType.FunctionInputEssentialWithCondition:
-        this.properties.push(functionInputEssentialWithCondition(id))
-        break
-      case StaticPropertyType.VariableRegulationEssentialWithCondition:
-        this.properties.push(variableRegulationEssentialWithCondition(id))
-        break
-      case StaticPropertyType.VariableRegulationMonotonicWithCondition:
-        this.properties.push(variableRegulationMonotonicWithCondition(id))
-        break
-      case StaticPropertyType.Generic:
-        this.properties.push(genericStatic(id))
     }
   }
 
-  propertyChanged (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    console.log('property changed', detail.property)
-    const props = [...this.properties]
-    props[detail.index] = detail.property
-    this.properties = props
+  addStaticProperty (type: StaticPropertyType): void {
+    const id = '' + this.propIndex++
+    switch (type) {
+      case StaticPropertyType.FunctionInputMonotonicWithCondition:
+        this.staticProperties.push(functionInputMonotonicWithCondition(id))
+        break
+      case StaticPropertyType.FunctionInputEssentialWithCondition:
+        this.staticProperties.push(functionInputEssentialWithCondition(id))
+        break
+      case StaticPropertyType.VariableRegulationEssentialWithCondition:
+        this.staticProperties.push(variableRegulationEssentialWithCondition(id))
+        break
+      case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+        this.staticProperties.push(variableRegulationMonotonicWithCondition(id))
+        break
+      case StaticPropertyType.Generic:
+        this.staticProperties.push(genericStatic(id))
+    }
   }
 
-  propertyRemoved (event: Event): void {
+  dynamicPropertyChanged (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log('property changed', detail.property)
+    const props = [...this.dynamicProperties]
+    props[detail.index] = detail.property
+    this.dynamicProperties = props
+  }
+
+  staticPropertyChanged (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log('property changed', detail.property)
+    const props = [...this.staticProperties]
+    props[detail.index] = detail.property
+    this.staticProperties = props
+  }
+
+  dynamicPropertyRemoved (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log('property removed', detail.index)
-    const props = [...this.properties]
+    const props = [...this.dynamicProperties]
     props.splice(detail.index, 1)
-    this.properties = props
+    this.dynamicProperties = props
+  }
+
+  staticPropertyRemoved (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log('property removed', detail.index)
+    const props = [...this.staticProperties]
+    props.splice(detail.index, 1)
+    this.staticProperties = props
   }
 
   async openAddDynamicPropertyMenu (): Promise<void> {
@@ -268,7 +294,7 @@ export default class PropertiesEditor extends LitElement {
               </button>
             </div>
             <div class="section-list">
-              ${map(this.properties, (prop, index) => {
+              ${map(this.staticProperties, (prop, index) => {
                 switch (prop.variant) {
                   case StaticPropertyType.Generic:
                     return html`
@@ -315,7 +341,7 @@ export default class PropertiesEditor extends LitElement {
               </button>
             </div>
             <div class="section-list">
-              ${map(this.properties, (prop, index) => {
+              ${map(this.dynamicProperties, (prop, index) => {
                 switch (prop.variant) {
                   case DynamicPropertyType.FixedPoint:
                     return html`

@@ -1,18 +1,17 @@
 import { css, LitElement, unsafeCSS } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { property } from 'lit/decorators.js'
 import style_less from './abstract-property.less?inline'
 import { type DynamicProperty, type StaticProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../util/config'
 
-@customElement('abstract-property')
 export default class AbstractProperty extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: DynamicProperty | StaticProperty
   @property() declare index: number
 
-  nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('property-changed', {
+  nameUpdated = debounce((name: string, eventName: string) => {
+    this.dispatchEvent(new CustomEvent(eventName, {
       detail: {
         property: {
           ...this.property,
@@ -24,8 +23,8 @@ export default class AbstractProperty extends LitElement {
     }))
   }, functionDebounceTimer)
 
-  removeProperty (): void {
-    this.dispatchEvent(new CustomEvent('property-removed', {
+  removeProperty (eventName: string): void {
+    this.dispatchEvent(new CustomEvent(eventName, {
       detail: {
         index: this.index
       },
@@ -34,8 +33,8 @@ export default class AbstractProperty extends LitElement {
     }))
   }
 
-  updateProperty (property: DynamicProperty | StaticProperty): void {
-    this.dispatchEvent(new CustomEvent('property-changed', {
+  updateProperty (property: DynamicProperty | StaticProperty, eventName: string): void {
+    this.dispatchEvent(new CustomEvent(eventName, {
       detail: {
         property,
         index: this.index
