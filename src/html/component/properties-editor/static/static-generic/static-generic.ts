@@ -1,15 +1,15 @@
 import { html, css, unsafeCSS, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-generic.less?inline'
-import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IGenericStaticProperty } from '../../../../util/data-interfaces'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
+import StaticDynamicProperty from '../static-dynamic-property'
 
 @customElement('static-generic')
-export default class StaticGeneric extends AbstractProperty {
+export default class StaticGeneric extends StaticDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IGenericStaticProperty
 

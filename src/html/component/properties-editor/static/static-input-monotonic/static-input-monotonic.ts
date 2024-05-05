@@ -1,7 +1,6 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-monotonic.less?inline'
-import AbstractProperty from '../../abstract-property/abstract-property'
 import {
   type IFunctionInputMonotonicStaticProperty,
   Monotonicity,
@@ -10,9 +9,10 @@ import {
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { when } from 'lit/directives/when.js'
 import { choose } from 'lit/directives/choose.js'
+import StaticDynamicProperty from '../static-dynamic-property'
 
 @customElement('static-input-monotonic')
-export default class StaticInputMonotonic extends AbstractProperty {
+export default class StaticInputMonotonic extends StaticDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputMonotonicStaticProperty
 

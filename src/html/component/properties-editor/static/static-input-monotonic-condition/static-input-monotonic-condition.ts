@@ -1,7 +1,6 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './static-input-monotonic-condition.less?inline'
-import AbstractProperty from '../../abstract-property/abstract-property'
 import {
   type ContentData,
   type IFunctionInputMonotonicStaticProperty,
@@ -16,9 +15,10 @@ import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
+import StaticDynamicProperty from '../static-dynamic-property'
 
 @customElement('static-input-monotonic-condition')
-export default class StaticInputMonotonicCondition extends AbstractProperty {
+export default class StaticInputMonotonicCondition extends StaticDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty

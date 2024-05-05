@@ -1,7 +1,6 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-essential.less?inline'
-import AbstractProperty from '../../abstract-property/abstract-property'
 import {
   Essentiality,
   type IFunctionInputEssentialStaticProperty,
@@ -10,9 +9,10 @@ import {
 import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
 import { when } from 'lit/directives/when.js'
 import { choose } from 'lit/directives/choose.js'
+import StaticDynamicProperty from '../static-dynamic-property'
 
 @customElement('static-input-essential')
-export default class StaticInputEssential extends AbstractProperty {
+export default class StaticInputEssential extends StaticDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputEssentialStaticProperty
 

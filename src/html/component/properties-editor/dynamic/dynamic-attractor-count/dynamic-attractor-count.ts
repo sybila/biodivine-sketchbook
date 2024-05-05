@@ -3,12 +3,12 @@ import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './dynamic-attractor-count.less?inline'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IAttractorCountDynamicProperty } from '../../../../util/data-interfaces'
 import { when } from 'lit/directives/when.js'
+import AbstractDynamicProperty from '../abstract-dynamic-property'
 
 @customElement('dynamic-attractor-count')
-export default class DynamicAttractorCount extends AbstractProperty {
+export default class DynamicAttractorCount extends AbstractDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IAttractorCountDynamicProperty
   @state() exact = true
@@ -17,7 +17,7 @@ export default class DynamicAttractorCount extends AbstractProperty {
     if (exact) {
       this.updateProperty({
         ...this.property,
-        maximal: this.property.maximal
+        maximal: this.property.minimal
       })
     }
     this.exact = exact

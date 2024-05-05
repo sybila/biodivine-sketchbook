@@ -3,15 +3,15 @@ import { customElement, property, query } from 'lit/decorators.js'
 import style_less from './dynamic-has-attractor.less?inline'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import AbstractProperty from '../../abstract-property/abstract-property'
 import { type IHasAttractorDynamicProperty, type IObservationSet } from '../../../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
 import { when } from 'lit/directives/when.js'
+import AbstractDynamicProperty from '../abstract-dynamic-property'
 
 const ALL_OBSERVATIONS_PLACEHOLDER = '*'
 
 @customElement('dynamic-has-attractor')
-export default class DynamicHasAttractor extends AbstractProperty {
+export default class DynamicHasAttractor extends AbstractDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @query('#observation') declare observationSelector: HTMLSelectElement
   @property() declare property: IHasAttractorDynamicProperty
