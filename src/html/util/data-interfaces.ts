@@ -141,14 +141,14 @@ export interface IFunctionInputEssentialStaticProperty extends IProperty {
   input: string | undefined
   target: string | undefined
   value: Essentiality
-  context: string
+  context: string | undefined
 }
 
 export interface IFunctionInputMonotonicStaticProperty extends IProperty {
   input: string | undefined
   target: string | undefined
   value: Monotonicity
-  context: string
+  context: string | undefined
 }
 
 export interface IGenericStaticProperty extends IProperty {
@@ -159,14 +159,14 @@ export interface IVariableRegulatorMonotonicStaticProperty extends IProperty {
   input: string | undefined
   target: string | undefined
   value: Monotonicity
-  context: string
+  context: string | undefined
 }
 
 export interface IVariableRegulatorEssentialStaticProperty extends IProperty {
   input: string | undefined
   target: string | undefined
   value: Essentiality
-  context: string
+  context: string | undefined
 }
 
 export type StaticProperty =

@@ -49,14 +49,7 @@ pub struct RegulationEssentialData {
     pub input: Option<String>,
     pub target: Option<String>,
     pub value: Essentiality,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct RegulationEssentialContextData {
-    pub input: Option<String>,
-    pub target: Option<String>,
-    pub value: Essentiality,
-    pub context: String,
+    pub context: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -69,19 +62,7 @@ pub struct FnInputEssentialData {
     pub input_index: Option<usize>,
     pub target: Option<String>,
     pub value: Essentiality,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FnInputEssentialContextData {
-    #[serde(
-        rename = "input",
-        serialize_with = "serialize_input",
-        deserialize_with = "deserialize_input"
-    )]
-    pub input_index: Option<usize>,
-    pub target: Option<String>,
-    pub value: Essentiality,
-    pub context: String,
+    pub context: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -89,14 +70,7 @@ pub struct RegulationMonotonicData {
     pub input: Option<String>,
     pub target: Option<String>,
     pub value: Monotonicity,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct RegulationMonotonicContextData {
-    pub input: Option<String>,
-    pub target: Option<String>,
-    pub value: Monotonicity,
-    pub context: String,
+    pub context: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -109,19 +83,7 @@ pub struct FnInputMonotonicData {
     pub input_index: Option<usize>,
     pub target: Option<String>,
     pub value: Monotonicity,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FnInputMonotonicContextData {
-    #[serde(
-        rename = "input",
-        serialize_with = "serialize_input",
-        deserialize_with = "deserialize_input"
-    )]
-    pub input_index: Option<usize>,
-    pub target: Option<String>,
-    pub value: Monotonicity,
-    pub context: String,
+    pub context: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -129,13 +91,13 @@ pub struct FnInputMonotonicContextData {
 pub enum StatPropertyTypeData {
     GenericStatProp(GenericStatPropData),
     RegulationEssential(RegulationEssentialData),
-    RegulationEssentialContext(RegulationEssentialContextData),
+    RegulationEssentialContext(RegulationEssentialData),
     FnInputEssential(FnInputEssentialData),
-    FnInputEssentialContext(FnInputEssentialContextData),
+    FnInputEssentialContext(FnInputEssentialData),
     RegulationMonotonic(RegulationMonotonicData),
-    RegulationMonotonicContext(RegulationMonotonicContextData),
+    RegulationMonotonicContext(RegulationMonotonicData),
     FnInputMonotonic(FnInputMonotonicData),
-    FnInputMonotonicContext(FnInputMonotonicContextData),
+    FnInputMonotonicContext(FnInputMonotonicData),
 }
 
 /// Structure for sending data about static properties to the frontend.
@@ -176,10 +138,11 @@ impl StatPropertyData {
                     input: p.input.as_ref().map(|i| i.to_string()),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
+                    context: None,
                 })
             }
             StatPropertyType::RegulationEssentialContext(p) => {
-                StatPropertyTypeData::RegulationEssentialContext(RegulationEssentialContextData {
+                StatPropertyTypeData::RegulationEssentialContext(RegulationEssentialData {
                     input: p.input.as_ref().map(|i| i.to_string()),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
@@ -191,10 +154,11 @@ impl StatPropertyData {
                     input: p.input.as_ref().map(|i| i.to_string()),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
+                    context: None,
                 })
             }
             StatPropertyType::RegulationMonotonicContext(p) => {
-                StatPropertyTypeData::RegulationMonotonicContext(RegulationMonotonicContextData {
+                StatPropertyTypeData::RegulationMonotonicContext(RegulationMonotonicData {
                     input: p.input.as_ref().map(|i| i.to_string()),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
@@ -206,10 +170,11 @@ impl StatPropertyData {
                     input_index: p.input_index,
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
+                    context: None,
                 })
             }
             StatPropertyType::FnInputEssentialContext(p) => {
-                StatPropertyTypeData::FnInputEssentialContext(FnInputEssentialContextData {
+                StatPropertyTypeData::FnInputEssentialContext(FnInputEssentialData {
                     input_index: p.input_index,
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
@@ -221,10 +186,11 @@ impl StatPropertyData {
                     input_index: p.input_index,
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
+                    context: None,
                 })
             }
             StatPropertyType::FnInputMonotonicContext(p) => {
-                StatPropertyTypeData::FnInputMonotonicContext(FnInputMonotonicContextData {
+                StatPropertyTypeData::FnInputMonotonicContext(FnInputMonotonicData {
                     input_index: p.input_index,
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
@@ -256,7 +222,7 @@ impl StatPropertyData {
                         .as_ref()
                         .and_then(|t| UninterpretedFnId::new(t).ok()),
                     p.value,
-                    p.context.clone(),
+                    p.context.clone().ok_or("Context missing.")?,
                 )
             }
             StatPropertyTypeData::FnInputEssential(p) => StatProperty::mk_fn_input_essential(
@@ -275,7 +241,7 @@ impl StatPropertyData {
                         .as_ref()
                         .and_then(|t| UninterpretedFnId::new(t).ok()),
                     p.value,
-                    p.context.clone(),
+                    p.context.clone().ok_or("Context missing.")?,
                 )
             }
             StatPropertyTypeData::RegulationMonotonic(p) => StatProperty::mk_regulation_monotonic(
@@ -290,7 +256,7 @@ impl StatPropertyData {
                     p.input.as_ref().and_then(|i| VarId::new(i).ok()),
                     p.target.as_ref().and_then(|t| VarId::new(t).ok()),
                     p.value,
-                    p.context.clone(),
+                    p.context.clone().ok_or("Context missing.")?,
                 )
             }
             StatPropertyTypeData::RegulationEssential(p) => StatProperty::mk_regulation_essential(
@@ -305,7 +271,7 @@ impl StatPropertyData {
                     p.input.as_ref().and_then(|i| VarId::new(i).ok()),
                     p.target.as_ref().and_then(|t| VarId::new(t).ok()),
                     p.value,
-                    p.context.clone(),
+                    p.context.clone().ok_or("Context missing.")?,
                 )
             }
         }

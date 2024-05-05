@@ -82,7 +82,7 @@ export const functionInputEssential = (id: string): IFunctionInputEssentialStati
     target: 'func',
     input: 'var',
     value: Essentiality.FALSE,
-    context: ''
+    context: undefined
   }
 }
 
@@ -94,7 +94,7 @@ export const functionInputEssentialWithCondition = (id: string): IFunctionInputE
     target: 'func',
     input: 'var',
     value: Essentiality.TRUE,
-    context: ''
+    context: undefined
   }
 }
 
@@ -106,7 +106,7 @@ export const functionInputMonotonic = (id: string): IFunctionInputMonotonicStati
     target: 'func',
     input: 'var',
     value: Monotonicity.ACTIVATION,
-    context: ''
+    context: undefined
   }
 }
 

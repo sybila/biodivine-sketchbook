@@ -45,6 +45,7 @@ impl StatProperty {
             input,
             target,
             value,
+            context: None,
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -61,11 +62,11 @@ impl StatProperty {
         value: Essentiality,
         context: String,
     ) -> Result<StatProperty, String> {
-        let property = RegulationEssentialContext {
+        let property = RegulationEssential {
             input,
             target,
             value,
-            context,
+            context: Some(context),
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -84,6 +85,7 @@ impl StatProperty {
             input,
             target,
             value,
+            context: None,
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -100,11 +102,11 @@ impl StatProperty {
         value: Monotonicity,
         context: String,
     ) -> Result<StatProperty, String> {
-        let property = RegulationMonotonicContext {
+        let property = RegulationMonotonic {
             input,
             target,
             value,
-            context,
+            context: Some(context),
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -124,10 +126,11 @@ impl StatProperty {
             input_index,
             target,
             value,
+            context: None,
         };
         Ok(StatProperty {
             name: name.to_string(),
-            variant: StatPropertyType::FnInputEssential(property),
+            variant: StatPropertyType::FnInputEssentialContext(property),
         })
     }
 
@@ -140,11 +143,11 @@ impl StatProperty {
         value: Essentiality,
         context: String,
     ) -> Result<StatProperty, String> {
-        let property = FnInputEssentialContext {
+        let property = FnInputEssential {
             input_index,
             target,
             value,
-            context,
+            context: Some(context),
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -164,6 +167,7 @@ impl StatProperty {
             input_index,
             target,
             value,
+            context: None,
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -180,11 +184,11 @@ impl StatProperty {
         value: Monotonicity,
         context: String,
     ) -> Result<StatProperty, String> {
-        let property = FnInputMonotonicContext {
+        let property = FnInputMonotonic {
             input_index,
             target,
             value,
-            context,
+            context: Some(context),
         };
         Ok(StatProperty {
             name: name.to_string(),
@@ -311,6 +315,7 @@ impl StatProperty {
     /// Update property's sub-field for context, where applicable.
     /// If not applicable, return `Err`.
     pub fn set_context(&mut self, context: String) -> Result<(), String> {
+        let context = Some(context);
         match &mut self.variant {
             StatPropertyType::FnInputEssentialContext(prop) => prop.context = context,
             StatPropertyType::FnInputMonotonicContext(prop) => prop.context = context,
