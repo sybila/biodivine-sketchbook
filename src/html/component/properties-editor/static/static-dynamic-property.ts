@@ -3,7 +3,7 @@ import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
 
 const EVENT_PROPERTY_CHANGED = 'static-property-changed'
-const EVENT_PROPERTY_REMOVED = 'dynamic-property-removed'
+const EVENT_PROPERTY_REMOVED = 'static-property-removed'
 
 export default class StaticDynamicProperty extends AbstractProperty {
   nameUpdated = debounce((name: string) => {
