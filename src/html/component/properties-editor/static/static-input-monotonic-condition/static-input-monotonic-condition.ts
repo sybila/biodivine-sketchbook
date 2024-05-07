@@ -80,7 +80,7 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
-        target: value
+        input: value
       })
     } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       this.updateProperty({
