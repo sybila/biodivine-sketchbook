@@ -15,6 +15,7 @@ pub mod model;
 /// Structs and utility methods regarding observations and datasets.
 pub mod observations;
 /// Classes and utility methods regarding properties.
+#[macro_use]
 pub mod properties;
 
 /// The main `Sketch` manager object and its utilities.

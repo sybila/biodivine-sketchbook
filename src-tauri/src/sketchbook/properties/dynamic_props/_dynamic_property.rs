@@ -107,6 +107,52 @@ impl DynProperty {
             variant: DynPropertyType::HasAttractor(property),
         })
     }
+
+    pub fn default(variant: SimpleDynPropertyType) -> DynProperty {
+        match variant {
+            SimpleDynPropertyType::GenericDynProp => Self::default_generic(),
+            SimpleDynPropertyType::ExistsFixedPoint => Self::default_fixed_point(),
+            SimpleDynPropertyType::ExistsTrapSpace => Self::default_trap_space(),
+            SimpleDynPropertyType::ExistsTrajectory => Self::default_trajectory(),
+            SimpleDynPropertyType::AttractorCount => Self::default_attractor_count(),
+            SimpleDynPropertyType::HasAttractor => Self::default_has_attractor(),
+        }
+    }
+
+    /// Create default "generic" `DynProperty` instance, representing "true" formula.
+    pub fn default_generic() -> DynProperty {
+        Self::mk_generic("Generic property", "true").unwrap()
+    }
+
+    /// Create default `DynProperty` instance for the existence of a fixed point, with empty
+    /// `dataset` and `observation` fields.
+    pub fn default_fixed_point() -> DynProperty {
+        Self::mk_fixed_point("Fixed-point property", None, None).unwrap()
+    }
+
+    /// Create default `DynProperty` instance for the existence of a trap space, with empty
+    /// `dataset` and `observation` fields, and all flags set to false.
+    pub fn default_trap_space() -> DynProperty {
+        Self::mk_trap_space("Trap-space property", None, None, false, false).unwrap()
+    }
+
+    /// Create default `DynProperty` instance for the existence of a trajectory, with an empty
+    /// `dataset`field.
+    pub fn default_trajectory() -> DynProperty {
+        Self::mk_trajectory("Trajectory property", None).unwrap()
+    }
+
+    /// Create default `DynProperty` instance for the number of existing attractors, with default
+    /// count being 1.
+    pub fn default_attractor_count() -> DynProperty {
+        Self::mk_attractor_count("Attractor-count property", 1, 1).unwrap()
+    }
+
+    /// Create default `DynProperty` instance for the existence of an attractor with empty
+    /// `dataset` and `observation` fields.
+    pub fn default_has_attractor() -> DynProperty {
+        Self::mk_has_attractor("Attractor property", None, None).unwrap()
+    }
 }
 
 /// Editing dynamic properties.

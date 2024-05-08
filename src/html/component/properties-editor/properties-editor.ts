@@ -25,9 +25,8 @@ import {
 import {
   attractorCountDynamic,
   existsTrajectoryDynamic,
-  fixedPointDynamic, functionInputEssential,
+  fixedPointDynamic,
   functionInputEssentialWithCondition,
-  functionInputMonotonic,
   functionInputMonotonicWithCondition,
   genericDynamic,
   genericStatic,
@@ -113,19 +112,15 @@ export default class PropertiesEditor extends LitElement {
     // refreshing content from backend - placeholders
     aeonState.sketch.properties.refreshDynamicProps()
     aeonState.sketch.properties.refreshStaticProps()
-
-    // seed dummy data
-    this.staticProperties.push(functionInputEssential('a'))
-    this.staticProperties.push(functionInputMonotonic('b'))
   }
 
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
-    // TODO
+    this.dynamicProperties = refreshedDynamic
     console.log(refreshedDynamic)
   }
 
   #onStaticRefreshed (refreshedStatic: StaticProperty[]): void {
-    // TODO
+    this.staticProperties = refreshedStatic
     console.log(refreshedStatic)
   }
 

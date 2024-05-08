@@ -1,3 +1,4 @@
+use crate::generate_property_enums;
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::properties::HctlFormula;
 use serde::{Deserialize, Serialize};
@@ -40,15 +41,16 @@ pub struct HasAttractor {
     pub observation: Option<ObservationId>,
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum DynPropertyType {
-    GenericDynProp(GenericDynProp),
-    ExistsFixedPoint(ExistsFixedPoint),
-    ExistsTrapSpace(ExistsTrapSpace),
-    ExistsTrajectory(ExistsTrajectory),
-    AttractorCount(AttractorCount),
-    HasAttractor(HasAttractor),
-}
+generate_property_enums!(
+    DynPropertyType, SimpleDynPropertyType, {
+        GenericDynProp(GenericDynProp),
+        ExistsFixedPoint(ExistsFixedPoint),
+        ExistsTrapSpace(ExistsTrapSpace),
+        ExistsTrajectory(ExistsTrajectory),
+        AttractorCount(AttractorCount),
+        HasAttractor(HasAttractor)
+    }
+);
 
 /// Check if two DynPropertyType instances are of the same variant.
 pub fn are_same_dyn_variant(a: &DynPropertyType, b: &DynPropertyType) -> bool {

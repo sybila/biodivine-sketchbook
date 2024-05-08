@@ -1,3 +1,4 @@
+use crate::generate_property_enums;
 use crate::sketchbook::ids::{UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::FirstOrderFormula;
@@ -42,18 +43,19 @@ pub struct FnInputMonotonic {
     pub context: Option<String>,
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum StatPropertyType {
-    FnInputEssential(FnInputEssential),
-    FnInputMonotonic(FnInputMonotonic),
-    FnInputEssentialContext(FnInputEssential),
-    FnInputMonotonicContext(FnInputMonotonic),
-    RegulationEssential(RegulationEssential),
-    RegulationMonotonic(RegulationMonotonic),
-    RegulationEssentialContext(RegulationEssential),
-    RegulationMonotonicContext(RegulationMonotonic),
-    GenericStatProp(GenericStatProp),
-}
+generate_property_enums!(
+    StatPropertyType, SimpleStatPropertyType, {
+        FnInputEssential(FnInputEssential),
+        FnInputMonotonic(FnInputMonotonic),
+        FnInputEssentialContext(FnInputEssential),
+        FnInputMonotonicContext(FnInputMonotonic),
+        RegulationEssential(RegulationEssential),
+        RegulationMonotonic(RegulationMonotonic),
+        RegulationEssentialContext(RegulationEssential),
+        RegulationMonotonicContext(RegulationMonotonic),
+        GenericStatProp(GenericStatProp)
+    }
+);
 
 /// Check if two StatPropertyType instances are of the same variant.
 pub fn are_same_stat_variant(a: &StatPropertyType, b: &StatPropertyType) -> bool {

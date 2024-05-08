@@ -7,6 +7,8 @@ pub mod dynamic_props;
 /// Structs and utilities regarding static properties.
 pub mod static_props;
 
+mod _macros;
+
 pub use _manager::PropertyManager;
 pub use dynamic_props::{DynProperty, HctlFormula};
 pub use static_props::{FirstOrderFormula, StatProperty};
