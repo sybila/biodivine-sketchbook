@@ -18,6 +18,7 @@
 
 .svg-inline--fa {
   height: 1em;
+  pointer-events: none; // click through icon to button behind
 }
 
 .section {
@@ -67,7 +68,7 @@
 }
 
 .menu-item:hover {
-  background: @primary-color;
+  background: @secondary-light;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -91,6 +92,10 @@
 
   .menu-item > a {
     color: @text-dark;
+  }
+
+  .menu-item:hover {
+    background: @secondary-dark;
   }
 }
 
