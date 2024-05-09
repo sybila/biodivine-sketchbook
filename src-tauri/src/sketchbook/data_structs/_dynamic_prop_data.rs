@@ -1,5 +1,5 @@
 use crate::sketchbook::ids::{DatasetId, DynPropertyId, ObservationId};
-use crate::sketchbook::properties::dynamic_props::DynPropertyType;
+use crate::sketchbook::properties::dynamic_props::{DynPropertyType, SimpleDynPropertyType};
 use crate::sketchbook::properties::DynProperty;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
@@ -40,6 +40,14 @@ pub struct HasAttractorData {
     pub observation: Option<String>,
 }
 
+/// Structure for receiving data to create default dynamic properties. For this, only the ID
+/// and simple variant are needed.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DynPropertyDefaultData {
+    pub id: String,
+    pub variant: SimpleDynPropertyType,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "variant")]
 pub enum DynPropertyTypeData {
@@ -64,6 +72,7 @@ pub struct DynPropertyData {
 }
 
 impl<'de> JsonSerde<'de> for DynPropertyData {}
+impl<'de> JsonSerde<'de> for DynPropertyDefaultData {}
 
 impl DynPropertyData {
     /// Shorthand to create new generic `DynPropertyData` instance given a properties

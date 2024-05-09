@@ -195,6 +195,124 @@ impl StatProperty {
             variant: StatPropertyType::FnInputMonotonicContext(property),
         })
     }
+
+    /// Create default `StatProperty` instance of specified variant.
+    pub fn default(variant: SimpleStatPropertyType) -> StatProperty {
+        match variant {
+            SimpleStatPropertyType::GenericStatProp => Self::default_generic(),
+            SimpleStatPropertyType::RegulationEssential => Self::default_regulation_essential(),
+            SimpleStatPropertyType::RegulationEssentialContext => {
+                Self::default_regulation_essential_context()
+            }
+            SimpleStatPropertyType::RegulationMonotonic => Self::default_fn_input_monotonic(),
+            SimpleStatPropertyType::RegulationMonotonicContext => {
+                Self::default_fn_input_monotonic_context()
+            }
+            SimpleStatPropertyType::FnInputEssential => Self::default_fn_input_essential(),
+            SimpleStatPropertyType::FnInputEssentialContext => {
+                Self::default_regulation_essential_context()
+            }
+            SimpleStatPropertyType::FnInputMonotonic => Self::default_fn_input_monotonic(),
+            SimpleStatPropertyType::FnInputMonotonicContext => {
+                Self::default_fn_input_monotonic_context()
+            }
+        }
+    }
+
+    /// Create default "generic" `StatProperty` instance, representing "true" formula.
+    pub fn default_generic() -> StatProperty {
+        Self::mk_generic("Generic static property", "true").unwrap()
+    }
+
+    /// Create default `StatProperty` instance for regulation essentiality (with empty `input` and
+    /// `target` fields and `Unknown` essentiality).
+    pub fn default_regulation_essential() -> StatProperty {
+        Self::mk_regulation_essential("Regulation essential", None, None, Essentiality::Unknown)
+            .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for regulation essentiality in a context
+    /// (with empty `input`, `target`, and `context` fields and `Unknown` essentiality).
+    pub fn default_regulation_essential_context() -> StatProperty {
+        Self::mk_regulation_essential_context(
+            "Regulation essential",
+            None,
+            None,
+            Essentiality::Unknown,
+            String::new(),
+        )
+        .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for regulation monotonicity (with empty `input` and
+    /// `target` fields and `Unknown` monotonicity).
+    pub fn default_regulation_monotonic() -> StatProperty {
+        Self::mk_regulation_monotonic("Regulation monotonic", None, None, Monotonicity::Unknown)
+            .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for regulation monotonicity in a context
+    /// (with empty `input`, `target`, and `context` fields and `Unknown` monotonicity).
+    pub fn default_regulation_monotonic_context() -> StatProperty {
+        Self::mk_regulation_monotonic_context(
+            "Regulation monotonic",
+            None,
+            None,
+            Monotonicity::Unknown,
+            String::new(),
+        )
+        .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for function input essentiality (with empty `input`
+    /// and `target` fields and `Unknown` essentiality).
+    pub fn default_fn_input_essential() -> StatProperty {
+        Self::mk_fn_input_essential(
+            "Function input essential",
+            None,
+            None,
+            Essentiality::Unknown,
+        )
+        .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for function input essentiality in a context
+    /// (with empty `input`, `target`, and `context` fields and `Unknown` essentiality).
+    pub fn default_fn_input_essential_context() -> StatProperty {
+        Self::mk_fn_input_essential_context(
+            "Function input essential",
+            None,
+            None,
+            Essentiality::Unknown,
+            String::new(),
+        )
+        .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for function input monotonicity (with empty `input`
+    /// and `target` fields and `Unknown` monotonicity).
+    pub fn default_fn_input_monotonic() -> StatProperty {
+        Self::mk_fn_input_monotonic(
+            "Function input monotonic",
+            None,
+            None,
+            Monotonicity::Unknown,
+        )
+        .unwrap()
+    }
+
+    /// Create default `StatProperty` instance for function input monotonicity in a context
+    /// (with empty `input`, `target`, and `context` fields and `Unknown` monotonicity).
+    pub fn default_fn_input_monotonic_context() -> StatProperty {
+        Self::mk_fn_input_monotonic_context(
+            "Function input monotonic",
+            None,
+            None,
+            Monotonicity::Unknown,
+            String::new(),
+        )
+        .unwrap()
+    }
 }
 
 /// Editing static properties.

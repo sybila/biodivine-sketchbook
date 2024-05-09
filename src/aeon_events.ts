@@ -1,6 +1,14 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
-import { Monotonicity, Essentiality, DataCategory, type DynamicProperty, type StaticProperty } from './html/util/data-interfaces'
+import {
+  Monotonicity,
+  Essentiality,
+  DataCategory,
+  type DynamicProperty,
+  type StaticProperty,
+  type DynamicPropertyType,
+  type StaticPropertyType
+} from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -282,6 +290,8 @@ interface AeonState {
       dynamicCreated: Observable<DynamicProperty>
       /** Create a new dynamic property with given ID, variables, of given `variant` (with corresponding data). */
       addDynamic: (id: string, name: string, variant: DynamicProperty) => void
+      /** Create a new default dynamic property with given ID and variant. */
+      addDefaultDynamic: (id: string, variant: DynamicPropertyType) => void
       /** Data of a removed dynamic property. */
       dynamicRemoved: Observable<DynamicProperty>
       /** Remove dynamic property with given ID. */
@@ -297,6 +307,8 @@ interface AeonState {
       staticCreated: Observable<StaticProperty>
       /** Create a new static property with given ID, variables, of given `variant` (with corresponding data). */
       addStatic: (id: string, name: string, variant: StaticProperty) => void
+      /** Create a new default static property with given ID and variant. */
+      addDefaultStatic: (id: string, variant: StaticPropertyType) => void
       /** Data of a removed static property. */
       staticRemoved: Observable<StaticProperty>
       /** Remove static property with given ID. */
@@ -1225,6 +1237,12 @@ export const aeonState: AeonState = {
           })
         })
       },
+      addDefaultDynamic (id: string, variant: DynamicPropertyType): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', 'add_default'],
+          payload: JSON.stringify({ id, variant })
+        })
+      },
       setDynamicContent (id: string, newContent: DynamicProperty): void {
         aeonEvents.emitAction({
           path: ['sketch', 'properties', 'dynamic', id, 'set_content'],
@@ -1245,6 +1263,12 @@ export const aeonState: AeonState = {
             name,
             variant
           })
+        })
+      },
+      addDefaultStatic (id: string, variant: StaticPropertyType): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', 'add_default'],
+          payload: JSON.stringify({ id, variant })
         })
       },
       setStaticContent (id: string, newContent: StaticProperty): void {

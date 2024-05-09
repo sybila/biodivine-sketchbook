@@ -108,6 +108,7 @@ impl DynProperty {
         })
     }
 
+    /// Create default `DynProperty` instance of specified variant.
     pub fn default(variant: SimpleDynPropertyType) -> DynProperty {
         match variant {
             SimpleDynPropertyType::GenericDynProp => Self::default_generic(),
@@ -121,7 +122,7 @@ impl DynProperty {
 
     /// Create default "generic" `DynProperty` instance, representing "true" formula.
     pub fn default_generic() -> DynProperty {
-        Self::mk_generic("Generic property", "true").unwrap()
+        Self::mk_generic("Generic dynamic property", "true").unwrap()
     }
 
     /// Create default `DynProperty` instance for the existence of a fixed point, with empty

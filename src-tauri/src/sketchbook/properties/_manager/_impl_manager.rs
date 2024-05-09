@@ -15,35 +15,10 @@ use std::str::FromStr;
 impl PropertyManager {
     /// Instantiate `PropertyManager` with empty sets of properties.
     pub fn new_empty() -> PropertyManager {
-        let mut m = PropertyManager {
+        PropertyManager {
             dyn_properties: HashMap::new(),
             stat_properties: HashMap::new(),
-        };
-
-        // TODO: remove these testing dummy data
-        m.add_dyn_generic(DynPropertyId::new("d").unwrap(), "name", "prop")
-            .unwrap();
-        m.add_stat_generic(StatPropertyId::new("s1").unwrap(), "name", "prop")
-            .unwrap();
-        m.add_stat_fn_input_essential(
-            StatPropertyId::new("s2").unwrap(),
-            "name",
-            Some(3),
-            Some(UninterpretedFnId::new("fn").unwrap()),
-            Essentiality::True,
-        )
-        .unwrap();
-        m.add_stat_fn_input_essential_context(
-            StatPropertyId::new("s3").unwrap(),
-            "name",
-            Some(3),
-            Some(UninterpretedFnId::new("fn").unwrap()),
-            Essentiality::True,
-            "context".to_string(),
-        )
-        .unwrap();
-
-        m
+        }
     }
 
     /// Instantiate `PropertyManager` with (generic) dynamic and static properties given as a list

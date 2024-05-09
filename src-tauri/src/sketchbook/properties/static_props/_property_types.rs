@@ -2,6 +2,7 @@ use crate::generate_property_enums;
 use crate::sketchbook::ids::{UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::FirstOrderFormula;
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::mem::discriminant;
 
@@ -56,6 +57,8 @@ generate_property_enums!(
         GenericStatProp(GenericStatProp)
     }
 );
+
+impl<'de> JsonSerde<'de> for SimpleStatPropertyType {}
 
 /// Check if two StatPropertyType instances are of the same variant.
 pub fn are_same_stat_variant(a: &StatPropertyType, b: &StatPropertyType) -> bool {

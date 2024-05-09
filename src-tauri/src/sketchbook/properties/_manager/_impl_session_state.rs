@@ -1,13 +1,15 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
-use crate::sketchbook::data_structs::{DynPropertyData, StatPropertyData};
+use crate::sketchbook::data_structs::{
+    DynPropertyData, DynPropertyDefaultData, StatPropertyData, StatPropertyDefaultData,
+};
 use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
     mk_stat_prop_event, mk_stat_prop_state_change,
 };
 use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
-use crate::sketchbook::properties::PropertyManager;
+use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
 use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for PropertyManager {}
@@ -22,7 +24,11 @@ impl SessionState for PropertyManager {
 
         match at_path.first() {
             Some(&"dynamic") => {
-                if Self::starts_with("add", at_path).is_some() {
+                let at_path = &at_path[1..];
+                if Self::starts_with("add_default", at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    self.event_add_default_dynamic(event)
+                } else if Self::starts_with("add", at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_dynamic(event)
                 } else {
@@ -33,9 +39,13 @@ impl SessionState for PropertyManager {
                 }
             }
             Some(&"static") => {
+                let at_path = &at_path[1..];
                 if Self::starts_with("add", at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_static(event)
+                } else if Self::starts_with("add_default", at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    self.event_add_default_static(event)
                 } else {
                     Self::assert_path_length(at_path, 2, component_name)?;
                     let prop_id_str = at_path.first().unwrap();
@@ -89,6 +99,27 @@ impl PropertyManager {
         let payload = Self::clone_payload_str(event, component_name)?;
         let prop_data = DynPropertyData::from_json_str(payload.as_str())?;
         let property = prop_data.to_property()?;
+        self.add_raw_dynamic_by_str(&prop_data.id, property)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_event = mk_dyn_prop_event(&[&prop_data.id, "remove"], None);
+        Ok(make_reversible(event.clone(), event, reverse_event))
+    }
+
+    /// Perform event of adding a new DEFAULT `dynamic property` of given variant
+    /// to this `PropertyManager`.
+    pub(super) fn event_add_default_dynamic(
+        &mut self,
+        event: &Event,
+    ) -> Result<Consumed, DynError> {
+        let component_name = "properties/dynamic";
+
+        // get payload components and perform the event
+        let payload = Self::clone_payload_str(event, component_name)?;
+        println!("{:?}", payload);
+        let prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
+        println!("{:?}", prop_data);
+        let property = DynProperty::default(prop_data.variant);
         self.add_raw_dynamic_by_str(&prop_data.id, property)?;
 
         // prepare the state-change and reverse event (which is a remove event)
@@ -157,6 +188,23 @@ impl PropertyManager {
         let payload = Self::clone_payload_str(event, component_name)?;
         let prop_data = StatPropertyData::from_json_str(payload.as_str())?;
         let property = prop_data.to_property()?;
+        self.add_raw_static_by_str(&prop_data.id, property)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let reverse_event = mk_stat_prop_event(&[&prop_data.id, "remove"], None);
+        Ok(make_reversible(event.clone(), event, reverse_event))
+    }
+
+    /// Perform event of adding a new DEFAULT `static property` of given variant
+    /// to this `PropertyManager`.
+    pub(super) fn event_add_default_static(&mut self, event: &Event) -> Result<Consumed, DynError> {
+        let component_name = "properties/static";
+
+        // get payload components and perform the event
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
+        println!("{:?}", prop_data);
+        let property = StatProperty::default(prop_data.variant);
         self.add_raw_static_by_str(&prop_data.id, property)?;
 
         // prepare the state-change and reverse event (which is a remove event)

@@ -18,21 +18,9 @@ import {
   ContentData,
   type DynamicProperty,
   DynamicPropertyType,
-  type PropertyType,
   type StaticProperty,
   StaticPropertyType
 } from '../../util/data-interfaces'
-import {
-  attractorCountDynamic,
-  existsTrajectoryDynamic,
-  fixedPointDynamic,
-  functionInputEssentialWithCondition,
-  functionInputMonotonicWithCondition,
-  genericDynamic,
-  genericStatic,
-  hasAttractorDynamic,
-  trapSpaceDynamic, variableRegulationEssentialWithCondition, variableRegulationMonotonicWithCondition
-} from './default-properties'
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
 import UIkit from 'uikit'
@@ -52,7 +40,8 @@ export default class PropertiesEditor extends LitElement {
   @state() dynamicProperties: DynamicProperty[] = []
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
-  propIndex = 0
+  dynPropIndex = 0
+  statPropIndex = 0
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
@@ -105,6 +94,10 @@ export default class PropertiesEditor extends LitElement {
 
     document.addEventListener('click', this.closeMenu.bind(this))
 
+    // classical events
+    aeonState.sketch.properties.dynamicCreated.addEventListener(this.#onDynamicCreated.bind(this))
+    aeonState.sketch.properties.staticCreated.addEventListener(this.#onStaticCreated.bind(this))
+
     // refresh-event listeners
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
     aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
@@ -129,48 +122,24 @@ export default class PropertiesEditor extends LitElement {
     UIkit.sticky(this.shadowRoot?.querySelector('.header') as HTMLElement)
   }
 
-  addDynamicProperty (type: PropertyType): void {
-    const id = '' + this.propIndex++
-    switch (type) {
-      case DynamicPropertyType.Generic:
-        this.dynamicProperties.push(genericDynamic(id))
-        break
-      case DynamicPropertyType.FixedPoint:
-        this.dynamicProperties.push(fixedPointDynamic(id))
-        break
-      case DynamicPropertyType.TrapSpace:
-        this.dynamicProperties.push(trapSpaceDynamic(id))
-        break
-      case DynamicPropertyType.ExistsTrajectory:
-        this.dynamicProperties.push(existsTrajectoryDynamic(id))
-        break
-      case DynamicPropertyType.AttractorCount:
-        this.dynamicProperties.push(attractorCountDynamic(id))
-        break
-      case DynamicPropertyType.HasAttractor:
-        this.dynamicProperties.push(hasAttractorDynamic(id))
-        break
-    }
+  addDynamicProperty (type: DynamicPropertyType): void {
+    const id = 'dynamic' + this.dynPropIndex++
+    aeonState.sketch.properties.addDefaultDynamic(id, type)
+  }
+
+  #onDynamicCreated (newDynamic: DynamicProperty): void {
+    this.dynamicProperties.push(newDynamic)
+    console.log(newDynamic)
   }
 
   addStaticProperty (type: StaticPropertyType): void {
-    const id = '' + this.propIndex++
-    switch (type) {
-      case StaticPropertyType.FunctionInputMonotonicWithCondition:
-        this.staticProperties.push(functionInputMonotonicWithCondition(id))
-        break
-      case StaticPropertyType.FunctionInputEssentialWithCondition:
-        this.staticProperties.push(functionInputEssentialWithCondition(id))
-        break
-      case StaticPropertyType.VariableRegulationEssentialWithCondition:
-        this.staticProperties.push(variableRegulationEssentialWithCondition(id))
-        break
-      case StaticPropertyType.VariableRegulationMonotonicWithCondition:
-        this.staticProperties.push(variableRegulationMonotonicWithCondition(id))
-        break
-      case StaticPropertyType.Generic:
-        this.staticProperties.push(genericStatic(id))
-    }
+    const id = 'static' + this.statPropIndex++
+    aeonState.sketch.properties.addDefaultStatic(id, type)
+  }
+
+  #onStaticCreated (newStatic: StaticProperty): void {
+    this.staticProperties.push(newStatic)
+    console.log(newStatic)
   }
 
   dynamicPropertyChanged (event: Event): void {

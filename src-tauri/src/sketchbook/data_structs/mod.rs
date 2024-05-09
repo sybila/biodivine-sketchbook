@@ -27,7 +27,7 @@ mod _uninterpreted_fn_data;
 mod _variable_data;
 
 pub use _dataset_data::{DatasetData, DatasetLoadData, DatasetMetaData};
-pub use _dynamic_prop_data::DynPropertyData;
+pub use _dynamic_prop_data::{DynPropertyData, DynPropertyDefaultData};
 pub use _fn_arg_change_data::{ChangeArgEssentialData, ChangeArgMonotoneData};
 pub use _id_change_data::ChangeIdData;
 pub use _layout_data::{LayoutData, LayoutMetaData};
@@ -36,6 +36,6 @@ pub use _model_data::ModelData;
 pub use _observation_data::ObservationData;
 pub use _regulation_data::RegulationData;
 pub use _sketch_data::SketchData;
-pub use _static_prop_data::StatPropertyData;
+pub use _static_prop_data::{StatPropertyData, StatPropertyDefaultData};
 pub use _uninterpreted_fn_data::UninterpretedFnData;
 pub use _variable_data::VariableData;

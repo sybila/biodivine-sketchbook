@@ -84,7 +84,9 @@ export default class RootComponent extends LitElement {
     // when refreshing/replacing whole sketch, this component is responsible for updating the `Model` part
     aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
     aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
-    // event listener to capture changes from FunctionEditor with updated uninterpreted functions
+
+    // event listener to capture changes from sub-modules (FunctionEditor, ObservationEditor, or PropertiesEditor)
+    // with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
     this.addEventListener('save-observations', this.saveObservationData.bind(this))
 

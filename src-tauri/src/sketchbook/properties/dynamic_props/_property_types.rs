@@ -1,6 +1,7 @@
 use crate::generate_property_enums;
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::properties::HctlFormula;
+use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::mem::discriminant;
 
@@ -51,6 +52,8 @@ generate_property_enums!(
         HasAttractor(HasAttractor)
     }
 );
+
+impl<'de> JsonSerde<'de> for SimpleDynPropertyType {}
 
 /// Check if two DynPropertyType instances are of the same variant.
 pub fn are_same_dyn_variant(a: &DynPropertyType, b: &DynPropertyType) -> bool {
