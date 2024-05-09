@@ -36,8 +36,6 @@ export default class PropertiesEditor extends LitElement {
   @query('#add-dynamic-property-button') declare addDynamicPropertyElement: HTMLElement
   @query('#static-property-menu') declare staticPropertyMenuElement: HTMLElement
   @query('#add-static-property-button') declare addStaticPropertyElement: HTMLElement
-  @state() staticProperties: StaticProperty[] = []
-  @state() dynamicProperties: DynamicProperty[] = []
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
   dynPropIndex = 0
@@ -107,13 +105,35 @@ export default class PropertiesEditor extends LitElement {
     aeonState.sketch.properties.refreshStaticProps()
   }
 
+  updateDynamicProperties (dynamicProperties: DynamicProperty[]): void {
+    this.dispatchEvent(new CustomEvent('save-dynamic-properties', {
+      detail: {
+        dynamicProperties
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  updateStaticProperties (staticProperties: StaticProperty[]): void {
+    this.dispatchEvent(new CustomEvent('save-static-properties', {
+      detail: {
+        staticProperties
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
-    this.dynamicProperties = refreshedDynamic
+    this.dynPropIndex = refreshedDynamic.length
+    this.updateDynamicProperties(refreshedDynamic)
     console.log(refreshedDynamic)
   }
 
   #onStaticRefreshed (refreshedStatic: StaticProperty[]): void {
-    this.staticProperties = refreshedStatic
+    this.statPropIndex = refreshedStatic.length
+    this.updateStaticProperties(refreshedStatic)
     console.log(refreshedStatic)
   }
 
@@ -128,7 +148,9 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onDynamicCreated (newDynamic: DynamicProperty): void {
-    this.dynamicProperties.push(newDynamic)
+    this.contentData.dynamicProperties.push(newDynamic)
+    this.dynPropIndex++
+    this.updateDynamicProperties(this.contentData.dynamicProperties)
     console.log(newDynamic)
   }
 
@@ -138,40 +160,42 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onStaticCreated (newStatic: StaticProperty): void {
-    this.staticProperties.push(newStatic)
+    this.contentData.staticProperties.push(newStatic)
+    this.statPropIndex++
+    this.updateStaticProperties(this.contentData.staticProperties)
     console.log(newStatic)
   }
 
   dynamicPropertyChanged (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log('property changed', detail.property)
-    const props = [...this.dynamicProperties]
+    const props = [...this.contentData.dynamicProperties]
     props[detail.index] = detail.property
-    this.dynamicProperties = props
+    this.updateDynamicProperties(this.contentData.dynamicProperties)
   }
 
   staticPropertyChanged (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log('property changed', detail.property)
-    const props = [...this.staticProperties]
+    const props = [...this.contentData.staticProperties]
     props[detail.index] = detail.property
-    this.staticProperties = props
+    this.updateStaticProperties(this.contentData.staticProperties)
   }
 
   dynamicPropertyRemoved (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log('property removed', detail.index)
-    const props = [...this.dynamicProperties]
+    const props = [...this.contentData.dynamicProperties]
     props.splice(detail.index, 1)
-    this.dynamicProperties = props
+    this.updateDynamicProperties(this.contentData.dynamicProperties)
   }
 
   staticPropertyRemoved (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log('property removed', detail.index)
-    const props = [...this.staticProperties]
+    const props = [...this.contentData.staticProperties]
     props.splice(detail.index, 1)
-    this.staticProperties = props
+    this.updateStaticProperties(this.contentData.staticProperties)
   }
 
   async openAddDynamicPropertyMenu (): Promise<void> {
@@ -258,7 +282,7 @@ export default class PropertiesEditor extends LitElement {
               </button>
             </div>
             <div class="section-list">
-              ${map(this.staticProperties, (prop, index) => {
+              ${map(this.contentData.staticProperties, (prop, index) => {
                 switch (prop.variant) {
                   case StaticPropertyType.Generic:
                     return html`
@@ -305,7 +329,7 @@ export default class PropertiesEditor extends LitElement {
               </button>
             </div>
             <div class="section-list">
-              ${map(this.dynamicProperties, (prop, index) => {
+              ${map(this.contentData.dynamicProperties, (prop, index) => {
                 switch (prop.variant) {
                   case DynamicPropertyType.FixedPoint:
                     return html`

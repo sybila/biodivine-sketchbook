@@ -22,7 +22,9 @@ import {
   type IFunctionData,
   type ILayoutData, type IObservationSet,
   type IRegulationData,
-  type IVariableData
+  type IVariableData,
+  type DynamicProperty,
+  type StaticProperty
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { dummyData } from '../../util/dummy-data'
@@ -89,6 +91,8 @@ export default class RootComponent extends LitElement {
     // with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
     this.addEventListener('save-observations', this.saveObservationData.bind(this))
+    this.addEventListener('save-dynamic-properties', this.saveDynamicPropertyData.bind(this))
+    this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
 
     // refreshing content from backend
     aeonState.sketch.model.refreshModel()
@@ -126,9 +130,21 @@ export default class RootComponent extends LitElement {
   }
 
   saveObservationData (event: Event): void {
-    // update functions using modified data propagated from ObservationsEditor
+    // update observations using modified data propagated from ObservationsEditor
     const datasets: IObservationSet[] = (event as CustomEvent).detail.datasets
     this.data = this.data.copy({ observations: datasets })
+  }
+
+  saveStaticPropertyData (event: Event): void {
+    // update properties using modified data propagated from PropertyEditor
+    const properties: StaticProperty[] = (event as CustomEvent).detail.staticProperties
+    this.data = this.data.copy({ staticProperties: properties })
+  }
+
+  saveDynamicPropertyData (event: Event): void {
+    // update properties using modified data propagated from PropertyEditor
+    const properties: DynamicProperty[] = (event as CustomEvent).detail.dynamicProperties
+    this.data = this.data.copy({ dynamicProperties: properties })
   }
 
   private saveFunctions (functions: IFunctionData[]): void {

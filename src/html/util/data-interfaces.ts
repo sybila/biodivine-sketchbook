@@ -49,6 +49,8 @@ export class ContentData extends Data {
   layout: ILayoutData = new Map()
   regulations: IRegulationData[] = []
   observations: IObservationSet[] = []
+  dynamicProperties: DynamicProperty[] = []
+  staticProperties: StaticProperty[] = []
 }
 
 export interface IFunctionData {

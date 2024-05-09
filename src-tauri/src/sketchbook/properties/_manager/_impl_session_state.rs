@@ -116,15 +116,17 @@ impl PropertyManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        println!("{:?}", payload);
         let prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
-        println!("{:?}", prop_data);
         let property = DynProperty::default(prop_data.variant);
         self.add_raw_dynamic_by_str(&prop_data.id, property)?;
+        let prop_id = self.get_dyn_prop_id(&prop_data.id)?;
+        let property = self.get_dyn_prop(&prop_id)?;
 
-        // prepare the state-change and reverse event (which is a remove event)
+        // prepare the state-change (which is add event) and reverse event (which is a remove event)
+        let full_prop_data = DynPropertyData::from_property(&prop_id, property);
+        let state_change = mk_dyn_prop_state_change(&["add"], &full_prop_data);
         let reverse_event = mk_dyn_prop_event(&[&prop_data.id, "remove"], None);
-        Ok(make_reversible(event.clone(), event, reverse_event))
+        Ok(make_reversible(state_change, event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `dynamic property` of this
@@ -203,13 +205,16 @@ impl PropertyManager {
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
         let prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
-        println!("{:?}", prop_data);
         let property = StatProperty::default(prop_data.variant);
         self.add_raw_static_by_str(&prop_data.id, property)?;
+        let prop_id = self.get_stat_prop_id(&prop_data.id)?;
+        let property = self.get_stat_prop(&prop_id)?;
 
-        // prepare the state-change and reverse event (which is a remove event)
+        // prepare the state-change (which is add event) and reverse event (which is a remove event)
+        let full_prop_data = StatPropertyData::from_property(&prop_id, property);
+        let state_change = mk_stat_prop_state_change(&["add"], &full_prop_data);
         let reverse_event = mk_stat_prop_event(&[&prop_data.id, "remove"], None);
-        Ok(make_reversible(event.clone(), event, reverse_event))
+        Ok(make_reversible(state_change, event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `static property` of this
