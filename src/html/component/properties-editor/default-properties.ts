@@ -91,8 +91,8 @@ export const functionInputEssentialWithCondition = (id: string): IFunctionInputE
     id,
     name: 'function-input-essential',
     variant: StaticPropertyType.FunctionInputEssentialWithCondition,
-    target: 'func',
-    input: 'var',
+    target: undefined,
+    input: undefined,
     value: Essentiality.TRUE,
     context: ''
   }

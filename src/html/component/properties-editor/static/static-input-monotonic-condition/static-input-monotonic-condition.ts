@@ -57,7 +57,8 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
   }
 
   firstChanged (event: Event): void {
-    const value = (event.target as HTMLSelectElement).value
+    let value: string | undefined = (event.target as HTMLSelectElement).value
+    value = value === '' ? undefined : value
     console.log(value)
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
@@ -76,7 +77,8 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
   }
 
   secondChanged (event: Event): void {
-    const value = (event.target as HTMLSelectElement).value
+    let value: string | undefined = (event.target as HTMLSelectElement).value
+    value = value === '' ? undefined : value
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
@@ -130,8 +132,9 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
               `)}
             </select>
             <span>${this.getMonotonicitySymbol()}</span>
-            <select id="second-selector" class="uk-select" @change="${this.secondChanged}">
-              <option value="${undefined}">---</option>
+            <select id="second-selector" class="uk-select" @change="${this.secondChanged}"
+                    ?disabled="${this.property.target === undefined}">
+            <option value="${undefined}">---</option>
               ${map(this.getSecondSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}

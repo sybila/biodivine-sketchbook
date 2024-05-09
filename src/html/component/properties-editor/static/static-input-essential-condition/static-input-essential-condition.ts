@@ -127,7 +127,8 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
               `)}
             </select>
             <span>${this.getEssentialitySymbol()}</span>
-            <select id="second-selector" class="uk-select" @change="${this.secondChanged}">
+            <select id="second-selector" class="uk-select" @change="${this.secondChanged}"
+                    ?disabled="${this.property.target === undefined}">
               <option value="${undefined}">---</option>
               ${map(this.getSecondSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
