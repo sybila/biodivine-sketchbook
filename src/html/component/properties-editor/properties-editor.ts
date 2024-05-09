@@ -341,34 +341,19 @@ export default class PropertiesEditor extends LitElement {
               ${map(this.dynamicProperties, (prop, index) => {
                 switch (prop.variant) {
                   case DynamicPropertyType.FixedPoint:
+                  case DynamicPropertyType.HasAttractor:
+                  case DynamicPropertyType.TrapSpace:
+                  case DynamicPropertyType.ExistsTrajectory:
                     return html`
                       <dynamic-obs-selection .index=${index}
                                            .property=${prop}
                                            .observations=${this.contentData.observations}>
-                      </dynamic-obs-selection>`
-                  case DynamicPropertyType.TrapSpace:
-                    return html`
-                      <dynamic-obs-selection .index=${index}
-                                          .property=${prop}
-                                          .observations=${this.contentData.observations}>
-                      </dynamic-obs-selection>`
-                  case DynamicPropertyType.ExistsTrajectory:
-                    return html`
-                      <dynamic-obs-selection .index=${index}
-                                          .property=${prop}
-                                          .observations=${this.contentData.observations}>
                       </dynamic-obs-selection>`
                   case DynamicPropertyType.AttractorCount:
                     return html`
                       <dynamic-attractor-count .index=${index}
                                                .property=${prop}>
                       </dynamic-attractor-count>`
-                  case DynamicPropertyType.HasAttractor:
-                    return html`
-                      <dynamic-obs-selection .index=${index}
-                                             .property=${prop}
-                                             .observations=${this.contentData.observations}>
-                      </dynamic-obs-selection>`
                   case DynamicPropertyType.Generic:
                     return html`
                       <dynamic-generic .index=${index}
