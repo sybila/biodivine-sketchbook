@@ -19,18 +19,18 @@ export const fixedPointDynamic = (id: string): IFixedPointDynamicProperty => {
     id,
     name: 'fixed-point',
     variant: DynamicPropertyType.FixedPoint,
-    dataset: '',
-    observation: ''
+    dataset: undefined,
+    observation: undefined
   }
 }
 
 export const trapSpaceDynamic = (id: string): ITrapSpaceDynamicProperty => {
   return {
     id,
-    name: 'dynamic-trap-space',
+    name: 'trap-space',
     variant: DynamicPropertyType.TrapSpace,
-    dataset: '',
-    observation: '',
+    dataset: undefined,
+    observation: undefined,
     minimal: false,
     nonpercolable: false
   }
@@ -39,16 +39,16 @@ export const trapSpaceDynamic = (id: string): ITrapSpaceDynamicProperty => {
 export const existsTrajectoryDynamic = (id: string): IExistsTrajectoryDynamicProperty => {
   return {
     id,
-    name: 'exists-trajectory-dynamic',
+    name: 'exists-trajectory',
     variant: DynamicPropertyType.ExistsTrajectory,
-    dataset: ''
+    dataset: undefined
   }
 }
 
 export const attractorCountDynamic = (id: string): IAttractorCountDynamicProperty => {
   return {
     id,
-    name: 'attractor-count-dynamic',
+    name: 'attractor-count',
     variant: DynamicPropertyType.AttractorCount,
     minimal: 1,
     maximal: 1
@@ -58,10 +58,10 @@ export const attractorCountDynamic = (id: string): IAttractorCountDynamicPropert
 export const hasAttractorDynamic = (id: string): IHasAttractorDynamicProperty => {
   return {
     id,
-    name: 'has-attractor-dynamic',
+    name: 'has-attractor',
     variant: DynamicPropertyType.HasAttractor,
-    dataset: '',
-    observation: ''
+    dataset: undefined,
+    observation: undefined
   }
 }
 

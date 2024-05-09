@@ -122,7 +122,7 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
           </button>
         </div>
         <div class="value-section">
-          <div class="value-symbol">
+          <div class="value-symbol gap">
             <select id="first-selector" class="uk-select" @change="${this.firstChanged}">
               <option value="${undefined}">---</option>
               ${map(this.getFirstSelectorItems(), (item) => html`

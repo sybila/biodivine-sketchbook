@@ -4,11 +4,8 @@ import style_less from './properties-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './abstract-property/abstract-property'
 import './dynamic/dynamic-attractor-count/dynamic-attractor-count'
-import './dynamic/dynamic-fixed-point/dynamic-fixed-point'
 import './dynamic/dynamic-generic/dynamic-generic'
-import './dynamic/dynamic-has-attractor/dynamic-has-attractor'
-import './dynamic/dynamic-trajectory/dynamic-trajectory'
-import './dynamic/dynamic-trap-space/dynamic-trap-space'
+import './dynamic/dynamic-obs-selection/dynamic-obs-selection'
 import './static/static-generic/static-generic'
 import './static/static-input-essential/static-input-essential'
 import './static/static-input-essential-condition/static-input-essential-condition'
@@ -345,22 +342,22 @@ export default class PropertiesEditor extends LitElement {
                 switch (prop.variant) {
                   case DynamicPropertyType.FixedPoint:
                     return html`
-                      <dynamic-fixed-point .index=${index}
+                      <dynamic-obs-selection .index=${index}
                                            .property=${prop}
                                            .observations=${this.contentData.observations}>
-                      </dynamic-fixed-point>`
+                      </dynamic-obs-selection>`
                   case DynamicPropertyType.TrapSpace:
                     return html`
-                      <dynamic-trap-space .index=${index}
+                      <dynamic-obs-selection .index=${index}
                                           .property=${prop}
                                           .observations=${this.contentData.observations}>
-                      </dynamic-trap-space>`
+                      </dynamic-obs-selection>`
                   case DynamicPropertyType.ExistsTrajectory:
                     return html`
-                      <dynamic-trajectory .index=${index}
+                      <dynamic-obs-selection .index=${index}
                                           .property=${prop}
                                           .observations=${this.contentData.observations}>
-                      </dynamic-trajectory>`
+                      </dynamic-obs-selection>`
                   case DynamicPropertyType.AttractorCount:
                     return html`
                       <dynamic-attractor-count .index=${index}
@@ -368,10 +365,10 @@ export default class PropertiesEditor extends LitElement {
                       </dynamic-attractor-count>`
                   case DynamicPropertyType.HasAttractor:
                     return html`
-                      <dynamic-has-attractor .index=${index}
+                      <dynamic-obs-selection .index=${index}
                                              .property=${prop}
                                              .observations=${this.contentData.observations}>
-                      </dynamic-has-attractor>`
+                      </dynamic-obs-selection>`
                   case DynamicPropertyType.Generic:
                     return html`
                       <dynamic-generic .index=${index}
