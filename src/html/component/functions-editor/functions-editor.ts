@@ -90,7 +90,7 @@ export class FunctionsEditor extends LitElement {
     const fns = functions.map((data): IFunctionData => {
       return this.convertToIFunction(data)
     })
-    this.index = fns.length
+    this.index = Math.max(fns.length, this.index)
     this.saveFunctions(fns)
   }
 

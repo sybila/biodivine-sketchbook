@@ -26,7 +26,7 @@ export default class AbstractProperty extends LitElement {
   removeProperty (eventName: string): void {
     this.dispatchEvent(new CustomEvent(eventName, {
       detail: {
-        index: this.index
+        id: this.property.id
       },
       bubbles: true,
       composed: true
@@ -36,8 +36,7 @@ export default class AbstractProperty extends LitElement {
   updateProperty (property: DynamicProperty | StaticProperty, eventName: string): void {
     this.dispatchEvent(new CustomEvent(eventName, {
       detail: {
-        property,
-        index: this.index
+        property
       },
       bubbles: true,
       composed: true

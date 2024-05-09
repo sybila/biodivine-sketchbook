@@ -3,40 +3,21 @@ use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::static_props::{SimpleStatPropertyType, StatPropertyType};
 use crate::sketchbook::properties::StatProperty;
 use crate::sketchbook::JsonSerde;
-use serde::de;
-use serde::de::Unexpected;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
-/// Custom serialization for 'input' field of some properties.
-fn serialize_input<S>(id: &Option<usize>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    match id {
-        Some(value) => {
-            let formatted_id = format!("var{}", value);
-            serializer.serialize_some(&formatted_id)
-        }
-        None => serializer.serialize_none(),
+fn input_id_to_index(input_id: &Option<String>) -> Result<Option<usize>, String> {
+    match input_id {
+        Some(s) if s.starts_with("var") && s[3..].chars().all(char::is_numeric) => s[3..]
+            .parse::<usize>()
+            .map(Some)
+            .map_err(|e| format!("{:?}", e)),
+        None => Ok(None),
+        _ => Err("Input ID has invalid format, must be `varN`".to_string()),
     }
 }
 
-/// Custom deserialization for 'input' field of some properties.
-fn deserialize_input<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s: Option<String> = Option::deserialize(deserializer)?;
-    match s {
-        Some(s) if s.starts_with("var") && s[3..].chars().all(char::is_numeric) => {
-            s[3..].parse::<usize>().map(Some).map_err(de::Error::custom)
-        }
-        None => Ok(None),
-        _ => Err(de::Error::invalid_value(
-            Unexpected::Str(s.as_deref().unwrap_or("")),
-            &"a string starting with 'var' followed by numbers",
-        )),
-    }
+fn input_index_to_id(input_index: usize) -> String {
+    format!("var{}", input_index)
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -54,12 +35,7 @@ pub struct RegulationEssentialData {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FnInputEssentialData {
-    #[serde(
-        rename = "input",
-        serialize_with = "serialize_input",
-        deserialize_with = "deserialize_input"
-    )]
-    pub input_index: Option<usize>,
+    pub input: Option<String>,
     pub target: Option<String>,
     pub value: Essentiality,
     pub context: Option<String>,
@@ -75,12 +51,7 @@ pub struct RegulationMonotonicData {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FnInputMonotonicData {
-    #[serde(
-        rename = "input",
-        serialize_with = "serialize_input",
-        deserialize_with = "deserialize_input"
-    )]
-    pub input_index: Option<usize>,
+    pub input: Option<String>,
     pub target: Option<String>,
     pub value: Monotonicity,
     pub context: Option<String>,
@@ -176,7 +147,7 @@ impl StatPropertyData {
             }
             StatPropertyType::FnInputEssential(p) => {
                 StatPropertyTypeData::FnInputEssential(FnInputEssentialData {
-                    input_index: p.input_index,
+                    input: p.input_index.map(input_index_to_id),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
                     context: None,
@@ -184,7 +155,7 @@ impl StatPropertyData {
             }
             StatPropertyType::FnInputEssentialContext(p) => {
                 StatPropertyTypeData::FnInputEssentialContext(FnInputEssentialData {
-                    input_index: p.input_index,
+                    input: p.input_index.map(input_index_to_id),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
                     context: p.context.clone(),
@@ -192,7 +163,7 @@ impl StatPropertyData {
             }
             StatPropertyType::FnInputMonotonic(p) => {
                 StatPropertyTypeData::FnInputMonotonic(FnInputMonotonicData {
-                    input_index: p.input_index,
+                    input: p.input_index.map(input_index_to_id),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
                     context: None,
@@ -200,7 +171,7 @@ impl StatPropertyData {
             }
             StatPropertyType::FnInputMonotonicContext(p) => {
                 StatPropertyTypeData::FnInputMonotonicContext(FnInputMonotonicData {
-                    input_index: p.input_index,
+                    input: p.input_index.map(input_index_to_id),
                     target: p.target.as_ref().map(|i| i.to_string()),
                     value: p.value,
                     context: p.context.clone(),
@@ -217,7 +188,7 @@ impl StatPropertyData {
             StatPropertyTypeData::GenericStatProp(p) => StatProperty::mk_generic(name, &p.formula),
             StatPropertyTypeData::FnInputMonotonic(p) => StatProperty::mk_fn_input_monotonic(
                 name,
-                p.input_index,
+                input_id_to_index(&p.input)?,
                 p.target
                     .as_ref()
                     .and_then(|t| UninterpretedFnId::new(t).ok()),
@@ -226,7 +197,7 @@ impl StatPropertyData {
             StatPropertyTypeData::FnInputMonotonicContext(p) => {
                 StatProperty::mk_fn_input_monotonic_context(
                     name,
-                    p.input_index,
+                    input_id_to_index(&p.input)?,
                     p.target
                         .as_ref()
                         .and_then(|t| UninterpretedFnId::new(t).ok()),
@@ -236,7 +207,7 @@ impl StatPropertyData {
             }
             StatPropertyTypeData::FnInputEssential(p) => StatProperty::mk_fn_input_essential(
                 name,
-                p.input_index,
+                input_id_to_index(&p.input)?,
                 p.target
                     .as_ref()
                     .and_then(|t| UninterpretedFnId::new(t).ok()),
@@ -245,7 +216,7 @@ impl StatPropertyData {
             StatPropertyTypeData::FnInputEssentialContext(p) => {
                 StatProperty::mk_fn_input_essential_context(
                     name,
-                    p.input_index,
+                    input_id_to_index(&p.input)?,
                     p.target
                         .as_ref()
                         .and_then(|t| UninterpretedFnId::new(t).ok()),

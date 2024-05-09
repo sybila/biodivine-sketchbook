@@ -97,7 +97,7 @@ export default class ObservationsEditor extends LitElement {
 
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
     const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
-    this.index = datasets.length
+    this.index = Math.max(datasets.length, this.index)
     this.updateObservations(datasets)
   }
 

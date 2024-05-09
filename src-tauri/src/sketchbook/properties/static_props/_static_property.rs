@@ -204,13 +204,13 @@ impl StatProperty {
             SimpleStatPropertyType::RegulationEssentialContext => {
                 Self::default_regulation_essential_context()
             }
-            SimpleStatPropertyType::RegulationMonotonic => Self::default_fn_input_monotonic(),
+            SimpleStatPropertyType::RegulationMonotonic => Self::default_regulation_monotonic(),
             SimpleStatPropertyType::RegulationMonotonicContext => {
-                Self::default_fn_input_monotonic_context()
+                Self::default_regulation_monotonic_context()
             }
             SimpleStatPropertyType::FnInputEssential => Self::default_fn_input_essential(),
             SimpleStatPropertyType::FnInputEssentialContext => {
-                Self::default_regulation_essential_context()
+                Self::default_fn_input_essential_context()
             }
             SimpleStatPropertyType::FnInputMonotonic => Self::default_fn_input_monotonic(),
             SimpleStatPropertyType::FnInputMonotonicContext => {

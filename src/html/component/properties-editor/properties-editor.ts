@@ -85,16 +85,19 @@ export default class PropertiesEditor extends LitElement {
   constructor () {
     super()
 
-    this.addEventListener('static-property-changed', this.staticPropertyChanged)
-    this.addEventListener('dynamic-property-changed', this.dynamicPropertyChanged)
-    this.addEventListener('static-property-removed', this.staticPropertyRemoved)
-    this.addEventListener('dynamic-property-removed', this.dynamicPropertyRemoved)
-
     document.addEventListener('click', this.closeMenu.bind(this))
 
     // classical events
     aeonState.sketch.properties.dynamicCreated.addEventListener(this.#onDynamicCreated.bind(this))
     aeonState.sketch.properties.staticCreated.addEventListener(this.#onStaticCreated.bind(this))
+    this.addEventListener('dynamic-property-removed', this.removeDynamicProperty)
+    aeonState.sketch.properties.dynamicRemoved.addEventListener(this.#onDynamicRemoved.bind(this))
+    this.addEventListener('static-property-removed', this.removeStaticProperty)
+    aeonState.sketch.properties.staticRemoved.addEventListener(this.#onStaticRemoved.bind(this))
+    this.addEventListener('dynamic-property-changed', this.changeDynamicProperty)
+    aeonState.sketch.properties.dynamicContentChanged.addEventListener(this.#onDynamicChanged.bind(this))
+    this.addEventListener('static-property-changed', this.changeStaticProperty)
+    aeonState.sketch.properties.staticContentChanged.addEventListener(this.#onStaticChanged.bind(this))
 
     // refresh-event listeners
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
@@ -126,13 +129,13 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
-    this.dynPropIndex = refreshedDynamic.length
+    this.dynPropIndex = Math.max(refreshedDynamic.length, this.dynPropIndex)
     this.updateDynamicProperties(refreshedDynamic)
     console.log(refreshedDynamic)
   }
 
   #onStaticRefreshed (refreshedStatic: StaticProperty[]): void {
-    this.statPropIndex = refreshedStatic.length
+    this.statPropIndex = Math.max(refreshedStatic.length, this.dynPropIndex)
     this.updateStaticProperties(refreshedStatic)
     console.log(refreshedStatic)
   }
@@ -166,36 +169,63 @@ export default class PropertiesEditor extends LitElement {
     console.log(newStatic)
   }
 
-  dynamicPropertyChanged (event: Event): void {
+  changeDynamicProperty (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    aeonState.sketch.properties.setDynamicContent(detail.property.id, detail.property)
+  }
+
+  #onDynamicChanged (changedProp: DynamicProperty): void {
+    const id = changedProp.id
+    const index = this.contentData.dynamicProperties.findIndex(prop => prop.id === id)
+    if (index === -1) return
+    const properties = [...this.contentData.dynamicProperties]
+    properties[index] = changedProp
+    this.updateDynamicProperties(properties)
+  }
+
+  changeStaticProperty (event: Event): void {
     const detail = (event as CustomEvent).detail
     console.log('property changed', detail.property)
-    const props = [...this.contentData.dynamicProperties]
-    props[detail.index] = detail.property
-    this.updateDynamicProperties(this.contentData.dynamicProperties)
+    aeonState.sketch.properties.setStaticContent(detail.property.id, detail.property)
   }
 
-  staticPropertyChanged (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    console.log('property changed', detail.property)
-    const props = [...this.contentData.staticProperties]
-    props[detail.index] = detail.property
-    this.updateStaticProperties(this.contentData.staticProperties)
+  #onStaticChanged (changedProp: StaticProperty): void {
+    const id = changedProp.id
+    const index = this.contentData.staticProperties.findIndex(prop => prop.id === id)
+    if (index === -1) return
+    const properties = [...this.contentData.staticProperties]
+    properties[index] = changedProp
+    this.updateStaticProperties(properties)
   }
 
-  dynamicPropertyRemoved (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    console.log('property removed', detail.index)
-    const props = [...this.contentData.dynamicProperties]
-    props.splice(detail.index, 1)
-    this.updateDynamicProperties(this.contentData.dynamicProperties)
+  removeDynamicProperty (event: Event): void {
+    const id = (event as CustomEvent).detail.id
+    console.log('property removed', id)
+    aeonState.sketch.properties.removeDynamic(id)
   }
 
-  staticPropertyRemoved (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    console.log('property removed', detail.index)
-    const props = [...this.contentData.staticProperties]
-    props.splice(detail.index, 1)
-    this.updateStaticProperties(this.contentData.staticProperties)
+  #onDynamicRemoved (removedProp: DynamicProperty): void {
+    const id = removedProp.id
+    const index = this.contentData.dynamicProperties.findIndex(prop => prop.id === id)
+    if (index === -1) return
+    const properties = [...this.contentData.dynamicProperties]
+    properties.splice(index, 1)
+    this.updateDynamicProperties(properties)
+  }
+
+  removeStaticProperty (event: Event): void {
+    const id = (event as CustomEvent).detail.id
+    console.log('property removed', id)
+    aeonState.sketch.properties.removeStatic(id)
+  }
+
+  #onStaticRemoved (removedProp: StaticProperty): void {
+    const id = removedProp.id
+    const index = this.contentData.staticProperties.findIndex(prop => prop.id === id)
+    if (index === -1) return
+    const properties = [...this.contentData.staticProperties]
+    properties.splice(index, 1)
+    this.updateStaticProperties(properties)
   }
 
   async openAddDynamicPropertyMenu (): Promise<void> {
