@@ -2,6 +2,8 @@
 
 #import-wrapper {
   height: 100%;
+  margin: 0.5em;
+  color: @text-light;
 }
 
 #table-wrapper {
@@ -85,5 +87,14 @@ h1 {
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  h1 {
+    color: @text-dark;
+  }
+  .sk-cube-grid .sk-cube {
+    background-color: @text-dark;
   }
 }

@@ -80,7 +80,7 @@ export default class ObservationsImport extends LitElement {
           <div id="import-wrapper">
             <h1 class="uk-margin-small-bottom">Select rows to be imported</h1>
             ${this.table}
-            <div class="footer uk-flex-row uk-text-center ">
+            <div class="footer uk-flex-row uk-text-center uk-margin-small">
               <button class="uk-button uk-button-primary" 
                       ?disabled="${this.submitDisabled}" 
                       @click="${this.handleSubmit}">
