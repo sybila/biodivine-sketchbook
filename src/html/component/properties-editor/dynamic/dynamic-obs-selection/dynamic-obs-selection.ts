@@ -25,7 +25,7 @@ export default class DynamicObsSelection extends AbstractDynamicProperty {
     const datasetId = (event.target as HTMLSelectElement).value
     this.updateProperty({
       ...this.property,
-      dataset: datasetId,
+      dataset: datasetId === '' ? undefined : datasetId,
       observation: this.property.variant === DynamicPropertyType.HasAttractor ? ALL : undefined
     })
     if (this.property.variant !== DynamicPropertyType.ExistsTrajectory) {
@@ -84,7 +84,8 @@ export default class DynamicObsSelection extends AbstractDynamicProperty {
             <label for="observation">Observation:</label>
             <div class="uk-width-3-4">
               <select class="uk-select uk-margin-small-left" name="observation" id="observation"
-                      @change=${this.observationChanged}>
+                      @change=${this.observationChanged}
+              ?disabled="${this.property.dataset === undefined}">
                 ${when(this.property.variant === DynamicPropertyType.HasAttractor,
                     () => html`
                       <option value=${'*'}>all</option>`,
