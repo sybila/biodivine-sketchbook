@@ -119,7 +119,7 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
           </button>
         </div>
         <div class="value-section">
-          <div class="value-symbol">
+          <div class="value-symbol gap">
             <select id="first-selector" class="uk-select" @change="${this.firstChanged}">
               <option value="${undefined}">---</option>
               ${map(this.getFirstSelectorItems(), (item) => html`
@@ -127,7 +127,8 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
               `)}
             </select>
             <span>${this.getEssentialitySymbol()}</span>
-            <select id="second-selector" class="uk-select" @change="${this.secondChanged}">
+            <select id="second-selector" class="uk-select" @change="${this.secondChanged}"
+                    ?disabled="${this.property.target === undefined}">
               <option value="${undefined}">---</option>
               ${map(this.getSecondSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>

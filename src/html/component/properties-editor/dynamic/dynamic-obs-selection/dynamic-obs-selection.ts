@@ -1,37 +1,57 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import style_less from './dynamic-has-attractor.less?inline'
+import style_less from './dynamic-obs-selection.less?inline'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { type IHasAttractorDynamicProperty, type IObservationSet } from '../../../../util/data-interfaces'
+import {
+  DynamicPropertyType,
+  type IObservationSet,
+  type ITrapSpaceDynamicProperty
+} from '../../../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
-import { when } from 'lit/directives/when.js'
 import AbstractDynamicProperty from '../abstract-dynamic-property'
+import { when } from 'lit/directives/when.js'
 
-const ALL_OBSERVATIONS_PLACEHOLDER = '*'
+const ALL = '*'
 
-@customElement('dynamic-has-attractor')
-export default class DynamicHasAttractor extends AbstractDynamicProperty {
+@customElement('dynamic-obs-selection')
+export default class DynamicObsSelection extends AbstractDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
+  @property() declare property: ITrapSpaceDynamicProperty
+  @property() declare observations: IObservationSet[]
   @query('#observation') declare observationSelector: HTMLSelectElement
-  @property() declare property: IHasAttractorDynamicProperty
-  @property() observations: IObservationSet[] = []
 
   datasetChanged (event: Event): void {
     const datasetId = (event.target as HTMLSelectElement).value
     this.updateProperty({
       ...this.property,
-      dataset: datasetId,
-      observation: ALL_OBSERVATIONS_PLACEHOLDER
+      dataset: datasetId === '' ? undefined : datasetId,
+      observation: this.property.variant === DynamicPropertyType.HasAttractor ? ALL : undefined
     })
-    this.observationSelector.selectedIndex = 0
+    if (this.property.variant !== DynamicPropertyType.ExistsTrajectory) {
+      this.observationSelector.selectedIndex = 0
+    }
   }
 
   observationChanged (event: Event): void {
     const observation = (event.target as HTMLSelectElement).value
     this.updateProperty({
       ...this.property,
-      observation
+      observation: observation === '' ? undefined : observation
+    })
+  }
+
+  minimalChanged (): void {
+    this.updateProperty({
+      ...this.property,
+      minimal: !this.property.minimal
+    })
+  }
+
+  nonpercolableChanged (): void {
+    this.updateProperty({
+      ...this.property,
+      nonpercolable: !this.property.nonpercolable
     })
   }
 
@@ -45,6 +65,7 @@ export default class DynamicHasAttractor extends AbstractDynamicProperty {
             ${icon(faTrash).node}
           </button>
         </div>
+        
         <div class="uk-flex uk-flex-row uk-flex-around">
           <div class="uk-flex uk-flex-row uk-flex-around uk-flex-middle">
             <label for="dataset">Dataset:</label>
@@ -57,24 +78,41 @@ export default class DynamicHasAttractor extends AbstractDynamicProperty {
               </select>
             </div>
           </div>
+          
+          ${when(this.property.variant !== DynamicPropertyType.ExistsTrajectory, () => html`
           <div class="uk-flex uk-flex-row uk-flex-around uk-flex-middle">
             <label for="observation">Observation:</label>
             <div class="uk-width-3-4">
               <select class="uk-select uk-margin-small-left" name="observation" id="observation"
-                      @change=${this.observationChanged}>
-                ${when(this.property.dataset !== '',
-                    () => html`<option value=${ALL_OBSERVATIONS_PLACEHOLDER}>all</option>`,
+                      @change=${this.observationChanged}
+              ?disabled="${this.property.dataset === undefined}">
+                ${when(this.property.variant === DynamicPropertyType.HasAttractor,
+                    () => html`
+                      <option value=${'*'}>all</option>`,
                     () => html`
                       <option value=${undefined}>---</option>`)}
-                
                 ${map(this.observations[this.observations.findIndex(dataset => dataset.id === this.property.dataset)]?.observations,
                     (observation) => html`
                       <option value="${observation.id}">${observation.id}</option>
                     `)}
               </select>
             </div>
-          </div>
+          </div>`)}
         </div>
+        
+        ${when(this.property.variant === DynamicPropertyType.TrapSpace, () => html`
+          <div class="uk-flex uk-flex-row uk-flex-around">
+            <div class="toggle">
+              <input class="uk-checkbox" type="checkbox" id="minimal" name="minimal" value=${this.property.minimal}
+                     @change=${this.minimalChanged} />
+              <label class="pointer" for="minimal">minimal</label>
+            </div>
+            <div class="pointer">
+              <input class="uk-checkbox" type="checkbox" id="non-percolable" name="non-percolable"
+                     value=${this.property.nonpercolable} @change=${this.nonpercolableChanged} />
+              <label class="pointer" for="non-percolable">non-percolable</label>
+            </div>
+          </div>`)}
       </div>
       <hr>
     `

@@ -7,8 +7,6 @@ import {
   StaticPropertyType
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
-import { when } from 'lit/directives/when.js'
-import { choose } from 'lit/directives/choose.js'
 import StaticDynamicProperty from '../static-dynamic-property'
 
 @customElement('static-input-monotonic')
@@ -17,20 +15,14 @@ export default class StaticInputMonotonic extends StaticDynamicProperty {
   @property() declare property: IFunctionInputMonotonicStaticProperty
 
   toggleMonotonicity (): void {
-    let value = getNextMonotonicity(this.property.value)
+    if (this.property.variant === StaticPropertyType.FunctionInputEssential) return
+    let value = getNextMonotonicity((this.property).value)
     if (value === Monotonicity.UNSPECIFIED) {
       value = getNextMonotonicity(value)
     }
     this.updateProperty({
       ...this.property,
       value
-    })
-  }
-
-  conditionChanged (context: string): void {
-    this.updateProperty({
-      ...this.property,
-      context
     })
   }
 
@@ -50,17 +42,9 @@ export default class StaticInputMonotonic extends StaticDynamicProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        ${choose(this.property.variant, [
-          [StaticPropertyType.FunctionInputMonotonic, () => html`
-            <div class="uk-flex uk-flex-row">
-              <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-            </div>`],
-          [StaticPropertyType.FunctionInputMonotonicWithCondition, () => html`
-            <div class="uk-flex uk-flex-row">
-              <input id="name-field" class="name-field" value="${this.property.name}" 
-                     @change="${(e: Event) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-            </div>`]
-        ])}
+        <div class="uk-flex uk-flex-row">
+          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
+        </div>
         <div class="value-section">
           <div class="value-symbol">
             <div class="uk-margin-small-right">${this.property.input}</div>
@@ -77,17 +61,6 @@ export default class StaticInputMonotonic extends StaticDynamicProperty {
             <span>)</span>
           </div>
         </div>
-        ${when(this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition,
-            () => html`
-              <div class="uk-flex uk-flex-column uk-flex-left">
-                <label class="condition-label">Context formula:</label>
-                <div class="uk-flex uk-flex-row">
-                  <input id="condition-field" class="condition-field" value="${this.property.context}"
-                         @change="${(e: Event) => { this.conditionChanged((e.target as HTMLInputElement).value) }}"/>
-
-                </div>
-              </div>`
-        )}
       </div>
       </div>
       <hr>
