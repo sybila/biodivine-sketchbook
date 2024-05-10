@@ -1,4 +1,4 @@
-import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
+import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
@@ -14,8 +14,7 @@ import {
   type DatasetData,
   type DatasetIdUpdateData,
   type ObservationData,
-  type ObservationIdUpdateData,
-  type SketchData
+  type ObservationIdUpdateData
 } from '../../../aeon_events'
 
 @customElement('observations-editor')
@@ -42,12 +41,15 @@ export default class ObservationsEditor extends LitElement {
 
     // refresh-event listeners
     aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
-    // when refreshing/replacing whole sketch, this component is responsible for updating the `Datasets` part
-    aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
-    aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
 
-    // refreshing content from backend
-    aeonState.sketch.observations.refreshDatasets()
+    // note that the refresh events are automatically triggered or handled (after app refresh) directly
+    // from the root component (due to some dependency issues between different components)
+  }
+
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    // index cannot get smaller, could cause problems with IDs
+    this.index = Math.max(this.contentData.observations.length, this.index)
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
@@ -88,11 +90,6 @@ export default class ObservationsEditor extends LitElement {
       variables: dataset.variables,
       category: dataset.category
     }
-  }
-
-  #onSketchRefreshed (sketch: SketchData): void {
-    // when refreshing/replacing whole sketch, this component is responsible for updating the `Datasets` part
-    this.#onDatasetsRefreshed(sketch.datasets)
   }
 
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {

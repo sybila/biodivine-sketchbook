@@ -40,8 +40,8 @@ export class FunctionsEditor extends LitElement {
     // refresh-event listeners
     aeonState.sketch.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
 
-    // note that the `refreshUninterpretedFns` or `refreshModel` events are triggered (after app refresh) directly
-    // from the root component (due to some dependency issues)
+    // note that the refresh events are automatically triggered or handled (after app refresh) directly
+    // from the root component (due to some dependency issues between different components)
   }
 
   connectedCallback (): void {
@@ -56,7 +56,8 @@ export class FunctionsEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    this.index = this.contentData.functions.length
+    // index cannot get smaller, could cause problems with IDs
+    this.index = Math.max(this.contentData.functions.length, this.index)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
         callback(null, this.contentData.functions.map((func): Ace.Completion => ({

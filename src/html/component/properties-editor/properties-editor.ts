@@ -103,9 +103,15 @@ export default class PropertiesEditor extends LitElement {
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
     aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
 
-    // refreshing content from backend - placeholders
-    aeonState.sketch.properties.refreshDynamicProps()
-    aeonState.sketch.properties.refreshStaticProps()
+    // note that the refresh events are automatically triggered or handled (after app refresh) directly
+    // from the root component (due to some dependency issues between different components)
+  }
+
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    // index cannot get smaller, could cause problems with IDs
+    this.dynPropIndex = Math.max(this.contentData.dynamicProperties.length, this.dynPropIndex)
+    this.statPropIndex = Math.max(this.contentData.staticProperties.length, this.statPropIndex)
   }
 
   updateDynamicProperties (dynamicProperties: DynamicProperty[]): void {

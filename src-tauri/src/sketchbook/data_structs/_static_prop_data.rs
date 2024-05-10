@@ -5,6 +5,7 @@ use crate::sketchbook::properties::StatProperty;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 
+/// **(internal)** Convert function input from its string format `varN` into its index `N`.
 fn input_id_to_index(input_id: &Option<String>) -> Result<Option<usize>, String> {
     match input_id {
         Some(s) if s.starts_with("var") && s[3..].chars().all(char::is_numeric) => s[3..]
@@ -16,15 +17,18 @@ fn input_id_to_index(input_id: &Option<String>) -> Result<Option<usize>, String>
     }
 }
 
+/// **(internal)** Convert function input from its index `N` into corresponding string `varN`.
 fn input_index_to_id(input_index: usize) -> String {
     format!("var{}", input_index)
 }
 
+/// Simplified variant to carry data regarding [GenericStatProp] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GenericStatPropData {
     pub formula: String,
 }
 
+/// Simplified variant to carry data regarding [RegulationEssential] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegulationEssentialData {
     pub input: Option<String>,
@@ -33,6 +37,7 @@ pub struct RegulationEssentialData {
     pub context: Option<String>,
 }
 
+/// Simplified variant to carry data regarding [FnInputEssential] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FnInputEssentialData {
     pub input: Option<String>,
@@ -41,6 +46,7 @@ pub struct FnInputEssentialData {
     pub context: Option<String>,
 }
 
+/// Simplified variant to carry data regarding [RegulationMonotonic] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegulationMonotonicData {
     pub input: Option<String>,
@@ -49,6 +55,7 @@ pub struct RegulationMonotonicData {
     pub context: Option<String>,
 }
 
+/// Simplified variant to carry data regarding [FnInputMonotonic] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FnInputMonotonicData {
     pub input: Option<String>,
@@ -58,13 +65,16 @@ pub struct FnInputMonotonicData {
 }
 
 /// Structure for receiving data to create default dynamic properties. For this, only the ID
-/// and simple variant are needed.
+/// and simple variant (enum) are needed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct StatPropertyDefaultData {
     pub id: String,
     pub variant: SimpleStatPropertyType,
 }
 
+impl<'de> JsonSerde<'de> for StatPropertyDefaultData {}
+
+/// Enum covering all variants of static properties and their necessary data.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "variant")]
 pub enum StatPropertyTypeData {
@@ -92,7 +102,6 @@ pub struct StatPropertyData {
 }
 
 impl<'de> JsonSerde<'de> for StatPropertyData {}
-impl<'de> JsonSerde<'de> for StatPropertyDefaultData {}
 
 impl StatPropertyData {
     /// Shorthand to create new generic `StatPropertyData` instance given a properties
