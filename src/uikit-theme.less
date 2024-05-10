@@ -7,15 +7,51 @@
 
 @global-link-color: #DA7D02;
 @primary-color: #5282ee;
-@background-light: #f2f2f2;
+@secondary-light: #dedede;
+@secondary-dark: #222222;
+@background-light: #f6f6f6;
 @background-dark: #2f2f2f;
 @button-light: rgb(222, 222, 222);
 @button-dark: rgb(34, 34, 34);
 
-body {
-  margin: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+@text-dark: #f6f6f6;
+@text-light: #0f0f0f;
+
+
+@monotonicity-inhibition: rgb(240, 80, 110);
+@monotonicity-activation: rgb(50, 210, 150);
+@monotonicity-dual: rgb(30, 135, 240);
+@monotonicity-unspecified: rgb(153, 153, 153);
+
+@text: @text-light;
+@button: @button-light;
+
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: @text-light;
+  background-color: @background-light;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
+@media (prefers-color-scheme: dark) {
+  @text: @text-dark;
+  @button: @button-dark;
+
+  :root {
+    color: @text-dark;
+    background-color: @background-dark;
+  }
+
+  a:hover {
+    color: #24c8db;
+  }
+}

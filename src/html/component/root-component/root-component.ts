@@ -12,6 +12,8 @@ import {
   type ModelData,
   type RegulationData,
   type SketchData,
+  type DatasetData,
+  type ObservationData,
   type UninterpretedFnData,
   type VariableData,
   type VariableIdUpdateData
@@ -21,8 +23,12 @@ import {
   ContentData,
   type IFunctionData,
   type ILayoutData,
+  type IObservationSet,
   type IRegulationData,
-  type IVariableData
+  type IVariableData,
+  type DynamicProperty,
+  type StaticProperty,
+  type IObservation
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { dummyData } from '../../util/dummy-data'
@@ -81,14 +87,20 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.sketch.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.sketch.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
-    // when refreshing/replacing whole sketch, this component is responsible for updating the `Model` part
+    // when refreshing/replacing whole sketch, this component is responsible for updating the whole `Sketch`, that means
+    // updating model components, and distributing the rest (observations, properties) to particular sub-modules
     aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
     aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
-    // event listener to capture changes from FunctionEditor with updated uninterpreted functions
-    this.addEventListener('save-functions', this.saveFunctionData.bind(this))
 
-    // refreshing content from backend
-    aeonState.sketch.model.refreshModel()
+    // event listener to capture changes from sub-modules (FunctionEditor, ObservationEditor, or PropertiesEditor)
+    // with updated uninterpreted functions
+    this.addEventListener('save-functions', this.saveFunctionData.bind(this))
+    this.addEventListener('save-observations', this.saveObservationData.bind(this))
+    this.addEventListener('save-dynamic-properties', this.saveDynamicPropertyData.bind(this))
+    this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
+
+    // refreshing content of the whole sketch from backend
+    aeonState.sketch.refreshSketch()
   }
 
   async #onErrorMessage (errorMessage: string): Promise<void> {
@@ -120,6 +132,39 @@ export default class RootComponent extends LitElement {
     // update functions using modified data propagated from FunctionsEditor
     const functions: IFunctionData[] = (event as CustomEvent).detail.functions
     this.saveFunctions(functions)
+  }
+
+  saveObservationData (event: Event): void {
+    // update observations using modified data propagated from ObservationsEditor
+    const datasets: IObservationSet[] = (event as CustomEvent).detail.datasets
+    this.saveObservations(datasets)
+  }
+
+  saveStaticPropertyData (event: Event): void {
+    // update properties using modified data propagated from PropertyEditor
+    const properties: StaticProperty[] = (event as CustomEvent).detail.staticProperties
+    this.saveStaticProperties(properties)
+  }
+
+  saveDynamicPropertyData (event: Event): void {
+    // update properties using modified data propagated from PropertyEditor
+    const properties: DynamicProperty[] = (event as CustomEvent).detail.dynamicProperties
+    this.saveDynamicProperties(properties)
+  }
+
+  private saveDynamicProperties (dynamicProperties: DynamicProperty[]): void {
+    dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
+    this.data = this.data.copy({ dynamicProperties })
+  }
+
+  private saveStaticProperties (staticProperties: StaticProperty[]): void {
+    staticProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
+    this.data = this.data.copy({ staticProperties })
+  }
+
+  private saveObservations (observations: IObservationSet[]): void {
+    observations.sort((a, b) => (a.id > b.id ? 1 : -1))
+    this.data = this.data.copy({ observations })
   }
 
   private saveFunctions (functions: IFunctionData[]): void {
@@ -257,28 +302,6 @@ export default class RootComponent extends LitElement {
     this.data.layout.delete(data.original_id)
     aeonState.sketch.model.refreshVariables()
     aeonState.sketch.model.refreshRegulations()
-
-    /*
-    // older version that partially changes components directly follows
-    const variableIndex = this.data.variables.findIndex((variable) => variable.id === data.original_id)
-    if (variableIndex === -1) return
-    const variables = [...this.data.variables]
-    variables[variableIndex] = {
-      ...variables[variableIndex],
-      id: data.new_id
-    }
-
-    const regulations = [...this.data.regulations]
-    regulations.forEach((reg, index) => {
-      if (reg.source === data.original_id) {
-        regulations[index].source = data.new_id
-      }
-      if (reg.target === data.original_id) {
-        regulations[index].target = data.new_id
-      }
-    })
-    this.saveVariables(variables)
-     */
   }
 
   private toggleRegulationEssentiality (event: Event): void {
@@ -359,9 +382,36 @@ export default class RootComponent extends LitElement {
     }
   }
 
+  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
+    const obs: IObservation = { id: observationData.id, name: observationData.id, selected: false }
+    variables.forEach(((v, idx) => {
+      const value = observationData.values[idx]
+      obs[v] = (value === '*') ? '' : value
+    }))
+    return obs
+  }
+
+  private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
+    const observations = datasetData.observations.map(
+      observationData => this.convertToIObservation(observationData, datasetData.variables)
+    )
+    return {
+      id: datasetData.id,
+      observations,
+      variables: datasetData.variables,
+      category: datasetData.category
+    }
+  }
+
   #onSketchRefreshed (sketch: SketchData): void {
-    // when refreshing/replacing whole sketch, this component is responsible for updating the `Model` part
+    // update model first
     this.#onModelRefreshed(sketch.model)
+    // then observations
+    const datasets = sketch.datasets.map(d => this.convertToIObservationSet(d))
+    this.saveObservations(datasets)
+    // lastly properties that depend on the model or observations
+    this.saveStaticProperties(sketch.stat_properties)
+    this.saveDynamicProperties(sketch.dyn_properties)
   }
 
   #onModelRefreshed (model: ModelData): void {

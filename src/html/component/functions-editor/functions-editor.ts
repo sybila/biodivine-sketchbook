@@ -40,8 +40,8 @@ export class FunctionsEditor extends LitElement {
     // refresh-event listeners
     aeonState.sketch.model.uninterpretedFnsRefreshed.addEventListener(this.#onUninterpretedFnsRefreshed.bind(this))
 
-    // note that the `refreshUninterpretedFns` or `refreshModel` events are triggered (after app refresh) directly
-    // from the root component (due to some dependency issues)
+    // note that the refresh events are automatically triggered or handled (after app refresh) directly
+    // from the root component (due to some dependency issues between different components)
   }
 
   connectedCallback (): void {
@@ -56,7 +56,8 @@ export class FunctionsEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    this.index = this.contentData.functions.length
+    // index cannot get smaller, could cause problems with IDs
+    this.index = Math.max(this.contentData.functions.length, this.index)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
         callback(null, this.contentData.functions.map((func): Ace.Completion => ({
@@ -90,7 +91,7 @@ export class FunctionsEditor extends LitElement {
     const fns = functions.map((data): IFunctionData => {
       return this.convertToIFunction(data)
     })
-    this.index = fns.length
+    this.index = Math.max(fns.length, this.index)
     this.saveFunctions(fns)
   }
 
@@ -253,34 +254,44 @@ export class FunctionsEditor extends LitElement {
 
   protected render (): TemplateResult {
     return html`
-      <div class="function-list">
-        <div class="section" id="functions">
-          <h2 class="heading uk-text-center">Functions</h2>
-          <div class="uk-text-center uk-margin-small-bottom">
-            <button @click="${this.addFunction}" class="uk-button uk-button-small">add function</button>
+      <div class="container">
+        <div class="function-list">
+          <div class="section" id="functions">
+            <div class="header">
+              <div></div>
+              <h2 class="heading uk-text-center">Functions</h2>
+              <div class="uk-text-center uk-margin-small-bottom">
+                <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + </button>
+              </div>
+            </div>
+            <div class="uk-list uk-list-divider uk-text-center">
+              ${map(this.contentData.functions, (_node, index) => html`
+                <function-tile .index="${index}"
+                               .functions="${this.contentData.functions}">
+                </function-tile>
+              `)}
+            </div>
           </div>
-          <div class="uk-list uk-list-divider uk-text-center">
-            ${map(this.contentData.functions, (_node, index) => html`
-              <function-tile .index="${index}"
-                             .functions="${this.contentData.functions}">
-              </function-tile>
-            `)}
+          <div class="section" id="variables">
+            <div class="header">
+              <div></div>
+              <h2 class="heading uk-text-center">Variables</h2>
+              <div></div>
+            </div>
+            <div class="uk-list uk-list-divider uk-text-center">
+              ${map(this.contentData?.variables, (node, index) => html`
+                <variable-tile id="${node.id}"
+                               .index="${index}"
+                               .variables="${this.contentData.variables}"
+                               .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}"
+                               .functions="${this.contentData.functions}">
+                </variable-tile>
+              `)}
+            </div>
           </div>
-        </div>
-        <div class="section" id="variables">
-          <h2 class="heading uk-text-center">Variables</h2>
-          <div class="uk-list uk-list-divider uk-text-center">
-            ${map(this.contentData?.variables, (node, index) => html`
-              <variable-tile id="${node.id}"
-                             .index="${index}"
-                             .variables="${this.contentData.variables}"
-                             .regulations="${this.contentData.regulations.filter(edge => edge.target === node.id)}"
-                             .functions="${this.contentData.functions}">
-              </variable-tile>
-            `)}
-          </div>
-        </div>
+        </div> 
       </div>
+
     `
   }
 }

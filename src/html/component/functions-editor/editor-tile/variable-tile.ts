@@ -10,6 +10,7 @@ import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
 import { functionDebounceTimer } from '../../../util/config'
+import { getEssentialityText, getMonotonicityClass } from '../../../util/utilities'
 library.add(faTrash, faMagnifyingGlass)
 
 @customElement('variable-tile')
@@ -136,7 +137,7 @@ export class VariableTile extends EditorTile {
 
   protected render (): TemplateResult {
     return html`
-      <div class="uk-flex uk-flex-column uk-margin-small-bottom">
+      <div class="container uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.index].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
@@ -161,9 +162,9 @@ export class VariableTile extends EditorTile {
                  @click="${() => {
                    this.toggleEssentiality(regulation)
                  }}">
-              ${this.getEssentialityText(regulation.essential)}
+              ${getEssentialityText(regulation.essential)}
             </div>
-            <div class="regulation-property ${this.monotonicityClass(regulation.monotonicity)}"
+            <div class="regulation-property ${getMonotonicityClass(regulation.monotonicity)}"
                  @click="${() => {
                    this.toggleMonotonicity(regulation)
                  }}">

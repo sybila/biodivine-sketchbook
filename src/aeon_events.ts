@@ -1,6 +1,14 @@
 import { type Event, emit, listen } from '@tauri-apps/api/event'
 import { dialog, invoke } from '@tauri-apps/api'
-import { Monotonicity, Essentiality, DataCategory } from './html/util/data-interfaces'
+import {
+  Monotonicity,
+  Essentiality,
+  DataCategory,
+  type DynamicProperty,
+  type StaticProperty,
+  type DynamicPropertyType,
+  type StaticPropertyType
+} from './html/util/data-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -192,7 +200,7 @@ interface AeonState {
       /** Refresh events: */
 
       /** List of all datasets. */
-      datasetsRefreshed: Observable<[DatasetData]>
+      datasetsRefreshed: Observable<DatasetData[]>
       /** Refresh all the datasets. */
       refreshDatasets: () => void
       /** A particular dataset. */
@@ -209,7 +217,7 @@ interface AeonState {
       /** DatasetData for a newly created dataset. */
       datasetCreated: Observable<DatasetData>
       /** Create a new dataset with given ID, variables, observations, and category. */
-      addDataset: (id: string, variables: [string], observations: [ObservationData], category: DataCategory) => void
+      addDataset: (id: string, variables: string[], observations: ObservationData[], category: DataCategory) => void
       /** DatasetData for a newly loaded dataset (from a csv file).
        *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
       datasetLoaded: Observable<DatasetData>
@@ -262,6 +270,54 @@ interface AeonState {
       /** Modify a content of a particular observation.  */
       setObservationContent: (datasetId: string, observation: ObservationData) => void
     }
+
+    /** The state of the dynamic and static properties. */
+    properties: {
+      /** Refresh events: */
+
+      /** List of all dynamic properties. */
+      dynamicPropsRefreshed: Observable<DynamicProperty[]>
+      /** Refresh all dynamic properties. */
+      refreshDynamicProps: () => void
+      /** List of all static properties. */
+      staticPropsRefreshed: Observable<StaticProperty[]>
+      /** Refresh all static properties. */
+      refreshStaticProps: () => void
+
+      /** Events regarding dynamic properties. */
+
+      /** Newly created dynamic property. */
+      dynamicCreated: Observable<DynamicProperty>
+      /** Create a new dynamic property with given ID, variables, of given `variant` (with corresponding data). */
+      addDynamic: (id: string, name: string, variant: DynamicProperty) => void
+      /** Create a new default dynamic property with given ID and variant. */
+      addDefaultDynamic: (id: string, variant: DynamicPropertyType) => void
+      /** Data of a removed dynamic property. */
+      dynamicRemoved: Observable<DynamicProperty>
+      /** Remove dynamic property with given ID. */
+      removeDynamic: (id: string) => void
+      /** Data of a modified dynamic property. */
+      dynamicContentChanged: Observable<DynamicProperty>
+      /** Set content of dynamic property with given ID. */
+      setDynamicContent: (id: string, newContent: DynamicProperty) => void
+
+      /** Events regarding static properties. */
+
+      /** Data of a newly created static property. */
+      staticCreated: Observable<StaticProperty>
+      /** Create a new static property with given ID, variables, of given `variant` (with corresponding data). */
+      addStatic: (id: string, name: string, variant: StaticProperty) => void
+      /** Create a new default static property with given ID and variant. */
+      addDefaultStatic: (id: string, variant: StaticPropertyType) => void
+      /** Data of a removed static property. */
+      staticRemoved: Observable<StaticProperty>
+      /** Remove static property with given ID. */
+      removeStatic: (id: string) => void
+      /** Data of a modified static property. */
+      staticContentChanged: Observable<StaticProperty>
+      /** Set content of static property with given ID. */
+      setStaticContent: (id: string, newContent: StaticProperty) => void
+    }
   }
 
   /** The information about errors occurring when processing events on backend. */
@@ -275,8 +331,8 @@ interface AeonState {
 export interface SketchData {
   model: ModelData
   datasets: DatasetData[]
-  dyn_properties: DynPropertyData[]
-  stat_properties: StatPropertyData[]
+  dyn_properties: DynamicProperty[]
+  stat_properties: StaticProperty[]
 }
 
 /** An object representing all relevant parts of a model. */
@@ -362,18 +418,6 @@ export interface DatasetMetaData {
 
 /** An object representing information needed for loading a dataset. */
 export interface DatasetLoadData { path: string, id: string }
-
-/** A PLACEHOLDER object representing a dynamic property. */
-export interface DynPropertyData {
-  id: string
-  formula: string
-}
-
-/** A PLACEHOLDER object representing a static property. */
-export interface StatPropertyData {
-  id: string
-  formula: string
-}
 
 /** An object representing information needed for variable id change. */
 export interface VariableIdUpdateData { original_id: string, new_id: string }
@@ -1047,7 +1091,7 @@ export const aeonState: AeonState = {
       }
     },
     observations: {
-      datasetsRefreshed: new Observable<[DatasetData]>(['sketch', 'observations', 'get_all_datasets']),
+      datasetsRefreshed: new Observable<DatasetData[]>(['sketch', 'observations', 'get_all_datasets']),
       refreshDatasets (): void {
         aeonEvents.refresh(['sketch', 'observations', 'get_all_datasets'])
       },
@@ -1075,7 +1119,7 @@ export const aeonState: AeonState = {
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
 
-      addDataset (id: string, variables: [string], observations: [ObservationData], category: DataCategory = DataCategory.UNSPECIFIED): void {
+      addDataset (id: string, variables: string[], observations: ObservationData[], category: DataCategory = DataCategory.UNSPECIFIED): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', 'add'],
           payload: JSON.stringify({
@@ -1163,6 +1207,80 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
           payload: JSON.stringify(observation)
+        })
+      }
+    },
+    properties: {
+      dynamicPropsRefreshed: new Observable<DynamicProperty[]>(['sketch', 'properties', 'get_all_dynamic']),
+      refreshDynamicProps (): void {
+        aeonEvents.refresh(['sketch', 'properties', 'get_all_dynamic'])
+      },
+      staticPropsRefreshed: new Observable<StaticProperty[]>(['sketch', 'properties', 'get_all_static']),
+      refreshStaticProps (): void {
+        aeonEvents.refresh(['sketch', 'properties', 'get_all_static'])
+      },
+
+      dynamicCreated: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'add']),
+      dynamicContentChanged: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'set_content']),
+      dynamicRemoved: new Observable<DynamicProperty>(['sketch', 'properties', 'dynamic', 'remove']),
+      staticCreated: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'add']),
+      staticContentChanged: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'set_content']),
+      staticRemoved: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'remove']),
+
+      addDynamic (id: string, name: string, variant: DynamicProperty): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', 'add'],
+          payload: JSON.stringify({
+            id,
+            name,
+            variant
+          })
+        })
+      },
+      addDefaultDynamic (id: string, variant: DynamicPropertyType): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', 'add_default'],
+          payload: JSON.stringify({ id, variant })
+        })
+      },
+      setDynamicContent (id: string, newContent: DynamicProperty): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', id, 'set_content'],
+          payload: JSON.stringify(newContent)
+        })
+      },
+      removeDynamic (id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'dynamic', id, 'remove'],
+          payload: null
+        })
+      },
+      addStatic (id: string, name: string, variant: StaticProperty): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', 'add'],
+          payload: JSON.stringify({
+            id,
+            name,
+            variant
+          })
+        })
+      },
+      addDefaultStatic (id: string, variant: StaticPropertyType): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', 'add_default'],
+          payload: JSON.stringify({ id, variant })
+        })
+      },
+      setStaticContent (id: string, newContent: StaticProperty): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', id, 'set_content'],
+          payload: JSON.stringify(newContent)
+        })
+      },
+      removeStatic (id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'properties', 'static', id, 'remove'],
+          payload: null
         })
       }
     }

@@ -44,22 +44,22 @@ export default class EditObservation extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <form class="uk-form-horizontal uk-flex uk-flex-column uk-flex-between">
-        <div class="fields">        
-        ${map(Object.keys(this.data ?? {}), (key) => {
-          return html`
+      <div class="uk-container uk-margin-medium-bottom">
+        <form class="uk-form-horizontal uk-flex uk-flex-column uk-flex-between">
+          <div class="fields">
+            ${map(Object.keys(this.data ?? {}), (key) => {
+              return html`
             <div class="uk-margin-small">
-              <label class="uk-form-label" for="form-horizontal-text">${key.toUpperCase()}</label>
+              <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>
               <div class="uk-form-controls">
                 <input class="uk-input" value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="node-id" type="text" placeholder="${key}"/>
               </div>
             </div>`
-        })}
-        </div>
-
-
-        <button class="uk-button uk-width-1-1" @click="${this.handleSubmit}">Save</button>
-      </form>
+            })}
+          </div>
+          <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-top" @click="${this.handleSubmit}">Save</button>
+        </form>
+      </div>
     `
   }
 }

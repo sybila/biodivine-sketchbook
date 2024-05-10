@@ -104,33 +104,7 @@ export abstract class EditorTile extends LitElement {
 
   abstract readonly functionUpdated: DebouncedFunc<() => void>
 
-  protected monotonicityClass (monotonicity: Monotonicity): string {
-    switch (monotonicity) {
-      case Monotonicity.INHIBITION:
-        return 'uk-text-danger'
-      case Monotonicity.ACTIVATION:
-        return 'uk-text-success'
-      case Monotonicity.DUAL:
-        return 'uk-text-primary'
-      case Monotonicity.UNSPECIFIED:
-        return 'uk-text-muted'
-      default:
-        return ''
-    }
-  }
-
   abstract toggleEssentiality (regulation: IRegulationData): void
   abstract toggleMonotonicity (regulation: IRegulationData): void
   abstract removeVariable (): void
-
-  protected getEssentialityText (essentiality: Essentiality): string {
-    switch (essentiality) {
-      case Essentiality.FALSE:
-        return 'non-essential'
-      case Essentiality.TRUE:
-        return 'essential'
-      default:
-        return 'unknown'
-    }
-  }
 }

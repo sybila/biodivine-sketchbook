@@ -11,6 +11,17 @@ export function getNextEssentiality (essentiality: Essentiality): Essentiality {
   }
 }
 
+export function getEssentialityText (essentiality: Essentiality): string {
+  switch (essentiality) {
+    case Essentiality.FALSE:
+      return 'non-essential'
+    case Essentiality.TRUE:
+      return 'essential'
+    default:
+      return 'unknown'
+  }
+}
+
 export function getNextMonotonicity (monotonicity: Monotonicity): Monotonicity {
   switch (monotonicity) {
     case Monotonicity.ACTIVATION:
@@ -21,5 +32,20 @@ export function getNextMonotonicity (monotonicity: Monotonicity): Monotonicity {
       return Monotonicity.UNSPECIFIED
     default:
       return Monotonicity.ACTIVATION
+  }
+}
+
+export function getMonotonicityClass (monotonicity: Monotonicity): string {
+  switch (monotonicity) {
+    case Monotonicity.INHIBITION:
+      return 'monotonicity-inhibition'
+    case Monotonicity.ACTIVATION:
+      return 'monotonicity-activation'
+    case Monotonicity.DUAL:
+      return 'monotonicity-dual'
+    case Monotonicity.UNSPECIFIED:
+      return 'monotonicity-unspecified'
+    default:
+      return ''
   }
 }

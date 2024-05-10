@@ -1,21 +1,24 @@
 import { html, type PropertyValues, type TemplateResult } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 import { type IRegulationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faMagnifyingGlass, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faTrash, faPlus, faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
 import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
 import { functionDebounceTimer } from '../../../util/config'
+import { getEssentialityText, getMonotonicityClass } from '../../../util/utilities'
 
-library.add(faTrash, faMagnifyingGlass)
+library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp)
 
 @customElement('function-tile')
 export class FunctionTile extends EditorTile {
+  @state() bodyVisible = false
   varIndex = 0
+
   constructor () {
     super()
     this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
@@ -134,9 +137,13 @@ export class FunctionTile extends EditorTile {
     }))
   }
 
+  toggleBody (): void {
+    this.bodyVisible = !this.bodyVisible
+  }
+
   protected render (): TemplateResult {
     return html`
-      <div class="uk-flex uk-flex-column uk-margin-small-bottom">
+      <div class="container uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="uk-input uk-text-center" value="${this.functions[this.index].id}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
@@ -146,33 +153,39 @@ export class FunctionTile extends EditorTile {
           <button class="uk-button uk-button-small" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>
+          <button class="uk-button uk-button-small" @click="${this.toggleBody}">
+            ${(this.bodyVisible ? icon(faAngleUp) : icon(faAngleDown)).node}
+          </button>
         </div>
-        <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
-        ${map(this.functions[this.index].variables, (variable) => html`
-          <div class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
-            <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-text-center" @click="${() => {
-              void this.removeRegulation(variable)
-            }}">
-              ${icon(faTrash).node}
-            </button>
-            <div class="uk-width-1-6">${variable.source}</div>
-            <div class="uk-width-1-6">${this.getRegulationSymbol(variable.essential, variable.monotonicity)}</div>
-            <div class="regulation-property"
-                 @click="${() => {
-                   this.toggleEssentiality(variable)
-                 }}">
-              ${this.getEssentialityText(variable.essential)}
+        <div class="functions-body" style="display: ${this.bodyVisible ? 'flex' : 'none'}">
+          <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
+          ${map(this.functions[this.index].variables, (variable) => html`
+            <div
+                class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
+              <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-text-center" @click="${() => {
+                void this.removeRegulation(variable)
+              }}">
+                ${icon(faTrash).node}
+              </button>
+              <div class="uk-width-1-6">${variable.source}</div>
+              <div class="uk-width-1-6">${this.getRegulationSymbol(variable.essential, variable.monotonicity)}</div>
+              <div class="regulation-property"
+                   @click="${() => {
+                     this.toggleEssentiality(variable)
+                   }}">
+                ${getEssentialityText(variable.essential)}
+              </div>
+              <div class="regulation-property ${getMonotonicityClass(variable.monotonicity)}"
+                   @click="${() => {
+                     this.toggleMonotonicity(variable)
+                   }}">
+                ${variable.monotonicity.toLowerCase()}
+              </div>
             </div>
-            <div class="regulation-property ${this.monotonicityClass(variable.monotonicity)}"
-                 @click="${() => {
-                   this.toggleMonotonicity(variable)
-                 }}">
-              ${variable.monotonicity.toLowerCase()}
-            </div>
-          </div>
-        `)}
-        <span class="uk-align-left uk-text-left uk-margin-remove">Update function:</span>
-        <div id="function-editor"></div>
+          `)}
+          <span class="uk-align-left uk-text-left uk-margin-remove">Update function:</span>
+          <div id="function-editor"></div>
+        </div>
       </div>
       <hr>
     `

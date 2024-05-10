@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <script type="module" src="rename-dialog.ts"></script>
-  <title>Rename dialog</title>
-</head>
-<body>
-  <rename-dialog></rename-dialog>
-</body>
-</html>
+<extends src="../../../dialog-base.html">
+  <block name="window">
+    <script type="module" src="rename-dialog.ts"></script>
+    <rename-dialog></rename-dialog>
+  </block>
+</extends>
+
