@@ -78,9 +78,11 @@ export enum StaticPropertyType {
   Generic = 'GenericStatProp',
   FunctionInputEssential = 'FnInputEssential',
   FunctionInputEssentialWithCondition = 'FnInputEssentialContext',
+  VariableRegulationEssential = 'RegulationEssential',
   VariableRegulationEssentialWithCondition = 'RegulationEssentialContext',
   FunctionInputMonotonic = 'FnInputMonotonic',
   FunctionInputMonotonicWithCondition = 'FnInputMonotonicContext',
+  VariableRegulationMonotonic = 'RegulationMonotonic',
   VariableRegulationMonotonicWithCondition = 'RegulationMonotonicContext'
 }
 

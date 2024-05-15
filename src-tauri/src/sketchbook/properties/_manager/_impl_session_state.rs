@@ -41,12 +41,12 @@ impl SessionState for PropertyManager {
             }
             Some(&"static") => {
                 let at_path = &at_path[1..];
-                if Self::starts_with("add", at_path).is_some() {
-                    Self::assert_path_length(at_path, 1, component_name)?;
-                    self.event_add_static(event)
-                } else if Self::starts_with("add_default", at_path).is_some() {
+                if Self::starts_with("add_default", at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_default_static(event)
+                } else if Self::starts_with("add", at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    self.event_add_static(event)
                 } else {
                     Self::assert_path_length(at_path, 2, component_name)?;
                     let prop_id_str = at_path.first().unwrap();

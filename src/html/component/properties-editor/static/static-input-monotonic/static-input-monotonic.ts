@@ -51,9 +51,7 @@ export default class StaticInputMonotonic extends StaticDynamicProperty {
             <div class="uk-margin-small-right">${this.getMonotonicitySymbol()}</div>
             <div class="uk-margin-small-right">${this.property.target}</div>
           </div>
-          <div class="value-symbol" @click="${() => {
-            this.toggleMonotonicity()
-          }}">
+          <div class="value-symbol">
             <span>(</span>
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
               ${this.property.value.toLowerCase()}

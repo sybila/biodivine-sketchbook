@@ -1,38 +1,96 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::DynError;
-use crate::sketchbook::data_structs::RegulationData;
-use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
-use crate::sketchbook::ids::VarId;
+use crate::sketchbook::data_structs::{RegulationData, StatPropertyData};
+use crate::sketchbook::event_utils::{
+    make_reversible, mk_model_event, mk_model_state_change, mk_stat_prop_event,
+};
+use crate::sketchbook::ids::{StatPropertyId, VarId};
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
+use crate::sketchbook::properties::StatProperty;
 use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `regulations` of the model.
 impl ModelState {
     /// Perform event of adding a new `regulation` component to this `ModelState`.
+    ///
+    /// This breaks the event down into two of them, one to make corresponding property, and the
+    /// other to make the regulation itself.
     pub(super) fn event_add_regulation(&mut self, event: &Event) -> Result<Consumed, DynError> {
+        let component_name = "model/regulation";
+        // get payload components (json for RegulationData containing "regulator", "target", "sign", "essential")
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let reg_data = RegulationData::from_json_str(payload.as_str())?;
+
+        let mut event_list = Vec::new();
+        // the event of adding the raw regulation itself
+        let reg_event = mk_model_event(&["regulation", "add_raw"], Some(&payload));
+        event_list.push(reg_event);
+        let input_var = VarId::new(&reg_data.regulator)?;
+        let target_var = VarId::new(&reg_data.target)?;
+
+        // events of adding the corresponding properties for monotonicity/essentiality in case it
+        // is not unknown variant
+        if reg_data.essential != Essentiality::Unknown {
+            let id_str = format!("essentiality_{}_{}", reg_data.regulator, reg_data.target);
+            let prop_id = StatPropertyId::new(&id_str)?;
+            let name_str = "Regulation essentiality property".to_string();
+            let prop = StatProperty::mk_regulation_essential(
+                &name_str,
+                Some(input_var.clone()),
+                Some(target_var.clone()),
+                reg_data.essential,
+            )?;
+            let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+            let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
+            event_list.push(prop_event);
+        }
+        if reg_data.sign != Monotonicity::Unknown {
+            let id_str = format!("monotonicity_{}_{}", reg_data.regulator, reg_data.target);
+            let prop_id = StatPropertyId::new(&id_str)?;
+            let name_str = "Regulation monotonicity property".to_string();
+            let prop = StatProperty::mk_regulation_monotonic(
+                &name_str,
+                Some(input_var),
+                Some(target_var),
+                reg_data.sign,
+            )?;
+            let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+            let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
+            event_list.push(prop_event);
+        }
+        Ok(Consumed::Restart(event_list))
+    }
+
+    /// Perform event of adding a new `regulation` component to this `ModelState`.
+    ///
+    /// This version is only adding the raw regulation, and not the corresponding static property.
+    /// It is expected that `event_add_regulation` is called first, handling the actual division
+    /// into this event and event of adding the property.
+    pub(super) fn event_add_regulation_raw(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "model/regulation";
 
         // get payload components (json for RegulationData containing "regulator", "target", "sign", "essential")
         let payload = Self::clone_payload_str(event, component_name)?;
-        let regulation_data = RegulationData::from_json_str(payload.as_str())?;
-        let regulator_id = self.get_var_id(&regulation_data.regulator)?;
-        let target_id = self.get_var_id(&regulation_data.target)?;
-        let sign: Monotonicity = regulation_data.sign;
-        let essential: Essentiality = regulation_data.essential;
+        let reg_data = RegulationData::from_json_str(payload.as_str())?;
+        let regulator_id = self.get_var_id(&reg_data.regulator)?;
+        let target_id = self.get_var_id(&reg_data.target)?;
+        let sign: Monotonicity = reg_data.sign;
+        let essential: Essentiality = reg_data.essential;
 
         // perform the event
         self.add_regulation(regulator_id, target_id, essential, sign)?;
 
         // prepare the state-change and reverse event (which is a remove event)
+        let state_change = mk_model_state_change(&["regulation", "add"], &reg_data);
         let reverse_at_path = [
             "regulation",
-            &regulation_data.regulator,
-            &regulation_data.target,
-            "remove",
+            &reg_data.regulator,
+            &reg_data.target,
+            "remove_raw",
         ];
         let reverse_event = mk_model_event(&reverse_at_path, None);
-        Ok(make_reversible(event.clone(), event, reverse_event))
+        Ok(make_reversible(state_change, event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `regulation` component of this `ModelState`.
@@ -46,6 +104,39 @@ impl ModelState {
         let component_name = "model/regulation";
 
         if Self::starts_with("remove", at_path).is_some() {
+            let mut event_list = Vec::new();
+            // the event of removing the raw regulation itself
+            let reg_event = mk_model_event(
+                &[
+                    "regulation",
+                    regulator_id.as_str(),
+                    target_id.as_str(),
+                    "remove_raw",
+                ],
+                None,
+            );
+            event_list.push(reg_event);
+
+            let original_reg = self.get_regulation(&regulator_id, &target_id)?.clone();
+
+            // events of removing the corresponding properties for monotonicity/essentiality in
+            // case it is not unknown variant
+            if *original_reg.get_essentiality() != Essentiality::Unknown {
+                // there is at max one such property
+                let id_str = format!("essentiality_{}_{}", regulator_id, target_id);
+                let prop_id = StatPropertyId::new(&id_str)?;
+                let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                event_list.push(prop_event);
+            }
+            if *original_reg.get_sign() != Monotonicity::Unknown {
+                // there is at max one such property
+                let id_str = format!("monotonicity_{}_{}", regulator_id, target_id);
+                let prop_id = StatPropertyId::new(&id_str)?;
+                let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                event_list.push(prop_event);
+            }
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with("remove_raw", at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // save the original regulation data for state change and reverse event
@@ -57,7 +148,7 @@ impl ModelState {
             let state_change = mk_model_state_change(&["regulation", "remove"], &reg_data);
 
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
-            let reverse_at_path = ["regulation", "add"];
+            let reverse_at_path = ["regulation", "add_raw"];
             let payload = reg_data.to_json_str();
             let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
@@ -124,6 +215,9 @@ impl ModelState {
         if Self::starts_with("add", at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_regulation(event)
+        } else if Self::starts_with("add_raw", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_regulation_raw(event)
         } else {
             Self::assert_path_length(at_path, 3, component_name)?;
             let regulator_id_str = at_path.first().unwrap();

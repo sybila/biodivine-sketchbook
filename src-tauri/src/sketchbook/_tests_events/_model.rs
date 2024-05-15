@@ -75,7 +75,16 @@ fn test_remove_var_complex() {
         for e in sub_events {
             let at_path_str: Vec<&str> = e.path[2..].iter().map(|s| s.as_str()).collect();
             println!("{:?}", e);
-            model.perform_event(&e, &at_path_str).unwrap();
+            let res_inner = model.perform_event(&e, &at_path_str).unwrap();
+            if let Consumed::Restart(sub_events) = res_inner {
+                // reg removal can be composed of up to three sub-events (static props)
+                assert_eq!(sub_events.len(), 3);
+                // properties do not interest us here, just take the last event for actual regulation
+                let reg_event = sub_events.first().unwrap();
+                let reg_at_path: Vec<&str> =
+                    reg_event.path[2..].iter().map(|s| s.as_str()).collect();
+                model.perform_event(&reg_event, &reg_at_path).unwrap();
+            }
         }
         assert_eq!(model, model_expected);
     } else {
@@ -161,21 +170,22 @@ fn test_invalid_var_events() {
 }
 
 #[test]
-/// Test adding regulation via event.
-fn test_add_reg() {
+/// Test adding regulation via (raw) event.
+/// todo: add complex version that adds regulation which requires adding static properties
+fn test_add_reg_simple() {
     let variables = vec![("a", "a"), ("b", "b")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
     let model_orig = model.clone();
 
     // test regulation add event
-    let at_path = ["regulation", "add"];
-    let regulation_data = RegulationData::try_from_reg_str("a -> b").unwrap();
+    let at_path = ["regulation", "add_raw"];
+    let regulation_data = RegulationData::try_from_reg_str("a -?? b").unwrap();
     let event = mk_model_event(&at_path, Some(&regulation_data.to_json_str()));
     let result = model.perform_event(&event, &at_path).unwrap();
 
     // check that regulation was added correctly, and test the reverse event
     assert_eq!(model.num_regulations(), 1);
-    let reverse_at_path = ["regulation", "a", "b", "remove"];
+    let reverse_at_path = ["regulation", "a", "b", "remove_raw"];
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 }
 
@@ -212,21 +222,22 @@ fn test_change_reg_sign_essentiality() {
 }
 
 #[test]
-/// Test removing regulation via event.
-fn test_remove_reg() {
+/// Test removing regulation via (raw) event.
+/// todo: add complex version that removes regulation which requires removing static properties
+fn test_remove_reg_simple() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
-    model.add_regulation_by_str("a -> b").unwrap();
+    model.add_regulation_by_str("a -?? b").unwrap();
     let model_orig = model.clone();
 
     // test regulation remove event
-    let at_path = ["regulation", "a", "b", "remove"];
+    let at_path = ["regulation", "a", "b", "remove_raw"];
     let event = mk_model_event(&at_path, None);
     let result = model.perform_event(&event, &at_path).unwrap();
 
     // check that regulation was removed correctly, and test the reverse event
     assert_eq!(model.num_regulations(), 0);
-    check_reverse(&mut model, &model_orig, result, &["regulation", "add"]);
+    check_reverse(&mut model, &model_orig, result, &["regulation", "add_raw"]);
 }
 
 #[test]
