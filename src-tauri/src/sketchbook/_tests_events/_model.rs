@@ -191,6 +191,7 @@ fn test_add_reg_simple() {
 
 #[test]
 /// Test changing regulation's monotonicity and essentiality via event.
+/// todo: add complex version which requires changes in static properties
 fn test_change_reg_sign_essentiality() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
@@ -199,25 +200,25 @@ fn test_change_reg_sign_essentiality() {
     let model_orig = model.clone();
 
     // test event for changing regulation's sign
-    let at_path = ["regulation", "a", "b", "set_sign"];
+    let at_path = ["regulation", "a", "b", "set_sign_raw"];
     let new_sign = Monotonicity::Inhibition.to_json_str();
     let event = mk_model_event(&at_path, Some(&new_sign));
     let result = model.perform_event(&event, &at_path).unwrap();
     // check that regulation's sign was set correctly, and test the reverse event
     let reg = model.get_regulation_by_str("a", "b").unwrap();
     assert_eq!(reg.get_sign(), &Monotonicity::Inhibition);
-    let reverse_at_path = ["regulation", "a", "b", "set_sign"];
+    let reverse_at_path = ["regulation", "a", "b", "set_sign_raw"];
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 
     // test event for changing regulation's essentiality
-    let at_path = ["regulation", "a", "b", "set_essentiality"];
+    let at_path = ["regulation", "a", "b", "set_essentiality_raw"];
     let new_essentiality = Essentiality::False.to_json_str();
     let event = mk_model_event(&at_path, Some(&new_essentiality));
     let result = model.perform_event(&event, &at_path).unwrap();
     // check that regulation's essentiality was set correctly, and test the reverse event
     let reg = model.get_regulation_by_str("a", "b").unwrap();
     assert_eq!(reg.get_essentiality(), &Essentiality::False);
-    let reverse_at_path = ["regulation", "a", "b", "set_essentiality"];
+    let reverse_at_path = ["regulation", "a", "b", "set_essentiality_raw"];
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 }
 
