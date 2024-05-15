@@ -2,7 +2,8 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{
-    DynPropertyData, DynPropertyDefaultData, StatPropertyData, StatPropertyDefaultData,
+    ChangeIdData, DynPropertyData, DynPropertyDefaultData, StatPropertyData,
+    StatPropertyDefaultData,
 };
 use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
@@ -154,6 +155,22 @@ impl PropertyManager {
             let payload = prop_data.to_json_str();
             let reverse_event = mk_dyn_prop_event(&["add"], Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_id", at_path).is_some() {
+            // get the payload - string for "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if prop_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_dyn_id_by_str(prop_id.as_str(), new_id.as_str())?;
+            let id_change_data = ChangeIdData::new(prop_id.as_str(), new_id.as_str());
+            let state_change = mk_dyn_prop_state_change(&["set_id"], &id_change_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let payload = prop_id.as_str();
+            let reverse_event = mk_dyn_prop_event(&[new_id.as_str(), "set_id"], Some(payload));
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_content", at_path).is_some() {
             // get the payload - json string encoding a new property data
             let payload = Self::clone_payload_str(event, component_name)?;
@@ -241,6 +258,22 @@ impl PropertyManager {
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let payload = prop_data.to_json_str();
             let reverse_event = mk_stat_prop_event(&["add"], Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_id", at_path).is_some() {
+            // get the payload - string for "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if prop_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_stat_id_by_str(prop_id.as_str(), new_id.as_str())?;
+            let id_change_data = ChangeIdData::new(prop_id.as_str(), new_id.as_str());
+            let state_change = mk_stat_prop_state_change(&["set_id"], &id_change_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let payload = prop_id.as_str();
+            let reverse_event = mk_stat_prop_event(&[new_id.as_str(), "set_id"], Some(payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_content", at_path).is_some() {
             // get the payload - json string encoding a new property data

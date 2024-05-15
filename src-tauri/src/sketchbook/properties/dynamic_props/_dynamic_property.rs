@@ -48,7 +48,8 @@ impl DynProperty {
     }
 
     /// Create `DynProperty` instance describing existence of a trap space corresponding to
-    /// a given observation.
+    /// a given observation. Optionally, the trap space might be required to be minimal or
+    /// non-percolable.
     pub fn mk_trap_space(
         name: &str,
         dataset: Option<DatasetId>,
@@ -84,6 +85,12 @@ impl DynProperty {
         minimal: usize,
         maximal: usize,
     ) -> Result<DynProperty, String> {
+        if minimal > maximal {
+            return Err("`minimal` attractor count cannot be larger than `maximal`.".to_string());
+        }
+        if minimal == 0 || maximal == 0 {
+            return Err("Attractor count must be larger than 0.".to_string());
+        }
         let property = AttractorCount { minimal, maximal };
         Ok(DynProperty {
             name: name.to_string(),
