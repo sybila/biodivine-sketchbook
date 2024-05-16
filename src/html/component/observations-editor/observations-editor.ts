@@ -4,7 +4,7 @@ import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
 import { ContentData, DataCategory, type IObservation, type IObservationSet } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
-import { dialog, invoke, tauri } from '@tauri-apps/api'
+import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { debounce } from 'lodash'
@@ -40,7 +40,7 @@ export default class ObservationsEditor extends LitElement {
     this.addEventListener('change-observation', this.changeObservation)
     aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
     aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
-    this.addEventListener('remove-dataset', this.removeDataset)
+    this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
     aeonState.sketch.observations.datasetRemoved.addEventListener(this.#onDatasetRemoved.bind(this))
     // TODO add all other events
 

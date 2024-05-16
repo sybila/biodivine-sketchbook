@@ -103,12 +103,12 @@ export default class DynamicObsSelection extends AbstractDynamicProperty {
           <div class="uk-flex uk-flex-row uk-flex-around">
             <div class="toggle">
               <input class="uk-checkbox" type="checkbox" id="minimal" name="minimal" ?checked=${this.property.minimal}
-                     @change=${this.minimalChanged}/>
+                     @change=${this.minimalChanged} />
               <label class="pointer" for="minimal">minimal</label>
             </div>
             <div class="pointer">
               <input class="uk-checkbox" type="checkbox" id="non-percolable" name="non-percolable"
-                     ?checked=${this.property.nonpercolable} @change=${this.nonpercolableChanged}/>
+                     ?checked=${this.property.nonpercolable} @change=${this.nonpercolableChanged} />
               <label class="pointer" for="non-percolable">non-percolable</label>
             </div>
           </div>`)}

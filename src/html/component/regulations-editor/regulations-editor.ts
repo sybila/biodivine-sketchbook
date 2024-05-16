@@ -203,10 +203,6 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
-  private loadDummyData (): void {
-    this.dispatchEvent(new Event('load-dummy', { bubbles: true, composed: true }))
-  }
-
   private async renameNodeDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
