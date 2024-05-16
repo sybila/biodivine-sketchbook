@@ -1,8 +1,6 @@
 import { css, html, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import style_less from './dynamic-obs-selection.less?inline'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import {
   DynamicPropertyType,
   type IObservationSet,
@@ -79,38 +77,38 @@ export default class DynamicObsSelection extends AbstractDynamicProperty {
               </select>
             </div>
           </div>
-          
+
           ${when(this.property.variant !== DynamicPropertyType.ExistsTrajectory, () => html`
-          <div class="uk-flex uk-flex-row uk-flex-around uk-flex-middle">
-            <label for="observation">Observation:</label>
-            <div class="uk-width-3-4">
-              <select class="uk-select uk-margin-small-left" name="observation" id="observation"
-                      @change=${this.observationChanged}
-              ?disabled="${this.property.dataset === null}">
-                ${when(this.property.variant === DynamicPropertyType.HasAttractor,
-                    () => html`
-                      <option value=${'*'}>all</option>`,
-                    () => html`
-                      <option value=${null}>---</option>`)}
-                ${map(this.observations[this.observations.findIndex(dataset => dataset.id === this.property.dataset)]?.observations,
-                    (observation) => html`
-                      <option value="${observation.id}">${observation.id}</option>
-                    `)}
-              </select>
-            </div>
-          </div>`)}
+            <div class="uk-flex uk-flex-row uk-flex-around uk-flex-middle">
+              <label for="observation">Observation:</label>
+              <div class="uk-width-3-4">
+                <select class="uk-select uk-margin-small-left" name="observation" id="observation"
+                        @change=${this.observationChanged}
+                        ?disabled="${this.property.dataset === null}">
+                  ${when(this.property.variant === DynamicPropertyType.HasAttractor,
+                      () => html`
+                        <option value=${'*'}>all</option>`,
+                      () => html`
+                        <option value=${null}>---</option>`)}
+                  ${map(this.observations[this.observations.findIndex(dataset => dataset.id === this.property.dataset)]?.observations,
+                      (observation) => html`
+                        <option value="${observation.id}">${observation.id}</option>
+                      `)}
+                </select>
+              </div>
+            </div>`)}
         </div>
-        
+
         ${when(this.property.variant === DynamicPropertyType.TrapSpace, () => html`
           <div class="uk-flex uk-flex-row uk-flex-around">
             <div class="toggle">
               <input class="uk-checkbox" type="checkbox" id="minimal" name="minimal" ?checked=${this.property.minimal}
-                     @change=${this.minimalChanged} />
+                     @change=${this.minimalChanged}/>
               <label class="pointer" for="minimal">minimal</label>
             </div>
             <div class="pointer">
               <input class="uk-checkbox" type="checkbox" id="non-percolable" name="non-percolable"
-                     ?checked=${this.property.nonpercolable} @change=${this.nonpercolableChanged} />
+                     ?checked=${this.property.nonpercolable} @change=${this.nonpercolableChanged}/>
               <label class="pointer" for="non-percolable">non-percolable</label>
             </div>
           </div>`)}

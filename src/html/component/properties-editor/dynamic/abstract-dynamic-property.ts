@@ -23,13 +23,13 @@ export default class AbstractDynamicProperty extends AbstractProperty {
 
   renderNameplate (): TemplateResult {
     return html`
-            <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field" value="${this.property.name}"
-                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
-        `
+      <div class="uk-flex uk-flex-row">
+        <input id="name-field" class="name-field" value="${this.property.name}"
+               @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+        <button class="remove-property" @click="${this.removeProperty}">
+          ${icon(faTrash).node}
+        </button>
+      </div>
+    `
   }
 }

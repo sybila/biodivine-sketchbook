@@ -1,8 +1,6 @@
-import { html, css, unsafeCSS, type TemplateResult } from 'lit'
+import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './dynamic-generic.less?inline'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { type IGenericDynamicProperty } from '../../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
@@ -25,7 +23,9 @@ export default class DynamicGeneric extends AbstractDynamicProperty {
       <div class="property-body">
         ${this.renderNameplate()}
         <input id="value-editor" class="uk-input" value="${this.property.formula}"
-               @input="${(e: Event) => { this.valueUpdated((e.target as HTMLInputElement).value) }}">
+               @input="${(e: Event) => {
+                 this.valueUpdated((e.target as HTMLInputElement).value)
+               }}">
       </div>
       <hr>
     `
