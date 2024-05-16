@@ -1,4 +1,4 @@
-import { css, html, type TemplateResult, unsafeCSS } from 'lit'
+import { css, html, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './dynamic-attractor-count.less?inline'
 import { icon } from '@fortawesome/fontawesome-svg-core'
@@ -11,7 +11,7 @@ import AbstractDynamicProperty from '../abstract-dynamic-property'
 export default class DynamicAttractorCount extends AbstractDynamicProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IAttractorCountDynamicProperty
-  @state() exact = true
+  @state() exact = false
 
   setExact (exact: boolean): void {
     if (exact) {
@@ -46,6 +46,11 @@ export default class DynamicAttractorCount extends AbstractDynamicProperty {
       ...this.property,
       maximal: value
     })
+  }
+
+  protected firstUpdated (_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties)
+    this.exact = this.property.minimal === this.property.maximal
   }
 
   render (): TemplateResult {
