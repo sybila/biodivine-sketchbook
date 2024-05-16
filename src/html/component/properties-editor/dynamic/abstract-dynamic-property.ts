@@ -13,6 +13,10 @@ export default class AbstractDynamicProperty extends AbstractProperty {
     super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
   }, 0)
 
+  idUpdated = debounce((name: string) => {
+    super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
+  }, 0)
+
   removeProperty (): void {
     super.removeProperty(EVENT_PROPERTY_REMOVED)
   }
@@ -23,9 +27,17 @@ export default class AbstractDynamicProperty extends AbstractProperty {
 
   renderNameplate (): TemplateResult {
     return html`
-      <div class="uk-flex uk-flex-row">
-        <input id="name-field" class="name-field" value="${this.property.name}"
-               @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+      <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
+        <div class="uk-flex uk-flex-column">
+          <label class="uk-form-label" for="id-field">ID</label>
+          <input id="id-field" class="uk-input" value="${this.property.id}"
+                 @input="${(e: InputEvent) => this.idUpdated((e.target as HTMLInputElement).value)}"/>
+        </div>
+        <div class="uk-flex uk-flex-column name-section">
+          <label class="uk-form-label" for="name-field">NAME</label>
+          <input id="name-field" class="name-field" value="${this.property.name}"
+                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+        </div>
         <button class="remove-property" @click="${this.removeProperty}">
           ${icon(faTrash).node}
         </button>
