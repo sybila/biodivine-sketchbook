@@ -16,6 +16,7 @@ import {
   type ObservationData,
   type ObservationIdUpdateData
 } from '../../../aeon_events'
+import { when } from 'lit/directives/when.js'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
@@ -23,6 +24,7 @@ export default class ObservationsEditor extends LitElement {
   @property() contentData = ContentData.create()
   index = 0
   @state() datasetRenameIndex = -1
+  @state() shownDatasets: number[] = []
 
   constructor () {
     super()
@@ -288,6 +290,17 @@ export default class ObservationsEditor extends LitElement {
     this.updateObservations(datasets)
   }
 
+  toggleDataset (index: number): void {
+    const dsIndex = this.shownDatasets.indexOf(index)
+    if (dsIndex === -1) {
+      this.shownDatasets = this.shownDatasets.concat([index])
+      return
+    }
+    const shownDatasets = [...this.shownDatasets]
+    shownDatasets.splice(dsIndex, 1)
+    this.shownDatasets = shownDatasets
+  }
+
   render (): TemplateResult {
     return html`
       <div class="observations">
@@ -299,25 +312,33 @@ export default class ObservationsEditor extends LitElement {
         <div class="accordion-body">
           <div class="accordion">
             ${map(this.contentData.observations, (dataset, index) => html`
-          <div class="container" id="${'container' + index}">
-            <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
-              <input 
-                  @input="${(e: InputEvent) => {
-                    this.updateDatasetId((e.target as HTMLInputElement).value, index)
-                  }}"
-                  ?readonly="${this.datasetRenameIndex !== index}"
-                  @keydown="${(e: KeyboardEvent) => { if (e.key === 'Enter') { this.datasetRenameIndex = -1 } }}"
-                  class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
-                  value="${dataset.id}"/>
-            </div>
-            <div class="content">
-              <observations-set
-                  .data="${dataset}">
-              </observations-set>
-            </div>
-          </div>
-          <hr>
-        `)}
+              <div class="container ${this.shownDatasets.includes(index) ? 'active' : ''}" id="${'container' + index}">
+                <div class="label" @click="${() => {
+                  this.toggleDataset(index)
+                }}">
+                  <input
+                      @input="${(e: InputEvent) => {
+                        this.updateDatasetId((e.target as HTMLInputElement).value, index)
+                      }}"
+                      ?readonly="${this.datasetRenameIndex !== index}"
+                      @keydown="${(e: KeyboardEvent) => {
+                        if (e.key === 'Enter') {
+                          this.datasetRenameIndex = -1
+                        }
+                      }}"
+                      class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
+                      value="${dataset.id}"/>
+                </div>
+                ${when(this.shownDatasets.includes(index), () => html`
+                  <div class="content">
+                    <observations-set
+                        .data="${dataset}">
+                    </observations-set>
+                  </div>
+                `)}
+              </div>
+              <hr>
+            `)}
           </div>
         </div>
       </div>
