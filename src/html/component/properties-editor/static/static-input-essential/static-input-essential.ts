@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-essential.less?inline'
 import { Essentiality, type IFunctionInputEssentialStaticProperty } from '../../../../util/data-interfaces'
 import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-essential')
-export default class StaticInputEssential extends StaticDynamicProperty {
+export default class StaticInputEssential extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputEssentialStaticProperty
 

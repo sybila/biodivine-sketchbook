@@ -7,10 +7,10 @@ import {
   StaticPropertyType
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-monotonic')
-export default class StaticInputMonotonic extends StaticDynamicProperty {
+export default class StaticInputMonotonic extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputMonotonicStaticProperty
 

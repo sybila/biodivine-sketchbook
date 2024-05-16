@@ -9,7 +9,7 @@ import { when } from 'lit/directives/when.js'
 const EVENT_PROPERTY_CHANGED = 'static-property-changed'
 const EVENT_PROPERTY_REMOVED = 'static-property-removed'
 
-export default class StaticDynamicProperty extends AbstractProperty {
+export default class abstractStaticProperty extends AbstractProperty {
   nameUpdated = debounce((name: string) => {
     super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
   }, 0)

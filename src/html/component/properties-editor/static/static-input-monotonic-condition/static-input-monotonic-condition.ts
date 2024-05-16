@@ -12,10 +12,10 @@ import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/util
 import { map } from 'lit/directives/map.js'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-monotonic-condition')
-export default class StaticInputMonotonicCondition extends StaticDynamicProperty {
+export default class StaticInputMonotonicCondition extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty

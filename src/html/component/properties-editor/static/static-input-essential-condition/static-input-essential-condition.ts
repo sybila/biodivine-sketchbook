@@ -13,10 +13,10 @@ import { getEssentialityText, getNextEssentiality } from '../../../../util/utili
 import { map } from 'lit/directives/map.js'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-essential-condition')
-export default class StaticInputEssentialCondition extends StaticDynamicProperty {
+export default class StaticInputEssentialCondition extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
