@@ -20,7 +20,6 @@ import {
 } from '../../util/data-interfaces'
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
-import UIkit from 'uikit'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { aeonState } from '../../../aeon_events'

@@ -1,26 +1,19 @@
-import { css, html, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { css, html, type TemplateResult, unsafeCSS } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-essential-condition.less?inline'
 import {
-  type ContentData,
   Essentiality,
   type IFunctionInputEssentialStaticProperty,
-  type IVariableRegulatorEssentialStaticProperty,
-  StaticPropertyType
+  type IVariableRegulatorEssentialStaticProperty
 } from '../../../../util/data-interfaces'
 import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
-import { debounce } from 'lodash'
-import { functionDebounceTimer } from '../../../../util/config'
-import abstractStaticProperty from '../abstract-static-property'
+import StaticSelectors from '../static-selectors'
 
 @customElement('static-input-essential-condition')
-export default class StaticInputEssentialCondition extends abstractStaticProperty {
+export default class StaticInputEssentialCondition extends StaticSelectors {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() declare contentData: ContentData
   @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
-  @query('#target-selector') declare targetSelector: HTMLSelectElement
-  @query('#input-selector') declare inputSelector: HTMLSelectElement
 
   private getEssentialitySymbol (): string {
     switch (this.property.value) {
@@ -42,76 +35,6 @@ export default class StaticInputEssentialCondition extends abstractStaticPropert
       ...this.property,
       value
     })
-  }
-
-  conditionChanged = debounce((context: string): void => {
-    this.updateProperty({
-      ...this.property,
-      context
-    })
-  }, functionDebounceTimer)
-
-  targetChanged (event: Event): void {
-    let value: null | string = (event.target as HTMLSelectElement).value
-    value = value === '' ? null : value
-    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        target: value,
-        input: null
-      })
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        target: value,
-        input: null
-      })
-    }
-    this.targetSelector.selectedIndex = 0
-  }
-
-  inputChanged (event: Event): void {
-    let value: null | string = (event.target as HTMLSelectElement).value
-    value = value === '' ? null : value
-    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        input: value
-      })
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        input: value
-      })
-    }
-  }
-
-  getTargetSelectorItems (): string[] {
-    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
-      return this.contentData.functions.map(func => func.id)
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
-      return this.contentData.variables.map(variable => variable.id)
-    }
-    return []
-  }
-
-  getInputSelectorItems (): string[] {
-    if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
-      return this.contentData.functions
-        .find(func => func.id === (this.property as IFunctionInputEssentialStaticProperty).target)
-        ?.variables.map(variable => variable.source) ?? []
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
-      return this.contentData.regulations
-        .filter(regulation => regulation.target === (this.property as IVariableRegulatorEssentialStaticProperty).target)
-        .map(regulation => regulation.source)
-    }
-    return []
-  }
-
-  protected updated (_changedProperties: PropertyValues): void {
-    super.updated(_changedProperties)
-    this.targetSelector.selectedIndex = this.getTargetSelectorItems().indexOf(this.property.target ?? '') + 1
-    this.inputSelector.selectedIndex = this.getInputSelectorItems().indexOf(this.property.input ?? '') + 1
   }
 
   render (): TemplateResult {
