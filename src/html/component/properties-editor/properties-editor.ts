@@ -96,6 +96,10 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('static-property-changed', this.changeStaticProperty)
     aeonState.sketch.properties.staticContentChanged.addEventListener(this.#onStaticChanged.bind(this))
 
+    this.addEventListener('dynamic-property-id-changed', this.changeDynamicPropertyId)
+
+    this.addEventListener('static-property-id-changed', this.changeStaticPropertyId)
+
     // refresh-event listeners
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
     aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
@@ -141,11 +145,6 @@ export default class PropertiesEditor extends LitElement {
     this.statPropIndex = Math.max(refreshedStatic.length, this.dynPropIndex)
     this.updateStaticProperties(refreshedStatic)
     console.log(refreshedStatic)
-  }
-
-  protected firstUpdated (_changedProperties: PropertyValues): void {
-    super.firstUpdated(_changedProperties)
-    UIkit.sticky(this.shadowRoot?.querySelector('.header') as HTMLElement)
   }
 
   addDynamicProperty (type: DynamicPropertyType): void {
@@ -229,6 +228,16 @@ export default class PropertiesEditor extends LitElement {
     const properties = [...this.contentData.staticProperties]
     properties.splice(index, 1)
     this.updateStaticProperties(properties)
+  }
+
+  changeDynamicPropertyId (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log(detail.oldId, detail.newId)
+  }
+
+  changeStaticPropertyId (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    console.log(detail.oldId, detail.newId)
   }
 
   async openAddDynamicPropertyMenu (): Promise<void> {

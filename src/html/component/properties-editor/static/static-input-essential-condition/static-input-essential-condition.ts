@@ -1,11 +1,10 @@
 import { css, html, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import style_less from './static-input-essential-condition.less?inline'
 import {
   type ContentData,
   Essentiality,
   type IFunctionInputEssentialStaticProperty,
-  type IVariableData,
   type IVariableRegulatorEssentialStaticProperty,
   StaticPropertyType
 } from '../../../../util/data-interfaces'
@@ -20,7 +19,6 @@ export default class StaticInputEssentialCondition extends abstractStaticPropert
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
-  @state() selectedVariable: IVariableData | undefined
   @query('#target-selector') declare targetSelector: HTMLSelectElement
   @query('#input-selector') declare inputSelector: HTMLSelectElement
 

@@ -4,18 +4,20 @@ import AbstractProperty from '../abstract-property/abstract-property'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { html, type TemplateResult } from 'lit'
+import { functionDebounceTimer } from '../../../util/config'
 
 const EVENT_PROPERTY_CHANGED = 'dynamic-property-changed'
+const EVENT_PROPERTY_ID_CHANGED = 'dynamic-property-id-changed'
 const EVENT_PROPERTY_REMOVED = 'dynamic-property-removed'
 
 export default class AbstractDynamicProperty extends AbstractProperty {
   nameUpdated = debounce((name: string) => {
     super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
-  }, 0)
+  }, functionDebounceTimer)
 
-  idUpdated = debounce((name: string) => {
-    super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
-  }, 0)
+  idUpdated = debounce((id: string) => {
+    super.idUpdated(this.property.id, id, EVENT_PROPERTY_ID_CHANGED)
+  }, functionDebounceTimer)
 
   removeProperty (): void {
     super.removeProperty(EVENT_PROPERTY_REMOVED)
