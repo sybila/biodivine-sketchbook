@@ -13,8 +13,6 @@ import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/util
 import { map } from 'lit/directives/map.js'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { icon } from '@fortawesome/fontawesome-svg-core'
 import StaticDynamicProperty from '../static-dynamic-property'
 
 @customElement('static-input-monotonic-condition')
@@ -117,12 +115,7 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
+      ${this.renderNameplate()}
         <div class="value-section">
           <div class="value-symbol gap">
             <select id="first-selector" class="uk-select" @change="${this.firstChanged}">

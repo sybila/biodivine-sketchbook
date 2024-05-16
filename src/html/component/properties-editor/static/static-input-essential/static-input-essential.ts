@@ -22,7 +22,7 @@ export default class StaticInputEssential extends StaticDynamicProperty {
   }
 
   toggleEssentiality (): void {
-    let value = getNextEssentiality(this.property.value)
+    let value = getNextEssentiality((this.property).value)
     if (value === Essentiality.UNKNOWN) {
       value = getNextEssentiality(value)
     }
@@ -35,10 +35,7 @@ export default class StaticInputEssential extends StaticDynamicProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-        </div>
-
+        ${this.renderNameplate(false)}
         <div class="value-section">
           <div class="value-symbol">
             <div class="uk-margin-small-right">${this.property.input}</div>
