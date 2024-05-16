@@ -102,19 +102,19 @@ export interface IProperty {
 }
 
 export interface IFixedPointDynamicProperty extends IProperty {
-  dataset: string | undefined
-  observation: string | undefined
+  dataset: string | null
+  observation: string | null
 }
 
 export interface ITrapSpaceDynamicProperty extends IProperty {
-  dataset: string | undefined
-  observation: string | undefined
+  dataset: string | null
+  observation: string | null
   minimal: boolean
   nonpercolable: boolean
 }
 
 export interface IExistsTrajectoryDynamicProperty extends IProperty {
-  dataset: string | undefined
+  dataset: string | null
 }
 
 export interface IAttractorCountDynamicProperty extends IProperty {
@@ -123,8 +123,8 @@ export interface IAttractorCountDynamicProperty extends IProperty {
 }
 
 export interface IHasAttractorDynamicProperty extends IProperty {
-  dataset: string | undefined
-  observation: string | undefined
+  dataset: string | null
+  observation: string | null
 }
 
 export interface IGenericDynamicProperty extends IProperty {
