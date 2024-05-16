@@ -66,14 +66,7 @@ export default class DynamicObsSelection extends AbstractDynamicProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field" value="${this.property.name}"
-                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
-        
+        ${this.renderNameplate()}
         <div class="uk-flex uk-flex-row uk-flex-around">
           <div class="uk-flex uk-flex-row uk-flex-around uk-flex-middle">
             <label for="dataset">Dataset:</label>

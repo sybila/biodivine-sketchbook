@@ -56,13 +56,7 @@ export default class DynamicAttractorCount extends AbstractDynamicProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field" value="${this.property.name}"
-                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
+        ${this.renderNameplate()}
         <div class="uk-flex uk-flex-row uk-flex-center">
           <button class="uk-button uk-button-small ${this.exact ? 'uk-button-primary' : 'uk-button-secondary'}"
                   @click="${() => {
