@@ -140,15 +140,15 @@ export type DynamicProperty =
   | IGenericDynamicProperty
 
 export interface IFunctionInputEssentialStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Essentiality
   context: string | undefined
 }
 
 export interface IFunctionInputMonotonicStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Monotonicity
   context: string | undefined
 }
@@ -158,15 +158,15 @@ export interface IGenericStaticProperty extends IProperty {
 }
 
 export interface IVariableRegulatorMonotonicStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Monotonicity
   context: string | undefined
 }
 
 export interface IVariableRegulatorEssentialStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Essentiality
   context: string | undefined
 }

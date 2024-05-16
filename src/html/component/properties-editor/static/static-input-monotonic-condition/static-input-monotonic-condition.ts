@@ -1,10 +1,9 @@
-import { css, html, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { css, html, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
+import { customElement, property, query } from 'lit/decorators.js'
 import style_less from './static-input-monotonic-condition.less?inline'
 import {
   type ContentData,
   type IFunctionInputMonotonicStaticProperty,
-  type IVariableData,
   type IVariableRegulatorMonotonicStaticProperty,
   Monotonicity,
   StaticPropertyType
@@ -20,8 +19,8 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty
-  @state() selectedVariable: IVariableData | undefined
-  @query('#second-selector') declare secondSelector: HTMLSelectElement
+  @query('#target-selector') declare targetSelector: HTMLSelectElement
+  @query('#input-selector') declare inputSelector: HTMLSelectElement
 
   toggleMonotonicity (): void {
     let value = getNextMonotonicity(this.property.value)
@@ -54,29 +53,29 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
     }
   }
 
-  firstChanged (event: Event): void {
-    let value: string | undefined = (event.target as HTMLSelectElement).value
-    value = value === '' ? undefined : value
+  targetChanged (event: Event): void {
+    let value: string | null = (event.target as HTMLSelectElement).value
+    value = value === '' ? null : value
     console.log(value)
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
         target: value,
-        input: undefined
+        input: null
       })
     } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
         target: value,
-        input: undefined
+        input: null
       })
     }
-    this.secondSelector.selectedIndex = 0
+    this.inputSelector.selectedIndex = 0
   }
 
-  secondChanged (event: Event): void {
-    let value: string | undefined = (event.target as HTMLSelectElement).value
-    value = value === '' ? undefined : value
+  inputChanged (event: Event): void {
+    let value: string | null = (event.target as HTMLSelectElement).value
+    value = value === '' ? null : value
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       this.updateProperty({
         ...this.property,
@@ -90,7 +89,7 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
     }
   }
 
-  getFirstSelectorItems (): string[] {
+  getTargetSelectorItems (): string[] {
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       return this.contentData.functions.map(func => func.id)
     } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
@@ -99,7 +98,7 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
     return []
   }
 
-  getSecondSelectorItems (): string[] {
+  getInputSelectorItems (): string[] {
     if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
       return this.contentData.functions
         .find(func => func.id === (this.property as IFunctionInputMonotonicStaticProperty).target)
@@ -112,23 +111,29 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
     return []
   }
 
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    this.targetSelector.selectedIndex = this.getTargetSelectorItems().indexOf(this.property.target ?? '') + 1
+    this.inputSelector.selectedIndex = this.getInputSelectorItems().indexOf(this.property.input ?? '') + 1
+  }
+
   render (): TemplateResult {
     return html`
       <div class="property-body">
       ${this.renderNameplate()}
         <div class="value-section">
           <div class="value-symbol gap">
-            <select id="first-selector" class="uk-select" @change="${this.firstChanged}">
-              <option value="${undefined}">---</option>
-              ${map(this.getFirstSelectorItems(), (item) => html`
+            <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
+              <option value="${null}">---</option>
+              ${map(this.getTargetSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
             <span>${this.getMonotonicitySymbol()}</span>
-            <select id="second-selector" class="uk-select" @change="${this.secondChanged}"
-                    ?disabled="${this.property.target === undefined}">
-            <option value="${undefined}">---</option>
-              ${map(this.getSecondSelectorItems(), (item) => html`
+            <select id="input-selector" class="uk-select" @change="${this.inputChanged}"
+                    ?disabled="${this.property.target === null}">
+            <option value="${null}">---</option>
+              ${map(this.getInputSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>

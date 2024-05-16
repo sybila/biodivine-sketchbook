@@ -1,4 +1,4 @@
-import { css, html, type TemplateResult, unsafeCSS } from 'lit'
+import { css, html, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import style_less from './static-input-essential-condition.less?inline'
 import {
@@ -21,7 +21,8 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
   @state() selectedVariable: IVariableData | undefined
-  @query('#second-selector') declare secondSelector: HTMLSelectElement
+  @query('#target-selector') declare targetSelector: HTMLSelectElement
+  @query('#input-selector') declare inputSelector: HTMLSelectElement
 
   private getEssentialitySymbol (): string {
     switch (this.property.value) {
@@ -52,26 +53,28 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
     })
   }, functionDebounceTimer)
 
-  firstChanged (event: Event): void {
-    const value = (event.target as HTMLSelectElement).value
+  targetChanged (event: Event): void {
+    let value: null | string = (event.target as HTMLSelectElement).value
+    value = value === '' ? null : value
     if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
         target: value,
-        input: undefined
+        input: null
       })
     } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
         target: value,
-        input: undefined
+        input: null
       })
     }
-    this.secondSelector.selectedIndex = 0
+    this.targetSelector.selectedIndex = 0
   }
 
-  secondChanged (event: Event): void {
-    const value = (event.target as HTMLSelectElement).value
+  inputChanged (event: Event): void {
+    let value: null | string = (event.target as HTMLSelectElement).value
+    value = value === '' ? null : value
     if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       this.updateProperty({
         ...this.property,
@@ -85,7 +88,7 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
     }
   }
 
-  getFirstSelectorItems (): string[] {
+  getTargetSelectorItems (): string[] {
     if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       return this.contentData.functions.map(func => func.id)
     } else if (this.property.variant === StaticPropertyType.VariableRegulationEssentialWithCondition) {
@@ -94,7 +97,7 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
     return []
   }
 
-  getSecondSelectorItems (): string[] {
+  getInputSelectorItems (): string[] {
     if (this.property.variant === StaticPropertyType.FunctionInputEssentialWithCondition) {
       return this.contentData.functions
         .find(func => func.id === (this.property as IFunctionInputEssentialStaticProperty).target)
@@ -107,23 +110,29 @@ export default class StaticInputEssentialCondition extends StaticDynamicProperty
     return []
   }
 
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+    this.targetSelector.selectedIndex = this.getTargetSelectorItems().indexOf(this.property.target ?? '') + 1
+    this.inputSelector.selectedIndex = this.getInputSelectorItems().indexOf(this.property.input ?? '') + 1
+  }
+
   render (): TemplateResult {
     return html`
       <div class="property-body">
         ${this.renderNameplate()}
         <div class="value-section">
           <div class="value-symbol gap">
-            <select id="first-selector" class="uk-select" @change="${this.firstChanged}">
-              <option value="${undefined}">---</option>
-              ${map(this.getFirstSelectorItems(), (item) => html`
+            <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
+              <option value="${null}">---</option>
+              ${map(this.getTargetSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
             <span>${this.getEssentialitySymbol()}</span>
-            <select id="second-selector" class="uk-select" @change="${this.secondChanged}"
-                    ?disabled="${this.property.target === undefined}">
-              <option value="${undefined}">---</option>
-              ${map(this.getSecondSelectorItems(), (item) => html`
+            <select id="input-selector" class="uk-select" @change="${this.inputChanged}"
+                    ?disabled="${this.property.target === null}">
+              <option value="${null}">---</option>
+              ${map(this.getInputSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
