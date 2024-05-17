@@ -386,12 +386,7 @@ impl ModelState {
         self.assert_valid_variable(var_id)?;
 
         // check that variable can be safely deleted (not contained in any update fn)
-        let mut vars_in_update_fns = HashSet::new();
-        for update_fn in self.update_fns.values() {
-            let tmp_var_set = update_fn.collect_variables();
-            vars_in_update_fns.extend(tmp_var_set);
-        }
-        if vars_in_update_fns.contains(var_id) {
+        if self.is_var_contained_in_updates(var_id) {
             return Err(format!(
                 "Cannot remove variable `{var_id}`, it is still contained in an update function."
             ));
