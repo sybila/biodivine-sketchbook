@@ -1,29 +1,21 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-monotonic-condition.less?inline'
 import {
-  type ContentData,
   type IFunctionInputMonotonicStaticProperty,
-  type IVariableData,
   type IVariableRegulatorMonotonicStaticProperty,
-  Monotonicity,
-  StaticPropertyType
+  Monotonicity
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import StaticDynamicProperty from '../static-dynamic-property'
+import StaticSelectors from '../static-selectors'
 
 @customElement('static-input-monotonic-condition')
-export default class StaticInputMonotonicCondition extends StaticDynamicProperty {
+export default class StaticInputMonotonicCondition extends StaticSelectors {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() declare contentData: ContentData
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty
-  @state() selectedVariable: IVariableData | undefined
-  @query('#second-selector') declare secondSelector: HTMLSelectElement
 
   toggleMonotonicity (): void {
     let value = getNextMonotonicity(this.property.value)
@@ -56,86 +48,23 @@ export default class StaticInputMonotonicCondition extends StaticDynamicProperty
     }
   }
 
-  firstChanged (event: Event): void {
-    let value: string | undefined = (event.target as HTMLSelectElement).value
-    value = value === '' ? undefined : value
-    console.log(value)
-    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        target: value,
-        input: undefined
-      })
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        target: value,
-        input: undefined
-      })
-    }
-    this.secondSelector.selectedIndex = 0
-  }
-
-  secondChanged (event: Event): void {
-    let value: string | undefined = (event.target as HTMLSelectElement).value
-    value = value === '' ? undefined : value
-    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        input: value
-      })
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
-      this.updateProperty({
-        ...this.property,
-        input: value
-      })
-    }
-  }
-
-  getFirstSelectorItems (): string[] {
-    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
-      return this.contentData.functions.map(func => func.id)
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
-      return this.contentData.variables.map(variable => variable.id)
-    }
-    return []
-  }
-
-  getSecondSelectorItems (): string[] {
-    if (this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition) {
-      return this.contentData.functions
-        .find(func => func.id === (this.property as IFunctionInputMonotonicStaticProperty).target)
-        ?.variables.map(variable => variable.source) ?? []
-    } else if (this.property.variant === StaticPropertyType.VariableRegulationMonotonicWithCondition) {
-      return this.contentData.regulations
-        .filter(regulation => regulation.target === (this.property as IVariableRegulatorMonotonicStaticProperty).target)
-        .map(regulation => regulation.source)
-    }
-    return []
-  }
-
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
+        ${this.renderNameplate()}
         <div class="value-section">
           <div class="value-symbol gap">
-            <select id="first-selector" class="uk-select" @change="${this.firstChanged}">
-              <option value="${undefined}">---</option>
-              ${map(this.getFirstSelectorItems(), (item) => html`
+            <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
+              <option value="${null}">---</option>
+              ${map(this.getTargetSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
             <span>${this.getMonotonicitySymbol()}</span>
-            <select id="second-selector" class="uk-select" @change="${this.secondChanged}"
-                    ?disabled="${this.property.target === undefined}">
-            <option value="${undefined}">---</option>
-              ${map(this.getSecondSelectorItems(), (item) => html`
+            <select id="input-selector" class="uk-select" @change="${this.inputChanged}"
+                    ?disabled="${this.property.target === null}">
+              <option value="${null}">---</option>
+              ${map(this.getInputSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>

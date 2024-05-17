@@ -90,10 +90,6 @@ export class RegulationsEditor extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <button @click=${this.loadDummyData}
-              class="uk-button uk-button-danger uk-button-small uk-margin-large-left uk-position-absolute uk-position-z-index-high">
-        reset (debug)
-      </button>
       ${this.editorElement}
       <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
                   .data=${this.menuData}></float-menu>
@@ -205,10 +201,6 @@ export class RegulationsEditor extends LitElement {
       this.cy?.fit(undefined, 50)
       this.cy?.resize()
     })
-  }
-
-  private loadDummyData (): void {
-    this.dispatchEvent(new Event('load-dummy', { bubbles: true, composed: true }))
   }
 
   private async renameNodeDialog (event: Event): Promise<void> {
