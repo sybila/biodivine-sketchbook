@@ -1,8 +1,8 @@
 import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafeCSS } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
-import { ContentData, type IObservation, type IObservationSet, DataCategory } from '../../util/data-interfaces'
+import { ContentData, DataCategory, type IObservation, type IObservationSet } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
@@ -16,15 +16,20 @@ import {
   type ObservationData,
   type ObservationIdUpdateData
 } from '../../../aeon_events'
+import { when } from 'lit/directives/when.js'
 
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData = ContentData.create()
   index = 0
+  @state() datasetRenameIndex = -1
+  @state() shownDatasets: number[] = []
 
   constructor () {
     super()
+
+    this.addEventListener('rename-dataset', this.renameDataset)
 
     // observations-related event listeners
     aeonState.sketch.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
@@ -37,6 +42,8 @@ export default class ObservationsEditor extends LitElement {
     this.addEventListener('change-observation', this.changeObservation)
     aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
     aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
+    this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
+    aeonState.sketch.observations.datasetRemoved.addEventListener(this.#onDatasetRemoved.bind(this))
     // TODO add all other events
 
     // refresh-event listeners
@@ -124,7 +131,7 @@ export default class ObservationsEditor extends LitElement {
     } else {
       fileName = handle
     }
-
+    // TODO: move dataset id generation to backend
     aeonState.sketch.observations.loadDataset(fileName, 'dataset' + this.index)
   }
 
@@ -266,6 +273,34 @@ export default class ObservationsEditor extends LitElement {
     }))
   }
 
+  renameDataset (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
+    (this.shadowRoot?.querySelector('#set-name-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
+  }
+
+  async removeDataset (event: Event): Promise<void> {
+    if (!await dialog.confirm('Remove dataset?')) return
+    const detail = (event as CustomEvent).detail
+    aeonState.sketch.observations.removeDataset(detail.id)
+  }
+
+  #onDatasetRemoved (data: DatasetData): void {
+    const datasets = this.contentData.observations.filter(d => d.id !== data.id)
+    this.updateObservations(datasets)
+  }
+
+  toggleDataset (index: number): void {
+    const dsIndex = this.shownDatasets.indexOf(index)
+    if (dsIndex === -1) {
+      this.shownDatasets = this.shownDatasets.concat([index])
+      return
+    }
+    const shownDatasets = [...this.shownDatasets]
+    shownDatasets.splice(dsIndex, 1)
+    this.shownDatasets = shownDatasets
+  }
+
   render (): TemplateResult {
     return html`
       <div class="observations">
@@ -277,27 +312,33 @@ export default class ObservationsEditor extends LitElement {
         <div class="accordion-body">
           <div class="accordion">
             ${map(this.contentData.observations, (dataset, index) => html`
-          <div class="container" id="${'container' + index}">
-            <div class="label" @click="${() => { this.shadowRoot?.getElementById('container' + index)?.classList.toggle('active') }}" >
-              <input 
-                  @input="${(e: InputEvent) => {
-                    this.updateDatasetId((e.target as HTMLInputElement).value, index)
-                  }}"
-                  ?readonly="${true}"
-                  @dblclick="${(e: InputEvent) => {
-                    (e.target as HTMLInputElement).readOnly = !(e.target as HTMLInputElement).readOnly
-                  }}"
-                  class="set-name heading uk-input uk-form-blank"
-                  value="${dataset.id}"/>
-            </div>
-            <div class="content">
-              <observations-set
-                  .data="${dataset}">
-              </observations-set>
-            </div>
-          </div>
-          <hr>
-        `)}
+              <div class="container ${this.shownDatasets.includes(index) ? 'active' : ''}" id="${'container' + index}">
+                <div class="label" @click="${() => {
+                  this.toggleDataset(index)
+                }}">
+                  <input
+                      @input="${(e: InputEvent) => {
+                        this.updateDatasetId((e.target as HTMLInputElement).value, index)
+                      }}"
+                      ?readonly="${this.datasetRenameIndex !== index}"
+                      @keydown="${(e: KeyboardEvent) => {
+                        if (e.key === 'Enter') {
+                          this.datasetRenameIndex = -1
+                        }
+                      }}"
+                      class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
+                      value="${dataset.id}"/>
+                </div>
+                ${when(this.shownDatasets.includes(index), () => html`
+                  <div class="content">
+                    <observations-set
+                        .data="${dataset}">
+                    </observations-set>
+                  </div>
+                `)}
+              </div>
+              <hr>
+            `)}
           </div>
         </div>
       </div>

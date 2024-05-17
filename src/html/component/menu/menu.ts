@@ -23,6 +23,10 @@ export default class Menu extends LitElement {
       action: () => { void this.newSketch() }
     },
     {
+      label: 'Import dummy (dev)',
+      action: () => { this.loadDummy() }
+    },
+    {
       label: 'Import...',
       action: () => { void this.importSketch() }
     },
@@ -39,6 +43,10 @@ export default class Menu extends LitElement {
   constructor () {
     super()
     document.addEventListener('click', this.closeMenu.bind(this))
+  }
+
+  loadDummy (): void {
+    this.dispatchEvent(new Event('load-dummy', { bubbles: true, composed: true }))
   }
 
   async importSketch (): Promise<void> {

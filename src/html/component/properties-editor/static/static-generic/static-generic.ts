@@ -6,10 +6,10 @@ import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-generic')
-export default class StaticGeneric extends StaticDynamicProperty {
+export default class StaticGeneric extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IGenericStaticProperty
 

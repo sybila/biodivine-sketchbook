@@ -102,19 +102,19 @@ export interface IProperty {
 }
 
 export interface IFixedPointDynamicProperty extends IProperty {
-  dataset: string | undefined
-  observation: string | undefined
+  dataset: string | null
+  observation: string | null
 }
 
 export interface ITrapSpaceDynamicProperty extends IProperty {
-  dataset: string | undefined
-  observation: string | undefined
+  dataset: string | null
+  observation: string | null
   minimal: boolean
   nonpercolable: boolean
 }
 
 export interface IExistsTrajectoryDynamicProperty extends IProperty {
-  dataset: string | undefined
+  dataset: string | null
 }
 
 export interface IAttractorCountDynamicProperty extends IProperty {
@@ -123,8 +123,8 @@ export interface IAttractorCountDynamicProperty extends IProperty {
 }
 
 export interface IHasAttractorDynamicProperty extends IProperty {
-  dataset: string | undefined
-  observation: string | undefined
+  dataset: string | null
+  observation: string | null
 }
 
 export interface IGenericDynamicProperty extends IProperty {
@@ -140,15 +140,15 @@ export type DynamicProperty =
   | IGenericDynamicProperty
 
 export interface IFunctionInputEssentialStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Essentiality
   context: string | undefined
 }
 
 export interface IFunctionInputMonotonicStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Monotonicity
   context: string | undefined
 }
@@ -158,15 +158,15 @@ export interface IGenericStaticProperty extends IProperty {
 }
 
 export interface IVariableRegulatorMonotonicStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Monotonicity
   context: string | undefined
 }
 
 export interface IVariableRegulatorEssentialStaticProperty extends IProperty {
-  input: string | undefined
-  target: string | undefined
+  input: string | null
+  target: string | null
   value: Essentiality
   context: string | undefined
 }

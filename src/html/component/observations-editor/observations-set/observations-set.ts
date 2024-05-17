@@ -7,6 +7,8 @@ import { type IObservation, type IObservationSet } from '../../../util/data-inte
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
+import { icon } from '@fortawesome/fontawesome-svg-core'
+import { faAdd, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 @customElement('observations-set')
 export default class ObservationsSet extends LitElement {
@@ -176,8 +178,53 @@ export default class ObservationsSet extends LitElement {
     })
   }
 
+  removeDataset (): void {
+    this.dispatchEvent(new CustomEvent('remove-dataset', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  renameDataset (): void {
+    this.dispatchEvent(new CustomEvent('rename-dataset', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   render (): TemplateResult {
     return html`
+      <div class="uk-flex uk-flex-row uk-flex-right uk-margin-small-bottom">
+        <button class="uk-button uk-button-small uk-button-secondary"
+                @click=${this.renameDataset}>
+          <div class="button-label">
+            ${icon(faEdit).node}
+            Rename dataset
+          </div>
+          
+        </button>
+        <button class="uk-button uk-button-small uk-button-secondary"
+                @click=${this.pushNewObservation}>
+          <div class="button-label">
+            ${icon(faAdd).node}
+            Add observation
+          </div>
+        </button>
+        <button class="uk-button uk-button-small uk-button-danger"
+                @click=${this.removeDataset}>
+          <div class="button-label">
+            ${icon(faTrash).node}
+            Delete dataset
+          </div>
+          
+        </button>
+      </div>
       <div id="table-wrapper"></div>
     `
   }

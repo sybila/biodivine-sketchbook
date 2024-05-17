@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-essential.less?inline'
 import { Essentiality, type IFunctionInputEssentialStaticProperty } from '../../../../util/data-interfaces'
 import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-essential')
-export default class StaticInputEssential extends StaticDynamicProperty {
+export default class StaticInputEssential extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputEssentialStaticProperty
 
@@ -22,7 +22,7 @@ export default class StaticInputEssential extends StaticDynamicProperty {
   }
 
   toggleEssentiality (): void {
-    let value = getNextEssentiality(this.property.value)
+    let value = getNextEssentiality((this.property).value)
     if (value === Essentiality.UNKNOWN) {
       value = getNextEssentiality(value)
     }
@@ -35,10 +35,7 @@ export default class StaticInputEssential extends StaticDynamicProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-        </div>
-
+        ${this.renderNameplate(false)}
         <div class="value-section">
           <div class="value-symbol">
             <div class="uk-margin-small-right">${this.property.input}</div>

@@ -19,8 +19,8 @@ export const fixedPointDynamic = (id: string): IFixedPointDynamicProperty => {
     id,
     name: 'fixed-point',
     variant: DynamicPropertyType.FixedPoint,
-    dataset: undefined,
-    observation: undefined
+    dataset: null,
+    observation: null
   }
 }
 
@@ -29,8 +29,8 @@ export const trapSpaceDynamic = (id: string): ITrapSpaceDynamicProperty => {
     id,
     name: 'trap-space',
     variant: DynamicPropertyType.TrapSpace,
-    dataset: undefined,
-    observation: undefined,
+    dataset: null,
+    observation: null,
     minimal: false,
     nonpercolable: false
   }
@@ -41,7 +41,7 @@ export const existsTrajectoryDynamic = (id: string): IExistsTrajectoryDynamicPro
     id,
     name: 'exists-trajectory',
     variant: DynamicPropertyType.ExistsTrajectory,
-    dataset: undefined
+    dataset: null
   }
 }
 
@@ -60,8 +60,8 @@ export const hasAttractorDynamic = (id: string): IHasAttractorDynamicProperty =>
     id,
     name: 'has-attractor',
     variant: DynamicPropertyType.HasAttractor,
-    dataset: undefined,
-    observation: undefined
+    dataset: null,
+    observation: null
   }
 }
 
@@ -91,8 +91,8 @@ export const functionInputEssentialWithCondition = (id: string): IFunctionInputE
     id,
     name: 'function-input-essential',
     variant: StaticPropertyType.FunctionInputEssentialWithCondition,
-    target: undefined,
-    input: undefined,
+    target: null,
+    input: null,
     value: Essentiality.TRUE,
     context: undefined
   }
@@ -115,8 +115,8 @@ export const functionInputMonotonicWithCondition = (id: string): IFunctionInputM
     id,
     name: 'function-input-monotonic',
     variant: StaticPropertyType.FunctionInputMonotonicWithCondition,
-    target: undefined,
-    input: undefined,
+    target: null,
+    input: null,
     value: Monotonicity.ACTIVATION,
     context: ''
   }
@@ -127,8 +127,8 @@ export const variableRegulationMonotonicWithCondition = (id: string): IVariableR
     id,
     name: 'variable-regulation-monotonic',
     variant: StaticPropertyType.VariableRegulationMonotonicWithCondition,
-    target: undefined,
-    input: undefined,
+    target: null,
+    input: null,
     value: Monotonicity.ACTIVATION,
     context: ''
   }
@@ -139,8 +139,8 @@ export const variableRegulationEssentialWithCondition = (id: string): IVariableR
     id,
     name: 'variable-regulation-essential',
     variant: StaticPropertyType.VariableRegulationEssentialWithCondition,
-    target: undefined,
-    input: undefined,
+    target: null,
+    input: null,
     value: Essentiality.TRUE,
     context: ''
   }

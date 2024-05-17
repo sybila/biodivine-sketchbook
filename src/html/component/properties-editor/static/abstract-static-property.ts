@@ -1,16 +1,18 @@
 import { type DynamicProperty, type StaticProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { icon } from '@fortawesome/fontawesome-svg-core'
 import { html, type TemplateResult } from 'lit'
+import { icon } from '@fortawesome/fontawesome-svg-core'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { when } from 'lit/directives/when.js'
 import { functionDebounceTimer } from '../../../util/config'
 
-const EVENT_PROPERTY_CHANGED = 'dynamic-property-changed'
-const EVENT_PROPERTY_ID_CHANGED = 'dynamic-property-id-changed'
-const EVENT_PROPERTY_REMOVED = 'dynamic-property-removed'
+const EVENT_PROPERTY_CHANGED = 'static-property-changed'
+const EVENT_PROPERTY_ID_CHANGED = 'static-property-id-changed'
 
-export default class AbstractDynamicProperty extends AbstractProperty {
+const EVENT_PROPERTY_REMOVED = 'static-property-removed'
+
+export default class abstractStaticProperty extends AbstractProperty {
   nameUpdated = debounce((name: string) => {
     super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
   }, functionDebounceTimer)
@@ -27,7 +29,7 @@ export default class AbstractDynamicProperty extends AbstractProperty {
     super.updateProperty(property, EVENT_PROPERTY_CHANGED)
   }
 
-  renderNameplate (): TemplateResult {
+  renderNameplate (removeButton: boolean = true): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
@@ -37,12 +39,14 @@ export default class AbstractDynamicProperty extends AbstractProperty {
         </div>
         <div class="uk-flex uk-flex-column name-section">
           <label class="uk-form-label" for="name-field">NAME</label>
-          <input id="name-field" class="name-field" value="${this.property.name}"
-                 @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
+          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
+
         </div>
-        <button class="remove-property" @click="${this.removeProperty}">
-          ${icon(faTrash).node}
-        </button>
+        ${when(removeButton, () => html`
+          <button class="remove-property" @click="${this.removeProperty}">
+            ${icon(faTrash).node}
+          </button>
+        `)}
       </div>
     `
   }

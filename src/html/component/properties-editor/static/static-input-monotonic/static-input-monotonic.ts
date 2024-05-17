@@ -7,10 +7,10 @@ import {
   StaticPropertyType
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
-import StaticDynamicProperty from '../static-dynamic-property'
+import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-monotonic')
-export default class StaticInputMonotonic extends StaticDynamicProperty {
+export default class StaticInputMonotonic extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputMonotonicStaticProperty
 
@@ -42,9 +42,7 @@ export default class StaticInputMonotonic extends StaticDynamicProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly/>
-        </div>
+        ${this.renderNameplate(false)}
         <div class="value-section">
           <div class="value-symbol">
             <div class="uk-margin-small-right">${this.property.input}</div>
