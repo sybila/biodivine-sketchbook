@@ -42,7 +42,7 @@ impl Sketch {
                 .zip(dyn_properties)
                 .collect(),
             sketch_data
-                .dyn_properties
+                .stat_properties
                 .iter()
                 .map(|d| d.id.as_str())
                 .zip(stat_properties)
