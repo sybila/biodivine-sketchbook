@@ -22,7 +22,7 @@ import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
-import { aeonState } from '../../../aeon_events'
+import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_events'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -94,10 +94,10 @@ export default class PropertiesEditor extends LitElement {
     aeonState.sketch.properties.dynamicContentChanged.addEventListener(this.#onDynamicChanged.bind(this))
     this.addEventListener('static-property-changed', this.changeStaticProperty)
     aeonState.sketch.properties.staticContentChanged.addEventListener(this.#onStaticChanged.bind(this))
-
     this.addEventListener('dynamic-property-id-changed', this.changeDynamicPropertyId)
-
+    aeonState.sketch.properties.dynamicIdChanged.addEventListener(this.#onDynamicIdChanged.bind(this))
     this.addEventListener('static-property-id-changed', this.changeStaticPropertyId)
+    aeonState.sketch.properties.staticIdChanged.addEventListener(this.#onStaticIdChanged.bind(this))
 
     // refresh-event listeners
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
@@ -230,12 +230,36 @@ export default class PropertiesEditor extends LitElement {
 
   changeDynamicPropertyId (event: Event): void {
     const detail = (event as CustomEvent).detail
-    console.log(detail.oldId, detail.newId)
+    aeonState.sketch.properties.setDynamicId(detail.oldId, detail.newId)
+  }
+
+  #onDynamicIdChanged (data: DynPropIdUpdateData): void {
+    console.log(data)
+    const index = this.contentData.dynamicProperties.findIndex(d => d.id === data.original_id)
+    if (index === -1) return
+    const properties = [...this.contentData.dynamicProperties]
+    properties[index] = {
+      ...properties[index],
+      id: data.new_id
+    }
+    this.updateDynamicProperties(properties)
   }
 
   changeStaticPropertyId (event: Event): void {
     const detail = (event as CustomEvent).detail
-    console.log(detail.oldId, detail.newId)
+    aeonState.sketch.properties.setStaticId(detail.oldId, detail.newId)
+  }
+
+  #onStaticIdChanged (data: StatPropIdUpdateData): void {
+    console.log(data)
+    const index = this.contentData.staticProperties.findIndex(d => d.id === data.original_id)
+    if (index === -1) return
+    const properties = [...this.contentData.staticProperties]
+    properties[index] = {
+      ...properties[index],
+      id: data.new_id
+    }
+    this.updateStaticProperties(properties)
   }
 
   async openAddDynamicPropertyMenu (): Promise<void> {
