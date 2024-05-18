@@ -23,12 +23,7 @@ export default class StaticGeneric extends abstractStaticProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly />
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
+        ${this.renderNameplate()}
         <div class="uk-flex uk-flex-column uk-flex-left">
           <label class="value-label">Context formula:</label>
           <div class="uk-flex uk-flex-row">
