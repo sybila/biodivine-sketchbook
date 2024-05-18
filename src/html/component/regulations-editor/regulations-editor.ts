@@ -111,7 +111,10 @@ export class RegulationsEditor extends LitElement {
 
   private focusVariable (event: Event): void {
     const node = this.cy?.$id((event as CustomEvent).detail.id)
-    this.cy?.center(node)
+    // wait for the node to be rendered
+    setTimeout(() => {
+      this.cy?.center(node)
+    }, 150)
   }
 
   private highlightRegulation (event: Event): void {

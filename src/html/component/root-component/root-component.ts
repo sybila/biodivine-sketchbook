@@ -59,6 +59,7 @@ export default class RootComponent extends LitElement {
     // model editor related event listeners
     this.addEventListener('load-dummy', () => { void this.loadDummy() })
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
+    window.addEventListener('focus-variable', this.focusVariable.bind(this))
     this.addEventListener('add-variable', this.addVariable)
     aeonState.sketch.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
@@ -263,6 +264,10 @@ export default class RootComponent extends LitElement {
 
   private focusFunction (): void {
     aeonState.tabBar.active.emitValue(1)
+  }
+
+  private focusVariable (): void {
+    aeonState.tabBar.active.emitValue(0)
   }
 
   private visibleTabs (): TabData[] {
