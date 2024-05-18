@@ -28,13 +28,13 @@ export const tabList: TabData[] = [
     name: 'Properties',
     content: (contentData) => html`<properties-editor .contentData=${contentData}></properties-editor>`,
     icon: 'p'
-  }),
-  TabData.create({
-    id: index++,
-    name: 'Analysis',
-    content: () => html`<h1 class="uk-heading uk-text-success">Content of analysis tab</h1>`,
-    icon: 'a'
   })
+  // TabData.create({
+  //   id: index++,
+  //   name: 'Analysis',
+  //   content: () => html`<h1 class="uk-heading uk-text-success">Content of analysis tab</h1>`,
+  //   icon: 'a'
+  // })
 ]
 
 export const functionDebounceTimer = 1000

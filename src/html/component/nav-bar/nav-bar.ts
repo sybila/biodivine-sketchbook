@@ -22,9 +22,9 @@ export default class NavBar extends LitElement {
               <tab-bar .tabs=${this.tabs}></tab-bar>
             </div>
 
-            <div class="uk-navbar-right uk-flex-nowrap">
+            <div class="uk-navbar-right uk-flex-nowrap uk-margin-small-right">
               <undo-redo></undo-redo>
-              <search-bar></search-bar>
+<!--              <search-bar></search-bar>-->
             </div>
 
           </div>
