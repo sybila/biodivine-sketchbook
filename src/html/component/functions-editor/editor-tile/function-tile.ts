@@ -21,7 +21,6 @@ export class FunctionTile extends EditorTile {
 
   constructor () {
     super()
-    this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
     ace.require(langTools)
   }
 

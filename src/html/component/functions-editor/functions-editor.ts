@@ -81,10 +81,8 @@ export class FunctionsEditor extends LitElement {
   }
 
   private focusedFunction (event: Event): void {
-    const variableId = (event as CustomEvent).detail.variableId
-    const element = this.shadowRoot?.querySelector(`#${variableId}`)
-    element?.dispatchEvent(new Event('focus-function-field'))
-    element?.scrollIntoView()
+    const id = (event as CustomEvent).detail.id
+    this.shadowRoot?.getElementById(id)?.scrollIntoView()
   }
 
   #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {

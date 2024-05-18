@@ -20,8 +20,15 @@ export class VariableTile extends EditorTile {
 
   constructor () {
     super()
-    this.addEventListener('focus-function-field', () => { this.aceEditor.focus() })
+    window.addEventListener('focus-function-field', this.focusField.bind(this))
     ace.require(langTools)
+  }
+
+  focusField (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    if (detail.id === this.variables[this.index].id) {
+      this.aceEditor.focus()
+    }
   }
 
   protected firstUpdated (_changedProperties: PropertyValues): void {

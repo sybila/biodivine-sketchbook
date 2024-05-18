@@ -52,7 +52,7 @@ export default class FloatMenu extends LitElement {
             this.addEdge()
             break
           case 'F':
-            this.focusRegulation()
+            this.focusFunction()
             break
           case 'DELETE':
             this.removeElement()
@@ -88,11 +88,11 @@ export default class FloatMenu extends LitElement {
     {
       icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
-      click: this.focusRegulation
+      click: this.focusFunction
     },
     {
       icon: () => icon(faTrash).node[0],
-      label: () => 'Remove (⌫)',
+      label: () => 'Remove (DEL)',
       click: this.removeElement
     }
   ]
@@ -152,7 +152,7 @@ export default class FloatMenu extends LitElement {
     },
     {
       icon: () => icon(faTrash).node[0],
-      label: () => 'Remove (⌫)',
+      label: () => 'Remove (DEL)',
       click: this.removeElement
     }
   ]
@@ -227,13 +227,11 @@ export default class FloatMenu extends LitElement {
     }))
   }
 
-  private focusRegulation (): void {
-    this.dispatchEvent(new CustomEvent('focus-function', {
+  private focusFunction (): void {
+    window.dispatchEvent(new CustomEvent('focus-function-field', {
       detail: {
-        variableId: this.data?.id
-      },
-      bubbles: true,
-      composed: true
+        id: this.data?.id
+      }
     }))
   }
 

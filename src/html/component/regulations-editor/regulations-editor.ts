@@ -36,7 +36,7 @@ export class RegulationsEditor extends LitElement {
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
-    this.addEventListener('focus-function', () => {
+    window.addEventListener('focus-function-field', () => {
       this.toggleMenu(ElementType.NONE)
     })
     this.editorElement = document.createElement('div')
