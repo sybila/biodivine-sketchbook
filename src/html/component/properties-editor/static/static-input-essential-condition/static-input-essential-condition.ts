@@ -8,10 +8,10 @@ import {
 } from '../../../../util/data-interfaces'
 import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
-import StaticSelectors from '../static-selectors'
+import StaticSelectorsProperty from '../static-selectors-property'
 
 @customElement('static-input-essential-condition')
-export default class StaticInputEssentialCondition extends StaticSelectors {
+export default class StaticInputEssentialCondition extends StaticSelectorsProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
 
@@ -68,15 +68,7 @@ export default class StaticInputEssentialCondition extends StaticSelectors {
             <span>)</span>
           </div>
         </div>
-        <div class="uk-flex uk-flex-column uk-flex-left">
-          <label class="condition-label">Context formula:</label>
-          <div class="uk-flex uk-flex-row">
-            <input id="condition-field" class="condition-field" value="${this.property.context}"
-                   @input="${(e: Event) => {
-                     this.conditionChanged((e.target as HTMLInputElement).value)
-                   }}"/>
-          </div>
-        </div>
+        ${this.renderConditionField()}
       </div>
       </div>
       <hr>

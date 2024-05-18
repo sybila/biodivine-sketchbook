@@ -8,12 +8,10 @@ import {
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
-import { debounce } from 'lodash'
-import { functionDebounceTimer } from '../../../../util/config'
-import StaticSelectors from '../static-selectors'
+import StaticSelectorsProperty from '../static-selectors-property'
 
 @customElement('static-input-monotonic-condition')
-export default class StaticInputMonotonicCondition extends StaticSelectors {
+export default class StaticInputMonotonicCondition extends StaticSelectorsProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty
 
@@ -27,13 +25,6 @@ export default class StaticInputMonotonicCondition extends StaticSelectors {
       value
     })
   }
-
-  conditionChanged = debounce((context: string): void => {
-    this.updateProperty({
-      ...this.property,
-      context
-    })
-  }, functionDebounceTimer)
 
   private getMonotonicitySymbol (): string {
     switch (this.property.value) {
@@ -79,15 +70,7 @@ export default class StaticInputMonotonicCondition extends StaticSelectors {
             <span>)</span>
           </div>
         </div>
-        <div class="uk-flex uk-flex-column uk-flex-left">
-          <label class="condition-label">Context formula:</label>
-          <div class="uk-flex uk-flex-row">
-            <input id="condition-field" class="condition-field" value="${this.property.context}"
-                   @input="${(e: Event) => {
-                     this.conditionChanged((e.target as HTMLInputElement).value)
-                   }}"/>
-          </div>
-        </div>
+        ${this.renderConditionField()}
       </div>
       </div>
       <hr>
