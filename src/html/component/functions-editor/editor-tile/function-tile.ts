@@ -93,6 +93,7 @@ export class FunctionTile extends EditorTile {
       composed: true
     }))
     this.varIndex++
+    this.bodyVisible = true
   }
 
   toggleEssentiality (regulation: IRegulationData): void {
