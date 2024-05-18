@@ -77,7 +77,7 @@ export class VariableTile extends EditorTile {
       bubbles: true,
       composed: true
     }))
-  }, functionDebounceTimer
+  }, 0
   )
 
   toggleEssentiality (regulation: IRegulationData): void {
