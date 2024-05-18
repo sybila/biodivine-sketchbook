@@ -8,8 +8,8 @@ import {
   faCalculator,
   faClone,
   faEye,
-  faEyeSlash,
   faEyeLowVision,
+  faEyeSlash,
   faPen,
   faPlus,
   faRightLeft,
@@ -24,6 +24,7 @@ import {
   type IVariableData,
   Monotonicity
 } from '../../../util/data-interfaces'
+import { when } from 'lit/directives/when.js'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
@@ -31,7 +32,11 @@ library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, 
 export default class FloatMenu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() type = ElementType.NONE
-  @property() position: Position = { x: 0, y: 0 }
+  @property() position: Position = {
+    x: 0,
+    y: 0
+  }
+
   @property() zoom = 1.0
   @property() data: (IRegulationData & IVariableData) | undefined
   @state() selectedButton: IButton | undefined = undefined
@@ -252,27 +257,31 @@ export default class FloatMenu extends LitElement {
         break
     }
     return html`
-        ${this.type !== ElementType.NONE && html`
+      ${when(this.type !== ElementType.NONE, () => html`
         <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
                                        top: ${this.position.y + 8 + yOffset}px; 
                                        transform: scale(${this.zoom})">
-            <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
-                ${map(buttons, (buttonData) => {
-                  const icon = buttonData.icon()
-                    icon.classList.add('menu-icon')
-                    return html`
-                    <span class="float-button"
-                         @mouseover=${() => { this.selectedButton = buttonData }} 
-                         @mouseout=${() => { this.selectedButton = undefined }} 
-                         @click=${buttonData.click}>
+          <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
+            ${map(buttons, (buttonData) => {
+              const icon = buttonData.icon()
+              icon.classList.add('menu-icon')
+              return html`
+                <span class="float-button"
+                      @mouseover=${() => {
+                        this.selectedButton = buttonData
+                      }}
+                      @mouseout=${() => {
+                        this.selectedButton = undefined
+                      }}
+                      @click=${buttonData.click}>
                         ${icon}
                     </span>
-                `
-})}
-            </div>
-            <span class="hint">${this.selectedButton?.label()}</span>
+              `
+            })}
+          </div>
+          <span class="hint">${this.selectedButton?.label()}</span>
         </div>`
-        }
+      )}
     `
   }
 }
