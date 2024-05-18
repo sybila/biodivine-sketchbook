@@ -568,6 +568,54 @@ impl PropertyManager {
         self.swap_stat_content(&prop_id, new_content)
     }
 
+    /// Change ID of a dynamic property.
+    pub fn set_dyn_id(
+        &mut self,
+        original_id: &DynPropertyId,
+        new_id: DynPropertyId,
+    ) -> Result<(), String> {
+        self.assert_valid_dynamic(original_id)?;
+        self.assert_no_dynamic(&new_id)?;
+
+        if let Some(property) = self.dyn_properties.remove(original_id) {
+            self.dyn_properties.insert(new_id.clone(), property);
+        } else {
+            panic!("Error when modifying dyn property's id in the property map.");
+        }
+        Ok(())
+    }
+
+    /// Change ID of a dynamic property, with IDs given as string slices.
+    pub fn set_dyn_id_by_str(&mut self, original_id: &str, new_id: &str) -> Result<(), String> {
+        let original_id = DynPropertyId::new(original_id)?;
+        let new_id = DynPropertyId::new(new_id)?;
+        self.set_dyn_id(&original_id, new_id)
+    }
+
+    /// Change ID of a static property.
+    pub fn set_stat_id(
+        &mut self,
+        original_id: &StatPropertyId,
+        new_id: StatPropertyId,
+    ) -> Result<(), String> {
+        self.assert_valid_static(original_id)?;
+        self.assert_no_static(&new_id)?;
+
+        if let Some(property) = self.stat_properties.remove(original_id) {
+            self.stat_properties.insert(new_id.clone(), property);
+        } else {
+            panic!("Error when modifying stat property's id in the property map.");
+        }
+        Ok(())
+    }
+
+    /// Change ID of a static property, with IDs given as string slices.
+    pub fn set_stat_id_by_str(&mut self, original_id: &str, new_id: &str) -> Result<(), String> {
+        let original_id = StatPropertyId::new(original_id)?;
+        let new_id = StatPropertyId::new(new_id)?;
+        self.set_stat_id(&original_id, new_id)
+    }
+
     /// Remove dynamic property.
     pub fn remove_dynamic(&mut self, id: &DynPropertyId) -> Result<(), String> {
         self.assert_valid_dynamic(id)?;

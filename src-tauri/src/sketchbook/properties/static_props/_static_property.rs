@@ -5,7 +5,7 @@ use crate::sketchbook::properties::FirstOrderFormula;
 use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
 
-/// A typesafe representation of various kinds of dynamic properties.
+/// A typesafe representation of various kinds of static properties.
 /// Each property has a `name` and field `variant` encompassing inner data.
 ///
 /// The formula that will be internally created (usually, apart from generic variant) depends on

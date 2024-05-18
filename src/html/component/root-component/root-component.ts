@@ -362,6 +362,9 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(
       this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
+
+    // todo: this is a hack for now, to avoid issues in static prop removing after the regulation is removed
+    aeonState.sketch.properties.refreshStaticProps()
   }
 
   private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {

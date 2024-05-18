@@ -42,9 +42,7 @@ export default class StaticInputEssential extends abstractStaticProperty {
             <div class="uk-margin-small-right">${this.getEssentialitySymbol()}</div>
             <div class="uk-margin-small-right">${this.property.target}</div>
           </div>
-          <div class="value-symbol" @click="${() => {
-            this.toggleEssentiality()
-          }}">
+          <div class="value-symbol">
             <span>(</span>
             <span class="essentiality">
               ${getEssentialityText(this.property.value)}
