@@ -147,6 +147,7 @@ export class RegulationsEditor extends LitElement {
         composed: true,
         bubbles: true
       }))
+      edge.remove()
     })
 
     this.cy.on('zoom', () => {
