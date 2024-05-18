@@ -22,7 +22,7 @@ export default class TabBar extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="uk-button-group uk-flex uk-flex-row">
+      <div class="tab-bar uk-button-group uk-flex uk-flex-row">
         ${map(this.tabs, (tab) => html`
             <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'active' : 'inactive'}" 
                     @click=${this.switchTab(tab.id)}>

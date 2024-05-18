@@ -11,17 +11,23 @@
   padding: 0.5em;
   text-overflow: ellipsis;
   overflow: hidden;
-  //outline: #2f2f2f solid 2px;
 }
+
 .tab-name {
   margin: 0 0.3em;
   min-width: 0;
+  width: 100%;
 }
+
+.tab-bar {
+  width: 100%;
+}
+
 .active {
   .uk-button-primary;
 }
 
-@media only screen and (max-width: 50em) {
+@media only screen and (max-width: 30em) {
   .tab-name {
     display: none;
   }
@@ -32,12 +38,12 @@
 
 @media (prefers-color-scheme: dark) {
   .inactive {
-    background: rgb(34, 34, 34);
+    background: @button-dark;
   }
 }
 
 @media (prefers-color-scheme: light) {
   .inactive {
-    background: rgb(222, 222, 222);
+    background: @button-light;
   }
 }
