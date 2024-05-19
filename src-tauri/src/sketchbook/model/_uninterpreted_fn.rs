@@ -90,22 +90,19 @@ impl UninterpretedFn {
 
     /// Get highest index of a variable that is actually used in the function's expression.
     /// This number might be lower than function's actual arity.
-    fn get_highest_var_idx_in_expression(&self) -> usize {
+    fn get_highest_var_idx_in_expression(&self) -> Option<usize> {
         if let Some(tree) = &self.tree {
-            let highest_idx = tree
-                .collect_variables()
+            tree.collect_variables()
                 .iter()
                 .filter_map(|v| {
                     v.to_string()
                         .strip_prefix("var")
                         .and_then(|num_str| num_str.parse::<usize>().ok())
                 })
-                .max();
-            if let Some(idx) = highest_idx {
-                return idx;
-            }
+                .max()
+        } else {
+            None
         }
-        0
     }
 
     /// Change arity of this uninterpreted fn.
@@ -119,10 +116,11 @@ impl UninterpretedFn {
         if new_arity < arity {
             // if arity made smaller, check that the expression does not contain variables that
             // will be dropped
-            let highest_var_idx = self.get_highest_var_idx_in_expression();
-            if new_arity <= highest_var_idx {
-                let msg = "Cannot change arity of a function - its expression contains variables that would become invalid.";
-                return Err(msg.to_string());
+            if let Some(highest_var_idx) = self.get_highest_var_idx_in_expression() {
+                if new_arity <= highest_var_idx {
+                    let msg = "Cannot change arity of a function - its expression contains variables that would become invalid.";
+                    return Err(msg.to_string());
+                }
             }
             self.arguments.truncate(new_arity);
         } else {
