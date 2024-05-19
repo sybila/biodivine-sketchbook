@@ -27,7 +27,7 @@ export default class DynamicGeneric extends AbstractDynamicProperty {
                  this.valueUpdated((e.target as HTMLInputElement).value)
                }}">
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

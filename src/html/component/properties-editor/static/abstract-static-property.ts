@@ -43,7 +43,7 @@ export default class abstractStaticProperty extends AbstractProperty {
 
         </div>
         ${when(removeButton, () => html`
-          <button class="remove-property" @click="${this.removeProperty}">
+          <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
             ${icon(faTrash).node}
           </button>
         `)}

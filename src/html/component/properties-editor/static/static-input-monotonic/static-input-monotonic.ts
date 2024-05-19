@@ -59,7 +59,7 @@ export default class StaticInputMonotonic extends abstractStaticProperty {
         </div>
       </div>
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

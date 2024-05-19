@@ -264,28 +264,26 @@ export default class PropertiesEditor extends LitElement {
 
   async openAddDynamicPropertyMenu (): Promise<void> {
     this.addDynamicMenuVisible = true
-    void computePosition(this.addDynamicPropertyElement, this.dynamicPropertyMenuElement,
-      {
-        middleware: [flip()],
-        placement: 'bottom-end'
-      })
-      .then(({ x, y }) => {
+    computePosition(
+      this.addDynamicPropertyElement, 
+      this.dynamicPropertyMenuElement,
+      { middleware: [flip()], placement: 'bottom-end'}
+    ).then(({ x, y }) => {
         this.dynamicPropertyMenuElement.style.left = x + 'px'
         this.dynamicPropertyMenuElement.style.top = y + 'px'
       })
   }
 
-  async openAddStaticPropertyMenu (): Promise<void> {
+  async openAddStaticPropertyMenu (): Promise<void> {    
     this.addStaticMenuVisible = true
-    void computePosition(this.addStaticPropertyElement, this.staticPropertyMenuElement,
-      {
-        middleware: [flip()],
-        placement: 'bottom-end'
-      })
-      .then(({ x, y }) => {
+    computePosition(
+      this.addStaticPropertyElement, 
+      this.staticPropertyMenuElement,
+      { middleware: [flip()], placement: 'bottom-end' }
+    ).then(({ x, y }) => {
         this.staticPropertyMenuElement.style.left = x + 'px'
-        this.staticPropertyMenuElement.style.top = y + 'px'
-      })
+        this.staticPropertyMenuElement.style.top = y + 'px'        
+    })
   }
 
   itemClick (action: () => void): void {
@@ -293,7 +291,7 @@ export default class PropertiesEditor extends LitElement {
     action()
   }
 
-  closeMenu (event: Event): void {
+  closeMenu (event: Event): void {    
     if (!(event.composedPath()[0] as HTMLElement).matches('.add-dynamic-property')) {
       this.addDynamicMenuVisible = false
     }
@@ -337,12 +335,11 @@ export default class PropertiesEditor extends LitElement {
       <div class="container">
         <div class="property-list">
           <div class="section" id="functions">
-            <div class="header">
-              <div></div>
-              <h2 class="heading">Static</h2>
-              <button id="add-static-property-button" class="add-property add-static-property"
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Static</h3>
+              <button id="add-static-property-button" class="add-property add-static-property uk-button uk-button-small uk-button-primary"
                       @click="${this.openAddStaticPropertyMenu}">
-                Add ${icon(faAngleDown).node}
+                      + Add
               </button>
             </div>
             <div class="section-list">
@@ -386,12 +383,11 @@ export default class PropertiesEditor extends LitElement {
             </div>
           </div>
           <div class="section" id="variables">
-            <div class="header">
-              <div></div>
-              <h2 class="heading">Dynamic</h2>
-              <button id="add-dynamic-property-button" class="add-property add-dynamic-property"
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Dynamic</h3>
+              <button id="add-dynamic-property-button" class="add-property add-dynamic-property uk-button uk-button-small uk-button-primary"
                       @click="${this.openAddDynamicPropertyMenu}">
-                Add ${icon(faAngleDown).node}
+                + Add
               </button>
             </div>
             <div class="section-list">

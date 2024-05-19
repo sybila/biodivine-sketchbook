@@ -71,7 +71,7 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
         ${this.renderConditionField()}
       </div>
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }
