@@ -102,7 +102,7 @@ export default class StaticSelectorsProperty extends AbstractStaticProperty {
       <div class="uk-flex uk-flex-column uk-flex-left">
         <label class="condition-label">Context formula:</label>
         <div class="uk-flex uk-flex-row">
-          <input id="condition-field" class="condition-field" value="${this.property.context}"
+          <input id="condition-field" class="condition-field" .value="${this.property.context}"
                  @change="${(e: Event) => {
                    this.conditionChanged((e.target as HTMLInputElement).value)
                  }}"/>

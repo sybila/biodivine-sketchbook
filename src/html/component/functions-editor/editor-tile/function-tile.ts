@@ -145,7 +145,7 @@ export class FunctionTile extends EditorTile {
     return html`
       <div class="container uk-flex uk-flex-column uk-margin-small-bottom">
         <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="uk-input uk-text-center" value="${this.functions[this.index].id}"
+          <input id="name-field" class="uk-input uk-text-center" .value="${this.functions[this.index].id}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           
           <button class="uk-button uk-button-small uk-button-secondary" @click="${this.addVariable}">

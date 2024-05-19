@@ -326,7 +326,7 @@ export default class ObservationsEditor extends LitElement {
                         }
                       }}"
                       class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
-                      value="${dataset.id}"/></div>
+                      .value="${dataset.id}"/></div>
                 ${when(this.shownDatasets.includes(index), () => html`
                   <div class="content">
                     <observations-set
