@@ -256,9 +256,11 @@ export default class FloatMenu extends LitElement {
         buttons = []
         break
     }
+    // One button should be 48 pixels.
+    const menuWidth = 48 * buttons.length;
     return html`
       ${when(this.type !== ElementType.NONE, () => html`
-        <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
+        <div class="float-menu" style="left: ${this.position.x + 8 - (menuWidth/2) * this.zoom}px; 
                                        top: ${this.position.y + 8 + yOffset}px; 
                                        transform: scale(${this.zoom})">
           <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
@@ -268,14 +270,14 @@ export default class FloatMenu extends LitElement {
               return html`
                 <span class="float-button"
                       @mouseover=${() => {
-                        this.selectedButton = buttonData
+                        this.selectedButton = buttonData                       
                       }}
                       @mouseout=${() => {
                         this.selectedButton = undefined
                       }}
                       @click=${buttonData.click}>
                         ${icon}
-                    </span>
+                      </span>
               `
             })}
           </div>

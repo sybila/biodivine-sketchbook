@@ -37,7 +37,6 @@ export const edgeOptions = {
   // }
 }
 export const initOptions = (container: HTMLElement): CytoscapeOptions => {
-  const addBoxSvg = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#ffffff" d="M4 4h16v16H4z"/><path fill="#6a7ea5" d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
   return {
     wheelSensitivity: 0.5,
     container,
@@ -74,7 +73,8 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
           'border-width': '1px',
           'border-color': '#bbbbbb',
           'border-style': 'solid',
-          'padding-bottom': '12'
+          'padding-bottom': '12',
+          'width': 'label', 'height': 'label',
         }
       },
       { // When a node is highlighted by mouse, show it with a dashed blue border.
@@ -152,21 +152,6 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         selector: 'edge:selected',
         style: {
           'overlay-opacity': 0.1
-        }
-      },
-      { // Edge handles pseudo-node for adding
-        selector: '.eh-handle',
-        style: {
-          width: '32px',
-          height: '32px',
-          'background-opacity': 0,
-          'background-color': 'red',
-          'background-image': () => 'data:image/svg+xml;utf8,' + encodeURIComponent(addBoxSvg),
-          'background-width': '32px',
-          'background-height': '32px',
-          'overlay-opacity': 0,
-          'border-width': 0,
-          'border-opacity': 0
         }
       },
       { // Change ghost edge preview colors
