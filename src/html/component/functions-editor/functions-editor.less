@@ -23,6 +23,10 @@
   width: 50%;
 }
 
+/*
+  Header sticks to the top of the list.
+*/
+
 .header {
   .uk-flex;
   .uk-flex-row;
@@ -32,49 +36,22 @@
   padding: 0.5em 1em;
   position: sticky;
   top: 0;
-  background: @background-light;
   z-index: 99;
 }
 
-.heading {
-  .uk-margin-remove-top;
-}
-
-@media (prefers-color-scheme: dark) {
-  .header {
-    background: @background-dark;
-  }
-  .heading {
-    color: white;
-  }
-  .uk-button-secondary {
-    background: @button-dark;
-  }
-  .section + .section {
-    border-left: 1px solid @separator-dark;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .uk-button-secondary {
-    background: @button-light;
-  }
-
-  .section + .section {
-    border-left: 1px solid @separator-light;
-  }
+@heading-bullet-border: @text-dark;
+.header h3 {
+  color: @text-dark;
 }
 
 @container function-list (max-width: 52em) {
-  .section + .section {
-    border-left: none;
-  }
 
   .section {
     width: 100%;
     overflow: unset;
   }
 
+  /* Moves the functions list after the variable list if the width is too small. */
   .function-list {
     flex-direction: column;
     justify-content: unset;

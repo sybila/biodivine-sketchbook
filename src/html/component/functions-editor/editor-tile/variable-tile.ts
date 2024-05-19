@@ -148,14 +148,14 @@ export class VariableTile extends EditorTile {
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="uk-input uk-text-center" value="${this.variables[this.index].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="uk-button uk-button-small" @click="${this.focusVariable}">
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}
           </button>
-          <button class="uk-button uk-button-small" @click="${this.removeVariable}">
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>
         </div>
-        <span class="uk-align-left uk-text-left uk-margin-remove">Regulators:</span>
+        ${this.regulations.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Regulators:</span>` : ""}        
         ${map(this.regulations, (regulation) => html`
           <div
               class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap"
@@ -182,7 +182,7 @@ export class VariableTile extends EditorTile {
         <span class="uk-align-left uk-text-left uk-margin-remove">Update function:</span>
         <div id="function-editor"></div>
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

@@ -40,37 +40,3 @@
     width: 100vw;
   }
 }
-
-/* 
-  Show "separator" border lines around content panes.
-
-  In the final design, we probably want to do this in a way that is more 
-  visually pleasing. But for development purposes, this should do fine.
-*/
-
-@media (prefers-color-scheme: light) {
-  .content {
-    border-top: 1px solid @separator-light;
-  }
-
-  .content content-pane {
-    border-right: 1px solid @separator-light;
-  }
-  
-}
-
-@media (prefers-color-scheme: dark) {
-  .content {
-    border-top: 1px solid @separator-dark;
-  }
-
-  .content content-pane {
-    border-right: 1px solid @separator-dark;
-  }
-  
-}
-
-/* Don't show the separator for the last visible content pane. */
-.content :nth-last-child(1 of .visible) {
-  border: none;
-}

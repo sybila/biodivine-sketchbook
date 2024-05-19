@@ -4,7 +4,7 @@ import { map } from 'lit/directives/map.js'
 import { type IRegulationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faMagnifyingGlass, faTrash, faPlus, faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faTrash, faPlus, faAngleDown, faAngleUp, faClose } from '@fortawesome/free-solid-svg-icons'
 import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
@@ -12,7 +12,7 @@ import { EditorTile } from './editor-tile'
 import { functionDebounceTimer } from '../../../util/config'
 import { getEssentialityText, getMonotonicityClass } from '../../../util/utilities'
 
-library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp)
+library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp, faClose)
 
 @customElement('function-tile')
 export class FunctionTile extends EditorTile {
@@ -148,15 +148,15 @@ export class FunctionTile extends EditorTile {
           <input id="name-field" class="uk-input uk-text-center" value="${this.functions[this.index].id}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           
-          <button class="uk-button uk-button-small" @click="${this.addVariable}">
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.addVariable}">
             ${icon(faPlus).node}
           </button>
           
-          <button class="uk-button uk-button-small" @click="${this.removeVariable}">
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>
           
-          <button class="uk-button uk-button-small" @click="${this.toggleBody}">
+          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.toggleBody}">
             <div class="uk-flex uk-flex-column">
               <span class="var-count">${this.functions[this.index].variables.length}</span>
               ${(this.bodyVisible ? icon(faAngleUp) : icon(faAngleDown)).node}
@@ -168,10 +168,10 @@ export class FunctionTile extends EditorTile {
           ${map(this.functions[this.index].variables, (variable) => html`
             <div
                 class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
-              <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-text-center" @click="${() => {
+              <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-button-secondary" @click="${() => {
                 void this.removeRegulation(variable)
               }}">
-                ${icon(faTrash).node}
+                ${icon(faClose).node}
               </button>
               <div class="uk-width-1-6">${variable.source}</div>
               <div class="uk-width-1-6">${this.getRegulationSymbol(variable.essential, variable.monotonicity)}</div>
@@ -193,7 +193,7 @@ export class FunctionTile extends EditorTile {
           <div id="function-editor"></div>
         </div>
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }
