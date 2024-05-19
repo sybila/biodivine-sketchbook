@@ -26,6 +26,9 @@ export class RegulationsEditor extends LitElement {
   @state() menuZoom = 1.0
   @state() menuData: IRegulationData | IVariableData | undefined = undefined
   @state() drawMode = false
+  // The last visible width of the editor. Used to compensate
+  // the camera position if the width changes.
+  @state() renderedWidth = 0
 
   constructor () {
     super()
@@ -41,6 +44,23 @@ export class RegulationsEditor extends LitElement {
     })
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
+
+    new ResizeObserver(() => {
+      let currentWidth = this.editorElement.offsetWidth
+      if (currentWidth != 0 && currentWidth != this.renderedWidth) {        
+        if (this.renderedWidth == 0) {
+          // First render... we just save the value for later and let the user
+          // position the view however they want.
+          this.renderedWidth = currentWidth
+        } else {
+          // Re-rendering with a new width. We need to correct for
+          // the shift in perspective.
+          let correctionFactor = (currentWidth - this.renderedWidth) / 2
+          this.renderedWidth = currentWidth
+          this.cy?.panBy({ x: correctionFactor, y: 0 })
+        }
+      }
+    }).observe(this.editorElement)
   }
 
   connectedCallback (): void {
