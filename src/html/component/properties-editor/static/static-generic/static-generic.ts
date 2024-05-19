@@ -2,8 +2,6 @@ import { html, css, unsafeCSS, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-generic.less?inline'
 import { type IGenericStaticProperty } from '../../../../util/data-interfaces'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../../../util/config'
 import abstractStaticProperty from '../abstract-static-property'
@@ -23,21 +21,16 @@ export default class StaticGeneric extends abstractStaticProperty {
   render (): TemplateResult {
     return html`
       <div class="property-body">
-        <div class="uk-flex uk-flex-row">
-          <input id="name-field" class="name-field static-name-field" value="${this.property.name}" readonly />
-          <button class="remove-property" @click="${this.removeProperty}">
-            ${icon(faTrash).node}
-          </button>
-        </div>
+        ${this.renderNameplate()}
         <div class="uk-flex uk-flex-column uk-flex-left">
           <label class="value-label">Context formula:</label>
           <div class="uk-flex uk-flex-row">
-            <input id="value-editor" class="uk-input" value="${this.property.formula}"
+            <input id="value-editor" class="uk-input" .value="${this.property.formula}"
                    @input="${(e: Event) => { this.valueChanged((e.target as HTMLInputElement).value) }}"/>
           </div>
         </div>
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

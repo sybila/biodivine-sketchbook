@@ -26,6 +26,9 @@ export class RegulationsEditor extends LitElement {
   @state() menuZoom = 1.0
   @state() menuData: IRegulationData | IVariableData | undefined = undefined
   @state() drawMode = false
+  // The last visible width of the editor. Used to compensate
+  // the camera position if the width changes.
+  @state() renderedWidth = 0
 
   constructor () {
     super()
@@ -36,11 +39,28 @@ export class RegulationsEditor extends LitElement {
     this.addEventListener('rename-node', (e) => {
       void this.renameNodeDialog(e)
     })
-    this.addEventListener('focus-function', () => {
+    window.addEventListener('focus-function-field', () => {
       this.toggleMenu(ElementType.NONE)
     })
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
+
+    new ResizeObserver(() => {
+      const currentWidth = this.editorElement.offsetWidth
+      if (currentWidth !== 0 && currentWidth !== this.renderedWidth) {
+        if (this.renderedWidth === 0) {
+          // First render... we just save the value for later and let the user
+          // position the view however they want.
+          this.renderedWidth = currentWidth
+        } else {
+          // Re-rendering with a new width. We need to correct for
+          // the shift in perspective.
+          const correctionFactor = (currentWidth - this.renderedWidth) / 2
+          this.renderedWidth = currentWidth
+          this.cy?.panBy({ x: correctionFactor, y: 0 })
+        }
+      }
+    }).observe(this.editorElement)
   }
 
   connectedCallback (): void {
@@ -90,9 +110,15 @@ export class RegulationsEditor extends LitElement {
 
   render (): TemplateResult {
     return html`
-      ${this.editorElement}
-      <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
-                  .data=${this.menuData}></float-menu>
+      <div class="header uk-background-primary">
+        <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Regulations</h3>
+      </div>
+      <!-- Prepares a clean environment for the cytoscape element with a floating menu. -->
+      <div style="width: 100%; height: 100%; position: relative;">
+        ${this.editorElement}
+        <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
+                    .data=${this.menuData}></float-menu>
+      </div>
     `
   }
 
@@ -111,7 +137,10 @@ export class RegulationsEditor extends LitElement {
 
   private focusVariable (event: Event): void {
     const node = this.cy?.$id((event as CustomEvent).detail.id)
-    this.cy?.center(node)
+    // wait for the node to be rendered
+    setTimeout(() => {
+      this.cy?.center(node)
+    }, 150)
   }
 
   private highlightRegulation (event: Event): void {
@@ -147,6 +176,7 @@ export class RegulationsEditor extends LitElement {
         composed: true,
         bubbles: true
       }))
+      edge.remove()
     })
 
     this.cy.on('zoom', () => {

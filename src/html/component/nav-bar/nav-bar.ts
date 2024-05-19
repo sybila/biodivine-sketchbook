@@ -15,8 +15,8 @@ export default class NavBar extends LitElement {
   render (): TemplateResult {
     return html`
       <div class="nav-bar uk-container uk-container-expand uk-margin-remove uk-padding-remove-horizontal uk-flex-nowrap">
-        <nav class="uk-navbar-container uk-navbar-transparent uk-flex-nowrap">
-          <div class="gap uk-navbar uk-margin-small-top uk-flex-nowrap">
+        <nav class="uk-navbar-container uk-navbar-transparent uk-flex-nowrap uk-margin-left uk-margin-right">
+          <div class="gap uk-navbar uk-flex-nowrap">
             <div class="uk-navbar-left uk-flex-nowrap">
               <hamburger-menu></hamburger-menu>
               <tab-bar .tabs=${this.tabs}></tab-bar>
@@ -24,7 +24,7 @@ export default class NavBar extends LitElement {
 
             <div class="uk-navbar-right uk-flex-nowrap">
               <undo-redo></undo-redo>
-              <search-bar></search-bar>
+<!--              <search-bar></search-bar>-->
             </div>
 
           </div>

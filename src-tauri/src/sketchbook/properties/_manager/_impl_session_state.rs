@@ -2,7 +2,8 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{
-    DynPropertyData, DynPropertyDefaultData, StatPropertyData, StatPropertyDefaultData,
+    ChangeIdData, DynPropertyData, DynPropertyDefaultData, StatPropertyData,
+    StatPropertyDefaultData,
 };
 use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
@@ -40,12 +41,12 @@ impl SessionState for PropertyManager {
             }
             Some(&"static") => {
                 let at_path = &at_path[1..];
-                if Self::starts_with("add", at_path).is_some() {
-                    Self::assert_path_length(at_path, 1, component_name)?;
-                    self.event_add_static(event)
-                } else if Self::starts_with("add_default", at_path).is_some() {
+                if Self::starts_with("add_default", at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_default_static(event)
+                } else if Self::starts_with("add", at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    self.event_add_static(event)
                 } else {
                     Self::assert_path_length(at_path, 2, component_name)?;
                     let prop_id_str = at_path.first().unwrap();
@@ -116,8 +117,14 @@ impl PropertyManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
+        let mut prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
         let property = DynProperty::default(prop_data.variant);
+
+        // todo - currently this is a bit of a hot-fix for valid property ID generating (frontend now sends just ID "dynamic")
+        // todo - in future, whole default id generating needs to be made on backend
+        let prop_id = self.generate_dyn_property_id(&prop_data.id);
+        prop_data.id = prop_id.to_string();
+
         self.add_raw_dynamic_by_str(&prop_data.id, property)?;
         let prop_id = self.get_dyn_prop_id(&prop_data.id)?;
         let property = self.get_dyn_prop(&prop_id)?;
@@ -153,6 +160,22 @@ impl PropertyManager {
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let payload = prop_data.to_json_str();
             let reverse_event = mk_dyn_prop_event(&["add"], Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_id", at_path).is_some() {
+            // get the payload - string for "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if prop_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_dyn_id_by_str(prop_id.as_str(), new_id.as_str())?;
+            let id_change_data = ChangeIdData::new(prop_id.as_str(), new_id.as_str());
+            let state_change = mk_dyn_prop_state_change(&["set_id"], &id_change_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let payload = prop_id.as_str();
+            let reverse_event = mk_dyn_prop_event(&[new_id.as_str(), "set_id"], Some(payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_content", at_path).is_some() {
             // get the payload - json string encoding a new property data
@@ -204,8 +227,14 @@ impl PropertyManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
+        let mut prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
         let property = StatProperty::default(prop_data.variant);
+
+        // todo - currently this is a bit of a hot-fix for valid property ID generating (frontend now sends just ID "static")
+        // todo - in future, whole default id generating needs to be made on backend
+        let prop_id = self.generate_stat_property_id(&prop_data.id);
+        prop_data.id = prop_id.to_string();
+
         self.add_raw_static_by_str(&prop_data.id, property)?;
         let prop_id = self.get_stat_prop_id(&prop_data.id)?;
         let property = self.get_stat_prop(&prop_id)?;
@@ -241,6 +270,22 @@ impl PropertyManager {
             // prepare the reverse 'add' event (path has no ids, all info carried by payload)
             let payload = prop_data.to_json_str();
             let reverse_event = mk_stat_prop_event(&["add"], Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_id", at_path).is_some() {
+            // get the payload - string for "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if prop_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_stat_id_by_str(prop_id.as_str(), new_id.as_str())?;
+            let id_change_data = ChangeIdData::new(prop_id.as_str(), new_id.as_str());
+            let state_change = mk_stat_prop_state_change(&["set_id"], &id_change_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let payload = prop_id.as_str();
+            let reverse_event = mk_stat_prop_event(&[new_id.as_str(), "set_id"], Some(payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_content", at_path).is_some() {
             // get the payload - json string encoding a new property data

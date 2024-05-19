@@ -5,6 +5,7 @@ use crate::sketchbook::model::{
     LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
     UninterpretedFnIterator, UpdateFn, Variable, VariableIterator,
 };
+use std::collections::HashSet;
 
 use std::str::FromStr;
 
@@ -272,6 +273,20 @@ impl ModelState {
             "Variable with ID {var_id} does not exist in this model."
         ))?;
         Ok(update_fn.get_fn_expression())
+    }
+
+    /// Check whether variable is used in any update function's expressions.
+    /// This is important in case we want to safely delete it.
+    ///
+    /// We expect valid var id here.
+    pub fn is_var_contained_in_updates(&self, var_id: &VarId) -> bool {
+        // check that variable can be safely deleted (not contained in any update fn)
+        let mut vars_in_update_fns = HashSet::new();
+        for update_fn in self.update_fns.values() {
+            let tmp_var_set = update_fn.collect_variables();
+            vars_in_update_fns.extend(tmp_var_set);
+        }
+        vars_in_update_fns.contains(var_id)
     }
 
     /// Return an iterator over all variables (with IDs) of this model.

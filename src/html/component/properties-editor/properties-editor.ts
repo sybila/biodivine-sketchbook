@@ -20,9 +20,7 @@ import {
 } from '../../util/data-interfaces'
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
-import { aeonState } from '../../../aeon_events'
+import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_events'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -34,8 +32,6 @@ export default class PropertiesEditor extends LitElement {
   @query('#add-static-property-button') declare addStaticPropertyElement: HTMLElement
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
-  dynPropIndex = 0
-  statPropIndex = 0
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
@@ -94,10 +90,10 @@ export default class PropertiesEditor extends LitElement {
     aeonState.sketch.properties.dynamicContentChanged.addEventListener(this.#onDynamicChanged.bind(this))
     this.addEventListener('static-property-changed', this.changeStaticProperty)
     aeonState.sketch.properties.staticContentChanged.addEventListener(this.#onStaticChanged.bind(this))
-
     this.addEventListener('dynamic-property-id-changed', this.changeDynamicPropertyId)
-
+    aeonState.sketch.properties.dynamicIdChanged.addEventListener(this.#onDynamicIdChanged.bind(this))
     this.addEventListener('static-property-id-changed', this.changeStaticPropertyId)
+    aeonState.sketch.properties.staticIdChanged.addEventListener(this.#onStaticIdChanged.bind(this))
 
     // refresh-event listeners
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
@@ -109,9 +105,6 @@ export default class PropertiesEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    // index cannot get smaller, could cause problems with IDs
-    this.dynPropIndex = Math.max(this.contentData.dynamicProperties.length, this.dynPropIndex)
-    this.statPropIndex = Math.max(this.contentData.staticProperties.length, this.statPropIndex)
   }
 
   updateDynamicProperties (dynamicProperties: DynamicProperty[]): void {
@@ -135,39 +128,35 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
-    this.dynPropIndex = Math.max(refreshedDynamic.length, this.dynPropIndex)
     this.updateDynamicProperties(refreshedDynamic)
-    console.log(refreshedDynamic)
+    console.log('Refreshed ' + refreshedDynamic.length + ' properties.')
   }
 
   #onStaticRefreshed (refreshedStatic: StaticProperty[]): void {
-    this.statPropIndex = Math.max(refreshedStatic.length, this.dynPropIndex)
     this.updateStaticProperties(refreshedStatic)
-    console.log(refreshedStatic)
+    console.log('Refreshed ' + refreshedStatic.length + ' properties.')
   }
 
   addDynamicProperty (type: DynamicPropertyType): void {
-    const id = 'dynamic' + this.dynPropIndex++
+    const id = 'dynamic'
     aeonState.sketch.properties.addDefaultDynamic(id, type)
   }
 
   #onDynamicCreated (newDynamic: DynamicProperty): void {
     this.contentData.dynamicProperties.push(newDynamic)
-    this.dynPropIndex++
     this.updateDynamicProperties(this.contentData.dynamicProperties)
-    console.log(newDynamic)
+    console.log('Created: ' + newDynamic.id)
   }
 
   addStaticProperty (type: StaticPropertyType): void {
-    const id = 'static' + this.statPropIndex++
+    const id = 'static'
     aeonState.sketch.properties.addDefaultStatic(id, type)
   }
 
   #onStaticCreated (newStatic: StaticProperty): void {
     this.contentData.staticProperties.push(newStatic)
-    this.statPropIndex++
     this.updateStaticProperties(this.contentData.staticProperties)
-    console.log(newStatic)
+    console.log('Created: ' + newStatic.id)
   }
 
   changeDynamicProperty (event: Event): void {
@@ -181,12 +170,12 @@ export default class PropertiesEditor extends LitElement {
     if (index === -1) return
     const properties = [...this.contentData.dynamicProperties]
     properties[index] = changedProp
+    console.log('Changed: ' + changedProp.id)
     this.updateDynamicProperties(properties)
   }
 
   changeStaticProperty (event: Event): void {
     const detail = (event as CustomEvent).detail
-    console.log('property changed', detail.property)
     aeonState.sketch.properties.setStaticContent(detail.property.id, detail.property)
   }
 
@@ -196,12 +185,12 @@ export default class PropertiesEditor extends LitElement {
     if (index === -1) return
     const properties = [...this.contentData.staticProperties]
     properties[index] = changedProp
+    console.log('Changed: ' + changedProp.id)
     this.updateStaticProperties(properties)
   }
 
   removeDynamicProperty (event: Event): void {
     const id = (event as CustomEvent).detail.id
-    console.log('property removed', id)
     aeonState.sketch.properties.removeDynamic(id)
   }
 
@@ -210,13 +199,12 @@ export default class PropertiesEditor extends LitElement {
     const index = this.contentData.dynamicProperties.findIndex(prop => prop.id === id)
     if (index === -1) return
     const properties = [...this.contentData.dynamicProperties]
-    properties.splice(index, 1)
-    this.updateDynamicProperties(properties)
+    console.log('Removed: ' + removedProp.id)
+    this.updateDynamicProperties(properties.filter((p) => p.id !== removedProp.id))
   }
 
   removeStaticProperty (event: Event): void {
     const id = (event as CustomEvent).detail.id
-    console.log('property removed', id)
     aeonState.sketch.properties.removeStatic(id)
   }
 
@@ -225,44 +213,66 @@ export default class PropertiesEditor extends LitElement {
     const index = this.contentData.staticProperties.findIndex(prop => prop.id === id)
     if (index === -1) return
     const properties = [...this.contentData.staticProperties]
-    properties.splice(index, 1)
-    this.updateStaticProperties(properties)
+    console.log('Removed: ' + removedProp.id)
+    this.updateStaticProperties(properties.filter((p) => p.id !== removedProp.id))
   }
 
   changeDynamicPropertyId (event: Event): void {
     const detail = (event as CustomEvent).detail
-    console.log(detail.oldId, detail.newId)
+    aeonState.sketch.properties.setDynamicId(detail.oldId, detail.newId)
+  }
+
+  #onDynamicIdChanged (data: DynPropIdUpdateData): void {
+    console.log(data)
+    const index = this.contentData.dynamicProperties.findIndex(d => d.id === data.original_id)
+    if (index === -1) return
+    const properties = [...this.contentData.dynamicProperties]
+    properties[index] = {
+      ...properties[index],
+      id: data.new_id
+    }
+    this.updateDynamicProperties(properties)
   }
 
   changeStaticPropertyId (event: Event): void {
     const detail = (event as CustomEvent).detail
-    console.log(detail.oldId, detail.newId)
+    aeonState.sketch.properties.setStaticId(detail.oldId, detail.newId)
+  }
+
+  #onStaticIdChanged (data: StatPropIdUpdateData): void {
+    console.log(data)
+    const index = this.contentData.staticProperties.findIndex(d => d.id === data.original_id)
+    if (index === -1) return
+    const properties = [...this.contentData.staticProperties]
+    properties[index] = {
+      ...properties[index],
+      id: data.new_id
+    }
+    this.updateStaticProperties(properties)
   }
 
   async openAddDynamicPropertyMenu (): Promise<void> {
     this.addDynamicMenuVisible = true
-    void computePosition(this.addDynamicPropertyElement, this.dynamicPropertyMenuElement,
-      {
-        middleware: [flip()],
-        placement: 'bottom-end'
-      })
-      .then(({ x, y }) => {
-        this.dynamicPropertyMenuElement.style.left = x + 'px'
-        this.dynamicPropertyMenuElement.style.top = y + 'px'
-      })
+    void computePosition(
+      this.addDynamicPropertyElement,
+      this.dynamicPropertyMenuElement,
+      { middleware: [flip()], placement: 'bottom-end' }
+    ).then(({ x, y }) => {
+      this.dynamicPropertyMenuElement.style.left = x + 'px'
+      this.dynamicPropertyMenuElement.style.top = y + 'px'
+    })
   }
 
   async openAddStaticPropertyMenu (): Promise<void> {
     this.addStaticMenuVisible = true
-    void computePosition(this.addStaticPropertyElement, this.staticPropertyMenuElement,
-      {
-        middleware: [flip()],
-        placement: 'bottom-end'
-      })
-      .then(({ x, y }) => {
-        this.staticPropertyMenuElement.style.left = x + 'px'
-        this.staticPropertyMenuElement.style.top = y + 'px'
-      })
+    void computePosition(
+      this.addStaticPropertyElement,
+      this.staticPropertyMenuElement,
+      { middleware: [flip()], placement: 'bottom-end' }
+    ).then(({ x, y }) => {
+      this.staticPropertyMenuElement.style.left = x + 'px'
+      this.staticPropertyMenuElement.style.top = y + 'px'
+    })
   }
 
   itemClick (action: () => void): void {
@@ -314,14 +324,14 @@ export default class PropertiesEditor extends LitElement {
       <div class="container">
         <div class="property-list">
           <div class="section" id="functions">
-            <div class="header">
-              <div></div>
-              <h2 class="heading">Static</h2>
-              <button id="add-static-property-button" class="add-property add-static-property"
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Static</h3>
+              <button id="add-static-property-button" class="add-property add-static-property uk-button uk-button-small uk-button-primary"
                       @click="${this.openAddStaticPropertyMenu}">
-                Add ${icon(faAngleDown).node}
+                      + Add
               </button>
             </div>
+            ${this.contentData?.staticProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No static properties defined</span></div>` : ''}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
                 switch (prop.variant) {
@@ -331,6 +341,7 @@ export default class PropertiesEditor extends LitElement {
                                       .property=${prop}>
                       </static-generic>`
                   case StaticPropertyType.FunctionInputEssential:
+                  case StaticPropertyType.VariableRegulationEssential:
                     return html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
@@ -343,6 +354,7 @@ export default class PropertiesEditor extends LitElement {
                                                         .property=${prop}>
                       </static-input-essential-condition>`
                   case StaticPropertyType.FunctionInputMonotonic:
+                  case StaticPropertyType.VariableRegulationMonotonic:
                     return html`
                       <static-input-monotonic .index=${index}
                                               .property=${prop}>
@@ -361,14 +373,14 @@ export default class PropertiesEditor extends LitElement {
             </div>
           </div>
           <div class="section" id="variables">
-            <div class="header">
-              <div></div>
-              <h2 class="heading">Dynamic</h2>
-              <button id="add-dynamic-property-button" class="add-property add-dynamic-property"
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Dynamic</h3>
+              <button id="add-dynamic-property-button" class="add-property add-dynamic-property uk-button uk-button-small uk-button-primary"
                       @click="${this.openAddDynamicPropertyMenu}">
-                Add ${icon(faAngleDown).node}
+                + Add
               </button>
             </div>
+            ${this.contentData?.dynamicProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No dynamic properties defined</span></div>` : ''}
             <div class="section-list">
               ${map(this.contentData.dynamicProperties, (prop, index) => {
                 switch (prop.variant) {

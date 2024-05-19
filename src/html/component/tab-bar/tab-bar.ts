@@ -22,9 +22,9 @@ export default class TabBar extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="uk-button-group uk-flex uk-flex-row">
+      <div class="tab-bar uk-button-group uk-flex uk-flex-row">
         ${map(this.tabs, (tab) => html`
-            <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'active' : 'inactive'}" 
+            <button class="tab uk-button uk-padding-remove-vertical ${tab.active ? 'active uk-button-primary' : 'inactive uk-button-secondary'}" 
                     @click=${this.switchTab(tab.id)}>
                 ${tab.pinned ? icon(faLock).node : ''}
                 ${icon(findIconDefinition({ prefix: 'fas', iconName: `${tab.icon as IconName}` })).node}

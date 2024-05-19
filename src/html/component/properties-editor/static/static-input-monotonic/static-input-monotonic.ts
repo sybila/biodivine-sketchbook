@@ -49,9 +49,7 @@ export default class StaticInputMonotonic extends abstractStaticProperty {
             <div class="uk-margin-small-right">${this.getMonotonicitySymbol()}</div>
             <div class="uk-margin-small-right">${this.property.target}</div>
           </div>
-          <div class="value-symbol" @click="${() => {
-            this.toggleMonotonicity()
-          }}">
+          <div class="value-symbol">
             <span>(</span>
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
               ${this.property.value.toLowerCase()}
@@ -61,7 +59,7 @@ export default class StaticInputMonotonic extends abstractStaticProperty {
         </div>
       </div>
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

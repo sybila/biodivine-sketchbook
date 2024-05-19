@@ -37,22 +37,16 @@
   padding: 0.5em 1em;
   position: sticky;
   top: 0;
-  background: @background-light;
   z-index: 99;
 }
 
-.add-property {
-  .uk-button;
-  .uk-button-small;
-  .uk-button-primary;
-  right: -1em;
-  padding: 0 1em;
-  cursor: pointer;
+@heading-bullet-border: @text-dark;
+.header h3 {
+  color: @text-dark;
 }
 
-.heading {
-  .uk-text-center;
-  .uk-margin-remove-top;
+.add-property {
+  width: 5em;
 }
 
 .menu-content {
@@ -72,20 +66,6 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .header {
-    background: @background-dark;
-  }
-
-  .heading {
-    color: @text-dark;
-  }
-  .uk-button-secondary {
-    background: @button-dark;
-  }
-  .section + .section {
-    border-left: 1px solid white;
-  }
-
   .menu-content {
     background-color: @background-dark;
   }
@@ -100,14 +80,6 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .uk-button-secondary {
-    background: @button-light;
-  }
-
-  .section + .section {
-    border-left: 1px solid black;
-  }
-
   .menu-content {
     background-color: @background-light;
   }
@@ -118,10 +90,6 @@
 }
 
 @container property-list (max-width: 52em) {
-  .section + .section {
-    border-left: none;
-  }
-
   .section {
     width: 100%;
     overflow: unset;

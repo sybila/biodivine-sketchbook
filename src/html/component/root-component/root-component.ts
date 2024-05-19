@@ -58,7 +58,8 @@ export default class RootComponent extends LitElement {
 
     // model editor related event listeners
     this.addEventListener('load-dummy', () => { void this.loadDummy() })
-    this.addEventListener('focus-function', this.focusFunction)
+    window.addEventListener('focus-function-field', this.focusFunction.bind(this))
+    window.addEventListener('focus-variable', this.focusVariable.bind(this))
     this.addEventListener('add-variable', this.addVariable)
     aeonState.sketch.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
@@ -261,13 +262,12 @@ export default class RootComponent extends LitElement {
     }))
   }
 
-  private focusFunction (event: Event): void {
+  private focusFunction (): void {
     aeonState.tabBar.active.emitValue(1)
-    window.dispatchEvent(new CustomEvent('focus-function-field', {
-      detail: {
-        variableId: (event as CustomEvent).detail.variableId
-      }
-    }))
+  }
+
+  private focusVariable (): void {
+    aeonState.tabBar.active.emitValue(0)
   }
 
   private visibleTabs (): TabData[] {
@@ -362,6 +362,9 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(
       this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
+
+    // todo: this is a hack for now, to avoid issues in static prop removing after the regulation is removed
+    aeonState.sketch.properties.refreshStaticProps()
   }
 
   private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
@@ -512,13 +515,13 @@ export default class RootComponent extends LitElement {
     const visibleTabs = this.visibleTabs()
     return html`
       <div class="root-component">
-        <div class="header">
+        <div class="header uk-margin-small-top uk-margin-small-bottom">
           <nav-bar .tabs=${this.tabs}></nav-bar>
         </div>
         <div class="content">
           ${map(this.tabs, (tab) => html`
             <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
-                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
+                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'} ${(tab.active || tab.pinned) ? 'visible' : ''}" .tab=${tab}
                           .data=${this.data}></content-pane>
           `)}
         </div>

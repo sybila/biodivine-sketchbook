@@ -1,6 +1,6 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
-use crate::app::DynError;
+use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{ChangeIdData, LayoutNodeData, VariableData};
 use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::VarId;
@@ -36,6 +36,15 @@ impl ModelState {
 
         if Self::starts_with("remove", at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
+
+            // First step - check that variable can be safely deleted, i.e., it is not contained in
+            // any update function's expression.
+            // Note this check is performed also later by the manager, we just want to detect this ASAP.
+            if self.is_var_contained_in_updates(&var_id) {
+                return AeonError::throw(format!(
+                    "Cannot remove variable `{var_id}`, it is still contained in an update function."
+                ));
+            }
 
             // To remove a variable, all its regulations must be already removed, and it must be at default position
             // in each layout. If it is not the case, to ensure that we can undo this operation, we precede the var
@@ -118,7 +127,8 @@ impl ModelState {
             }
 
             // TODO: all changes to update functions (where this variable appears) must be
-            // TODO: propagated to the frontend
+            // TODO: propagated to the frontend -- for now, frontend just refreshes the content
+            // TODO: afterwards, but could probably be avoided...
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_id_by_str(var_id.as_str(), new_id.as_str())?;

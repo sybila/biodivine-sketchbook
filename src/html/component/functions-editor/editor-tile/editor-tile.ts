@@ -46,7 +46,7 @@ export abstract class EditorTile extends LitElement {
     this.aceEditor.container.style.lineHeight = '1.5em'
     this.aceEditor.container.style.fontSize = '1em'
     this.aceEditor.renderer.updateFontSize()
-    this.aceEditor.getSession().on('change', this.functionUpdated)
+    this.aceEditor.on('blur', this.functionUpdated)
     // @ts-expect-error $highlightRules exists but not defined in the d.ts file
     this.aceEditor.session.getMode().$highlightRules.setKeywords({ 'constant.language': objectList.map(v => v.id).join('|') })
     this.aceEditor.renderer.attachToShadowRoot()
@@ -57,9 +57,9 @@ export abstract class EditorTile extends LitElement {
       this.nameField.value = name
     }
     if (func !== this.aceEditor.getValue()) {
-      this.aceEditor.getSession().off('change', this.functionUpdated)
+      this.aceEditor.off('blur', this.functionUpdated)
       this.aceEditor.session.setValue(this.aceEditor.setValue(func, func.length - 1))
-      this.aceEditor.getSession().on('change', this.functionUpdated)
+      this.aceEditor.on('blur', this.functionUpdated)
     }
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {

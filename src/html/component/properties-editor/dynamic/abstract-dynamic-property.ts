@@ -32,15 +32,15 @@ export default class AbstractDynamicProperty extends AbstractProperty {
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
           <label class="uk-form-label" for="id-field">ID</label>
-          <input id="id-field" class="uk-input" value="${this.property.id}"
+          <input id="id-field" class="uk-input" .value="${this.property.id}"
                  @input="${(e: InputEvent) => this.idUpdated((e.target as HTMLInputElement).value)}"/>
         </div>
         <div class="uk-flex uk-flex-column name-section">
           <label class="uk-form-label" for="name-field">NAME</label>
-          <input id="name-field" class="name-field" value="${this.property.name}"
+          <input id="name-field" class="name-field" .value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
         </div>
-        <button class="remove-property" @click="${this.removeProperty}">
+        <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
           ${icon(faTrash).node}
         </button>
       </div>

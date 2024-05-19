@@ -147,7 +147,7 @@ export default class ObservationsEditor extends LitElement {
     const importDialog = new WebviewWindow(`editObservation${Math.floor(Math.random() * 1000000)}`, {
       url: 'src/html/component/observations-editor/observations-import/observations-import.html',
       title: 'Import observation set',
-      alwaysOnTop: true,
+      alwaysOnTop: false,
       maximizable: false,
       minimizable: false,
       skipTaskbar: true,
@@ -304,19 +304,18 @@ export default class ObservationsEditor extends LitElement {
   render (): TemplateResult {
     return html`
       <div class="observations">
-        <div class="header">
-          <div></div>
-          <h1 class="heading uk-heading-line uk-text-center">Observations</h1>
+        <div class="header uk-background-primary uk-margin-bottom">
+          <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Observations</h3>
           <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
         </div>
+        ${this.contentData?.observations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label">No observations loaded</span></div>` : ''}
         <div class="accordion-body">
-          <div class="accordion">
+          <div class="accordion uk-margin-small-left uk-margin-small-right">
             ${map(this.contentData.observations, (dataset, index) => html`
               <div class="container ${this.shownDatasets.includes(index) ? 'active' : ''}" id="${'container' + index}">
                 <div class="label" @click="${() => {
                   this.toggleDataset(index)
-                }}">
-                  <input
+                }}"><input
                       @input="${(e: InputEvent) => {
                         this.updateDatasetId((e.target as HTMLInputElement).value, index)
                       }}"
@@ -327,8 +326,7 @@ export default class ObservationsEditor extends LitElement {
                         }
                       }}"
                       class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
-                      value="${dataset.id}"/>
-                </div>
+                      .value="${dataset.id}"/></div>
                 ${when(this.shownDatasets.includes(index), () => html`
                   <div class="content">
                     <observations-set
@@ -337,7 +335,7 @@ export default class ObservationsEditor extends LitElement {
                   </div>
                 `)}
               </div>
-              <hr>
+              <hr class="uk-margin-bottom uk-margin-left uk-margin-right">
             `)}
           </div>
         </div>

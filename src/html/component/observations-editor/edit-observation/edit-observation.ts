@@ -52,7 +52,7 @@ export default class EditObservation extends LitElement {
             <div class="uk-margin-small">
               <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>
               <div class="uk-form-controls">
-                <input class="uk-input" value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="node-id" type="text" placeholder="${key}"/>
+                <input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="node-id" type="text" placeholder="${key}"/>
               </div>
             </div>`
             })}

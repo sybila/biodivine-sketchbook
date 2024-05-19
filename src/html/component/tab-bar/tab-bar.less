@@ -1,6 +1,15 @@
 @import '/src/uikit-theme';
 
-.svg-inline--fa {
+
+/* Uses the same lock size as in the lock button. */
+.fa-lock {
+  height: 1em;
+  width: 0.65em;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+.svg-inline--fa:not(.fa-lock) {
   min-height: 1em;
   height: 1em;
   min-width: 1.1em;
@@ -11,33 +20,27 @@
   padding: 0.5em;
   text-overflow: ellipsis;
   overflow: hidden;
-  //outline: #2f2f2f solid 2px;
-}
-.tab-name {
-  margin: 0 0.3em;
-  min-width: 0;
-}
-.active {
-  .uk-button-primary;
 }
 
-@media only screen and (max-width: 50em) {
+.tab-name {
+  margin: 0 0.3em;  
+  min-width: 0;
+  width: 100%;
+
+  /* Minor hack to nicely align the name with the icon(s). */
+  position: relative;
+  top: 0.15em;
+}
+
+.tab-bar {
+  width: 100%;
+}
+
+@media only screen and (max-width: 30em) {
   .tab-name {
     display: none;
   }
   .tab {
     padding: 1em;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .inactive {
-    background: rgb(34, 34, 34);
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .inactive {
-    background: rgb(222, 222, 222);
   }
 }

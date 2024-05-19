@@ -81,10 +81,8 @@ export class FunctionsEditor extends LitElement {
   }
 
   private focusedFunction (event: Event): void {
-    const variableId = (event as CustomEvent).detail.variableId
-    const element = this.shadowRoot?.querySelector(`#${variableId}`)
-    element?.dispatchEvent(new Event('focus-function-field'))
-    element?.scrollIntoView()
+    const id = (event as CustomEvent).detail.id
+    this.shadowRoot?.getElementById(id)?.scrollIntoView()
   }
 
   #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {
@@ -256,29 +254,12 @@ export class FunctionsEditor extends LitElement {
     return html`
       <div class="container">
         <div class="function-list">
-          <div class="section" id="functions">
-            <div class="header">
-              <div></div>
-              <h2 class="heading uk-text-center">Functions</h2>
-              <div class="uk-text-center uk-margin-small-bottom">
-                <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + </button>
-              </div>
-            </div>
-            <div class="uk-list uk-list-divider uk-text-center">
-              ${map(this.contentData.functions, (_node, index) => html`
-                <function-tile .index="${index}"
-                               .functions="${this.contentData.functions}">
-                </function-tile>
-              `)}
-            </div>
-          </div>
           <div class="section" id="variables">
-            <div class="header">
-              <div></div>
-              <h2 class="heading uk-text-center">Variables</h2>
-              <div></div>
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Variables</h3>
             </div>
-            <div class="uk-list uk-list-divider uk-text-center">
+            ${this.contentData?.variables.length === 0 ? html`<div class="uk-text-center"><span class="uk-label">No variables defined</span></div>` : ''}
+            <div class="uk-list uk-text-center">
               ${map(this.contentData?.variables, (node, index) => html`
                 <variable-tile id="${node.id}"
                                .index="${index}"
@@ -289,9 +270,24 @@ export class FunctionsEditor extends LitElement {
               `)}
             </div>
           </div>
+          <div class="section" id="functions">
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Functions</h3>
+              <div class="uk-text-center">
+                <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
+              </div>
+            </div>
+            ${this.contentData?.functions.length === 0 ? html`<div class="uk-text-center"><span class="uk-label">No functions defined</span></div>` : ''}
+            <div class="uk-list uk-text-center">              
+              ${map(this.contentData.functions, (_node, index) => html`
+                <function-tile .index="${index}"
+                               .functions="${this.contentData.functions}">
+                </function-tile>
+              `)}
+            </div>
+          </div>          
         </div> 
       </div>
-
     `
   }
 }

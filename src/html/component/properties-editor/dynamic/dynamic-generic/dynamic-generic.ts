@@ -22,12 +22,12 @@ export default class DynamicGeneric extends AbstractDynamicProperty {
     return html`
       <div class="property-body">
         ${this.renderNameplate()}
-        <input id="value-editor" class="uk-input" value="${this.property.formula}"
+        <input id="value-editor" class="uk-input" .value="${this.property.formula}"
                @input="${(e: Event) => {
                  this.valueUpdated((e.target as HTMLInputElement).value)
                }}">
       </div>
-      <hr>
+      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

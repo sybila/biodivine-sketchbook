@@ -8,8 +8,8 @@ import {
   faCalculator,
   faClone,
   faEye,
-  faEyeSlash,
   faEyeLowVision,
+  faEyeSlash,
   faPen,
   faPlus,
   faRightLeft,
@@ -24,6 +24,7 @@ import {
   type IVariableData,
   Monotonicity
 } from '../../../util/data-interfaces'
+import { when } from 'lit/directives/when.js'
 
 library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
 
@@ -31,7 +32,11 @@ library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, 
 export default class FloatMenu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() type = ElementType.NONE
-  @property() position: Position = { x: 0, y: 0 }
+  @property() position: Position = {
+    x: 0,
+    y: 0
+  }
+
   @property() zoom = 1.0
   @property() data: (IRegulationData & IVariableData) | undefined
   @state() selectedButton: IButton | undefined = undefined
@@ -52,7 +57,7 @@ export default class FloatMenu extends LitElement {
             this.addEdge()
             break
           case 'F':
-            this.focusRegulation()
+            this.focusFunction()
             break
           case 'DELETE':
             this.removeElement()
@@ -88,11 +93,11 @@ export default class FloatMenu extends LitElement {
     {
       icon: () => icon(faCalculator).node[0],
       label: () => 'Edit update function (F)',
-      click: this.focusRegulation
+      click: this.focusFunction
     },
     {
       icon: () => icon(faTrash).node[0],
-      label: () => 'Remove (⌫)',
+      label: () => 'Remove (DEL)',
       click: this.removeElement
     }
   ]
@@ -152,7 +157,7 @@ export default class FloatMenu extends LitElement {
     },
     {
       icon: () => icon(faTrash).node[0],
-      label: () => 'Remove (⌫)',
+      label: () => 'Remove (DEL)',
       click: this.removeElement
     }
   ]
@@ -227,13 +232,11 @@ export default class FloatMenu extends LitElement {
     }))
   }
 
-  private focusRegulation (): void {
-    this.dispatchEvent(new CustomEvent('focus-function', {
+  private focusFunction (): void {
+    window.dispatchEvent(new CustomEvent('focus-function-field', {
       detail: {
-        variableId: this.data?.id
-      },
-      bubbles: true,
-      composed: true
+        id: this.data?.id
+      }
     }))
   }
 
@@ -253,28 +256,34 @@ export default class FloatMenu extends LitElement {
         buttons = []
         break
     }
+    // One button should be 48 pixels.
+    const menuWidth = 48 * buttons.length
     return html`
-        ${this.type !== ElementType.NONE && html`
-        <div class="float-menu" style="left: ${this.position.x + 8 - 90 * this.zoom}px; 
-                                       top: ${this.position.y + 8 + yOffset}px; 
+      ${when(this.type !== ElementType.NONE, () => html`
+        <div class="float-menu" style="left: ${this.position.x - (menuWidth / 2) * this.zoom}px; 
+                                       top: ${this.position.y + yOffset}px; 
                                        transform: scale(${this.zoom})">
-            <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
-                ${map(buttons, (buttonData) => {
-                  const icon = buttonData.icon()
-                    icon.classList.add('menu-icon')
-                    return html`
-                    <span class="float-button"
-                         @mouseover=${() => { this.selectedButton = buttonData }} 
-                         @mouseout=${() => { this.selectedButton = undefined }} 
-                         @click=${buttonData.click}>
+          <div class="button-row uk-flex uk-flex-row" style="width: ${buttons.length * 2}em">
+            ${map(buttons, (buttonData) => {
+              const icon = buttonData.icon()
+              icon.classList.add('menu-icon')
+              return html`
+                <span class="float-button"
+                      @mouseover=${() => {
+                        this.selectedButton = buttonData
+                      }}
+                      @mouseout=${() => {
+                        this.selectedButton = undefined
+                      }}
+                      @click=${buttonData.click}>
                         ${icon}
-                    </span>
-                `
-})}
-            </div>
-            <span class="hint">${this.selectedButton?.label()}</span>
+                      </span>
+              `
+            })}
+          </div>
+          <span class="hint">${this.selectedButton?.label()}</span>
         </div>`
-        }
+      )}
     `
   }
 }

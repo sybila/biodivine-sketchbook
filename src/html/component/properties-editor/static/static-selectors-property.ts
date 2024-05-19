@@ -1,7 +1,5 @@
-import { type PropertyValues } from 'lit'
+import { html, type PropertyValues, type TemplateResult } from 'lit'
 import { property, query } from 'lit/decorators.js'
-import { debounce } from 'lodash'
-import { functionDebounceTimer } from '../../../util/config'
 import AbstractStaticProperty from './abstract-static-property'
 import {
   type ContentData,
@@ -12,18 +10,18 @@ import {
   StaticPropertyType
 } from '../../../util/data-interfaces'
 
-export default class StaticSelectors extends AbstractStaticProperty {
+export default class StaticSelectorsProperty extends AbstractStaticProperty {
   @property() declare contentData: ContentData
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty | IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
   @query('#target-selector') declare targetSelector: HTMLSelectElement
   @query('#input-selector') declare inputSelector: HTMLSelectElement
 
-  conditionChanged = debounce((context: string): void => {
+  conditionChanged (context: string): void {
     this.updateProperty({
       ...this.property,
       context
     })
-  }, functionDebounceTimer)
+  }
 
   private isFunctionInput (): boolean {
     return this.property.variant === StaticPropertyType.FunctionInputMonotonicWithCondition ||
@@ -97,5 +95,18 @@ export default class StaticSelectors extends AbstractStaticProperty {
     super.updated(_changedProperties)
     this.targetSelector.selectedIndex = this.getTargetSelectorItems().indexOf(this.property.target ?? '') + 1
     this.inputSelector.selectedIndex = this.getInputSelectorItems().indexOf(this.property.input ?? '') + 1
+  }
+
+  renderConditionField (): TemplateResult {
+    return html`
+      <div class="uk-flex uk-flex-column uk-flex-left">
+        <label class="condition-label">Context formula:</label>
+        <div class="uk-flex uk-flex-row">
+          <input id="condition-field" class="condition-field" .value="${this.property.context}"
+                 @change="${(e: Event) => {
+                   this.conditionChanged((e.target as HTMLInputElement).value)
+                 }}"/>
+        </div>
+      </div>`
   }
 }
