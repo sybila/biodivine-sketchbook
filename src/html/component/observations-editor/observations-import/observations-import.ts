@@ -3,11 +3,12 @@ import { when } from 'lit/directives/when.js'
 import { customElement, state } from 'lit/decorators.js'
 import style_less from './observations-import.less?inline'
 import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
-import { appWindow } from '@tauri-apps/api/window'
+import { appWindow, LogicalSize } from '@tauri-apps/api/window'
 import { type IObservation } from '../../../util/data-interfaces'
 import style_tab from '../tabulator-style.less?inline'
 import { type ColumnDefinition, Tabulator } from 'tabulator-tables'
 import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
+import { type } from '@tauri-apps/api/os';
 
 @customElement('observations-import')
 export default class ObservationsImport extends LitElement {
@@ -77,8 +78,10 @@ export default class ObservationsImport extends LitElement {
   render (): TemplateResult {
     return html`${when(this.loaded,
         () => html`
+          <div class="header uk-background-primary">
+            <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Select rows to be imported</h3>
+          </div>
           <div id="import-wrapper">
-            <h1 class="uk-margin-small-bottom">Select rows to be imported</h1>
             ${this.table}
             <div class="footer uk-flex-row uk-text-center uk-margin-small">
               <button class="uk-button uk-button-primary" 

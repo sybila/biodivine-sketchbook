@@ -33,7 +33,6 @@ export class RenameDialog extends LitElement {
       // See also: https://github.com/tauri-apps/tauri/issues/6333
       measured_height += 40
     }
-    console.log(measured_width, measured_height)
     await appWindow.setSize(new LogicalSize(measured_width, measured_height))
   }
 
