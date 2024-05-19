@@ -3,7 +3,7 @@ import { customElement, query } from 'lit/decorators.js'
 import style_less from './rename-dialog.less?inline'
 import { emit, type Event as TauriEvent, once } from '@tauri-apps/api/event'
 import { appWindow, LogicalSize } from '@tauri-apps/api/window'
-import { type } from '@tauri-apps/api/os';
+import { type } from '@tauri-apps/api/os'
 
 @customElement('rename-dialog')
 export class RenameDialog extends LitElement {
@@ -21,19 +21,19 @@ export class RenameDialog extends LitElement {
       if (this.nameField !== undefined) this.nameField.value = this.name
     })
     await emit('loaded', {})
-    this.variableIdField?.focus()    
-    let measured_width = document.querySelector('body')?.offsetWidth ?? 400
-    let measured_height = (document.querySelector('body')?.offsetHeight ?? 200)
-    if (await type() == 'Darwin') {
+    this.variableIdField?.focus()
+    const measuredWidth = document.querySelector('body')?.offsetWidth ?? 400
+    let measuredHeight = (document.querySelector('body')?.offsetHeight ?? 200)
+    if (await type() === 'Darwin') {
       // Currently, it seems that setSize includes the size of the title bar, but there
       // is no exact way to actually measure the title bar, so we just add 40 to the height.
-      // Furthermore, this seems to be a difference in how window size is treated 
+      // Furthermore, this seems to be a difference in how window size is treated
       // between macOS and Windows/Linux.
-      // 
+      //
       // See also: https://github.com/tauri-apps/tauri/issues/6333
-      measured_height += 40
+      measuredHeight += 40
     }
-    await appWindow.setSize(new LogicalSize(measured_width, measured_height))
+    await appWindow.setSize(new LogicalSize(measuredWidth, measuredHeight))
   }
 
   private async handleSubmit (event: Event): Promise<void> {

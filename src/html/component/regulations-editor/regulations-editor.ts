@@ -46,16 +46,16 @@ export class RegulationsEditor extends LitElement {
     this.editorElement.id = 'cytoscape-editor'
 
     new ResizeObserver(() => {
-      let currentWidth = this.editorElement.offsetWidth
-      if (currentWidth != 0 && currentWidth != this.renderedWidth) {        
-        if (this.renderedWidth == 0) {
+      const currentWidth = this.editorElement.offsetWidth
+      if (currentWidth !== 0 && currentWidth !== this.renderedWidth) {
+        if (this.renderedWidth === 0) {
           // First render... we just save the value for later and let the user
           // position the view however they want.
           this.renderedWidth = currentWidth
         } else {
           // Re-rendering with a new width. We need to correct for
           // the shift in perspective.
-          let correctionFactor = (currentWidth - this.renderedWidth) / 2
+          const correctionFactor = (currentWidth - this.renderedWidth) / 2
           this.renderedWidth = currentWidth
           this.cy?.panBy({ x: correctionFactor, y: 0 })
         }

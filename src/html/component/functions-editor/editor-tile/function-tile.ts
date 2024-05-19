@@ -164,7 +164,7 @@ export class FunctionTile extends EditorTile {
           </button>
         </div>
         <div class="functions-body" style="display: ${this.bodyVisible ? 'flex' : 'none'}">
-        ${this.functions[this.index].variables.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Regulators:</span>` : ""} 
+        ${this.functions[this.index].variables.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Regulators:</span>` : ''} 
           ${map(this.functions[this.index].variables, (variable) => html`
             <div
                 class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">

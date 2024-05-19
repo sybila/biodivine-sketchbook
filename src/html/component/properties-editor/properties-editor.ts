@@ -20,8 +20,6 @@ import {
 } from '../../util/data-interfaces'
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
-import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_events'
 
 @customElement('properties-editor')
@@ -264,25 +262,25 @@ export default class PropertiesEditor extends LitElement {
 
   async openAddDynamicPropertyMenu (): Promise<void> {
     this.addDynamicMenuVisible = true
-    computePosition(
-      this.addDynamicPropertyElement, 
+    void computePosition(
+      this.addDynamicPropertyElement,
       this.dynamicPropertyMenuElement,
-      { middleware: [flip()], placement: 'bottom-end'}
+      { middleware: [flip()], placement: 'bottom-end' }
     ).then(({ x, y }) => {
-        this.dynamicPropertyMenuElement.style.left = x + 'px'
-        this.dynamicPropertyMenuElement.style.top = y + 'px'
-      })
+      this.dynamicPropertyMenuElement.style.left = x + 'px'
+      this.dynamicPropertyMenuElement.style.top = y + 'px'
+    })
   }
 
-  async openAddStaticPropertyMenu (): Promise<void> {    
+  async openAddStaticPropertyMenu (): Promise<void> {
     this.addStaticMenuVisible = true
-    computePosition(
-      this.addStaticPropertyElement, 
+    void computePosition(
+      this.addStaticPropertyElement,
       this.staticPropertyMenuElement,
       { middleware: [flip()], placement: 'bottom-end' }
     ).then(({ x, y }) => {
-        this.staticPropertyMenuElement.style.left = x + 'px'
-        this.staticPropertyMenuElement.style.top = y + 'px'        
+      this.staticPropertyMenuElement.style.left = x + 'px'
+      this.staticPropertyMenuElement.style.top = y + 'px'
     })
   }
 
@@ -291,7 +289,7 @@ export default class PropertiesEditor extends LitElement {
     action()
   }
 
-  closeMenu (event: Event): void {    
+  closeMenu (event: Event): void {
     if (!(event.composedPath()[0] as HTMLElement).matches('.add-dynamic-property')) {
       this.addDynamicMenuVisible = false
     }

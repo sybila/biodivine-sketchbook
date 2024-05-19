@@ -308,7 +308,7 @@ export default class ObservationsEditor extends LitElement {
           <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Observations</h3>
           <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
         </div>
-        ${this.contentData?.observations.length == 0 ? html`<div class="uk-text-center"><span class="uk-label">No observations loaded</span></div>` : ""}
+        ${this.contentData?.observations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label">No observations loaded</span></div>` : ''}
         <div class="accordion-body">
           <div class="accordion uk-margin-small-left uk-margin-small-right">
             ${map(this.contentData.observations, (dataset, index) => html`

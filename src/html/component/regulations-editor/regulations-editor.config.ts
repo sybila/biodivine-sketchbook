@@ -74,7 +74,8 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
           'border-color': '#bbbbbb',
           'border-style': 'solid',
           'padding-bottom': '12',
-          'width': 'label', 'height': 'label',
+          width: 'label',
+          height: 'label'
         }
       },
       { // When a node is highlighted by mouse, show it with a dashed blue border.
