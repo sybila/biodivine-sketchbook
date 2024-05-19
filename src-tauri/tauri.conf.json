@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "aeon-sketchbook",
+    "productName": "AEON Sketchbook",
     "version": "0.0.0"
   },
   "tauri": {
@@ -50,9 +50,11 @@
         "label": "editor",
         "fullscreen": false,
         "resizable": true,
-        "title": "aeon-sketch-editor",
-        "width": 900,
-        "height": 600,
+        "title": "AEON Sketchbook",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
         "url": "src/html/sketch-editor.html"
       }
     ]
