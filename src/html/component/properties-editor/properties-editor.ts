@@ -331,6 +331,7 @@ export default class PropertiesEditor extends LitElement {
                       + Add
               </button>
             </div>
+            ${this.contentData?.staticProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No static properties defined</span></div>` : ''}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
                 switch (prop.variant) {
@@ -379,6 +380,7 @@ export default class PropertiesEditor extends LitElement {
                 + Add
               </button>
             </div>
+            ${this.contentData?.dynamicProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No dynamic properties defined</span></div>` : ''}
             <div class="section-list">
               ${map(this.contentData.dynamicProperties, (prop, index) => {
                 switch (prop.variant) {
