@@ -1,24 +1,35 @@
 @import '/src/uikit-theme';
 
+/* The height of the header based on the known theme settings. */
+@header-height: @button-line-height + (2 * @button-border-width);
+
 .root-component {
   height: 100%;
   display: contents;
   overflow: hidden;
-
 }
 
 .header {
-  height: 3em;
+  height: @header-height;
 }
 
 .content {
+  /*
+    Will cause the main content to wrap correctly into 
+    rows if available width is exceeded.
+  */
   display: flex;
   flex-direction: row;
+
+  /* 
+    The absolute positioning and 100% height are needed for the 
+    Cytoscape editor to function properly.
+  */
   position: absolute;
-  top: 3em;
-  bottom: 0;
-  width: 100%;
-  height: auto;
+  top: @header-height + (2 * @margin-small-margin);
+  left: 0;
+  right: 0;
+  bottom: 0;  
 }
 
 @media only screen and (max-width: 800px) {
@@ -28,4 +39,38 @@
   .active {
     width: 100vw;
   }
+}
+
+/* 
+  Show "separator" border lines around content panes.
+
+  In the final design, we probably want to do this in a way that is more 
+  visually pleasing. But for development purposes, this should do fine.
+*/
+
+@media (prefers-color-scheme: light) {
+  .content {
+    border-top: 1px solid @separator-light;
+  }
+
+  .content content-pane {
+    border-right: 1px solid @separator-light;
+  }
+  
+}
+
+@media (prefers-color-scheme: dark) {
+  .content {
+    border-top: 1px solid @separator-dark;
+  }
+
+  .content content-pane {
+    border-right: 1px solid @separator-dark;
+  }
+  
+}
+
+/* Don't show the separator for the last visible content pane. */
+.content :nth-last-child(1 of .visible) {
+  border: none;
 }

@@ -159,7 +159,7 @@ export default class Menu extends LitElement {
             </ul>
           `)}
       </div>
-      <button id="menu-button" class="menu-button" @click="${this.openMenu}">☰</button>      
+      <button id="menu-button" class="uk-button uk-button-small uk-button-secondary menu-button" @click="${this.openMenu}">☰</button>      
     `
   }
 }

@@ -515,13 +515,13 @@ export default class RootComponent extends LitElement {
     const visibleTabs = this.visibleTabs()
     return html`
       <div class="root-component">
-        <div class="header">
+        <div class="header uk-margin-small-top uk-margin-small-bottom">
           <nav-bar .tabs=${this.tabs}></nav-bar>
         </div>
         <div class="content">
           ${map(this.tabs, (tab) => html`
             <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
-                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'}" .tab=${tab}
+                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'} ${(tab.active || tab.pinned) ? 'visible' : ''}" .tab=${tab}
                           .data=${this.data}></content-pane>
           `)}
         </div>

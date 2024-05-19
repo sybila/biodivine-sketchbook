@@ -9,8 +9,13 @@
 @primary-color: #5282ee;
 @secondary-light: #dedede;
 @secondary-dark: #222222;
-@background-light: #f6f6f6;
+@background-light: #fafafa;
 @background-dark: #2f2f2f;
+@separator-light: darken(@secondary-light, 20%);
+@separator-dark: lighten(@secondary-dark, 20%);
+
+// Prevents weird on-hover button width changes inside a button group.
+@button-border-width: 0;
 @button-light: rgb(222, 222, 222);
 @button-dark: rgb(34, 34, 34);
 
@@ -42,13 +47,30 @@
   -webkit-text-size-adjust: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-  @text: @text-dark;
-  @button: @button-dark;
-
+@media (prefers-color-scheme: light) {
   :root {
+    .uk-dark;
+    background-color: @background-light;
+    border-top: 1px solid @separator-light;
+  }
+
+  .uk-button-secondary {
+    background-color: @button-light;
+    color: @text-light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  
+  :root {
+    .uk-light;
+    background-color: @background-dark;    
+    border-top: 1px solid @separator-dark;
+  }
+
+  .uk-button-secondary {
+    background-color: @button-dark;
     color: @text-dark;
-    background-color: @background-dark;
   }
 
   a:hover {

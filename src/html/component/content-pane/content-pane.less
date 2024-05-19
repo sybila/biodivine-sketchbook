@@ -1,7 +1,18 @@
 @import '/src/uikit-theme';
 
-.fa-lock, .fa-lock-open {
+/* 
+  Width is set such that the actual lock in the icon 
+  is roughly the same size when both closed and open.
+*/
+
+.fa-lock {
   height: 1em;
+  width: 0.65em;
+}
+
+.fa-lock-open {
+  height: 1em;
+  width: 0.85em;
 }
 
 .content-pane {
@@ -16,25 +27,6 @@
 .pin-button {
   position: absolute;
   z-index: 5;
-}
-
-
-@media (prefers-color-scheme: dark) {
-  .content-pane {
-    outline: white solid 1px;
-    background-color: @background-dark;
-  }
-  .uk-button {
-    background: rgb(34, 34, 34);
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .content-pane {
-    outline: gray solid 1px;
-    background: @background-light;
-  }
-  .uk-button {
-    background: rgb(222, 222, 222);
-  }
+  left: 0;
+  top: 0;
 }
