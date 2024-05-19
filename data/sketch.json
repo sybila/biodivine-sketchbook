@@ -233,15 +233,15 @@
         "nodes": [
           {
             "layout": "default",
-            "variable": "SBF",
-            "px": 281.0,
-            "py": 138.0
+            "variable": "SWI5",
+            "px": 47.0,
+            "py": 207.0
           },
           {
             "layout": "default",
-            "variable": "CLN3",
-            "px": 128.0,
-            "py": 68.0
+            "variable": "SBF",
+            "px": 281.0,
+            "py": 138.0
           },
           {
             "layout": "default",
@@ -257,15 +257,15 @@
           },
           {
             "layout": "default",
-            "variable": "SWI5",
-            "px": 47.0,
-            "py": 207.0
+            "variable": "MBF",
+            "px": 219.0,
+            "py": 96.0
           },
           {
             "layout": "default",
-            "variable": "HCM1",
-            "px": 305.0,
-            "py": 217.0
+            "variable": "CLN3",
+            "px": 128.0,
+            "py": 68.0
           },
           {
             "layout": "default",
@@ -281,9 +281,9 @@
           },
           {
             "layout": "default",
-            "variable": "MBF",
-            "px": 219.0,
-            "py": 96.0
+            "variable": "HCM1",
+            "px": 305.0,
+            "py": 217.0
           }
         ]
       }
@@ -347,13 +347,20 @@
   ],
   "dyn_properties": [
     {
-      "id": "dynamic0",
+      "id": "dynamic_0",
       "name": "Generic dynamic property",
       "variant": "GenericDynProp",
       "formula": "true"
     },
     {
-      "id": "dynamic2",
+      "id": "dynamic",
+      "name": "Attractor count",
+      "variant": "AttractorCount",
+      "minimal": 3,
+      "maximal": 3
+    },
+    {
+      "id": "dynamic_1",
       "name": "Trap-space property",
       "variant": "ExistsTrapSpace",
       "dataset": "dataset0",
@@ -364,219 +371,30 @@
   ],
   "stat_properties": [
     {
-      "id": "monotonicity_CLN3_MBF",
+      "id": "monotonicity_MBF_YHP1",
       "name": "Regulation monotonicity property",
       "variant": "RegulationMonotonic",
-      "input": "CLN3",
-      "target": "MBF",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_YHP1_SBF",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "YHP1",
-      "target": "SBF",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_SBF_HCM1",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "SBF",
-      "target": "HCM1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SBF_HCM1",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "SBF",
-      "target": "HCM1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SBF_SFF",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "SBF",
-      "target": "SFF",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SBF_YHP1",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "SBF",
+      "input": "MBF",
       "target": "YHP1",
       "value": "Activation",
       "context": null
     },
     {
-      "id": "essentiality_SWI5_CLN3",
+      "id": "essentiality_SFF_SWI5",
       "name": "Regulation essentiality property",
       "variant": "RegulationEssential",
-      "input": "SWI5",
-      "target": "CLN3",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_YHP1_CLN3",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "YHP1",
-      "target": "CLN3",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_YOX1_SBF",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "YOX1",
-      "target": "SBF",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_MBF_HCM1",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "MBF",
-      "target": "HCM1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SBF_YOX1",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "SBF",
-      "target": "YOX1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_YHP1_CLN3",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "YHP1",
-      "target": "CLN3",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_SBF_YOX1",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "SBF",
-      "target": "YOX1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_YOX1_CLN3",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "YOX1",
-      "target": "CLN3",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_YOX1_SBF",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "YOX1",
-      "target": "SBF",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_CLN3_MBF",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "CLN3",
-      "target": "MBF",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_MBF_SBF",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "MBF",
-      "target": "SBF",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SWI5_CLN3",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "SWI5",
-      "target": "CLN3",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_SBF_YHP1",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "SBF",
-      "target": "YHP1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SFF_ACE2",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
       "input": "SFF",
-      "target": "ACE2",
-      "value": "Activation",
+      "target": "SWI5",
+      "value": "True",
       "context": null
     },
     {
-      "id": "monotonicity_HCM1_SFF",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "HCM1",
-      "target": "SFF",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_MBF_SBF",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
+      "id": "essentiality_MBF_YHP1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
       "input": "MBF",
-      "target": "SBF",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_ACE2_CLN3",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "ACE2",
-      "target": "CLN3",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_MBF_YOX1",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "MBF",
-      "target": "YOX1",
-      "value": "Activation",
+      "target": "YHP1",
+      "value": "True",
       "context": null
     },
     {
@@ -589,65 +407,11 @@
       "context": null
     },
     {
-      "id": "essentiality_ACE2_CLN3",
+      "id": "essentiality_SWI5_CLN3",
       "name": "Regulation essentiality property",
       "variant": "RegulationEssential",
-      "input": "ACE2",
+      "input": "SWI5",
       "target": "CLN3",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_SFF_ACE2",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "SFF",
-      "target": "ACE2",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_MBF_YHP1",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "MBF",
-      "target": "YHP1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_MBF_YOX1",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "MBF",
-      "target": "YOX1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_HCM1_SFF",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "HCM1",
-      "target": "SFF",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_CLN3_SBF",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "CLN3",
-      "target": "SBF",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_YHP1_SBF",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "YHP1",
-      "target": "SBF",
       "value": "True",
       "context": null
     },
@@ -661,11 +425,74 @@
       "context": null
     },
     {
+      "id": "essentiality_MBF_YOX1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "MBF",
+      "target": "YOX1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_YOX1_SBF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "YOX1",
+      "target": "SBF",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_YHP1_CLN3",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "YHP1",
+      "target": "CLN3",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_HCM1_SFF",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "HCM1",
+      "target": "SFF",
+      "value": "True",
+      "context": null
+    },
+    {
       "id": "essentiality_CLN3_SBF",
       "name": "Regulation essentiality property",
       "variant": "RegulationEssential",
       "input": "CLN3",
       "target": "SBF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_YHP1_SBF",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "YHP1",
+      "target": "SBF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SBF_HCM1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SBF",
+      "target": "HCM1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_YHP1_CLN3",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "YHP1",
+      "target": "CLN3",
       "value": "True",
       "context": null
     },
@@ -679,12 +506,138 @@
       "context": null
     },
     {
-      "id": "essentiality_SFF_SWI5",
+      "id": "monotonicity_SWI5_CLN3",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SWI5",
+      "target": "CLN3",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_HCM1_SFF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "HCM1",
+      "target": "SFF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_SBF_YHP1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "SBF",
+      "target": "YHP1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_ACE2_CLN3",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "ACE2",
+      "target": "CLN3",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SFF_ACE2",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SFF",
+      "target": "ACE2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_YHP1_SBF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "YHP1",
+      "target": "SBF",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_MBF_SBF",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "MBF",
+      "target": "SBF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_YOX1_SBF",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "YOX1",
+      "target": "SBF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_MBF_YOX1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "MBF",
+      "target": "YOX1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_SBF_YOX1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "SBF",
+      "target": "YOX1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CLN3_SBF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "CLN3",
+      "target": "SBF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_MBF_SBF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "MBF",
+      "target": "SBF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SBF_YOX1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SBF",
+      "target": "YOX1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_SFF_ACE2",
       "name": "Regulation essentiality property",
       "variant": "RegulationEssential",
       "input": "SFF",
-      "target": "SWI5",
+      "target": "ACE2",
       "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SBF_SFF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SBF",
+      "target": "SFF",
+      "value": "Activation",
       "context": null
     },
     {
@@ -697,11 +650,65 @@
       "context": null
     },
     {
-      "id": "essentiality_MBF_YHP1",
+      "id": "monotonicity_SBF_YHP1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SBF",
+      "target": "YHP1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_YOX1_CLN3",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "YOX1",
+      "target": "CLN3",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ACE2_CLN3",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "ACE2",
+      "target": "CLN3",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CLN3_MBF",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "CLN3",
+      "target": "MBF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_SBF_HCM1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "SBF",
+      "target": "HCM1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_CLN3_MBF",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "CLN3",
+      "target": "MBF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_MBF_HCM1",
       "name": "Regulation essentiality property",
       "variant": "RegulationEssential",
       "input": "MBF",
-      "target": "YHP1",
+      "target": "HCM1",
       "value": "True",
       "context": null
     }

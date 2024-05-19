@@ -32,8 +32,6 @@ export default class PropertiesEditor extends LitElement {
   @query('#add-static-property-button') declare addStaticPropertyElement: HTMLElement
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
-  dynPropIndex = 0
-  statPropIndex = 0
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
@@ -107,9 +105,6 @@ export default class PropertiesEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    // index cannot get smaller, could cause problems with IDs
-    this.dynPropIndex = Math.max(this.contentData.dynamicProperties.length, this.dynPropIndex)
-    this.statPropIndex = Math.max(this.contentData.staticProperties.length, this.statPropIndex)
   }
 
   updateDynamicProperties (dynamicProperties: DynamicProperty[]): void {
@@ -133,37 +128,33 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {
-    this.dynPropIndex = Math.max(refreshedDynamic.length, this.dynPropIndex)
     this.updateDynamicProperties(refreshedDynamic)
     console.log('Refreshed ' + refreshedDynamic.length + ' properties.')
   }
 
   #onStaticRefreshed (refreshedStatic: StaticProperty[]): void {
-    this.statPropIndex = Math.max(refreshedStatic.length, this.dynPropIndex)
     this.updateStaticProperties(refreshedStatic)
     console.log('Refreshed ' + refreshedStatic.length + ' properties.')
   }
 
   addDynamicProperty (type: DynamicPropertyType): void {
-    const id = 'dynamic' + this.dynPropIndex++
+    const id = 'dynamic'
     aeonState.sketch.properties.addDefaultDynamic(id, type)
   }
 
   #onDynamicCreated (newDynamic: DynamicProperty): void {
     this.contentData.dynamicProperties.push(newDynamic)
-    this.dynPropIndex++
     this.updateDynamicProperties(this.contentData.dynamicProperties)
     console.log('Created: ' + newDynamic.id)
   }
 
   addStaticProperty (type: StaticPropertyType): void {
-    const id = 'static' + this.statPropIndex++
+    const id = 'static'
     aeonState.sketch.properties.addDefaultStatic(id, type)
   }
 
   #onStaticCreated (newStatic: StaticProperty): void {
     this.contentData.staticProperties.push(newStatic)
-    this.statPropIndex++
     this.updateStaticProperties(this.contentData.staticProperties)
     console.log('Created: ' + newStatic.id)
   }

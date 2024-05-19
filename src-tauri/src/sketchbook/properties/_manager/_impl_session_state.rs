@@ -117,8 +117,14 @@ impl PropertyManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
+        let mut prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
         let property = DynProperty::default(prop_data.variant);
+
+        // todo - currently this is a bit of a hot-fix for valid property ID generating (frontend now sends just ID "dynamic")
+        // todo - in future, whole default id generating needs to be made on backend
+        let prop_id = self.generate_dyn_property_id(&prop_data.id);
+        prop_data.id = prop_id.to_string();
+
         self.add_raw_dynamic_by_str(&prop_data.id, property)?;
         let prop_id = self.get_dyn_prop_id(&prop_data.id)?;
         let property = self.get_dyn_prop(&prop_id)?;
@@ -221,8 +227,14 @@ impl PropertyManager {
 
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
-        let prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
+        let mut prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
         let property = StatProperty::default(prop_data.variant);
+
+        // todo - currently this is a bit of a hot-fix for valid property ID generating (frontend now sends just ID "static")
+        // todo - in future, whole default id generating needs to be made on backend
+        let prop_id = self.generate_stat_property_id(&prop_data.id);
+        prop_data.id = prop_id.to_string();
+
         self.add_raw_static_by_str(&prop_data.id, property)?;
         let prop_id = self.get_stat_prop_id(&prop_data.id)?;
         let property = self.get_stat_prop(&prop_id)?;
