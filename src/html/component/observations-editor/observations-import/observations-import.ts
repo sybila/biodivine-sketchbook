@@ -67,9 +67,6 @@ export default class ObservationsImport extends LitElement {
   private async handleSubmit (event: Event): Promise<void> {
     event.preventDefault()
     this.submitDisabled = true
-    for (const column of this.tabulator?.getColumns() ?? []) {
-      if (!column.isVisible()) { console.log(column); await column.delete() }
-    }
     await emit('observations_import_dialog', this.tabulator?.getSelectedData())
     await appWindow.close()
   }
