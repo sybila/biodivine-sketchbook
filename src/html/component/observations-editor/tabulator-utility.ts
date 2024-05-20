@@ -47,7 +47,7 @@ export const nameColumn: ColumnDefinition = {
 
 export const tabulatorOptions: Options = {
   layout: 'fitData',
-  resizableColumnFit: true,
+  // resizableColumnFit: true,
   pagination: true,
   renderVerticalBuffer: 300,
   sortMode: 'local',

@@ -128,8 +128,7 @@ export class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
 
-    // start attribute wrongly typed - added weird typecast to avoid tslint error
-    this.edgeHandles?.start((this.cy?.$id(variableId) as unknown as string))
+    this.edgeHandles?.start(this.cy?.$id(variableId))
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error renderer exists but its missing from the *.d.ts file
     this.cy.renderer().hoverData.capture = true
