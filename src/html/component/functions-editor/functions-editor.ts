@@ -258,7 +258,7 @@ export class FunctionsEditor extends LitElement {
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Variables</h3>
             </div>
-            ${this.contentData?.variables.length === 0 ? html`<div class="uk-text-center"><span class="uk-label">No variables defined</span></div>` : ''}
+            ${this.contentData?.variables.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No variables defined</span></div>` : ''}
             <div class="uk-list uk-text-center">
               ${map(this.contentData?.variables, (node, index) => html`
                 <variable-tile id="${node.id}"
@@ -277,7 +277,7 @@ export class FunctionsEditor extends LitElement {
                 <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
               </div>
             </div>
-            ${this.contentData?.functions.length === 0 ? html`<div class="uk-text-center"><span class="uk-label">No functions defined</span></div>` : ''}
+            ${this.contentData?.functions.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No functions defined</span></div>` : ''}
             <div class="uk-list uk-text-center">              
               ${map(this.contentData.functions, (_node, index) => html`
                 <function-tile .index="${index}"
