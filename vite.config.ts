@@ -44,7 +44,10 @@ export default defineConfig(async () => ({
       input: {
         signpost: resolve(__dirname, 'src/html/signpost.html'),
         sketch_editor: resolve(__dirname, 'src/html/sketch-editor.html'),
-        state_space_explorer: resolve(__dirname, 'src/html/state-space-explorer.html')
+        state_space_explorer: resolve(__dirname, 'src/html/state-space-explorer.html'),
+        edit_node_dialog: resolve(__dirname, 'src/html/component/regulations-editor/rename-dialog/rename-dialog.html'),
+        import_observation_dialog: resolve(__dirname, 'src/html/component/observations-editor/observations-import/observations-import.html'),
+        edit_observation_dialog: resolve(__dirname, 'src/html/component/observations-editor/edit-observation/edit-observation.html')
       }
     }
   },
