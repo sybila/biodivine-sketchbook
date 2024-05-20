@@ -148,11 +148,11 @@ export class FunctionTile extends EditorTile {
           <input id="name-field" class="uk-input uk-text-center" .value="${this.functions[this.index].id}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.addVariable}">
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.addVariable}">
             ${icon(faPlus).node}
           </button>
           
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>
           

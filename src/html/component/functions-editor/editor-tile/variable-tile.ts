@@ -148,10 +148,10 @@ export class VariableTile extends EditorTile {
         <div class="uk-flex uk-flex-row">
           <input id="name-field" class="uk-input uk-text-center" .value="${this.variables[this.index].name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.focusVariable}">
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}
           </button>
-          <button class="uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>
         </div>
