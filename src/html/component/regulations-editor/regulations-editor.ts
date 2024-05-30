@@ -7,7 +7,7 @@ import edgeHandles, { type EdgeHandlesInstance } from 'cytoscape-edgehandles'
 import dblclick from 'cytoscape-dblclick'
 import './float-menu/float-menu'
 import { edgeOptions, initOptions } from './regulations-editor.config'
-import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
+import { appWindow, WebviewWindow, getAll } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 
@@ -61,6 +61,30 @@ export class RegulationsEditor extends LitElement {
         }
       }
     }).observe(this.editorElement)
+
+    // Open import dialog immediately once loaded. Just for debugging (hence not pretty :)).
+    appWindow.outerPosition().then((pos) => {
+      appWindow.outerSize().then((size) => {
+        let has_dialog = false;
+        for (let w of getAll()) {
+          if (w.label == "importRegulations") {
+            has_dialog = true;
+          }
+        }
+        if (!has_dialog) {
+          new WebviewWindow(`importRegulations`, {
+            url: 'src/html/component/regulations-editor/regulations-import/regulations-import.html',
+            title: 'Import regulations',
+            alwaysOnTop: false,
+            maximizable: false,
+            minimizable: false,
+            skipTaskbar: true,
+            x: pos.x + (size.width / 2) - 200,
+            y: pos.y + size.height / 4
+          })
+        }        
+      })
+    })
   }
 
   connectedCallback (): void {
