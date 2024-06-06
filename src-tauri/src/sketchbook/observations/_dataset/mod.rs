@@ -35,3 +35,10 @@ impl<'de> JsonSerde<'de> for Dataset {}
 // We give `Manager` trait to Dataset as it simplifies many things.
 // It really behaves like a manager class, but is slightly different than the other ones.
 impl Manager for Dataset {}
+
+impl Default for Dataset {
+    /// Default dataset instance with no Variables, Observations, of an unspecified type.
+    fn default() -> Dataset {
+        Dataset::new_empty(Vec::new(), DataCategory::Unspecified).unwrap()
+    }
+}

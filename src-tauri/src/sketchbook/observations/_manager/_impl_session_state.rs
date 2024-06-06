@@ -2,13 +2,13 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::{
-    ChangeIdData, DatasetData, DatasetLoadData, DatasetMetaData, ObservationData,
+    ChangeIdData, DatasetData, DatasetMetaData, ObservationData,
 };
 use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_obs_event, mk_obs_state_change,
 };
 use crate::sketchbook::ids::{DatasetId, ObservationId};
-use crate::sketchbook::observations::{DataCategory, ObservationManager};
+use crate::sketchbook::observations::{DataCategory, Dataset, ObservationManager};
 use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for ObservationManager {}
@@ -21,7 +21,10 @@ impl SessionState for ObservationManager {
         // when adding new dataset, the `at_path` is just ["add"]
         // when editing existing dataset, the `at_path` is ["dataset_id", ...]
 
-        if Self::starts_with("add", at_path).is_some() {
+        if Self::starts_with("add_default", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_default_dataset(event)
+        } else if Self::starts_with("add", at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_dataset(event)
         } else if Self::starts_with("load", at_path).is_some() {
@@ -103,16 +106,36 @@ impl ObservationManager {
         Ok(make_reversible(event.clone(), event, reverse_event))
     }
 
+    /// Perform event of adding a new DEFAULT (empty) `dataset` to this `ObservationsManager`.
+    pub(super) fn event_add_default_dataset(
+        &mut self,
+        event: &Event,
+    ) -> Result<Consumed, DynError> {
+        let component_name = "observations";
+        Self::assert_payload_empty(event, component_name)?;
+
+        let dataset = Dataset::default();
+        let dataset_id = self.generate_dataset_id("dataset");
+        let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
+
+        self.add_dataset(dataset_id, dataset)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let state_change = mk_obs_state_change(&["add"], &dataset_data);
+        let reverse_event = mk_obs_event(&[&dataset_data.id, "remove"], None);
+        Ok(make_reversible(state_change, event, reverse_event))
+    }
+
     /// Perform event of loading (and adding) new `dataset` to this `ObservationManager`.
     pub(super) fn event_load_dataset(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "observations";
 
-        // get the payload - object with a path to a csv file with dataset, and with ID
-        let payload = Self::clone_payload_str(event, component_name)?;
-        let load_data = DatasetLoadData::from_json_str(&payload)?;
-        // load and add the dataset
-        let dataset = Self::load_dataset(&load_data.path)?;
-        let dataset_id = DatasetId::new(&load_data.id)?;
+        // get the payload - a path to a csv file with dataset
+        let file_path = Self::clone_payload_str(event, component_name)?;
+
+        // load the dataset, generate new ID, and add it
+        let dataset = Self::load_dataset(&file_path)?;
+        let dataset_id = self.generate_dataset_id("dataset");
         let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
         self.add_dataset_by_str(&dataset_data.id, dataset)?;
 

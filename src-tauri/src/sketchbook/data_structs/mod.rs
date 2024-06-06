@@ -26,7 +26,7 @@ mod _uninterpreted_fn_data;
 /// **(internal)** Definition and utility methods for `VariableData`.
 mod _variable_data;
 
-pub use _dataset_data::{DatasetData, DatasetLoadData, DatasetMetaData};
+pub use _dataset_data::{DatasetData, DatasetMetaData};
 pub use _dynamic_prop_data::DynPropertyData;
 pub use _fn_arg_change_data::{ChangeArgEssentialData, ChangeArgMonotoneData};
 pub use _id_change_data::ChangeIdData;

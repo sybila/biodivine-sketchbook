@@ -218,11 +218,13 @@ interface AeonState {
       datasetCreated: Observable<DatasetData>
       /** Create a new dataset with given ID, variables, observations, and category. */
       addDataset: (id: string, variables: string[], observations: ObservationData[], category: DataCategory) => void
+      /** Create a new empty dataset of unspecified category. */
+      addDefaultDataset: () => void
       /** DatasetData for a newly loaded dataset (from a csv file).
        *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
       datasetLoaded: Observable<DatasetData>
-      /** Load a new dataset with a given ID from a CSV file. */
-      loadDataset: (path: string, id: string) => void
+      /** Load a new dataset from a CSV file. */
+      loadDataset: (path: string) => void
       /** DatasetData of a removed dataset. */
       datasetRemoved: Observable<DatasetData>
       /** Remove dataset with given ID. */
@@ -1138,10 +1140,16 @@ export const aeonState: AeonState = {
           })
         })
       },
-      loadDataset (path: string, id: string): void {
+      addDefaultDataset (): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', 'add_default'],
+          payload: null
+        })
+      },
+      loadDataset (path: string): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', 'load'],
-          payload: JSON.stringify({ path, id })
+          payload: path
         })
       },
       removeDataset (id: string): void {

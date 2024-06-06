@@ -28,17 +28,8 @@ pub struct DatasetMetaData {
     pub category: DataCategory,
 }
 
-/// Structure for receiving *metadata* about `Dataset` to load from a file.
-/// This includes just an id and path to load it from.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct DatasetLoadData {
-    pub id: String,
-    pub path: String,
-}
-
 impl<'de> JsonSerde<'de> for DatasetData {}
 impl<'de> JsonSerde<'de> for DatasetMetaData {}
-impl<'de> JsonSerde<'de> for DatasetLoadData {}
 
 impl DatasetData {
     /// Create new `DatasetData` object given a reference to a dataset and its ID.
@@ -78,16 +69,6 @@ impl DatasetMetaData {
             id: id.to_string(),
             variables,
             category: *dataset.category(),
-        }
-    }
-}
-
-impl DatasetLoadData {
-    /// Create new `DatasetLoadData` instance.
-    pub fn new(id: &str, path: &str) -> DatasetLoadData {
-        DatasetLoadData {
-            id: id.to_string(),
-            path: path.to_string(),
         }
     }
 }

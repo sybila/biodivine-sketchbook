@@ -22,7 +22,6 @@ import { when } from 'lit/directives/when.js'
 export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData = ContentData.create()
-  index = 0
   @state() datasetRenameIndex = -1
   @state() shownDatasets: number[] = []
 
@@ -55,8 +54,6 @@ export default class ObservationsEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    // index cannot get smaller, could cause problems with IDs
-    this.index = Math.max(this.contentData.observations.length, this.index)
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
@@ -101,7 +98,6 @@ export default class ObservationsEditor extends LitElement {
 
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
     const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
-    this.index = Math.max(datasets.length, this.index)
     this.updateObservations(datasets)
   }
 
@@ -132,7 +128,7 @@ export default class ObservationsEditor extends LitElement {
       fileName = handle
     }
     // TODO: move dataset id generation to backend
-    aeonState.sketch.observations.loadDataset(fileName, 'dataset' + this.index)
+    aeonState.sketch.observations.loadDataset(fileName)
   }
 
   #onDatasetLoaded (data: DatasetData): void {
@@ -169,7 +165,6 @@ export default class ObservationsEditor extends LitElement {
       }
       // temporarily add the dataset in its current version, but also send an event to backend with changes
       this.updateObservations(this.contentData.observations.concat(modifiedDataset))
-      this.index++
       aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
     })
   }
