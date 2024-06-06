@@ -138,8 +138,7 @@ export default class PropertiesEditor extends LitElement {
   }
 
   addDynamicProperty (type: DynamicPropertyType): void {
-    const id = 'dynamic'
-    aeonState.sketch.properties.addDefaultDynamic(id, type)
+    aeonState.sketch.properties.addDefaultDynamic(type)
   }
 
   #onDynamicCreated (newDynamic: DynamicProperty): void {
@@ -149,8 +148,7 @@ export default class PropertiesEditor extends LitElement {
   }
 
   addStaticProperty (type: StaticPropertyType): void {
-    const id = 'static'
-    aeonState.sketch.properties.addDefaultStatic(id, type)
+    aeonState.sketch.properties.addDefaultStatic(type)
   }
 
   #onStaticCreated (newStatic: StaticProperty): void {

@@ -100,7 +100,7 @@ pub trait Manager {
             }
         }
 
-        // finally, append a number at the end of id
+        // finally, try searching for a valid number to append at the end of the id
         // start searching at 0, until we try `max_idx` options
         for n in 0..max_idx {
             let id = T::from_str(format!("{}_{}", transformed_id, n).as_str()).unwrap();
@@ -140,7 +140,7 @@ pub trait Manager {
     /// they are fresh new values (this is important, for instance, when we need to add several new
     /// elements).
     ///
-    /// Manager class' method to assert ID validity must be provided.
+    /// Specific manager class' method to assert ID validity must be provided as `assert_id_is_new`.
     fn assert_ids_unique_and_new<T>(
         &self,
         id_list: &Vec<&str>,

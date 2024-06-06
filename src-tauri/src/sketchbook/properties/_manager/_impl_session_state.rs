@@ -1,15 +1,14 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
-use crate::sketchbook::data_structs::{
-    ChangeIdData, DynPropertyData, DynPropertyDefaultData, StatPropertyData,
-    StatPropertyDefaultData,
-};
+use crate::sketchbook::data_structs::{ChangeIdData, DynPropertyData, StatPropertyData};
 use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
     mk_stat_prop_event, mk_stat_prop_state_change,
 };
 use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
+use crate::sketchbook::properties::dynamic_props::SimpleDynPropertyType;
+use crate::sketchbook::properties::static_props::SimpleStatPropertyType;
 use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
 use crate::sketchbook::JsonSerde;
 
@@ -115,23 +114,19 @@ impl PropertyManager {
     ) -> Result<Consumed, DynError> {
         let component_name = "properties/dynamic";
 
-        // get payload components and perform the event
+        // get payload (simplified property type)
         let payload = Self::clone_payload_str(event, component_name)?;
-        let mut prop_data = DynPropertyDefaultData::from_json_str(payload.as_str())?;
-        let property = DynProperty::default(prop_data.variant);
+        let prop_type = SimpleDynPropertyType::from_json_str(payload.as_str())?;
 
-        // todo - currently this is a bit of a hot-fix for valid property ID generating (frontend now sends just ID "dynamic")
-        // todo - in future, whole default id generating needs to be made on backend
-        let prop_id = self.generate_dyn_property_id(&prop_data.id);
-        prop_data.id = prop_id.to_string();
+        let property = DynProperty::default(prop_type);
+        let prop_id = self.generate_dyn_property_id("dynamic");
+        let prop_data = DynPropertyData::from_property(&prop_id, &property);
 
+        // actually add the property
         self.add_raw_dynamic_by_str(&prop_data.id, property)?;
-        let prop_id = self.get_dyn_prop_id(&prop_data.id)?;
-        let property = self.get_dyn_prop(&prop_id)?;
 
         // prepare the state-change (which is add event) and reverse event (which is a remove event)
-        let full_prop_data = DynPropertyData::from_property(&prop_id, property);
-        let state_change = mk_dyn_prop_state_change(&["add"], &full_prop_data);
+        let state_change = mk_dyn_prop_state_change(&["add"], &prop_data);
         let reverse_event = mk_dyn_prop_event(&[&prop_data.id, "remove"], None);
         Ok(make_reversible(state_change, event, reverse_event))
     }
@@ -225,23 +220,19 @@ impl PropertyManager {
     pub(super) fn event_add_default_static(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "properties/static";
 
-        // get payload components and perform the event
+        // get payload (simplified property type)
         let payload = Self::clone_payload_str(event, component_name)?;
-        let mut prop_data = StatPropertyDefaultData::from_json_str(payload.as_str())?;
-        let property = StatProperty::default(prop_data.variant);
+        let prop_type = SimpleStatPropertyType::from_json_str(payload.as_str())?;
 
-        // todo - currently this is a bit of a hot-fix for valid property ID generating (frontend now sends just ID "static")
-        // todo - in future, whole default id generating needs to be made on backend
-        let prop_id = self.generate_stat_property_id(&prop_data.id);
-        prop_data.id = prop_id.to_string();
+        let property = StatProperty::default(prop_type);
+        let prop_id = self.generate_stat_property_id("static");
+        let prop_data = StatPropertyData::from_property(&prop_id, &property);
 
+        // actually add the property
         self.add_raw_static_by_str(&prop_data.id, property)?;
-        let prop_id = self.get_stat_prop_id(&prop_data.id)?;
-        let property = self.get_stat_prop(&prop_id)?;
 
         // prepare the state-change (which is add event) and reverse event (which is a remove event)
-        let full_prop_data = StatPropertyData::from_property(&prop_id, property);
-        let state_change = mk_stat_prop_state_change(&["add"], &full_prop_data);
+        let state_change = mk_stat_prop_state_change(&["add"], &prop_data);
         let reverse_event = mk_stat_prop_event(&[&prop_data.id, "remove"], None);
         Ok(make_reversible(state_change, event, reverse_event))
     }
