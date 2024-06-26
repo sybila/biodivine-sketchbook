@@ -15,7 +15,6 @@ import { aeonState, type UninterpretedFnData, type UninterpretedFnIdUpdateData }
 export class FunctionsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() contentData: ContentData = ContentData.create()
-  index = 0
 
   constructor () {
     super()
@@ -56,8 +55,6 @@ export class FunctionsEditor extends LitElement {
 
   protected updated (_changedProperties: PropertyValues): void {
     super.updated(_changedProperties)
-    // index cannot get smaller, could cause problems with IDs
-    this.index = Math.max(this.contentData.functions.length, this.index)
     langTools.setCompleters([{
       getCompletions: (_editor: Ace.Editor, _session: Ace.EditSession, _point: Ace.Point, _prefix: string, callback: Ace.CompleterCallback) => {
         callback(null, this.contentData.functions.map((func): Ace.Completion => ({
@@ -89,18 +86,16 @@ export class FunctionsEditor extends LitElement {
     const fns = functions.map((data): IFunctionData => {
       return this.convertToIFunction(data)
     })
-    this.index = Math.max(fns.length, this.index)
     this.saveFunctions(fns)
   }
 
   private addFunction (): void {
-    aeonState.sketch.model.addUninterpretedFn('func' + this.index, 0)
+    aeonState.sketch.model.addDefaultUninterpretedFn()
   }
 
   #onFunctionCreated (data: UninterpretedFnData): void {
     const newFunction = this.convertToIFunction(data)
     this.contentData.functions.push(newFunction)
-    this.index++
     this.saveFunctions([...this.contentData.functions])
   }
 

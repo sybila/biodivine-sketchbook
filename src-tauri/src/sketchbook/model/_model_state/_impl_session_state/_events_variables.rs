@@ -86,9 +86,10 @@ impl ModelState {
     }
 
     /// Perform event of adding a new `variable` component to this `ModelState`.
-    /// The field values will be generated or predefined constants ("default") - new ID will be
-    /// generated, the same string will be used for its name, and variable will have empty update
-    /// function.
+    ///
+    /// The field values will be generated or predefined ("default") constants will be used. New ID
+    /// will be generated, the same string will be used for its name, and variable will have empty
+    /// update function.
     ///
     /// This event will be broken into sub-events (raw addition of the variable, and re-positioning).
     pub(super) fn event_add_default_variable(

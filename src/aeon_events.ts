@@ -128,6 +128,9 @@ interface AeonState {
       /** Create new uninterpreted function with given arity, ID, and name.
        * If name is not given, ID string is used for both ID and name. */
       addUninterpretedFn: (uninterpretedFnId: string, arity: number, uninterpretedFnName?: string) => void
+      /** Create new uninterpreted function with automatically generated ID and name, and with zero arity & no
+       * additional constraints. */
+      addDefaultUninterpretedFn: () => void
       /** UninterpretedFnData of a removed uninterpreted function. */
       uninterpretedFnRemoved: Observable<UninterpretedFnData>
       /** Remove uninterpreted function with given ID. */
@@ -1000,6 +1003,12 @@ export const aeonState: AeonState = {
             arguments: Array(arity).fill([Monotonicity.UNSPECIFIED, Essentiality.UNKNOWN]),
             expression: ''
           })
+        })
+      },
+      addDefaultUninterpretedFn (): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', 'add_default'],
+          payload: null
         })
       },
       removeUninterpretedFn (uninterpretedFnId: string): void {
