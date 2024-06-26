@@ -11,6 +11,30 @@ use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `uninterpreted functions` of the model.
 impl ModelState {
+    /// Perform events related to `uninterpreted fns` component of this `ModelState`.
+    pub(super) fn perform_uninterpreted_fn_event(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+    ) -> Result<Consumed, DynError> {
+        let component_name = "model/uninterpreted_fn";
+
+        // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
+        // when adding new uninterpreted fn, the `at_path` is just ["add"]
+        // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
+
+        if Self::starts_with("add", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_uninterpreted_fn(event)
+        } else {
+            Self::assert_path_length(at_path, 2, component_name)?;
+            let fn_id_str = at_path.first().unwrap();
+            let fn_id = self.get_uninterpreted_fn_id(fn_id_str)?;
+
+            self.event_modify_uninterpreted_fn(event, &at_path[1..], fn_id)
+        }
+    }
+
     /// Perform event of adding a new `uninterpreted fn` component to this `ModelState`.
     /// For now, it is assumed that new functions have no constraints (monotonicity, essentiality, or expression).
     pub(super) fn event_add_uninterpreted_fn(
@@ -220,30 +244,6 @@ impl ModelState {
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
-        }
-    }
-
-    /// Perform events related to `uninterpreted fns` component of this `ModelState`.
-    pub(super) fn perform_uninterpreted_fn_event(
-        &mut self,
-        event: &Event,
-        at_path: &[&str],
-    ) -> Result<Consumed, DynError> {
-        let component_name = "model/uninterpreted_fn";
-
-        // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
-        // when adding new uninterpreted fn, the `at_path` is just ["add"]
-        // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
-
-        if Self::starts_with("add", at_path).is_some() {
-            Self::assert_path_length(at_path, 1, component_name)?;
-            self.event_add_uninterpreted_fn(event)
-        } else {
-            Self::assert_path_length(at_path, 2, component_name)?;
-            let fn_id_str = at_path.first().unwrap();
-            let fn_id = self.get_uninterpreted_fn_id(fn_id_str)?;
-
-            self.event_modify_uninterpreted_fn(event, &at_path[1..], fn_id)
         }
     }
 }

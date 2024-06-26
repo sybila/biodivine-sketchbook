@@ -97,8 +97,13 @@ interface AeonState {
 
       /** VariableData for a newly created variable. */
       variableCreated: Observable<VariableData>
-      /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
+      /** Create new variable with given ID and name.
+       * If only ID string is given, it is used for both ID and name.
+       * Variable is placed on a given position. */
       addVariable: (varId: string, varName?: string, position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
+      /** Create new variable with automatically generated ID and name.
+       * Variable is placed on a given position. */
+      addDefaultVariable: (position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
       /** VariableData of a removed variable. */
       variableRemoved: Observable<VariableData>
       /** Remove a variable with given ID. */
@@ -930,35 +935,34 @@ export const aeonState: AeonState = {
       nodePositionChanged: new Observable<LayoutNodeData>(['sketch', 'model', 'layout', 'update_position']),
 
       addVariable (
-        varId: string,
+        varId: string = '',
         varName: string = '',
         position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []
       ): void {
-        if (varName === '') {
+        if (varName === undefined) {
           varName = varId
         }
-        const actions = []
-        // First action creates the variable.
-        actions.push({
-          path: ['sketch', 'model', 'variable', 'add'],
-          payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
-        })
-        // Subsequent actions position it in one or more layouts.
+
         if (!Array.isArray(position)) {
           position = [position]
         }
-        for (const p of position) {
-          actions.push({
-            path: ['sketch', 'model', 'layout', p.layout, 'update_position'],
-            payload: JSON.stringify({
-              layout: p.layout,
-              variable: varId,
-              px: p.px,
-              py: p.py
-            })
-          })
+
+        // First action creates the variable, either default or given.
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', 'add'],
+          payload: JSON.stringify({ variable: { id: varId, name: varName, update_fn: '' }, layouts: position })
+        })
+      },
+      addDefaultVariable (position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []): void {
+        if (!Array.isArray(position)) {
+          position = [position]
         }
-        aeonEvents.emitAction(actions)
+
+        // First action creates the variable, either default or given.
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', 'add_default'],
+          payload: JSON.stringify(position)
+        })
       },
       removeVariable (varId: string): void {
         aeonEvents.emitAction({

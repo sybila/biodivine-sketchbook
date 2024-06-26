@@ -19,7 +19,7 @@ impl SessionState for PropertyManager {
         let component_name = "properties";
 
         // the first part of the `at_path` is always "static" or "dynamic"
-        // when adding new property, the `at_path` continues with "add"
+        // when adding new property, the `at_path` continues with "add" (or "add_default")
         // when editing existing properties, the `at_path` continues with "property_id" and "action"
 
         match at_path.first() {

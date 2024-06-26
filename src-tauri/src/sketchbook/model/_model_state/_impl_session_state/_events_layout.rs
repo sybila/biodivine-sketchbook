@@ -10,6 +10,30 @@ use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `layouts` of the model.
 impl ModelState {
+    /// Perform events related to `layouts` component of this `ModelState`.
+    pub(super) fn perform_layout_event(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+    ) -> Result<Consumed, DynError> {
+        let component_name = "model/layout";
+
+        // there is either adding of a new layout, or editing/removing of an existing one
+        // when adding new layout, the `at_path` is just ["add"]
+        // when editing existing layout, the `at_path` is ["layout_id", "<action>"]
+
+        if Self::starts_with("add", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_layout(event)
+        } else {
+            Self::assert_path_length(at_path, 2, component_name)?;
+            let layout_id_str = at_path.first().unwrap();
+            let layout_id = self.get_layout_id(layout_id_str)?;
+
+            self.event_modify_layout(event, &at_path[1..], layout_id)
+        }
+    }
+
     /// Perform event of adding a new `layout` component to this `ModelState`.
     pub(super) fn event_add_layout(&mut self, event: &Event) -> Result<Consumed, DynError> {
         let component_name = "model/layout";
@@ -85,30 +109,6 @@ impl ModelState {
             })
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
-        }
-    }
-
-    /// Perform events related to `layouts` component of this `ModelState`.
-    pub(super) fn perform_layout_event(
-        &mut self,
-        event: &Event,
-        at_path: &[&str],
-    ) -> Result<Consumed, DynError> {
-        let component_name = "model/layout";
-
-        // there is either adding of a new layout, or editing/removing of an existing one
-        // when adding new layout, the `at_path` is just ["add"]
-        // when editing existing layout, the `at_path` is ["layout_id", "<action>"]
-
-        if Self::starts_with("add", at_path).is_some() {
-            Self::assert_path_length(at_path, 1, component_name)?;
-            self.event_add_layout(event)
-        } else {
-            Self::assert_path_length(at_path, 2, component_name)?;
-            let layout_id_str = at_path.first().unwrap();
-            let layout_id = self.get_layout_id(layout_id_str)?;
-
-            self.event_modify_layout(event, &at_path[1..], layout_id)
         }
     }
 }

@@ -19,7 +19,17 @@ pub struct LayoutNodeData {
     pub py: f32,
 }
 
+/// The same as `LayoutNodeData`, but does not have a fixed variable ID because
+/// it is associated with a variable that does not have an ID yet.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LayoutNodeDataPrototype {
+    pub layout: String,
+    pub px: f32,
+    pub py: f32,
+}
+
 impl<'de> JsonSerde<'de> for LayoutNodeData {}
+impl<'de> JsonSerde<'de> for LayoutNodeDataPrototype {}
 
 impl LayoutNodeData {
     /// Create new `LayoutNodeData` instance given a node's layout ID, variable ID, and coordinates.

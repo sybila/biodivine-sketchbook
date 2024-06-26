@@ -9,6 +9,7 @@ use crate::sketchbook::JsonSerde;
 
 #[test]
 /// Test adding variable via events.
+/// todo - test more complex variant
 fn test_add_var() {
     let variables = vec![("a", "a")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
@@ -17,7 +18,7 @@ fn test_add_var() {
 
     // test variable add event
     let payload = VariableData::new("b", "b", "").to_json_str();
-    let at_path = ["variable", "add"];
+    let at_path = ["variable", "add_raw"];
     let event = mk_model_event(&at_path, Some(&payload));
     let result = model.perform_event(&event, &at_path).unwrap();
 
@@ -42,7 +43,7 @@ fn test_remove_var_simple() {
 
     // check var was removed - result should be a simple `Consumed::Reversible` object
     assert_eq!(model.num_vars(), 1);
-    check_reverse(&mut model, &model_orig, result, &["variable", "add"]);
+    check_reverse(&mut model, &model_orig, result, &["variable", "add_raw"]);
 }
 
 #[test]

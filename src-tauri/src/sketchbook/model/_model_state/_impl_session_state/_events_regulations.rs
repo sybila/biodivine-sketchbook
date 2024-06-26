@@ -12,6 +12,35 @@ use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `regulations` of the model.
 impl ModelState {
+    /// Perform events related to `regulations` component of this `ModelState`.
+    pub(super) fn perform_regulation_event(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+    ) -> Result<Consumed, DynError> {
+        let component_name = "model/regulation";
+
+        // there is either adding of a new regulation, or editing/removing of an existing one
+        // when adding new regulation, the `at_path` is just ["add"]
+        // when editing existing variable, the `at_path` is ["regulator", "target", "<action>"]
+
+        if Self::starts_with("add", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_regulation(event)
+        } else if Self::starts_with("add_raw", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_regulation_raw(event)
+        } else {
+            Self::assert_path_length(at_path, 3, component_name)?;
+            let regulator_id_str = at_path.first().unwrap();
+            let target_id_str = at_path.get(1).unwrap();
+            let regulator_id = self.get_var_id(regulator_id_str)?;
+            let target_id = self.get_var_id(target_id_str)?;
+
+            self.event_modify_regulation(event, &at_path[2..], regulator_id, target_id)
+        }
+    }
+
     /// Perform event of adding a new `regulation` component to this `ModelState`.
     ///
     /// This breaks the event down into two of them, one to make corresponding property, and the
@@ -23,9 +52,6 @@ impl ModelState {
         let reg_data = RegulationData::from_json_str(payload.as_str())?;
 
         let mut event_list = Vec::new();
-        // the event of adding the raw regulation itself
-        let reg_event = mk_model_event(&["regulation", "add_raw"], Some(&payload));
-        event_list.push(reg_event);
         let input_var = VarId::new(&reg_data.regulator)?;
         let target_var = VarId::new(&reg_data.target)?;
 
@@ -45,6 +71,12 @@ impl ModelState {
             let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
             event_list.push(prop_event);
         }
+
+        // and finally, the event of adding the raw regulation itself (the event list will be
+        // reversed, this being the first of the events with all the checks)
+        let reg_event = mk_model_event(&["regulation", "add_raw"], Some(&payload));
+        event_list.push(reg_event);
+
         Ok(Consumed::Restart(event_list))
     }
 
@@ -273,35 +305,6 @@ impl ModelState {
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
-        }
-    }
-
-    /// Perform events related to `regulations` component of this `ModelState`.
-    pub(super) fn perform_regulation_event(
-        &mut self,
-        event: &Event,
-        at_path: &[&str],
-    ) -> Result<Consumed, DynError> {
-        let component_name = "model/regulation";
-
-        // there is either adding of a new regulation, or editing/removing of an existing one
-        // when adding new regulation, the `at_path` is just ["add"]
-        // when editing existing variable, the `at_path` is ["regulator", "target", "<action>"]
-
-        if Self::starts_with("add", at_path).is_some() {
-            Self::assert_path_length(at_path, 1, component_name)?;
-            self.event_add_regulation(event)
-        } else if Self::starts_with("add_raw", at_path).is_some() {
-            Self::assert_path_length(at_path, 1, component_name)?;
-            self.event_add_regulation_raw(event)
-        } else {
-            Self::assert_path_length(at_path, 3, component_name)?;
-            let regulator_id_str = at_path.first().unwrap();
-            let target_id_str = at_path.get(1).unwrap();
-            let regulator_id = self.get_var_id(regulator_id_str)?;
-            let target_id = self.get_var_id(target_id_str)?;
-
-            self.event_modify_regulation(event, &at_path[2..], regulator_id, target_id)
         }
     }
 }
