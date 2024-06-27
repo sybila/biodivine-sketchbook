@@ -66,7 +66,8 @@ fn main() {
 
                     // TODO: This is only a temporary solution to propagate the error message to frontend.
                     debug!("Error processing last event: `{}`.", e.to_string());
-                    let json_message = format!("\"{e}\"");
+                    // A crude way to escape the error message and wrap it in quotes.
+                    let json_message = serde_json::Value::String(e.to_string()).to_string();
                     let state_change = Event::build(&["error"], Some(&json_message));
                     if aeon.tauri.emit_all(AEON_VALUE, vec![state_change]).is_err() {
                         panic!("Event error failed to be sent: {:?}", e);
