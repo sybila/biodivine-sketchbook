@@ -112,7 +112,7 @@ fn test_set_var_name_id() {
     check_reverse(&mut model, &model_orig, result, &at_path);
 
     // test id change event
-    let new_id = model.generate_var_id("b");
+    let new_id = model.generate_var_id("b", None);
     let at_path = ["variable", var_a.as_str(), "set_id"];
     let event = mk_model_event(&at_path, Some(new_id.as_str()));
     let result = model.perform_event(&event, &at_path).unwrap();
@@ -147,7 +147,7 @@ fn test_set_update_fn() {
 /// Test that several kinds of invalid operations fail successfully.
 fn test_invalid_var_events() {
     let mut model = ModelState::new_empty();
-    let var_id = model.generate_var_id("a");
+    let var_id = model.generate_var_id("a", None);
     model.add_var(var_id.clone(), "a-name").unwrap();
     let model_orig = model.clone();
 
@@ -247,7 +247,7 @@ fn test_remove_reg_simple() {
 fn test_change_position() {
     let mut model = ModelState::new_empty();
     let layout_id = ModelState::get_default_layout_id();
-    let var_id = model.generate_var_id("a");
+    let var_id = model.generate_var_id("a", None);
     model.add_var(var_id.clone(), "a_name").unwrap();
     let model_orig = model.clone();
 
@@ -267,7 +267,7 @@ fn test_change_position() {
 /// Test changing monotonicity and essentiality of uninterpreted function's argument via event.
 fn test_change_fn_arg_monotonicity_essentiality() {
     let mut model = ModelState::new_empty();
-    let f = model.generate_uninterpreted_fn_id("f");
+    let f = model.generate_uninterpreted_fn_id("f", None);
     model.add_empty_uninterpreted_fn(f.clone(), "f", 2).unwrap();
     let model_orig = model.clone();
 
@@ -298,7 +298,7 @@ fn test_change_fn_arg_monotonicity_essentiality() {
 /// Test changing uninterpreted function's expression via event.
 fn test_change_fn_expression() {
     let mut model = ModelState::new_empty();
-    let f = model.generate_uninterpreted_fn_id("f");
+    let f = model.generate_uninterpreted_fn_id("f", None);
     model.add_empty_uninterpreted_fn(f.clone(), "f", 2).unwrap();
     let model_orig = model.clone();
 

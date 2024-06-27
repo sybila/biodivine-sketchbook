@@ -60,16 +60,20 @@ pub trait Manager {
     /// `VariableId` for a `Variable` in a `ModelState`).
     ///
     /// The id is generated based on provided `ideal_id`. In best case, it is used directly.
-    /// If this would cause some collisions, it is modified until the ID is unique.
+    /// If this would cause some collisions, it is modified by adding index at the end until
+    /// the ID becomes unique.
+    /// By specifying `start_index`, the index search starts directly at that number (e.g., when
+    /// ideal ID is "var" and start index is 3, search for ID starts with "var_3", "var_4", ...)
     ///
     /// Method `is_taken` is provided to check whether a generated id is already taken (non-unique),
-    /// and `max_idx` specifies maximum number that the component might need appended to make it
-    /// unique (e.g., for a variable, it would be total number of variables in use).
+    /// and `num_indices` specifies maximum number of different indices that might be needed to be explored
+    /// to make the id unique (e.g., for a variable, it would be total number of variables used).
     fn generate_id<T>(
         &self,
         ideal_id: &str,
         is_taken: &dyn Fn(&Self, &T) -> bool,
-        max_idx: usize,
+        num_indices: usize,
+        start_index: Option<usize>,
     ) -> T
     where
         T: FromStr,
@@ -77,8 +81,9 @@ pub trait Manager {
     {
         // first try to use the `ideal_id`
         if let Ok(id) = T::from_str(ideal_id) {
-            // the id must not be valid in the network already (that would mean it is already used)
-            if !is_taken(self, &id) {
+            // the id must not be used in the model already
+            // also, if start index is given, this can not be used
+            if !is_taken(self, &id) && start_index.is_none() {
                 return id;
             }
         }
@@ -88,21 +93,23 @@ pub trait Manager {
             .chars()
             .filter(|ch| ch.is_alphanumeric() || *ch == '_')
             .collect();
-        // and if the first character is not a letter, add prefix 'v_'
+        // and if the first character is not a letter, add prefix 'x_'
         if transformed_id.starts_with(|ch: char| !ch.is_alphabetic()) {
-            transformed_id.insert_str(0, "v_");
+            transformed_id.insert_str(0, "x_");
         }
 
         if let Ok(id) = T::from_str(transformed_id.as_str()) {
             // the id must not be valid in the network already (that would mean it is already used)
-            if !is_taken(self, &id) {
+            if !is_taken(self, &id) && start_index.is_none() {
                 return id;
             }
         }
 
         // finally, try searching for a valid number to append at the end of the id
-        // start searching at 0, until we try `max_idx` options
-        for n in 0..max_idx {
+        // start searching at index 1 (or start-index), until we try `max_idx` options
+        let start_index = if let Some(i) = start_index { i } else { 1 };
+        let last_index = start_index + num_indices;
+        for n in start_index..last_index {
             let id = T::from_str(format!("{}_{}", transformed_id, n).as_str()).unwrap();
             if !is_taken(self, &id) {
                 return id;
@@ -110,7 +117,7 @@ pub trait Manager {
         }
 
         // this must be valid, we already tried more than `max_idx` options
-        T::from_str(format!("{}_{}", transformed_id, max_idx).as_str()).unwrap()
+        T::from_str(format!("{}_{}", transformed_id, last_index).as_str()).unwrap()
     }
 
     /// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates),

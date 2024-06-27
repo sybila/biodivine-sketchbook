@@ -75,7 +75,8 @@ impl ModelState {
         Self::assert_payload_empty(event, component_name)?;
 
         let arity = 0;
-        let fn_id = self.generate_uninterpreted_fn_id("fn");
+        // start indexing at 1
+        let fn_id = self.generate_uninterpreted_fn_id("fn", Some(1));
         let uninterpreted_fn = UninterpretedFn::new_without_constraints(fn_id.as_str(), arity)?;
         let fn_data = UninterpretedFnData::from_fn(&fn_id, &uninterpreted_fn);
         self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;

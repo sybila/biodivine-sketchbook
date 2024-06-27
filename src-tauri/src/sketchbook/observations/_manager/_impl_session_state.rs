@@ -115,7 +115,8 @@ impl ObservationManager {
         Self::assert_payload_empty(event, component_name)?;
 
         let dataset = Dataset::default();
-        let dataset_id = self.generate_dataset_id("dataset");
+        // start indexing at 1
+        let dataset_id = self.generate_dataset_id("dataset", Some(1));
         let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
 
         self.add_dataset(dataset_id, dataset)?;
@@ -135,7 +136,8 @@ impl ObservationManager {
 
         // load the dataset, generate new ID, and add it
         let dataset = Self::load_dataset(&file_path)?;
-        let dataset_id = self.generate_dataset_id("dataset");
+        // start indexing at 1
+        let dataset_id = self.generate_dataset_id("dataset", Some(1));
         let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
         self.add_dataset_by_str(&dataset_data.id, dataset)?;
 

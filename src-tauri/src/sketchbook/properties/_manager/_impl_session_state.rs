@@ -119,7 +119,8 @@ impl PropertyManager {
         let prop_type = SimpleDynPropertyType::from_json_str(payload.as_str())?;
 
         let property = DynProperty::default(prop_type);
-        let prop_id = self.generate_dyn_property_id("dynamic");
+        // start indexing at 1
+        let prop_id = self.generate_dyn_property_id("dynamic", Some(1));
         let prop_data = DynPropertyData::from_property(&prop_id, &property);
 
         // actually add the property
@@ -225,7 +226,8 @@ impl PropertyManager {
         let prop_type = SimpleStatPropertyType::from_json_str(payload.as_str())?;
 
         let property = StatProperty::default(prop_type);
-        let prop_id = self.generate_stat_property_id("static");
+        // start indexing at 1
+        let prop_id = self.generate_stat_property_id("static", Some(1));
         let prop_data = StatPropertyData::from_property(&prop_id, &property);
 
         // actually add the property

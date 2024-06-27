@@ -100,7 +100,8 @@ impl ModelState {
         let payload = Self::clone_payload_str(event, component_name)?;
         let pos_data: Vec<LayoutNodeDataPrototype> = serde_json::from_str(&payload).unwrap();
 
-        let var_id = self.generate_var_id("var");
+        // start indexing at 1
+        let var_id = self.generate_var_id("var", Some(1));
         let variable = Variable::new(var_id.as_str())?;
         let variable_data = VariableData::new(var_id.as_str(), variable.get_name(), "");
 

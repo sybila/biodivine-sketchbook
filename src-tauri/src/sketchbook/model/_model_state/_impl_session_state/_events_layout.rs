@@ -42,7 +42,8 @@ impl ModelState {
         let payload = Self::clone_payload_str(event, component_name)?;
         let layout_data = LayoutData::from_json_str(payload.as_str())?;
         let layout_id_str = layout_data.id;
-        let layout_id = self.generate_layout_id(&layout_id_str);
+        // start indexing at 1
+        let layout_id = self.generate_layout_id(&layout_id_str, Some(1));
         let name = layout_data.name;
 
         // perform the event
