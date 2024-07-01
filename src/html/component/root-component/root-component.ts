@@ -60,7 +60,7 @@ export default class RootComponent extends LitElement {
     this.addEventListener('load-dummy', () => { void this.loadDummy() })
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
     window.addEventListener('focus-variable', this.focusVariable.bind(this))
-    this.addEventListener('add-variable', this.addVariable)
+    this.addEventListener('add-variable', this.addNewVariable)
     aeonState.sketch.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
     aeonState.sketch.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
@@ -203,14 +203,14 @@ export default class RootComponent extends LitElement {
     this.saveVariables(variables)
   }
 
-  private addVariable (event: Event): void {
+  private addNewVariable (event: Event): void {
     const details = (event as CustomEvent).detail
     const position: LayoutNodeDataPrototype = {
       layout: LAYOUT,
       px: details.position.x,
       py: details.position.y
     }
-    aeonState.sketch.model.addVariable(details.id, details.name, position)
+    aeonState.sketch.model.addDefaultVariable(position)
   }
 
   #onVariableCreated (data: VariableData): void {

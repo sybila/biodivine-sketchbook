@@ -1308,9 +1308,9 @@ mod tests {
     #[test]
     fn test_var_id_change() {
         let mut model = ModelState::new_empty();
-        let var_a = model.generate_var_id("a");
+        let var_a = model.generate_var_id("a", None);
         model.add_var(var_a.clone(), "a_name").unwrap();
-        let var_b = model.generate_var_id("b");
+        let var_b = model.generate_var_id("b", None);
         model.add_var(var_b.clone(), "b_name").unwrap();
 
         // add regulations a -> a, a -> b, b -> a, b -> b
@@ -1319,7 +1319,7 @@ mod tests {
 
         // add layout
         let default_layout_id = ModelState::get_default_layout_id();
-        let new_layout_id = model.generate_layout_id("layout2");
+        let new_layout_id = model.generate_layout_id("layout2", None);
         model
             .add_layout_copy(new_layout_id.clone(), "layout2", &default_layout_id)
             .unwrap();
@@ -1329,7 +1329,7 @@ mod tests {
         model.set_update_fn(&var_b, "a => a").unwrap();
 
         // change var id of variable a, check that it correctly changed everywhere
-        let new_var = model.generate_var_id("c");
+        let new_var = model.generate_var_id("c", None);
         model.set_var_id(&var_a, new_var.clone()).unwrap();
 
         // 1) variable map changed correctly
@@ -1384,14 +1384,14 @@ mod tests {
         assert_eq!(position, &NodePosition(2., 2.));
 
         // add layouts (one as vars with default nodes, and other as direct copy)
-        let new_id_1 = model.generate_layout_id("new_layout");
+        let new_id_1 = model.generate_layout_id("new_layout", None);
         model
             .add_layout_simple(new_id_1.clone(), "new_layout")
             .unwrap();
         let position = model.get_node_position(&new_id_1, &var_id).unwrap();
         assert_eq!(position, &NodePosition(0., 0.));
 
-        let new_id_2 = model.generate_layout_id("another_layout");
+        let new_id_2 = model.generate_layout_id("another_layout", None);
         model
             .add_layout_copy(new_id_2.clone(), "new_layout", &default_layout_id)
             .unwrap();

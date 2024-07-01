@@ -6,13 +6,43 @@ use crate::sketchbook::data_structs::{
 };
 use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::UninterpretedFnId;
-use crate::sketchbook::model::ModelState;
+use crate::sketchbook::model::{ModelState, UninterpretedFn};
 use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `uninterpreted functions` of the model.
 impl ModelState {
+    /// Perform events related to `uninterpreted fns` component of this `ModelState`.
+    pub(super) fn perform_uninterpreted_fn_event(
+        &mut self,
+        event: &Event,
+        at_path: &[&str],
+    ) -> Result<Consumed, DynError> {
+        let component_name = "model/uninterpreted_fn";
+
+        // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
+        // when adding new uninterpreted fn, the `at_path` is just ["add"]
+        // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
+
+        if Self::starts_with("add_default", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_default_uninterpreted_fn(event)
+        } else if Self::starts_with("add", at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_uninterpreted_fn(event)
+        } else {
+            Self::assert_path_length(at_path, 2, component_name)?;
+            let fn_id_str = at_path.first().unwrap();
+            let fn_id = self.get_uninterpreted_fn_id(fn_id_str)?;
+
+            self.event_modify_uninterpreted_fn(event, &at_path[1..], fn_id)
+        }
+    }
+
     /// Perform event of adding a new `uninterpreted fn` component to this `ModelState`.
-    /// For now, it is assumed that new functions have no constraints (monotonicity, essentiality, or expression).
+    /// This variant assumes that ID, arity (and so on) were already given.
+    ///
+    /// For now, it is assumed that new functions have no constraints (monotonicity, essentiality,
+    /// or expression).
     pub(super) fn event_add_uninterpreted_fn(
         &mut self,
         event: &Event,
@@ -29,6 +59,33 @@ impl ModelState {
         let reverse_at_path = ["uninterpreted_fn", &fn_data.id, "remove"];
         let reverse_event = mk_model_event(&reverse_at_path, None);
         Ok(make_reversible(event.clone(), event, reverse_event))
+    }
+
+    /// Perform event of adding a new "default" `uninterpreted fn` component to this `ModelState`.
+    ///
+    /// The field values will be newly generated or predefined ("default") constants will be used.
+    /// Particularly, new ID will be generated, the same string will be used for its name, and
+    /// arity will be zero.
+    /// Default function symbols also have no constraints (monotonicity, essentiality, or expression).
+    pub(super) fn event_add_default_uninterpreted_fn(
+        &mut self,
+        event: &Event,
+    ) -> Result<Consumed, DynError> {
+        let component_name = "model/uninterpreted_fn";
+        Self::assert_payload_empty(event, component_name)?;
+
+        let arity = 0;
+        // start indexing at 1
+        let fn_id = self.generate_uninterpreted_fn_id("fn", Some(1));
+        let uninterpreted_fn = UninterpretedFn::new_without_constraints(fn_id.as_str(), arity)?;
+        let fn_data = UninterpretedFnData::from_fn(&fn_id, &uninterpreted_fn);
+        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+
+        // prepare the state-change and reverse event (which is a remove event)
+        let state_change = mk_model_state_change(&["uninterpreted_fn", "add"], &fn_data);
+        let reverse_at_path = ["uninterpreted_fn", &fn_data.id, "remove"];
+        let reverse_event = mk_model_event(&reverse_at_path, None);
+        Ok(make_reversible(state_change, event, reverse_event))
     }
 
     /// Perform event of modifying or removing existing `uninterpreted fn` component of this `ModelState`.
@@ -220,30 +277,6 @@ impl ModelState {
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             Self::invalid_path_error_specific(at_path, component_name)
-        }
-    }
-
-    /// Perform events related to `uninterpreted fns` component of this `ModelState`.
-    pub(super) fn perform_uninterpreted_fn_event(
-        &mut self,
-        event: &Event,
-        at_path: &[&str],
-    ) -> Result<Consumed, DynError> {
-        let component_name = "model/uninterpreted_fn";
-
-        // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
-        // when adding new uninterpreted fn, the `at_path` is just ["add"]
-        // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
-
-        if Self::starts_with("add", at_path).is_some() {
-            Self::assert_path_length(at_path, 1, component_name)?;
-            self.event_add_uninterpreted_fn(event)
-        } else {
-            Self::assert_path_length(at_path, 2, component_name)?;
-            let fn_id_str = at_path.first().unwrap();
-            let fn_id = self.get_uninterpreted_fn_id(fn_id_str)?;
-
-            self.event_modify_uninterpreted_fn(event, &at_path[1..], fn_id)
         }
     }
 }

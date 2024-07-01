@@ -189,8 +189,7 @@ export class RegulationsEditor extends LitElement {
     })
     this.cy.on('dblclick', (e) => {
       if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
-      const name = 'var_' + (Math.random() + 1).toString(36).substring(8).toUpperCase()
-      this.createVariable(name, name, e.position)
+      this.createVariable(e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {
       e.target.addClass('hover')
@@ -330,13 +329,10 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
-  private createVariable (id: string, name: string, position = { x: 0, y: 0 }): void {
+  private createVariable (position = { x: 0, y: 0 }): void {
     this.dispatchEvent(new CustomEvent('add-variable', {
       detail: {
-        id,
-        name,
-        position,
-        function: ''
+        position
       },
       composed: true,
       bubbles: true

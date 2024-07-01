@@ -1,3 +1,4 @@
+use crate::sketchbook::data_structs::_layout_node_data::LayoutNodeDataPrototype;
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::model::{UpdateFn, Variable};
 use crate::sketchbook::JsonSerde;
@@ -15,7 +16,15 @@ pub struct VariableData {
     pub update_fn: String,
 }
 
+/// Structure for receiving data about `Variable` and all of its `Layout` data from the frontend.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct VariableWithLayoutData {
+    pub variable: VariableData,
+    pub layouts: Vec<LayoutNodeDataPrototype>,
+}
+
 impl<'de> JsonSerde<'de> for VariableData {}
+impl<'de> JsonSerde<'de> for VariableWithLayoutData {}
 
 impl VariableData {
     /// Create new `VariableData` object given a variable's `name` and `id` string slices.

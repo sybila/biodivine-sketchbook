@@ -97,8 +97,13 @@ interface AeonState {
 
       /** VariableData for a newly created variable. */
       variableCreated: Observable<VariableData>
-      /** Create new variable with given ID and name. If only ID string is given, it is used for both ID and name. */
+      /** Create new variable with given ID and name.
+       * If only ID string is given, it is used for both ID and name.
+       * Variable is placed on a given position. */
       addVariable: (varId: string, varName?: string, position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
+      /** Create new variable with automatically generated ID and name.
+       * Variable is placed on a given position. */
+      addDefaultVariable: (position?: LayoutNodeDataPrototype | LayoutNodeDataPrototype[]) => void
       /** VariableData of a removed variable. */
       variableRemoved: Observable<VariableData>
       /** Remove a variable with given ID. */
@@ -123,6 +128,9 @@ interface AeonState {
       /** Create new uninterpreted function with given arity, ID, and name.
        * If name is not given, ID string is used for both ID and name. */
       addUninterpretedFn: (uninterpretedFnId: string, arity: number, uninterpretedFnName?: string) => void
+      /** Create new uninterpreted function with automatically generated ID and name, and with zero arity & no
+       * additional constraints. */
+      addDefaultUninterpretedFn: () => void
       /** UninterpretedFnData of a removed uninterpreted function. */
       uninterpretedFnRemoved: Observable<UninterpretedFnData>
       /** Remove uninterpreted function with given ID. */
@@ -218,11 +226,13 @@ interface AeonState {
       datasetCreated: Observable<DatasetData>
       /** Create a new dataset with given ID, variables, observations, and category. */
       addDataset: (id: string, variables: string[], observations: ObservationData[], category: DataCategory) => void
+      /** Create a new empty dataset of unspecified category. */
+      addDefaultDataset: () => void
       /** DatasetData for a newly loaded dataset (from a csv file).
        *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
       datasetLoaded: Observable<DatasetData>
-      /** Load a new dataset with a given ID from a CSV file. */
-      loadDataset: (path: string, id: string) => void
+      /** Load a new dataset from a CSV file. */
+      loadDataset: (path: string) => void
       /** DatasetData of a removed dataset. */
       datasetRemoved: Observable<DatasetData>
       /** Remove dataset with given ID. */
@@ -290,8 +300,8 @@ interface AeonState {
       dynamicCreated: Observable<DynamicProperty>
       /** Create a new dynamic property with given ID, variables, of given `variant` (with corresponding data). */
       addDynamic: (id: string, name: string, variant: DynamicProperty) => void
-      /** Create a new default dynamic property with given ID and variant. */
-      addDefaultDynamic: (id: string, variant: DynamicPropertyType) => void
+      /** Create a new default dynamic property of given variant. */
+      addDefaultDynamic: (variant: DynamicPropertyType) => void
       /** Data of a removed dynamic property. */
       dynamicRemoved: Observable<DynamicProperty>
       /** Remove dynamic property with given ID. */
@@ -312,7 +322,7 @@ interface AeonState {
       /** Create a new static property with given ID, variables, of given `variant` (with corresponding data). */
       addStatic: (id: string, name: string, variant: StaticProperty) => void
       /** Create a new default static property with given ID and variant. */
-      addDefaultStatic: (id: string, variant: StaticPropertyType) => void
+      addDefaultStatic: (variant: StaticPropertyType) => void
       /** Data of a removed static property. */
       staticRemoved: Observable<StaticProperty>
       /** Remove static property with given ID. */
@@ -928,35 +938,34 @@ export const aeonState: AeonState = {
       nodePositionChanged: new Observable<LayoutNodeData>(['sketch', 'model', 'layout', 'update_position']),
 
       addVariable (
-        varId: string,
+        varId: string = '',
         varName: string = '',
         position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []
       ): void {
-        if (varName === '') {
+        if (varName === undefined) {
           varName = varId
         }
-        const actions = []
-        // First action creates the variable.
-        actions.push({
-          path: ['sketch', 'model', 'variable', 'add'],
-          payload: JSON.stringify({ id: varId, name: varName, update_fn: '' })
-        })
-        // Subsequent actions position it in one or more layouts.
+
         if (!Array.isArray(position)) {
           position = [position]
         }
-        for (const p of position) {
-          actions.push({
-            path: ['sketch', 'model', 'layout', p.layout, 'update_position'],
-            payload: JSON.stringify({
-              layout: p.layout,
-              variable: varId,
-              px: p.px,
-              py: p.py
-            })
-          })
+
+        // First action creates the variable, either default or given.
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', 'add'],
+          payload: JSON.stringify({ variable: { id: varId, name: varName, update_fn: '' }, layouts: position })
+        })
+      },
+      addDefaultVariable (position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []): void {
+        if (!Array.isArray(position)) {
+          position = [position]
         }
-        aeonEvents.emitAction(actions)
+
+        // First action creates the variable, either default or given.
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', 'add_default'],
+          payload: JSON.stringify(position)
+        })
       },
       removeVariable (varId: string): void {
         aeonEvents.emitAction({
@@ -994,6 +1003,12 @@ export const aeonState: AeonState = {
             arguments: Array(arity).fill([Monotonicity.UNSPECIFIED, Essentiality.UNKNOWN]),
             expression: ''
           })
+        })
+      },
+      addDefaultUninterpretedFn (): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'uninterpreted_fn', 'add_default'],
+          payload: null
         })
       },
       removeUninterpretedFn (uninterpretedFnId: string): void {
@@ -1138,10 +1153,16 @@ export const aeonState: AeonState = {
           })
         })
       },
-      loadDataset (path: string, id: string): void {
+      addDefaultDataset (): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', 'add_default'],
+          payload: null
+        })
+      },
+      loadDataset (path: string): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', 'load'],
-          payload: JSON.stringify({ path, id })
+          payload: path
         })
       },
       removeDataset (id: string): void {
@@ -1247,10 +1268,10 @@ export const aeonState: AeonState = {
           })
         })
       },
-      addDefaultDynamic (id: string, variant: DynamicPropertyType): void {
+      addDefaultDynamic (variant: DynamicPropertyType): void {
         aeonEvents.emitAction({
           path: ['sketch', 'properties', 'dynamic', 'add_default'],
-          payload: JSON.stringify({ id, variant })
+          payload: JSON.stringify(variant)
         })
       },
       setDynamicContent (id: string, newContent: DynamicProperty): void {
@@ -1281,10 +1302,10 @@ export const aeonState: AeonState = {
           })
         })
       },
-      addDefaultStatic (id: string, variant: StaticPropertyType): void {
+      addDefaultStatic (variant: StaticPropertyType): void {
         aeonEvents.emitAction({
           path: ['sketch', 'properties', 'static', 'add_default'],
-          payload: JSON.stringify({ id, variant })
+          payload: JSON.stringify(variant)
         })
       },
       setStaticContent (id: string, newContent: StaticProperty): void {

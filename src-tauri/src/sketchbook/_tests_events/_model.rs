@@ -9,6 +9,7 @@ use crate::sketchbook::JsonSerde;
 
 #[test]
 /// Test adding variable via events.
+/// todo - test more complex variant
 fn test_add_var() {
     let variables = vec![("a", "a")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
@@ -17,7 +18,7 @@ fn test_add_var() {
 
     // test variable add event
     let payload = VariableData::new("b", "b", "").to_json_str();
-    let at_path = ["variable", "add"];
+    let at_path = ["variable", "add_raw"];
     let event = mk_model_event(&at_path, Some(&payload));
     let result = model.perform_event(&event, &at_path).unwrap();
 
@@ -42,7 +43,7 @@ fn test_remove_var_simple() {
 
     // check var was removed - result should be a simple `Consumed::Reversible` object
     assert_eq!(model.num_vars(), 1);
-    check_reverse(&mut model, &model_orig, result, &["variable", "add"]);
+    check_reverse(&mut model, &model_orig, result, &["variable", "add_raw"]);
 }
 
 #[test]
@@ -111,7 +112,7 @@ fn test_set_var_name_id() {
     check_reverse(&mut model, &model_orig, result, &at_path);
 
     // test id change event
-    let new_id = model.generate_var_id("b");
+    let new_id = model.generate_var_id("b", None);
     let at_path = ["variable", var_a.as_str(), "set_id"];
     let event = mk_model_event(&at_path, Some(new_id.as_str()));
     let result = model.perform_event(&event, &at_path).unwrap();
@@ -146,7 +147,7 @@ fn test_set_update_fn() {
 /// Test that several kinds of invalid operations fail successfully.
 fn test_invalid_var_events() {
     let mut model = ModelState::new_empty();
-    let var_id = model.generate_var_id("a");
+    let var_id = model.generate_var_id("a", None);
     model.add_var(var_id.clone(), "a-name").unwrap();
     let model_orig = model.clone();
 
@@ -246,7 +247,7 @@ fn test_remove_reg_simple() {
 fn test_change_position() {
     let mut model = ModelState::new_empty();
     let layout_id = ModelState::get_default_layout_id();
-    let var_id = model.generate_var_id("a");
+    let var_id = model.generate_var_id("a", None);
     model.add_var(var_id.clone(), "a_name").unwrap();
     let model_orig = model.clone();
 
@@ -266,7 +267,7 @@ fn test_change_position() {
 /// Test changing monotonicity and essentiality of uninterpreted function's argument via event.
 fn test_change_fn_arg_monotonicity_essentiality() {
     let mut model = ModelState::new_empty();
-    let f = model.generate_uninterpreted_fn_id("f");
+    let f = model.generate_uninterpreted_fn_id("f", None);
     model.add_empty_uninterpreted_fn(f.clone(), "f", 2).unwrap();
     let model_orig = model.clone();
 
@@ -297,7 +298,7 @@ fn test_change_fn_arg_monotonicity_essentiality() {
 /// Test changing uninterpreted function's expression via event.
 fn test_change_fn_expression() {
     let mut model = ModelState::new_empty();
-    let f = model.generate_uninterpreted_fn_id("f");
+    let f = model.generate_uninterpreted_fn_id("f", None);
     model.add_empty_uninterpreted_fn(f.clone(), "f", 2).unwrap();
     let model_orig = model.clone();
 

@@ -37,14 +37,15 @@ impl Dataset {
 
     /// Perform event of adding a completely new "empty" `observation` to the end of this `Dataset`.
     ///
-    /// All its values are `unspecified` and its Id is generated.
+    /// All its values are `unspecified` and its Id is newly generated.
     pub(in crate::sketchbook::observations) fn event_push_empty_observation(
         &mut self,
         event: &Event,
         dataset_id: DatasetId,
     ) -> Result<Consumed, DynError> {
         // get payload components and perform the action
-        let id = self.generate_obs_id(&format!("new_obs_{}", self.num_observations()));
+        // start indexing at 1
+        let id = self.generate_obs_id("obs", Some(1));
         let observation = Observation::new_full_unspecified(self.num_variables(), id.as_str())?;
         let observation_data = ObservationData::from_obs(&observation, &dataset_id);
         self.push_observation(observation)?;

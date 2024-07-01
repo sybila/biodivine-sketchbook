@@ -1,6 +1,6 @@
 use crate::sketchbook::ids::{StatPropertyId, UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, Monotonicity};
-use crate::sketchbook::properties::static_props::{SimpleStatPropertyType, StatPropertyType};
+use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::StatProperty;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
@@ -63,16 +63,6 @@ pub struct FnInputMonotonicData {
     pub value: Monotonicity,
     pub context: Option<String>,
 }
-
-/// Structure for receiving data to create default dynamic properties. For this, only the ID
-/// and simple variant (enum) are needed.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct StatPropertyDefaultData {
-    pub id: String,
-    pub variant: SimpleStatPropertyType,
-}
-
-impl<'de> JsonSerde<'de> for StatPropertyDefaultData {}
 
 /// Enum covering all variants of static properties and their necessary data.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
