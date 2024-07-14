@@ -343,6 +343,13 @@ interface AeonState {
     /** Error message provided by backend. */
     errorReceived: Observable<string>
   }
+
+  /** Events for creating new sessions. */
+  new_session: {
+    /** Create a new analysis session. */
+    // TODO: this is just a placeholder for now
+    createNewAnalysisSession: () => void
+  }
 }
 
 /** An object representing all relevant parts of the whole sketch. */
@@ -859,6 +866,27 @@ export const aeonState: AeonState = {
   },
   error: {
     errorReceived: new Observable<string>(['error'])
+  },
+  new_session: {
+    // TODO: this is just a placeholder for now
+    createNewAnalysisSession (): void {
+      const model: ModelData = {
+        variables: [],
+        regulations: [],
+        uninterpreted_fns: [],
+        layouts: []
+      }
+      const sketch: SketchData = {
+        model,
+        datasets: [],
+        dyn_properties: [],
+        stat_properties: []
+      }
+      aeonEvents.emitAction({
+        path: ['new-analysis-session'],
+        payload: JSON.stringify(sketch)
+      })
+    }
   },
   sketch: {
     sketchRefreshed: new Observable<SketchData>(['sketch', 'get_whole_sketch']),

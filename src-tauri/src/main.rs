@@ -2,10 +2,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use aeon_sketchbook::app::event::{Event, UserAction};
+use aeon_sketchbook::app::state::analysis::AnalysisSession;
 use aeon_sketchbook::app::state::editor::EditorSession;
 use aeon_sketchbook::app::state::{AppState, DynSession};
 use aeon_sketchbook::app::{AeonApp, AEON_ACTION, AEON_REFRESH, AEON_VALUE};
 use aeon_sketchbook::debug;
+use aeon_sketchbook::sketchbook::data_structs::SketchData;
+use aeon_sketchbook::sketchbook::JsonSerde;
+use aeon_sketchbook::sketchbook::Sketch;
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use tauri::{command, Manager, State, Window};
 
@@ -59,18 +64,62 @@ fn main() {
                 let action = UserAction {
                     events: event.events,
                 };
-                let result = state.consume_event(&aeon, session_id.as_str(), &action);
-                if let Err(e) = result {
-                    // TODO: This should be a normal error.
-                    //panic!("Event error: {:?}", e);
 
-                    // TODO: This is only a temporary solution to propagate the error message to frontend.
-                    debug!("Error processing last event: `{}`.", e.to_string());
-                    // A crude way to escape the error message and wrap it in quotes.
-                    let json_message = serde_json::Value::String(e.to_string()).to_string();
-                    let state_change = Event::build(&["error"], Some(&json_message));
-                    if aeon.tauri.emit_all(AEON_VALUE, vec![state_change]).is_err() {
-                        panic!("Event error failed to be sent: {:?}", e);
+                // TODO: this part should be probably moved elsewhere, just a placeholder for now
+                // check for "new-session" events here
+                if action.events.len() == 1 && action.events[0].path == ["new-analysis-session"] {
+                    let payload = action.events[0]
+                        .payload
+                        .clone()
+                        .ok_or(
+                            "This `new-analysis-session` event cannot carry empty payload."
+                                .to_string(),
+                        )
+                        .unwrap();
+                    let sketch_data = SketchData::from_json_str(&payload).unwrap();
+                    let sketch = Sketch::new_from_sketch_data(&sketch_data).unwrap();
+
+                    let time_now = Utc::now();
+                    let timestamp = time_now.timestamp();
+                    let new_session_id = format!("analysis-{timestamp}");
+                    let new_window_id = format!("analysis-{timestamp}-window");
+                    let new_session: DynSession =
+                        Box::new(AnalysisSession::new(&new_session_id, sketch));
+                    state.session_created(&new_session_id, new_session);
+                    state.window_created(&new_window_id, &new_session_id);
+
+                    // Create a new window for the analysis session
+                    let new_window = tauri::WindowBuilder::new(
+                        &handle,
+                        &new_window_id, // The unique window label
+                        tauri::WindowUrl::App("src/html/analysis.html".into()), // The URL or path to the HTML file
+                    )
+                    .title(format!(
+                        "Inference Workflow (opened on {})",
+                        time_now.to_rfc2822()
+                    ))
+                    .build();
+
+                    match new_window {
+                        Ok(_) => debug!(
+                            "New session `{new_session_id}` and window `{new_window_id}` created."
+                        ),
+                        Err(e) => panic!("Failed to create new window: {:?}", e),
+                    }
+                } else {
+                    let result = state.consume_event(&aeon, session_id.as_str(), &action);
+                    if let Err(e) = result {
+                        // TODO: This should be a normal error.
+                        //panic!("Event error: {:?}", e);
+
+                        // TODO: This is only a temporary solution to propagate the error message to frontend.
+                        debug!("Error processing last event: `{}`.", e.to_string());
+                        // A crude way to escape the error message and wrap it in quotes.
+                        let json_message = serde_json::Value::String(e.to_string()).to_string();
+                        let state_change = Event::build(&["error"], Some(&json_message));
+                        if aeon.tauri.emit_all(AEON_VALUE, vec![state_change]).is_err() {
+                            panic!("Event error failed to be sent: {:?}", e);
+                        }
                     }
                 }
             });

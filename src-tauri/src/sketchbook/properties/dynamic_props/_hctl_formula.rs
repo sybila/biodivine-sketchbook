@@ -1,7 +1,7 @@
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::properties::dynamic_props::_mk_hctl_formulas::*;
-use biodivine_hctl_model_checker::preprocessing::node::HctlTreeNode;
+use biodivine_hctl_model_checker::preprocessing::hctl_tree::HctlTreeNode;
 use biodivine_hctl_model_checker::preprocessing::parser::parse_hctl_formula;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;

@@ -243,7 +243,7 @@ export class RegulationsEditor extends LitElement {
       return
     }
     const renameDialog = new WebviewWindow(`renameDialog${Math.floor(Math.random() * 1000000)}`, {
-      url: 'src/html/component/regulations-editor/rename-dialog/rename-dialog.html',
+      url: 'src/html/component-editor/regulations-editor/rename-dialog/rename-dialog.html',
       title: `Edit node (${variableId} / ${variableName})`,
       alwaysOnTop: true,
       maximizable: false,

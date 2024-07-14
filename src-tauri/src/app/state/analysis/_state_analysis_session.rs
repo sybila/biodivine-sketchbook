@@ -1,6 +1,6 @@
+use crate::analysis::AnalysisState;
 use crate::app::event::{Event, StateChange, UserAction};
 use crate::app::state::_undo_stack::UndoStack;
-use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
@@ -8,22 +8,19 @@ use crate::sketchbook::Sketch;
 
 /// The state of one editor session.
 ///
-/// An editor session is the "main" app session where a model is created/edited and from which
-/// different analysis sessions can be started.
-pub struct EditorSession {
+/// An analysis session is the session where the process of the inference is run on a given model.
+pub struct AnalysisSession {
     id: String,
     undo_stack: UndoStack,
-    tab_bar: TabBarState,
-    sketch: Sketch,
+    analysis_state: AnalysisState,
 }
 
-impl EditorSession {
-    pub fn new(id: &str) -> EditorSession {
-        EditorSession {
+impl AnalysisSession {
+    pub fn new(id: &str, sketch: Sketch) -> AnalysisSession {
+        AnalysisSession {
             id: id.to_string(),
             undo_stack: UndoStack::default(),
-            tab_bar: TabBarState::default(),
-            sketch: Sketch::default(),
+            analysis_state: AnalysisState::new(sketch),
         }
     }
 
@@ -148,7 +145,7 @@ impl EditorSession {
     }
 }
 
-impl Session for EditorSession {
+impl Session for AnalysisSession {
     fn perform_action(&mut self, action: &UserAction) -> Result<StateChange, DynError> {
         // Explicit test for undo-stack actions.
         // TODO:
@@ -188,16 +185,14 @@ impl Session for EditorSession {
     }
 }
 
-impl SessionHelper for EditorSession {}
+impl SessionHelper for AnalysisSession {}
 
-impl SessionState for EditorSession {
+impl SessionState for AnalysisSession {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         if let Some(at_path) = Self::starts_with("undo_stack", at_path) {
             self.undo_stack.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
-            self.tab_bar.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("sketch", at_path) {
-            self.sketch.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("analysis", at_path) {
+            self.analysis_state.perform_event(event, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }
@@ -206,10 +201,8 @@ impl SessionState for EditorSession {
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         if let Some(at_path) = Self::starts_with("undo_stack", at_path) {
             self.undo_stack.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("tab_bar", at_path) {
-            self.tab_bar.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("sketch", at_path) {
-            self.sketch.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("analysis", at_path) {
+            self.analysis_state.refresh(full_path, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

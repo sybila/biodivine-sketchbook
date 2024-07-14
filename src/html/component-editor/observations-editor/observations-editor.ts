@@ -141,7 +141,7 @@ export default class ObservationsEditor extends LitElement {
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     const importDialog = new WebviewWindow(`editObservation${Math.floor(Math.random() * 1000000)}`, {
-      url: 'src/html/component/observations-editor/observations-import/observations-import.html',
+      url: 'src/html/component-editor/observations-editor/observations-import/observations-import.html',
       title: 'Import observation set',
       alwaysOnTop: false,
       maximizable: false,
