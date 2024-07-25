@@ -1,10 +1,11 @@
 use crate::analysis::AnalysisState;
-use crate::app::event::{Event, StateChange, UserAction};
+use crate::app::event::{Event, SessionMessage, StateChange, UserAction};
 use crate::app::state::_undo_stack::UndoStack;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
-use crate::sketchbook::Sketch;
+use crate::sketchbook::data_structs::SketchData;
+use crate::sketchbook::{JsonSerde, Sketch};
 
 /// The state of one editor session.
 ///
@@ -16,11 +17,11 @@ pub struct AnalysisSession {
 }
 
 impl AnalysisSession {
-    pub fn new(id: &str, sketch: Sketch) -> AnalysisSession {
+    pub fn new(id: &str) -> AnalysisSession {
         AnalysisSession {
             id: id.to_string(),
             undo_stack: UndoStack::default(),
-            analysis_state: AnalysisState::new(sketch),
+            analysis_state: AnalysisState::new_empty(),
         }
     }
 
@@ -122,7 +123,10 @@ impl AnalysisSession {
                 self.append_stack_updates(&mut state_changes);
             }
         } else if !ignore_stack && reset_stack {
-            debug!("Back stack cleared due to irreversible action.");
+            debug!(
+                "Back stack (of session {}) cleared due to irreversible action.",
+                self.id
+            );
             self.undo_stack.clear();
         }
 
@@ -178,6 +182,50 @@ impl Session for AnalysisSession {
             }
         }
         self.perform_action(action, false)
+    }
+
+    fn process_message(
+        &mut self,
+        message: &SessionMessage,
+    ) -> Result<(Option<SessionMessage>, Option<StateChange>), DynError> {
+        let path = message.message.path.clone();
+
+        // if the state changed due to message processing, we'll have to reset the undo-redo stack
+        // do not use messages that make these changes often
+        let mut reset_stack = false;
+
+        // message with sketch data sent from Editor session
+        let result = if path == vec!["sketch_sent".to_string()] {
+            if let Some(sketch_payload) = message.message.payload.clone() {
+                let sketch = Sketch::from_json_str(&sketch_payload)?;
+                reset_stack = true;
+                self.analysis_state.set_sketch(sketch);
+            } else {
+                panic!("Message `sketch_sent` must always carry a payload.")
+            }
+            // no response is expected, but we must inform frontend about state change
+            let sketch_data = SketchData::new_from_sketch(self.analysis_state.get_sketch());
+            let payload = sketch_data.to_json_str();
+            let state_change = StateChange {
+                events: vec![Event::build(
+                    &["analysis", "sketch_changed"],
+                    Some(&payload),
+                )],
+            };
+            Ok((None, Some(state_change)))
+        } else {
+            let error_msg = format!("`AnalysisSession` cannot process path {:?}.", path);
+            AeonError::throw(error_msg)
+        };
+
+        if reset_stack {
+            debug!(
+                "Back stack (of session {}) cleared due to backend change.",
+                self.id
+            );
+            self.undo_stack.clear();
+        }
+        result
     }
 
     fn id(&self) -> &str {

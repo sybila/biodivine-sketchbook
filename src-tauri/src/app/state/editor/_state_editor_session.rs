@@ -1,10 +1,10 @@
-use crate::app::event::{Event, StateChange, UserAction};
+use crate::app::event::{Event, SessionMessage, StateChange, UserAction};
 use crate::app::state::_undo_stack::UndoStack;
 use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
-use crate::sketchbook::Sketch;
+use crate::sketchbook::{JsonSerde, Sketch};
 
 /// The state of one editor session.
 ///
@@ -125,7 +125,10 @@ impl EditorSession {
                 self.append_stack_updates(&mut state_changes);
             }
         } else if !ignore_stack && reset_stack {
-            debug!("Back stack cleared due to irreversible action.");
+            debug!(
+                "Back stack (of session {}) cleared due to irreversible action.",
+                self.id
+            );
             self.undo_stack.clear();
         }
 
@@ -181,6 +184,40 @@ impl Session for EditorSession {
             }
         }
         self.perform_action(action, false)
+    }
+
+    fn process_message(
+        &mut self,
+        message: &SessionMessage,
+    ) -> Result<(Option<SessionMessage>, Option<StateChange>), DynError> {
+        let path = message.message.path.clone();
+
+        // if the state changed due to message processing, we'll have to reset the undo-redo stack
+        // do not use messages that make these changes often
+        // todo: make this `mut` when we have some cases here that could mutate state
+        let reset_stack = false;
+
+        // request from new Analysis session for sending a sketch
+        let result = if path == vec!["send_sketch".to_string()] {
+            let sketch_string = self.sketch.to_json_str();
+            let response_msg = SessionMessage {
+                message: Event::build(&["sketch_sent"], Some(&sketch_string)),
+            };
+            // response message; but no change in state for frontend
+            Ok((Some(response_msg), None))
+        } else {
+            let error_msg = format!("`EditorSession` cannot process path {:?}.", path);
+            AeonError::throw(error_msg)
+        };
+
+        if reset_stack {
+            debug!(
+                "Back stack (of session {}) cleared due to backend change.",
+                self.id
+            );
+            self.undo_stack.clear();
+        }
+        result
     }
 
     fn id(&self) -> &str {

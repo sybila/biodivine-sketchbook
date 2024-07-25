@@ -2,7 +2,7 @@ use crate::sketchbook::data_structs::{DatasetData, DynPropertyData, ModelData, S
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::ObservationManager;
 use crate::sketchbook::properties::PropertyManager;
-use crate::sketchbook::JsonSerde;
+use crate::sketchbook::{JsonSerde, Sketch};
 use serde::{Deserialize, Serialize};
 
 /// Structure for sending/exporting data about the whole Sketch.
@@ -42,5 +42,10 @@ impl SketchData {
             dyn_properties,
             stat_properties,
         }
+    }
+
+    /// Create new `SketchData` instance given a reference to the `Sketch` instance.
+    pub fn new_from_sketch(sketch: &Sketch) -> SketchData {
+        Self::new(&sketch.model, &sketch.observations, &sketch.properties)
     }
 }

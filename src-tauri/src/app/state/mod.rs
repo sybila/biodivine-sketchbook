@@ -1,4 +1,4 @@
-use crate::app::event::{Event, StateChange, UserAction};
+use crate::app::event::{Event, SessionMessage, StateChange, UserAction};
 use crate::app::{AeonError, DynError};
 
 mod _consumed;
@@ -113,6 +113,17 @@ pub trait Session: SessionState {
     /// the events to the internal [SessionState] objects and collecting the results into a
     /// single [StateChange] entry.
     fn perform_action(&mut self, action: &UserAction) -> Result<StateChange, DynError>;
+
+    /// Process a message sent to this session state object.
+    ///
+    /// Depending on the message, an optional "response" [SessionMessage] might be returned.
+    /// This will be sent to the sender of the original message.
+    /// Similarly, if the processing of the message caused some changes to the state, an optional
+    /// "refresh" [SessionMessage] should be returned to then update the frontend.
+    fn process_message(
+        &mut self,
+        message: &SessionMessage,
+    ) -> Result<(Option<SessionMessage>, Option<StateChange>), DynError>;
 
     /// Returns the string identifier of this particular session. Each session identifier must
     /// be unique within the application.

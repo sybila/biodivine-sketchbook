@@ -32,6 +32,17 @@ pub struct StateChange {
     pub events: Vec<Event>,
 }
 
+/// A [SessionMessage] represents a single event "message" that is exchanged between
+/// different sessions (purely on backend).
+///
+/// Typically, a [SessionMessage] is emitted as either "request" when one session needs a value
+/// from another, or as a "answer", providing the requested value. Of course, the values might
+/// also be sent automatically without requests.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SessionMessage {
+    pub message: Event,
+}
+
 impl Event {
     pub fn build(path: &[&str], payload: Option<&str>) -> Event {
         Event {

@@ -8,14 +8,42 @@ use serde::{Deserialize, Serialize};
 /// Object encompassing all of the state components of the Analysis.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnalysisState {
-    /// Boolean network sketch to run the analysis on.
+    /// Boolean network sketch to run the analysis on. Can be a placeholder at the beginning.
     sketch: Sketch,
+    /// Flag signalling that the actual sketch data were received.
+    sketch_received: bool,
     // TODO
 }
 
 impl AnalysisState {
+    /// Create new `AnalysisState` with an empty placeholder sketch.
+    ///
+    /// This is used to create a placeholder instance before the actual sketch data are sent from
+    /// the editor session.
+    pub fn new_empty() -> AnalysisState {
+        AnalysisState {
+            sketch: Sketch::default(),
+            sketch_received: false,
+        }
+    }
+
+    /// Create new `AnalysisState` with a full sketch data.
     pub fn new(sketch: Sketch) -> AnalysisState {
-        AnalysisState { sketch }
+        AnalysisState {
+            sketch,
+            sketch_received: true,
+        }
+    }
+
+    /// Update the sketch data of this `AnalysisState`.
+    pub fn set_sketch(&mut self, sketch: Sketch) {
+        self.sketch = sketch;
+        self.sketch_received = true;
+    }
+
+    /// Get reference to the sketch data of this `AnalysisState`.
+    pub fn get_sketch(&self) -> &Sketch {
+        &self.sketch
     }
 }
 

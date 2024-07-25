@@ -338,6 +338,12 @@ interface AeonState {
     }
   }
 
+  /** The events regarding the analysis workflow. */
+  analysis: {
+    /** Sketch data received. */
+    sketchRefreshed: Observable<SketchData>
+  }
+
   /** The information about errors occurring when processing events on backend. */
   error: {
     /** Error message provided by backend. */
@@ -347,7 +353,6 @@ interface AeonState {
   /** Events for creating new sessions. */
   new_session: {
     /** Create a new analysis session. */
-    // TODO: this is just a placeholder for now
     createNewAnalysisSession: () => void
   }
 }
@@ -868,23 +873,10 @@ export const aeonState: AeonState = {
     errorReceived: new Observable<string>(['error'])
   },
   new_session: {
-    // TODO: this is just a placeholder for now
     createNewAnalysisSession (): void {
-      const model: ModelData = {
-        variables: [],
-        regulations: [],
-        uninterpreted_fns: [],
-        layouts: []
-      }
-      const sketch: SketchData = {
-        model,
-        datasets: [],
-        dyn_properties: [],
-        stat_properties: []
-      }
       aeonEvents.emitAction({
         path: ['new-analysis-session'],
-        payload: JSON.stringify(sketch)
+        payload: null
       })
     }
   },
@@ -1355,5 +1347,8 @@ export const aeonState: AeonState = {
         })
       }
     }
+  },
+  analysis: {
+    sketchRefreshed: new Observable<SketchData>(['analysis', 'sketch_changed'])
   }
 }

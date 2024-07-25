@@ -16,9 +16,9 @@ mod _impl_sketch;
 /// modules is needed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Sketch {
-    model: ModelState,
-    observations: ObservationManager,
-    properties: PropertyManager,
+    pub model: ModelState,
+    pub observations: ObservationManager,
+    pub properties: PropertyManager,
 }
 
 impl<'de> JsonSerde<'de> for Sketch {}
