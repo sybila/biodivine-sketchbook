@@ -3,17 +3,16 @@ import { customElement, property } from 'lit/decorators.js'
 import style_less from './analysis-component.less?inline'
 import {
   aeonState,
-  type SketchData
+  type SketchData,
+  type InferenceResults,
+  type StaticCheckResults
 } from '../../../aeon_events'
-import {
-  ContentData
-} from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
 
 @customElement('analysis-component')
 export default class AnalysisComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() data: ContentData = ContentData.create()
+  @property() sketchData: SketchData | null = null
 
   constructor () {
     super()
@@ -27,14 +26,36 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.sketchRefreshed.addEventListener((sketch) => {
       void this.#onSketchRefreshed(sketch)
     })
+
+    // updates regarding analyses received
+    aeonState.analysis.inferenceStarted.addEventListener(
+      this.#onInferenceStarted.bind(this)
+    )
+    aeonState.analysis.staticCheckStarted.addEventListener(
+      this.#onStaticCheckStarted.bind(this)
+    )
+    aeonState.analysis.inferenceResultsReceived.addEventListener(
+      this.#onInferenceResultsReceived.bind(this)
+    )
+    aeonState.analysis.staticCheckResultsReceived.addEventListener(
+      this.#onStaticCheckResultsReceived.bind(this)
+    )
+
+    // ask for sketch data during initiation (just in case the automatic transfer fails)
+    aeonState.analysis.refreshSketch()
   }
 
   async #onSketchRefreshed (sketchData: SketchData): Promise<void> {
-    const numVars = sketchData.model.variables.length
-    await dialog.message('Received sketch data, yay! It has ' + numVars.toString() + ' vars.', {
-      type: 'info',
-      title: 'Sketch received.'
-    })
+    // currently we only accept the sketch data once, and it is frozen later
+    // if this changes and we want to allow re-writing sketch data, update this function
+
+    if (this.sketchData === null) {
+      this.sketchData = sketchData
+      const numVars = sketchData.model.variables.length
+      console.log('Received sketch data. The sketch has ' + numVars.toString() + ' variables.')
+    } else {
+      console.log('Can\'t accept sketch data. Sketch was already set before.')
+    }
   }
 
   async #onErrorMessage (errorMessage: string): Promise<void> {
@@ -42,6 +63,34 @@ export default class AnalysisComponent extends LitElement {
       type: 'error',
       title: 'Error'
     })
+  }
+
+  #onInferenceStarted (success: boolean): void {
+    if (success) {
+      console.log('Inference analysis sucessfully started.')
+    } else {
+      console.log('Error starting inference analysis.')
+    }
+  }
+
+  #onStaticCheckStarted (success: boolean): void {
+    if (success) {
+      console.log('Static check analysis sucessfully started.')
+    } else {
+      console.log('Error starting static check analysis.')
+    }
+  }
+
+  #onInferenceResultsReceived (results: InferenceResults): void {
+    console.log('Received full inference results.')
+    console.log('-> There are ' + results.numSatNetworks + ' satisfying networks.')
+    console.log('-> The computation took ' + results.computationTime + ' seconds.')
+  }
+
+  #onStaticCheckResultsReceived (results: StaticCheckResults): void {
+    console.log('Received static check results.')
+    console.log('-> There are ' + results.numSatNetworks + ' satisfying networks.')
+    console.log('-> The computation took ' + results.computationTime + ' seconds.')
   }
 
   private async confirmDialog (): Promise<boolean> {
@@ -53,13 +102,16 @@ export default class AnalysisComponent extends LitElement {
     })
   }
 
-  private async dummyDialog (): Promise<boolean> {
-    return await dialog.ask('Hello there.', {
-      type: 'info',
-      okLabel: 'OK',
-      cancelLabel: 'Cancel',
-      title: 'Hello there'
-    })
+  private runInference (): void {
+    console.log('Initiating inference analysis, wait a bit...')
+    aeonState.analysis.startFullInference()
+    // TODO
+  }
+
+  private runStaticCheck (): void {
+    console.log('Initiating static check, wait a bit...')
+    aeonState.analysis.startStaticCheck()
+    // TODO
   }
 
   render (): TemplateResult {
@@ -74,16 +126,16 @@ export default class AnalysisComponent extends LitElement {
             <div class="uk-flex uk-flex-row uk-flex-center">
               <button class="uk-button uk-button-large uk-button-secondary"
                       @click="${() => {
-                        void this.dummyDialog()
-                      }}">Step-by-step workflow
+                        this.runInference()
+                      }}">Run full inference
               </button>
             </div>
             
             <div class="uk-flex uk-flex-row uk-flex-center">
               <button class="uk-button uk-button-large uk-button-secondary"
                       @click="${() => {
-                        void this.dummyDialog()
-                      }}">Run full inference
+                        this.runStaticCheck()
+                      }}">Static check
               </button>
             </div>
           </div>

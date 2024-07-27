@@ -1,4 +1,4 @@
-use crate::analysis::AnalysisState;
+use crate::analysis::analysis_state::AnalysisState;
 use crate::app::event::{Event, SessionMessage, StateChange, UserAction};
 use crate::app::state::_undo_stack::UndoStack;
 use crate::app::state::{Consumed, Session, SessionHelper, SessionState};
@@ -203,14 +203,13 @@ impl Session for AnalysisSession {
             } else {
                 panic!("Message `sketch_sent` must always carry a payload.")
             }
-            // no response is expected, but we must inform frontend about state change
+
+            // no backend response is expected, but we must send refresh event to inform frontend
+            // about the state change
             let sketch_data = SketchData::new_from_sketch(self.analysis_state.get_sketch());
             let payload = sketch_data.to_json_str();
             let state_change = StateChange {
-                events: vec![Event::build(
-                    &["analysis", "sketch_changed"],
-                    Some(&payload),
-                )],
+                events: vec![Event::build(&["analysis", "get_sketch"], Some(&payload))],
             };
             Ok((None, Some(state_change)))
         } else {

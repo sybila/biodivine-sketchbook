@@ -340,8 +340,25 @@ interface AeonState {
 
   /** The events regarding the analysis workflow. */
   analysis: {
-    /** Sketch data received. */
+    /** Sketch data transfered from backend (useful to initiate the state). */
     sketchRefreshed: Observable<SketchData>
+    /** Ask for a sketch data (might be useful to update analysis window, or if automatic sketch
+     * transfer from backend does not work). */
+    refreshSketch: () => void
+
+    /** Start the full inference analysis. */
+    startFullInference: () => void
+    /** Note that inference analysis was started. */
+    inferenceStarted: Observable<boolean>
+    /** Inference analysis results. */
+    inferenceResultsReceived: Observable<InferenceResults>
+
+    /** Start the static check analysis. */
+    startStaticCheck: () => void
+    /** Note that static check analysis was started. */
+    staticCheckStarted: Observable<boolean>
+    /** Static check analysis results. */
+    staticCheckResultsReceived: Observable<StaticCheckResults>
   }
 
   /** The information about errors occurring when processing events on backend. */
@@ -466,6 +483,18 @@ export interface DynPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing information needed for static property's id change. */
 export interface StatPropIdUpdateData { original_id: string, new_id: string }
+
+/** An object representing all information regarding inference analysis results. */
+export interface InferenceResults {
+  numSatNetworks: number
+  computationTime: number
+}
+
+/** An object representing all information regarding static check analysis results. */
+export interface StaticCheckResults {
+  numSatNetworks: number
+  computationTime: number
+}
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -1349,6 +1378,27 @@ export const aeonState: AeonState = {
     }
   },
   analysis: {
-    sketchRefreshed: new Observable<SketchData>(['analysis', 'sketch_changed'])
+    sketchRefreshed: new Observable<SketchData>(['analysis', 'get_sketch']),
+    refreshSketch (): void {
+      aeonEvents.refresh(['analysis', 'get_sketch'])
+    },
+
+    inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
+    staticCheckResultsReceived: new Observable<StaticCheckResults>(['analysis', 'static_results']),
+    inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
+    staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
+
+    startFullInference (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_inference'],
+        payload: null
+      })
+    },
+    startStaticCheck (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_static'],
+        payload: null
+      })
+    }
   }
 }

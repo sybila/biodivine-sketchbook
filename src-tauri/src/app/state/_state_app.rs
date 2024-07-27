@@ -2,7 +2,7 @@ use crate::app::event::{SessionMessage, StateChange, UserAction};
 use crate::app::event_wrappers::AeonMessage;
 use crate::app::state::DynSession;
 use crate::app::{AeonApp, AeonError, DynError, AEON_MESSAGE, AEON_VALUE};
-use crate::{debug, warning};
+use crate::warning;
 use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
 use std::sync::Mutex;
@@ -96,7 +96,6 @@ impl AppState {
         state_change: StateChange,
     ) -> Result<(), DynError> {
         let window_ids = self.get_windows_for_session(session_id);
-        debug!("{:?}", window_ids);
         if window_ids.is_empty() {
             warning!("No windows correspond to provided session `{session_id}`.")
         }
