@@ -106,7 +106,7 @@ fn main() {
                 } else {
                     let result = state.consume_event(&aeon, &session_id, &action);
                     if let Err(e) = result {
-                        // TODO: This is only a temporary solution to propagate this kind of error message to frontend.
+                        // TODO: This is a temporary solution to propagate this kind of error message to frontend.
                         debug!("Error processing last event: `{}`.", e.to_string());
                         // A crude way to escape the error message and wrap it in quotes.
                         let json_message = serde_json::Value::String(e.to_string()).to_string();
