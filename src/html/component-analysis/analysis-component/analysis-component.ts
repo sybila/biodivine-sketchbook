@@ -67,7 +67,7 @@ export default class AnalysisComponent extends LitElement {
 
   #onInferenceStarted (success: boolean): void {
     if (success) {
-      console.log('Inference analysis sucessfully started.')
+      console.log('DUMMY MESSAGE: Inference analysis sucessfully started.')
     } else {
       console.log('Error starting inference analysis.')
     }
@@ -75,7 +75,7 @@ export default class AnalysisComponent extends LitElement {
 
   #onStaticCheckStarted (success: boolean): void {
     if (success) {
-      console.log('Static check analysis sucessfully started.')
+      console.log('DUMMY MESSAGE: Static check analysis sucessfully started.')
     } else {
       console.log('Error starting static check analysis.')
     }
@@ -83,14 +83,14 @@ export default class AnalysisComponent extends LitElement {
 
   #onInferenceResultsReceived (results: InferenceResults): void {
     console.log('Received full inference results.')
-    console.log('-> There are ' + results.numSatNetworks + ' satisfying networks.')
-    console.log('-> The computation took ' + results.computationTime + ' seconds.')
+    console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
+    console.log('-> The computation took ' + results.comp_time + ' seconds.')
   }
 
   #onStaticCheckResultsReceived (results: StaticCheckResults): void {
     console.log('Received static check results.')
-    console.log('-> There are ' + results.numSatNetworks + ' satisfying networks.')
-    console.log('-> The computation took ' + results.computationTime + ' seconds.')
+    console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
+    console.log('-> The computation took ' + results.comp_time + ' seconds.')
   }
 
   private async confirmDialog (): Promise<boolean> {

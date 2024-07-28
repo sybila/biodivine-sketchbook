@@ -1,3 +1,5 @@
+use crate::analysis::analysis_results::AnalysisResults;
+use crate::analysis::inference_solver::InferenceSolver;
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
@@ -6,15 +8,20 @@ use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::{JsonSerde, Sketch};
 use serde::{Deserialize, Serialize};
 
-/// Object encompassing all of the state components of the Analysis itself.
+/// Object encompassing all of the state components of the Analysis itself that are exchanged
+/// with frontend (no raw low-level structures like symbolic graph or its colors)
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnalysisState {
     /// Boolean network sketch to run the analysis on. Can be a placeholder at the beginning.
     sketch: Sketch,
     /// Flag signalling that the actual sketch data were received from editor session.
     sketch_received: bool,
+    /// Potential results of the analysis.
+    results: Option<AnalysisResults>,
     // TODO
 }
+
+impl<'de> JsonSerde<'de> for AnalysisState {}
 
 impl AnalysisState {
     /// Create new `AnalysisState` with an empty placeholder sketch.
@@ -25,6 +32,7 @@ impl AnalysisState {
         AnalysisState {
             sketch: Sketch::default(),
             sketch_received: false,
+            results: None,
         }
     }
 
@@ -33,6 +41,7 @@ impl AnalysisState {
         AnalysisState {
             sketch,
             sketch_received: true,
+            results: None,
         }
     }
 
@@ -57,10 +66,14 @@ impl SessionState for AnalysisState {
         match at_path.first() {
             Some(&"run_inference") => {
                 Self::assert_payload_empty(event, component)?;
-                debug!("Event `run_inference` received. It is not implemented at the moment.");
+                debug!("Event `run_inference` received. It is not fully implemented yet.");
                 // TODO
 
-                let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
+                let mut inference_solver = InferenceSolver::new();
+                let results = inference_solver.run_computation_prototype(self.sketch.clone())?;
+
+                let payload = results.to_json_str();
+                let state_change = Event::build(&["analysis", "inference_results"], Some(&payload));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
@@ -68,7 +81,7 @@ impl SessionState for AnalysisState {
             }
             Some(&"run_static") => {
                 Self::assert_payload_empty(event, component)?;
-                debug!("Event `run_static` received. It is not implemented at the moment.");
+                debug!("Event `run_static` received. It is not implemented at the moment. Only dummy message will be sent");
                 // TODO
 
                 let state_change = Event::build(&["analysis", "static_running"], Some("true"));

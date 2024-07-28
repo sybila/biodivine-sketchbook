@@ -486,14 +486,14 @@ export interface StatPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing all information regarding inference analysis results. */
 export interface InferenceResults {
-  numSatNetworks: number
-  computationTime: number
+  num_sat_networks: number
+  comp_time: number
 }
 
 /** An object representing all information regarding static check analysis results. */
 export interface StaticCheckResults {
-  numSatNetworks: number
-  computationTime: number
+  num_sat_networks: number
+  comp_time: number
 }
 
 /** A function that is notified when a state value changes. */
