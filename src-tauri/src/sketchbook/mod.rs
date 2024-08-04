@@ -17,6 +17,8 @@ pub mod observations;
 /// Classes and utility methods regarding properties.
 #[macro_use]
 pub mod properties;
+/// Utilities regarding conversion of BN components and similar.
+pub mod bn_utils;
 
 /// The main `Sketch` manager object and its utilities.
 mod _sketch;

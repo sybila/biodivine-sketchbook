@@ -345,17 +345,26 @@ interface AeonState {
     /** Ask for a sketch data (might be useful to update analysis window, or if automatic sketch
      * transfer from backend does not work). */
     refreshSketch: () => void
+    /** Fully reset the analysis and start again. The same sketch will be used. */
+    resetAnalysis: () => void
+    /** Information that analysis was reset. */
+    analysisReset: Observable<boolean>
+    /** Sample given number of Boolean networks from the results, either dereministically
+     * or randomly. The networks are saved in a zip archive at given path. */
+    sampleNetworks: (count: number, seed: number | null, path: string) => void
 
     /** Start the full inference analysis. */
     startFullInference: () => void
-    /** Note that inference analysis was started. */
+    /** Information that inference analysis was started.
+     * Currently not utilized. */
     inferenceStarted: Observable<boolean>
     /** Inference analysis results. */
     inferenceResultsReceived: Observable<InferenceResults>
 
     /** Start the static check analysis. */
     startStaticCheck: () => void
-    /** Note that static check analysis was started. */
+    /** Information that static check analysis was started.
+     * Currently not utilized. */
     staticCheckStarted: Observable<boolean>
     /** Static check analysis results. */
     staticCheckResultsReceived: Observable<StaticCheckResults>
@@ -488,12 +497,14 @@ export interface StatPropIdUpdateData { original_id: string, new_id: string }
 export interface InferenceResults {
   num_sat_networks: number
   comp_time: number
+  metadata_log: string
 }
 
 /** An object representing all information regarding static check analysis results. */
 export interface StaticCheckResults {
   num_sat_networks: number
   comp_time: number
+  metadata_log: string
 }
 
 /** A function that is notified when a state value changes. */
@@ -1379,8 +1390,22 @@ export const aeonState: AeonState = {
   },
   analysis: {
     sketchRefreshed: new Observable<SketchData>(['analysis', 'get_sketch']),
+    analysisReset: new Observable<boolean>(['analysis', 'analysis_reset']),
+
     refreshSketch (): void {
       aeonEvents.refresh(['analysis', 'get_sketch'])
+    },
+    resetAnalysis () {
+      aeonEvents.emitAction({
+        path: ['analysis', 'reset_analysis'],
+        payload: null
+      })
+    },
+    sampleNetworks (count: number, seed: number | null, path: string): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'sample_networks'],
+        payload: JSON.stringify({ count, seed, path })
+      })
     },
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),

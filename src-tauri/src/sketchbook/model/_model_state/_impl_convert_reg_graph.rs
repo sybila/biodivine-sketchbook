@@ -1,22 +1,44 @@
+use crate::sketchbook::bn_utils;
 use crate::sketchbook::ids::VarId;
-use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
-use biodivine_lib_param_bn::Monotonicity as Lib_Pbn_Monotonicity;
+use crate::sketchbook::model::ModelState;
 use biodivine_lib_param_bn::RegulatoryGraph;
 
 /// Methods for converting between `ModelState` and `RegulatoryGraph` (from the `lib-param-bn`).
 impl ModelState {
-    /// Convert the `ModelState` (the current state of the regulation graph) into the
-    /// corresponding `RegulatoryGraph` object. Sorted variable IDs of the `ModelState` are
-    /// used for variable names in `RegulatoryGraph`.
+    /// Extract the regulatory graph (`RegulatoryGraph` object) from the `ModelState`.
+    /// Sorted variable IDs of the `ModelState` are used for variable names in `RegulatoryGraph`.
     ///
     /// The conversion might loose some information, as the `RegulatoryGraph` does not support
-    /// all the variants of `Monotonicity` and `Essentiality`. See also [ModelState::sign_to_monotonicity].
+    /// all the variants of `Monotonicity` and `Essentiality`. See also [bn_utils::sign_to_monotonicity].
     ///
     /// Note that we can convert the resulting `RegulatoryGraph` back, but the conversion loses
     /// some information, like the original variable names and layout information.
     /// Also, all of the other model components, such as `update functions` or `uninterpreted functions`
     /// are not part of the `RegulatoryGraph`.
     pub fn to_reg_graph(&self) -> RegulatoryGraph {
+        self._to_reg_graph(true)
+    }
+
+    /// Extract the regulatory graph (`RegulatoryGraph` object) from the `ModelState`.
+    /// Sorted variable IDs of the `ModelState` are used for variable names in `RegulatoryGraph`.
+    ///
+    /// The types of regulations (their essentiality and monotonicity) are ignored, and unspecified
+    /// versions are used instead.
+    ///
+    /// This might be useful in inference, if we want to process regulation types later via static
+    /// properties.
+    pub fn to_reg_graph_with_unspecified_regs(&self) -> RegulatoryGraph {
+        self._to_reg_graph(false)
+    }
+
+    /// Internal utility to extract the regulatory graph (`RegulatoryGraph` object) from the
+    /// `ModelState`. Sorted variable IDs of the `ModelState` are used for variable names in
+    /// `RegulatoryGraph`.
+    ///
+    /// There are two modes based on `include_reg_types` argument. If it is set to `true`, the
+    /// types of regulations (their essentiality and monotonicity) are preserved. If it is set to
+    /// `false`, they are ignored, and unspecified versions are used instead.
+    fn _to_reg_graph(&self, include_reg_types: bool) -> RegulatoryGraph {
         // create `RegulatoryGraph` from a list of variable ID strings (these are unique and
         // can be mapped back)
         let mut variable_vec = self
@@ -31,15 +53,29 @@ impl ModelState {
 
         // regulations
         for r in self.regulations() {
-            reg_graph
-                .add_regulation(
-                    r.get_regulator().as_str(),
-                    r.get_target().as_str(),
-                    r.is_essential(),
-                    ModelState::sign_to_monotonicity(r.get_sign()),
-                )
-                .unwrap();
-            // we can use unwrap, cause the regulation will always be unique and correctly added
+            if include_reg_types {
+                // add the regulation with its original monotonicity and essentiality (as far as conversion allows)
+                reg_graph
+                    .add_regulation(
+                        r.get_regulator().as_str(),
+                        r.get_target().as_str(),
+                        r.is_essential(),
+                        bn_utils::sign_to_monotonicity(r.get_sign()),
+                    )
+                    .unwrap();
+                // we can use unwrap, cause the regulation is ensured to be unique and correctly added
+            } else {
+                // add the regulation unspecified monotonicity and essentiality
+                reg_graph
+                    .add_regulation(
+                        r.get_regulator().as_str(),
+                        r.get_target().as_str(),
+                        false,
+                        None,
+                    )
+                    .unwrap();
+                // we can use unwrap, cause the regulation is ensured to be unique and correctly added
+            }
         }
         reg_graph
     }
@@ -66,47 +102,11 @@ impl ModelState {
             model.add_regulation(
                 VarId::new(name_regulator.as_str())?,
                 VarId::new(name_target.as_str())?,
-                ModelState::essentiality_from_bool(r.is_observable()),
-                ModelState::sign_from_monotonicity(r.get_monotonicity()),
+                bn_utils::essentiality_from_bool(r.is_observable()),
+                bn_utils::sign_from_monotonicity(r.get_monotonicity()),
             )?;
         }
         Ok(model)
-    }
-
-    /// **(internal)** Static utility method to convert regulation sign given by `Monotonicity`
-    /// used by `lib_param_bn` into the type `Monotonicity` used here.
-    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `Monotonicity`.
-    fn sign_from_monotonicity(monotonicity: Option<Lib_Pbn_Monotonicity>) -> Monotonicity {
-        match monotonicity {
-            Some(m) => match m {
-                Lib_Pbn_Monotonicity::Activation => Monotonicity::Activation,
-                Lib_Pbn_Monotonicity::Inhibition => Monotonicity::Inhibition,
-            },
-            None => Monotonicity::Unknown,
-        }
-    }
-
-    /// **(internal)** Static utility method to convert regulation sign from the type
-    /// `Monotonicity` used here into the type `Monotonicity` used in `lib_param_bn`.
-    /// TODO: note that `lib-param-bn` currently cannot express `Dual` variant of `Monotonicity` and `Unknown` is used instead.
-    fn sign_to_monotonicity(regulation_sign: &Monotonicity) -> Option<Lib_Pbn_Monotonicity> {
-        match regulation_sign {
-            Monotonicity::Activation => Some(Lib_Pbn_Monotonicity::Activation),
-            Monotonicity::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),
-            Monotonicity::Unknown => None,
-            // todo: fix
-            Monotonicity::Dual => None,
-        }
-    }
-
-    /// **(internal)** Static utility method to convert `Essentiality` from boolean.
-    /// TODO: note that `lib-param-bn` currently cannot distinguish between `False` and `Unknown` variants of `Essentiality`.
-    fn essentiality_from_bool(essentiality: bool) -> Essentiality {
-        match essentiality {
-            true => Essentiality::True,
-            // todo: fix, this is how it works now in `lib-param-bn`
-            false => Essentiality::Unknown,
-        }
     }
 }
 

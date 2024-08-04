@@ -1,22 +1,25 @@
+use crate::algorithms::eval_dynamic::template_eval::eval_dyn_prop;
+use crate::algorithms::eval_static::template_eval::eval_static_prop;
 use crate::analysis::analysis_results::AnalysisResults;
-use crate::sketchbook::properties::dynamic_props::DynPropertyType;
-use crate::sketchbook::properties::{FirstOrderFormula, HctlFormula};
+use crate::log;
+use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
+use biodivine_hctl_model_checker::mc_utils::get_extended_symbolic_graph;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
 use biodivine_lib_param_bn::BooleanNetwork;
 use std::time::SystemTime;
 
 /// Status of the computation, together with a timestamp.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum InferenceStatus {
-    Created(SystemTime),
-    Started(SystemTime),
-    ProcessedInputs(SystemTime),
-    GeneratedGraph(SystemTime),
-    EvaluatedStatic(SystemTime),
-    EvaluatedDynamic(SystemTime),
-    Finished(SystemTime),
-    Error(SystemTime),
+    Created,
+    Started,
+    ProcessedInputs,
+    GeneratedGraph,
+    EvaluatedStatic,
+    EvaluatedDynamic,
+    Finished,
+    Error,
 }
 
 /// Object encompassing the process of the full BN inference.
@@ -32,21 +35,22 @@ pub struct InferenceSolver {
     /// Boolean Network instance.
     bn: Option<BooleanNetwork>,
     /// Symbolic transition graph for the system.
+    /// Its set of unit colors is gradually updated during computation, and it consists of
+    /// currently remaining valid candidate colors.
     graph: Option<SymbolicAsyncGraph>,
-    /// Static properties converted to FO logic.
-    static_props: Option<Vec<FirstOrderFormula>>,
-    /// Dynamic properties converted to HCTL.
-    dynamic_props: Option<Vec<HctlFormula>>,
-    /// Intermediate set of candidate colors, gradually updated during computation.
-    raw_intermediate_colors: Option<GraphColors>,
+    /// Static properties.
+    static_props: Option<Vec<StatProperty>>,
+    /// Dynamic properties.
+    dynamic_props: Option<Vec<DynProperty>>,
     /// Set of final satisfying colors (once computed).
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
-    status_updates: Vec<InferenceStatus>,
+    status_updates: Vec<(InferenceStatus, SystemTime)>,
 }
 
 impl InferenceSolver {
-    fn bn(&self) -> Result<&BooleanNetwork, String> {
+    /// Reference getter for a Boolean network.
+    pub fn bn(&self) -> Result<&BooleanNetwork, String> {
         if let Some(bn) = &self.bn {
             Ok(bn)
         } else {
@@ -54,7 +58,8 @@ impl InferenceSolver {
         }
     }
 
-    fn graph(&self) -> Result<&SymbolicAsyncGraph, String> {
+    /// Reference getter for a transition graph.
+    pub fn graph(&self) -> Result<&SymbolicAsyncGraph, String> {
         if let Some(graph) = &self.graph {
             Ok(graph)
         } else {
@@ -62,11 +67,72 @@ impl InferenceSolver {
         }
     }
 
-    fn sat_colors(&self) -> Result<&GraphColors, String> {
+    /// Reference getter for a vector of formulas for static properties.
+    pub fn stat_props(&self) -> Result<&Vec<StatProperty>, String> {
+        if let Some(stat_props) = &self.static_props {
+            Ok(stat_props)
+        } else {
+            Err("Static properties not yet processed.".to_string())
+        }
+    }
+
+    /// Reference getter for a vector of formulas for dynamic properties.
+    pub fn dyn_props(&self) -> Result<&Vec<DynProperty>, String> {
+        if let Some(dyn_props) = &self.dynamic_props {
+            Ok(dyn_props)
+        } else {
+            Err("Dynamic properties not yet processed.".to_string())
+        }
+    }
+
+    /// Reference getter for a set with satisfying graph colors.
+    pub fn sat_colors(&self) -> Result<&GraphColors, String> {
         if let Some(colors) = &self.raw_sat_colors {
             Ok(colors)
         } else {
             Err("Satisfying colors not yet computed.".to_string())
+        }
+    }
+
+    /// Get a current set of valid candidate colors.
+    /// This is gradually updated during computation.
+    pub fn current_candidate_colors(&self) -> Result<GraphColors, String> {
+        Ok(self.graph()?.mk_unit_colors())
+    }
+
+    fn status_update(&mut self, status: InferenceStatus) {
+        let now = SystemTime::now();
+        self.status_updates.push((status.clone(), now));
+
+        let start_time = self.start_time().unwrap();
+        let duration_since_start = now.duration_since(start_time).unwrap();
+        log!(
+            "0",
+            "Inference status update: {:?}, {}s",
+            status,
+            duration_since_start.as_secs()
+        );
+    }
+
+    /// Getter for a start time of the actual computation.
+    pub fn start_time(&self) -> Result<SystemTime, String> {
+        if self.status_updates.len() > 1 {
+            Ok(self.status_updates[1].1)
+        } else {
+            Err("Computation not yet started.".to_string())
+        }
+    }
+
+    /// Getter for a finish time of the actual computation.
+    pub fn finish_time(&self) -> Result<SystemTime, String> {
+        // there is always some status (since one is given during initialization)
+        let (last_status, last_time) = self.status_updates.last().unwrap();
+        if let InferenceStatus::Finished = last_status {
+            Ok(*last_time)
+        } else if let InferenceStatus::Error = last_status {
+            Err("Computation failed to finish.".to_string())
+        } else {
+            Err("Computation not yet finished.".to_string())
         }
     }
 }
@@ -80,29 +146,25 @@ impl InferenceSolver {
             graph: None,
             static_props: None,
             dynamic_props: None,
-            raw_intermediate_colors: None,
             raw_sat_colors: None,
-            status_updates: vec![InferenceStatus::Created(SystemTime::now())],
+            status_updates: vec![(InferenceStatus::Created, SystemTime::now())],
         }
     }
 
-    /// Partially process the sketch into individual components.
-    ///
-    /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
-    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// static properties, all but generic dynamic properties.
-    fn process_inputs_prototype(
+    /// Extract and convert relevant components from the sketch (boolean network, properties).
+    fn extract_inputs(
         sketch: Sketch,
-    ) -> Result<(BooleanNetwork, Vec<FirstOrderFormula>, Vec<HctlFormula>), String> {
-        // todo: at the moment we just use HCTL dynamic properties, and no static properties
-        let bn = sketch.model.to_bn();
-        let static_properties = vec![];
+    ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
+        // todo: at the moment we just use HCTL dynamic properties, and all static properties
+        let bn = sketch.model.to_bn_with_plain_regulations();
+        let mut static_properties = vec![];
+        for (_, stat_prop) in sketch.properties.stat_props() {
+            static_properties.push(stat_prop.clone());
+        }
 
         let mut dynamic_properties = vec![];
         for (_, dyn_prop) in sketch.properties.dyn_props() {
-            if let DynPropertyType::GenericDynProp(prop) = dyn_prop.get_prop_data() {
-                dynamic_properties.push(prop.clone().processed_formula)
-            }
+            dynamic_properties.push(dyn_prop.clone());
         }
         Ok((bn, static_properties, dynamic_properties))
     }
@@ -116,8 +178,7 @@ impl InferenceSolver {
     pub fn run_computation_prototype(&mut self, sketch: Sketch) -> Result<AnalysisResults, String> {
         let results = self.run_computation_prototype_inner(sketch);
         if results.is_err() {
-            self.status_updates
-                .push(InferenceStatus::Error(SystemTime::now()));
+            self.status_update(InferenceStatus::Error);
         }
         results
     }
@@ -131,41 +192,74 @@ impl InferenceSolver {
         &mut self,
         sketch: Sketch,
     ) -> Result<AnalysisResults, String> {
-        let start_time = SystemTime::now();
-        self.status_updates
-            .push(InferenceStatus::Started(start_time));
+        let mut metadata = String::new();
+        self.status_update(InferenceStatus::Started);
 
         // step 1: process basic components of the sketch to be used
-        let (bn, static_props, dynamic_props) = Self::process_inputs_prototype(sketch)?;
+        let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
         self.bn = Some(bn);
         self.static_props = Some(static_props);
         self.dynamic_props = Some(dynamic_props);
-        self.status_updates
-            .push(InferenceStatus::ProcessedInputs(SystemTime::now()));
+        self.status_update(InferenceStatus::ProcessedInputs);
 
-        // step 2: make default symbolic transition graph
-        self.graph = Some(SymbolicAsyncGraph::new(self.bn()?)?);
-        self.raw_intermediate_colors = Some(self.graph()?.mk_unit_colors());
-        self.status_updates
-            .push(InferenceStatus::GeneratedGraph(SystemTime::now()));
+        // step 2: todo: check how many HCTL propositions we need to eval the formulae
+        let num_hctl_vars = 3;
 
-        // step 3: todo: evaluate static properties, restrict colors
-        self.status_updates
-            .push(InferenceStatus::EvaluatedStatic(SystemTime::now()));
+        // step 3: make default symbolic transition graph
+        self.graph = Some(get_extended_symbolic_graph(self.bn()?, num_hctl_vars)?);
+        self.status_update(InferenceStatus::GeneratedGraph);
+        let msg = format!(
+            "After graph generating: {}\n",
+            self.current_candidate_colors()?.approx_cardinality()
+        );
+        metadata.push_str(&msg);
 
-        // step 4: todo: evaluate dynamic properties, restrict colors
-        self.status_updates
-            .push(InferenceStatus::EvaluatedDynamic(SystemTime::now()));
+        // step 4: todo: evaluate static properties, restrict colors
+        for stat_property in self.stat_props()?.clone() {
+            let inferred_colors = eval_static_prop(stat_property, self.bn()?, self.graph()?);
+
+            let new_graph: SymbolicAsyncGraph = SymbolicAsyncGraph::with_custom_context(
+                self.graph()?.as_network().unwrap(),
+                self.graph()?.symbolic_context().clone(),
+                inferred_colors.as_bdd().clone(),
+            )?;
+            self.graph = Some(new_graph);
+        }
+        self.status_update(InferenceStatus::EvaluatedStatic);
+        let msg = format!(
+            "After static props: {}\n",
+            self.current_candidate_colors()?.approx_cardinality()
+        );
+        metadata.push_str(&msg);
+
+        // step 5: todo: evaluate dynamic properties, restrict colors
+        for dyn_property in self.dyn_props()?.clone() {
+            let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?)?;
+
+            let new_graph: SymbolicAsyncGraph = SymbolicAsyncGraph::with_custom_context(
+                self.graph()?.as_network().unwrap(),
+                self.graph()?.symbolic_context().clone(),
+                inferred_colors.as_bdd().clone(),
+            )?;
+            self.graph = Some(new_graph);
+        }
+        self.status_update(InferenceStatus::EvaluatedDynamic);
+        let msg = format!(
+            "After dynamic props: {}\n",
+            self.current_candidate_colors()?.approx_cardinality()
+        );
+        metadata.push_str(&msg);
 
         // step 5: process results, compute few statistics, return some results struct
-        let finish_time = SystemTime::now();
-        self.raw_sat_colors = self.raw_intermediate_colors.clone();
-        self.status_updates
-            .push(InferenceStatus::Finished(finish_time));
+        self.raw_sat_colors = Some(self.graph()?.mk_unit_colors());
+        self.status_update(InferenceStatus::Finished);
 
         let num_sat_networks = self.sat_colors()?.approx_cardinality() as u64;
-        let total_time = finish_time.duration_since(start_time).unwrap();
-        let results = AnalysisResults::new(num_sat_networks, total_time);
+        let total_time = self
+            .finish_time()?
+            .duration_since(self.start_time()?)
+            .unwrap();
+        let results = AnalysisResults::new(num_sat_networks, total_time, &metadata);
         Ok(results)
     }
 }

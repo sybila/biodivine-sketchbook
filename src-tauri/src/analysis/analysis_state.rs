@@ -1,27 +1,29 @@
 use crate::analysis::analysis_results::AnalysisResults;
+use crate::analysis::data_structs::SamplingData;
 use crate::analysis::inference_solver::InferenceSolver;
+use crate::analysis::sampling_networks::download_witnesses;
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
-use crate::app::DynError;
+use crate::app::{AeonError, DynError};
 use crate::debug;
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::{JsonSerde, Sketch};
-use serde::{Deserialize, Serialize};
 
-/// Object encompassing all of the state components of the Analysis itself that are exchanged
-/// with frontend (no raw low-level structures like symbolic graph or its colors)
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+/// Object encompassing all of the components of the Analysis itself
+/// That inludes boths the components that are exchanged with frontend
+/// and also raw low-level structures like symbolic graph or its colors.
+#[derive(Clone)]
 pub struct AnalysisState {
     /// Boolean network sketch to run the analysis on. Can be a placeholder at the beginning.
     sketch: Sketch,
     /// Flag signalling that the actual sketch data were received from editor session.
     sketch_received: bool,
+    /// Potential analysis solver instance.
+    solver: Option<InferenceSolver>,
     /// Potential results of the analysis.
     results: Option<AnalysisResults>,
     // TODO
 }
-
-impl<'de> JsonSerde<'de> for AnalysisState {}
 
 impl AnalysisState {
     /// Create new `AnalysisState` with an empty placeholder sketch.
@@ -32,6 +34,7 @@ impl AnalysisState {
         AnalysisState {
             sketch: Sketch::default(),
             sketch_received: false,
+            solver: None,
             results: None,
         }
     }
@@ -41,8 +44,15 @@ impl AnalysisState {
         AnalysisState {
             sketch,
             sketch_received: true,
+            solver: None,
             results: None,
         }
+    }
+
+    /// Reset the results and analyses of this `AnalysisState`.
+    /// The sketch data stays the same.
+    pub fn reset(&mut self) {
+        self.results = None;
     }
 
     /// Update the sketch data of this `AnalysisState`.
@@ -67,10 +77,17 @@ impl SessionState for AnalysisState {
             Some(&"run_inference") => {
                 Self::assert_payload_empty(event, component)?;
                 debug!("Event `run_inference` received. It is not fully implemented yet.");
-                // TODO
 
-                let mut inference_solver = InferenceSolver::new();
-                let results = inference_solver.run_computation_prototype(self.sketch.clone())?;
+                if !self.sketch_received || self.sketch.model.num_vars() == 0 {
+                    return AeonError::throw("Cannot run analysis on empty sketch.");
+                }
+
+                self.solver = Some(InferenceSolver::new());
+                let results = self
+                    .solver
+                    .as_mut()
+                    .unwrap()
+                    .run_computation_prototype(self.sketch.clone())?;
 
                 let payload = results.to_json_str();
                 let state_change = Event::build(&["analysis", "inference_results"], Some(&payload));
@@ -81,7 +98,8 @@ impl SessionState for AnalysisState {
             }
             Some(&"run_static") => {
                 Self::assert_payload_empty(event, component)?;
-                debug!("Event `run_static` received. It is not implemented at the moment. Only dummy message will be sent");
+                debug!("Event `run_static` received. It is not implemented at the moment. Only dummy message will be sent back.");
+
                 // TODO
 
                 let state_change = Event::build(&["analysis", "static_running"], Some("true"));
@@ -89,6 +107,36 @@ impl SessionState for AnalysisState {
                     state_change,
                     reset: true,
                 })
+            }
+            Some(&"reset_analysis") => {
+                Self::assert_payload_empty(event, component)?;
+
+                self.reset();
+
+                let state_change = Event::build(&["analysis", "analysis_reset"], Some("true"));
+                Ok(Consumed::Irreversible {
+                    state_change,
+                    reset: true,
+                })
+            }
+            Some(&"sample_networks") => {
+                let payload = Self::clone_payload_str(event, component)?;
+                let sampling_data = SamplingData::from_json_str(&payload)?;
+
+                if let Some(solver) = &self.solver {
+                    download_witnesses(
+                        &sampling_data.path,
+                        solver.sat_colors()?.clone(),
+                        solver.graph()?,
+                        sampling_data.count,
+                        sampling_data.seed,
+                    )?;
+                    Ok(Consumed::NoChange {})
+                } else {
+                    AeonError::throw(
+                        "Cannot sample networks because there are no inference results.",
+                    )
+                }
             }
             _ => Self::invalid_path_error_generic(at_path),
         }
