@@ -12,7 +12,7 @@ pub fn eval_static_prop(
     static_prop: StatProperty,
     network: &BooleanNetwork,
     graph: &SymbolicAsyncGraph,
-) -> GraphColors {
+) -> Result<GraphColors, String> {
     // look into https://github.com/sybila/biodivine-lib-param-bn/blob/master/src/symbolic_async_graph/_impl_regulation_constraint.rs
 
     let context = graph.symbolic_context();
@@ -55,7 +55,8 @@ pub fn eval_static_prop(
             } else {
                 context.mk_constant(true)
             };
-            GraphColors::new(observability.and(unit_bdd), context)
+            let valid_colors = GraphColors::new(observability.and(unit_bdd), context);
+            Ok(valid_colors)
         }
         StatPropertyType::RegulationEssentialContext(_prop) => todo!(),
         StatPropertyType::RegulationMonotonic(prop) => {
@@ -82,7 +83,8 @@ pub fn eval_static_prop(
                 Monotonicity::Unknown => context.mk_constant(true),
                 Monotonicity::Dual => unimplemented!(),
             };
-            GraphColors::new(monotonicity.and(unit_bdd), context)
+            let valid_colors = GraphColors::new(monotonicity.and(unit_bdd), context);
+            Ok(valid_colors)
         }
         StatPropertyType::RegulationMonotonicContext(_prop) => todo!(),
         StatPropertyType::FnInputEssentialContext(_prop) => todo!(),

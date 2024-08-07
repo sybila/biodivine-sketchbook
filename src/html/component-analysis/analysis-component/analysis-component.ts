@@ -125,14 +125,11 @@ export default class AnalysisComponent extends LitElement {
 
   // Method to format the results for display
   private formatResults (results: InferenceResults | StaticCheckResults): string {
-    return `
-      Number of satisfying networks: ${results.num_sat_networks}
-      Computation time: ${results.comp_time} seconds
-
-      Computation metadata:
-      --------------
-      ${results.metadata_log}
-    `
+    return `Number of satisfying networks: ${results.num_sat_networks}\n` +
+      `Computation time: ${results.comp_time} seconds\n\n\n` +
+      'Computation metadata:\n' +
+      '--------------\n' +
+      `${results.metadata_log}\n`
   }
 
   private resetAnalysis (): void {
@@ -230,9 +227,7 @@ export default class AnalysisComponent extends LitElement {
             ${this.selected_analysis !== null
 ? html`
               <div class="results-window" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-                <textarea rows="10" cols="50" readonly style="text-align: center;">
-                  ${this.results !== null ? this.formatResults(this.results) : 'Initiating analysis, wait a bit...'}
-                </textarea>
+                <textarea rows="12" cols="70" readonly style="text-align: center;">${this.results !== null ? this.formatResults(this.results) : 'Initiating analysis, wait a bit...'}</textarea>
   
                 <!-- Conditionally render "Sample network" section if results are set -->
                 ${this.results !== null

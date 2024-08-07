@@ -87,7 +87,7 @@ impl SessionState for AnalysisState {
                     .solver
                     .as_mut()
                     .unwrap()
-                    .run_computation_prototype(self.sketch.clone())?;
+                    .run_whole_inference_prototype(self.sketch.clone())?;
 
                 let payload = results.to_json_str();
                 let state_change = Event::build(&["analysis", "inference_results"], Some(&payload));

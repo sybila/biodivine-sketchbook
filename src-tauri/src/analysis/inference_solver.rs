@@ -5,7 +5,9 @@ use crate::log;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
 use biodivine_hctl_model_checker::mc_utils::get_extended_symbolic_graph;
-use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
+use biodivine_lib_param_bn::symbolic_async_graph::{
+    GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
+};
 use biodivine_lib_param_bn::BooleanNetwork;
 use std::time::SystemTime;
 
@@ -49,6 +51,19 @@ pub struct InferenceSolver {
 }
 
 impl InferenceSolver {
+    /// Prepares new "empty" `InferenceSolver` instance.
+    /// The computation is started by one of the `run_<algorithm>` methods later.
+    pub fn new() -> InferenceSolver {
+        InferenceSolver {
+            bn: None,
+            graph: None,
+            static_props: None,
+            dynamic_props: None,
+            raw_sat_colors: None,
+            status_updates: vec![(InferenceStatus::Created, SystemTime::now())],
+        }
+    }
+
     /// Reference getter for a Boolean network.
     pub fn bn(&self) -> Result<&BooleanNetwork, String> {
         if let Some(bn) = &self.bn {
@@ -137,18 +152,23 @@ impl InferenceSolver {
     }
 }
 
+/// Computation-related methods.
 impl InferenceSolver {
-    /// Prepares new "empty" `InferenceSolver` instance.
-    /// The computation is started by [start_computing] later.
-    pub fn new() -> InferenceSolver {
-        InferenceSolver {
-            bn: None,
-            graph: None,
-            static_props: None,
-            dynamic_props: None,
-            raw_sat_colors: None,
-            status_updates: vec![(InferenceStatus::Created, SystemTime::now())],
+    /// Run the prototype version of the inference.
+    /// This wraps the [run_computation_prototype_inner] to also log potential errors.
+    ///
+    /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
+    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
+    /// static properties, all but generic dynamic properties.
+    pub fn run_whole_inference_prototype(
+        &mut self,
+        sketch: Sketch,
+    ) -> Result<AnalysisResults, String> {
+        let results = self.run_whole_inference_prototype_inner(sketch);
+        if results.is_err() {
+            self.status_update(InferenceStatus::Error);
         }
+        results
     }
 
     /// Extract and convert relevant components from the sketch (boolean network, properties).
@@ -169,18 +189,40 @@ impl InferenceSolver {
         Ok((bn, static_properties, dynamic_properties))
     }
 
-    /// Run the prototype version of the inference.
-    /// This wraps the [run_computation_prototype_inner] to also log potential errors.
+    /// Evaluate previously collected static properties, and restrict the unit set of the
+    /// graph to the set of valid colors.
     ///
-    /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
-    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// static properties, all but generic dynamic properties.
-    pub fn run_computation_prototype(&mut self, sketch: Sketch) -> Result<AnalysisResults, String> {
-        let results = self.run_computation_prototype_inner(sketch);
-        if results.is_err() {
-            self.status_update(InferenceStatus::Error);
+    /// TODO: function `eval_static_prop` needs to be finished.
+    fn eval_static(&mut self) -> Result<(), String> {
+        for stat_property in self.stat_props()?.clone() {
+            let inferred_colors = eval_static_prop(stat_property, self.bn()?, self.graph()?)?;
+            let colored_vertices = GraphColoredVertices::new(
+                inferred_colors.into_bdd(),
+                self.graph()?.symbolic_context(),
+            );
+            let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
+            self.graph = Some(new_graph);
         }
-        results
+        self.status_update(InferenceStatus::EvaluatedStatic);
+        Ok(())
+    }
+
+    /// Evaluate previously collected dynamic properties, and restrict the unit set of the
+    /// graph to the set of valid colors.
+    ///
+    /// TODO: function `eval_dyn_prop` needs to be finished.
+    fn eval_dynamic(&mut self) -> Result<(), String> {
+        for dyn_property in self.dyn_props()?.clone() {
+            let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?)?;
+            let colored_vertices = GraphColoredVertices::new(
+                inferred_colors.into_bdd(),
+                self.graph()?.symbolic_context(),
+            );
+            let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
+            self.graph = Some(new_graph);
+        }
+        self.status_update(InferenceStatus::EvaluatedDynamic);
+        Ok(())
     }
 
     /// Run the prototype version of the inference.
@@ -188,7 +230,7 @@ impl InferenceSolver {
     /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
     /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
     /// static properties, all but generic dynamic properties.
-    fn run_computation_prototype_inner(
+    fn run_whole_inference_prototype_inner(
         &mut self,
         sketch: Sketch,
     ) -> Result<AnalysisResults, String> {
@@ -209,43 +251,23 @@ impl InferenceSolver {
         self.graph = Some(get_extended_symbolic_graph(self.bn()?, num_hctl_vars)?);
         self.status_update(InferenceStatus::GeneratedGraph);
         let msg = format!(
-            "After graph generating: {}\n",
+            "N. of candidates before evaluating any properties: {}\n",
             self.current_candidate_colors()?.approx_cardinality()
         );
         metadata.push_str(&msg);
 
         // step 4: todo: evaluate static properties, restrict colors
-        for stat_property in self.stat_props()?.clone() {
-            let inferred_colors = eval_static_prop(stat_property, self.bn()?, self.graph()?);
-
-            let new_graph: SymbolicAsyncGraph = SymbolicAsyncGraph::with_custom_context(
-                self.graph()?.as_network().unwrap(),
-                self.graph()?.symbolic_context().clone(),
-                inferred_colors.as_bdd().clone(),
-            )?;
-            self.graph = Some(new_graph);
-        }
-        self.status_update(InferenceStatus::EvaluatedStatic);
+        self.eval_static()?;
         let msg = format!(
-            "After static props: {}\n",
+            "N. of candidates after evaluating static props: {}\n",
             self.current_candidate_colors()?.approx_cardinality()
         );
         metadata.push_str(&msg);
 
-        // step 5: todo: evaluate dynamic properties, restrict colors
-        for dyn_property in self.dyn_props()?.clone() {
-            let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?)?;
-
-            let new_graph: SymbolicAsyncGraph = SymbolicAsyncGraph::with_custom_context(
-                self.graph()?.as_network().unwrap(),
-                self.graph()?.symbolic_context().clone(),
-                inferred_colors.as_bdd().clone(),
-            )?;
-            self.graph = Some(new_graph);
-        }
-        self.status_update(InferenceStatus::EvaluatedDynamic);
+        // step 5: evaluate dynamic properties
+        self.eval_dynamic()?;
         let msg = format!(
-            "After dynamic props: {}\n",
+            "N. of candidates after evaluating dynamic props: {}\n",
             self.current_candidate_colors()?.approx_cardinality()
         );
         metadata.push_str(&msg);
