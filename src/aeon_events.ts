@@ -338,10 +338,48 @@ interface AeonState {
     }
   }
 
+  /** The events regarding the analysis workflow. */
+  analysis: {
+    /** Sketch data transfered from backend (useful to initiate the state). */
+    sketchRefreshed: Observable<SketchData>
+    /** Ask for a sketch data (might be useful to update analysis window, or if automatic sketch
+     * transfer from backend does not work). */
+    refreshSketch: () => void
+    /** Fully reset the analysis and start again. The same sketch will be used. */
+    resetAnalysis: () => void
+    /** Information that analysis was reset. */
+    analysisReset: Observable<boolean>
+    /** Sample given number of Boolean networks from the results, either dereministically
+     * or randomly. The networks are saved in a zip archive at given path. */
+    sampleNetworks: (count: number, seed: number | null, path: string) => void
+
+    /** Start the full inference analysis. */
+    startFullInference: () => void
+    /** Information that inference analysis was started.
+     * Currently not utilized. */
+    inferenceStarted: Observable<boolean>
+    /** Inference analysis results. */
+    inferenceResultsReceived: Observable<InferenceResults>
+
+    /** Start the static check analysis. */
+    startStaticCheck: () => void
+    /** Information that static check analysis was started.
+     * Currently not utilized. */
+    staticCheckStarted: Observable<boolean>
+    /** Static check analysis results. */
+    staticCheckResultsReceived: Observable<StaticCheckResults>
+  }
+
   /** The information about errors occurring when processing events on backend. */
   error: {
     /** Error message provided by backend. */
     errorReceived: Observable<string>
+  }
+
+  /** Events for creating new sessions. */
+  new_session: {
+    /** Create a new analysis session. */
+    createNewAnalysisSession: () => void
   }
 }
 
@@ -454,6 +492,20 @@ export interface DynPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing information needed for static property's id change. */
 export interface StatPropIdUpdateData { original_id: string, new_id: string }
+
+/** An object representing all information regarding inference analysis results. */
+export interface InferenceResults {
+  num_sat_networks: number
+  comp_time: number
+  metadata_log: string
+}
+
+/** An object representing all information regarding static check analysis results. */
+export interface StaticCheckResults {
+  num_sat_networks: number
+  comp_time: number
+  metadata_log: string
+}
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -859,6 +911,14 @@ export const aeonState: AeonState = {
   },
   error: {
     errorReceived: new Observable<string>(['error'])
+  },
+  new_session: {
+    createNewAnalysisSession (): void {
+      aeonEvents.emitAction({
+        path: ['new-analysis-session'],
+        payload: null
+      })
+    }
   },
   sketch: {
     sketchRefreshed: new Observable<SketchData>(['sketch', 'get_whole_sketch']),
@@ -1326,6 +1386,44 @@ export const aeonState: AeonState = {
           payload: newId
         })
       }
+    }
+  },
+  analysis: {
+    sketchRefreshed: new Observable<SketchData>(['analysis', 'get_sketch']),
+    analysisReset: new Observable<boolean>(['analysis', 'analysis_reset']),
+
+    refreshSketch (): void {
+      aeonEvents.refresh(['analysis', 'get_sketch'])
+    },
+    resetAnalysis () {
+      aeonEvents.emitAction({
+        path: ['analysis', 'reset_analysis'],
+        payload: null
+      })
+    },
+    sampleNetworks (count: number, seed: number | null, path: string): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'sample_networks'],
+        payload: JSON.stringify({ count, seed, path })
+      })
+    },
+
+    inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
+    staticCheckResultsReceived: new Observable<StaticCheckResults>(['analysis', 'static_results']),
+    inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
+    staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
+
+    startFullInference (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_inference'],
+        payload: null
+      })
+    },
+    startStaticCheck (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_static'],
+        payload: null
+      })
     }
   }
 }

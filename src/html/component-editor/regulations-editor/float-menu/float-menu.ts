@@ -13,7 +13,8 @@ import {
   faPen,
   faPlus,
   faRightLeft,
-  faTrash
+  faTrash,
+  faRotateLeft
 } from '@fortawesome/free-solid-svg-icons'
 import { type Position } from 'cytoscape'
 import { map } from 'lit/directives/map.js'
@@ -56,6 +57,9 @@ export default class FloatMenu extends LitElement {
           case 'A':
             this.addEdge()
             break
+          case 'S':
+            this.addSelfLoop()
+            break
           case 'F':
             this.focusFunction()
             break
@@ -89,6 +93,11 @@ export default class FloatMenu extends LitElement {
       icon: () => icon(faPlus).node[0],
       label: () => 'Add Edge (A)',
       click: this.addEdge
+    },
+    {
+      icon: () => icon(faRotateLeft).node[0],
+      label: () => 'Add self-loop (S)',
+      click: this.addSelfLoop
     },
     {
       icon: () => icon(faCalculator).node[0],
@@ -226,6 +235,19 @@ export default class FloatMenu extends LitElement {
     this.dispatchEvent(new CustomEvent('add-edge', {
       detail: {
         id: this.data?.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private addSelfLoop (): void {
+    this.dispatchEvent(new CustomEvent('add-regulation', {
+      detail: {
+        source: this.data?.id,
+        target: this.data?.id,
+        essential: Essentiality.TRUE,
+        monotonicity: Monotonicity.UNSPECIFIED
       },
       bubbles: true,
       composed: true

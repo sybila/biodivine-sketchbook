@@ -3,25 +3,61 @@ use biodivine_lib_param_bn::{BooleanNetwork, RegulatoryGraph};
 
 /// Methods for converting between `ModelState` and `BooleanNetwork` (from the `lib-param-bn`).
 impl ModelState {
+    /// Internal function to convert the `ModelState` into a variant of `BooleanNetwork` with
+    /// specified information to be included.
+    ///
+    /// By default, all variables and regulations are included. You can choose the following:
+    /// - `regulation_types`: include types of regulations
+    /// - `parameters`: include all parameters for uninterpreted functions
+    /// - `update_fns`: include all update functions
+    ///
+    /// It is up to you to make the selection reasonable (e.g., when including update functions
+    /// that contain parameters, you must also include parameters, and so on...).
+    fn to_bn_with_options(
+        &self,
+        regulation_types: bool,
+        parameters: bool,
+        update_fns: bool,
+    ) -> Result<BooleanNetwork, String> {
+        let reg_graph = if regulation_types {
+            self.to_reg_graph()
+        } else {
+            self.to_reg_graph_with_unspecified_regs()
+        };
+        let mut bn = BooleanNetwork::new(reg_graph);
+
+        if parameters {
+            for (fn_id, uninterpreted_fn) in self.uninterpreted_fns.iter() {
+                // uninterpreted fns always have unique valid IDs, so we can unwrap
+                bn.add_parameter(fn_id.as_str(), uninterpreted_fn.get_arity() as u32)
+                    .unwrap();
+            }
+        }
+
+        if update_fns {
+            for (var_id, update_fn) in self.update_fns.iter() {
+                if !update_fn.is_unspecified() {
+                    bn.add_string_update_function(var_id.as_str(), update_fn.get_fn_expression())?;
+                }
+            }
+        }
+        Ok(bn)
+    }
+
     /// Convert the `ModelState` into the corresponding "default" `BooleanNetwork` object.
     /// The resulting BN covers the variables and regulations, but it has empty update functions,
-    /// and does not cover parameters.
+    /// and does not cover any parameters.
     pub fn to_empty_bn(&self) -> BooleanNetwork {
-        let reg_graph = self.to_reg_graph();
-        BooleanNetwork::new(reg_graph)
+        // this is a safe combination that cannot result in errors
+        self.to_bn_with_options(true, false, false).unwrap()
     }
 
     /// Convert the `ModelState` into the corresponding "default" `BooleanNetwork` object with added
     /// parameters.
     /// The resulting BN covers the variables, parameters, and regulations, but it has empty update functions.
     pub fn to_empty_bn_with_params(&self) -> BooleanNetwork {
-        let mut bn = self.to_empty_bn();
-        for (fn_id, uninterpreted_fn) in self.uninterpreted_fns.iter() {
-            // uninterpreted fns always have unique valid IDs, so we can unwrap
-            bn.add_parameter(fn_id.as_str(), uninterpreted_fn.get_arity() as u32)
-                .unwrap();
-        }
-        bn
+        // this is a safe combination that cannot result in errors
+        self.to_bn_with_options(true, true, false).unwrap()
     }
 
     /// Generate a `BooleanNetwork` with a only given number of "placeholder" (fake) variables.
@@ -52,15 +88,19 @@ impl ModelState {
     /// Note that currently the `BooleanNetwork` class does not support all features of the `ModelState` (such as
     /// various regulation types or details of uninterpreted functions) -- these will be lost during the conversion.
     pub fn to_bn(&self) -> BooleanNetwork {
-        let mut bn = self.to_empty_bn_with_params();
-        for (var_id, update_fn) in self.update_fns.iter() {
-            if !update_fn.is_unspecified() {
-                // var_id is surely a valid variable, we can safely unwrap
-                bn.add_string_update_function(var_id.as_str(), update_fn.get_fn_expression())
-                    .unwrap();
-            }
-        }
-        bn
+        // this is a safe combination that cannot result in errors
+        self.to_bn_with_options(true, true, true).unwrap()
+    }
+
+    /// Convert the `ModelState` into the corresponding `BooleanNetwork` object (that will contain all of the
+    /// variables, (plain) regulations, update functions, and uninterpreted functions). However,
+    /// the types of regulations (both monotonicity and essentiality) are ignored, and instead used as
+    /// unspecified.
+    ///
+    /// This might be useful if we want to process regulation types later via static properties.
+    pub fn to_bn_with_plain_regulations(&self) -> BooleanNetwork {
+        // this is a safe combination that cannot result in errors
+        self.to_bn_with_options(false, true, true).unwrap()
     }
 }
 

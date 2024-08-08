@@ -150,7 +150,7 @@ export default class ObservationsSet extends LitElement {
       return
     }
     const renameDialog = new WebviewWindow(`editObservation${Math.floor(Math.random() * 1000000)}`, {
-      url: 'src/html/component/observations-editor/edit-observation/edit-observation.html',
+      url: 'src/html/component-editor/observations-editor/edit-observation/edit-observation.html',
       title: `Edit observation (${obs.id} / ${obs.name})`,
       alwaysOnTop: true,
       maximizable: false,
