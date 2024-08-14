@@ -58,12 +58,12 @@ fn try_tokenize_recursive(
 
             // "3" can be either short for exist quantifier or part of some name
             '3' if !is_valid_in_name_optional(input_chars.peek()) => {
-                let var_name = collect_var_from_operator(input_chars, '3')?;
+                let var_name = collect_var_from_operator(input_chars, "3")?;
                 output.push(FolToken::Quantifier(Quantifier::Exists, var_name));
             }
             // "V" can be either short for forall quantifier or part of some name
             'V' if !is_valid_in_name_optional(input_chars.peek()) => {
-                let var_name = collect_var_from_operator(input_chars, 'V')?;
+                let var_name = collect_var_from_operator(input_chars, "V")?;
                 output.push(FolToken::Quantifier(Quantifier::Forall, var_name));
             }
             ')' => {
@@ -83,10 +83,10 @@ fn try_tokenize_recursive(
                 // collect rest of the operator
                 let quantifier_name = collect_name(input_chars)?;
                 if &quantifier_name == "exists" {
-                    let var_name = collect_var_from_operator(input_chars, '3')?;
+                    let var_name = collect_var_from_operator(input_chars, "\\exists")?;
                     output.push(FolToken::Quantifier(Quantifier::Exists, var_name));
                 } else if quantifier_name == "forall" {
-                    let var_name = collect_var_from_operator(input_chars, 'V')?;
+                    let var_name = collect_var_from_operator(input_chars, "\\forall")?;
                     output.push(FolToken::Quantifier(Quantifier::Forall, var_name));
                 } else {
                     return Err(format!("Invalid quantifier `\\{quantifier_name}`."));
@@ -97,51 +97,17 @@ fn try_tokenize_recursive(
             c if is_valid_in_name(c) => {
                 // collect full name
                 let name = collect_name(input_chars)?;
+                let full_name = c.to_string() + &name;
                 // skip whitespaces that can appear between potential function symbol and "("
                 skip_whitespaces(input_chars);
 
                 if Some(&'(') == input_chars.peek() {
                     // it must be a function symbol with arguments in parentheses
-                    let mut fn_args = Vec::new();
-                    input_chars.next(); // skip the "("
-                    while Some(&')') != input_chars.peek() {
-                        skip_whitespaces(input_chars);
-
-                        // arguments can be negated
-                        let mut negated = false;
-                        if Some(&'!') == input_chars.peek() {
-                            skip_whitespaces(input_chars);
-                            negated = true;
-                            input_chars.next(); // skip the "!"
-                        }
-                        skip_whitespaces(input_chars);
-
-                        let arg_name = collect_name(input_chars)?;
-                        if arg_name.is_empty() {
-                            return Err("Variable name can't be empty.".to_string());
-                        }
-                        fn_args.push((negated, Term::Var(arg_name)));
-                        skip_whitespaces(input_chars);
-
-                        // next must be either "," or ")"
-                        if Some(&')') == input_chars.peek() {
-                            continue;
-                        } else if Some(',') != input_chars.next() {
-                            return Err(format!(
-                                "Expected ',' after function's argument (argument of fn '{}').",
-                                c.to_string() + &name
-                            ));
-                        }
-                    }
-                    input_chars.next(); // skip the ")"
-                    output.push(FolToken::Term(Term::Function(
-                        c.to_string() + &name,
-                        fn_args,
-                    )));
+                    let fn_args = collect_fn_arguments(input_chars, &full_name)?;
+                    output.push(FolToken::Term(Term::Function(full_name, fn_args)));
                 } else {
                     // otherwise it is a variable or constant
-                    // we will save it as a variable for now, and convert later in parser if needed
-                    output.push(FolToken::Term(Term::Var(c.to_string() + &name)));
+                    output.push(FolToken::Term(resolve_term_name(&full_name)));
                 }
             }
             _ => return Err(format!("Unexpected char '{c}'.")),
@@ -179,6 +145,28 @@ fn is_valid_in_name_optional(option_char: Option<&char>) -> bool {
     false
 }
 
+/// Predicate to decide if a given "name" represents `true` constant.
+fn is_true_const(name: &str) -> bool {
+    name == "true" || name == "True" || name == "TRUE" || name == "1"
+}
+
+/// Predicate to decide if a given "name" represents `false` constant.
+fn is_false_const(name: &str) -> bool {
+    name == "false" || name == "False" || name == "FALSE" || name == "0"
+}
+
+/// Decide whether the name corresponds to a constant or a variable, and return the
+/// correct term token.
+fn resolve_term_name(name: &str) -> Term {
+    if is_false_const(name) {
+        Term::False
+    } else if is_true_const(name) {
+        Term::True
+    } else {
+        Term::Var(name.to_string())
+    }
+}
+
 /// Retrieve the name (of a proposition or variable) from the input.
 /// The first character of the name may or may not be already consumed by the caller.
 fn collect_name(input_chars: &mut Peekable<Chars>) -> Result<String, String> {
@@ -194,11 +182,11 @@ fn collect_name(input_chars: &mut Peekable<Chars>) -> Result<String, String> {
     Ok(name.into_iter().collect())
 }
 
-/// Retrieve the name of the variable, and optional name for the domain, bound by a hybrid operator.
-/// Operator character is consumed by caller and is given as input for error msg purposes.
+/// Retrieve the name of the variable bound by a quantifier.
+/// Operator string is consumed by caller and is given as input for error msg purposes.
 fn collect_var_from_operator(
     input_chars: &mut Peekable<Chars>,
-    operator: char,
+    operator: &str,
 ) -> Result<String, String> {
     // there might be few spaces first
     skip_whitespaces(input_chars);
@@ -215,6 +203,56 @@ fn collect_var_from_operator(
         ));
     }
     Ok(name)
+}
+
+/// Retrieve the arguments of a function, process everything from "(" up to ")".
+/// Function name is consumed by caller and is given as input for error msg purposes.
+fn collect_fn_arguments(
+    input_chars: &mut Peekable<Chars>,
+    fn_name: &str,
+) -> Result<Vec<(bool, Term)>, String> {
+    input_chars.next(); // skip the "("
+
+    let mut fn_args = Vec::new();
+    while Some(&')') != input_chars.peek() {
+        skip_whitespaces(input_chars);
+
+        // arguments can be negated
+        let mut negated = false;
+        if Some(&'!') == input_chars.peek() {
+            skip_whitespaces(input_chars);
+            negated = true;
+            input_chars.next(); // skip the "!"
+        }
+        skip_whitespaces(input_chars);
+
+        let arg_name = collect_name(input_chars)?;
+        if arg_name.is_empty() {
+            return Err(format!(
+                "Function argument can't be empty (arg of fn '{fn_name}')."
+            ));
+        }
+        fn_args.push((negated, resolve_term_name(&arg_name)));
+        skip_whitespaces(input_chars);
+
+        // next must be either "," or ")"
+        if Some(&')') == input_chars.peek() {
+            continue;
+        } else if Some(',') != input_chars.next() {
+            return Err(format!(
+                "Expected ',' after function's arg {arg_name} (arg of fn '{fn_name}').",
+            ));
+        }
+        // last char was ",", just double check there is no immediate ")"
+        if Some(&')') == input_chars.peek() {
+            return Err(format!(
+                "Unexpected ')' after ',' (in segment of function '{fn_name}').",
+            ));
+        }
+    }
+    input_chars.next(); // skip the ")"
+
+    Ok(fn_args)
 }
 
 impl fmt::Display for FolToken {
@@ -298,7 +336,7 @@ mod tests {
     #[test]
     /// Test tokenization process on FOL formula with several whitespaces.
     fn tokenize_with_whitespaces() {
-        let valid_formula = " 3     x     :  f    ( x  )  ";
+        let valid_formula = " 3   x  :  f    ( x ,  y )  ";
         assert!(try_tokenize_formula(valid_formula.to_string()).is_ok())
     }
 
@@ -306,7 +344,10 @@ mod tests {
     /// Test tokenization process on several invalid FOL formulae.
     /// Try to cover wide range of invalid possibilities, as well as potential frequent mistakes.
     fn tokenize_invalid_formulae() {
-        let invalid_formulae = vec!["x1 )", "( x1", "x1 <> x2", "x1 >= x2", "x1 <= x2"];
+        let invalid_formulae = vec![
+            "x1 )", "( x1", "x1 <> x2", "x1 >= x2", "x1 <= x2", "\\ex x", "\\fora x", "f(x,)",
+            "f(x,", "f(x", "f(x x))",
+        ];
 
         for formula in invalid_formulae {
             assert!(try_tokenize_formula(formula.to_string()).is_err())

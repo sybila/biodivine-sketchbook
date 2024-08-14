@@ -159,12 +159,12 @@ fn parse_7_unary(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
             _ => unreachable!(), // we already made sure that this is indeed an unary token
         }
     } else {
-        parse_8_terminal_and_parentheses(tokens)?
+        parse_8_terms_and_parentheses(tokens)?
     })
 }
 
 /// Recursive parsing step 8: extract terms and recursively solve sub-formulae in parentheses.
-fn parse_8_terminal_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
+fn parse_8_terms_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
     if tokens.is_empty() {
         Err("Expected formula, found nothing.".to_string())
     } else {
@@ -173,13 +173,13 @@ fn parse_8_terminal_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, 
             // else does not make sense (constants are tokenized as variables until now).
             match &tokens[0] {
                 FolToken::Term(Term::Var(name)) => {
-                    return if name == "true" || name == "True" || name == "1" {
-                        Ok(FolTreeNode::mk_constant(true))
-                    } else if name == "false" || name == "False" || name == "0" {
-                        Ok(FolTreeNode::mk_constant(false))
-                    } else {
-                        Ok(FolTreeNode::mk_variable(name.as_str()))
-                    }
+                    return Ok(FolTreeNode::mk_variable(name.as_str()));
+                }
+                FolToken::Term(Term::True) => {
+                    return Ok(FolTreeNode::mk_constant(true));
+                }
+                FolToken::Term(Term::False) => {
+                    return Ok(FolTreeNode::mk_constant(false));
                 }
                 FolToken::Term(Term::Function(name, arguments)) => {
                     return Ok(FolTreeNode::mk_function(name, arguments.clone()));
@@ -254,12 +254,46 @@ mod tests {
             BinaryOp::And,
         );
         assert_eq!(parse_fol_formula(formula).unwrap(), expected_tree);
+
+        let formula = "\\exists x: f(x)";
+        let expected_tree = FolTreeNode::mk_quantifier(
+            FolTreeNode::mk_function("f", vec![(false, Term::Var("x".to_string()))]),
+            "x",
+            Quantifier::Exists,
+        );
+        assert_eq!(parse_fol_formula(formula).unwrap(), expected_tree);
+
+        let formula = "\\forall x: \\exists yy: (f(1, !yy) & x)";
+        let expected_tree = FolTreeNode::mk_quantifier(
+            FolTreeNode::mk_quantifier(
+                FolTreeNode::mk_binary(
+                    FolTreeNode::mk_function(
+                        "f",
+                        vec![(false, Term::True), (true, Term::Var("yy".to_string()))],
+                    ),
+                    FolTreeNode::mk_variable("x"),
+                    BinaryOp::And,
+                ),
+                "yy",
+                Quantifier::Exists,
+            ),
+            "x",
+            Quantifier::Forall,
+        );
+        assert_eq!(parse_fol_formula(formula).unwrap(), expected_tree);
     }
 
     #[test]
     /// Test parsing of several completely invalid FOL formulae.
     fn parse_invalid_formulae() {
-        let invalid_formulae = vec!["3 x: x x", "& x", "x x", ""];
+        let invalid_formulae = vec![
+            "3 x: x x",
+            "& x",
+            "x x",
+            "",
+            "! \\exists x: x",
+            "\\exists &: x",
+        ];
 
         for formula in invalid_formulae {
             assert!(parse_fol_formula(formula).is_err());

@@ -6,3 +6,5 @@ pub mod operator_enums;
 pub mod parser;
 pub mod tokenizer;
 pub mod utils;
+
+mod eval_operators;
