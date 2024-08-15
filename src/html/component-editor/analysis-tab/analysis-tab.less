@@ -1,13 +1,20 @@
 @import '/src/uikit-theme';
 
+/* The height of the header based on the known theme settings. */
+@header-height: @button-line-height + (2 * @button-border-width);
+
+.header {
+  height: @header-height;
+}
+
 .container {
-  container-name: inference;
+  container-name: analyses-list;
   container-type: inline-size;
   height: 100%;
   width: 100%;
 }
 
-.inference {
+.analyses-list {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -44,11 +51,17 @@
   color: @text-dark;
 }
 
-@container inference (max-width: 52em) {
+@container analyses-list (max-width: 52em) {
 
   .section {
     width: 100%;
     overflow: unset;
   }
 
+  /* Moves the functions list after the variable list if the width is too small. */
+  .analyses-list {
+    flex-direction: column;
+    justify-content: unset;
+    align-items: center;
+  }
 }

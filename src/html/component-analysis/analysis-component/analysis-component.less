@@ -11,25 +11,20 @@
 
 .header {
   height: @header-height;
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-between;
+  .uk-flex-middle;
+  .uk-box-shadow-small;
+  padding: 0.5em 1em;
+  position: sticky;
+  top: 0;
+  z-index: 99;
 }
 
-.content {
-  /*
-    Will cause the main content to wrap correctly into 
-    rows if available width is exceeded.
-  */
-  display: flex;
-  flex-direction: row;
-
-  /* 
-    The absolute positioning and 100% height are needed for the 
-    Cytoscape editor to function properly.
-  */
-  position: absolute;
-  top: @header-height + (2 * @margin-small-margin);
-  left: 0;
-  right: 0;
-  bottom: 0;  
+@heading-bullet-border: @text-dark;
+.header h3 {
+  color: @text-dark;
 }
 
 @media only screen and (max-width: 800px) {

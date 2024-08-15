@@ -58,8 +58,8 @@ interface AeonState {
     /** Run the explicit consistency check on the sketch. */
     checkConsistency: () => void
     /** Results of an explicit consistency check. */
-    // TODO: make properly
-    consistencyResults: Observable<boolean>
+    // TODO: make properly (now just a string)
+    consistencyResults: Observable<string>
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
     /** Import the sketch data from a special sketch JSON file. */
@@ -963,7 +963,7 @@ export const aeonState: AeonState = {
         payload: null
       })
     },
-    consistencyResults: new Observable<boolean>(['sketch', 'consistency_results']),
+    consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
 
     model: {
       modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),

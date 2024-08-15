@@ -83,4 +83,16 @@ impl Sketch {
         self.observations = ObservationManager::default();
         self.properties = PropertyManager::default();
     }
+
+    /// General check that all components of the sketch are consistent together.
+    /// This should include:
+    /// - check that dataset variables are valid network variables
+    /// - check that template properties only use valid variables and data
+    /// - check that HCTL properties only use valid variables as atomic propositions
+    /// - check that FOL properties only use valid function symbols
+    pub fn run_consistency_check(&self) -> Result<(), String> {
+        // todo
+
+        Err("Consistency check not implemented yet.".to_string())
+    }
 }

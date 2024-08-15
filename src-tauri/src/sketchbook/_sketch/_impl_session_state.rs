@@ -67,6 +67,19 @@ impl SessionState for Sketch {
                 state_change,
                 reset: true,
             })
+        } else if Self::starts_with("check_consistency", at_path).is_some() {
+            let results = if let Err(message) = self.run_consistency_check() {
+                format!("\"{message}\"")
+            } else {
+                "\"Consistency check successfully finished. Everything looks fine.\"".to_string()
+            };
+
+            let state_change = Event::build(&["sketch", "consistency_results"], Some(&results));
+            // irreversible change that should just bypass the stack (not reset it)
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: false,
+            })
         } else {
             Self::invalid_path_error_generic(at_path)
         }
