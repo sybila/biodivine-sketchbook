@@ -1,0 +1,180 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "n0",
+        "name": "n0",
+        "update_fn": "g(n0) & n1"
+      },
+      {
+        "id": "n1",
+        "name": "n1",
+        "update_fn": "!n0 & !n1"
+      },
+      {
+        "id": "n2",
+        "name": "n2",
+        "update_fn": "f(n1, n2)"
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "n0",
+        "target": "n0",
+        "sign": "Unknown",
+        "essential": "True"
+      },
+      {
+        "regulator": "n0",
+        "target": "n1",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "n1",
+        "target": "n0",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "n1",
+        "target": "n1",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "n1",
+        "target": "n2",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "n2",
+        "target": "n2",
+        "sign": "Activation",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [
+      {
+        "id": "f",
+        "name": "f",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "g",
+        "name": "g",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      }
+    ],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "n0",
+            "px": 213.02036,
+            "py": 198.71938
+          },
+          {
+            "layout": "default",
+            "variable": "n1",
+            "px": 219.01414,
+            "py": 338.2469
+          },
+          {
+            "layout": "default",
+            "variable": "n2",
+            "px": 76.83789,
+            "py": 338.18445
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [],
+  "dyn_properties": [],
+  "stat_properties": [
+    {
+      "id": "monotonicity_n1_n0",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "n1",
+      "target": "n0",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_n0_n1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "n0",
+      "target": "n1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_n2_n2",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "n2",
+      "target": "n2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_n2_n2",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "n2",
+      "target": "n2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_n0_n0",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "n0",
+      "target": "n0",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_n1_n1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "n1",
+      "target": "n1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_n0_n1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "n0",
+      "target": "n1",
+      "value": "Inhibition",
+      "context": null
+    }
+  ]
+}
