@@ -71,6 +71,12 @@ impl Sketch {
         Ok(())
     }
 
+    /// Modify this `Sketch` instance by loading all its components from a different
+    /// `Sketch` instance. The original sketch information is forgotten.
+    pub fn modify_from_sketch(&mut self, other_sketch: &Sketch) {
+        *self = other_sketch.clone();
+    }
+
     /// Modify this `Sketch` instance to a default (empty) settings.
     pub fn set_to_empty(&mut self) {
         self.model = ModelState::default();

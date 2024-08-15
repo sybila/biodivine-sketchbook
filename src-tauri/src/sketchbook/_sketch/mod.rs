@@ -4,6 +4,10 @@ use crate::sketchbook::properties::PropertyManager;
 use crate::sketchbook::{JsonSerde, Manager};
 use serde::{Deserialize, Serialize};
 
+/// **(internal)** Exporting sketch in various formats.
+mod _impl_export;
+/// **(internal)** Importing sketch in various formats.
+mod _impl_import;
 /// **(internal)** Implementation of event-based API for the [SessionState] trait.
 mod _impl_session_state;
 /// **(internal)** Utility methods for `Sketch`.

@@ -50,18 +50,25 @@ interface AeonState {
   sketch: {
     /** First, some general events regarding the whole sketch: */
 
-    /** The whole sketch instance. */
+    /** The refresh of the whole sketch instance. */
     sketchRefreshed: Observable<SketchData>
     /** Refresh the whole sketch. */
     refreshSketch: () => void
 
+    /** Run the explicit consistency check on the sketch. */
+    checkConsistency: () => void
+    /** Results of an explicit consistency check. */
+    // TODO: make properly
+    consistencyResults: Observable<boolean>
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
-    /** Import the sketch data from a file. */
+    /** Import the sketch data from a special sketch JSON file. */
     importSketch: (path: string) => void
+    /** Import the sketch data from a AEON file. */
+    importAeon: (path: string) => void
     /** Set the sketch to a "default" mode, essentially emptying it and starting anew. */
     newSketch: () => void
-    /** The whole modified sketch instance (after importing or starting a new sketch). */
+    /** The whole replaced sketch instance (after importing or starting a new sketch). */
     sketchReplaced: Observable<SketchData>
 
     /** The state of the main model. */
@@ -938,12 +945,25 @@ export const aeonState: AeonState = {
         payload: path
       })
     },
+    importAeon (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'import_aeon'],
+        payload: path
+      })
+    },
     newSketch (): void {
       aeonEvents.emitAction({
         path: ['sketch', 'new_sketch'],
         payload: null
       })
     },
+    checkConsistency (): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'check_consistency'],
+        payload: null
+      })
+    },
+    consistencyResults: new Observable<boolean>(['sketch', 'consistency_results']),
 
     model: {
       modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),

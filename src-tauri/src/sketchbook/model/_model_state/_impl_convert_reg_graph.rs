@@ -80,12 +80,12 @@ impl ModelState {
         reg_graph
     }
 
-    /// Convert the `RegulatoryGraph` into the corresponding `ModelState` object. A name
+    /// Convert the `RegulatoryGraph` into the corresponding `ModelState` instance. A name
     /// of the variable used in `RegulatoryGraph` (which should be unique) is used as both its ID
     /// and name in the resulting `ModelState`.
     ///
     /// Note that only the default layout (all nodes at 0,0) is created for the `ModelState`.
-    pub fn from_reg_graph(reg_graph: RegulatoryGraph) -> Result<ModelState, String> {
+    pub fn from_reg_graph(reg_graph: &RegulatoryGraph) -> Result<ModelState, String> {
         let mut model = ModelState::new_empty();
 
         // variables
@@ -133,7 +133,7 @@ mod tests {
         assert_eq!(reg_graph.num_vars(), 2);
         assert_eq!(reg_graph.regulators(var_a), vec![var_a, var_b]);
 
-        let model_back = ModelState::from_reg_graph(reg_graph).unwrap();
+        let model_back = ModelState::from_reg_graph(&reg_graph).unwrap();
         assert_eq!(model, model_back);
     }
 
@@ -143,7 +143,7 @@ mod tests {
         reg_graph.add_string_regulation("a -> b").unwrap();
         reg_graph.add_string_regulation("b -> a").unwrap();
 
-        let model = ModelState::from_reg_graph(reg_graph.clone()).unwrap();
+        let model = ModelState::from_reg_graph(&reg_graph).unwrap();
         assert_eq!(model.num_vars(), 2);
 
         let reg_graph_back = model.to_reg_graph();

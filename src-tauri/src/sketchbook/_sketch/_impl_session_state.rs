@@ -5,7 +5,7 @@ use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::event_utils::make_state_change;
 use crate::sketchbook::{JsonSerde, Sketch};
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Read;
 
 impl SessionHelper for Sketch {}
 
@@ -28,12 +28,8 @@ impl SessionState for Sketch {
                 reset: true,
             })
         } else if Self::starts_with("export_sketch", at_path).is_some() {
-            let sketch_data = SketchData::new(&self.model, &self.observations, &self.properties);
             let path = Self::clone_payload_str(event, "sketch")?;
-            let mut file = File::create(path).map_err(|e| e.to_string())?;
-            // write sketch in JSON to the file
-            file.write_all(sketch_data.to_pretty_json_str().as_bytes())
-                .map_err(|e| e.to_string())?;
+            self.export_to_custom_json(&path)?;
             Ok(Consumed::NoChange)
         } else if Self::starts_with("import_sketch", at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
@@ -46,6 +42,25 @@ impl SessionState for Sketch {
             let sketch_data = SketchData::from_json_str(&contents)?;
             self.modify_from_sketch_data(&sketch_data)?;
 
+            let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
+            // this is probably one of the real irreversible changes
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: true,
+            })
+        } else if Self::starts_with("import_aeon", at_path).is_some() {
+            let file_path = Self::clone_payload_str(event, "sketch")?;
+            // read the file contents
+            let mut file = File::open(file_path)?;
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)?;
+
+            // parse the AEON format
+            // TODO: aeon format currently does not support template properties (and datasets)
+            let new_sketch = Sketch::from_aeon(&contents)?;
+            self.modify_from_sketch(&new_sketch);
+
+            let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
             // this is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {

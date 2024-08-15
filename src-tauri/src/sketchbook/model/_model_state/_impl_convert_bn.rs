@@ -104,6 +104,38 @@ impl ModelState {
     }
 }
 
+impl ModelState {
+    /// Convert the `ModelState` into the corresponding `BooleanNetwork` object (that will contain
+    /// all of the variables, regulations, update functions, and uninterpreted functions).
+    ///
+    /// See [ModelState::from_reg_graph] for details on how regulations and variables are handled.
+    ///
+    /// A name of parameters used in BooleanNetwork (which should be unique) is used as both
+    /// its ID and name in the resulting ModelState.
+    pub fn from_bn(bn: &BooleanNetwork) -> Result<Self, String> {
+        // this collects variables and regulations
+        let mut model = ModelState::from_reg_graph(bn.as_graph())?;
+
+        // add parameters
+        for param_id in bn.parameters() {
+            let param = bn.get_parameter(param_id);
+            let name = param.get_name();
+            model.add_uninterpreted_fn_by_str(name, name, param.get_arity() as usize)?;
+        }
+
+        // and also add update functions
+        for var in bn.variables() {
+            let var_name = bn.get_variable_name(var);
+            let update_fn_opt = bn.get_update_function(var);
+            if let Some(update_fn) = update_fn_opt {
+                let var_id = model.get_var_id(var_name)?;
+                model.set_update_fn(&var_id, &update_fn.to_string(bn))?;
+            }
+        }
+        Ok(model)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::model::ModelState;
@@ -140,7 +172,7 @@ mod tests {
     }
 
     #[test]
-    fn test_to_bn() {
+    fn test_to_bn_and_back() {
         let model = prepare_test_model_full();
         let bn = model.to_bn();
         let var_a = bn.as_graph().find_variable("a").unwrap();
@@ -149,6 +181,11 @@ mod tests {
         let update_var_a = model.get_update_fn(&model_var_a).unwrap().to_fn_update(&bn);
         assert_eq!(bn.get_update_function(var_a), &update_var_a);
         assert_eq!(bn.get_update_function(var_b), &None);
+
+        // the conversion back works only if IDs and names (for variables, functions) match (which
+        // is out case)
+        let model_converted = ModelState::from_bn(&bn).unwrap();
+        assert_eq!(model, model_converted);
     }
 
     #[test]

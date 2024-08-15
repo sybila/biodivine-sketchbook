@@ -177,16 +177,23 @@ impl InferenceSolver {
     ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
         // todo: at the moment we just use HCTL dynamic properties, and all static properties
         let bn = sketch.model.to_bn_with_plain_regulations();
-        let mut static_properties = vec![];
-        for (_, stat_prop) in sketch.properties.stat_props() {
-            static_properties.push(stat_prop.clone());
+        let mut static_props = vec![];
+        for (id, stat_prop) in sketch.properties.stat_props() {
+            static_props.push((id, stat_prop.clone()));
         }
 
-        let mut dynamic_properties = vec![];
-        for (_, dyn_prop) in sketch.properties.dyn_props() {
-            dynamic_properties.push(dyn_prop.clone());
+        let mut dynamic_props = vec![];
+        for (id, dyn_prop) in sketch.properties.dyn_props() {
+            dynamic_props.push((id, dyn_prop.clone()));
         }
-        Ok((bn, static_properties, dynamic_properties))
+
+        // sort properties by IDs for deterministic computation times (and remove the IDs)
+        dynamic_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
+        let dynamic_props = dynamic_props.into_iter().map(|p| p.1).collect();
+        static_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
+        let static_props = static_props.into_iter().map(|p| p.1).collect();
+
+        Ok((bn, static_props, dynamic_props))
     }
 
     /// Evaluate previously collected static properties, and restrict the unit set of the

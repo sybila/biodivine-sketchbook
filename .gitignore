@@ -26,5 +26,5 @@ Cargo.lock
 *.sln
 *.sw?
 
-# test data
-test_data
+# local test data
+local/

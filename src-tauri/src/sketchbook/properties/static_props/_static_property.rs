@@ -316,6 +316,9 @@ impl StatProperty {
 }
 
 /// Editing static properties.
+impl StatProperty {}
+
+/// Editing static properties.
 impl StatProperty {
     /// Set property's name.
     pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
