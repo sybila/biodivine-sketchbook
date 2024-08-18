@@ -14,10 +14,11 @@ use std::fmt;
 ///     - A "quantifier" node, with a `Quantifier`, a string variable name, and a sub-formula.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum NodeType {
-    Terminal(Term),
+    Terminal(Atom),
     Unary(UnaryOp, Box<FolTreeNode>),
     Binary(BinaryOp, Box<FolTreeNode>, Box<FolTreeNode>),
     Quantifier(Quantifier, String, Box<FolTreeNode>),
+    Function(FunctionSymbol, Vec<Box<FolTreeNode>>),
 }
 
 /// A single node in a syntax tree of a FOL formula.
@@ -81,29 +82,46 @@ impl FolTreeNode {
     ///
     /// See also [NodeType::Terminal] and [Atomic::True] / [Atomic::False].
     pub fn mk_constant(constant_val: bool) -> FolTreeNode {
-        Self::mk_term(Term::from(constant_val))
+        Self::mk_atom(Atom::from(constant_val))
     }
 
-    /// Create a [FolTreeNode] representing a FOL variable.
-    ///
-    /// See also [NodeType::Terminal] and [Atomic::Var].
-    pub fn mk_function(fn_name: &str, arguments: Vec<(bool, Term)>) -> FolTreeNode {
-        Self::mk_term(Term::Function(fn_name.to_string(), arguments))
-    }
-
-    /// Create a [FolTreeNode] representing a function symbol.
+    /// Create a [FolTreeNode] representing a variable.
     ///
     /// See also [NodeType::Terminal] and [Atomic::Var].
     pub fn mk_variable(var_name: &str) -> FolTreeNode {
-        Self::mk_term(Term::Var(var_name.to_string()))
+        Self::mk_atom(Atom::Var(var_name.to_string()))
     }
 
     /// A helper function which creates a new [FolTreeNode] for the given [Term] value.
-    fn mk_term(term: Term) -> FolTreeNode {
+    fn mk_atom(atom: Atom) -> FolTreeNode {
         FolTreeNode {
-            formula_str: term.to_string(),
+            formula_str: atom.to_string(),
             height: 0,
-            node_type: NodeType::Terminal(term),
+            node_type: NodeType::Terminal(atom),
+        }
+    }
+
+    /// Create a [FolTreeNode] representing a function symbol applied to given arguments.
+    pub fn mk_function(name: &str, inner_nodes: Vec<FolTreeNode>) -> FolTreeNode {
+        let max_height = inner_nodes
+            .iter()
+            .map(|node| node.height)
+            .max()
+            .unwrap_or(0);
+
+        let child_formulas: Vec<String> = inner_nodes
+            .iter()
+            .map(|child| child.formula_str.clone())
+            .collect();
+        let args_str = child_formulas.join(", ");
+        let formula_str = format!("{}({})", name, args_str);
+
+        let inner_boxed_nodes = inner_nodes.into_iter().map(Box::new).collect();
+
+        FolTreeNode {
+            formula_str,
+            height: max_height + 1,
+            node_type: NodeType::Function(FunctionSymbol(name.to_string()), inner_boxed_nodes),
         }
     }
 }

@@ -1,5 +1,6 @@
 use crate::algorithms::fo_logic::operator_enums::*;
 
+use crate::algorithms::fo_logic::operator_enums::FunctionSymbol;
 use std::fmt;
 use std::iter::Peekable;
 use std::str::Chars;
@@ -10,22 +11,34 @@ pub enum FolToken {
     Unary(UnaryOp),
     Binary(BinaryOp),
     Quantifier(Quantifier, String),
-    Term(Term),
-    Tokens(Vec<FolToken>),
+    Atomic(Atom),
+    Function(FunctionSymbol, Vec<FolToken>),
+    TokenList(Vec<FolToken>),
 }
 
 /// Try to tokenize given FOL formula string.
 ///
 /// This is a wrapper for the (more general) recursive [try_tokenize_recursive]` function.
 pub fn try_tokenize_formula(formula: String) -> Result<Vec<FolToken>, String> {
-    try_tokenize_recursive(&mut formula.chars().peekable(), true)
+    let (tokens, _) = try_tokenize_recursive(&mut formula.chars().peekable(), true, false)?;
+    Ok(tokens)
 }
 
-/// Process a peekable iterator of characters into a vector of `FolToken`s.
+/// Process a peekable iterator of characters into a vector of `FolToken`s. This function is used
+/// for both tokenizing a top-level formula an expression that is given as fn's argument.
+///
+/// Returns a vector of (nested) tokens, and a last character. The last character is important when
+/// we are parsing function arguments (to find out if another argument is expected or we already
+/// processed the closing parenthesis). When parsing the top-level formula expression (not a function
+/// argument), we simply return '$'.
+///
+/// `top_fn_level` is used in case we are processing an expression passed as argument to some
+/// function symbol (then ',' is valid delimiter).
 fn try_tokenize_recursive(
     input_chars: &mut Peekable<Chars>,
     top_level: bool,
-) -> Result<Vec<FolToken>, String> {
+    top_fn_level: bool,
+) -> Result<(Vec<FolToken>, char), String> {
     let mut output = Vec::new();
 
     while let Some(c) = input_chars.next() {
@@ -68,15 +81,15 @@ fn try_tokenize_recursive(
             }
             ')' => {
                 return if !top_level {
-                    Ok(output)
+                    Ok((output, ')'))
                 } else {
                     Err("Unexpected ')' without opening counterpart.".to_string())
                 }
             }
             '(' => {
                 // start a nested token group
-                let token_group = try_tokenize_recursive(input_chars, false)?;
-                output.push(FolToken::Tokens(token_group));
+                let (token_group, _) = try_tokenize_recursive(input_chars, false, false)?;
+                output.push(FolToken::TokenList(token_group));
             }
             // long name for quantifiers (\exists, \forall)
             '\\' => {
@@ -92,8 +105,12 @@ fn try_tokenize_recursive(
                     return Err(format!("Invalid quantifier `\\{quantifier_name}`."));
                 }
             }
+            ',' if top_fn_level => {
+                // in case we are collecting something inside a function, a comma is valid
+                // delimiter
+                return Ok((output, ','));
+            }
             // function symbol, variable, or a constant
-            // these 2 are NOT distinguished now but later during parsing
             c if is_valid_in_name(c) => {
                 // collect full name
                 let name = collect_name(input_chars)?;
@@ -103,11 +120,11 @@ fn try_tokenize_recursive(
 
                 if Some(&'(') == input_chars.peek() {
                     // it must be a function symbol with arguments in parentheses
-                    let fn_args = collect_fn_arguments(input_chars, &full_name)?;
-                    output.push(FolToken::Term(Term::Function(full_name, fn_args)));
+                    let arguments = collect_fn_arguments(input_chars)?;
+                    output.push(FolToken::Function(FunctionSymbol(full_name), arguments));
                 } else {
-                    // otherwise it is a variable or constant
-                    output.push(FolToken::Term(resolve_term_name(&full_name)));
+                    // otherwise it is a variable or a constant
+                    output.push(FolToken::Atomic(resolve_term_name(&full_name)));
                 }
             }
             _ => return Err(format!("Unexpected char '{c}'.")),
@@ -115,7 +132,7 @@ fn try_tokenize_recursive(
     }
 
     if top_level {
-        Ok(output)
+        Ok((output, '$'))
     } else {
         Err("Expected ')' to previously encountered opening counterpart.".to_string())
     }
@@ -157,13 +174,13 @@ fn is_false_const(name: &str) -> bool {
 
 /// Decide whether the name corresponds to a constant or a variable, and return the
 /// correct term token.
-fn resolve_term_name(name: &str) -> Term {
+fn resolve_term_name(name: &str) -> Atom {
     if is_false_const(name) {
-        Term::False
+        Atom::False
     } else if is_true_const(name) {
-        Term::True
+        Atom::True
     } else {
-        Term::Var(name.to_string())
+        Atom::Var(name.to_string())
     }
 }
 
@@ -206,51 +223,21 @@ fn collect_var_from_operator(
 }
 
 /// Retrieve the arguments of a function, process everything from "(" up to ")".
-/// Function name is consumed by caller and is given as input for error msg purposes.
-fn collect_fn_arguments(
-    input_chars: &mut Peekable<Chars>,
-    fn_name: &str,
-) -> Result<Vec<(bool, Term)>, String> {
+/// Function name is consumed by caller.
+fn collect_fn_arguments(input_chars: &mut Peekable<Chars>) -> Result<Vec<FolToken>, String> {
     input_chars.next(); // skip the "("
 
     let mut fn_args = Vec::new();
     while Some(&')') != input_chars.peek() {
-        skip_whitespaces(input_chars);
-
-        // arguments can be negated
-        let mut negated = false;
-        if Some(&'!') == input_chars.peek() {
-            skip_whitespaces(input_chars);
-            negated = true;
-            input_chars.next(); // skip the "!"
-        }
-        skip_whitespaces(input_chars);
-
-        let arg_name = collect_name(input_chars)?;
-        if arg_name.is_empty() {
-            return Err(format!(
-                "Function argument can't be empty (arg of fn '{fn_name}')."
-            ));
-        }
-        fn_args.push((negated, resolve_term_name(&arg_name)));
-        skip_whitespaces(input_chars);
+        let (token_group, last_char) = try_tokenize_recursive(input_chars, false, true)?;
+        fn_args.push(FolToken::TokenList(token_group));
 
         // next must be either "," or ")"
-        if Some(&')') == input_chars.peek() {
-            continue;
-        } else if Some(',') != input_chars.next() {
-            return Err(format!(
-                "Expected ',' after function's arg {arg_name} (arg of fn '{fn_name}').",
-            ));
+        if last_char == ')' {
+            break;
         }
-        // last char was ",", just double check there is no immediate ")"
-        if Some(&')') == input_chars.peek() {
-            return Err(format!(
-                "Unexpected ')' after ',' (in segment of function '{fn_name}').",
-            ));
-        }
+        assert_eq!(last_char, ',');
     }
-    input_chars.next(); // skip the ")"
 
     Ok(fn_args)
 }
@@ -266,26 +253,41 @@ impl fmt::Display for FolToken {
             FolToken::Binary(BinaryOp::Imp) => write!(f, "=>"),
             FolToken::Binary(BinaryOp::Iff) => write!(f, "<=>"),
             FolToken::Quantifier(op, var) => write!(f, "{op:?} {var}:"),
-            FolToken::Term(Term::Var(name)) => write!(f, "{name}"),
-            FolToken::Term(Term::Function(name, args)) => write!(f, "{name}({args:?})"),
-            FolToken::Term(constant) => write!(f, "{constant:?}"),
-            FolToken::Tokens(_) => write!(f, "( TOKENS )"), // debug purposes only
+            FolToken::Atomic(Atom::Var(name)) => write!(f, "{name}"),
+            FolToken::Atomic(constant) => write!(f, "{constant:?}"),
+            FolToken::Function(name, _) => write!(f, "{name}(...)"),
+            FolToken::TokenList(_) => write!(f, "TokenList"), // debug purposes only
         }
     }
 }
 
-#[allow(dead_code)]
-/// Recursively print tokens.
+/// Recursively display tokens.
 fn print_tokens_recursively(tokens: &Vec<FolToken>) {
     for token in tokens {
         match token {
-            FolToken::Tokens(token_vec) => print_tokens_recursively(token_vec),
-            _ => print!("{token} "),
+            FolToken::Unary(UnaryOp::Not) => print!("!"),
+            FolToken::Binary(BinaryOp::And) => print!("&"),
+            FolToken::Binary(BinaryOp::Or) => print!("|"),
+            FolToken::Binary(BinaryOp::Xor) => print!("^"),
+            FolToken::Binary(BinaryOp::Imp) => print!("=>"),
+            FolToken::Binary(BinaryOp::Iff) => print!("<=>"),
+            FolToken::Quantifier(op, var) => print!("{op:?} {var}:"),
+            FolToken::Atomic(Atom::Var(name)) => print!("{name}"),
+            FolToken::Atomic(constant) => print!("{constant:?}"),
+            FolToken::TokenList(token_vec) => print_tokens_recursively(token_vec),
+            FolToken::Function(name, args) => {
+                print!("{name}(");
+                for arg in args {
+                    print_tokens_recursively(&vec![arg.clone()]);
+                    // todo: one more "," than needed
+                    print!(",")
+                }
+                print!(")")
+            }
         }
     }
 }
 
-#[allow(dead_code)]
 /// Print the vector of tokens (for debug purposes).
 pub fn print_tokens(tokens: &Vec<FolToken>) {
     print_tokens_recursively(tokens);
@@ -296,6 +298,7 @@ pub fn print_tokens(tokens: &Vec<FolToken>) {
 mod tests {
     use crate::algorithms::fo_logic::operator_enums::*;
     use crate::algorithms::fo_logic::tokenizer::{try_tokenize_formula, FolToken};
+    use std::vec;
 
     #[test]
     /// Test tokenization process on several valid FOL formulae.
@@ -308,10 +311,12 @@ mod tests {
             tokens1,
             vec![
                 FolToken::Quantifier(Quantifier::Exists, "x".to_string()),
-                FolToken::Term(Term::Function(
-                    "f".to_string(),
-                    vec![(false, Term::Var("x".to_string()))]
-                )),
+                FolToken::Function(
+                    FunctionSymbol("f".to_string()),
+                    vec![FolToken::TokenList(vec![FolToken::Atomic(Atom::Var(
+                        "x".to_string()
+                    ))])],
+                ),
             ]
         );
 
@@ -322,13 +327,16 @@ mod tests {
             vec![
                 FolToken::Quantifier(Quantifier::Forall, "x".to_string()),
                 FolToken::Quantifier(Quantifier::Exists, "yy".to_string()),
-                FolToken::Term(Term::Function(
-                    "f".to_string(),
+                FolToken::Function(
+                    FunctionSymbol("f".to_string()),
                     vec![
-                        (false, Term::Var("x".to_string())),
-                        (true, Term::Var("yy".to_string()))
-                    ]
-                )),
+                        FolToken::TokenList(vec![FolToken::Atomic(Atom::Var("x".to_string()))]),
+                        FolToken::TokenList(vec![
+                            FolToken::Unary(UnaryOp::Not),
+                            FolToken::Atomic(Atom::Var("yy".to_string())),
+                        ]),
+                    ],
+                ),
             ]
         );
     }

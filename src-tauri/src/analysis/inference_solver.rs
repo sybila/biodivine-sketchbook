@@ -237,6 +237,8 @@ impl InferenceSolver {
     /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
     /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
     /// static properties, all but generic dynamic properties.
+    ///
+    /// TODO: for each analysis (HCTL, FOL, ..), create its own symbolic context
     fn run_whole_inference_prototype_inner(
         &mut self,
         sketch: Sketch,
@@ -252,6 +254,7 @@ impl InferenceSolver {
         self.status_update(InferenceStatus::ProcessedInputs);
 
         // step 2: todo: check how many HCTL propositions we need to eval the formulae
+        // todo: do this inside of the evaluation sub-function
         let num_hctl_vars = 3;
 
         // step 3: make default symbolic transition graph

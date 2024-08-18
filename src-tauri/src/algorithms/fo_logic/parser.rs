@@ -145,9 +145,9 @@ fn parse_7_unary(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
     let unary_token = index_of_first_unary(tokens);
     Ok(if let Some(i) = unary_token {
         // perform check that unary operator is not directly preceded by some atomic sub-formula
-        if i > 0 && matches!(&tokens[i - 1], FolToken::Term(..)) {
+        if i > 0 && matches!(&tokens[i - 1], FolToken::Atomic(..)) {
             return Err(format!(
-                "Unary operator can't be directly preceded by {}.",
+                "Unary operator can't be directly preceded by {:?}.",
                 &tokens[i - 1]
             ));
         }
@@ -163,7 +163,8 @@ fn parse_7_unary(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
     })
 }
 
-/// Recursive parsing step 8: extract terms and recursively solve sub-formulae in parentheses.
+/// Recursive parsing step 8: extract terms and recursively solve sub-formulae in parentheses and in
+/// functions.
 fn parse_8_terms_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
     if tokens.is_empty() {
         Err("Expected formula, found nothing.".to_string())
@@ -172,20 +173,30 @@ fn parse_8_terms_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, Str
             // This should be name (var/function) or a parenthesis group, anything
             // else does not make sense (constants are tokenized as variables until now).
             match &tokens[0] {
-                FolToken::Term(Term::Var(name)) => {
+                FolToken::Atomic(Atom::Var(name)) => {
                     return Ok(FolTreeNode::mk_variable(name.as_str()));
                 }
-                FolToken::Term(Term::True) => {
+                FolToken::Atomic(Atom::True) => {
                     return Ok(FolTreeNode::mk_constant(true));
                 }
-                FolToken::Term(Term::False) => {
+                FolToken::Atomic(Atom::False) => {
                     return Ok(FolTreeNode::mk_constant(false));
                 }
-                FolToken::Term(Term::Function(name, arguments)) => {
-                    return Ok(FolTreeNode::mk_function(name, arguments.clone()));
+                FolToken::Function(FunctionSymbol(name), arguments) => {
+                    let mut arg_expression_nodes = Vec::new();
+                    for inner in arguments {
+                        // it must be a token list
+                        if let FolToken::TokenList(inner_token_list) = inner {
+                            arg_expression_nodes.push(parse_fol_tokens(inner_token_list)?);
+                        } else {
+                            return Err("Function must be applied on `FolToken::TokenList` args."
+                                .to_string());
+                        }
+                    }
+                    return Ok(FolTreeNode::mk_function(name, arg_expression_nodes));
                 }
                 // recursively solve sub-formulae in parentheses
-                FolToken::Tokens(inner) => {
+                FolToken::TokenList(inner) => {
                     return parse_fol_tokens(inner);
                 }
                 _ => {} // otherwise, fall through to the error at the end.
@@ -257,7 +268,7 @@ mod tests {
 
         let formula = "\\exists x: f(x)";
         let expected_tree = FolTreeNode::mk_quantifier(
-            FolTreeNode::mk_function("f", vec![(false, Term::Var("x".to_string()))]),
+            FolTreeNode::mk_function("f", vec![FolTreeNode::mk_variable("x")]),
             "x",
             Quantifier::Exists,
         );
@@ -269,7 +280,10 @@ mod tests {
                 FolTreeNode::mk_binary(
                     FolTreeNode::mk_function(
                         "f",
-                        vec![(false, Term::True), (true, Term::Var("yy".to_string()))],
+                        vec![
+                            FolTreeNode::mk_constant(true),
+                            FolTreeNode::mk_unary(FolTreeNode::mk_variable("yy"), UnaryOp::Not),
+                        ],
                     ),
                     FolTreeNode::mk_variable("x"),
                     BinaryOp::And,

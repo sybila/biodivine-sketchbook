@@ -23,14 +23,17 @@ pub enum Quantifier {
     Forall, // 'V' or "\forall"
 }
 
-/// Enum for terms: variables and constants.
+/// Enum for atomic terms: variables and constants.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Ord, PartialOrd)]
-pub enum Term {
-    Function(String, Vec<(bool, Term)>), // A function with a list of (potentially negated) args
-    Var(String),                         // A variable name
-    True,                                // A true constant
-    False,                               // A false constant
+pub enum Atom {
+    Var(String), // A variable
+    True,        // A true constant
+    False,       // A false constant
 }
+
+// A function symbol
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct FunctionSymbol(pub String);
 
 impl fmt::Display for UnaryOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -61,35 +64,28 @@ impl fmt::Display for Quantifier {
     }
 }
 
-impl fmt::Display for Term {
+impl fmt::Display for Atom {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Term::Var(name) => write!(f, "{name}"),
-            Term::True => write!(f, "1"),
-            Term::False => write!(f, "0"),
-            Term::Function(name, arguments) => {
-                let formatted_args: Vec<String> = arguments
-                    .iter()
-                    .map(|(negate, term)| {
-                        if *negate {
-                            format!("!{term}")
-                        } else {
-                            format!("{term}")
-                        }
-                    })
-                    .collect();
-                write!(f, "{}({})", name, formatted_args.join(", "))
-            }
+            Atom::Var(name) => write!(f, "{name}"),
+            Atom::True => write!(f, "1"),
+            Atom::False => write!(f, "0"),
         }
     }
 }
 
-impl From<bool> for Term {
+impl fmt::Display for FunctionSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<bool> for Atom {
     fn from(value: bool) -> Self {
         if value {
-            Term::True
+            Atom::True
         } else {
-            Term::False
+            Atom::False
         }
     }
 }
