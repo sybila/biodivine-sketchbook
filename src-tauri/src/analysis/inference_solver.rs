@@ -175,8 +175,16 @@ impl InferenceSolver {
     fn extract_inputs(
         sketch: Sketch,
     ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
-        // todo: at the moment we just use HCTL dynamic properties, and all static properties
-        let bn = sketch.model.to_bn_with_plain_regulations();
+        // todo: at the moment we just use HCTL dynamic properties, and automatic regulation static properties
+
+        // todo: check how many extra FOL vars we need to eval the static properties
+        // todo: do this inside of the evaluation sub-functions, make separate contexts for each
+        // next line is just explicit hack for now
+        let extra_fol_vars = vec!["x".to_string(), "y".to_string(), "z".to_string()];
+
+        let bn = sketch
+            .model
+            .to_bn_with_plain_regulations(Some(extra_fol_vars));
         let mut static_props = vec![];
         for (id, stat_prop) in sketch.properties.stat_props() {
             static_props.push((id, stat_prop.clone()));
@@ -248,16 +256,18 @@ impl InferenceSolver {
 
         // step 1: process basic components of the sketch to be used
         let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
+
+        // todo: check how many extra HCTL vars we need to eval the dynamic properties
+        // todo: do this inside of the evaluation sub-functions, make separate contexts for each
+        // next lines is just explicit hack for now
+        let num_hctl_vars = 3;
+
         self.bn = Some(bn);
         self.static_props = Some(static_props);
         self.dynamic_props = Some(dynamic_props);
         self.status_update(InferenceStatus::ProcessedInputs);
 
-        // step 2: todo: check how many HCTL propositions we need to eval the formulae
-        // todo: do this inside of the evaluation sub-function
-        let num_hctl_vars = 3;
-
-        // step 3: make default symbolic transition graph
+        // step 2: make default symbolic transition graph
         self.graph = Some(get_extended_symbolic_graph(self.bn()?, num_hctl_vars)?);
         self.status_update(InferenceStatus::GeneratedGraph);
         let msg = format!(
@@ -266,7 +276,7 @@ impl InferenceSolver {
         );
         metadata.push_str(&msg);
 
-        // step 4: todo: evaluate static properties, restrict colors
+        // step 3: todo: evaluate static properties, restrict colors
         self.eval_static()?;
         let msg = format!(
             "N. of candidates after evaluating static props: {}\n",
@@ -274,7 +284,7 @@ impl InferenceSolver {
         );
         metadata.push_str(&msg);
 
-        // step 5: evaluate dynamic properties
+        // step 4: evaluate dynamic properties
         self.eval_dynamic()?;
         let msg = format!(
             "N. of candidates after evaluating dynamic props: {}\n",
@@ -285,6 +295,8 @@ impl InferenceSolver {
         // step 5: process results, compute few statistics, return some results struct
         self.raw_sat_colors = Some(self.graph()?.mk_unit_colors());
         self.status_update(InferenceStatus::Finished);
+
+        // todo: currently the results contain additional vars (for FOL static props), increasing num of SAT networks
 
         let num_sat_networks = self.sat_colors()?.approx_cardinality() as u64;
         let total_time = self

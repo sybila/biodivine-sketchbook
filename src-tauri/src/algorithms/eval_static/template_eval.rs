@@ -1,8 +1,10 @@
+use crate::algorithms::fo_logic::eval_wrappers::eval_formula_dirty;
 use crate::sketchbook::bn_utils;
 use crate::sketchbook::model::Monotonicity;
 use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::StatProperty;
 use biodivine_lib_bdd::Bdd;
+use biodivine_lib_param_bn::biodivine_std::traits::Set;
 use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColors, RegulationConstraint, SymbolicAsyncGraph,
 };
@@ -33,7 +35,11 @@ pub fn eval_static_prop(
         .collect();
 
     match static_prop.get_prop_data() {
-        StatPropertyType::GenericStatProp(_prop) => todo!(),
+        StatPropertyType::GenericStatProp(prop) => {
+            let formula = prop.processed_formula.to_string();
+            let results = eval_formula_dirty(&formula, graph)?;
+            Ok(results.colors().intersect(&initial_unit_colors))
+        }
         StatPropertyType::FnInputEssential(_prop) => todo!(),
         StatPropertyType::RegulationEssential(prop) => {
             let input_name = prop.clone().input.unwrap();

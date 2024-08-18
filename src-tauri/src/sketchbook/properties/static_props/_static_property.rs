@@ -21,8 +21,6 @@ pub struct StatProperty {
 impl StatProperty {
     /// Create "generic" `StatProperty` instance directly from a formula, which must be in a
     /// correct format (which is verified).
-    ///
-    /// TODO: `FirstOrderFormula` struct currently lacks syntax check
     pub fn mk_generic(name: &str, raw_formula: &str) -> Result<StatProperty, String> {
         let property = GenericStatProp {
             raw_formula: raw_formula.to_string(),

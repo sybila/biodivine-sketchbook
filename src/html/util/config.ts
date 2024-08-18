@@ -37,4 +37,4 @@ export const tabList: TabData[] = [
   })
 ]
 
-export const functionDebounceTimer = 1000
+export const functionDebounceTimer = 1500

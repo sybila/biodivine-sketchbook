@@ -91,6 +91,14 @@ impl HctlFormula {
     }
 }
 
+/// Observing HCTL formulas.
+impl HctlFormula {
+    /// Str reference version of the first-order formula.
+    pub fn as_str(&self) -> &str {
+        &self.tree.formula_str
+    }
+}
+
 /// Static methods (to check validity of formula strings).
 impl HctlFormula {
     /// Assert that formula is correctly formed based on HCTL syntactic rules.

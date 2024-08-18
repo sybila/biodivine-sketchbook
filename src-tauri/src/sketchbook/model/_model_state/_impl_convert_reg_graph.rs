@@ -15,8 +15,10 @@ impl ModelState {
     /// some information, like the original variable names and layout information.
     /// Also, all of the other model components, such as `update functions` or `uninterpreted functions`
     /// are not part of the `RegulatoryGraph`.
-    pub fn to_reg_graph(&self) -> RegulatoryGraph {
-        self._to_reg_graph(true)
+    ///
+    /// You can add optional extra variables (`extra_vars`).
+    pub fn to_reg_graph(&self, extra_vars: Option<Vec<String>>) -> RegulatoryGraph {
+        self._to_reg_graph(true, extra_vars)
     }
 
     /// Extract the regulatory graph (`RegulatoryGraph` object) from the `ModelState`.
@@ -27,8 +29,13 @@ impl ModelState {
     ///
     /// This might be useful in inference, if we want to process regulation types later via static
     /// properties.
-    pub fn to_reg_graph_with_unspecified_regs(&self) -> RegulatoryGraph {
-        self._to_reg_graph(false)
+    ///
+    /// You can add optional extra variables (`extra_vars`).
+    pub fn to_reg_graph_with_unspecified_regs(
+        &self,
+        extra_vars: Option<Vec<String>>,
+    ) -> RegulatoryGraph {
+        self._to_reg_graph(false, extra_vars)
     }
 
     /// Internal utility to extract the regulatory graph (`RegulatoryGraph` object) from the
@@ -38,7 +45,13 @@ impl ModelState {
     /// There are two modes based on `include_reg_types` argument. If it is set to `true`, the
     /// types of regulations (their essentiality and monotonicity) are preserved. If it is set to
     /// `false`, they are ignored, and unspecified versions are used instead.
-    fn _to_reg_graph(&self, include_reg_types: bool) -> RegulatoryGraph {
+    ///
+    /// You can add optional extra variables (`extra_vars`).
+    fn _to_reg_graph(
+        &self,
+        include_reg_types: bool,
+        extra_vars: Option<Vec<String>>,
+    ) -> RegulatoryGraph {
         // create `RegulatoryGraph` from a list of variable ID strings (these are unique and
         // can be mapped back)
         let mut variable_vec = self
@@ -46,6 +59,11 @@ impl ModelState {
             .keys()
             .map(|v| v.to_string())
             .collect::<Vec<_>>();
+
+        if let Some(vars) = extra_vars {
+            variable_vec.extend(vars);
+        }
+
         // sort the IDs, so that the process is kinda deterministic - in `RegulatoryGraph`, the
         // order of the variables matters (but regulations order does not)
         variable_vec.sort();
@@ -127,7 +145,7 @@ mod tests {
     #[test]
     fn test_to_reg_graph() {
         let model = prepare_test_model();
-        let reg_graph = model.to_reg_graph();
+        let reg_graph = model.to_reg_graph(None);
         let var_a = reg_graph.find_variable("a").unwrap();
         let var_b = reg_graph.find_variable("b").unwrap();
         assert_eq!(reg_graph.num_vars(), 2);
@@ -146,7 +164,7 @@ mod tests {
         let model = ModelState::from_reg_graph(&reg_graph).unwrap();
         assert_eq!(model.num_vars(), 2);
 
-        let reg_graph_back = model.to_reg_graph();
+        let reg_graph_back = model.to_reg_graph(None);
         assert_eq!(reg_graph, reg_graph_back);
     }
 }

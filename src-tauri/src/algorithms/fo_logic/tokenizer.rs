@@ -227,16 +227,25 @@ fn collect_var_from_operator(
 fn collect_fn_arguments(input_chars: &mut Peekable<Chars>) -> Result<Vec<FolToken>, String> {
     input_chars.next(); // skip the "("
 
-    let mut fn_args = Vec::new();
-    while Some(&')') != input_chars.peek() {
-        let (token_group, last_char) = try_tokenize_recursive(input_chars, false, true)?;
-        fn_args.push(FolToken::TokenList(token_group));
+    // check special case when we dont have any arguments (constant parameter, e.g., "P()")
+    if let Some(&')') = input_chars.peek() {
+        input_chars.next(); // skip the ")"
+        return Ok(Vec::new());
+    }
 
-        // next must be either "," or ")"
-        if last_char == ')' {
-            break;
+    let mut fn_args = Vec::new();
+    let mut last_delim_char = ',';
+    // iterate until ")" is processed by a sub-function
+    while last_delim_char != ')' {
+        // delimiters must be always "," until we reach ")" and break from the loop
+        assert_eq!(last_delim_char, ',');
+
+        let (token_group, last_char) = try_tokenize_recursive(input_chars, false, true)?;
+        if token_group.is_empty() {
+            return Err("Function argument can't be empty.".to_string());
         }
-        assert_eq!(last_char, ',');
+        fn_args.push(FolToken::TokenList(token_group));
+        last_delim_char = last_char;
     }
 
     Ok(fn_args)
@@ -338,6 +347,13 @@ mod tests {
                     ],
                 ),
             ]
+        );
+
+        let valid3 = "fn()".to_string();
+        let tokens3 = try_tokenize_formula(valid3).unwrap();
+        assert_eq!(
+            tokens3,
+            vec![FolToken::Function(FunctionSymbol("fn".to_string()), vec![],),]
         );
     }
 
