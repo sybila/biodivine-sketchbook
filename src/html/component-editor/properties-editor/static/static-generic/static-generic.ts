@@ -2,21 +2,26 @@ import { html, css, unsafeCSS, type TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-generic.less?inline'
 import { type IGenericStaticProperty } from '../../../../util/data-interfaces'
-import { debounce } from 'lodash'
-import { functionDebounceTimer } from '../../../../util/config'
 import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-generic')
 export default class StaticGeneric extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
+
   @property() declare property: IGenericStaticProperty
 
-  valueChanged = debounce((formula: string): void => {
-    this.updateProperty({
-      ...this.property,
-      formula
-    })
-  }, functionDebounceTimer)
+  private handleFocusOut (e: Event): void {
+    const inputElement = e.target as HTMLInputElement
+    const newValue = inputElement.value
+
+    // Update the property only if the value has changed
+    if (newValue !== this.property.formula) {
+      this.updateProperty({
+        ...this.property,
+        formula: newValue
+      })
+    }
+  }
 
   render (): TemplateResult {
     return html`
@@ -26,7 +31,7 @@ export default class StaticGeneric extends abstractStaticProperty {
           <label class="value-label">Context formula:</label>
           <div class="uk-flex uk-flex-row">
             <input id="value-editor" class="uk-input" .value="${this.property.formula}"
-                   @input="${(e: Event) => { this.valueChanged((e.target as HTMLInputElement).value) }}"/>
+                   @focusout="${this.handleFocusOut}"/>
           </div>
         </div>
       </div>
