@@ -14,6 +14,7 @@ pub fn eval_static_prop(
     static_prop: StatProperty,
     network: &BooleanNetwork,
     graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<GraphColors, String> {
     // look into https://github.com/sybila/biodivine-lib-param-bn/blob/master/src/symbolic_async_graph/_impl_regulation_constraint.rs
 
@@ -37,7 +38,7 @@ pub fn eval_static_prop(
     match static_prop.get_prop_data() {
         StatPropertyType::GenericStatProp(prop) => {
             let formula = prop.processed_formula.to_string();
-            let results = eval_formula_dirty(&formula, graph)?;
+            let results = eval_formula_dirty(&formula, graph, base_var_name)?;
             Ok(results.colors().intersect(&initial_unit_colors))
         }
         StatPropertyType::FnInputEssential(_prop) => todo!(),

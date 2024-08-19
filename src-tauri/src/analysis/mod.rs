@@ -5,6 +5,9 @@ pub mod analysis_state;
 /// Structs and utility methods that can be used for communication with frontend.
 pub mod data_structs;
 
+/// Utilities to generate SymbolicContext and SymbolicAsyncGraph instances with enough extra
+/// variables to be able to represent all HCTL and FOL variables.
+mod context_utils;
 /// Structures and methods to run the whole inference process.
 /// This involves the general workflow, the details are in a separate module [analysis].
 mod inference_solver;

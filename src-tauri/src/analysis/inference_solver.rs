@@ -1,14 +1,17 @@
 use crate::algorithms::eval_dynamic::template_eval::eval_dyn_prop;
 use crate::algorithms::eval_static::template_eval::eval_static_prop;
 use crate::analysis::analysis_results::AnalysisResults;
+use crate::analysis::context_utils::{
+    get_fol_extended_symbolic_graph, get_hctl_extended_symbolic_graph,
+};
 use crate::log;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
-use biodivine_hctl_model_checker::mc_utils::get_extended_symbolic_graph;
 use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
 };
 use biodivine_lib_param_bn::BooleanNetwork;
+use num_bigint::BigInt;
 use std::time::SystemTime;
 
 /// Status of the computation, together with a timestamp.
@@ -177,14 +180,7 @@ impl InferenceSolver {
     ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
         // todo: at the moment we just use HCTL dynamic properties, and automatic regulation static properties
 
-        // todo: check how many extra FOL vars we need to eval the static properties
-        // todo: do this inside of the evaluation sub-functions, make separate contexts for each
-        // next line is just explicit hack for now
-        let extra_fol_vars = vec!["x".to_string(), "y".to_string(), "z".to_string()];
-
-        let bn = sketch
-            .model
-            .to_bn_with_plain_regulations(Some(extra_fol_vars));
+        let bn = sketch.model.to_bn_with_plain_regulations(None);
         let mut static_props = vec![];
         for (id, stat_prop) in sketch.properties.stat_props() {
             static_props.push((id, stat_prop.clone()));
@@ -208,9 +204,10 @@ impl InferenceSolver {
     /// graph to the set of valid colors.
     ///
     /// TODO: function `eval_static_prop` needs to be finished.
-    fn eval_static(&mut self) -> Result<(), String> {
+    fn eval_static(&mut self, base_var_name: &str) -> Result<(), String> {
         for stat_property in self.stat_props()?.clone() {
-            let inferred_colors = eval_static_prop(stat_property, self.bn()?, self.graph()?)?;
+            let inferred_colors =
+                eval_static_prop(stat_property, self.bn()?, self.graph()?, base_var_name)?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
                 self.graph()?.symbolic_context(),
@@ -257,34 +254,71 @@ impl InferenceSolver {
         // step 1: process basic components of the sketch to be used
         let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
 
-        // todo: check how many extra HCTL vars we need to eval the dynamic properties
+        // todo: check how many extra HCTL and FOL vars we need to eval the properties
         // todo: do this inside of the evaluation sub-functions, make separate contexts for each
         // next lines is just explicit hack for now
         let num_hctl_vars = 3;
+        let num_fol_vars = 3;
+        let base_var = bn.variables().collect::<Vec<_>>()[0];
+        let base_var_name = bn.as_graph().get_variable_name(base_var).clone();
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);
         self.dynamic_props = Some(dynamic_props);
         self.status_update(InferenceStatus::ProcessedInputs);
 
-        // step 2: make default symbolic transition graph
-        self.graph = Some(get_extended_symbolic_graph(self.bn()?, num_hctl_vars)?);
+        // step 2: make default symbolic transition graph for FOL evaluation
+        self.graph = Some(get_fol_extended_symbolic_graph(
+            self.bn()?,
+            num_fol_vars,
+            &base_var_name,
+            None,
+        )?);
         self.status_update(InferenceStatus::GeneratedGraph);
         let msg = format!(
-            "N. of candidates before evaluating any properties: {}\n",
+            "N. of candidates before evaluating any static properties: {}\n",
             self.current_candidate_colors()?.approx_cardinality()
         );
         metadata.push_str(&msg);
 
-        // step 3: todo: evaluate static properties, restrict colors
-        self.eval_static()?;
+        // step 3: evaluate static properties
+        self.eval_static(&base_var_name)?;
         let msg = format!(
             "N. of candidates after evaluating static props: {}\n",
             self.current_candidate_colors()?.approx_cardinality()
         );
         metadata.push_str(&msg);
 
-        // step 4: evaluate dynamic properties
+        // explicit check if we finished early
+        if self.current_candidate_colors()?.exact_cardinality() == BigInt::from(0) {
+            self.raw_sat_colors = Some(self.current_candidate_colors()?.clone());
+            self.status_update(InferenceStatus::Finished);
+
+            let num_sat_networks = 0u64;
+            let total_time: std::time::Duration = self
+                .finish_time()?
+                .duration_since(self.start_time()?)
+                .unwrap();
+            let results = AnalysisResults::new(num_sat_networks, total_time, &metadata);
+            return Ok(results);
+        }
+
+        // step 4: make symbolic transition graph for HCTL evaluation with restricted unit BDD
+        let old_unit_bdd = self.current_candidate_colors()?.into_bdd();
+        let old_context = self.graph()?.symbolic_context();
+        self.graph = Some(get_hctl_extended_symbolic_graph(
+            self.bn()?,
+            num_hctl_vars,
+            Some((&old_unit_bdd, old_context)),
+        )?);
+        self.status_update(InferenceStatus::GeneratedGraph);
+        let msg = format!(
+            "N. of candidates before evaluating any dynamic properties: {}\n",
+            self.current_candidate_colors()?.approx_cardinality()
+        );
+        metadata.push_str(&msg);
+
+        // step 5: evaluate dynamic properties
         self.eval_dynamic()?;
         let msg = format!(
             "N. of candidates after evaluating dynamic props: {}\n",
@@ -292,11 +326,9 @@ impl InferenceSolver {
         );
         metadata.push_str(&msg);
 
-        // step 5: process results, compute few statistics, return some results struct
+        // step 6: process results, compute few statistics, return some results struct
         self.raw_sat_colors = Some(self.graph()?.mk_unit_colors());
         self.status_update(InferenceStatus::Finished);
-
-        // todo: currently the results contain additional vars (for FOL static props), increasing num of SAT networks
 
         let num_sat_networks = self.sat_colors()?.approx_cardinality() as u64;
         let total_time = self

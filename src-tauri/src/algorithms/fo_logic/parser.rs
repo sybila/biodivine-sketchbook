@@ -1,6 +1,7 @@
 use crate::algorithms::fo_logic::fol_tree::*;
 use crate::algorithms::fo_logic::operator_enums::*;
 use crate::algorithms::fo_logic::tokenizer::{try_tokenize_formula, FolToken};
+use crate::algorithms::fo_logic::utils::validate_and_rename_vars;
 
 /// Parse an FOL formula string representation into an actual formula tree.
 /// Basically a wrapper for tokenize+parse (used often for testing/debug purposes).
@@ -9,6 +10,23 @@ use crate::algorithms::fo_logic::tokenizer::{try_tokenize_formula, FolToken};
 pub fn parse_fol_formula(formula: &str) -> Result<FolTreeNode, String> {
     let tokens = try_tokenize_formula(formula.to_string())?;
     let tree = parse_fol_tokens(&tokens)?;
+    Ok(tree)
+}
+
+/// Parse an FOL formula string representation into an actual formula tree with renamed (minimized)
+/// set of variables.
+///
+/// Basically a wrapper for the whole preprocessing step (tokenize + parse + rename vars).
+///
+/// The format of variable names is given by how [SymbolicContext::with_extra_state_variables]
+/// creates new extra variables. Basically, we choose a name of one BN variable (`var_core_name`),
+/// and it is used as a base for extra variables `{var_base_name}_extra_{index}`.
+pub fn parse_and_minimize_fol_formula(
+    formula: &str,
+    base_var_name: &str,
+) -> Result<FolTreeNode, String> {
+    let tree = parse_fol_formula(formula)?;
+    let tree = validate_and_rename_vars(tree, base_var_name)?;
     Ok(tree)
 }
 

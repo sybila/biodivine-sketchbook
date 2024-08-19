@@ -1,6 +1,6 @@
 use crate::algorithms::fo_logic::eval_algorithm::eval_node;
 use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
-use crate::algorithms::fo_logic::parser::parse_fol_formula;
+use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
 use biodivine_hctl_model_checker::postprocessing::sanitizing::sanitize_colored_vertices;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
 
@@ -64,15 +64,18 @@ pub fn eval_tree(
 /// Parse given FOL formulas list into syntactic trees and perform compatibility check with
 /// the provided `graph` (i.e., check if `graph` object supports all needed symbolic variables).
 ///
-/// TODO: still missing some valiadtion steps
+/// Argument `base_var_name` is for the BN var which was used as a base for extra variables.
+///
+/// TODO: still missing some validation steps
 fn parse_and_validate(
     formulas: Vec<&str>,
     _graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<Vec<FolTreeNode>, String> {
     // parse all the formulas and check that graph supports enough HCTL vars
     let mut parsed_trees = Vec::new();
     for formula in formulas {
-        let tree = parse_fol_formula(formula)?;
+        let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
         // todo: still missing the check that all function symbols are valid in the sketch
 
         // TODO: check that given extended symbolic graph supports enough stated variables
@@ -84,24 +87,30 @@ fn parse_and_validate(
 /// Evaluate each of a list of FOL formulas on a given transition `graph`.
 /// Return the resulting sets of colored vertices (in the same order as input formulas).
 /// The `graph` MUST support enough sets of symbolic variables to represent all occurring FO vars.
+///
+/// Argument `base_var_name` is for the BN var which was used as a base for extra variables.
 pub fn eval_multiple_formulas(
     formulas: Vec<&str>,
     graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<Vec<GraphColoredVertices>, String> {
     // get the abstract syntactic trees
-    let parsed_trees = parse_and_validate(formulas, graph)?;
+    let parsed_trees = parse_and_validate(formulas, graph, base_var_name)?;
     // run the main model-checking procedure on formulas trees
     eval_multiple_trees(parsed_trees, graph)
 }
 
 /// Evaluate each of a list of FOL formulas, but do not sanitize the results.
 /// The `graph` MUST support enough sets of symbolic variables to represent all occurring FO vars.
+///
+/// Argument `base_var_name` is for the BN var which was used as a base for extra variables.
 pub fn eval_multiple_formulas_dirty(
     formulas: Vec<&str>,
     graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<Vec<GraphColoredVertices>, String> {
     // get the abstract syntactic trees
-    let parsed_trees = parse_and_validate(formulas, graph)?;
+    let parsed_trees = parse_and_validate(formulas, graph, base_var_name)?;
     // run the main model-checking procedure on formulas trees
     eval_multiple_trees_dirty(parsed_trees, graph)
 }
@@ -109,20 +118,26 @@ pub fn eval_multiple_formulas_dirty(
 /// Evaluate given formula a given transition `graph`.
 /// The `graph` MUST support enough sets of symbolic variables to represent all occurring FO vars.
 /// Return the resulting set of colored vertices.
+///
+/// Argument `base_var_name` is for the BN var which was used as a base for extra variables.
 pub fn eval_formula(
     formula: &str,
     graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<GraphColoredVertices, String> {
-    let result = eval_multiple_formulas(vec![formula], graph)?;
+    let result = eval_multiple_formulas(vec![formula], graph, base_var_name)?;
     Ok(result[0].clone())
 }
 
 /// Evaluate given formula, but do not sanitize the result.
 /// The `graph` MUST support enough sets of symbolic variables to represent all occurring FO vars.
+///
+/// Argument `base_var_name` is for the BN var which was used as a base for extra variables.
 pub fn eval_formula_dirty(
     formula: &str,
     graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<GraphColoredVertices, String> {
-    let result = eval_multiple_formulas_dirty(vec![formula], graph)?;
+    let result = eval_multiple_formulas_dirty(vec![formula], graph, base_var_name)?;
     Ok(result[0].clone())
 }
