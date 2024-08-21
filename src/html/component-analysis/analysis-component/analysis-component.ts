@@ -5,7 +5,8 @@ import {
   aeonState,
   type SketchData,
   type InferenceResults,
-  type StaticCheckResults
+  type StaticCheckResults,
+  DynamicCheckResults
 } from '../../../aeon_events'
 import {
   AnalysisType
@@ -18,7 +19,7 @@ export default class AnalysisComponent extends LitElement {
   @property() sketchData: SketchData | null = null
 
   @state() selected_analysis: AnalysisType | null = null
-  @state() results: InferenceResults | StaticCheckResults | null = null
+  @state() results: InferenceResults | StaticCheckResults | DynamicCheckResults | null = null
   @state() isRandomizeChecked: boolean = false // Track the state of the "Randomize" checkbox
 
   constructor () {
@@ -41,11 +42,18 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.staticCheckStarted.addEventListener(
       this.#onStaticCheckStarted.bind(this)
     )
+    aeonState.analysis.dynamicCheckStarted.addEventListener(
+      this.#onDynamicCheckStarted.bind(this)
+    )
+
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
     )
     aeonState.analysis.staticCheckResultsReceived.addEventListener(
       this.#onStaticCheckResultsReceived.bind(this)
+    )
+    aeonState.analysis.dynamicCheckResultsReceived.addEventListener(
+      this.#onDynamicCheckResultsReceived.bind(this)
     )
 
     // ask for sketch data during initiation (just in case the automatic transfer fails)
@@ -88,6 +96,14 @@ export default class AnalysisComponent extends LitElement {
     }
   }
 
+  #onDynamicCheckStarted (success: boolean): void {
+    if (success) {
+      console.log('DUMMY MESSAGE: Dynamic check analysis sucessfully started.')
+    } else {
+      console.log('Error starting dynamic check analysis.')
+    }
+  }
+
   #onInferenceResultsReceived (results: InferenceResults): void {
     this.results = results
     console.log('Received full inference results.')
@@ -98,6 +114,13 @@ export default class AnalysisComponent extends LitElement {
   #onStaticCheckResultsReceived (results: StaticCheckResults): void {
     this.results = results
     console.log('Received static check results.')
+    console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
+    console.log('-> The computation took ' + results.comp_time + ' seconds.')
+  }
+
+  #onDynamicCheckResultsReceived (results: DynamicCheckResults): void {
+    this.results = results
+    console.log('Received dynamic check results.')
     console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
     console.log('-> The computation took ' + results.comp_time + ' seconds.')
   }

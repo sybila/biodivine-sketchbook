@@ -76,7 +76,7 @@ impl SessionState for AnalysisState {
         match at_path.first() {
             Some(&"run_inference") => {
                 Self::assert_payload_empty(event, component)?;
-                debug!("Event `run_inference` received. It is not fully implemented yet.");
+                debug!("Event `run_inference` received. Starting full inference.");
 
                 if !self.sketch_received || self.sketch.model.num_vars() == 0 {
                     return AeonError::throw("Cannot run analysis on empty sketch.");
@@ -87,7 +87,7 @@ impl SessionState for AnalysisState {
                     .solver
                     .as_mut()
                     .unwrap()
-                    .run_whole_inference_prototype(self.sketch.clone())?;
+                    .run_whole_inference(self.sketch.clone())?;
 
                 let payload = results.to_json_str();
                 let state_change = Event::build(&["analysis", "inference_results"], Some(&payload));
@@ -96,13 +96,45 @@ impl SessionState for AnalysisState {
                     reset: true,
                 })
             }
-            Some(&"run_static") => {
+            Some(&"run_partial_static") => {
                 Self::assert_payload_empty(event, component)?;
-                debug!("Event `run_static` received. It is not implemented at the moment. Only dummy message will be sent back.");
+                debug!("Event `run_partial_static` received. Starting partial inference with static properties.");
 
-                // TODO
+                if !self.sketch_received || self.sketch.model.num_vars() == 0 {
+                    return AeonError::throw("Cannot run analysis on empty sketch.");
+                }
 
-                let state_change = Event::build(&["analysis", "static_running"], Some("true"));
+                self.solver = Some(InferenceSolver::new());
+                let results = self
+                    .solver
+                    .as_mut()
+                    .unwrap()
+                    .run_partial_inference_static(self.sketch.clone())?;
+
+                let payload = results.to_json_str();
+                let state_change = Event::build(&["analysis", "static_results"], Some(&payload));
+                Ok(Consumed::Irreversible {
+                    state_change,
+                    reset: true,
+                })
+            }
+            Some(&"run_partial_dynamic") => {
+                Self::assert_payload_empty(event, component)?;
+                debug!("Event `run_partial_dynamic` received. Starting partial inference with dynamic properties.");
+
+                if !self.sketch_received || self.sketch.model.num_vars() == 0 {
+                    return AeonError::throw("Cannot run analysis on empty sketch.");
+                }
+
+                self.solver = Some(InferenceSolver::new());
+                let results = self
+                    .solver
+                    .as_mut()
+                    .unwrap()
+                    .run_partial_inference_dynamic(self.sketch.clone())?;
+
+                let payload = results.to_json_str();
+                let state_change = Event::build(&["analysis", "dynamic_results"], Some(&payload));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,

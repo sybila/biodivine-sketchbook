@@ -23,15 +23,15 @@ export default class Menu extends LitElement {
       action: () => { void this.newSketch() }
     },
     {
-      label: 'Import sketch (json)',
+      label: 'Import JSON',
       action: () => { void this.importSketch() }
     },
     {
-      label: 'Import sketch (aeon)',
+      label: 'Import AEON',
       action: () => { void this.importAeonModel() }
     },
     {
-      label: 'Export sketch (json)',
+      label: 'Export JSON',
       action: () => { void this.exportSketch() }
     },
     {

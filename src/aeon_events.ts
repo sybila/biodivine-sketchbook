@@ -375,6 +375,15 @@ interface AeonState {
     staticCheckStarted: Observable<boolean>
     /** Static check analysis results. */
     staticCheckResultsReceived: Observable<StaticCheckResults>
+
+    /** Start the dynamic check analysis. */
+    startDynamicCheck: () => void
+    /** Information that static check analysis was started.
+     * Currently not utilized. */
+    dynamicCheckStarted: Observable<boolean>
+    /** Static check analysis results. */
+    dynamicCheckResultsReceived: Observable<DynamicCheckResults>
+    
   }
 
   /** The information about errors occurring when processing events on backend. */
@@ -509,6 +518,13 @@ export interface InferenceResults {
 
 /** An object representing all information regarding static check analysis results. */
 export interface StaticCheckResults {
+  num_sat_networks: number
+  comp_time: number
+  metadata_log: string
+}
+
+/** An object representing all information regarding dynamic check analysis results. */
+export interface DynamicCheckResults {
   num_sat_networks: number
   comp_time: number
   metadata_log: string
@@ -1430,8 +1446,10 @@ export const aeonState: AeonState = {
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
     staticCheckResultsReceived: new Observable<StaticCheckResults>(['analysis', 'static_results']),
+    dynamicCheckResultsReceived: new Observable<DynamicCheckResults>(['analysis', 'dynamic_results']),
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
     staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
+    dynamicCheckStarted: new Observable<boolean>(['analysis', 'dynamic_running']),
 
     startFullInference (): void {
       aeonEvents.emitAction({
@@ -1441,7 +1459,13 @@ export const aeonState: AeonState = {
     },
     startStaticCheck (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_static'],
+        path: ['analysis', 'run_partial_static'],
+        payload: null
+      })
+    },
+    startDynamicCheck (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_partial_dynamic'],
         payload: null
       })
     }

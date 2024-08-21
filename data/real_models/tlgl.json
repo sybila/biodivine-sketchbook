@@ -1,0 +1,1495 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "Apoptosis_",
+        "name": "Apoptosis_",
+        "update_fn": "function(Caspase, Apoptosis_)"
+      },
+      {
+        "id": "BID_",
+        "name": "BID_",
+        "update_fn": "!Apoptosis_ & k(MCL1)"
+      },
+      {
+        "id": "CREB",
+        "name": "CREB",
+        "update_fn": "!Apoptosis_ & e(IFNG_)"
+      },
+      {
+        "id": "CTLA4_",
+        "name": "CTLA4_",
+        "update_fn": "!Apoptosis_ & h(TCR)"
+      },
+      {
+        "id": "Caspase",
+        "name": "Caspase",
+        "update_fn": "!Apoptosis_ & m(BID_, DISC_, IAP_)"
+      },
+      {
+        "id": "Ceramide_",
+        "name": "Ceramide_",
+        "update_fn": "!Apoptosis_ & n(Fas, S1P)"
+      },
+      {
+        "id": "DISC_",
+        "name": "DISC_",
+        "update_fn": "!Apoptosis_ & j(Fas, Ceramide_, FLIP_)"
+      },
+      {
+        "id": "FLIP_",
+        "name": "FLIP_",
+        "update_fn": "!Apoptosis_ & i(DISC_)"
+      },
+      {
+        "id": "Fas",
+        "name": "Fas",
+        "update_fn": "!Apoptosis_ & o(sFas)"
+      },
+      {
+        "id": "GPCR_",
+        "name": "GPCR_",
+        "update_fn": "!Apoptosis_ & b(S1P)"
+      },
+      {
+        "id": "IAP_",
+        "name": "IAP_",
+        "update_fn": "!Apoptosis_ & a(BID_)"
+      },
+      {
+        "id": "IFNG_",
+        "name": "IFNG_",
+        "update_fn": "!Apoptosis_ & f(P2, SMAD_)"
+      },
+      {
+        "id": "MCL1",
+        "name": "MCL1",
+        "update_fn": "!Apoptosis_ & l(DISC_)"
+      },
+      {
+        "id": "P2",
+        "name": "P2",
+        "update_fn": "!Apoptosis_ & d(P2, IFNG_)"
+      },
+      {
+        "id": "S1P",
+        "name": "S1P",
+        "update_fn": "!Apoptosis_ & q(Ceramide_)"
+      },
+      {
+        "id": "SMAD_",
+        "name": "SMAD_",
+        "update_fn": "!Apoptosis_ & c(GPCR_)"
+      },
+      {
+        "id": "TCR",
+        "name": "TCR",
+        "update_fn": "!Apoptosis_ & g(CTLA4_)"
+      },
+      {
+        "id": "sFas",
+        "name": "sFas",
+        "update_fn": "!Apoptosis_ & p(S1P)"
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "Apoptosis_",
+        "target": "Apoptosis_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "BID_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "CREB",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "CTLA4_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "Caspase",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "Ceramide_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "DISC_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "FLIP_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "Fas",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "GPCR_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "IAP_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "IFNG_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "MCL1",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "P2",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "S1P",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "SMAD_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "TCR",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Apoptosis_",
+        "target": "sFas",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "BID_",
+        "target": "Caspase",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "BID_",
+        "target": "IAP_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "CTLA4_",
+        "target": "TCR",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Caspase",
+        "target": "Apoptosis_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Ceramide_",
+        "target": "DISC_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Ceramide_",
+        "target": "S1P",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "DISC_",
+        "target": "Caspase",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "DISC_",
+        "target": "FLIP_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "DISC_",
+        "target": "MCL1",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "FLIP_",
+        "target": "DISC_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Fas",
+        "target": "Ceramide_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Fas",
+        "target": "DISC_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GPCR_",
+        "target": "SMAD_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "IAP_",
+        "target": "Caspase",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "IFNG_",
+        "target": "CREB",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "IFNG_",
+        "target": "P2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "MCL1",
+        "target": "BID_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P2",
+        "target": "IFNG_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P2",
+        "target": "P2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "S1P",
+        "target": "Ceramide_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "S1P",
+        "target": "GPCR_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "S1P",
+        "target": "sFas",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "SMAD_",
+        "target": "IFNG_",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "TCR",
+        "target": "CTLA4_",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "sFas",
+        "target": "Fas",
+        "sign": "Inhibition",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [
+      {
+        "id": "a",
+        "name": "a",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "b",
+        "name": "b",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "c",
+        "name": "c",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "d",
+        "name": "d",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "e",
+        "name": "e",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "f",
+        "name": "f",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "function",
+        "name": "function",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "g",
+        "name": "g",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "h",
+        "name": "h",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "i",
+        "name": "i",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "j",
+        "name": "j",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "k",
+        "name": "k",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "l",
+        "name": "l",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "m",
+        "name": "m",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "n",
+        "name": "n",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "o",
+        "name": "o",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "p",
+        "name": "p",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "q",
+        "name": "q",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      }
+    ],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "CTLA4_",
+            "px": 141.0,
+            "py": -152.0
+          },
+          {
+            "layout": "default",
+            "variable": "Apoptosis_",
+            "px": -5.0,
+            "py": 9.0
+          },
+          {
+            "layout": "default",
+            "variable": "GPCR_",
+            "px": 248.0,
+            "py": -49.0
+          },
+          {
+            "layout": "default",
+            "variable": "MCL1",
+            "px": 240.0,
+            "py": 18.0
+          },
+          {
+            "layout": "default",
+            "variable": "BID_",
+            "px": 215.0,
+            "py": 96.0
+          },
+          {
+            "layout": "default",
+            "variable": "sFas",
+            "px": 87.0,
+            "py": 215.0
+          },
+          {
+            "layout": "default",
+            "variable": "Caspase",
+            "px": 70.0,
+            "py": -191.0
+          },
+          {
+            "layout": "default",
+            "variable": "SMAD_",
+            "px": -33.0,
+            "py": 232.0
+          },
+          {
+            "layout": "default",
+            "variable": "CREB",
+            "px": -181.0,
+            "py": -161.0
+          },
+          {
+            "layout": "default",
+            "variable": "FLIP_",
+            "px": -120.0,
+            "py": 188.0
+          },
+          {
+            "layout": "default",
+            "variable": "P2",
+            "px": -5.0,
+            "py": -208.0
+          },
+          {
+            "layout": "default",
+            "variable": "S1P",
+            "px": -226.0,
+            "py": -115.0
+          },
+          {
+            "layout": "default",
+            "variable": "DISC_",
+            "px": -217.0,
+            "py": 120.0
+          },
+          {
+            "layout": "default",
+            "variable": "Ceramide_",
+            "px": -244.0,
+            "py": -45.0
+          },
+          {
+            "layout": "default",
+            "variable": "IFNG_",
+            "px": -102.0,
+            "py": -191.0
+          },
+          {
+            "layout": "default",
+            "variable": "TCR",
+            "px": 209.0,
+            "py": -104.0
+          },
+          {
+            "layout": "default",
+            "variable": "Fas",
+            "px": -246.0,
+            "py": 32.0
+          },
+          {
+            "layout": "default",
+            "variable": "IAP_",
+            "px": 161.0,
+            "py": 168.0
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [],
+  "dyn_properties": [
+    {
+      "id": "b_healthy_fixed_point",
+      "name": "b_healthy_fixed_point",
+      "variant": "GenericDynProp",
+      "formula": "(3{x}: (@{x}: (Apoptosis_ & ~S1P & ~sFas & ~Fas & ~Ceramide_ & ~Caspase & ~MCL1 & ~BID_ & ~DISC_ & ~FLIP_ & ~CTLA4_ & ~TCR & ~IFNG_ & ~CREB & ~P2 & ~SMAD_ & ~GPCR_ & ~IAP_ & (AX (Apoptosis_ & ~S1P & ~sFas & ~Fas & ~Ceramide_ & ~Caspase & ~MCL1 & ~BID_ & ~DISC_ & ~FLIP_ & ~CTLA4_ & ~TCR & ~IFNG_ & ~CREB & ~P2 & ~SMAD_ & ~GPCR_ & ~IAP_)))))"
+    },
+    {
+      "id": "a_diseased_attr",
+      "name": "a_diseased_attr",
+      "variant": "GenericDynProp",
+      "formula": "(3{x}: (@{x}: (~Apoptosis_ & S1P & sFas & ~Fas & ~Ceramide_ & ~Caspase & MCL1 & ~BID_ & ~DISC_ & FLIP_ & ~IFNG_ & GPCR_ & (AG EF (~Apoptosis_ & S1P & sFas & ~Fas & ~Ceramide_ & ~Caspase & MCL1 & ~BID_ & ~DISC_ & FLIP_ & ~IFNG_ & GPCR_ & {x})))))"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "monotonicity_IFNG__CREB",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "IFNG_",
+      "target": "CREB",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_IFNG__P2",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "IFNG_",
+      "target": "P2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GPCR__SMAD_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "GPCR_",
+      "target": "SMAD_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_DISC__Caspase",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "DISC_",
+      "target": "Caspase",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_BID__IAP_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "BID_",
+      "target": "IAP_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__IAP_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "IAP_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__SMAD_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "SMAD_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_TCR_CTLA4_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "TCR",
+      "target": "CTLA4_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__BID_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "BID_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__FLIP_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "FLIP_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TCR_CTLA4_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "TCR",
+      "target": "CTLA4_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_IAP__Caspase",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "IAP_",
+      "target": "Caspase",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_IAP__Caspase",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "IAP_",
+      "target": "Caspase",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__BID_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "BID_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__Caspase",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "Caspase",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Fas_DISC_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Fas",
+      "target": "DISC_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CTLA4__TCR",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "CTLA4_",
+      "target": "TCR",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Fas_Ceramide_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Fas",
+      "target": "Ceramide_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_sFas_Fas",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "sFas",
+      "target": "Fas",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_P2_IFNG_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "P2",
+      "target": "IFNG_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_IFNG__CREB",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "IFNG_",
+      "target": "CREB",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_sFas_Fas",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "sFas",
+      "target": "Fas",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_S1P_sFas",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "S1P",
+      "target": "sFas",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__CREB",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "CREB",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__GPCR_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "GPCR_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__IAP_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "IAP_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__MCL1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "MCL1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Caspase_Apoptosis_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Caspase",
+      "target": "Apoptosis_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__Apoptosis_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "Apoptosis_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FLIP__DISC_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "FLIP_",
+      "target": "DISC_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__S1P",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "S1P",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__CREB",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "CREB",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__TCR",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "TCR",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__CTLA4_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "CTLA4_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__DISC_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "DISC_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__P2",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "P2",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_DISC__FLIP_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "DISC_",
+      "target": "FLIP_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__Caspase",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "Caspase",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__CTLA4_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "CTLA4_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__P2",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "P2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_S1P_Ceramide_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "S1P",
+      "target": "Ceramide_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__TCR",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "TCR",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P2_P2",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "P2",
+      "target": "P2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Fas_Ceramide_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Fas",
+      "target": "Ceramide_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Caspase_Apoptosis_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Caspase",
+      "target": "Apoptosis_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__DISC_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "DISC_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__sFas",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "sFas",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_P2_P2",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "P2",
+      "target": "P2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__Ceramide_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "Ceramide_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FLIP__DISC_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "FLIP_",
+      "target": "DISC_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_BID__Caspase",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "BID_",
+      "target": "Caspase",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_MCL1_BID_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "MCL1",
+      "target": "BID_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P2_IFNG_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "P2",
+      "target": "IFNG_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_DISC__MCL1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "DISC_",
+      "target": "MCL1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_S1P_sFas",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "S1P",
+      "target": "sFas",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_DISC__MCL1",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "DISC_",
+      "target": "MCL1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__GPCR_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "GPCR_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__Apoptosis_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "Apoptosis_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Ceramide__S1P",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Ceramide_",
+      "target": "S1P",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_S1P_Ceramide_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "S1P",
+      "target": "Ceramide_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Ceramide__DISC_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Ceramide_",
+      "target": "DISC_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__S1P",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "S1P",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_SMAD__IFNG_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "SMAD_",
+      "target": "IFNG_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__IFNG_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "IFNG_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_DISC__Caspase",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "DISC_",
+      "target": "Caspase",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__FLIP_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "FLIP_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__sFas",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "sFas",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_CTLA4__TCR",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "CTLA4_",
+      "target": "TCR",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Apoptosis__Fas",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Apoptosis_",
+      "target": "Fas",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_IFNG__P2",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "IFNG_",
+      "target": "P2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__SMAD_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "SMAD_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__MCL1",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "MCL1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Ceramide__DISC_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "Ceramide_",
+      "target": "DISC_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__Ceramide_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "Ceramide_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Fas_DISC_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Fas",
+      "target": "DISC_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_BID__IAP_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "BID_",
+      "target": "IAP_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_S1P_GPCR_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "S1P",
+      "target": "GPCR_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_DISC__FLIP_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "DISC_",
+      "target": "FLIP_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__Fas",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "Fas",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SMAD__IFNG_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "SMAD_",
+      "target": "IFNG_",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Ceramide__S1P",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Ceramide_",
+      "target": "S1P",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GPCR__SMAD_",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "GPCR_",
+      "target": "SMAD_",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Apoptosis__IFNG_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "Apoptosis_",
+      "target": "IFNG_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_BID__Caspase",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "BID_",
+      "target": "Caspase",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_S1P_GPCR_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "S1P",
+      "target": "GPCR_",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_MCL1_BID_",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "MCL1",
+      "target": "BID_",
+      "value": "True",
+      "context": null
+    }
+  ]
+}

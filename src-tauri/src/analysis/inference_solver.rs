@@ -1,9 +1,8 @@
-use crate::algorithms::eval_dynamic::template_eval::eval_dyn_prop;
-use crate::algorithms::eval_static::template_eval::eval_static_prop;
+use crate::algorithms::eval_dynamic::eval::eval_dyn_prop;
+use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic;
+use crate::algorithms::eval_static::eval::eval_static_prop;
+use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static;
 use crate::analysis::analysis_results::AnalysisResults;
-use crate::analysis::context_utils::{
-    get_fol_extended_symbolic_graph, get_hctl_extended_symbolic_graph,
-};
 use crate::log;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
@@ -158,16 +157,50 @@ impl InferenceSolver {
 /// Computation-related methods.
 impl InferenceSolver {
     /// Run the prototype version of the inference.
-    /// This wraps the [run_computation_prototype_inner] to also log potential errors.
+    /// This wraps the [run_inference_modular] to also log potential errors.
     ///
-    /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
+    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
     /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
     /// static properties, all but generic dynamic properties.
-    pub fn run_whole_inference_prototype(
+    pub fn run_whole_inference(
         &mut self,
         sketch: Sketch,
     ) -> Result<AnalysisResults, String> {
-        let results = self.run_whole_inference_prototype_inner(sketch);
+        let results = self.run_inference_modular(sketch, true, true);
+        if results.is_err() {
+            self.status_update(InferenceStatus::Error);
+        }
+        results
+    }
+
+    /// Run the prototype version of the inference with static properties ONLY.
+    /// This wraps the [run_inference_modular] to also log potential errors.
+    ///
+    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
+    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
+    /// static properties.
+    pub fn run_partial_inference_static(
+        &mut self,
+        sketch: Sketch,
+    ) -> Result<AnalysisResults, String> {
+        let results = self.run_inference_modular(sketch, true, false);
+        if results.is_err() {
+            self.status_update(InferenceStatus::Error);
+        }
+        results
+    }
+
+    /// Run the prototype version of the inference with dynamic properties ONLY.
+    /// This wraps the [run_inference_modular] to also log potential errors.
+    ///
+    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
+    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
+    /// dynamic properties.
+    pub fn run_partial_inference_dynamic(
+        &mut self,
+        sketch: Sketch,
+    ) -> Result<AnalysisResults, String> {
+        let results = self.run_inference_modular(sketch, false, true);
         if results.is_err() {
             self.status_update(InferenceStatus::Error);
         }
@@ -178,9 +211,12 @@ impl InferenceSolver {
     fn extract_inputs(
         sketch: Sketch,
     ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
-        // todo: at the moment we just use HCTL dynamic properties, and automatic regulation static properties
+        // todo: at the moment we just use HCTL dynamic properties, and automatically generated regulation properties
 
         let bn = sketch.model.to_bn_with_plain_regulations(None);
+        // remove all unused function symbols, as these would cause problems later 
+        let bn = bn.prune_unused_parameters();
+        
         let mut static_props = vec![];
         for (id, stat_prop) in sketch.properties.stat_props() {
             static_props.push((id, stat_prop.clone()));
@@ -237,96 +273,93 @@ impl InferenceSolver {
         Ok(())
     }
 
-    /// Run the prototype version of the inference.
+    /// Internal modular variant of the inference. You can choose which parts to select.
+    /// For example, you can only consider static properties, only dynamic properties, or all.
     ///
-    /// WARNING: This is only a prototype, and considers just parts of the sketch that are easy to
+    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
     /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
     /// static properties, all but generic dynamic properties.
-    ///
-    /// TODO: for each analysis (HCTL, FOL, ..), create its own symbolic context
-    fn run_whole_inference_prototype_inner(
+    fn run_inference_modular(
         &mut self,
         sketch: Sketch,
+        use_static: bool,
+        use_dynamic: bool,
     ) -> Result<AnalysisResults, String> {
-        let mut metadata = String::new();
         self.status_update(InferenceStatus::Started);
 
-        // step 1: process basic components of the sketch to be used
-        let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
+        let mut metadata = String::new();
+        // boolean flag used to signal we reached 0 candidates and do not need to continue further
+        let mut finished_early = false; 
 
-        // todo: check how many extra HCTL and FOL vars we need to eval the properties
-        // todo: do this inside of the evaluation sub-functions, make separate contexts for each
-        // next lines is just explicit hack for now
-        let num_hctl_vars = 3;
-        let num_fol_vars = 3;
-        let base_var = bn.variables().collect::<Vec<_>>()[0];
-        let base_var_name = bn.as_graph().get_variable_name(base_var).clone();
+        /* >> STEP 1: process basic components of the sketch to be used */
+        // this also does few input simplifications, like filtering out unused function symbols from the BN 
+        let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);
         self.dynamic_props = Some(dynamic_props);
         self.status_update(InferenceStatus::ProcessedInputs);
 
-        // step 2: make default symbolic transition graph for FOL evaluation
-        self.graph = Some(get_fol_extended_symbolic_graph(
-            self.bn()?,
-            num_fol_vars,
-            &base_var_name,
-            None,
-        )?);
-        self.status_update(InferenceStatus::GeneratedGraph);
-        let msg = format!(
-            "N. of candidates before evaluating any static properties: {}\n",
-            self.current_candidate_colors()?.approx_cardinality()
-        );
-        metadata.push_str(&msg);
+        /* >> STEP 2: evaluation of static properties */
 
-        // step 3: evaluate static properties
-        self.eval_static(&base_var_name)?;
-        let msg = format!(
-            "N. of candidates after evaluating static props: {}\n",
-            self.current_candidate_colors()?.approx_cardinality()
-        );
-        metadata.push_str(&msg);
+        if use_static && !finished_early {
+            /* >> STEP 2A: make default symbolic transition graph for FOL evaluation */
 
-        // explicit check if we finished early
-        if self.current_candidate_colors()?.exact_cardinality() == BigInt::from(0) {
-            self.raw_sat_colors = Some(self.current_candidate_colors()?.clone());
-            self.status_update(InferenceStatus::Finished);
+            // select (can be random) a variable that will be used as a base for adding extra symbolic
+            // variables (that we need to encode FOL vars)
+            let base_var = self.bn()?.variables().collect::<Vec<_>>()[0];
+            let base_var_name = self.bn()?.as_graph().get_variable_name(base_var).clone();
 
-            let num_sat_networks = 0u64;
-            let total_time: std::time::Duration = self
-                .finish_time()?
-                .duration_since(self.start_time()?)
-                .unwrap();
-            let results = AnalysisResults::new(num_sat_networks, total_time, &metadata);
-            return Ok(results);
+            self.graph = Some(prepare_graph_for_static(
+                self.bn()?,
+                self.stat_props()?,
+                &base_var_name,
+                None,
+            )?);
+            self.status_update(InferenceStatus::GeneratedGraph);
+            let msg = format!(
+                "N. of candidates before evaluating any properties: {}\n",
+                self.current_candidate_colors()?.approx_cardinality()
+            );
+            metadata.push_str(&msg);
+
+            /* >> STEP 2B: actually evaluate static properties */
+            self.eval_static(&base_var_name)?;
+            let msg = format!(
+                "N. of candidates after evaluating static props: {}\n",
+                self.current_candidate_colors()?.approx_cardinality()
+            );
+            metadata.push_str(&msg);
+        }
+        finished_early = self.check_if_finished()?;
+        
+        /* >> STEP 3: evaluation of dynamic properties */
+        if use_dynamic && !finished_early {
+            /* >> STEP 3A: make symbolic transition graph for HCTL evaluation with restricted unit BDD */
+            let old_unit_bdd = self.current_candidate_colors()?.into_bdd();
+            let old_context = self.graph()?.symbolic_context();
+            self.graph = Some(prepare_graph_for_dynamic(
+                self.bn()?,
+                self.dyn_props()?,
+                Some((&old_unit_bdd, old_context)),
+            )?);
+            self.status_update(InferenceStatus::GeneratedGraph);
+            //let msg = format!(
+            //    "N. of candidates before evaluating any dynamic properties: {}\n",
+            //    self.current_candidate_colors()?.approx_cardinality()
+            //);
+            //metadata.push_str(&msg);
+
+            /* >> STEP 3B: actually evaluate dynamic properties */
+            self.eval_dynamic()?;
+            let msg = format!(
+                "N. of candidates after evaluating dynamic props: {}\n",
+                self.current_candidate_colors()?.approx_cardinality()
+            );
+            metadata.push_str(&msg);
         }
 
-        // step 4: make symbolic transition graph for HCTL evaluation with restricted unit BDD
-        let old_unit_bdd = self.current_candidate_colors()?.into_bdd();
-        let old_context = self.graph()?.symbolic_context();
-        self.graph = Some(get_hctl_extended_symbolic_graph(
-            self.bn()?,
-            num_hctl_vars,
-            Some((&old_unit_bdd, old_context)),
-        )?);
-        self.status_update(InferenceStatus::GeneratedGraph);
-        let msg = format!(
-            "N. of candidates before evaluating any dynamic properties: {}\n",
-            self.current_candidate_colors()?.approx_cardinality()
-        );
-        metadata.push_str(&msg);
-
-        // step 5: evaluate dynamic properties
-        self.eval_dynamic()?;
-        let msg = format!(
-            "N. of candidates after evaluating dynamic props: {}\n",
-            self.current_candidate_colors()?.approx_cardinality()
-        );
-        metadata.push_str(&msg);
-
-        // step 6: process results, compute few statistics, return some results struct
+        /* >> STEP 4: process results, compute few statistics, return some results struct */
         self.raw_sat_colors = Some(self.graph()?.mk_unit_colors());
         self.status_update(InferenceStatus::Finished);
 
@@ -337,5 +370,10 @@ impl InferenceSolver {
             .unwrap();
         let results = AnalysisResults::new(num_sat_networks, total_time, &metadata);
         Ok(results)
+    }
+    
+    /// Check if we already reached 0 candidates and do not need to continue further.
+    fn check_if_finished(&self) -> Result<bool, String> {
+        Ok(self.current_candidate_colors()?.exact_cardinality() == BigInt::from(0))
     }
 }

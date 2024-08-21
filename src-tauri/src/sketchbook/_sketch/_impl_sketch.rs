@@ -90,9 +90,26 @@ impl Sketch {
     /// - check that template properties only use valid variables and data
     /// - check that HCTL properties only use valid variables as atomic propositions
     /// - check that FOL properties only use valid function symbols
-    pub fn run_consistency_check(&self) -> Result<(), String> {
+    pub fn run_consistency_check(&self) -> (bool, String) {
         // todo
+        let mut all_consitent = true;
+        let mut message = String::new();
+        message += "MODEL:\n";
+        if self.model.num_vars() == 0 {
+            all_consitent = false;
+            message += "> ISSUE: There must be at least one variable.\n";
+        }
+        message += "(this part is not fully implemented yet)\n\n";
 
-        Err("Consistency check not implemented yet.".to_string())
+        message += "DATASET:\n";
+        message += "(this part is not fully implemented yet)\n\n";
+
+        message += "STATIC PROPERTIES:\n";
+        message += "(this part is not fully implemented yet)\n\n";
+
+        message += "DYNAMIC PROPERTIES:\n";
+        message += "(this part is not fully implemented yet)\n\n";
+
+        (all_consitent, message)
     }
 }
