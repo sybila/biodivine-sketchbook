@@ -9,6 +9,7 @@ import {
   type DynamicPropertyType,
   type StaticPropertyType
 } from './html/util/data-interfaces'
+import { type AnalysisType } from './html/util/analysis-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -362,8 +363,7 @@ interface AeonState {
 
     /** Start the full inference analysis. */
     startFullInference: () => void
-    /** Information that inference analysis was started.
-     * Currently not utilized. */
+    /** Information that async inference analysis was successfully started. */
     inferenceStarted: Observable<boolean>
     /** Inference analysis results. */
     inferenceResultsReceived: Observable<InferenceResults>
@@ -383,7 +383,10 @@ interface AeonState {
     dynamicCheckStarted: Observable<boolean>
     /** Static check analysis results. */
     dynamicCheckResultsReceived: Observable<DynamicCheckResults>
-    
+
+    /** Ping backend to see if the results are ready. Can be used regardless of
+     * what analysis is running. */
+    pingForInferenceResults: () => void
   }
 
   /** The information about errors occurring when processing events on backend. */
@@ -511,6 +514,7 @@ export interface StatPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing all information regarding inference analysis results. */
 export interface InferenceResults {
+  analysis_type: AnalysisType
   num_sat_networks: number
   comp_time: number
   metadata_log: string
@@ -518,6 +522,7 @@ export interface InferenceResults {
 
 /** An object representing all information regarding static check analysis results. */
 export interface StaticCheckResults {
+  analysis_type: AnalysisType
   num_sat_networks: number
   comp_time: number
   metadata_log: string
@@ -525,6 +530,7 @@ export interface StaticCheckResults {
 
 /** An object representing all information regarding dynamic check analysis results. */
 export interface DynamicCheckResults {
+  analysis_type: AnalysisType
   num_sat_networks: number
   comp_time: number
   metadata_log: string
@@ -1453,7 +1459,13 @@ export const aeonState: AeonState = {
 
     startFullInference (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_inference'],
+        path: ['analysis', 'run_full_inference'],
+        payload: null
+      })
+    },
+    pingForInferenceResults (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'get_inference_results'],
         payload: null
       })
     },

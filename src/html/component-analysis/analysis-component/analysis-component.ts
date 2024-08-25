@@ -6,7 +6,7 @@ import {
   type SketchData,
   type InferenceResults,
   type StaticCheckResults,
-  DynamicCheckResults
+  type DynamicCheckResults
 } from '../../../aeon_events'
 import {
   AnalysisType
@@ -18,9 +18,14 @@ export default class AnalysisComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() sketchData: SketchData | null = null
 
+  // Type of the analysis we are running
   @state() selected_analysis: AnalysisType | null = null
+  // Results of analysis
   @state() results: InferenceResults | StaticCheckResults | DynamicCheckResults | null = null
-  @state() isRandomizeChecked: boolean = false // Track the state of the "Randomize" checkbox
+  // Track the state of the "Randomize" checkbox for sampling
+  @state() isRandomizeChecked: boolean = false
+  // ID of the `setInterval` we use for pinging backend to get resultss
+  @state() pingIntervalId: ReturnType<typeof setInterval> | undefined = undefined
 
   constructor () {
     super()
@@ -82,29 +87,48 @@ export default class AnalysisComponent extends LitElement {
 
   #onInferenceStarted (success: boolean): void {
     if (success) {
-      console.log('DUMMY MESSAGE: Inference analysis sucessfully started.')
+      console.log('Inference analysis sucessfully started. Starting interval pinging backend.')
     } else {
       console.log('Error starting inference analysis.')
     }
+
+    // start pinging backend
+    this.pingIntervalId = setInterval(function () {
+      aeonState.analysis.pingForInferenceResults()
+    }, 1000)
   }
 
   #onStaticCheckStarted (success: boolean): void {
     if (success) {
-      console.log('DUMMY MESSAGE: Static check analysis sucessfully started.')
+      console.log('Inference with static properties sucessfully started. Starting interval pinging backend.')
     } else {
-      console.log('Error starting static check analysis.')
+      console.log('Error starting inference analysis.')
     }
+
+    // start pinging backend
+    this.pingIntervalId = setInterval(function () {
+      aeonState.analysis.pingForInferenceResults()
+    }, 1000)
   }
 
   #onDynamicCheckStarted (success: boolean): void {
     if (success) {
-      console.log('DUMMY MESSAGE: Dynamic check analysis sucessfully started.')
+      console.log('Inference with dynamic properties sucessfully started. Starting interval pinging backend.')
     } else {
-      console.log('Error starting dynamic check analysis.')
+      console.log('Error starting inference analysis.')
     }
+
+    // start pinging backend
+    this.pingIntervalId = setInterval(function () {
+      aeonState.analysis.pingForInferenceResults()
+    }, 1000)
   }
 
   #onInferenceResultsReceived (results: InferenceResults): void {
+    // stop pinging backend
+    clearInterval(this.pingIntervalId)
+    this.pingIntervalId = undefined
+
     this.results = results
     console.log('Received full inference results.')
     console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
@@ -112,6 +136,10 @@ export default class AnalysisComponent extends LitElement {
   }
 
   #onStaticCheckResultsReceived (results: StaticCheckResults): void {
+    // stop pinging backend
+    clearInterval(this.pingIntervalId)
+    this.pingIntervalId = undefined
+
     this.results = results
     console.log('Received static check results.')
     console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
@@ -119,6 +147,10 @@ export default class AnalysisComponent extends LitElement {
   }
 
   #onDynamicCheckResultsReceived (results: DynamicCheckResults): void {
+    // stop pinging backend
+    clearInterval(this.pingIntervalId)
+    this.pingIntervalId = undefined
+
     this.results = results
     console.log('Received dynamic check results.')
     console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
@@ -147,19 +179,25 @@ export default class AnalysisComponent extends LitElement {
   }
 
   // Method to format the results for display
-  private formatResults (results: InferenceResults | StaticCheckResults): string {
+  private formatResults (results: InferenceResults | StaticCheckResults | DynamicCheckResults): string {
     return `Number of satisfying networks: ${results.num_sat_networks}\n` +
       `Computation time: ${results.comp_time} seconds\n\n\n` +
       'Computation metadata:\n' +
       '--------------\n' +
+      `Analysis type: ${results.analysis_type}\n` +
       `${results.metadata_log}\n`
   }
 
   private resetAnalysis (): void {
-    // Reset analysis settings and clear the results
+    // reset event to backend
     console.log('Resetting analysis.')
     aeonState.analysis.resetAnalysis()
 
+    // stop pinging backend
+    clearInterval(this.pingIntervalId)
+    this.pingIntervalId = undefined
+
+    // clear analysis settings and results
     this.selected_analysis = null
     this.results = null
   }

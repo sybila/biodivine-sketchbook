@@ -3,6 +3,7 @@ use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic;
 use crate::algorithms::eval_static::eval::eval_static_prop;
 use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static;
 use crate::analysis::analysis_results::AnalysisResults;
+use crate::analysis::analysis_type::AnalysisType;
 use crate::log;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
@@ -11,7 +12,11 @@ use biodivine_lib_param_bn::symbolic_async_graph::{
 };
 use biodivine_lib_param_bn::BooleanNetwork;
 use num_bigint::BigInt;
-use std::time::SystemTime;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread;
+use std::time::{Duration, SystemTime};
+use tauri::async_runtime::RwLock;
 
 /// Status of the computation, together with a timestamp.
 #[derive(Clone, Debug)]
@@ -50,6 +55,10 @@ pub struct InferenceSolver {
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
     status_updates: Vec<(InferenceStatus, SystemTime)>,
+    /// Flag to signal cancellation
+    should_stop: Arc<AtomicBool>,
+    /// Processed results.
+    results: Option<AnalysisResults>,
 }
 
 impl InferenceSolver {
@@ -63,6 +72,8 @@ impl InferenceSolver {
             dynamic_props: None,
             raw_sat_colors: None,
             status_updates: vec![(InferenceStatus::Created, SystemTime::now())],
+            should_stop: Arc::new(AtomicBool::new(false)),
+            results: None,
         }
     }
 
@@ -117,7 +128,16 @@ impl InferenceSolver {
         Ok(self.graph()?.mk_unit_colors())
     }
 
-    fn status_update(&mut self, status: InferenceStatus) {
+    /// Get processed results if computed.
+    pub fn results(&self) -> Result<&AnalysisResults, String> {
+        if let Some(results) = &self.results {
+            Ok(results)
+        } else {
+            Err("Processed results not yet computed.".to_string())
+        }
+    }
+
+    fn update_status(&mut self, status: InferenceStatus) {
         let now = SystemTime::now();
         self.status_updates.push((status.clone(), now));
 
@@ -152,58 +172,83 @@ impl InferenceSolver {
             Err("Computation not yet finished.".to_string())
         }
     }
+
+    /// Set the cancellation flag. The actual cancellation does not happen immediately,
+    /// we currently only allow cancelling only at certain checkpoints during computation.
+    pub fn cancel(&self) {
+        //debug!("`InferenceSolver` has received cancellation flag.");
+        self.should_stop.store(true, Ordering::SeqCst);
+    }
+
+    /// Utility to check whether the cancellation flag was set. If it is set, the function
+    /// returns error. Otherwise, nothing happens.
+    fn check_cancellation(&self) -> Result<(), String> {
+        if self.should_stop.load(Ordering::SeqCst) {
+            return Err("Computation was cancelled.".to_string());
+        }
+        Ok(())
+    }
 }
 
 /// Computation-related methods.
 impl InferenceSolver {
-    /// Run the prototype version of the inference.
+    /// Run the prototype version of the inference using the given solver.
     /// This wraps the [run_inference_modular] to also log potential errors.
+    ///
+    /// The argument `analysis_type` specifies which kind of inference should be used.
+    /// Currently, we support full inference with all properties, and partial inferences with only
+    /// static or only dynamic properties.
+    ///
+    /// The results are saved to sepcific fields of the provided solver and can be retrieved later.
+    /// They are also returned, which is now used for logging later.
     ///
     /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
     /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
     /// static properties, all but generic dynamic properties.
-    pub fn run_whole_inference(
-        &mut self,
+    pub async fn run_inference_async(
+        solver: Arc<RwLock<InferenceSolver>>,
         sketch: Sketch,
+        analysis_type: AnalysisType,
     ) -> Result<AnalysisResults, String> {
-        let results = self.run_inference_modular(sketch, true, true);
-        if results.is_err() {
-            self.status_update(InferenceStatus::Error);
+        {
+            let solver = solver.read().await;
+            solver.check_cancellation()?; // Early check before starting
         }
-        results
-    }
 
-    /// Run the prototype version of the inference with static properties ONLY.
-    /// This wraps the [run_inference_modular] to also log potential errors.
-    ///
-    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
-    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// static properties.
-    pub fn run_partial_inference_static(
-        &mut self,
-        sketch: Sketch,
-    ) -> Result<AnalysisResults, String> {
-        let results = self.run_inference_modular(sketch, true, false);
-        if results.is_err() {
-            self.status_update(InferenceStatus::Error);
-        }
-        results
-    }
+        /* todo: currently, we use this "write lock" to lock the solver for the whole inference
+         * This makes it impossible to get quick lock for cancellation or intermediate result fetch
+         * We should make the inference modular in an async sense, so that:
+         *  1) fetching intermediate results is possible
+         *  2) proper cancellation is possible
+         */
 
-    /// Run the prototype version of the inference with dynamic properties ONLY.
-    /// This wraps the [run_inference_modular] to also log potential errors.
-    ///
-    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
-    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// dynamic properties.
-    pub fn run_partial_inference_dynamic(
-        &mut self,
-        sketch: Sketch,
-    ) -> Result<AnalysisResults, String> {
-        let results = self.run_inference_modular(sketch, false, true);
+        let mut solver_write = solver.write().await;
+        let results = match analysis_type {
+            AnalysisType::Inference => {
+                solver_write.run_inference_modular(analysis_type, sketch, true, true)
+            }
+            AnalysisType::StaticCheck => {
+                solver_write.run_inference_modular(analysis_type, sketch, true, false)
+            }
+            AnalysisType::DynamicCheck => {
+                solver_write.run_inference_modular(analysis_type, sketch, false, true)
+            }
+        };
         if results.is_err() {
-            self.status_update(InferenceStatus::Error);
+            solver_write.update_status(InferenceStatus::Error);
         }
+
+        // now lets just drop the lock to allow for potential cancellation (the cancellation thread must
+        // achieve a lock) and we can at least check if computation should have been cancelled...
+        // (this is currently just a placeholder check before we do it properly during computation)
+        drop(solver_write);
+        thread::sleep(Duration::from_millis(10));
+
+        {
+            let solver = solver.read().await;
+            solver.check_cancellation()?; // Check if computation should have been cancelled
+        }
+
         results
     }
 
@@ -214,9 +259,9 @@ impl InferenceSolver {
         // todo: at the moment we just use HCTL dynamic properties, and automatically generated regulation properties
 
         let bn = sketch.model.to_bn_with_plain_regulations(None);
-        // remove all unused function symbols, as these would cause problems later 
+        // remove all unused function symbols, as these would cause problems later
         let bn = bn.prune_unused_parameters();
-        
+
         let mut static_props = vec![];
         for (id, stat_prop) in sketch.properties.stat_props() {
             static_props.push((id, stat_prop.clone()));
@@ -242,6 +287,8 @@ impl InferenceSolver {
     /// TODO: function `eval_static_prop` needs to be finished.
     fn eval_static(&mut self, base_var_name: &str) -> Result<(), String> {
         for stat_property in self.stat_props()?.clone() {
+            self.check_cancellation()?; // check if cancellation flag was set during computation
+
             let inferred_colors =
                 eval_static_prop(stat_property, self.bn()?, self.graph()?, base_var_name)?;
             let colored_vertices = GraphColoredVertices::new(
@@ -251,7 +298,7 @@ impl InferenceSolver {
             let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
             self.graph = Some(new_graph);
         }
-        self.status_update(InferenceStatus::EvaluatedStatic);
+        self.update_status(InferenceStatus::EvaluatedStatic);
         Ok(())
     }
 
@@ -261,6 +308,8 @@ impl InferenceSolver {
     /// TODO: function `eval_dyn_prop` needs to be finished.
     fn eval_dynamic(&mut self) -> Result<(), String> {
         for dyn_property in self.dyn_props()?.clone() {
+            self.check_cancellation()?; // check if cancellation flag was set during computation
+
             let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?)?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
@@ -269,7 +318,7 @@ impl InferenceSolver {
             let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
             self.graph = Some(new_graph);
         }
-        self.status_update(InferenceStatus::EvaluatedDynamic);
+        self.update_status(InferenceStatus::EvaluatedDynamic);
         Ok(())
     }
 
@@ -281,24 +330,25 @@ impl InferenceSolver {
     /// static properties, all but generic dynamic properties.
     fn run_inference_modular(
         &mut self,
+        analysis_type: AnalysisType,
         sketch: Sketch,
         use_static: bool,
         use_dynamic: bool,
     ) -> Result<AnalysisResults, String> {
-        self.status_update(InferenceStatus::Started);
+        self.update_status(InferenceStatus::Started);
 
         let mut metadata = String::new();
         // boolean flag used to signal we reached 0 candidates and do not need to continue further
-        let mut finished_early = false; 
+        let mut finished_early = false;
 
         /* >> STEP 1: process basic components of the sketch to be used */
-        // this also does few input simplifications, like filtering out unused function symbols from the BN 
+        // this also does few input simplifications, like filtering out unused function symbols from the BN
         let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);
         self.dynamic_props = Some(dynamic_props);
-        self.status_update(InferenceStatus::ProcessedInputs);
+        self.update_status(InferenceStatus::ProcessedInputs);
 
         /* >> STEP 2: evaluation of static properties */
 
@@ -316,7 +366,7 @@ impl InferenceSolver {
                 &base_var_name,
                 None,
             )?);
-            self.status_update(InferenceStatus::GeneratedGraph);
+            self.update_status(InferenceStatus::GeneratedGraph);
             let msg = format!(
                 "N. of candidates before evaluating any properties: {}\n",
                 self.current_candidate_colors()?.approx_cardinality()
@@ -332,7 +382,7 @@ impl InferenceSolver {
             metadata.push_str(&msg);
         }
         finished_early = self.check_if_finished()?;
-        
+
         /* >> STEP 3: evaluation of dynamic properties */
         if use_dynamic && !finished_early {
             /* >> STEP 3A: make symbolic transition graph for HCTL evaluation with restricted unit BDD */
@@ -343,7 +393,7 @@ impl InferenceSolver {
                 self.dyn_props()?,
                 Some((&old_unit_bdd, old_context)),
             )?);
-            self.status_update(InferenceStatus::GeneratedGraph);
+            self.update_status(InferenceStatus::GeneratedGraph);
             //let msg = format!(
             //    "N. of candidates before evaluating any dynamic properties: {}\n",
             //    self.current_candidate_colors()?.approx_cardinality()
@@ -359,19 +409,20 @@ impl InferenceSolver {
             metadata.push_str(&msg);
         }
 
-        /* >> STEP 4: process results, compute few statistics, return some results struct */
+        /* >> STEP 4: save results */
         self.raw_sat_colors = Some(self.graph()?.mk_unit_colors());
-        self.status_update(InferenceStatus::Finished);
+        self.update_status(InferenceStatus::Finished);
 
         let num_sat_networks = self.sat_colors()?.approx_cardinality() as u64;
         let total_time = self
             .finish_time()?
             .duration_since(self.start_time()?)
             .unwrap();
-        let results = AnalysisResults::new(num_sat_networks, total_time, &metadata);
+        let results = AnalysisResults::new(analysis_type, num_sat_networks, total_time, &metadata);
+        self.results = Some(results.clone());
         Ok(results)
     }
-    
+
     /// Check if we already reached 0 candidates and do not need to continue further.
     fn check_if_finished(&self) -> Result<bool, String> {
         Ok(self.current_candidate_colors()?.exact_cardinality() == BigInt::from(0))
