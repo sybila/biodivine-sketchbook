@@ -1,6 +1,9 @@
 import { TabData } from './tab-data'
 import { html } from 'lit'
 
+export const functionDebounceTimer = 1500
+export const inferencePingTimer = 500
+
 let index = 0
 
 export const tabList: TabData[] = [
@@ -36,5 +39,3 @@ export const tabList: TabData[] = [
     icon: 'a'
   })
 ]
-
-export const functionDebounceTimer = 1500

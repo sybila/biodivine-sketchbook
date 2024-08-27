@@ -12,6 +12,7 @@ import {
   AnalysisType
 } from '../../util/analysis-interfaces'
 import { dialog } from '@tauri-apps/api'
+import { inferencePingTimer } from '../../util/config'
 
 @customElement('analysis-component')
 export default class AnalysisComponent extends LitElement {
@@ -26,6 +27,8 @@ export default class AnalysisComponent extends LitElement {
   @state() isRandomizeChecked: boolean = false
   // ID of the `setInterval` we use for pinging backend to get resultss
   @state() pingIntervalId: ReturnType<typeof setInterval> | undefined = undefined
+  // Text displayed when waiting for full results (can be updated when getting new progress)
+  @state() computationProgressMessage: string = ''
 
   constructor () {
     super()
@@ -40,7 +43,7 @@ export default class AnalysisComponent extends LitElement {
       void this.#onSketchRefreshed(sketch)
     })
 
-    // updates regarding analyses received
+    // updates regarding analysis start received
     aeonState.analysis.inferenceStarted.addEventListener(
       this.#onInferenceStarted.bind(this)
     )
@@ -51,6 +54,7 @@ export default class AnalysisComponent extends LitElement {
       this.#onDynamicCheckStarted.bind(this)
     )
 
+    // updates regarding analysis results
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
     )
@@ -59,6 +63,14 @@ export default class AnalysisComponent extends LitElement {
     )
     aeonState.analysis.dynamicCheckResultsReceived.addEventListener(
       this.#onDynamicCheckResultsReceived.bind(this)
+    )
+
+    // updates regarding analysis progress or errors
+    aeonState.analysis.computationUpdated.addEventListener(
+      this.#onComputationUpdateMessageReceived.bind(this)
+    )
+    aeonState.analysis.computationErrorReceived.addEventListener(
+      this.#onComputationErrorMessageReceived.bind(this)
     )
 
     // ask for sketch data during initiation (just in case the automatic transfer fails)
@@ -92,10 +104,13 @@ export default class AnalysisComponent extends LitElement {
       console.log('Error starting inference analysis.')
     }
 
+    this.computationProgressMessage = 'Initiating inference with all properties. This might take some time.\n'
+    this.computationProgressMessage += '\n--------------\nIntermediate progress:\n--------------\n'
+
     // start pinging backend
     this.pingIntervalId = setInterval(function () {
       aeonState.analysis.pingForInferenceResults()
-    }, 1000)
+    }, inferencePingTimer)
   }
 
   #onStaticCheckStarted (success: boolean): void {
@@ -105,10 +120,13 @@ export default class AnalysisComponent extends LitElement {
       console.log('Error starting inference analysis.')
     }
 
+    this.computationProgressMessage = 'Initiating inference with static properties. This might take some time.\n'
+    this.computationProgressMessage += '\n--------------\nIntermediate progress:\n--------------\n'
+
     // start pinging backend
     this.pingIntervalId = setInterval(function () {
       aeonState.analysis.pingForInferenceResults()
-    }, 1000)
+    }, inferencePingTimer)
   }
 
   #onDynamicCheckStarted (success: boolean): void {
@@ -118,10 +136,27 @@ export default class AnalysisComponent extends LitElement {
       console.log('Error starting inference analysis.')
     }
 
+    this.computationProgressMessage = 'Initiating inference with dynamic properties. This might take some time.\n'
+    this.computationProgressMessage += '\n--------------\nIntermediate progress:\n--------------\n'
+
     // start pinging backend
     this.pingIntervalId = setInterval(function () {
       aeonState.analysis.pingForInferenceResults()
-    }, 1000)
+    }, inferencePingTimer)
+  }
+
+  #onComputationUpdateMessageReceived (message: string): void {
+    console.log(message)
+    this.computationProgressMessage += message
+  }
+
+  #onComputationErrorMessageReceived (message: string): void {
+    console.log(message)
+    this.computationProgressMessage = 'Error running inference:\n\n' + message
+
+    // stop pinging backend
+    clearInterval(this.pingIntervalId)
+    this.pingIntervalId = undefined
   }
 
   #onInferenceResultsReceived (results: InferenceResults): void {
@@ -131,8 +166,6 @@ export default class AnalysisComponent extends LitElement {
 
     this.results = results
     console.log('Received full inference results.')
-    console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
-    console.log('-> The computation took ' + results.comp_time + ' seconds.')
   }
 
   #onStaticCheckResultsReceived (results: StaticCheckResults): void {
@@ -142,8 +175,6 @@ export default class AnalysisComponent extends LitElement {
 
     this.results = results
     console.log('Received static check results.')
-    console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
-    console.log('-> The computation took ' + results.comp_time + ' seconds.')
   }
 
   #onDynamicCheckResultsReceived (results: DynamicCheckResults): void {
@@ -153,8 +184,6 @@ export default class AnalysisComponent extends LitElement {
 
     this.results = results
     console.log('Received dynamic check results.')
-    console.log('-> There are ' + results.num_sat_networks + ' satisfying networks.')
-    console.log('-> The computation took ' + results.comp_time + ' seconds.')
   }
 
   private async confirmDialog (): Promise<boolean> {
@@ -167,20 +196,21 @@ export default class AnalysisComponent extends LitElement {
   }
 
   private runInference (): void {
-    console.log('Initiating inference analysis, wait a bit...')
+    console.log('Initiating inference analysis.')
     aeonState.analysis.startFullInference()
     this.selected_analysis = AnalysisType.Inference
   }
 
   private runStaticCheck (): void {
-    console.log('Initiating static check, wait a bit...')
+    console.log('Initiating static check.')
     aeonState.analysis.startStaticCheck()
     this.selected_analysis = AnalysisType.StaticCheck
   }
 
   // Method to format the results for display
   private formatResults (results: InferenceResults | StaticCheckResults | DynamicCheckResults): string {
-    return `Number of satisfying networks: ${results.num_sat_networks}\n` +
+    return 'Analysis finished!\n\n' +
+      `Number of satisfying networks: ${results.num_sat_networks}\n` +
       `Computation time: ${results.comp_time} seconds\n\n\n` +
       'Computation metadata:\n' +
       '--------------\n' +
@@ -189,16 +219,18 @@ export default class AnalysisComponent extends LitElement {
   }
 
   private resetAnalysis (): void {
-    // reset event to backend
     console.log('Resetting analysis.')
-    aeonState.analysis.resetAnalysis()
 
     // stop pinging backend
     clearInterval(this.pingIntervalId)
     this.pingIntervalId = undefined
 
+    // reset event to backend
+    aeonState.analysis.resetAnalysis()
+
     // clear analysis settings and results
     this.selected_analysis = null
+    this.computationProgressMessage = ''
     this.results = null
   }
 
@@ -256,7 +288,7 @@ export default class AnalysisComponent extends LitElement {
               <button class="uk-button uk-button-large uk-button-secondary"
                       @click="${() => {
                         this.resetAnalysis()
-                      }}">Restart the analysis
+                      }}">Start new computation
               </button>
             </div>
   
@@ -288,7 +320,7 @@ export default class AnalysisComponent extends LitElement {
             ${this.selected_analysis !== null
 ? html`
               <div class="results-window" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-                <textarea rows="12" cols="70" readonly style="text-align: center;">${this.results !== null ? this.formatResults(this.results) : 'Initiating analysis, wait a bit...'}</textarea>
+                <textarea rows="12" cols="70" readonly style="text-align: center;">${this.results !== null ? this.formatResults(this.results) : this.computationProgressMessage}</textarea>
   
                 <!-- Conditionally render "Sample network" section if results are set -->
                 ${this.results !== null

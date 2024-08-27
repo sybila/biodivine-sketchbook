@@ -387,11 +387,15 @@ interface AeonState {
     /** Ping backend to see if the results are ready. Can be used regardless of
      * what analysis is running. */
     pingForInferenceResults: () => void
+    /** Update message from the inference solver. Can be multi-line. */
+    computationUpdated: Observable<string>
+    /** Error message from the inference solver. */
+    computationErrorReceived: Observable<string>
   }
 
   /** The information about errors occurring when processing events on backend. */
   error: {
-    /** Error message provided by backend. */
+    /** Generic error, with a message provided by backend. */
     errorReceived: Observable<string>
   }
 
@@ -1456,6 +1460,8 @@ export const aeonState: AeonState = {
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
     staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
     dynamicCheckStarted: new Observable<boolean>(['analysis', 'dynamic_running']),
+    computationUpdated: new Observable<string>(['analysis', 'computation_update']),
+    computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
 
     startFullInference (): void {
       aeonEvents.emitAction({

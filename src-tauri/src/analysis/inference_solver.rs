@@ -4,7 +4,7 @@ use crate::algorithms::eval_static::eval::eval_static_prop;
 use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static;
 use crate::analysis::analysis_results::AnalysisResults;
 use crate::analysis::analysis_type::AnalysisType;
-use crate::log;
+use crate::debug;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
 use biodivine_lib_param_bn::symbolic_async_graph::{
@@ -13,6 +13,7 @@ use biodivine_lib_param_bn::symbolic_async_graph::{
 use biodivine_lib_param_bn::BooleanNetwork;
 use num_bigint::BigInt;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::Sender;
 use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, SystemTime};
@@ -21,50 +22,82 @@ use tauri::async_runtime::RwLock;
 /// Status of the computation, together with a timestamp.
 #[derive(Clone, Debug)]
 pub enum InferenceStatus {
+    /// Inference solver instance is created.
     Created,
+    /// The inference computation is started.
     Started,
+    /// Sketch input is processed (BN object created, ...).
     ProcessedInputs,
+    /// Symbolic context and graph is created (can happen multiple times).
     GeneratedGraph,
+    /// Static property is evaluated (can happen multiple times).
     EvaluatedStatic,
+    /// All static properties are evaluated.
+    EvaluatedAllStatic,
+    /// Static property is evaluated (can happen multiple times).
     EvaluatedDynamic,
+    /// All dynamic properties are evaluated.
+    EvaluatedAllDynamic,
+    /// Computation is successfully finished.
     Finished,
+    /// Computation is finished but unsuccessful (cancellation or processing error).
     Error,
 }
 
-/// Object encompassing the process of the full BN inference.
+/// Object encompassing the process of the BN inference computation.
 ///
 /// It tracks the intermediate results and low-level structures, and it provides hooks to the
 /// actual algorithms.
 ///
 /// By tracking the intermediate results, we may be able to observe the computation, and potentially
-/// "fork" or re-use parts of the computation in future. For now we do not run the computation
-/// itself on a special thread, but in future, we may.
-#[derive(Clone)]
+/// "fork" or re-use parts of the computation in future. The computation is made to be run
+/// asynchronously itself on a special thread, and the solver reports on progress via a special
+/// channel.
 pub struct InferenceSolver {
-    /// Boolean Network instance.
+    /// Boolean Network instance (once processed).
     bn: Option<BooleanNetwork>,
     /// Symbolic transition graph for the system.
     /// Its set of unit colors is gradually updated during computation, and it consists of
     /// currently remaining valid candidate colors.
     graph: Option<SymbolicAsyncGraph>,
-    /// Static properties.
+    /// Static properties (once collected).
     static_props: Option<Vec<StatProperty>>,
-    /// Dynamic properties.
+    /// Dynamic properties (once collected).
     dynamic_props: Option<Vec<DynProperty>>,
-    /// Set of final satisfying colors (once computed).
+    /// Set of final satisfying colors ((if computation finishes successfully).
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
     status_updates: Vec<(InferenceStatus, SystemTime)>,
     /// Flag to signal cancellation
     should_stop: Arc<AtomicBool>,
-    /// Processed results.
+    /// Channel to send updates regarding the computation.
+    sender_channel: Sender<String>,
+    /// Potential processed results (if computation finishes successfully).
     results: Option<AnalysisResults>,
+    /// Potential error message (if computation finishes with error).
+    error_message: Option<String>,
+}
+
+/// Object encompassing a finished (successful) BN inference computation with all
+/// intermediate and processed results.
+///
+/// It is essentially a simplified version of `InferenceSolver` that can be used
+/// to easily observe results and for sampling.
+#[derive(Clone)]
+pub struct FinishedInferenceSolver {
+    pub bn: BooleanNetwork,
+    pub graph: SymbolicAsyncGraph,
+    pub sat_colors: GraphColors,
+    pub status_updates: Vec<(InferenceStatus, SystemTime)>,
+    pub results: AnalysisResults,
 }
 
 impl InferenceSolver {
-    /// Prepares new "empty" `InferenceSolver` instance.
-    /// The computation is started by one of the `run_<algorithm>` methods later.
-    pub fn new() -> InferenceSolver {
+    /// Prepares new "empty" `InferenceSolver` instance that can be later used to
+    /// run the computation.
+    ///
+    /// Currently, the computation can be started by the `run_inference_async` method.
+    pub fn new(sender_channel: Sender<String>) -> InferenceSolver {
         InferenceSolver {
             bn: None,
             graph: None,
@@ -73,7 +106,9 @@ impl InferenceSolver {
             raw_sat_colors: None,
             status_updates: vec![(InferenceStatus::Created, SystemTime::now())],
             should_stop: Arc::new(AtomicBool::new(false)),
+            sender_channel,
             results: None,
+            error_message: None,
         }
     }
 
@@ -82,7 +117,7 @@ impl InferenceSolver {
         if let Some(bn) = &self.bn {
             Ok(bn)
         } else {
-            Err("Boolean network not yet computed.".to_string())
+            Err("Boolean network not yet processed.".to_string())
         }
     }
 
@@ -91,7 +126,7 @@ impl InferenceSolver {
         if let Some(graph) = &self.graph {
             Ok(graph)
         } else {
-            Err("Transition graph not yet computed.".to_string())
+            Err("Transition graph and symbolic context not yet computed.".to_string())
         }
     }
 
@@ -122,36 +157,13 @@ impl InferenceSolver {
         }
     }
 
-    /// Get a current set of valid candidate colors.
-    /// This is gradually updated during computation.
+    /// Get a current set of valid candidate colors. This can be used to get intermediate
+    /// results and is gradually updated during computation.
     pub fn current_candidate_colors(&self) -> Result<GraphColors, String> {
         Ok(self.graph()?.mk_unit_colors())
     }
 
-    /// Get processed results if computed.
-    pub fn results(&self) -> Result<&AnalysisResults, String> {
-        if let Some(results) = &self.results {
-            Ok(results)
-        } else {
-            Err("Processed results not yet computed.".to_string())
-        }
-    }
-
-    fn update_status(&mut self, status: InferenceStatus) {
-        let now = SystemTime::now();
-        self.status_updates.push((status.clone(), now));
-
-        let start_time = self.start_time().unwrap();
-        let duration_since_start = now.duration_since(start_time).unwrap();
-        log!(
-            "0",
-            "Inference status update: {:?}, {}s",
-            status,
-            duration_since_start.as_secs()
-        );
-    }
-
-    /// Getter for a start time of the actual computation.
+    /// Get a start time of the actual computation.
     pub fn start_time(&self) -> Result<SystemTime, String> {
         if self.status_updates.len() > 1 {
             Ok(self.status_updates[1].1)
@@ -160,16 +172,42 @@ impl InferenceSolver {
         }
     }
 
-    /// Getter for a finish time of the actual computation.
+    /// Get a finish time of the actual computation.
     pub fn finish_time(&self) -> Result<SystemTime, String> {
         // there is always some status (since one is given during initialization)
         let (last_status, last_time) = self.status_updates.last().unwrap();
         if let InferenceStatus::Finished = last_status {
             Ok(*last_time)
         } else if let InferenceStatus::Error = last_status {
-            Err("Computation failed to finish.".to_string())
+            Err("Computation failed to finish because there was an error.".to_string())
         } else {
             Err("Computation not yet finished.".to_string())
+        }
+    }
+
+    /// Update the status of the solver, and send a progress message to the AnalysisState
+    /// instance (that started this solver).
+    ///
+    /// If the channel for progress updates no longer exists (because analysis is supposed to
+    /// be reset, the window was closed, or some other reason), we instead forcibly stop the
+    /// computation. Destroying the channel can thus actually be used as another way to stop the
+    /// asynchronous computation, since one does not need to acquire lock over the whole solver.
+    fn update_status(&mut self, status: InferenceStatus) {
+        let now = SystemTime::now();
+        self.status_updates.push((status.clone(), now));
+
+        let start_time = self.start_time().unwrap();
+        let duration_since_start = now.duration_since(start_time).unwrap();
+        let message = format!(
+            "Inference status update: {:?}, {}ms",
+            status,
+            duration_since_start.as_millis()
+        );
+        debug!("{message}");
+
+        // if the channel for progress updates does not exist anymore, stop computation
+        if self.sender_channel.send(message).is_err() {
+            self.cancel();
         }
     }
 
@@ -187,6 +225,41 @@ impl InferenceSolver {
             return Err("Computation was cancelled.".to_string());
         }
         Ok(())
+    }
+
+    /// If computation successfully finished, transform into `FinishedInferenceSolver`.
+    /// Otherwise, return the error with the error message that caused inference fail.
+    pub fn to_finished_solver(&self) -> Result<FinishedInferenceSolver, String> {
+        // there is always at least 1 status, we can unwrap
+        // if the last status is Finished, it should be ok
+        match self.status_updates.last().unwrap() {
+            (InferenceStatus::Finished, _) => Ok(FinishedInferenceSolver {
+                bn: self.bn.clone().unwrap(),
+                graph: self.graph.clone().unwrap(),
+                sat_colors: self.raw_sat_colors.clone().unwrap(),
+                status_updates: self.status_updates.clone(),
+                results: self.results.clone().unwrap(),
+            }),
+            (InferenceStatus::Error, _) => {
+                // check if the real error message was stored, or use default message
+                if let Some(msg) = &self.error_message {
+                    Err(msg.clone())
+                } else {
+                    Err("Computation ended up with an internal error.".to_string())
+                }
+            }
+            (_, _) => Err("Computation not yet finished.".to_string()),
+        }
+    }
+
+    /// Check if computation finished (by success or error).
+    pub fn is_finished(&self) -> bool {
+        // there is always at least 1 status, we can unwrap
+        match self.status_updates.last().unwrap() {
+            (InferenceStatus::Finished, _) => true,
+            (InferenceStatus::Error, _) => true,
+            (_, _) => false,
+        }
     }
 }
 
@@ -215,11 +288,12 @@ impl InferenceSolver {
             solver.check_cancellation()?; // Early check before starting
         }
 
-        /* todo: currently, we use this "write lock" to lock the solver for the whole inference
-         * This makes it impossible to get quick lock for cancellation or intermediate result fetch
-         * We should make the inference modular in an async sense, so that:
-         *  1) fetching intermediate results is possible
-         *  2) proper cancellation is possible
+        /* Todo: Currently, we use this "write lock" to lock the solver for the whole inference.
+         * This makes it impossible to acquire a lock for cancellation or to do intermediate result fetch.
+         * We should make the inference modular in an async sense, so that proper cancellation is possible.
+         *
+         * There is currently a workaround for this - we use a channel for sending progress messages, and
+         * we can use the (non-)existence of the channel as a way to know if the computation was cancelled.
          */
 
         let mut solver_write = solver.write().await;
@@ -234,13 +308,17 @@ impl InferenceSolver {
                 solver_write.run_inference_modular(analysis_type, sketch, false, true)
             }
         };
-        if results.is_err() {
+
+        // if computation ends with an error, log it
+        if let Err(msg) = &results {
+            solver_write.error_message = Some(msg.clone());
             solver_write.update_status(InferenceStatus::Error);
         }
 
-        // now lets just drop the lock to allow for potential cancellation (the cancellation thread must
-        // achieve a lock) and we can at least check if computation should have been cancelled...
-        // (this is currently just a placeholder check before we do it properly during computation)
+        // Lets drop the lock for a bit to allow the potential cancellation thread to achieve a lock.
+        // This way we can at least properly check if computation should have been cancelled...
+        // (this is currently just to be certain everything is checked, there are now new different
+        // methods to cancel the process via channels)
         drop(solver_write);
         thread::sleep(Duration::from_millis(10));
 
@@ -297,8 +375,9 @@ impl InferenceSolver {
             );
             let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
             self.graph = Some(new_graph);
+            self.update_status(InferenceStatus::EvaluatedStatic);
         }
-        self.update_status(InferenceStatus::EvaluatedStatic);
+        self.update_status(InferenceStatus::EvaluatedAllStatic);
         Ok(())
     }
 
@@ -317,8 +396,9 @@ impl InferenceSolver {
             );
             let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
             self.graph = Some(new_graph);
+            self.update_status(InferenceStatus::EvaluatedDynamic);
         }
-        self.update_status(InferenceStatus::EvaluatedDynamic);
+        self.update_status(InferenceStatus::EvaluatedAllDynamic);
         Ok(())
     }
 
