@@ -23,7 +23,7 @@ pub fn prepare_graph_for_static(
             StatPropertyType::GenericStatProp(p) => {
                 let formula = &p.raw_formula;
                 let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
-                let num_tree_vars = collect_unique_fol_vars(tree.clone()).len();
+                let num_tree_vars = collect_unique_fol_vars(&tree).len();
                 num_fol_vars = max(num_fol_vars, num_tree_vars);
             }
             StatPropertyType::RegulationMonotonic(..)

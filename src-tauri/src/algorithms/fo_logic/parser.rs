@@ -71,7 +71,7 @@ fn parse_1_quantifiers(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
         // perform check that hybrid operator is not preceded by other type of operators
         if i > 0 && !matches!(&tokens[i - 1], FolToken::Quantifier(..)) {
             return Err(format!(
-                "Quantifier can't be directly preceded by {}.",
+                "Quantifier can't be directly preceded by '{}'.",
                 &tokens[i - 1]
             ));
         }
@@ -165,7 +165,7 @@ fn parse_7_unary(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
         // perform check that unary operator is not directly preceded by some atomic sub-formula
         if i > 0 && matches!(&tokens[i - 1], FolToken::Atomic(..)) {
             return Err(format!(
-                "Unary operator can't be directly preceded by {:?}.",
+                "Unary operator can't be directly preceded by '{:?}'.",
                 &tokens[i - 1]
             ));
         }

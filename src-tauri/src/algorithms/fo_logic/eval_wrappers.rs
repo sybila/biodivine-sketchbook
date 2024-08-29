@@ -4,6 +4,11 @@ use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
 use biodivine_hctl_model_checker::postprocessing::sanitizing::sanitize_colored_vertices;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
 
+use super::utils::{
+    check_fn_symbol_support, check_fol_var_support, collect_unique_fn_symbols,
+    collect_unique_fol_vars,
+};
+
 /// Evaluate each of a list of FOL formulas given by their syntax trees on a given transition `graph`.
 ///
 /// The `graph` MUST support enough sets of symbolic variables to represent all occurring FO vars.
@@ -65,20 +70,34 @@ pub fn eval_tree(
 /// the provided `graph` (i.e., check if `graph` object supports all needed symbolic variables).
 ///
 /// Argument `base_var_name` is for the BN var which was used as a base for extra variables.
-///
-/// TODO: still missing some validation steps
 fn parse_and_validate(
     formulas: Vec<&str>,
-    _graph: &SymbolicAsyncGraph,
+    graph: &SymbolicAsyncGraph,
     base_var_name: &str,
 ) -> Result<Vec<FolTreeNode>, String> {
-    // parse all the formulas and check that graph supports enough HCTL vars
+    // parse all the formulas and check that graph supports enough FOL vars and contains correct functions
     let mut parsed_trees = Vec::new();
     for formula in formulas {
         let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
-        // todo: still missing the check that all function symbols are valid in the sketch
 
-        // TODO: check that given extended symbolic graph supports enough stated variables
+        // check if all variables valid
+        let fol_vars = collect_unique_fol_vars(&tree);
+        for fol_var in fol_vars {
+            if !check_fol_var_support(graph, &fol_var) {
+                return Err(format!("Variable `{fol_var}` not found in symbolic context."));
+            }
+        }
+
+        // check if all functions valid
+        let function_symbols = collect_unique_fn_symbols(&tree)?;
+        for (fn_name, arity) in function_symbols.iter() {
+            if !check_fn_symbol_support(graph.symbolic_context(), fn_name, *arity) {
+                return Err(format!(
+                    "Function `{fn_name}` with arity {arity} not found in symbolic context."
+                ));
+            }
+        }
+
         parsed_trees.push(tree);
     }
     Ok(parsed_trees)

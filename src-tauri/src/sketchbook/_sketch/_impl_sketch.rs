@@ -1,7 +1,11 @@
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::{Dataset, ObservationManager};
-use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
+use crate::sketchbook::properties::dynamic_props::DynPropertyType;
+use crate::sketchbook::properties::static_props::StatPropertyType;
+use crate::sketchbook::properties::{
+    DynProperty, FirstOrderFormula, HctlFormula, PropertyManager, StatProperty,
+};
 use crate::sketchbook::Sketch;
 
 impl Sketch {
@@ -91,7 +95,6 @@ impl Sketch {
     /// - check that HCTL properties only use valid variables as atomic propositions
     /// - check that FOL properties only use valid function symbols
     pub fn run_consistency_check(&self) -> (bool, String) {
-        // todo
         let mut all_consitent = true;
         let mut message = String::new();
         message += "MODEL:\n";
@@ -99,16 +102,57 @@ impl Sketch {
             all_consitent = false;
             message += "> ISSUE: There must be at least one variable.\n";
         }
+        // todo
         message += "(this part is not fully implemented yet)\n\n";
 
         message += "DATASET:\n";
+        // todo
         message += "(this part is not fully implemented yet)\n\n";
 
         message += "STATIC PROPERTIES:\n";
+        let mut stat_err_found = false;
+        let mut at_least_one_stat_generic = false;
+        for (prop_id, prop) in self.properties.stat_props() {
+            if let StatPropertyType::GenericStatProp(generic_prop) = prop.get_prop_data() {
+                at_least_one_stat_generic = true;
+                if let Err(e) = FirstOrderFormula::check_syntax_with_model(
+                    &generic_prop.raw_formula,
+                    &self.model,
+                ) {
+                    let issue = format!("> ISSUE with property `{}`: {e}\n", prop_id.as_str());
+                    message += &issue;
+                    stat_err_found = true;
+                }
+            }
+            // TODO: rest is not implemented yet
+        }
+        if at_least_one_stat_generic && !stat_err_found {
+            message += "> No issues with Generic static properties found.\n";
+        }
         message += "(this part is not fully implemented yet)\n\n";
+        all_consitent = all_consitent && !stat_err_found;
 
         message += "DYNAMIC PROPERTIES:\n";
+        let mut dyn_err_found = false;
+        let mut at_least_one_dyn_generic = false;
+        for (prop_id, prop) in self.properties.dyn_props() {
+            if let DynPropertyType::GenericDynProp(generic_prop) = prop.get_prop_data() {
+                at_least_one_dyn_generic = true;
+                if let Err(e) =
+                    HctlFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)
+                {
+                    let issue = format!("> ISSUE with property `{}`: {e}\n", prop_id.as_str());
+                    message += &issue;
+                    dyn_err_found = true;
+                }
+            }
+            // TODO: rest is not implemented yet
+        }
+        if at_least_one_dyn_generic && !dyn_err_found {
+            message += "> No issues with Generic dynamic properties found.\n";
+        }
         message += "(this part is not fully implemented yet)\n\n";
+        all_consitent = all_consitent && !dyn_err_found;
 
         (all_consitent, message)
     }

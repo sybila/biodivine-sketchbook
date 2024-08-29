@@ -1,6 +1,10 @@
 use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
 use crate::algorithms::fo_logic::parser::parse_fol_formula;
+use crate::algorithms::fo_logic::utils::check_fn_symbol_support;
+use crate::algorithms::fo_logic::utils::collect_unique_fn_symbols;
 use crate::sketchbook::model::ModelState;
+use biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext;
+
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
@@ -78,10 +82,22 @@ impl FirstOrderFormula {
     }
 
     /// Check if the formula is correctly formed based on predefined FO syntactic rules, and also
-    /// whether formula respects the model (propositions must be valid entities in the model and
+    /// whether formula respects the model (function symbols must be valid entities in the model and
     /// so on).
-    pub fn check_syntax_with_model(formula: String, model: &ModelState) -> Result<(), String> {
-        println!("For now, {formula} cannot be checked with respect to the {model:?}.");
-        todo!()
+    pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
+        let bn = model.to_bn();
+        let ctx = SymbolicContext::new(&bn)?;
+        let tree = parse_fol_formula(formula)?;
+
+        // check if all functions valid
+        let function_symbols = collect_unique_fn_symbols(&tree)?;
+        for (fn_name, arity) in function_symbols.iter() {
+            if !check_fn_symbol_support(&ctx, fn_name, *arity) {
+                return Err(format!(
+                    "Function `{fn_name}` with arity {arity} not found in model."
+                ));
+            }
+        }
+        Ok(())
     }
 }

@@ -1,10 +1,9 @@
 use crate::algorithms::fo_logic::fol_tree::{FolTreeNode, NodeType};
 use crate::algorithms::fo_logic::operator_enums::*;
-
+use crate::algorithms::fo_logic::utils::get_var_base_and_offset;
 use biodivine_lib_bdd::Bdd;
 use biodivine_lib_param_bn::biodivine_std::traits::Set;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
-use regex::Regex;
 
 /// Recursively evaluate the sub-formula represented by a `node` (of a syntactic tree) on a given `graph`.
 pub fn eval_node(node: FolTreeNode, graph: &SymbolicAsyncGraph) -> GraphColoredVertices {
@@ -77,7 +76,7 @@ fn eval_variable(graph: &SymbolicAsyncGraph, var_name: &str) -> GraphColoredVert
     let bn = graph.as_network().unwrap();
 
     // we must get the correct "extra" BDD variable from the name of the variable
-    let (base_var_name, offset) = get_base_and_offset(var_name);
+    let (base_var_name, offset) = get_var_base_and_offset(var_name).unwrap();
     let base_variable = bn.as_graph().find_variable(&base_var_name).unwrap();
     let bdd = graph
         .symbolic_context()
@@ -116,7 +115,7 @@ fn eval_exists(
     let bn = graph.as_network().unwrap();
 
     // we must get the correct "extra" BDD variable from the name of the variable
-    let (base_var_name, offset) = get_base_and_offset(var_name);
+    let (base_var_name, offset) = get_var_base_and_offset(var_name).unwrap();
     let variable = bn.as_graph().find_variable(&base_var_name).unwrap();
     let bbd_var = graph
         .symbolic_context()
@@ -135,18 +134,4 @@ fn eval_forall(
     var_name: &str,
 ) -> GraphColoredVertices {
     eval_neg(graph, &eval_exists(graph, &eval_neg(graph, set), var_name))
-}
-
-/// For a given FOL variable name, get a base variable of the BN and offset that was used to add
-/// it to the symbolic context.
-fn get_base_and_offset(var_name: &str) -> (String, usize) {
-    // we must get the correct "extra" BDD variable from the name of the variable
-    let re = Regex::new(r"^(?P<network_variable>.+)_extra_(?P<i>\d+)$").unwrap();
-    if let Some(captures) = re.captures(var_name) {
-        let base_var_name = captures.name("network_variable").unwrap().as_str();
-        let offset: usize = captures.name("i").unwrap().as_str().parse().unwrap();
-        (base_var_name.to_string(), offset)
-    } else {
-        panic!("The FOL variable name string `{var_name}` did not match the expected format.");
-    }
 }

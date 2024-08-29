@@ -1,41 +1,109 @@
 use crate::algorithms::fo_logic::fol_tree::{FolTreeNode, NodeType};
 use crate::algorithms::fo_logic::operator_enums::*;
-use biodivine_lib_param_bn::symbolic_async_graph::SymbolicAsyncGraph;
+use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
+use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
 /// Compute the set of all uniquely named FOL variables in the formula tree.
 ///
 /// Variable names are collected from the quantifiers `exists` and `forall` (which is sufficient,
 /// as the formula must not contain free variables).
-pub fn collect_unique_fol_vars(formula_tree: FolTreeNode) -> HashSet<String> {
+pub fn collect_unique_fol_vars(formula_tree: &FolTreeNode) -> HashSet<String> {
     collect_unique_fol_vars_recursive(formula_tree, HashSet::new())
 }
 
 fn collect_unique_fol_vars_recursive(
-    formula_tree: FolTreeNode,
+    formula_tree: &FolTreeNode,
     mut seen_vars: HashSet<String>,
 ) -> HashSet<String> {
-    match formula_tree.node_type {
+    match &formula_tree.node_type {
         NodeType::Terminal(_) => {}
         NodeType::Unary(_, child) => {
-            seen_vars.extend(collect_unique_fol_vars_recursive(*child, seen_vars.clone()));
+            seen_vars.extend(collect_unique_fol_vars_recursive(
+                child.as_ref(),
+                seen_vars.clone(),
+            ));
         }
         NodeType::Binary(_, left, right) => {
-            seen_vars.extend(collect_unique_fol_vars_recursive(*left, seen_vars.clone()));
-            seen_vars.extend(collect_unique_fol_vars_recursive(*right, seen_vars.clone()));
+            seen_vars.extend(collect_unique_fol_vars_recursive(
+                left.as_ref(),
+                seen_vars.clone(),
+            ));
+            seen_vars.extend(collect_unique_fol_vars_recursive(
+                right.as_ref(),
+                seen_vars.clone(),
+            ));
         }
         // collect variables from quantifier nodes (bind, exists, forall)
         NodeType::Quantifier(_, var_name, child) => {
-            seen_vars.insert(var_name); // we do not care whether insert is successful
-            seen_vars.extend(collect_unique_fol_vars_recursive(*child, seen_vars.clone()));
+            seen_vars.insert(var_name.clone()); // we do not care whether insert is successful
+            seen_vars.extend(collect_unique_fol_vars_recursive(
+                child.as_ref(),
+                seen_vars.clone(),
+            ));
         }
         NodeType::Function(_, child_nodes) => {
             for child in child_nodes {
-                seen_vars.extend(collect_unique_fol_vars_recursive(*child, seen_vars.clone()));
+                seen_vars.extend(collect_unique_fol_vars_recursive(
+                    child.as_ref(),
+                    seen_vars.clone(),
+                ));
             }
         }
     }
     seen_vars
+}
+
+/// Compute the set of all unique function symbols (with arities) in the formula tree.
+///
+/// If some function symbol is used with more than one arity, return error.
+pub fn collect_unique_fn_symbols(
+    formula_tree: &FolTreeNode,
+) -> Result<HashMap<String, usize>, String> {
+    let mut seen_symbols = HashMap::new();
+    collect_unique_fn_symbols_recursive(formula_tree, &mut seen_symbols)?;
+    Ok(seen_symbols)
+}
+
+fn collect_unique_fn_symbols_recursive(
+    formula_tree: &FolTreeNode,
+    seen_symbols: &mut HashMap<String, usize>,
+) -> Result<(), String> {
+    match &formula_tree.node_type {
+        NodeType::Terminal(_) => {}
+        NodeType::Unary(_, child) => {
+            collect_unique_fn_symbols_recursive(child.as_ref(), seen_symbols)?;
+        }
+        NodeType::Binary(_, left, right) => {
+            collect_unique_fn_symbols_recursive(left.as_ref(), seen_symbols)?;
+            collect_unique_fn_symbols_recursive(right.as_ref(), seen_symbols)?;
+        }
+        // collect variables from quantifier nodes (bind, exists, forall)
+        NodeType::Quantifier(_, _, child) => {
+            collect_unique_fn_symbols_recursive(child.as_ref(), seen_symbols)?;
+        }
+        NodeType::Function(fn_symbol, child_nodes) => {
+            let arity = child_nodes.len();
+            let name = fn_symbol.0.clone();
+
+            if let Some(existing_arity) = seen_symbols.get(&name) {
+                // if the symbol is already saved, check it has the same arity
+                if *existing_arity != arity {
+                    return Err(format!(
+                        "Symbol {} is used with two different arities: {} and {}",
+                        name, arity, existing_arity
+                    ));
+                }
+            } else {
+                // if the symbol is not saved yet, save it
+                seen_symbols.insert(name, arity);
+            }
+            for child in child_nodes {
+                collect_unique_fn_symbols_recursive(child.as_ref(), seen_symbols)?;
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Checks that all FOL variables in the formula's syntactic tree are quantified (exactly once),
@@ -137,8 +205,49 @@ fn validate_and_rename_recursive(
     };
 }
 
-/// Check that extended symbolic graph's BDD supports enough extra variables for the evaluation of
-/// the formula given by a `fol_syntactic_tree`.
-pub fn check_fol_var_support(_stg: &SymbolicAsyncGraph, _fol_syntactic_tree: FolTreeNode) -> bool {
-    todo!()
+/// For a given FOL variable name, get a base variable of the BN and offset that was used to add
+/// it to the symbolic context.
+///
+/// This fn returns error if the var name format is wrong.
+pub fn get_var_base_and_offset(var_name: &str) -> Result<(String, usize), String> {
+    // we must get the correct "extra" BDD variable from the name of the variable
+    let re = Regex::new(r"^(?P<network_variable>.+)_extra_(?P<i>\d+)$").unwrap();
+    if let Some(captures) = re.captures(var_name) {
+        let base_var_name = captures.name("network_variable").unwrap().as_str();
+        let offset: usize = captures.name("i").unwrap().as_str().parse().unwrap();
+        Ok((base_var_name.to_string(), offset))
+    } else {
+        Err(format!(
+            "The FOL variable name string `{var_name}` did not match the expected format."
+        ))
+    }
+}
+
+/// Check that extended symbolic graph's BDD supports given extra variable.
+pub fn check_fol_var_support(graph: &SymbolicAsyncGraph, var_name: &str) -> bool {
+    if let Ok((base_var_name, offset)) = get_var_base_and_offset(var_name) {
+        if let Some(base_var) = graph
+            .as_network()
+            .unwrap()
+            .as_graph()
+            .find_variable(&base_var_name)
+        {
+            let num_extra = graph
+                .symbolic_context()
+                .extra_state_variables(base_var)
+                .len();
+            return offset < num_extra;
+        }
+        return false;
+    }
+    false
+}
+
+/// Check that extended symbolic context supports given function symbol (parameter) of given arity.
+pub fn check_fn_symbol_support(ctx: &SymbolicContext, fn_name: &str, arity: usize) -> bool {
+    if let Some(param) = ctx.find_network_parameter(fn_name) {
+        arity == ctx.get_network_parameter_arity(param) as usize
+    } else {
+        false
+    }
 }

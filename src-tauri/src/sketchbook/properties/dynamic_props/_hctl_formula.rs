@@ -2,7 +2,10 @@ use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::properties::dynamic_props::_mk_hctl_formulas::*;
 use biodivine_hctl_model_checker::preprocessing::hctl_tree::HctlTreeNode;
-use biodivine_hctl_model_checker::preprocessing::parser::parse_hctl_formula;
+use biodivine_hctl_model_checker::preprocessing::parser::{
+    parse_and_minimize_hctl_formula, parse_hctl_formula,
+};
+use biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
@@ -42,6 +45,8 @@ impl fmt::Display for HctlFormula {
 /// Creating hctl formulas.
 impl HctlFormula {
     /// Parse `HctlFormula` object directly from a string, which must be in a correct format.
+    /// We only check if the general HCTL syntax is correct, do not check proposition names
+    /// validity.
     pub fn try_from_str(formula: &str) -> Result<HctlFormula, String> {
         Ok(HctlFormula {
             tree: parse_hctl_formula(formula)?,
@@ -114,7 +119,15 @@ impl HctlFormula {
     /// Assert that formula is correctly formed based on HCTL syntactic rules, and also
     /// whether the propositions correspond to valid network variables used in the `model`.
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
-        println!("For now, {formula} cannot be checked with respect to the {model:?}.");
-        todo!()
+        // create simplest bn possible, we just need to cover all the variables
+        let bn = model.to_empty_bn();
+        let ctx = SymbolicContext::new(&bn)?;
+
+        let res: Result<HctlTreeNode, String> = parse_and_minimize_hctl_formula(&ctx, formula);
+        if res.is_ok() {
+            Ok(())
+        } else {
+            Err(res.err().unwrap())
+        }
     }
 }
