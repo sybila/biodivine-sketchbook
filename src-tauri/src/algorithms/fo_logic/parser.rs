@@ -324,6 +324,14 @@ mod tests {
             Quantifier::Forall,
         );
         assert_eq!(parse_fol_formula(formula).unwrap(), expected_tree);
+
+        let formula = "\\forall x, y: true";
+        let expected_tree = FolTreeNode::mk_quantifier(
+            FolTreeNode::mk_quantifier(FolTreeNode::mk_constant(true), "y", Quantifier::Forall),
+            "x",
+            Quantifier::Forall,
+        );
+        assert_eq!(parse_fol_formula(formula).unwrap(), expected_tree);
     }
 
     #[test]

@@ -73,13 +73,17 @@ fn try_tokenize_recursive(
 
             // "3" can be either short for exist quantifier or part of some name
             '3' if !is_valid_in_name_optional(input_chars.peek()) => {
-                let var_name = collect_var_from_operator(input_chars, "3")?;
-                output.push(FolToken::Quantifier(Quantifier::Exists, var_name));
+                let var_names = collect_vars_from_operator(input_chars, "3")?;
+                var_names
+                    .into_iter()
+                    .for_each(|var| output.push(FolToken::Quantifier(Quantifier::Exists, var)));
             }
             // "V" can be either short for forall quantifier or part of some name
             'V' if !is_valid_in_name_optional(input_chars.peek()) => {
-                let var_name = collect_var_from_operator(input_chars, "V")?;
-                output.push(FolToken::Quantifier(Quantifier::Forall, var_name));
+                let var_names = collect_vars_from_operator(input_chars, "V")?;
+                var_names
+                    .into_iter()
+                    .for_each(|var| output.push(FolToken::Quantifier(Quantifier::Forall, var)));
             }
             ')' => {
                 return if !top_level {
@@ -98,11 +102,15 @@ fn try_tokenize_recursive(
                 // collect rest of the operator
                 let quantifier_name = collect_name(input_chars)?;
                 if &quantifier_name == "exists" {
-                    let var_name = collect_var_from_operator(input_chars, "\\exists")?;
-                    output.push(FolToken::Quantifier(Quantifier::Exists, var_name));
+                    let var_names = collect_vars_from_operator(input_chars, "\\exists")?;
+                    var_names
+                        .into_iter()
+                        .for_each(|var| output.push(FolToken::Quantifier(Quantifier::Exists, var)));
                 } else if quantifier_name == "forall" {
-                    let var_name = collect_var_from_operator(input_chars, "\\forall")?;
-                    output.push(FolToken::Quantifier(Quantifier::Forall, var_name));
+                    let var_names = collect_vars_from_operator(input_chars, "\\forall")?;
+                    var_names
+                        .into_iter()
+                        .for_each(|var| output.push(FolToken::Quantifier(Quantifier::Forall, var)));
                 } else {
                     return Err(format!("Invalid quantifier `\\{quantifier_name}`."));
                 }
@@ -206,27 +214,45 @@ fn collect_name(input_chars: &mut Peekable<Chars>) -> Result<String, String> {
     Ok(name.into_iter().collect())
 }
 
-/// Retrieve the name of the variable bound by a quantifier.
-/// Operator string is consumed by caller and is given as input for error msg purposes.
-fn collect_var_from_operator(
+fn collect_vars_from_operator(
     input_chars: &mut Peekable<Chars>,
     operator: &str,
-) -> Result<String, String> {
-    // there might be few spaces first
-    skip_whitespaces(input_chars);
-    // now collect the variable name itself
-    let name = collect_name(input_chars)?;
-    if name.is_empty() {
-        return Err("Variable name can't be empty.".to_string());
-    }
+) -> Result<Vec<String>, String> {
+    // Skip any leading whitespaces
     skip_whitespaces(input_chars);
 
-    if Some(':') != input_chars.next() {
-        return Err(format!(
-            "Expected ':' after segment of quantifier '{operator}'."
-        ));
+    let mut variables = Vec::new();
+
+    loop {
+        // Collect the variable name
+        let name = collect_name(input_chars)?;
+        if name.is_empty() {
+            return Err("Variable name can't be empty.".to_string());
+        }
+        variables.push(name);
+
+        skip_whitespaces(input_chars);
+
+        // Check if the next character is a comma or a colon
+        match input_chars.peek() {
+            Some(',') => {
+                input_chars.next(); // Consume the comma
+                skip_whitespaces(input_chars);
+            }
+            Some(':') => {
+                input_chars.next(); // Consume the colon
+                break; // End of variable list
+            }
+            _ => {
+                return Err(format!(
+                    "Expected ',' or ':' after variable name in quantifier '{}'.",
+                    operator
+                ));
+            }
+        }
     }
-    Ok(name)
+
+    Ok(variables)
 }
 
 /// Retrieve the arguments of a function, process everything from "(" up to ")".
@@ -365,12 +391,24 @@ mod tests {
                 vec![],
             ),]
         );
+
+        let valid4 = "\\exists x, y, z: true".to_string();
+        let tokens4 = try_tokenize_formula(valid4).unwrap();
+        assert_eq!(
+            tokens4,
+            vec![
+                FolToken::Quantifier(Quantifier::Exists, "x".to_string()),
+                FolToken::Quantifier(Quantifier::Exists, "y".to_string()),
+                FolToken::Quantifier(Quantifier::Exists, "z".to_string()),
+                FolToken::Atomic(Atom::True),
+            ]
+        );
     }
 
     #[test]
     /// Test tokenization process on FOL formula with several whitespaces.
     fn tokenize_with_whitespaces() {
-        let valid_formula = " 3   x  :  f    ( x ,  y )  ";
+        let valid_formula = " 3   x  , y  :  f    ( x ,  y )  ";
         assert!(try_tokenize_formula(valid_formula.to_string()).is_ok())
     }
 
