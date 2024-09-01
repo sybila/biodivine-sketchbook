@@ -5,6 +5,8 @@ use std::fmt;
 use std::iter::Peekable;
 use std::str::Chars;
 
+use super::utils::is_update_fn_symbol;
+
 /// Enum of all possible tokens occurring in a FOL formula string.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum FolToken {
@@ -121,7 +123,12 @@ fn try_tokenize_recursive(
                 if Some(&'(') == input_chars.peek() {
                     // it must be a function symbol with arguments in parentheses
                     let arguments = collect_fn_arguments(input_chars)?;
-                    output.push(FolToken::Function(FunctionSymbol(full_name), arguments));
+                    // we must check if it is symbol for update or uninterpreted fn
+                    let is_update = is_update_fn_symbol(&full_name);
+                    output.push(FolToken::Function(
+                        FunctionSymbol::new(&full_name, is_update),
+                        arguments,
+                    ));
                 } else {
                     // otherwise it is a variable or a constant
                     output.push(FolToken::Atomic(resolve_term_name(&full_name)));
@@ -321,7 +328,7 @@ mod tests {
             vec![
                 FolToken::Quantifier(Quantifier::Exists, "x".to_string()),
                 FolToken::Function(
-                    FunctionSymbol("f".to_string()),
+                    FunctionSymbol::new_uninterpreted("f"),
                     vec![FolToken::TokenList(vec![FolToken::Atomic(Atom::Var(
                         "x".to_string()
                     ))])],
@@ -337,7 +344,7 @@ mod tests {
                 FolToken::Quantifier(Quantifier::Forall, "x".to_string()),
                 FolToken::Quantifier(Quantifier::Exists, "yy".to_string()),
                 FolToken::Function(
-                    FunctionSymbol("f".to_string()),
+                    FunctionSymbol::new_uninterpreted("f"),
                     vec![
                         FolToken::TokenList(vec![FolToken::Atomic(Atom::Var("x".to_string()))]),
                         FolToken::TokenList(vec![
@@ -353,7 +360,10 @@ mod tests {
         let tokens3 = try_tokenize_formula(valid3).unwrap();
         assert_eq!(
             tokens3,
-            vec![FolToken::Function(FunctionSymbol("fn".to_string()), vec![],),]
+            vec![FolToken::Function(
+                FunctionSymbol::new_uninterpreted("fn"),
+                vec![],
+            ),]
         );
     }
 

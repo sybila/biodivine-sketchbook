@@ -1,6 +1,7 @@
 use crate::algorithms::fo_logic::operator_enums::*;
 use crate::algorithms::fo_logic::parser::parse_fol_tokens;
 use crate::algorithms::fo_logic::tokenizer::FolToken;
+use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 
 use std::cmp;
 use std::fmt;
@@ -12,6 +13,7 @@ use std::fmt;
 ///     - A "unary" node, with a `UnaryOp` and a sub-formula.
 ///     - A "binary" node, with a `BinaryOp` and two sub-formulae.
 ///     - A "quantifier" node, with a `Quantifier`, a string variable name, and a sub-formula.
+///     - A "function" node,  a string variable name, and a sub-formula.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum NodeType {
     Terminal(Atom),
@@ -102,7 +104,7 @@ impl FolTreeNode {
     }
 
     /// Create a [FolTreeNode] representing a function symbol applied to given arguments.
-    pub fn mk_function(name: &str, inner_nodes: Vec<FolTreeNode>) -> FolTreeNode {
+    pub fn mk_function(name: &str, inner_nodes: Vec<FolTreeNode>, is_update: bool) -> FolTreeNode {
         let max_height = inner_nodes
             .iter()
             .map(|node| node.height)
@@ -121,7 +123,90 @@ impl FolTreeNode {
         FolTreeNode {
             formula_str,
             height: max_height + 1,
-            node_type: NodeType::Function(FunctionSymbol(name.to_string()), inner_boxed_nodes),
+            node_type: NodeType::Function(FunctionSymbol::new(name, is_update), inner_boxed_nodes),
+        }
+    }
+}
+
+impl FolTreeNode {
+    /// Recursively obtain the `FolTreeNode` from a similar `FnUpdate` object of the [biodivine_lib_param_bn]
+    /// library that is used internally for update functions.
+    /// The provided BN gives context for variable and parameter IDs.
+    pub fn from_fn_update(fn_update: FnUpdate, bn_context: &BooleanNetwork) -> FolTreeNode {
+        match fn_update {
+            FnUpdate::Const(value) => FolTreeNode::mk_constant(value),
+            FnUpdate::Var(id) => {
+                // in BN, the var's ID is a number and its name is a string we use for variables in formulas
+                let var_id_str = bn_context.get_variable_name(id);
+                FolTreeNode::mk_variable(var_id_str)
+            }
+            FnUpdate::Not(inner) => {
+                let inner_transformed = Self::from_fn_update(*inner, bn_context);
+                FolTreeNode::mk_unary(inner_transformed, UnaryOp::Not)
+            }
+            FnUpdate::Binary(op, l, r) => {
+                let binary_converted = BinaryOp::from(op);
+                let l_transformed = Self::from_fn_update(*l, bn_context);
+                let r_transformed = Self::from_fn_update(*r, bn_context);
+                FolTreeNode::mk_binary(l_transformed, r_transformed, binary_converted)
+            }
+            FnUpdate::Param(id, args) => {
+                let fn_id_str = bn_context[id].get_name();
+
+                let args_transformed: Vec<FolTreeNode> = args
+                    .into_iter()
+                    .map(|f| Self::from_fn_update(f, bn_context))
+                    .collect();
+                FolTreeNode::mk_function(fn_id_str, args_transformed, false)
+            }
+        }
+    }
+
+    /// Create a copy of this [FolTreeNode] with every occurrence of variable `var` substituted
+    /// for [FolTreeNode] `expression`.
+    ///
+    /// You must ensure that no conflicts arise with quantification. For instance, this should
+    /// be safe in case you are not substituting to quantified variables.
+    pub fn substitute_variable(&self, var: &str, expression: &FolTreeNode) -> FolTreeNode {
+        match &self.node_type {
+            // rename vars in terminal state-var nodes
+            NodeType::Terminal(ref atom) => match atom {
+                Atom::Var(name) => {
+                    if name == var {
+                        expression.clone()
+                    } else {
+                        self.clone()
+                    }
+                }
+                // constants are always automatically fine
+                _ => self.clone(),
+            },
+            NodeType::Unary(op, child) => {
+                let node = child.substitute_variable(var, expression);
+                FolTreeNode::mk_unary(node, *op)
+            }
+            NodeType::Binary(op, left, right) => {
+                let node1 = left.substitute_variable(var, expression);
+                let node2 = right.substitute_variable(var, expression);
+                FolTreeNode::mk_binary(node1, node2, *op)
+            }
+            NodeType::Quantifier(op, quantified_var, child) => {
+                // currently do not rename variables in quantifiers, up to the user to ensure the
+                // variable to be substituted is not quantified
+                let node = child.substitute_variable(var, expression);
+                FolTreeNode::mk_quantifier(node, quantified_var, *op)
+            }
+            // just dive one level deeper for function nodes and rename string
+            NodeType::Function(fn_symbol, child_nodes) => {
+                let name = fn_symbol.name.clone();
+                let is_update = fn_symbol.is_update_fn;
+                let new_children = child_nodes
+                    .clone()
+                    .into_iter()
+                    .map(|node| node.substitute_variable(var, expression))
+                    .collect();
+                FolTreeNode::mk_function(&name, new_children, is_update)
+            }
         }
     }
 }

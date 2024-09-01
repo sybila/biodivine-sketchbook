@@ -4,10 +4,7 @@ use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
 use biodivine_hctl_model_checker::postprocessing::sanitizing::sanitize_colored_vertices;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
 
-use super::utils::{
-    check_fn_symbol_support, check_fol_var_support, collect_unique_fn_symbols,
-    collect_unique_fol_vars,
-};
+use super::utils::*;
 
 /// Evaluate each of a list of FOL formulas given by their syntax trees on a given transition `graph`.
 ///
@@ -84,17 +81,29 @@ fn parse_and_validate(
         let fol_vars = collect_unique_fol_vars(&tree);
         for fol_var in fol_vars {
             if !check_fol_var_support(graph, &fol_var) {
-                return Err(format!("Variable `{fol_var}` not found in symbolic context."));
+                return Err(format!(
+                    "Variable `{fol_var}` not found in symbolic context."
+                ));
             }
         }
 
         // check if all functions valid
         let function_symbols = collect_unique_fn_symbols(&tree)?;
         for (fn_name, arity) in function_symbols.iter() {
-            if !check_fn_symbol_support(graph.symbolic_context(), fn_name, *arity) {
-                return Err(format!(
-                    "Function `{fn_name}` with arity {arity} not found in symbolic context."
-                ));
+            if let Ok(var) = get_var_from_implicit(fn_name) {
+                // if this is update fn symbol, we must check the corresponding variable exists
+                if !check_update_fn_support(graph.as_network().unwrap(), &var, *arity) {
+                    return Err(format!(
+                        "Variable for update function `{fn_name}` does not exist, or its arity is different."
+                    ));
+                }
+            } else {
+                // if this is uninterpreted fn symbol, we must check the corresponding parameter exists
+                if !check_fn_symbol_support(graph.symbolic_context(), fn_name, *arity) {
+                    return Err(format!(
+                        "Function `{fn_name}` with arity {arity} not found in symbolic context."
+                    ));
+                }
             }
         }
 

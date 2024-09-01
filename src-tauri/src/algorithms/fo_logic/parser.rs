@@ -79,7 +79,7 @@ fn parse_1_quantifiers(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
             FolToken::Quantifier(op, var) => FolTreeNode::mk_quantifier(
                 parse_1_quantifiers(&tokens[(i + 1)..])?,
                 var.as_str(),
-                op.clone(),
+                *op,
             ),
             _ => unreachable!(), // we already made sure that this is indeed a quantifier token
         }
@@ -171,9 +171,7 @@ fn parse_7_unary(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
         }
 
         match &tokens[i] {
-            FolToken::Unary(op) => {
-                FolTreeNode::mk_unary(parse_7_unary(&tokens[(i + 1)..])?, op.clone())
-            }
+            FolToken::Unary(op) => FolTreeNode::mk_unary(parse_7_unary(&tokens[(i + 1)..])?, *op),
             _ => unreachable!(), // we already made sure that this is indeed an unary token
         }
     } else {
@@ -200,7 +198,7 @@ fn parse_8_terms_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, Str
                 FolToken::Atomic(Atom::False) => {
                     return Ok(FolTreeNode::mk_constant(false));
                 }
-                FolToken::Function(FunctionSymbol(name), arguments) => {
+                FolToken::Function(fn_symbol, arguments) => {
                     let mut arg_expression_nodes = Vec::new();
                     for inner in arguments {
                         // it must be a token list
@@ -211,7 +209,11 @@ fn parse_8_terms_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, Str
                                 .to_string());
                         }
                     }
-                    return Ok(FolTreeNode::mk_function(name, arg_expression_nodes));
+                    return Ok(FolTreeNode::mk_function(
+                        &fn_symbol.name,
+                        arg_expression_nodes,
+                        fn_symbol.is_update_fn,
+                    ));
                 }
                 // recursively solve sub-formulae in parentheses
                 FolToken::TokenList(inner) => {
@@ -286,7 +288,15 @@ mod tests {
 
         let formula = "\\exists x: f(x)";
         let expected_tree = FolTreeNode::mk_quantifier(
-            FolTreeNode::mk_function("f", vec![FolTreeNode::mk_variable("x")]),
+            FolTreeNode::mk_function("f", vec![FolTreeNode::mk_variable("x")], false),
+            "x",
+            Quantifier::Exists,
+        );
+        assert_eq!(parse_fol_formula(formula).unwrap(), expected_tree);
+
+        let formula = "\\exists x: f_VAR_A(x)"; // the fn symbol should be saved as update fn
+        let expected_tree = FolTreeNode::mk_quantifier(
+            FolTreeNode::mk_function("f_VAR_A", vec![FolTreeNode::mk_variable("x")], true),
             "x",
             Quantifier::Exists,
         );
@@ -302,6 +312,7 @@ mod tests {
                             FolTreeNode::mk_constant(true),
                             FolTreeNode::mk_unary(FolTreeNode::mk_variable("yy"), UnaryOp::Not),
                         ],
+                        false,
                     ),
                     FolTreeNode::mk_variable("x"),
                     BinaryOp::And,

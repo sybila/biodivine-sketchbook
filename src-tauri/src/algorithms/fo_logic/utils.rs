@@ -1,6 +1,8 @@
 use crate::algorithms::fo_logic::fol_tree::{FolTreeNode, NodeType};
 use crate::algorithms::fo_logic::operator_enums::*;
+use crate::sketchbook::ids::VarId;
 use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
+use biodivine_lib_param_bn::BooleanNetwork;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
@@ -84,7 +86,7 @@ fn collect_unique_fn_symbols_recursive(
         }
         NodeType::Function(fn_symbol, child_nodes) => {
             let arity = child_nodes.len();
-            let name = fn_symbol.0.clone();
+            let name = fn_symbol.name.clone();
 
             if let Some(existing_arity) = seen_symbols.get(&name) {
                 // if the symbol is already saved, check it has the same arity
@@ -189,7 +191,9 @@ fn validate_and_rename_recursive(
             ))
         }
         // just dive one level deeper for function nodes and rename string
-        NodeType::Function(FunctionSymbol(name), child_nodes) => {
+        NodeType::Function(fn_symbol, child_nodes) => {
+            let name = fn_symbol.name.clone();
+            let is_update = fn_symbol.is_update_fn;
             let mut new_children = Vec::new();
             for child in child_nodes {
                 let new_child_node = validate_and_rename_recursive(
@@ -200,7 +204,7 @@ fn validate_and_rename_recursive(
                 )?;
                 new_children.push(new_child_node);
             }
-            Ok(FolTreeNode::mk_function(&name, new_children))
+            Ok(FolTreeNode::mk_function(&name, new_children, is_update))
         }
     };
 }
@@ -223,6 +227,46 @@ pub fn get_var_base_and_offset(var_name: &str) -> Result<(String, usize), String
     }
 }
 
+/// If the provided function symbol corresponds to (implicit) update function for some
+/// variable, get the variable's name.
+/// Return Err if the symbol is not in format "f_VAR".
+///
+/// Note that function symbols can be either for (explicit) uninterpreted functions or
+/// for (implicit) update functions. The update function symbol for variable A must be
+/// in a form of "f_A".
+///
+/// Always expects valid `fn_symbol` name on input.
+pub fn get_var_from_implicit(fn_symbol: &str) -> Result<String, String> {
+    let re = Regex::new(r"^f_(?P<network_variable>.+)$").unwrap();
+    if let Some(captures) = re.captures(fn_symbol) {
+        let var_name = captures.name("network_variable").unwrap().as_str();
+        Ok(var_name.to_string())
+    } else {
+        Err(format!(
+            " `{fn_symbol}` is not valid symbol for an update function."
+        ))
+    }
+}
+
+/// Check if a given function symbol name corresponds to an (implicit) update function.
+///
+/// Note that function symbols can be either for (explicit) uninterpreted functions or
+/// for (implicit) update functions. The update function symbol for variable A must be
+/// in a form of "f_A".
+///
+/// Always expects valid `fn_symbol` name on input.
+pub fn is_update_fn_symbol(fn_symbol: &str) -> bool {
+    // this checks the format (if it is Ok it's update fn; if it is Err it's uninterpreted)
+    get_var_from_implicit(fn_symbol).is_ok()
+}
+
+/// Compute a valid name for an "anonymous update function" of the corresponding variable.
+///
+/// todo: does not double check if there are collisions with existing params
+pub fn get_implicit_function_name(variable: &VarId) -> String {
+    format!("f_{}", variable.as_str())
+}
+
 /// Check that extended symbolic graph's BDD supports given extra variable.
 pub fn check_fol_var_support(graph: &SymbolicAsyncGraph, var_name: &str) -> bool {
     if let Ok((base_var_name, offset)) = get_var_base_and_offset(var_name) {
@@ -243,10 +287,19 @@ pub fn check_fol_var_support(graph: &SymbolicAsyncGraph, var_name: &str) -> bool
     false
 }
 
-/// Check that extended symbolic context supports given function symbol (parameter) of given arity.
+/// Check that symbolic context supports given function symbol (parameter) of given arity.
 pub fn check_fn_symbol_support(ctx: &SymbolicContext, fn_name: &str, arity: usize) -> bool {
     if let Some(param) = ctx.find_network_parameter(fn_name) {
         arity == ctx.get_network_parameter_arity(param) as usize
+    } else {
+        false
+    }
+}
+
+/// Check that BN has given variable, and that it has given number of regulators.
+pub fn check_update_fn_support(bn: &BooleanNetwork, var_name: &str, num_regulators: usize) -> bool {
+    if let Some(var) = bn.as_graph().find_variable(var_name) {
+        num_regulators == bn.regulators(var).len()
     } else {
         false
     }

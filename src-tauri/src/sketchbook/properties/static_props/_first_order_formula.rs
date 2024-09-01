@@ -1,7 +1,6 @@
 use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
 use crate::algorithms::fo_logic::parser::parse_fol_formula;
-use crate::algorithms::fo_logic::utils::check_fn_symbol_support;
-use crate::algorithms::fo_logic::utils::collect_unique_fn_symbols;
+use crate::algorithms::fo_logic::utils::*;
 use crate::sketchbook::model::ModelState;
 use biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext;
 
@@ -92,10 +91,20 @@ impl FirstOrderFormula {
         // check if all functions valid
         let function_symbols = collect_unique_fn_symbols(&tree)?;
         for (fn_name, arity) in function_symbols.iter() {
-            if !check_fn_symbol_support(&ctx, fn_name, *arity) {
-                return Err(format!(
-                    "Function `{fn_name}` with arity {arity} not found in model."
-                ));
+            if let Ok(var) = get_var_from_implicit(fn_name) {
+                // if this is update fn symbol, we must check the corresponding variable exists
+                if !check_update_fn_support(&bn, &var, *arity) {
+                    return Err(format!(
+                        "Variable for update function `{fn_name}` does not exist, or its arity is different."
+                    ));
+                }
+            } else {
+                // if this is uninterpreted fn symbol, we must check the corresponding parameter exists
+                if !check_fn_symbol_support(&ctx, fn_name, *arity) {
+                    return Err(format!(
+                        "Function `{fn_name}` with arity {arity} not found in the model."
+                    ));
+                }
             }
         }
         Ok(())

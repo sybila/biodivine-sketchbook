@@ -36,6 +36,9 @@ pub use _variable::Variable;
 /// An iterator over all (`VarId`, `Variable`) pairs of a `ModelState`.
 pub type VariableIterator<'a> = std::collections::hash_map::Iter<'a, VarId, Variable>;
 
+/// An iterator over all (`VarId`, `UpdateFn`) pairs of a `ModelState`.
+pub type UpdateFnIterator<'a> = std::collections::hash_map::Iter<'a, VarId, UpdateFn>;
+
 /// An iterator over all (`UninterpretedFnId`, `UninterpretedFn`) pairs of a `ModelState`.
 pub type UninterpretedFnIterator<'a> =
     std::collections::hash_map::Iter<'a, UninterpretedFnId, UninterpretedFn>;

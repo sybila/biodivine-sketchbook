@@ -3,7 +3,7 @@ use crate::sketchbook::layout::Layout;
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::{
     LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
-    UninterpretedFnIterator, UpdateFn, Variable, VariableIterator,
+    UninterpretedFnIterator, UpdateFn, UpdateFnIterator, Variable, VariableIterator,
 };
 use std::collections::HashSet;
 
@@ -275,6 +275,15 @@ impl ModelState {
         Ok(update_fn.get_fn_expression())
     }
 
+    /// Get a list of variables with "empty" update function.
+    /// Returned list contains string ID of each such variable
+    pub fn get_vars_with_empty_update(&self) -> Vec<&str> {
+        self.update_fns()
+            .filter(|(_, update_fn)| update_fn.is_unspecified())
+            .map(|(var_id, _)| var_id.as_str())
+            .collect()
+    }
+
     /// Check whether variable is used in any update function's expressions.
     /// This is important in case we want to safely delete it.
     ///
@@ -292,6 +301,12 @@ impl ModelState {
     /// Return an iterator over all variables (with IDs) of this model.
     pub fn variables(&self) -> VariableIterator {
         self.variables.iter()
+    }
+
+    /// Return an iterator over all update functions (with corresponding var IDs) of
+    /// this model.
+    pub fn update_fns(&self) -> UpdateFnIterator {
+        self.update_fns.iter()
     }
 
     /// Return an iterator over all uninterpreted_fns (with IDs) of this model.
