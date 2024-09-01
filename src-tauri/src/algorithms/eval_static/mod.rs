@@ -1,4 +1,4 @@
-// TODO
-
-/// Evaluate all template static properties.
-pub mod template_eval;
+/// Evaluate all kinds static properties.
+pub mod eval;
+/// Prepare graph and symbolic context to handle all static properties.
+pub mod prepare_graph;

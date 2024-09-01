@@ -9,6 +9,7 @@ import {
   type DynamicPropertyType,
   type StaticPropertyType
 } from './html/util/data-interfaces'
+import { type AnalysisType } from './html/util/analysis-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -50,18 +51,25 @@ interface AeonState {
   sketch: {
     /** First, some general events regarding the whole sketch: */
 
-    /** The whole sketch instance. */
+    /** The refresh of the whole sketch instance. */
     sketchRefreshed: Observable<SketchData>
     /** Refresh the whole sketch. */
     refreshSketch: () => void
 
+    /** Run the explicit consistency check on the sketch. */
+    checkConsistency: () => void
+    /** Results of an explicit consistency check. */
+    // TODO: make properly (now just a string)
+    consistencyResults: Observable<string>
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
-    /** Import the sketch data from a file. */
+    /** Import the sketch data from a special sketch JSON file. */
     importSketch: (path: string) => void
+    /** Import the sketch data from a AEON file. */
+    importAeon: (path: string) => void
     /** Set the sketch to a "default" mode, essentially emptying it and starting anew. */
     newSketch: () => void
-    /** The whole modified sketch instance (after importing or starting a new sketch). */
+    /** The whole replaced sketch instance (after importing or starting a new sketch). */
     sketchReplaced: Observable<SketchData>
 
     /** The state of the main model. */
@@ -355,8 +363,7 @@ interface AeonState {
 
     /** Start the full inference analysis. */
     startFullInference: () => void
-    /** Information that inference analysis was started.
-     * Currently not utilized. */
+    /** Information that async inference analysis was successfully started. */
     inferenceStarted: Observable<boolean>
     /** Inference analysis results. */
     inferenceResultsReceived: Observable<InferenceResults>
@@ -368,11 +375,27 @@ interface AeonState {
     staticCheckStarted: Observable<boolean>
     /** Static check analysis results. */
     staticCheckResultsReceived: Observable<StaticCheckResults>
+
+    /** Start the dynamic check analysis. */
+    startDynamicCheck: () => void
+    /** Information that static check analysis was started.
+     * Currently not utilized. */
+    dynamicCheckStarted: Observable<boolean>
+    /** Static check analysis results. */
+    dynamicCheckResultsReceived: Observable<DynamicCheckResults>
+
+    /** Ping backend to see if the results are ready. Can be used regardless of
+     * what analysis is running. */
+    pingForInferenceResults: () => void
+    /** Update message from the inference solver. Can be multi-line. */
+    computationUpdated: Observable<string>
+    /** Error message from the inference solver. */
+    computationErrorReceived: Observable<string>
   }
 
   /** The information about errors occurring when processing events on backend. */
   error: {
-    /** Error message provided by backend. */
+    /** Generic error, with a message provided by backend. */
     errorReceived: Observable<string>
   }
 
@@ -495,6 +518,7 @@ export interface StatPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing all information regarding inference analysis results. */
 export interface InferenceResults {
+  analysis_type: AnalysisType
   num_sat_networks: number
   comp_time: number
   metadata_log: string
@@ -502,6 +526,15 @@ export interface InferenceResults {
 
 /** An object representing all information regarding static check analysis results. */
 export interface StaticCheckResults {
+  analysis_type: AnalysisType
+  num_sat_networks: number
+  comp_time: number
+  metadata_log: string
+}
+
+/** An object representing all information regarding dynamic check analysis results. */
+export interface DynamicCheckResults {
+  analysis_type: AnalysisType
   num_sat_networks: number
   comp_time: number
   metadata_log: string
@@ -938,12 +971,25 @@ export const aeonState: AeonState = {
         payload: path
       })
     },
+    importAeon (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'import_aeon'],
+        payload: path
+      })
+    },
     newSketch (): void {
       aeonEvents.emitAction({
         path: ['sketch', 'new_sketch'],
         payload: null
       })
     },
+    checkConsistency (): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'check_consistency'],
+        payload: null
+      })
+    },
+    consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
 
     model: {
       modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),
@@ -1410,18 +1456,34 @@ export const aeonState: AeonState = {
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
     staticCheckResultsReceived: new Observable<StaticCheckResults>(['analysis', 'static_results']),
+    dynamicCheckResultsReceived: new Observable<DynamicCheckResults>(['analysis', 'dynamic_results']),
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
     staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
+    dynamicCheckStarted: new Observable<boolean>(['analysis', 'dynamic_running']),
+    computationUpdated: new Observable<string>(['analysis', 'computation_update']),
+    computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
 
     startFullInference (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_inference'],
+        path: ['analysis', 'run_full_inference'],
+        payload: null
+      })
+    },
+    pingForInferenceResults (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'get_inference_results'],
         payload: null
       })
     },
     startStaticCheck (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_static'],
+        path: ['analysis', 'run_partial_static'],
+        payload: null
+      })
+    },
+    startDynamicCheck (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_partial_dynamic'],
         payload: null
       })
     }

@@ -31,7 +31,6 @@ import {
   type IObservation
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
-import { dummyData } from '../../util/dummy-data'
 import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 
 const LAYOUT = 'default'
@@ -57,7 +56,6 @@ export default class RootComponent extends LitElement {
     aeonState.tabBar.pinned.refresh()
 
     // model editor related event listeners
-    this.addEventListener('load-dummy', () => { void this.loadDummy() })
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
     window.addEventListener('focus-variable', this.focusVariable.bind(this))
     this.addEventListener('add-variable', this.addNewVariable)
@@ -454,52 +452,6 @@ export default class RootComponent extends LitElement {
       }
     })
     this.saveRegulations(regs)
-  }
-
-  async loadDummy (): Promise<void> {
-    // remove existing data and load dummy data
-
-    // 1) remove update/uninterpreted fn expressions (so that we can safely remove variables, functions)
-    this.data.variables.forEach((variable) => {
-      aeonState.sketch.model.setVariableUpdateFn(variable.id, '')
-    })
-    this.data.functions.forEach((fn) => {
-      aeonState.sketch.model.setUninterpretedFnExpression(fn.id, '')
-    })
-    await new Promise(_resolve => setTimeout(_resolve, 250))
-    // 2) remove regulations
-    this.data.regulations.forEach((reg) => {
-      aeonState.sketch.model.removeRegulation(reg.source, reg.target)
-    })
-    await new Promise(_resolve => setTimeout(_resolve, 250))
-    // 3) finally remove uninterpreted functions and variables
-    this.data.functions.forEach((fn) => {
-      aeonState.sketch.model.removeUninterpretedFn(fn.id)
-    })
-    this.data.variables.forEach((variable) => {
-      aeonState.sketch.model.removeVariable(variable.id)
-    })
-    await new Promise(_resolve => setTimeout(_resolve, 250))
-
-    // now we can saload the dummy data
-    dummyData.variables.forEach((variable) => {
-      aeonState.sketch.model.addVariable(variable.id, variable.name, {
-        layout: LAYOUT,
-        px: (dummyData.layout.get(variable.id)?.x) ?? 0,
-        py: (dummyData.layout.get(variable.id)?.y) ?? 0
-      })
-    })
-    dummyData.functions.forEach((f) => {
-      aeonState.sketch.model.addUninterpretedFn(f.id, f.variables.length)
-    })
-    await new Promise(_resolve => setTimeout(_resolve, 250))
-    dummyData.regulations.forEach((regulation) => {
-      aeonState.sketch.model.addRegulation(regulation.source, regulation.target, regulation.monotonicity, regulation.essential)
-    })
-    dummyData.variables.forEach((variable) => {
-      aeonState.sketch.model.setVariableUpdateFn(variable.id, variable.function)
-    })
-    await new Promise(_resolve => setTimeout(_resolve, 250))
   }
 
   private async confirmDialog (): Promise<boolean> {

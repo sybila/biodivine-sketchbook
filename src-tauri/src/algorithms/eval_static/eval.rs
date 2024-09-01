@@ -1,10 +1,12 @@
+use crate::algorithms::fo_logic::eval_wrappers::eval_formula_dirty;
 use crate::sketchbook::bn_utils;
 use crate::sketchbook::model::Monotonicity;
 use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::StatProperty;
 use biodivine_lib_bdd::Bdd;
+use biodivine_lib_param_bn::biodivine_std::traits::Set;
 use biodivine_lib_param_bn::symbolic_async_graph::{
-    GraphColors, RegulationConstraint, SymbolicAsyncGraph,
+    GraphColors, RegulationConstraint, SymbolicAsyncGraph, SymbolicContext,
 };
 use biodivine_lib_param_bn::BooleanNetwork;
 
@@ -12,6 +14,7 @@ pub fn eval_static_prop(
     static_prop: StatProperty,
     network: &BooleanNetwork,
     graph: &SymbolicAsyncGraph,
+    base_var_name: &str,
 ) -> Result<GraphColors, String> {
     // look into https://github.com/sybila/biodivine-lib-param-bn/blob/master/src/symbolic_async_graph/_impl_regulation_constraint.rs
 
@@ -20,22 +23,17 @@ pub fn eval_static_prop(
     let initial_unit_colors = graph.mk_unit_colors();
     let unit_bdd = initial_unit_colors.as_bdd();
 
-    // For each variable, compute Bdd that is true exactly when its update function is true.
-    let update_function_is_true: Vec<Bdd> = network
-        .variables()
-        .map(|variable| {
-            if let Some(function) = network.get_update_function(variable) {
-                context.mk_fn_update_true(function)
-            } else {
-                context.mk_implicit_function_is_true(variable, &network.regulators(variable))
-            }
-        })
-        .collect();
-
     match static_prop.get_prop_data() {
-        StatPropertyType::GenericStatProp(_prop) => todo!(),
+        StatPropertyType::GenericStatProp(prop) => {
+            let formula = prop.processed_formula.to_string();
+            let results = eval_formula_dirty(&formula, graph, base_var_name)?;
+            Ok(results.colors().intersect(&initial_unit_colors))
+        }
         StatPropertyType::FnInputEssential(_prop) => todo!(),
         StatPropertyType::RegulationEssential(prop) => {
+            // For each variable, compute Bdd that is true exactly when its update function is true.
+            let update_function_is_true: Vec<Bdd> = mk_all_updates_true(context, network);
+
             let input_name = prop.clone().input.unwrap();
             let target_name = prop.clone().target.unwrap();
             let input_var = network
@@ -60,6 +58,9 @@ pub fn eval_static_prop(
         }
         StatPropertyType::RegulationEssentialContext(_prop) => todo!(),
         StatPropertyType::RegulationMonotonic(prop) => {
+            // For each variable, compute Bdd that is true exactly when its update function is true.
+            let update_function_is_true: Vec<Bdd> = mk_all_updates_true(context, network);
+
             let input_name = prop.clone().input.unwrap();
             let target_name = prop.clone().target.unwrap();
             let input_var = network
@@ -91,4 +92,21 @@ pub fn eval_static_prop(
         StatPropertyType::FnInputMonotonic(_prop) => todo!(),
         StatPropertyType::FnInputMonotonicContext(_prop) => todo!(),
     }
+}
+
+/// For each variable, compute Bdd that is true exactly when its update function is true.
+///
+/// This covers both the case when a variable has some update expression, and the case when
+/// it has "implicit" (empty) update function.
+fn mk_all_updates_true(context: &SymbolicContext, network: &BooleanNetwork) -> Vec<Bdd> {
+    network
+        .variables()
+        .map(|variable| {
+            if let Some(function) = network.get_update_function(variable) {
+                context.mk_fn_update_true(function)
+            } else {
+                context.mk_implicit_function_is_true(variable, &network.regulators(variable))
+            }
+        })
+        .collect()
 }

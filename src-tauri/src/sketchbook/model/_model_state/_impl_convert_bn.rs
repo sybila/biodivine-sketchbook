@@ -10,6 +10,7 @@ impl ModelState {
     /// - `regulation_types`: include types of regulations
     /// - `parameters`: include all parameters for uninterpreted functions
     /// - `update_fns`: include all update functions
+    /// - `extra_vars`: additional extra variables (with no update fns, no regulations)
     ///
     /// It is up to you to make the selection reasonable (e.g., when including update functions
     /// that contain parameters, you must also include parameters, and so on...).
@@ -18,11 +19,12 @@ impl ModelState {
         regulation_types: bool,
         parameters: bool,
         update_fns: bool,
+        extra_vars: Option<Vec<String>>,
     ) -> Result<BooleanNetwork, String> {
         let reg_graph = if regulation_types {
-            self.to_reg_graph()
+            self.to_reg_graph(extra_vars)
         } else {
-            self.to_reg_graph_with_unspecified_regs()
+            self.to_reg_graph_with_unspecified_regs(extra_vars)
         };
         let mut bn = BooleanNetwork::new(reg_graph);
 
@@ -49,7 +51,7 @@ impl ModelState {
     /// and does not cover any parameters.
     pub fn to_empty_bn(&self) -> BooleanNetwork {
         // this is a safe combination that cannot result in errors
-        self.to_bn_with_options(true, false, false).unwrap()
+        self.to_bn_with_options(true, false, false, None).unwrap()
     }
 
     /// Convert the `ModelState` into the corresponding "default" `BooleanNetwork` object with added
@@ -57,7 +59,7 @@ impl ModelState {
     /// The resulting BN covers the variables, parameters, and regulations, but it has empty update functions.
     pub fn to_empty_bn_with_params(&self) -> BooleanNetwork {
         // this is a safe combination that cannot result in errors
-        self.to_bn_with_options(true, true, false).unwrap()
+        self.to_bn_with_options(true, true, false, None).unwrap()
     }
 
     /// Generate a `BooleanNetwork` with a only given number of "placeholder" (fake) variables.
@@ -89,7 +91,7 @@ impl ModelState {
     /// various regulation types or details of uninterpreted functions) -- these will be lost during the conversion.
     pub fn to_bn(&self) -> BooleanNetwork {
         // this is a safe combination that cannot result in errors
-        self.to_bn_with_options(true, true, true).unwrap()
+        self.to_bn_with_options(true, true, true, None).unwrap()
     }
 
     /// Convert the `ModelState` into the corresponding `BooleanNetwork` object (that will contain all of the
@@ -98,9 +100,45 @@ impl ModelState {
     /// unspecified.
     ///
     /// This might be useful if we want to process regulation types later via static properties.
-    pub fn to_bn_with_plain_regulations(&self) -> BooleanNetwork {
+    ///
+    /// You can add optional extra variables (`extra_vars`). These will have no update fns or
+    /// regulations.
+    pub fn to_bn_with_plain_regulations(&self, extra_vars: Option<Vec<String>>) -> BooleanNetwork {
         // this is a safe combination that cannot result in errors
-        self.to_bn_with_options(false, true, true).unwrap()
+        self.to_bn_with_options(false, true, true, extra_vars)
+            .unwrap()
+    }
+}
+
+impl ModelState {
+    /// Convert the `ModelState` into the corresponding `BooleanNetwork` object (that will contain
+    /// all of the variables, regulations, update functions, and uninterpreted functions).
+    ///
+    /// See [ModelState::from_reg_graph] for details on how regulations and variables are handled.
+    ///
+    /// A name of parameters used in BooleanNetwork (which should be unique) is used as both
+    /// its ID and name in the resulting ModelState.
+    pub fn from_bn(bn: &BooleanNetwork) -> Result<Self, String> {
+        // this collects variables and regulations
+        let mut model = ModelState::from_reg_graph(bn.as_graph())?;
+
+        // add parameters
+        for param_id in bn.parameters() {
+            let param = bn.get_parameter(param_id);
+            let name = param.get_name();
+            model.add_uninterpreted_fn_by_str(name, name, param.get_arity() as usize)?;
+        }
+
+        // and also add update functions
+        for var in bn.variables() {
+            let var_name = bn.get_variable_name(var);
+            let update_fn_opt = bn.get_update_function(var);
+            if let Some(update_fn) = update_fn_opt {
+                let var_id = model.get_var_id(var_name)?;
+                model.set_update_fn(&var_id, &update_fn.to_string(bn))?;
+            }
+        }
+        Ok(model)
     }
 }
 
@@ -140,7 +178,7 @@ mod tests {
     }
 
     #[test]
-    fn test_to_bn() {
+    fn test_to_bn_and_back() {
         let model = prepare_test_model_full();
         let bn = model.to_bn();
         let var_a = bn.as_graph().find_variable("a").unwrap();
@@ -149,6 +187,11 @@ mod tests {
         let update_var_a = model.get_update_fn(&model_var_a).unwrap().to_fn_update(&bn);
         assert_eq!(bn.get_update_function(var_a), &update_var_a);
         assert_eq!(bn.get_update_function(var_b), &None);
+
+        // the conversion back works only if IDs and names (for variables, functions) match (which
+        // is out case)
+        let model_converted = ModelState::from_bn(&bn).unwrap();
+        assert_eq!(model, model_converted);
     }
 
     #[test]

@@ -2,6 +2,8 @@
 pub mod analysis_results;
 /// Structures and utilities to track the whole state of analysis.
 pub mod analysis_state;
+/// Enum with various supported analysis types.
+pub mod analysis_type;
 /// Structs and utility methods that can be used for communication with frontend.
 pub mod data_structs;
 

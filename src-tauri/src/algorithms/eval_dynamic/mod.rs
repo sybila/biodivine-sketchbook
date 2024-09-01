@@ -1,4 +1,4 @@
-// TODO
-
-/// Evaluate all template dynamic properties.
-pub mod template_eval;
+/// Evaluate all kinds of dynamic properties.
+pub mod eval;
+/// Prepare graph and symbolic context to handle all dynamic properties.
+pub mod prepare_graph;

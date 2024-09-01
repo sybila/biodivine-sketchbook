@@ -3,14 +3,15 @@ use core::convert::From;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-/// Possible binary Boolean operators that can appear in `FnUpdate`.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+/// Enum for all possible Boolean binary operators occurring in update functions
+/// or first-order formulas (for static properties).
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize, PartialOrd)]
 pub enum BinaryOp {
-    And,
-    Or,
-    Xor,
-    Iff,
-    Imp,
+    And, // '&'
+    Or,  // '|'
+    Xor, // '^'
+    Imp, // '=>'
+    Iff, // '<=>'
 }
 
 impl From<OtherBinaryOp> for BinaryOp {

@@ -1,3 +1,4 @@
+use crate::analysis::analysis_type::AnalysisType;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::time;
@@ -7,20 +8,28 @@ use time::Duration;
 /// It does not contain any intermediate or raw results, these are kept on backend only.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnalysisResults {
+    /// Type of the conducted analysis.
+    pub analysis_type: AnalysisType,
     /// Number of satisfying networks.
-    num_sat_networks: u64,
+    pub num_sat_networks: u64,
     /// Computation time in seconds.
-    comp_time: u64,
+    pub comp_time: u64,
     /// Any kind of string metadata to be displayed/logged on frontend.
-    metadata_log: String,
+    pub metadata_log: String,
 }
 
 impl<'de> JsonSerde<'de> for AnalysisResults {}
 
 impl AnalysisResults {
     /// Create new `AnalysisState` with a full sketch data.
-    pub fn new(num_sat_networks: u64, comp_time: Duration, metadata_log: &str) -> AnalysisResults {
+    pub fn new(
+        analysis_type: AnalysisType,
+        num_sat_networks: u64,
+        comp_time: Duration,
+        metadata_log: &str,
+    ) -> AnalysisResults {
         AnalysisResults {
+            analysis_type,
             num_sat_networks,
             comp_time: comp_time.as_secs(),
             metadata_log: metadata_log.to_string(),

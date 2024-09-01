@@ -19,19 +19,19 @@ export default class Menu extends LitElement {
   @state() menuVisible = false
   @state() menuItems: IMenuItem[] = [
     {
-      label: 'New sketch',
+      label: 'New empty sketch',
       action: () => { void this.newSketch() }
     },
     {
-      label: 'Import dummy (dev)',
-      action: () => { this.loadDummy() }
-    },
-    {
-      label: 'Import...',
+      label: 'Import JSON',
       action: () => { void this.importSketch() }
     },
     {
-      label: 'Export...',
+      label: 'Import AEON',
+      action: () => { void this.importAeonModel() }
+    },
+    {
+      label: 'Export JSON',
       action: () => { void this.exportSketch() }
     },
     {
@@ -43,10 +43,6 @@ export default class Menu extends LitElement {
   constructor () {
     super()
     document.addEventListener('click', this.closeMenu.bind(this))
-  }
-
-  loadDummy (): void {
-    this.dispatchEvent(new Event('load-dummy', { bubbles: true, composed: true }))
   }
 
   async importSketch (): Promise<void> {
@@ -77,6 +73,36 @@ export default class Menu extends LitElement {
 
     console.log('importing', importFile)
     aeonState.sketch.importSketch(importFile)
+  }
+
+  async importAeonModel (): Promise<void> {
+    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+      type: 'warning',
+      okLabel: 'Import',
+      cancelLabel: 'Cancel',
+      title: 'Import new model'
+    })
+    if (!confirmation) return
+
+    const selected = await open({
+      title: 'Import aeon model...',
+      multiple: false,
+      filters: [{
+        name: '*.aeon',
+        extensions: ['aeon']
+      }]
+    })
+    if (selected === null) return
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importAeon(importFile)
   }
 
   async exportSketch (): Promise<void> {

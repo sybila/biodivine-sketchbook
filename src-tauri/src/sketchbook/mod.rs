@@ -31,6 +31,7 @@ mod utils;
 /// **(internal)** Tests for the event-based API of various top-level components.
 #[cfg(test)]
 mod _tests_events;
+mod stat_prop_utils;
 
 pub use crate::sketchbook::_sketch::Sketch;
 
