@@ -70,7 +70,7 @@ impl SessionState for Sketch {
         } else if Self::starts_with("check_consistency", at_path).is_some() {
             let (success, message) = self.run_consistency_check();
             let results = if success {
-                format!("Seems there are no issues with the sketch!\n\n{message}")
+                format!("Seems there are no issues with the sketch! More details follow below.\n\n{message}")
             } else {
                 format!("There are issues with the sketch:\n\n{message}")
             };
@@ -82,6 +82,10 @@ impl SessionState for Sketch {
                 state_change,
                 reset: false,
             })
+        } else if Self::starts_with("assert_consistency", at_path).is_some() {
+            // this is a "synthetic" event that either returns an error, or Consumed::NoChange
+            self.assert_consistency()?;
+            Ok(Consumed::NoChange)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

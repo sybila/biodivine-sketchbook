@@ -186,8 +186,8 @@ fn parse_8_terms_and_parentheses(tokens: &[FolToken]) -> Result<FolTreeNode, Str
         Err("Expected formula, found nothing.".to_string())
     } else {
         if tokens.len() == 1 {
-            // This should be name (var/function) or a parenthesis group, anything
-            // else does not make sense (constants are tokenized as variables until now).
+            // This should be a constant, name (var/function) or a parenthesis group, anything
+            // else does not make sense.
             match &tokens[0] {
                 FolToken::Atomic(Atom::Var(name)) => {
                     return Ok(FolTreeNode::mk_variable(name.as_str()));

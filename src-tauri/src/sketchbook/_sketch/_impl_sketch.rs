@@ -88,6 +88,16 @@ impl Sketch {
         self.properties = PropertyManager::default();
     }
 
+    /// Assert that the sketch is consistent, return error otherwise.
+    /// See [run_consistency_check] for details on which criteria are checked.
+    pub fn assert_consistency(&self) -> Result<(), String> {
+        if self.run_consistency_check().0 {
+            Ok(())
+        } else {
+            Err("Sketch is not consistent.".to_string())
+        }
+    }
+
     /// General check that all components of the sketch are consistent together.
     /// This should include:
     /// - check that dataset variables are valid network variables
