@@ -4,6 +4,8 @@ use crate::sketchbook::properties::PropertyManager;
 use crate::sketchbook::{JsonSerde, Manager};
 use serde::{Deserialize, Serialize};
 
+/// **(internal)** Utilities to check consistency of `Sketch` instances.
+mod _impl_consistency;
 /// **(internal)** Exporting sketch in various formats.
 mod _impl_export;
 /// **(internal)** Importing sketch in various formats.

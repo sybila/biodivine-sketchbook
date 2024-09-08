@@ -70,7 +70,7 @@ impl SessionState for Sketch {
         } else if Self::starts_with("check_consistency", at_path).is_some() {
             let (success, message) = self.run_consistency_check();
             let results = if success {
-                format!("Seems there are no issues with the sketch! More details follow below.\n\n{message}")
+                "No issues with the sketch were discovered!".to_string()
             } else {
                 format!("There are issues with the sketch:\n\n{message}")
             };
