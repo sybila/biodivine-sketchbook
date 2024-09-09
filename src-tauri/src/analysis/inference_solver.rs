@@ -1,10 +1,13 @@
 use crate::algorithms::eval_dynamic::eval::eval_dyn_prop;
 use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic;
+use crate::algorithms::eval_static::encode::*;
 use crate::algorithms::eval_static::eval::eval_static_prop;
 use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static;
+use crate::algorithms::fo_logic::utils::get_implicit_function_name;
 use crate::analysis::analysis_results::AnalysisResults;
 use crate::analysis::analysis_type::AnalysisType;
 use crate::debug;
+use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
 use biodivine_lib_param_bn::symbolic_async_graph::{
@@ -331,18 +334,65 @@ impl InferenceSolver {
     }
 
     /// Extract and convert relevant components from the sketch (boolean network, properties).
-    fn extract_inputs(
+    ///
+    /// Translates all static properties into Generic properties (by encoding the property to FOL).
+    fn process_inputs(
         sketch: Sketch,
     ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
         // todo: at the moment we just use HCTL dynamic properties, and automatically generated regulation properties
 
         let bn = sketch.model.to_bn_with_plain_regulations(None);
         // remove all unused function symbols, as these would cause problems later
-        let bn = bn.prune_unused_parameters();
+        let mut bn = bn.prune_unused_parameters();
+        // add "implicit" expression "f_var_N(regulator_1, ..., regulator_M)" to all empty updates
+        for var in bn.variables().clone() {
+            if bn.get_update_function(var).is_none() {
+                let var_name = bn.get_variable_name(var).clone();
+                let fn_name = get_implicit_function_name(&var_name);
+                let inputs = bn.regulators(var);
+                bn.add_parameter(&fn_name, inputs.len() as u32).unwrap();
+                let input_str = inputs
+                    .iter()
+                    .map(|v| bn.get_variable_name(*v).clone())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let update_fn_str = format!("{fn_name}({input_str})");
+                bn.add_string_update_function(&var_name, &update_fn_str)
+                    .unwrap();
+            }
+        }
 
         let mut static_props = vec![];
         for (id, stat_prop) in sketch.properties.stat_props() {
-            static_props.push((id, stat_prop.clone()));
+            // TODO: encode everything we can into first-order logic (and make it a generic property)
+            let name = stat_prop.get_name();
+            let stat_prop_processed = match stat_prop.get_prop_data() {
+                StatPropertyType::GenericStatProp(..) => stat_prop.clone(),
+                StatPropertyType::RegulationEssential(prop) => {
+                    let input_name = prop.input.clone().unwrap();
+                    let target_name = prop.target.clone().unwrap();
+                    let formula = encode_regulation_essentiality(
+                        input_name.as_str(),
+                        target_name.as_str(),
+                        prop.clone().value,
+                        &bn,
+                    );
+                    StatProperty::mk_generic(name, &formula).unwrap() // can safely unwrap
+                }
+                StatPropertyType::RegulationMonotonic(prop) => {
+                    let input_name = prop.input.clone().unwrap();
+                    let target_name = prop.target.clone().unwrap();
+                    let formula = encode_regulation_monotonicity(
+                        input_name.as_str(),
+                        target_name.as_str(),
+                        prop.clone().value,
+                        &bn,
+                    );
+                    StatProperty::mk_generic(name, &formula).unwrap() // can safely unwrap
+                }
+                _ => todo!(),
+            };
+            static_props.push((id, stat_prop_processed))
         }
 
         let mut dynamic_props = vec![];
@@ -367,8 +417,7 @@ impl InferenceSolver {
         for stat_property in self.stat_props()?.clone() {
             self.check_cancellation()?; // check if cancellation flag was set during computation
 
-            let inferred_colors =
-                eval_static_prop(stat_property, self.bn()?, self.graph()?, base_var_name)?;
+            let inferred_colors = eval_static_prop(stat_property, self.graph()?, base_var_name)?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
                 self.graph()?.symbolic_context(),
@@ -423,7 +472,7 @@ impl InferenceSolver {
 
         /* >> STEP 1: process basic components of the sketch to be used */
         // this also does few input simplifications, like filtering out unused function symbols from the BN
-        let (bn, static_props, dynamic_props) = Self::extract_inputs(sketch)?;
+        let (bn, static_props, dynamic_props) = Self::process_inputs(sketch)?;
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);

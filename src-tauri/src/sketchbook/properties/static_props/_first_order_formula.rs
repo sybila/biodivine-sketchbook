@@ -62,9 +62,14 @@ impl FirstOrderFormula {
 
 /// Observing first-order formulas.
 impl FirstOrderFormula {
-    /// Str reference version of the first-order formula.
+    /// Reference to a string form of the FOL formula.
     pub fn as_str(&self) -> &str {
         &self.tree.formula_str
+    }
+
+    /// Reference to a syntax tree of the first-order formula.
+    pub fn tree(&self) -> &FolTreeNode {
+        &self.tree
     }
 }
 

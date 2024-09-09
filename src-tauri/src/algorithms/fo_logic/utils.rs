@@ -1,6 +1,5 @@
 use crate::algorithms::fo_logic::fol_tree::{FolTreeNode, NodeType};
 use crate::algorithms::fo_logic::operator_enums::*;
-use crate::sketchbook::ids::VarId;
 use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
 use biodivine_lib_param_bn::BooleanNetwork;
 use regex::Regex;
@@ -263,8 +262,8 @@ pub fn is_update_fn_symbol(fn_symbol: &str) -> bool {
 /// Compute a valid name for an "anonymous update function" of the corresponding variable.
 ///
 /// todo: does not double check if there are collisions with existing params
-pub fn get_implicit_function_name(variable: &VarId) -> String {
-    format!("f_{}", variable.as_str())
+pub fn get_implicit_function_name(variable_name: &str) -> String {
+    format!("f_{}", variable_name)
 }
 
 /// Check that extended symbolic graph's BDD supports given extra variable.
