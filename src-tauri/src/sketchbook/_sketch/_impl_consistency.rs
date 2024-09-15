@@ -26,8 +26,8 @@ impl Sketch {
     /// - check that model is not empty
     /// - check that dataset variables are valid network variables
     /// - check that various template properties reference valid variables and data
-    /// - check that HCTL properties only use valid variables as atomic propositions
-    /// - check that FOL properties only use valid function symbols
+    /// - check that HCTL formulas only use valid variables as atomic propositions
+    /// - check that FOL formulas only use valid function symbols
     pub fn run_consistency_check(&self) -> (bool, String) {
         let mut all_consitent = true;
         let mut message = String::new();
@@ -132,25 +132,25 @@ impl Sketch {
             | StatPropertyType::FnInputEssentialContext(p) => {
                 self.assert_fn_valid(p.target.as_ref().unwrap())?;
                 self.assert_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
-                // TODO: add checking for the context formulas
+                self.assert_context_valid_or_none(p.context.as_ref())?;
             }
             StatPropertyType::FnInputMonotonic(p)
             | StatPropertyType::FnInputMonotonicContext(p) => {
                 self.assert_fn_valid(p.target.as_ref().unwrap())?;
                 self.assert_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
-                // TODO: add checking for the context formulas
+                self.assert_context_valid_or_none(p.context.as_ref())?;
             }
             StatPropertyType::RegulationEssential(p)
             | StatPropertyType::RegulationEssentialContext(p) => {
                 self.assert_var_valid(p.target.as_ref().unwrap())?;
                 self.assert_var_valid(p.input.as_ref().unwrap())?;
-                // TODO: add checking for the context formulas
+                self.assert_context_valid_or_none(p.context.as_ref())?;
             }
             StatPropertyType::RegulationMonotonic(p)
             | StatPropertyType::RegulationMonotonicContext(p) => {
                 self.assert_var_valid(p.target.as_ref().unwrap())?;
                 self.assert_var_valid(p.input.as_ref().unwrap())?;
-                // TODO: add checking for the context formulas
+                self.assert_context_valid_or_none(p.context.as_ref())?;
             }
         }
         Ok(())
@@ -192,9 +192,8 @@ impl Sketch {
         if self.model.is_valid_var_id(var_id) {
             Ok(())
         } else {
-            Err(format!(
-                "Variable `{var_id}` is not a valid variable in the model."
-            ))
+            let msg = format!("Variable `{var_id}` is not a valid variable in the model.");
+            Err(msg)
         }
     }
 
@@ -203,9 +202,8 @@ impl Sketch {
         if self.model.is_valid_uninterpreted_fn_id(fn_id) {
             Ok(())
         } else {
-            Err(format!(
-                "Function `{fn_id}` is not a valid function in the model."
-            ))
+            let msg = format!("Function `{fn_id}` is not a valid function in the model.");
+            Err(msg)
         }
     }
 
@@ -214,12 +212,24 @@ impl Sketch {
     fn assert_index_valid(&self, index: usize, fn_id: &UninterpretedFnId) -> Result<(), String> {
         let arity = self.model.get_uninterpreted_fn_arity(fn_id)?;
         if arity <= index {
-            Err(format!(
-                "Function `{fn_id}` has arity {arity}, input index {index} is invalid."
-            ))
-        } else {
-            Ok(())
+            let msg =
+                format!("Function `{fn_id}` has arity {arity}, input index {index} is invalid.");
+            return Err(msg);
         }
+        Ok(())
+    }
+
+    /// Check that context formula is valid. If not, return error with a proper message.
+    ///
+    /// The context can also be None, which is valid.
+    fn assert_context_valid_or_none(&self, context: Option<&String>) -> Result<(), String> {
+        if let Some(context_str) = context {
+            if let Err(e) = FirstOrderFormula::check_syntax_with_model(context_str, &self.model) {
+                let msg = format!("Invalid context formula. {e}");
+                return Err(msg);
+            }
+        }
+        Ok(())
     }
 
     /// Check that dataset is valid. If not, return error with a proper message.
@@ -239,20 +249,13 @@ impl Sketch {
         obs_id: Option<&ObservationId>,
     ) -> Result<(), String> {
         if let Some(obs) = obs_id {
-            if self
-                .observations
-                .get_dataset(dataset_id)?
-                .is_valid_observation(obs)
-            {
-                Ok(())
-            } else {
-                Err(format!(
-                    "Observation `{obs}` is not valid in dataset `{dataset_id}`."
-                ))
+            let dataset = self.observations.get_dataset(dataset_id)?;
+            if !dataset.is_valid_observation(obs) {
+                let msg = format!("Observation `{obs}` is not valid in dataset `{dataset_id}`.");
+                return Err(msg);
             }
-        } else {
-            Ok(())
         }
+        Ok(())
     }
 }
 

@@ -237,7 +237,7 @@ impl StatProperty {
             None,
             None,
             Essentiality::Unknown,
-            String::new(),
+            "true".to_string(),
         )
         .unwrap()
     }
@@ -257,7 +257,7 @@ impl StatProperty {
             None,
             None,
             Monotonicity::Unknown,
-            String::new(),
+            "true".to_string(),
         )
         .unwrap()
     }
@@ -282,7 +282,7 @@ impl StatProperty {
             None,
             None,
             Essentiality::Unknown,
-            String::new(),
+            "true".to_string(),
         )
         .unwrap()
     }
@@ -307,7 +307,7 @@ impl StatProperty {
             None,
             None,
             Monotonicity::Unknown,
-            String::new(),
+            "true".to_string(),
         )
         .unwrap()
     }
