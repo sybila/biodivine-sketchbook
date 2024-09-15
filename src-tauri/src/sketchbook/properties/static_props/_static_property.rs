@@ -314,9 +314,6 @@ impl StatProperty {
 }
 
 /// Editing static properties.
-impl StatProperty {}
-
-/// Editing static properties.
 impl StatProperty {
     /// Set property's name.
     pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
@@ -476,5 +473,40 @@ impl StatProperty {
     /// Get property's variant with all the underlying data.
     pub fn get_prop_data(&self) -> &StatPropertyType {
         &self.variant
+    }
+
+    /// Check that the property has all required fields filled out.
+    /// If some of the required field is set to None, return error.
+    pub fn assert_fully_filled(&self) -> Result<(), String> {
+        let missing_field_msg = "One of the required fields is not filled.";
+
+        match &self.variant {
+            StatPropertyType::GenericStatProp(_) => {} // no fields that can be None
+            StatPropertyType::FnInputEssential(p)
+            | StatPropertyType::FnInputEssentialContext(p) => {
+                if p.input_index.is_none() || p.target.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+            StatPropertyType::FnInputMonotonic(p)
+            | StatPropertyType::FnInputMonotonicContext(p) => {
+                if p.input_index.is_none() || p.target.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+            StatPropertyType::RegulationEssential(p)
+            | StatPropertyType::RegulationEssentialContext(p) => {
+                if p.input.is_none() || p.target.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+            StatPropertyType::RegulationMonotonic(p)
+            | StatPropertyType::RegulationMonotonicContext(p) => {
+                if p.input.is_none() || p.target.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+        }
+        Ok(())
     }
 }

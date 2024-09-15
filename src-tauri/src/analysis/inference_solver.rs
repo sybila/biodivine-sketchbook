@@ -280,7 +280,7 @@ impl InferenceSolver {
     ///
     /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
     /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// static properties, all but generic dynamic properties.
+    /// static properties, and all but generic dynamic properties.
     pub async fn run_inference_async(
         solver: Arc<RwLock<InferenceSolver>>,
         sketch: Sketch,
@@ -344,7 +344,8 @@ impl InferenceSolver {
         let bn = sketch.model.to_bn_with_plain_regulations(None);
         // remove all unused function symbols, as these would cause problems later
         let mut bn = bn.prune_unused_parameters();
-        // add "implicit" expression "f_var_N(regulator_1, ..., regulator_M)" to all empty updates
+        // add expressions "f_var_N(regulator_1, ..., regulator_M)" instead of all empty updates
+        // this gets us rid of "implicit" update functions, and we can only eval "explicit" parameters
         for var in bn.variables().clone() {
             if bn.get_update_function(var).is_none() {
                 let var_name = bn.get_variable_name(var).clone();
@@ -368,29 +369,68 @@ impl InferenceSolver {
             let name = stat_prop.get_name();
             let stat_prop_processed = match stat_prop.get_prop_data() {
                 StatPropertyType::GenericStatProp(..) => stat_prop.clone(),
-                StatPropertyType::RegulationEssential(prop) => {
+                StatPropertyType::RegulationEssential(prop)
+                | StatPropertyType::RegulationEssentialContext(prop) => {
                     let input_name = prop.input.clone().unwrap();
                     let target_name = prop.target.clone().unwrap();
-                    let formula = encode_regulation_essentiality(
+                    let mut formula = encode_regulation_essentiality(
                         input_name.as_str(),
                         target_name.as_str(),
                         prop.clone().value,
                         &bn,
                     );
-                    StatProperty::mk_generic(name, &formula).unwrap() // can safely unwrap
+                    if let Some(context_formula) = &prop.context {
+                        formula = encode_property_in_context(context_formula, &formula);
+                    }
+                    StatProperty::mk_generic(name, &formula)?
                 }
-                StatPropertyType::RegulationMonotonic(prop) => {
+                StatPropertyType::RegulationMonotonic(prop)
+                | StatPropertyType::RegulationMonotonicContext(prop) => {
                     let input_name = prop.input.clone().unwrap();
                     let target_name = prop.target.clone().unwrap();
-                    let formula = encode_regulation_monotonicity(
+                    let mut formula = encode_regulation_monotonicity(
                         input_name.as_str(),
                         target_name.as_str(),
                         prop.clone().value,
                         &bn,
                     );
-                    StatProperty::mk_generic(name, &formula).unwrap() // can safely unwrap
+                    if let Some(context_formula) = &prop.context {
+                        formula = encode_property_in_context(context_formula, &formula);
+                    }
+                    StatProperty::mk_generic(name, &formula)?
                 }
-                _ => todo!(),
+                StatPropertyType::FnInputEssential(prop)
+                | StatPropertyType::FnInputEssentialContext(prop) => {
+                    let fn_id = prop.target.clone().unwrap();
+                    let input_idx = prop.input_index.unwrap();
+                    let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
+                    let mut formula = encode_essentiality(
+                        number_inputs,
+                        input_idx,
+                        fn_id.as_str(),
+                        prop.clone().value,
+                    );
+                    if let Some(context_formula) = &prop.context {
+                        formula = encode_property_in_context(context_formula, &formula);
+                    }
+                    StatProperty::mk_generic(name, &formula)?
+                }
+                StatPropertyType::FnInputMonotonic(prop)
+                | StatPropertyType::FnInputMonotonicContext(prop) => {
+                    let fn_id = prop.target.clone().unwrap();
+                    let input_idx = prop.input_index.unwrap();
+                    let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
+                    let mut formula = encode_monotonicity(
+                        number_inputs,
+                        input_idx,
+                        fn_id.as_str(),
+                        prop.clone().value,
+                    );
+                    if let Some(context_formula) = &prop.context {
+                        formula = encode_property_in_context(context_formula, &formula);
+                    }
+                    StatProperty::mk_generic(name, &formula)?
+                }
             };
             static_props.push((id, stat_prop_processed))
         }

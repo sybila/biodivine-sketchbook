@@ -283,4 +283,40 @@ impl DynProperty {
     pub fn get_prop_data(&self) -> &DynPropertyType {
         &self.variant
     }
+
+    /// Check that the property has all required fields filled out. That is just the `dataset`
+    /// in most cases at the moment.
+    /// If some of the required field is set to None, return error.
+    pub fn assert_dataset_filled(&self) -> Result<(), String> {
+        let missing_field_msg = "One of the required fields is not filled.";
+
+        match &self.variant {
+            DynPropertyType::GenericDynProp(_) => {} // no fields that can be None
+            DynPropertyType::AttractorCount(_) => {} // no fields that can be None
+            DynPropertyType::HasAttractor(p) => {
+                // only dataset has to be filled, observation ID is optional
+                if p.dataset.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+            DynPropertyType::ExistsFixedPoint(p) => {
+                // only dataset has to be filled, observation ID is optional
+                if p.dataset.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+            DynPropertyType::ExistsTrajectory(p) => {
+                if p.dataset.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+            DynPropertyType::ExistsTrapSpace(p) => {
+                // only dataset has to be filled, observation ID is optional
+                if p.dataset.is_none() {
+                    return Err(missing_field_msg.to_string());
+                }
+            }
+        }
+        Ok(())
+    }
 }

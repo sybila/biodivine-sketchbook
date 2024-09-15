@@ -1,6 +1,7 @@
+use crate::sketchbook::ids::{DatasetId, ObservationId, UninterpretedFnId, VarId};
 use crate::sketchbook::properties::dynamic_props::DynPropertyType;
 use crate::sketchbook::properties::static_props::StatPropertyType;
-use crate::sketchbook::properties::{FirstOrderFormula, HctlFormula};
+use crate::sketchbook::properties::{DynProperty, FirstOrderFormula, HctlFormula, StatProperty};
 use crate::sketchbook::Sketch;
 
 /// Utilities to perform consistency checks.
@@ -24,7 +25,7 @@ impl Sketch {
     /// This should include:
     /// - check that model is not empty
     /// - check that dataset variables are valid network variables
-    /// - check that various template properties only use valid variables and data
+    /// - check that various template properties reference valid variables and data
     /// - check that HCTL properties only use valid variables as atomic propositions
     /// - check that FOL properties only use valid function symbols
     pub fn run_consistency_check(&self) -> (bool, String) {
@@ -42,6 +43,7 @@ impl Sketch {
         for (consistent, sub_message) in componets_results {
             if !consistent {
                 message += sub_message.as_str();
+                message += "\n";
                 all_consitent = false;
             }
         }
@@ -86,23 +88,17 @@ impl Sketch {
         (!dataset_err_found, message)
     }
 
+    /// TODO: for templates, add checking for the context formulas and IDs
     fn check_static(&self) -> (bool, String) {
         let mut message = String::new();
         message += "STATIC PROPERTIES:\n";
 
         let mut stat_err_found = false;
         for (prop_id, prop) in self.properties.stat_props() {
-            if let StatPropertyType::GenericStatProp(generic_prop) = prop.get_prop_data() {
-                if let Err(e) = FirstOrderFormula::check_syntax_with_model(
-                    &generic_prop.raw_formula,
-                    &self.model,
-                ) {
-                    let issue = format!("> ISSUE with property `{}`: {e}\n", prop_id.as_str());
-                    message += &issue;
-                    stat_err_found = true;
-                }
+            if let Err(e) = self.assert_static_prop_valid(prop) {
+                message = append_property_issue(&e, prop_id.as_str(), message);
+                stat_err_found = true;
             }
-            // TODO: rest is not implemented yet
         }
         (!stat_err_found, message)
     }
@@ -113,17 +109,155 @@ impl Sketch {
 
         let mut dyn_err_found = false;
         for (prop_id, prop) in self.properties.dyn_props() {
-            if let DynPropertyType::GenericDynProp(generic_prop) = prop.get_prop_data() {
-                if let Err(e) =
-                    HctlFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)
-                {
-                    let issue = format!("> ISSUE with property `{}`: {e}\n", prop_id.as_str());
-                    message += &issue;
-                    dyn_err_found = true;
-                }
+            if let Err(e) = self.assert_dynamic_prop_valid(prop) {
+                message = append_property_issue(&e, prop_id.as_str(), message);
+                dyn_err_found = true;
             }
-            // TODO: rest is not implemented yet
         }
         (!dyn_err_found, message)
     }
+
+    /// Check if all fields of the static property are filled and have valid values.
+    /// If not, return appropriate message.
+    fn assert_static_prop_valid(&self, prop: &StatProperty) -> Result<(), String> {
+        // first just check if all required fields are filled out
+        prop.assert_fully_filled()?;
+
+        // now, let's validate the fields (we know the required ones are filled in)
+        match prop.get_prop_data() {
+            StatPropertyType::GenericStatProp(generic_prop) => {
+                FirstOrderFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)?;
+            }
+            StatPropertyType::FnInputEssential(p)
+            | StatPropertyType::FnInputEssentialContext(p) => {
+                self.assert_fn_valid(p.target.as_ref().unwrap())?;
+                self.assert_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
+                // TODO: add checking for the context formulas
+            }
+            StatPropertyType::FnInputMonotonic(p)
+            | StatPropertyType::FnInputMonotonicContext(p) => {
+                self.assert_fn_valid(p.target.as_ref().unwrap())?;
+                self.assert_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
+                // TODO: add checking for the context formulas
+            }
+            StatPropertyType::RegulationEssential(p)
+            | StatPropertyType::RegulationEssentialContext(p) => {
+                self.assert_var_valid(p.target.as_ref().unwrap())?;
+                self.assert_var_valid(p.input.as_ref().unwrap())?;
+                // TODO: add checking for the context formulas
+            }
+            StatPropertyType::RegulationMonotonic(p)
+            | StatPropertyType::RegulationMonotonicContext(p) => {
+                self.assert_var_valid(p.target.as_ref().unwrap())?;
+                self.assert_var_valid(p.input.as_ref().unwrap())?;
+                // TODO: add checking for the context formulas
+            }
+        }
+        Ok(())
+    }
+
+    /// Check if all fields of the dynamic property are filled and have valid values.
+    /// If not, return appropriate message.
+    fn assert_dynamic_prop_valid(&self, prop: &DynProperty) -> Result<(), String> {
+        // first just check if all required fields are filled out (that is usually the dataset ID)
+        prop.assert_dataset_filled()?;
+
+        // now, let's validate the fields (we know the required ones are filled in)
+        match prop.get_prop_data() {
+            DynPropertyType::GenericDynProp(generic_prop) => {
+                HctlFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)?;
+            }
+            DynPropertyType::HasAttractor(p) => {
+                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
+            }
+            DynPropertyType::ExistsFixedPoint(p) => {
+                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
+            }
+            DynPropertyType::ExistsTrajectory(p) => {
+                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+            }
+            DynPropertyType::ExistsTrapSpace(p) => {
+                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
+            }
+            DynPropertyType::AttractorCount(_) => {} // no fields that can be invalid
+        }
+        Ok(())
+    }
+
+    /// Check that variable is valid in a model. If not, return error with a proper message.
+    fn assert_var_valid(&self, var_id: &VarId) -> Result<(), String> {
+        if self.model.is_valid_var_id(var_id) {
+            Ok(())
+        } else {
+            Err(format!(
+                "Variable `{var_id}` is not a valid variable in the model."
+            ))
+        }
+    }
+
+    /// Check that function is valid in a model. If not, return error with a proper message.
+    fn assert_fn_valid(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        if self.model.is_valid_uninterpreted_fn_id(fn_id) {
+            Ok(())
+        } else {
+            Err(format!(
+                "Function `{fn_id}` is not a valid function in the model."
+            ))
+        }
+    }
+
+    /// Check that input index of uninterpreted function is in range (smaller than the arity).
+    /// If not, return error with a proper message.
+    fn assert_index_valid(&self, index: usize, fn_id: &UninterpretedFnId) -> Result<(), String> {
+        let arity = self.model.get_uninterpreted_fn_arity(fn_id)?;
+        if arity <= index {
+            Err(format!(
+                "Function `{fn_id}` has arity {arity}, input index {index} is invalid."
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Check that dataset is valid. If not, return error with a proper message.
+    fn assert_dataset_valid(&self, dataset_id: &DatasetId) -> Result<(), String> {
+        if self.observations.is_valid_dataset_id(dataset_id) {
+            Ok(())
+        } else {
+            Err(format!("Dataset `{dataset_id}` is not a valid dataset."))
+        }
+    }
+
+    /// Check whether observation is valid in a dataset. If not, return error with a proper message.
+    /// If observation is None, that is also fine.
+    fn assert_obs_valid_or_none(
+        &self,
+        dataset_id: &DatasetId,
+        obs_id: Option<&ObservationId>,
+    ) -> Result<(), String> {
+        if let Some(obs) = obs_id {
+            if self
+                .observations
+                .get_dataset(dataset_id)?
+                .is_valid_observation(obs)
+            {
+                Ok(())
+            } else {
+                Err(format!(
+                    "Observation `{obs}` is not valid in dataset `{dataset_id}`."
+                ))
+            }
+        } else {
+            Ok(())
+        }
+    }
+}
+
+fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> String {
+    let issue = format!("> ISSUE with property `{}`: {description}\n", prop_id);
+    log += &issue;
+    log
 }
