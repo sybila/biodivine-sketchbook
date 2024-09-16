@@ -8,13 +8,15 @@ use biodivine_lib_param_bn::BooleanNetwork;
 use std::cmp::max;
 use std::collections::HashMap;
 
+/// Prepare the symbolic context and generate the symbolic transition graph for
+/// evaluation of the static properties.
+///
+/// TODO: we now only consider generic HCTL properties (other template variants might need special treatment too)
 pub fn prepare_graph_for_dynamic(
     bn: &BooleanNetwork,
     dyn_props: &Vec<DynProperty>,
     unit: Option<(&Bdd, &SymbolicContext)>,
 ) -> Result<SymbolicAsyncGraph, String> {
-    // todo: we now only consider generic HCTL properties (other template variants might need special treatment too)
-
     let mut num_hctl_vars = 0;
     let plain_context = SymbolicContext::new(bn).unwrap();
     for prop in dyn_props {
@@ -32,6 +34,9 @@ pub fn prepare_graph_for_dynamic(
     get_hctl_extended_symbolic_graph(bn, num_hctl_vars as u16, unit)
 }
 
+/// Prepare the symbolic context and generate the symbolic transition graph for
+/// evaluation of HCTL formulas. This means we need to prepare symbolic variables to
+/// cover all variables in these HCTL formulas.
 fn get_hctl_extended_symbolic_graph(
     bn: &BooleanNetwork,
     num_hctl_vars: u16,

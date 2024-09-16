@@ -4,6 +4,7 @@ use crate::sketchbook::model::Monotonicity;
 
 use biodivine_lib_param_bn::BooleanNetwork;
 
+/// Create a FOL formula encoding that a regulation has given monotonicity.
 pub fn encode_regulation_monotonicity(
     input: &str,
     target: &str,
@@ -21,6 +22,7 @@ pub fn encode_regulation_monotonicity(
     encode_monotonicity(number_inputs, index, &fn_name, monotonicity)
 }
 
+/// Create a FOL formula encoding that a regulation has given essentiality.
 pub fn encode_regulation_essentiality(
     input: &str,
     target: &str,
@@ -38,7 +40,8 @@ pub fn encode_regulation_essentiality(
     encode_essentiality(number_inputs, index, &fn_name, essentiality)
 }
 
-/// TODO: add encoding for dual regulations
+/// Create a FOL formula encoding that uninterpreted function's argument (given by the index)
+/// has given monotonicity.
 pub fn encode_monotonicity(
     number_inputs: usize,
     index: usize,
@@ -49,6 +52,15 @@ pub fn encode_monotonicity(
 
     if let Monotonicity::Unknown = monotonicity {
         return "true".to_string();
+    }
+
+    if let Monotonicity::Dual = monotonicity {
+        // dual regulation is not an activation nor inhibition
+        let activation =
+            encode_monotonicity(number_inputs, index, fn_name, Monotonicity::Activation);
+        let inhibition =
+            encode_monotonicity(number_inputs, index, fn_name, Monotonicity::Inhibition);
+        return format!("!({activation}) & !({inhibition})");
     }
 
     let mut quantifier_args = String::new();
@@ -65,8 +77,7 @@ pub fn encode_monotonicity(
                     left_fn_args.push_str("1, ");
                     right_fn_args.push_str("0, ");
                 }
-                // TODO: cant yet deal with Dual regulations
-                _ => todo!(),
+                _ => unreachable!(), // Dual and Unknown monotonicities are handled before
             }
         } else {
             quantifier_args.push_str(format!("x_{i}, ").as_str());
@@ -88,6 +99,8 @@ pub fn encode_monotonicity(
     }
 }
 
+/// Create a FOL formula encoding that uninterpreted function's argument (given by the index)
+/// has given essentiality.
 pub fn encode_essentiality(
     number_inputs: usize,
     index: usize,
@@ -129,10 +142,11 @@ pub fn encode_essentiality(
     match essentiality {
         Essentiality::True => formula,
         Essentiality::False => format!("!({formula})"),
-        Essentiality::Unknown => unreachable!(),
+        Essentiality::Unknown => unreachable!(), // handled before
     }
 }
 
+/// Create a FOL formula encoding that particular formula must hold if "context" formula holds.
 pub fn encode_property_in_context(context_formula: &str, property_formula: &str) -> String {
     format!("{context_formula} => {property_formula}")
 }
@@ -144,11 +158,11 @@ mod tests {
     #[test]
     /// Test encoding of monotonicity for regulations.
     fn test_encoding_regulation_monotonicity() {
-        // dummy model, just to have list of variables and numbers of regulators
+        // dummy model, just to have list of variables and numbers of regulators (types of regulations dont matter)
         let aeon_str = r#"
         A -? B
         B -> C
-        A -> C
+        A -? C
         C -| C
         "#;
         let bn = BooleanNetwork::try_from(aeon_str).unwrap();
@@ -166,6 +180,11 @@ mod tests {
         // encode that regulation A -| B is unknown
         let fol_formula = encode_regulation_monotonicity("A", "B", Monotonicity::Unknown, &bn);
         let expected = "true";
+        assert_eq!(&fol_formula, expected);
+
+        // encode that regulation A -* C is dual
+        let fol_formula = encode_regulation_monotonicity("A", "C", Monotonicity::Dual, &bn);
+        let expected = "!(\\forall x_1, x_2: f_C(0, x_1, x_2) => f_C(1, x_1, x_2)) & !(\\forall x_1, x_2: f_C(1, x_1, x_2) => f_C(0, x_1, x_2))";
         assert_eq!(&fol_formula, expected);
     }
 
@@ -208,6 +227,12 @@ mod tests {
         // encode that fn "g" is negatively monotonic in its only input
         let fol_formula = encode_monotonicity(1, 0, "g", Monotonicity::Activation);
         let expected = "g(0) => g(1)";
+        assert_eq!(&fol_formula, expected);
+
+        // encode that fn "h" is dual in second of two inputs
+        let fol_formula = encode_monotonicity(2, 1, "h", Monotonicity::Dual);
+        let expected =
+            "!(\\forall x_0: h(x_0, 0) => h(x_0, 1)) & !(\\forall x_0: h(x_0, 1) => h(x_0, 0))";
         assert_eq!(&fol_formula, expected);
 
         // encode unknown monotonicity

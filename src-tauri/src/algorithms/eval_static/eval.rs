@@ -4,6 +4,10 @@ use crate::sketchbook::properties::StatProperty;
 use biodivine_lib_param_bn::biodivine_std::traits::Set;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
 
+/// Evaluate given static property.
+///
+/// Currently, we assume that all types of template properties must be already translated
+/// to FOL generic properties.
 pub fn eval_static_prop(
     static_prop: StatProperty,
     graph: &SymbolicAsyncGraph,

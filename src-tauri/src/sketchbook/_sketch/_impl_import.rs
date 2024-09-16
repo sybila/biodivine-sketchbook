@@ -11,7 +11,7 @@ type NamedProperties = Vec<(String, String)>;
 impl Sketch {
     /// Create sketch instance from a AEON model format.
     ///
-    // TODO: aeon format currently does not support template properties (and datasets)
+    // TODO: aeon format currently does not support template properties and datasets.
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
         let mut sketch = Sketch::default();
 

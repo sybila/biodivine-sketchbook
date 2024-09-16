@@ -278,9 +278,7 @@ impl InferenceSolver {
     /// The results are saved to sepcific fields of the provided solver and can be retrieved later.
     /// They are also returned, which is now used for logging later.
     ///
-    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
-    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// static properties, and all but generic dynamic properties.
+    /// TODO: Some parts (like evaluation for template dynamic properties) are still not implemented.
     pub async fn run_inference_async(
         solver: Arc<RwLock<InferenceSolver>>,
         sketch: Sketch,
@@ -291,13 +289,9 @@ impl InferenceSolver {
             solver.check_cancellation()?; // Early check before starting
         }
 
-        /* Todo: Currently, we use this "write lock" to lock the solver for the whole inference.
-         * This makes it impossible to acquire a lock for cancellation or to do intermediate result fetch.
-         * We should make the inference modular in an async sense, so that proper cancellation is possible.
-         *
-         * There is currently a workaround for this - we use a channel for sending progress messages, and
-         * we can use the (non-)existence of the channel as a way to know if the computation was cancelled.
-         */
+        // Currently, we use this "write lock" to lock the solver for the whole inference.
+        // This works since for sending progress messages we dont need a lock - we use a communication channel.
+        // Tthe (non-)existence of the channel as a way to know if the computation was cancelled.
 
         let mut solver_write = solver.write().await;
         let results = match analysis_type {
@@ -336,11 +330,11 @@ impl InferenceSolver {
     /// Extract and convert relevant components from the sketch (boolean network, properties).
     ///
     /// Translates all static properties into Generic properties (by encoding the property to FOL).
+    ///
+    /// TODO: Processing for template dynamic properties is still not implemented.
     fn process_inputs(
         sketch: Sketch,
     ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
-        // todo: at the moment we just use HCTL dynamic properties, and automatically generated regulation properties
-
         let bn = sketch.model.to_bn_with_plain_regulations(None);
         // remove all unused function symbols, as these would cause problems later
         let mut bn = bn.prune_unused_parameters();
@@ -365,8 +359,9 @@ impl InferenceSolver {
 
         let mut static_props = vec![];
         for (id, stat_prop) in sketch.properties.stat_props() {
-            // TODO: encode everything we can into first-order logic (and make it a generic property)
             let name = stat_prop.get_name();
+
+            // currently, everything is encoded into first-order logic (into a "generic" property)
             let stat_prop_processed = match stat_prop.get_prop_data() {
                 StatPropertyType::GenericStatProp(..) => stat_prop.clone(),
                 StatPropertyType::RegulationEssential(prop)
@@ -451,8 +446,6 @@ impl InferenceSolver {
 
     /// Evaluate previously collected static properties, and restrict the unit set of the
     /// graph to the set of valid colors.
-    ///
-    /// TODO: function `eval_static_prop` needs to be finished.
     fn eval_static(&mut self, base_var_name: &str) -> Result<(), String> {
         for stat_property in self.stat_props()?.clone() {
             self.check_cancellation()?; // check if cancellation flag was set during computation
@@ -494,9 +487,7 @@ impl InferenceSolver {
     /// Internal modular variant of the inference. You can choose which parts to select.
     /// For example, you can only consider static properties, only dynamic properties, or all.
     ///
-    /// TODO: This is only a prototype, and considers just parts of the sketch that are easy to
-    /// process at the moment. Some parts are lost, including "dual regulations", some kinds of
-    /// static properties, all but generic dynamic properties.
+    /// TODO: Some parts (like evaluation for template dynamic properties) are still not implemented.
     fn run_inference_modular(
         &mut self,
         analysis_type: AnalysisType,

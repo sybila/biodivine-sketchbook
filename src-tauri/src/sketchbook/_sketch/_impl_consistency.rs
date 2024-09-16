@@ -51,6 +51,8 @@ impl Sketch {
         (all_consitent, message)
     }
 
+    /// Part of the consistency check responsible for the 'model' component.
+    /// Returns bool (whether a model is consistent) and formated message with issues.
     fn check_model(&self) -> (bool, String) {
         let mut consitent = true;
         let mut message = String::new();
@@ -61,10 +63,13 @@ impl Sketch {
             message += "> ISSUE: There must be at least one variable.\n";
         }
 
-        // TODO: in future, we can add check whether update fns match regulation monotonicity
+        // TODO: in future, we can also add a check whether update fns match regulation monotonicity
+
         (consitent, message)
     }
 
+    /// Part of the consistency check responsible for the 'observations' (datasets) component.
+    /// Returns bool (whether a datasets are consistent) and formated message with issues.
     fn check_datasets(&self) -> (bool, String) {
         let mut message = String::new();
         message += "DATASETS:\n";
@@ -88,7 +93,8 @@ impl Sketch {
         (!dataset_err_found, message)
     }
 
-    /// TODO: for templates, add checking for the context formulas and IDs
+    /// Part of the consistency check responsible for the 'static properties' component.
+    /// Returns bool (whether a static properties are consistent) and formated message with issues.
     fn check_static(&self) -> (bool, String) {
         let mut message = String::new();
         message += "STATIC PROPERTIES:\n";
@@ -103,6 +109,8 @@ impl Sketch {
         (!stat_err_found, message)
     }
 
+    /// Part of the consistency check responsible for the 'dynamic properties' component.
+    /// Returns bool (whether a dynamic properties are consistent) and formated message with issues.
     fn check_dynamic(&self) -> (bool, String) {
         let mut message = String::new();
         message += "DYNAMIC PROPERTIES:\n";
@@ -259,6 +267,7 @@ impl Sketch {
     }
 }
 
+/// **(internal)** Simple internal utility to append issue message regarding a particular property.
 fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> String {
     let issue = format!("> ISSUE with property `{}`: {description}\n", prop_id);
     log += &issue;

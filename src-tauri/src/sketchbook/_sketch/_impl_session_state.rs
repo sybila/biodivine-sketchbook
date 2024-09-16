@@ -56,7 +56,7 @@ impl SessionState for Sketch {
             file.read_to_string(&mut contents)?;
 
             // parse the AEON format
-            // TODO: aeon format currently does not support template properties (and datasets)
+            // TODO: aeon format currently does not support template properties and datasets
             let new_sketch = Sketch::from_aeon(&contents)?;
             self.modify_from_sketch(&new_sketch);
 
