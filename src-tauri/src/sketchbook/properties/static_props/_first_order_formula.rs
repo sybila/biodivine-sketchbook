@@ -1,5 +1,5 @@
 use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
-use crate::algorithms::fo_logic::parser::parse_fol_formula;
+use crate::algorithms::fo_logic::parser::{parse_and_minimize_fol_formula, parse_fol_formula};
 use crate::algorithms::fo_logic::utils::*;
 use crate::sketchbook::model::ModelState;
 use biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext;
@@ -62,9 +62,14 @@ impl FirstOrderFormula {
 
 /// Observing first-order formulas.
 impl FirstOrderFormula {
-    /// Str reference version of the first-order formula.
+    /// Reference to a string form of the FOL formula.
     pub fn as_str(&self) -> &str {
         &self.tree.formula_str
+    }
+
+    /// Reference to a syntax tree of the first-order formula.
+    pub fn tree(&self) -> &FolTreeNode {
+        &self.tree
     }
 }
 
@@ -72,12 +77,8 @@ impl FirstOrderFormula {
 impl FirstOrderFormula {
     /// Check if the formula is correctly formed based on predefined FOL syntactic rules.
     pub fn check_pure_syntax(formula: &str) -> Result<(), String> {
-        let res = parse_fol_formula(formula);
-        if res.is_ok() {
-            Ok(())
-        } else {
-            Err(res.err().unwrap())
-        }
+        // we have to provide some placeholder name (for minimization), but it does not matter here
+        parse_and_minimize_fol_formula(formula, "PLACEHOLDER").map(|_| ())
     }
 
     /// Check if the formula is correctly formed based on predefined FO syntactic rules, and also
@@ -86,7 +87,9 @@ impl FirstOrderFormula {
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
         let bn = model.to_bn();
         let ctx = SymbolicContext::new(&bn)?;
-        let tree = parse_fol_formula(formula)?;
+
+        // we have to provide some placeholder name (for minimization), but it does not matter here
+        let tree = parse_and_minimize_fol_formula(formula, "PLACEHOLDER")?;
 
         // check if all functions valid
         let function_symbols = collect_unique_fn_symbols(&tree)?;

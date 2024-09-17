@@ -33,7 +33,6 @@ impl ModelState {
 
     /// Create a new `ModelState` given a corresponding `ModelData` instance.
     ///
-    /// It is not that efficient currently, but should result in correct/consistent model.
     /// TODO: try to rewrite more efficiently without compromising the correctness.
     pub fn new_from_model_data(model_data: &ModelData) -> Result<ModelState, String> {
         // start with variables and plain function symbols (so that they can be used in expressions later)
@@ -597,7 +596,7 @@ impl ModelState {
         }
 
         // substitute id for this uninterpreted fn in all uninterpreted functions' expressions
-        // todo - inefficient
+        // TODO: this is a bit inefficient
         for fn_id in self.uninterpreted_fns.clone().keys() {
             let uninterpreted_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
             let new_uninterpreted_fn = UninterpretedFn::with_substituted_fn_symbol(

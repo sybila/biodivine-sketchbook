@@ -8,13 +8,19 @@ use biodivine_lib_param_bn::BooleanNetwork;
 use std::cmp::max;
 use std::collections::HashMap;
 
+/// Prepare the symbolic context and generate the symbolic transition graph for
+/// evaluation of the static properties.
+///
+/// Since all the static properties are encoded as FOL properties, we just need to
+/// handle this case. This means we need to prepare symbolic variables to cover all
+/// variables in FOL formulas.
 pub fn prepare_graph_for_static(
     bn: &BooleanNetwork,
     static_props: &Vec<StatProperty>,
     base_var_name: &str,
     unit: Option<(&Bdd, &SymbolicContext)>,
 ) -> Result<SymbolicAsyncGraph, String> {
-    // todo: we now only consider generic FOL properties (other template variants might need special treatment too)
+    // we now assume all properties are already encoded into generic FOL properties
 
     let mut num_fol_vars: usize = 0;
     //let plain_context = SymbolicContext::new(&bn).unwrap();
@@ -26,15 +32,16 @@ pub fn prepare_graph_for_static(
                 let num_tree_vars = collect_unique_fol_vars(&tree).len();
                 num_fol_vars = max(num_fol_vars, num_tree_vars);
             }
-            StatPropertyType::RegulationMonotonic(..)
-            | StatPropertyType::RegulationEssential(..) => {}
-            _ => todo!(),
+            _ => unreachable!(), // all properties should be encoded in FOL by now
         }
     }
 
     get_fol_extended_symbolic_graph(bn, num_fol_vars as u16, base_var_name, unit)
 }
 
+/// Prepare the symbolic context and generate the symbolic transition graph for
+/// evaluation of FOL formulas. This means we need to prepare symbolic variables to
+/// cover all variables in FOL formulas.
 fn get_fol_extended_symbolic_graph(
     bn: &BooleanNetwork,
     num_fol_vars: u16,

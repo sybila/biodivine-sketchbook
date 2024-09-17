@@ -35,7 +35,6 @@ pub fn eval_node(node: FolTreeNode, graph: &SymbolicAsyncGraph) -> GraphColoredV
             let name = fn_symbol.name;
             let arguments = arguments.into_iter().map(|a| *a).collect();
             if fn_symbol.is_update_fn {
-                // todo - properly finish update function symbol evaluation
                 eval_applied_update_function(graph, &name, arguments)
             } else {
                 eval_applied_uninterpred_function(graph, &name, arguments)
@@ -151,8 +150,8 @@ fn eval_applied_update_function(
         }
         eval_node(converted_update_fn, graph)
     } else {
-        // we can evaluate the function normally as any other uninterpreted fn
-        eval_applied_uninterpred_function(graph, fn_name, arguments)
+        // we already made sure that empty functions are substituted with expressions "f_v_N(regulator1, ..., regulatorM)"
+        unreachable!()
     }
 }
 

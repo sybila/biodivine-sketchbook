@@ -9,7 +9,7 @@ use std::fmt::{Display, Error, Formatter};
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LayoutNode {
     position: NodePosition,
-    // todo: add other data (visibility, colour, shape, ...)
+    // TODO: add other data in future (visibility, colour, shape, ...)
 }
 
 impl LayoutNode {

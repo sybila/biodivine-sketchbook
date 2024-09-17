@@ -250,8 +250,8 @@ impl ModelState {
             }
 
             // TODO: all changes to update functions (where this variable appears) must be
-            // TODO: propagated to the frontend -- for now, frontend just refreshes the content
-            // TODO: afterwards, but could probably be avoided...
+            //       propagated to the frontend -- for now, frontend just refreshes the content
+            //       afterwards, but that could probably be avoided...
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_var_id_by_str(var_id.as_str(), new_id.as_str())?;

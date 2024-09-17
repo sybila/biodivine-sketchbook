@@ -101,8 +101,15 @@ impl AnalysisState {
     pub fn initiate_reset(&mut self) {
         if let Some(solver) = &self.solver {
             let solver: Arc<RwLock<InferenceSolver>> = Arc::clone(solver);
+
+            // there are two ways to cancel the computation
+            // 1) when we set the communiaction channel (receiver_channel) to None, the solver
+            //    recognizes that and finishes
+            // 2) we spawn a thread to wait to achieve this "write lock" to the solver, and send it
+            //    cancel flag directly
+
+            // this corresponds to method 2, which is now just a backup mechanism to 1
             tokio::spawn(async move {
-                // todo: currently, we wait to achieve this "write lock" until whole inference finishes...
                 solver.write().await.cancel();
             });
         }

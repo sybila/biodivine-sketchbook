@@ -32,6 +32,8 @@ export default class PropertiesEditor extends LitElement {
   @query('#add-static-property-button') declare addStaticPropertyElement: HTMLElement
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
+  // visibility of automatically generated regulation properties
+  @state() showRegulationProperties = true; 
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
@@ -287,6 +289,11 @@ export default class PropertiesEditor extends LitElement {
     }
   }
 
+  toggleRegulationPropertiesVisibility(): void {
+    this.showRegulationProperties = !this.showRegulationProperties;
+  }
+
+
   render (): TemplateResult {
     return html`
       <div id="dynamic-property-menu" class="menu-content">
@@ -329,6 +336,11 @@ export default class PropertiesEditor extends LitElement {
                       + Add
               </button>
             </div>
+            <div class="uk-margin-small">
+              <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleRegulationPropertiesVisibility}">
+                ${this.showRegulationProperties ? 'Hide' : 'Show'} Generated Regulation Properties
+              </button>
+            </div>
             ${this.contentData?.staticProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No static properties defined</span></div>` : ''}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
@@ -339,11 +351,16 @@ export default class PropertiesEditor extends LitElement {
                                       .property=${prop}>
                       </static-generic>`
                   case StaticPropertyType.FunctionInputEssential:
-                  case StaticPropertyType.VariableRegulationEssential:
                     return html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
                       </static-input-essential>`
+                  case StaticPropertyType.VariableRegulationEssential:
+                    // Only render if showRegulationProperties is true
+                    return this.showRegulationProperties ? html`
+                      <static-input-essential .index=${index}
+                                              .property=${prop}>
+                      </static-input-essential>` : ''
                   case StaticPropertyType.FunctionInputEssentialWithCondition:
                   case StaticPropertyType.VariableRegulationEssentialWithCondition:
                     return html`
@@ -352,11 +369,16 @@ export default class PropertiesEditor extends LitElement {
                                                         .property=${prop}>
                       </static-input-essential-condition>`
                   case StaticPropertyType.FunctionInputMonotonic:
-                  case StaticPropertyType.VariableRegulationMonotonic:
                     return html`
                       <static-input-monotonic .index=${index}
                                               .property=${prop}>
                       </static-input-monotonic>`
+                  case StaticPropertyType.VariableRegulationMonotonic:
+                    // Only render if showRegulationProperties is true
+                    return this.showRegulationProperties ? html`
+                      <static-input-essential .index=${index}
+                                              .property=${prop}>
+                      </static-input-essential>` : ''
                   case StaticPropertyType.FunctionInputMonotonicWithCondition:
                   case StaticPropertyType.VariableRegulationMonotonicWithCondition:
                     return html`

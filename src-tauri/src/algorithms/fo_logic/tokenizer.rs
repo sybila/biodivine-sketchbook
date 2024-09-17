@@ -319,10 +319,11 @@ fn print_tokens_recursively(tokens: &Vec<FolToken>) {
             FolToken::TokenList(token_vec) => print_tokens_recursively(token_vec),
             FolToken::Function(name, args) => {
                 print!("{name}(");
-                for arg in args {
+                for (idx, arg) in args.iter().enumerate() {
                     print_tokens_recursively(&vec![arg.clone()]);
-                    // todo: one more "," than needed
-                    print!(",")
+                    if idx < args.len() {
+                        print!(",")
+                    }
                 }
                 print!(")")
             }

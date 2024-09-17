@@ -141,7 +141,7 @@ impl ModelState {
             }
 
             // TODO: all changes to update/uninterpreted functions (where this function symbol
-            // TODO: appears) must be propagated to the frontend
+            //       appears) must be propagated to the frontend
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             self.set_uninterpreted_fn_id_by_str(fn_id.as_str(), new_id.as_str())?;

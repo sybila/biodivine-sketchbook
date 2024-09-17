@@ -1,0 +1,17 @@
+## PROPERTIES
+#! dynamic_property: attr1: #`(3{x}: (@{x}: (~CckA & ~ChpT & ClpXP_RcdA & ~CpdR & ~CtrAb & DivJ & DivK & ~DivL & ~PleC & (AG EF(~CckA & ~ChpT & ClpXP_RcdA & ~CpdR & ~CtrAb & DivJ & DivK & ~DivL & ~PleC)))))`#
+#! dynamic_property: attr2: #`(3{x}: (@{x}: (CckA & ChpT & ~ClpXP_RcdA & CpdR & CtrAb & ~DivJ & ~DivK & DivL & PleC & (AG EF (CckA & ChpT & ~ClpXP_RcdA & CpdR & CtrAb & ~DivJ & ~DivK & DivL & PleC)))))`#
+
+## MODEL
+DivK -? DivL
+DivL -? CckA
+CckA -? ChpT
+ChpT -? CpdR
+CpdR -? ClpXP_RcdA
+ChpT -? CtrAb
+ClpXP_RcdA -? CtrAb
+DivJ -? DivK
+PleC -? DivK
+DivK -? DivJ
+PleC -? DivJ
+DivK -? PleC

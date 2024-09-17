@@ -8,7 +8,7 @@ use std::fmt::{Display, Error, Formatter};
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Variable {
     name: String,
-    // todo: add compartment and more
+    // TODO: add compartments in future
 }
 
 impl Variable {

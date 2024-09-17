@@ -103,7 +103,7 @@ impl ModelState {
             self.remove_layout(&layout_id)?;
             let state_change = mk_model_state_change(&["layout", "remove"], &layout_data);
 
-            // todo make reversible in the future?
+            // TODO: make this reversible in the future?
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: true,
