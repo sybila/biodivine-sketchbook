@@ -3,7 +3,7 @@ use crate::sketchbook::properties::DynProperty;
 use biodivine_hctl_model_checker::model_checking::model_check_formula_dirty;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
 
-/// Evaluate given static property.
+/// Evaluate given dynamic property given the transition graph.
 ///
 /// TODO: We still need to handle template properties.
 pub fn eval_dyn_prop(
