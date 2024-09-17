@@ -33,7 +33,7 @@ export default class PropertiesEditor extends LitElement {
   @state() addDynamicMenuVisible = false
   @state() addStaticMenuVisible = false
   // visibility of automatically generated regulation properties
-  @state() showRegulationProperties = true; 
+  @state() showRegulationProperties = true
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
@@ -289,10 +289,9 @@ export default class PropertiesEditor extends LitElement {
     }
   }
 
-  toggleRegulationPropertiesVisibility(): void {
-    this.showRegulationProperties = !this.showRegulationProperties;
+  toggleRegulationPropertiesVisibility (): void {
+    this.showRegulationProperties = !this.showRegulationProperties
   }
-
 
   render (): TemplateResult {
     return html`
@@ -357,10 +356,12 @@ export default class PropertiesEditor extends LitElement {
                       </static-input-essential>`
                   case StaticPropertyType.VariableRegulationEssential:
                     // Only render if showRegulationProperties is true
-                    return this.showRegulationProperties ? html`
+                    return this.showRegulationProperties
+? html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
-                      </static-input-essential>` : ''
+                      </static-input-essential>`
+: ''
                   case StaticPropertyType.FunctionInputEssentialWithCondition:
                   case StaticPropertyType.VariableRegulationEssentialWithCondition:
                     return html`
@@ -375,10 +376,12 @@ export default class PropertiesEditor extends LitElement {
                       </static-input-monotonic>`
                   case StaticPropertyType.VariableRegulationMonotonic:
                     // Only render if showRegulationProperties is true
-                    return this.showRegulationProperties ? html`
+                    return this.showRegulationProperties
+? html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
-                      </static-input-essential>` : ''
+                      </static-input-essential>`
+: ''
                   case StaticPropertyType.FunctionInputMonotonicWithCondition:
                   case StaticPropertyType.VariableRegulationMonotonicWithCondition:
                     return html`
