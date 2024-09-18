@@ -1,7 +1,5 @@
 use crate::sketchbook::ids::{DatasetId, ObservationId, VarId};
-use crate::sketchbook::observations::{
-    DataCategory, Dataset, DatasetIterator, Observation, ObservationManager,
-};
+use crate::sketchbook::observations::{Dataset, DatasetIterator, Observation, ObservationManager};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
@@ -161,20 +159,6 @@ impl ObservationManager {
         self.remove_var(&dataset_id, &var_id)
     }
 
-    /// Set the category of data for this dataset.
-    pub fn set_category(
-        &mut self,
-        dataset_id: &DatasetId,
-        category: DataCategory,
-    ) -> Result<(), String> {
-        self.assert_valid_dataset(dataset_id)?;
-        self.datasets
-            .get_mut(dataset_id)
-            .unwrap()
-            .set_category(category);
-        Ok(())
-    }
-
     /// Remove the dataset with given `id` from this manager.
     /// Returns `Err` in case the `id` is not a valid dataset's identifier.
     pub fn remove_dataset(&mut self, id: &DatasetId) -> Result<(), String> {
@@ -296,8 +280,8 @@ mod tests {
         let manager = ObservationManager::new_empty();
         assert_eq!(manager.num_datasets(), 0);
 
-        let d1 = Dataset::new_unspecified(vec![], vec!["a", "b"]).unwrap();
-        let d2 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        let d1 = Dataset::new(vec![], vec!["a", "b"]).unwrap();
+        let d2 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
         let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
         let manager = ObservationManager::from_datasets(dataset_list).unwrap();
         assert_eq!(manager.num_datasets(), 2);
@@ -313,20 +297,20 @@ mod tests {
         let o1 = Observation::try_from_str("*", "o").unwrap();
         let o2 = Observation::try_from_str("0", "p").unwrap();
 
-        let d1 = Dataset::new_unspecified(vec![o1, o2], vec!["a"]).unwrap();
-        let d2 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        let d1 = Dataset::new(vec![o1, o2], vec!["a"]).unwrap();
+        let d2 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
         let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
 
         let mut manager = ObservationManager::from_datasets(dataset_list).unwrap();
         assert_eq!(manager.num_datasets(), 2);
 
         // add dataset
-        let d3 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        let d3 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
         manager.add_dataset_by_str("d3", d3.clone()).unwrap();
         assert_eq!(manager.num_datasets(), 3);
 
         // try adding dataset with the same ID again (should fail)
-        let d3 = Dataset::new_unspecified(vec![], vec!["a", "c"]).unwrap();
+        let d3 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
         assert!(manager.add_multiple_datasets(vec![("d3", d3)]).is_err());
         assert_eq!(manager.num_datasets(), 3);
 
@@ -344,7 +328,7 @@ mod tests {
     fn test_edit_dataset() {
         let o1 = Observation::try_from_str("*1", "o").unwrap();
         let o2 = Observation::try_from_str("00", "p").unwrap();
-        let d1 = Dataset::new_unspecified(vec![o1, o2], vec!["a", "b"]).unwrap();
+        let d1 = Dataset::new(vec![o1, o2], vec!["a", "b"]).unwrap();
         let dataset_list = vec![("dataset1", d1.clone())];
         let mut manager = ObservationManager::from_datasets(dataset_list).unwrap();
 
@@ -354,7 +338,7 @@ mod tests {
         assert!(manager.get_dataset_id("d1").is_ok());
 
         // try setting content
-        let new_dataset = Dataset::new_unspecified(vec![], vec!["a", "b"]).unwrap();
+        let new_dataset = Dataset::new(vec![], vec!["a", "b"]).unwrap();
         manager
             .swap_dataset_content_by_str("d1", new_dataset.clone())
             .unwrap();

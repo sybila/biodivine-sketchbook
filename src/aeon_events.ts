@@ -3,7 +3,6 @@ import { dialog, invoke } from '@tauri-apps/api'
 import {
   Monotonicity,
   Essentiality,
-  DataCategory,
   type DynamicProperty,
   type StaticProperty,
   type DynamicPropertyType,
@@ -232,9 +231,9 @@ interface AeonState {
 
       /** DatasetData for a newly created dataset. */
       datasetCreated: Observable<DatasetData>
-      /** Create a new dataset with given ID, variables, observations, and category. */
-      addDataset: (id: string, variables: string[], observations: ObservationData[], category: DataCategory) => void
-      /** Create a new empty dataset of unspecified category. */
+      /** Create a new dataset with given ID, variables, and observations. */
+      addDataset: (id: string, variables: string[], observations: ObservationData[]) => void
+      /** Create a new empty dataset. */
       addDefaultDataset: () => void
       /** DatasetData for a newly loaded dataset (from a csv file).
        *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
@@ -253,10 +252,6 @@ interface AeonState {
       datasetContentChanged: Observable<DatasetData>
       /** Set content (variables, observations - everything) of dataset with given ID. */
       setDatasetContent: (id: string, newContent: DatasetData) => void
-      /** DatasetMetaData (with updated `category`) of a modified dataset. */
-      datasetCategoryChanged: Observable<DatasetMetaData>
-      /** Set category of dataset with given ID. */
-      setDatasetCategory: (id: string, newCategory: DataCategory) => void
       /** DatasetMetaData (with updated `variables`) of a modified dataset. */
       datasetVariableChanged: Observable<DatasetMetaData>
       /** Set variable's ID within a specified dataset. */
@@ -482,7 +477,6 @@ export interface DatasetData {
   id: string
   observations: ObservationData[]
   variables: string[]
-  category: DataCategory
 }
 
 /**
@@ -492,7 +486,6 @@ export interface DatasetData {
 export interface DatasetMetaData {
   id: string
   variables: [string]
-  category: DataCategory
 }
 
 /** An object representing information needed for loading a dataset. */
@@ -1238,7 +1231,6 @@ export const aeonState: AeonState = {
       datasetRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove']),
       datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
       datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
-      datasetCategoryChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_category']),
       datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
       datasetVariableRemoved: new Observable<DatasetMetaData>(['sketch', 'observations', 'remove_var']),
 
@@ -1248,14 +1240,13 @@ export const aeonState: AeonState = {
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
 
-      addDataset (id: string, variables: string[], observations: ObservationData[], category: DataCategory = DataCategory.UNSPECIFIED): void {
+      addDataset (id: string, variables: string[], observations: ObservationData[]): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', 'add'],
           payload: JSON.stringify({
             id,
             variables,
-            observations,
-            category
+            observations
           })
         })
       },
@@ -1287,12 +1278,6 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', id, 'set_content'],
           payload: JSON.stringify(newContent)
-        })
-      },
-      setDatasetCategory (id: string, newCategory: DataCategory): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'observations', id, 'set_category'],
-          payload: JSON.stringify(newCategory)
         })
       },
       setDatasetVariable (datasetId: string, originalId: string, newId: string): void {

@@ -3,26 +3,24 @@ use crate::app::state::SessionState;
 use crate::sketchbook::_tests_events::{check_reverse, stringify_path};
 use crate::sketchbook::data_structs::*;
 use crate::sketchbook::ids::DatasetId;
-use crate::sketchbook::observations::{DataCategory, Dataset, Observation, ObservationManager};
+use crate::sketchbook::observations::{Dataset, Observation, ObservationManager};
 use crate::sketchbook::JsonSerde;
 
-/// Prepare a simple dataset with 3 variables and 2 observations (of fixed-point type).
+/// Prepare a simple dataset with 3 variables and 2 observations.
 fn prepare_dataset_3v_2o() -> Dataset {
     let obs1 = Observation::try_from_str("*11", "o1").unwrap();
     let obs2 = Observation::try_from_str("000", "o2").unwrap();
     let obs_list = vec![obs1, obs2];
     let var_names = vec!["a", "b", "c"];
-    let obs_type = DataCategory::FixedPoint;
-    Dataset::new(obs_list.clone(), var_names.clone(), obs_type).unwrap()
+    Dataset::new(obs_list.clone(), var_names.clone()).unwrap()
 }
 
-/// Prepare a simple dataset with 2 variables and 1 observation (of unspecified type).
+/// Prepare a simple dataset with 2 variables and 1 observation.
 fn prepare_dataset_2v_1o() -> Dataset {
     let obs1 = Observation::try_from_str("11", "o1").unwrap();
     let obs_list = vec![obs1];
     let var_names = vec!["v1", "v2"];
-    let obs_type = DataCategory::Unspecified;
-    Dataset::new(obs_list.clone(), var_names.clone(), obs_type).unwrap()
+    Dataset::new(obs_list.clone(), var_names.clone()).unwrap()
 }
 
 #[test]
@@ -70,16 +68,7 @@ fn test_set_dataset_fields() {
     assert!(manager.get_dataset_by_str("d2").is_ok());
     check_reverse(&mut manager, &manager_orig, result, &["d2", "set_id"]);
 
-    // 2) event to set dataset's type
-    let new_type = DataCategory::Unspecified;
-    let full_path = ["observations", "d1", "set_category"];
-    let event = Event::build(&full_path, Some(&new_type.to_json_str()));
-    let result = manager.perform_event(&event, &full_path[1..]).unwrap();
-    let current_type = manager.get_dataset_by_str("d1").unwrap().category();
-    assert_eq!(current_type, &new_type);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "set_category"]);
-
-    // 3) event to change dataset's inner "data"
+    // 2) event to change dataset's inner "data"
     let d2 = prepare_dataset_2v_1o();
     let d2_id = DatasetId::new("this_doesnt_matter").unwrap();
     let d2_data = DatasetData::from_dataset(&d2_id, &d2);
@@ -89,7 +78,7 @@ fn test_set_dataset_fields() {
     assert_eq!(manager.get_dataset_by_str("d1").unwrap().num_variables(), 2);
     check_reverse(&mut manager, &manager_orig, result, &["d1", "set_content"]);
 
-    // 4) event to change one of dataset's variables
+    // 3) event to change one of dataset's variables
     let full_path = ["observations", "d1", "set_var_id"];
     let payload = ChangeIdData::new("a", "xyz").to_json_str();
     let event = Event::build(&full_path, Some(&payload));

@@ -1,19 +1,15 @@
 use crate::sketchbook::ids::{ObservationId, VarId};
-use crate::sketchbook::observations::{DataCategory, Dataset, Observation, VarValue};
+use crate::sketchbook::observations::{Dataset, Observation, VarValue};
 use crate::sketchbook::utils::assert_ids_unique;
 use std::collections::HashMap;
 
 /// Creating new `Dataset` instances.
 impl Dataset {
-    /// Create new dataset from a list of observations, variables, and type of the observations.
+    /// Create new dataset from a list of observations and variables.
     ///
     /// Length of each observation and number of variables must match.
     /// Observation IDs must be valid identifiers and must be unique.
-    pub fn new(
-        observations: Vec<Observation>,
-        var_names: Vec<&str>,
-        category: DataCategory,
-    ) -> Result<Self, String> {
+    pub fn new(observations: Vec<Observation>, var_names: Vec<&str>) -> Result<Self, String> {
         // check that all variables are unique and valid, same for observation IDs
         let variables = Self::try_convert_vars(&var_names)?;
         assert_ids_unique(&variables)?;
@@ -36,26 +32,13 @@ impl Dataset {
         Ok(Self {
             observations,
             variables,
-            category,
             index_map,
         })
     }
 
-    /// Shorthand to create new `empty` dataset from given variables and observations category.
-    pub fn new_empty(var_names: Vec<&str>, category: DataCategory) -> Result<Self, String> {
-        Self::new(Vec::new(), var_names, category)
-    }
-
-    /// Shorthand to create a new dataset with `unspecified` type of observations, given
-    /// a list of observations, variables.
-    ///
-    /// Length of observations and number of variables must match.
-    /// Lists of observations and variables must not be empty.
-    pub fn new_unspecified(
-        observations: Vec<Observation>,
-        var_names: Vec<&str>,
-    ) -> Result<Self, String> {
-        Dataset::new(observations, var_names, DataCategory::Unspecified)
+    /// Shorthand to create new `empty` dataset over given variables.
+    pub fn new_empty(var_names: Vec<&str>) -> Result<Self, String> {
+        Self::new(Vec::new(), var_names)
     }
 
     /// **(internal)** Try converting variables string slices into VarIDs.
@@ -223,11 +206,6 @@ impl Dataset {
         let new_id = ObservationId::new(new_id)?;
         self.set_obs_id(&original_id, new_id)
     }
-
-    /// Set the category of data for this dataset.
-    pub fn set_category(&mut self, category: DataCategory) {
-        self.category = category;
-    }
 }
 
 /// Observing `Dataset` instances.
@@ -318,11 +296,6 @@ impl Dataset {
             ))
     }
 
-    /// Category of the data.
-    pub fn category(&self) -> &DataCategory {
-        &self.category
-    }
-
     /// Make a string describing this `Dataset` in a human-readable format.
     /// If `list_all` is set to `true`, all observation vectors are listed. Otherwise, just
     /// a summary is given (number of observations).
@@ -330,7 +303,6 @@ impl Dataset {
     /// This is mainly for debug purposes, as it is different than classical string serialization.
     pub fn to_debug_string(&self, list_all: bool) -> String {
         let len = self.observations.len();
-        let category = self.category.to_string();
 
         let mut var_string = String::new();
         for variable in &self.variables {
@@ -339,7 +311,7 @@ impl Dataset {
         var_string = var_string.strip_suffix(", ").unwrap().to_string();
 
         if !list_all {
-            return format!("{len} `{category}` observations with vars [{var_string}]");
+            return format!("{len} observations with vars [{var_string}]");
         }
 
         let mut obs_string = String::new();
@@ -348,7 +320,7 @@ impl Dataset {
         }
         obs_string = obs_string.strip_suffix(", ").unwrap().to_string();
 
-        format!("{len} `{category}` observations with vars [{var_string}]: [{obs_string}]")
+        format!("{len} observations with vars [{var_string}]: [{obs_string}]")
     }
 
     /// **(internal)** Utility method to ensure there is no observation with given ID yet.
@@ -394,7 +366,7 @@ impl Dataset {
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
+    use crate::sketchbook::observations::{Dataset, Observation};
 
     #[test]
     /// Test that valid datasets are created correctly.
@@ -403,21 +375,14 @@ mod tests {
         let obs2 = Observation::try_from_str("000", "i2").unwrap();
         let obs_list = vec![obs1, obs2];
         let var_names = vec!["a", "b", "c"];
-        let data_type = DataCategory::FixedPoint;
 
-        let dataset = Dataset::new_empty(var_names.clone(), data_type).unwrap();
+        let dataset = Dataset::new_empty(var_names.clone()).unwrap();
         assert_eq!(dataset.num_observations(), 0);
         assert_eq!(dataset.num_variables(), 3);
 
-        let dataset = Dataset::new(obs_list.clone(), var_names.clone(), data_type).unwrap();
+        let dataset = Dataset::new(obs_list.clone(), var_names.clone()).unwrap();
         assert_eq!(dataset.num_observations(), 2);
         assert_eq!(dataset.num_variables(), 3);
-        assert_eq!(dataset.category(), &data_type);
-
-        let dataset = Dataset::new_unspecified(obs_list.clone(), var_names.clone()).unwrap();
-        assert_eq!(dataset.num_observations(), 2);
-        assert_eq!(dataset.num_variables(), 3);
-        assert_eq!(dataset.category(), &DataCategory::Unspecified);
     }
 
     #[test]
@@ -426,20 +391,19 @@ mod tests {
         let obs1 = Observation::try_from_str("*1", "i1").unwrap();
         let obs2 = Observation::try_from_str("000", "i2").unwrap();
         let var_names = vec!["a", "b"];
-        let data_type = DataCategory::Unspecified;
 
         // two cases where length of observation and number variables differs
         let observations = vec![obs2.clone()];
-        let obs_list = Dataset::new(observations, var_names.clone(), data_type);
+        let obs_list = Dataset::new(observations, var_names.clone());
         assert!(obs_list.is_err());
 
         let observations = vec![obs1.clone(), obs2.clone()];
-        let obs_list = Dataset::new(observations, var_names.clone(), data_type);
+        let obs_list = Dataset::new(observations, var_names.clone());
         assert!(obs_list.is_err());
 
         // trying to add observation with the same id twice
         let observations = vec![obs1.clone(), obs1.clone()];
-        let obs_list = Dataset::new(observations, var_names.clone(), data_type);
+        let obs_list = Dataset::new(observations, var_names.clone());
         assert!(obs_list.is_err());
     }
 
@@ -450,9 +414,8 @@ mod tests {
         let obs2 = Observation::try_from_str("00", "p").unwrap();
         let obs3 = Observation::try_from_str("11", "q").unwrap();
 
-        let data_type = DataCategory::Attractor;
         let initial_obs_list = vec![obs1.clone(), obs2.clone()];
-        let mut dataset = Dataset::new(initial_obs_list, vec!["a", "b"], data_type).unwrap();
+        let mut dataset = Dataset::new(initial_obs_list, vec!["a", "b"]).unwrap();
 
         // add observation
         dataset.push_observation(obs3.clone()).unwrap();
@@ -482,8 +445,7 @@ mod tests {
     fn test_set_observation_id() {
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let data_type = DataCategory::Attractor;
-        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"], data_type).unwrap();
+        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"]).unwrap();
 
         // valid case
         dataset.set_obs_id_by_str("o", "o2").unwrap();
@@ -499,8 +461,7 @@ mod tests {
     #[test]
     /// Test changing variable's ID (both valid and invalid cases).
     fn test_set_var_id() {
-        let data_type = DataCategory::Attractor;
-        let mut dataset = Dataset::new_empty(vec!["a", "b"], data_type).unwrap();
+        let mut dataset = Dataset::new_empty(vec!["a", "b"]).unwrap();
 
         // valid case
         dataset.set_var_id_by_str("a", "a2").unwrap();
@@ -515,14 +476,13 @@ mod tests {
     fn test_remove_variable() {
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let data_type = DataCategory::Attractor;
-        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"], data_type).unwrap();
+        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"]).unwrap();
         dataset.remove_var_by_str("a").unwrap();
 
         let obs1_expected = Observation::try_from_str("1", "o").unwrap();
         let obs2_expected = Observation::try_from_str("0", "p").unwrap();
         let obs_expected = vec![obs1_expected, obs2_expected];
-        let dataset_expected = Dataset::new(obs_expected, vec!["b"], data_type).unwrap();
+        let dataset_expected = Dataset::new(obs_expected, vec!["b"]).unwrap();
 
         assert_eq!(dataset, dataset_expected);
     }
@@ -532,14 +492,13 @@ mod tests {
     fn test_add_variable_default() {
         let obs1 = Observation::try_from_str("1", "o").unwrap();
         let obs2 = Observation::try_from_str("0", "p").unwrap();
-        let data_type = DataCategory::Attractor;
-        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["b"], data_type).unwrap();
+        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["b"]).unwrap();
         dataset.add_var_default_by_str("a", 0).unwrap();
 
         let obs1_expected = Observation::try_from_str("*1", "o").unwrap();
         let obs2_expected = Observation::try_from_str("*0", "p").unwrap();
         let obs_expected = vec![obs1_expected, obs2_expected];
-        let dataset_expected = Dataset::new(obs_expected, vec!["a", "b"], data_type).unwrap();
+        let dataset_expected = Dataset::new(obs_expected, vec!["a", "b"]).unwrap();
 
         assert_eq!(dataset, dataset_expected);
     }
@@ -549,11 +508,10 @@ mod tests {
     fn test_debug_str() {
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let data_type = DataCategory::Attractor;
-        let dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"], data_type).unwrap();
+        let dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"]).unwrap();
 
-        let full_str = "2 `Attractor` observations with vars [a, b]: [o(*1), p(00)]";
-        let short_str = "2 `Attractor` observations with vars [a, b]";
+        let full_str = "2 observations with vars [a, b]: [o(*1), p(00)]";
+        let short_str = "2 observations with vars [a, b]";
         assert_eq!(dataset.to_debug_string(true), full_str.to_string());
         assert_eq!(dataset.to_debug_string(false), short_str.to_string());
     }

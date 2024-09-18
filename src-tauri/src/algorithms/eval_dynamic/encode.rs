@@ -1,4 +1,4 @@
-use crate::sketchbook::observations::{DataCategory, Dataset, Observation, VarValue};
+use crate::sketchbook::observations::{Observation, VarValue};
 use crate::sketchbook::properties::HctlFormula;
 
 /// Encode an observation by a (propositional) formula depicting the corresponding state/sub-space.
@@ -23,15 +23,6 @@ pub fn try_encode_multiple_observations(
         .iter()
         .map(|f| HctlFormula::try_from_str(f))
         .collect::<Result<Vec<HctlFormula>, String>>()
-}
-
-/// Encode a dataset of observations as a single HCTL formula. The particular formula
-/// template is chosen depending on the type of data (attractor data, time-series, ...).
-///
-/// Only data with their type specified can be encoded.
-pub fn try_encode_dataset_hctl(dataset: &Dataset) -> Result<HctlFormula, String> {
-    let formula = encode_dataset_hctl_str(dataset)?;
-    HctlFormula::try_from_str(&formula)
 }
 
 /// Encode binarized observation with a formula depicting the corresponding state/sub-space.
@@ -77,32 +68,6 @@ fn encode_multiple_observations_str(
         .iter()
         .map(|o| encode_observation_str(o, prop_names))
         .collect::<Result<Vec<String>, String>>()
-}
-
-/// Encode a dataset of observations as a single HCTL formula. The particular formula
-/// template is chosen depending on the type of data (attractor data, time-series, ...).
-///
-/// Only data with their type specified can be encoded.
-///
-/// a) Time series are encoded as "reachability chain", see [mk_formula_reachability_chain].
-/// b) Fixed-point dataset is encoded as a conjunction of "steady-state formulas",
-///    (see [mk_formula_fixed_point_set]) that ensures each observation correspond to a fixed point.
-/// c) Attractor dataset is encoded as a conjunction of "attractor formulas",
-///    (see [mk_formula_attractor_set]) that ensures each observation correspond to an attractor.
-fn encode_dataset_hctl_str(observation_list: &Dataset) -> Result<String, String> {
-    let variables_strings = observation_list
-        .variables()
-        .iter()
-        .map(|v| v.to_string())
-        .collect::<Vec<String>>();
-    let encoded_observations =
-        encode_multiple_observations_str(observation_list.observations(), &variables_strings)?;
-    match observation_list.category() {
-        DataCategory::Attractor => Ok(mk_formula_attractor_set(&encoded_observations)),
-        DataCategory::FixedPoint => Ok(mk_formula_fixed_point_set(&encoded_observations)),
-        DataCategory::TimeSeries => Ok(mk_formula_reachability_chain(&encoded_observations)),
-        DataCategory::Unspecified => Err("Cannot encode data with unspecified type".to_string()),
-    }
 }
 
 /// Create a formula describing the existence of a attractor containing specific state.
@@ -311,7 +276,7 @@ pub fn mk_formula_reachability_chain(states_sequence: &[String]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sketchbook::observations::{DataCategory, Dataset, Observation};
+    use crate::sketchbook::observations::Observation;
 
     #[test]
     /// Test encoding of an observation.
@@ -348,52 +313,6 @@ mod tests {
         let multiple_encoded =
             encode_multiple_observations_str(&vec![obs1, obs2, obs3], &prop_names).unwrap();
         assert_eq!(multiple_encoded, vec![encoded1, encoded2, encoded3]);
-    }
-
-    #[test]
-    /// Test encodings various kinds of datasets.
-    fn test_dataset_encoding() {
-        let observation1 = Observation::try_from_str("110", "obs1").unwrap();
-        let observation2 = Observation::try_from_str("1*1", "obs2").unwrap();
-        let raw_observations = vec![observation1, observation2];
-        let var_names = vec!["a", "b", "c"];
-
-        let attr_observations = Dataset::new(
-            raw_observations.clone(),
-            var_names.clone(),
-            DataCategory::Attractor,
-        );
-        assert_eq!(
-            &encode_dataset_hctl_str(&attr_observations.unwrap()).unwrap(),
-            "((3{x}: (@{x}: ((a & b & ~c) & (AG EF ((a & b & ~c) & {x}))))) & (3{x}: (@{x}: ((a & c) & (AG EF ((a & c) & {x}))))))",
-        );
-
-        let fixed_point_observations = Dataset::new(
-            raw_observations.clone(),
-            var_names.clone(),
-            DataCategory::FixedPoint,
-        );
-        assert_eq!(
-            &encode_dataset_hctl_str(&fixed_point_observations.unwrap()).unwrap(),
-            "((3{x}: (@{x}: ((a & b & ~c) & (AX ((a & b & ~c) & {x}))))) & (3{x}: (@{x}: ((a & c) & (AX ((a & c) & {x}))))))",
-        );
-
-        let time_series_observations = Dataset::new(
-            raw_observations.clone(),
-            var_names.clone(),
-            DataCategory::TimeSeries,
-        );
-        assert_eq!(
-            &encode_dataset_hctl_str(&time_series_observations.unwrap()).unwrap(),
-            "(3{x}: (@{x}: ((a & b & ~c)) & EF ((a & c))))",
-        );
-
-        let unspecified_observations = Dataset::new(
-            raw_observations.clone(),
-            var_names.clone(),
-            DataCategory::Unspecified,
-        );
-        assert!(encode_dataset_hctl_str(&unspecified_observations.unwrap()).is_err());
     }
 
     #[test]

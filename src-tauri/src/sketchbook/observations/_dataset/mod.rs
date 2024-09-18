@@ -1,5 +1,5 @@
 use crate::sketchbook::ids::{ObservationId, VarId};
-use crate::sketchbook::observations::{DataCategory, Observation};
+use crate::sketchbook::observations::Observation;
 use crate::sketchbook::{JsonSerde, Manager};
 use std::collections::HashMap;
 
@@ -12,7 +12,7 @@ mod _impl_id_generating;
 /// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `Dataset`.
 mod _impl_serde;
 
-/// An ordered list of observations (of potentially specified type) for given variables.
+/// An ordered list of observations for given variables.
 /// The order is important for some datasets, for example, to be able to capture time series.
 ///
 /// `Dataset` provides classical Rust API for modifications. It also manages its observations
@@ -24,8 +24,6 @@ pub struct Dataset {
     observations: Vec<Observation>,
     /// Variables captured by the observations.
     variables: Vec<VarId>,
-    /// Category of this dataset.
-    category: DataCategory,
     /// Index map from observation IDs to their index in vector, for faster searching.
     index_map: HashMap<ObservationId, usize>,
 }
@@ -37,8 +35,8 @@ impl<'de> JsonSerde<'de> for Dataset {}
 impl Manager for Dataset {}
 
 impl Default for Dataset {
-    /// Default dataset instance with no Variables, Observations, of an unspecified type.
+    /// Default dataset instance with no Variables or Observations.
     fn default() -> Dataset {
-        Dataset::new_empty(Vec::new(), DataCategory::Unspecified).unwrap()
+        Dataset::new_empty(Vec::new()).unwrap()
     }
 }
