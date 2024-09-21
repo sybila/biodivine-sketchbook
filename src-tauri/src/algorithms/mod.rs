@@ -4,3 +4,6 @@ pub mod eval_dynamic;
 pub mod eval_static;
 /// Parsing and evaluation of first-order formulas.
 pub mod fo_logic;
+
+/// Internal algorithms for attractor computation from AEON.
+mod _aeon_algorithms;

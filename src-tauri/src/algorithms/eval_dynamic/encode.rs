@@ -1,5 +1,39 @@
-use crate::sketchbook::observations::{Observation, VarValue};
+use super::DataEncodingType;
+use crate::sketchbook::ids::ObservationId;
+use crate::sketchbook::observations::{Dataset, Observation, VarValue};
 use crate::sketchbook::properties::HctlFormula;
+
+/// Encode a dataset of observations as a single HCTL formula. The particular formula
+/// template is chosen depending on the type of data (attractor data, fixed-points, ...).
+///
+/// a) Fixed-point dataset is encoded as a conjunction of "steady-state formulas",
+///    (see [mk_formula_fixed_point_set]) that ensures each observation correspond to a fixed point.
+/// b) Attractor dataset is encoded as a conjunction of "attractor formulas",
+///    (see [mk_formula_attractor_set]) that ensures each observation correspond to an attractor.
+pub fn encode_dataset_hctl_str(
+    dataset: &Dataset,
+    observation_id: Option<ObservationId>,
+    category: DataEncodingType,
+) -> Result<String, String> {
+    let var_names = dataset
+        .variables()
+        .iter()
+        .map(|v| v.to_string())
+        .collect::<Vec<String>>();
+
+    let encoded_observations = if let Some(obs_id) = observation_id {
+        let observation = dataset.get_observation(&obs_id)?;
+        vec![encode_observation_str(observation, &var_names)?]
+    } else {
+        let observations = dataset.observations();
+        encode_multiple_observations_str(observations, &var_names)?
+    };
+
+    match category {
+        DataEncodingType::Attractor => Ok(mk_formula_attractor_set(&encoded_observations)),
+        DataEncodingType::FixedPoint => Ok(mk_formula_fixed_point_set(&encoded_observations)),
+    }
+}
 
 /// Encode an observation by a (propositional) formula depicting the corresponding state/sub-space.
 /// The observation's binary values are used to create a conjunction of literals.

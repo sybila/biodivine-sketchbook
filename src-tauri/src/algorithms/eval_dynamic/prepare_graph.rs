@@ -11,7 +11,7 @@ use std::collections::HashMap;
 /// Prepare the symbolic context and generate the symbolic transition graph for
 /// evaluation of the static properties.
 ///
-/// TODO: we now only consider generic HCTL properties (other template variants might need special treatment too)
+/// TODO: some template variants (like trap spaces) might need special treatment too
 pub fn prepare_graph_for_dynamic(
     bn: &BooleanNetwork,
     dyn_props: &Vec<DynProperty>,
@@ -27,6 +27,12 @@ pub fn prepare_graph_for_dynamic(
                 let num_tree_vars = collect_unique_hctl_vars(tree.clone()).len();
                 num_hctl_vars = max(num_hctl_vars, num_tree_vars);
             }
+            // no need for any additional variables for this template
+            DynPropertyType::AttractorCount(..) => {}
+            // several types must already be translated to HCTL
+            DynPropertyType::ExistsFixedPoint(..) => unreachable!(),
+            DynPropertyType::HasAttractor(..) => unreachable!(),
+            // TODO: other templates lack evaluation at the moment
             _ => todo!(),
         }
     }

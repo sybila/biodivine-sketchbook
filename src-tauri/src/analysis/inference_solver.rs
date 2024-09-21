@@ -1,5 +1,7 @@
+use crate::algorithms::eval_dynamic::encode::encode_dataset_hctl_str;
 use crate::algorithms::eval_dynamic::eval::eval_dyn_prop;
 use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic;
+use crate::algorithms::eval_dynamic::DataEncodingType;
 use crate::algorithms::eval_static::encode::*;
 use crate::algorithms::eval_static::eval::eval_static_prop;
 use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static;
@@ -7,6 +9,7 @@ use crate::algorithms::fo_logic::utils::get_implicit_function_name;
 use crate::analysis::analysis_results::AnalysisResults;
 use crate::analysis::analysis_type::AnalysisType;
 use crate::debug;
+use crate::sketchbook::properties::dynamic_props::DynPropertyType;
 use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
@@ -432,7 +435,43 @@ impl InferenceSolver {
 
         let mut dynamic_props = vec![];
         for (id, dyn_prop) in sketch.properties.dyn_props() {
-            dynamic_props.push((id, dyn_prop.clone()));
+            let name = dyn_prop.get_name();
+
+            // TODO: currently, some types of properties are still not implemented
+
+            // we translate as many types of properties into HCTL, but we also treat some
+            // as special cases (these will have their own optimized evaluation)
+            let dyn_prop_processed = match dyn_prop.get_prop_data() {
+                // special case, leave as is
+                DynPropertyType::AttractorCount(..) => dyn_prop.clone(),
+                // generic HCTL, leave as is
+                DynPropertyType::GenericDynProp(..) => dyn_prop.clone(),
+                // translate to HCTL
+                DynPropertyType::ExistsFixedPoint(prop) => {
+                    let dataset_id = prop.dataset.clone().unwrap();
+                    let dataset = sketch.observations.get_dataset(&dataset_id)?;
+                    let formula = encode_dataset_hctl_str(
+                        dataset,
+                        prop.observation.clone(),
+                        DataEncodingType::FixedPoint,
+                    )?;
+                    DynProperty::mk_generic(name, &formula)?
+                }
+                // translate to HCTL
+                DynPropertyType::HasAttractor(prop) => {
+                    let dataset_id = prop.dataset.clone().unwrap();
+                    let dataset = sketch.observations.get_dataset(&dataset_id)?;
+                    let formula = encode_dataset_hctl_str(
+                        dataset,
+                        prop.observation.clone(),
+                        DataEncodingType::Attractor,
+                    )?;
+                    DynProperty::mk_generic(name, &formula)?
+                }
+                // finish remaining cases
+                _ => todo!(),
+            };
+            dynamic_props.push((id, dyn_prop_processed));
         }
 
         // sort properties by IDs for deterministic computation times (and remove the IDs)
