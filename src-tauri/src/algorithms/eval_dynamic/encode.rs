@@ -2,14 +2,15 @@ use super::DataEncodingType;
 use crate::sketchbook::ids::ObservationId;
 use crate::sketchbook::observations::{Dataset, Observation, VarValue};
 use crate::sketchbook::properties::HctlFormula;
+use std::fmt::Write;
 
 /// Encode a dataset of observations as a single HCTL formula. The particular formula
 /// template is chosen depending on the type of data (attractor data, fixed-points, ...).
 ///
 /// a) Fixed-point dataset is encoded as a conjunction of "steady-state formulas",
-///    (see [mk_formula_fixed_point_set]) that ensures each observation correspond to a fixed point.
+///    (see [mk_formula_fixed_point_list]) that ensures each observation correspond to a fixed point.
 /// b) Attractor dataset is encoded as a conjunction of "attractor formulas",
-///    (see [mk_formula_attractor_set]) that ensures each observation correspond to an attractor.
+///    (see [mk_formula_attractor_list]) that ensures each observation correspond to an attractor.
 pub fn encode_dataset_hctl_str(
     dataset: &Dataset,
     observation_id: Option<ObservationId>,
@@ -30,8 +31,8 @@ pub fn encode_dataset_hctl_str(
     };
 
     match category {
-        DataEncodingType::Attractor => Ok(mk_formula_attractor_set(&encoded_observations)),
-        DataEncodingType::FixedPoint => Ok(mk_formula_fixed_point_set(&encoded_observations)),
+        DataEncodingType::Attractor => Ok(mk_formula_attractor_list(&encoded_observations)),
+        DataEncodingType::FixedPoint => Ok(mk_formula_fixed_point_list(&encoded_observations)),
     }
 }
 
@@ -71,25 +72,25 @@ fn encode_observation_str(
     if observation.num_values() != prop_names.len() {
         return Err("Numbers of observation's values and propositions differs.".to_string());
     }
-    let mut formula = String::new();
-    formula.push('(');
 
-    for (i, prop) in prop_names.iter().enumerate() {
-        match observation.get_values()[i] {
-            VarValue::True => formula.push_str(format!("{prop} & ").as_str()),
-            VarValue::False => formula.push_str(format!("~{prop} & ").as_str()),
-            VarValue::Any => (),
-        }
-    }
+    let formula: String = prop_names
+        .iter()
+        .enumerate()
+        .filter_map(|(i, prop)| match observation.get_values()[i] {
+            VarValue::True => Some(prop.to_string()),
+            VarValue::False => Some(format!("~{prop}")),
+            VarValue::Any => None,
+        })
+        .collect::<Vec<_>>()
+        .join(" & ");
 
-    // formula might be 'empty' if all props can have arbitrary values - corresponding to 'true'
-    if formula.len() == 1 {
-        formula.push_str("true");
+    // if observation corresponds to the whole space (all vars are '*'), we just use 'true'
+    let final_formula = if formula.is_empty() {
+        "(true)".to_string()
     } else {
-        formula = formula.strip_suffix(" & ").unwrap().to_string();
-    }
-    formula.push(')');
-    Ok(formula)
+        format!("({})", formula)
+    };
+    Ok(final_formula)
 }
 
 /// Encode several observation vectors with conjunction formulae, one by one.
@@ -104,176 +105,195 @@ fn encode_multiple_observations_str(
         .collect::<Result<Vec<String>, String>>()
 }
 
-/// Create a formula describing the existence of a attractor containing specific state.
+/// Create HCTL formula describing that given specific state is part of an attractor.
 ///
 /// > `EXISTS x. JUMP x. ({state} & AG EF {state})`
 ///
-/// Works only for FULLY described state (conjunction of literals for each proposition).
-/// Param `attractor_state` is a formula describing a state in a desired attractor.
+/// Arg `attractor_state` is a formula encoding the state of interest.
+/// The state must be fully specified (conjunction of literals for EACH proposition).
 pub fn mk_formula_attractor_specific(attractor_state: &str) -> String {
     assert!(!attractor_state.is_empty());
     format!("(3{{x}}: (@{{x}}: ({attractor_state} & (AG EF ({attractor_state})))))")
 }
 
-/// Create a formula describing the existence of a attractor containing partially specified state.
-/// Works for both fully or partially described states (but for fully specified states, we
-/// recommend using `mk_attractor_formula_specific`).
+/// Create HCTL formula describing that given sub-space (observation) must contain a state
+/// that is part of an attractor.
 ///
-/// Formula is created in a way that the model-checker can detect the pattern and use AEON
-/// algorithms to optimise its computation.
-///
-/// > `EXISTS x. JUMP x. ({state} & (BIND x. AG EF x))`
-///
-/// Param `attractor_state` is a formula describing a (partial) state in a desired attractor.
-pub fn mk_formula_attractor_aeon(attractor_state: &str) -> String {
-    assert!(!attractor_state.is_empty());
-    format!("(3{{x}}: (@{{x}}: ({attractor_state} & (!{{y}}: AG EF {{y}}))))")
-}
-
-/// Create a formula describing the existence of a attractor containing partially specified state.
-///
-/// Works correctly for both fully or partially described states (but for fully specified states,
-/// we recommend using [mk_attractor_formula_specific] - can be more optimized).
+/// This function works for sub-spaces in general, but if you have a singleton sub-space
+/// (a state), we recommend using [mk_attractor_formula_specific] - is more optimized).
 ///
 /// > `EXISTS x. JUMP x. ({state} & (AG EF ({state} & x)))`
 ///
-/// Param `attractor_state` is a formula describing a (partial) state in a desired attractor.
+/// Arg `attractor_state` is a formula encoding the sub-space with the state of interest.
 pub fn mk_formula_attractor(attractor_state: &str) -> String {
     assert!(!attractor_state.is_empty());
     format!("(3{{x}}: (@{{x}}: ({attractor_state} & (AG EF ({attractor_state} & {{x}})))))")
 }
 
-/// Create a formula ensuring the existence of a set of attractor states. It is essentially
-/// a conjunction of "attractor formulas" (see [mk_formula_attractor]).
+/// Create HCTL formula describing that each sub-space (observation) in a list must contain
+/// a state that is part of an attractor.
+/// It is essentially a conjunction of "attractor formulas" (see [mk_formula_attractor]).
 ///
 /// > `ATTRACTOR({state1}) & ... & ATTRACTOR({stateN})`
-pub fn mk_formula_attractor_set(attractor_state_set: &[String]) -> String {
-    assert!(!attractor_state_set.is_empty());
-    let mut formula = String::new();
-    formula.push('(');
-    for attractor_state in attractor_state_set {
-        assert!(!attractor_state.is_empty());
-        formula.push_str(mk_formula_attractor(attractor_state).as_str());
-        formula.push_str(" & ");
-    }
-    formula = formula.strip_suffix(" & ").unwrap().to_string();
-    formula.push(')');
-    formula
+///
+/// Arg `attractor_state_list` is a vector of formulae, each encoding a sub-space
+/// (conjunction of literals).
+pub fn mk_formula_attractor_list(attractor_state_list: &[String]) -> String {
+    assert!(!attractor_state_list.is_empty());
+
+    let formula = attractor_state_list
+        .iter()
+        .map(|attractor_state| mk_formula_attractor(attractor_state))
+        .collect::<Vec<_>>()
+        .join(" & ");
+    format!("({})", formula)
 }
 
-/// Create a formula prohibiting existence of any attractor apart of the ones that
-/// contain specified states.
+/// Create HCTL formula that prohibits existence of any attractor apart from the ones
+/// that contain some states from some of the specified sub-spaces (observations).
 ///
 /// > `! EXISTS x. JUMP x. !(AG EF ({state1} | ... | {stateN}))`
 ///
-/// Param `attractor_state_set` is a vector of formulae, each describing a state in particular
+/// Arg `attractor_state_list` is a vector of formulae, each describing a state in particular
 /// allowed attractor (conjunction of literals).
-pub fn mk_formula_forbid_other_attractors(attractor_state_set: &[String]) -> String {
-    assert!(!attractor_state_set.is_empty());
-    let mut formula = String::new();
-    formula.push_str("~(3{x}: (@{x}: ~(AG EF (");
-    for attractor_state in attractor_state_set {
-        assert!(!attractor_state.is_empty());
-        formula.push_str(format!("({attractor_state}) | ").as_str())
-    }
-    formula = formula.strip_suffix(" | ").unwrap().to_string();
-    formula.push_str("))))");
-    formula
+pub fn mk_formula_forbid_other_attractors(attractor_state_list: &[String]) -> String {
+    assert!(!attractor_state_list.is_empty());
+
+    let inner_disjunction = attractor_state_list
+        .iter()
+        .map(|attractor_state| format!("({attractor_state})"))
+        .collect::<Vec<_>>()
+        .join(" | ");
+
+    format!("~(3{{x}}: (@{{x}}: ~(AG EF ({}))))", inner_disjunction)
 }
 
-/// Create a formula ensuring the existence of a set of attractor states and prohibiting any
-/// other attractors not containing these states.
+/// Create HCTL formula describing that 1) each sub-space (observation) in a list must contain
+/// a state that is part of an attractor and 2) prohibits existence of any additional attractor
+/// that does not contain a state from some of these sub-spaces.
 ///
-/// Basically a conjunction of two formulas, see [mk_formula_attractor_set] and
+/// Basically a conjunction of two formulas, see [mk_formula_attractor_list] and
 /// [mk_formula_forbid_other_attractors] for details.
 ///
 /// > `ALL_ATTRACTORS({states}) & NO_OTHER_ATTRACTORS({states})`
-pub fn mk_formula_exclusive_attractors(attractor_state_set: &[String]) -> String {
-    assert!(!attractor_state_set.is_empty());
-    let first_part = mk_formula_attractor_set(attractor_state_set);
-    let second_part = mk_formula_forbid_other_attractors(attractor_state_set);
+pub fn mk_formula_exclusive_attractors(attractor_state_list: &[String]) -> String {
+    assert!(!attractor_state_list.is_empty());
+    let first_part = mk_formula_attractor_list(attractor_state_list);
+    let second_part = mk_formula_forbid_other_attractors(attractor_state_list);
     format!("({first_part} & {second_part})")
 }
 
-/// Create a formula describing the existence of a specific steady-state.
-/// Works only for FULLY described states (conjunction with a literal for each proposition).
+/// Create a formula describing that a sub-space (observation) is a trap space.
+///
+/// > `FORALL x. JUMP x. ({sub_space} => ~(EX ~({sub_space})))`
+///
+/// Argument `sub_space` is a formula describing the sub-space of interest.
+pub fn mk_formula_trap_space(sub_space: &str) -> String {
+    assert!(!sub_space.is_empty());
+    format!("(V{{x}}: (@{{x}}: ({sub_space} => ~(EX ~({sub_space})))))")
+}
+
+/// Create a formula describing that each sub-space (observation) in a given list is a trap space.
+/// It essentially is a conjunction of "trap-space formulas" (see [mk_formula_trap_space]).
+///
+/// > `TRAP_SPACE({space1}) & ... & TRAP_SPACE({spaceN})`
+pub fn mk_formula_trap_space_list(sub_spaces_list: &[String]) -> String {
+    assert!(!sub_spaces_list.is_empty());
+
+    let formula = sub_spaces_list
+        .iter()
+        .map(|sub_space| mk_formula_trap_space(sub_space))
+        .collect::<Vec<_>>()
+        .join(" & ");
+
+    format!("({})", formula)
+}
+
+/// Create HCTL formula describing that given state is a steady state (fixed-point).
 ///
 /// > `EXISTS x. JUMP x. ({state} & AX {state})`
 ///
-/// Param `steady_state` is a formula describing that particular state.
+/// Arg `steady_state` is a formula encoding the state of interest.
+/// The state must be fully specified (conjunction of literals for EACH proposition).
 pub fn mk_formula_fixed_point_specific(steady_state: &str) -> String {
     assert!(!steady_state.is_empty());
     format!("(3{{x}}: (@{{x}}: ({steady_state} & (AX ({steady_state})))))")
 }
 
-/// Create a formula describing the existence of a (partially specified) steady-state.
+/// Create HCTL formula describing that given sub-space (observation) must contain a steady
+/// state (fixed-point).
 ///
-/// Works correctly for both fully or partially described states (but for fully specified states,
-/// we recommend using [mk_formula_fixed_point_specific] - can be more optimized).
+/// This function works for sub-spaces in general, but if you have a singleton sub-space
+/// (a state), we recommend using [mk_formula_fixed_point_specific] - is more optimized).
 ///
 /// > `EXISTS x. JUMP x. ({state} & (AX ({state} & x)))`
 ///
-/// Param `steady_state` is a formula describing that particular state.
+/// Arg `steady_state` is a formula encoding the sub-space with the state of interest.
 pub fn mk_formula_fixed_point(steady_state: &str) -> String {
     assert!(!steady_state.is_empty());
     format!("(3{{x}}: (@{{x}}: ({steady_state} & (AX ({steady_state} & {{x}})))))")
 }
 
-/// Create a formula ensuring the existence of a set of fixed points. It is essentially
-/// a conjunction of "fixed-point formulas" (see [mk_formula_fixed_point]).
+/// Create HCTL formula describing that each sub-space (observation) in a list must contain
+/// a steady state (fixed-point).
+/// It is essentially a conjunction of "fixed-point formulas" (see [mk_formula_fixed_point]).
 ///
 /// > `FIXED_POINT({state1}) & ... & FIXED_POINT({stateN})`
-pub fn mk_formula_fixed_point_set(steady_state_set: &[String]) -> String {
-    let mut formula = String::new();
-    formula.push('(');
-    for steady_state in steady_state_set {
-        formula.push_str(mk_formula_fixed_point(steady_state).as_str());
-        formula.push_str(" & ");
-    }
-    formula = formula.strip_suffix(" & ").unwrap().to_string();
-    formula.push(')');
-    formula
+pub fn mk_formula_fixed_point_list(steady_state_list: &[String]) -> String {
+    assert!(!steady_state_list.is_empty());
+
+    let formula = steady_state_list
+        .iter()
+        .map(|steady_state| mk_formula_fixed_point(steady_state))
+        .collect::<Vec<_>>()
+        .join(" & ");
+
+    format!("({})", formula)
 }
 
-/// Create a formula prohibiting all but the given states to be fixed-points.
-///
-/// Param `steady_state_set` is a vector of formulae, each describing particular allowed state.
+/// Create HCTL formula that prohibits existence of any steady state apart from the ones
+/// that contained in the specified sub-spaces (observations).
 ///
 /// > `! EXISTS x. JUMP x. (!{state1} & ... & !{stateN} & (AX x)))`
-pub fn mk_formula_forbid_other_fixed_points(steady_state_set: &[String]) -> String {
-    let mut formula = String::new();
-    formula.push_str("~(3{x}: (@{x}: ");
-    for steady_state in steady_state_set {
-        assert!(!steady_state.is_empty());
-        formula.push_str(format!("~({steady_state}) & ").as_str())
-    }
-    formula.push_str("(AX {x})))");
-    formula
+///
+/// Arg `steady_state_list` is a vector of formulae, each encoding particular allowed state.
+pub fn mk_formula_forbid_other_fixed_points(steady_state_list: &[String]) -> String {
+    assert!(!steady_state_list.is_empty());
+
+    let inner_conjunction = steady_state_list
+        .iter()
+        .map(|steady_state| format!("~({})", steady_state))
+        .collect::<Vec<_>>()
+        .join(" & ");
+
+    format!("~(3{{x}}: (@{{x}}: {} & (AX {{x}})))", inner_conjunction)
 }
 
-/// Create a formula ensuring the existence of a set of fixed points and prohibiting all other
-/// states to be fixed-points.
+/// Create HCTL formula describing that 1) each sub-space (observation) in a list must contain
+/// a steady state and 2) prohibits existence of any additional steady states outside of these
+/// sub-spaces.
 ///
-/// Basically a conjunction of two formulas, see [mk_formula_fixed_point_set] and
+/// Basically a conjunction of two formulas, see [mk_formula_fixed_point_list] and
 /// [mk_formula_forbid_other_attractors] for details.
 ///
 /// > `FIXED_POINTS({states}) & NO_OTHER_FIXED_POINTS({states})`
 ///
-/// Param `steady_state_set` is a vector of formulae, each describing one state.
-pub fn mk_formula_exclusive_fixed_points(steady_state_set: &[String]) -> String {
-    assert!(!steady_state_set.is_empty());
-    let first_part = mk_formula_fixed_point_set(steady_state_set);
-    let second_part = mk_formula_forbid_other_fixed_points(steady_state_set);
+/// Arg `steady_state_list` is a vector of formulae, each encoding one state of interested.
+pub fn mk_formula_exclusive_fixed_points(steady_state_list: &[String]) -> String {
+    assert!(!steady_state_list.is_empty());
+    let first_part = mk_formula_fixed_point_list(steady_state_list);
+    let second_part = mk_formula_forbid_other_fixed_points(steady_state_list);
     format!("({first_part} & {second_part})")
 }
 
-/// Create a formula describing the (non)existence of reachability between two (partial) states.
+/// Create HCTL formula describing that there is (not) a path between (any) states of two
+/// sub-spaces.
 ///
 /// > positive: `EXISTS x. JUMP x. {from_state} & EF {to_state}`
 /// > negative: `EXISTS x. JUMP x. {from_state} & !EF {to_state}`
 ///
-/// `from_state` and `to_state` are both formulae describing particular states.
-/// `is_negative` is true iff we want to non-existence of path from `from_state` to `to_state`
+/// `from_state` and `to_state` are both formulae encoding particular sub-spaces.
+/// `is_negative` is true iff we want to encode non-existence of path.
 pub fn mk_formula_reachability_pair(from_state: &str, to_state: &str, is_negative: bool) -> String {
     assert!(!to_state.is_empty() && !from_state.is_empty());
     if is_negative {
@@ -282,29 +302,26 @@ pub fn mk_formula_reachability_pair(from_state: &str, to_state: &str, is_negativ
     format!("(3{{x}}: (@{{x}}: {from_state} & EF ({to_state})))")
 }
 
-/// Create a formula describing the existence of reachability between every two consecutive states
-/// from the `states_sequence`, starting with the first one.
+/// Create a formula describing the existence of path between any states of every two consecutive
+/// sub-spaces from the `states_sequence`, starting with the first one.
 ///
-/// Basically can be used to describe a time series s0 -> s1 -> ... -> sN
+/// Basically, this can be used to describe a time series s0 -> s1 -> ... -> sN
 ///
 /// > `EXISTS x. JUMP x. ({state1} & EF ({state2} & EF( ... )))`
 pub fn mk_formula_reachability_chain(states_sequence: &[String]) -> String {
-    let mut formula = String::new();
-    formula.push_str("(3{x}: (@{x}: ");
     let num_states = states_sequence.len();
-    for (n, state) in states_sequence.iter().enumerate() {
-        assert!(!state.is_empty());
-        if n == num_states - 1 {
-            break;
-        }
-        formula.push_str(format!("({state}) & EF (").as_str())
+    assert!(num_states > 0);
+
+    let mut chain = String::new();
+    for state in states_sequence.iter().take(num_states - 1) {
+        write!(chain, "({}) & EF (", state).unwrap();
     }
 
-    // add the last state and all the closing parentheses
-    formula.push_str(states_sequence[num_states - 1].to_string().as_str());
-    let parentheses = (0..num_states + 1).map(|_| ")").collect::<String>();
-    formula.push_str(parentheses.as_str());
-    formula
+    let final_state = &states_sequence[num_states - 1];
+    let parentheses = ")".repeat(num_states - 1);
+    write!(chain, "{}{}", final_state, parentheses).unwrap();
+
+    format!("(3{{x}}: (@{{x}}: {}))", chain)
 }
 
 #[cfg(test)]
@@ -350,17 +367,13 @@ mod tests {
     }
 
     #[test]
-    /// Test generating of different kinds of general attractor formulae.
+    /// Test generating different kinds of general attractor formulae.
     fn test_attractor_encodings() {
         let attr_states = vec!["a & b & ~c".to_string(), "a & b & c".to_string()];
 
         assert_eq!(
             &mk_formula_attractor_specific(&attr_states[0]),
             "(3{x}: (@{x}: (a & b & ~c & (AG EF (a & b & ~c)))))",
-        );
-        assert_eq!(
-            &mk_formula_attractor_aeon(&attr_states[0]),
-            "(3{x}: (@{x}: (a & b & ~c & (!{y}: AG EF {y}))))",
         );
         assert_eq!(
             &mk_formula_attractor(&attr_states[0]),
@@ -371,7 +384,7 @@ mod tests {
             "~(3{x}: (@{x}: ~(AG EF ((a & b & ~c) | (a & b & c)))))",
         );
         assert_eq!(
-            &mk_formula_attractor_set(&attr_states),
+            &mk_formula_attractor_list(&attr_states),
             "((3{x}: (@{x}: (a & b & ~c & (AG EF (a & b & ~c & {x}))))) & (3{x}: (@{x}: (a & b & c & (AG EF (a & b & c & {x}))))))",
         );
         assert_eq!(
@@ -381,7 +394,19 @@ mod tests {
     }
 
     #[test]
-    /// Test generating of different kinds of steady state formulae.
+    /// Test generating formulas for trap spaces.
+    fn test_trap_space_encodings() {
+        let sub_spaces = vec!["a & b & ~c".to_string(), "a & b & c".to_string()];
+
+        let expected_formula = "(V{x}: (@{x}: (a & b & ~c => ~(EX ~(a & b & ~c)))))";
+        assert_eq!(&mk_formula_trap_space(&sub_spaces[0]), expected_formula,);
+
+        let expected_formula = "((V{x}: (@{x}: (a & b & ~c => ~(EX ~(a & b & ~c))))) & (V{x}: (@{x}: (a & b & c => ~(EX ~(a & b & c))))))";
+        assert_eq!(mk_formula_trap_space_list(&sub_spaces), expected_formula);
+    }
+
+    #[test]
+    /// Test generating of different kinds of steady-state formulae.
     fn test_fixed_point_encodings() {
         let attr_states = vec!["a & b & ~c".to_string(), "a & b & c".to_string()];
 
@@ -398,7 +423,7 @@ mod tests {
             "~(3{x}: (@{x}: ~(a & b & ~c) & ~(a & b & c) & (AX {x})))",
         );
         assert_eq!(
-            &mk_formula_fixed_point_set(&attr_states),
+            &mk_formula_fixed_point_list(&attr_states),
             "((3{x}: (@{x}: (a & b & ~c & (AX (a & b & ~c & {x}))))) & (3{x}: (@{x}: (a & b & c & (AX (a & b & c & {x}))))))",
         );
         assert_eq!(

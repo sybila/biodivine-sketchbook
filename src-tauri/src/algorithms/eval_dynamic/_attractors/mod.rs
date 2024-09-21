@@ -1,12 +1,23 @@
-use crate::algorithms::_aeon_algorithms::algo_xie_beerel::xie_beerel_attractors;
-use crate::algorithms::_aeon_algorithms::itgr::interleaved_transition_guided_reduction;
+//! Modified versions of algorithms adapted from [AEON](https://biodivine.fi.muni.cz/aeon/).
+//! These algorithms can be used to compute attractor states and optimize some procedures.
+
+/// Interleaved transition guided reduction quickly eliminates most non-attractor states.
+mod itgr;
+/// Reachability algorithms that use saturation for improved efficiency.
+mod saturated_reachability;
+/// Xie-Beerel TSCC algorithm
+mod xie_beerel;
+
+use crate::algorithms::eval_dynamic::_attractors::itgr::interleaved_transition_guided_reduction;
+use crate::algorithms::eval_dynamic::_attractors::xie_beerel::xie_beerel_attractors;
 use biodivine_lib_param_bn::{
     biodivine_std::traits::Set,
     symbolic_async_graph::{GraphColoredVertices, GraphColors, SymbolicAsyncGraph},
 };
 
-/// Computes terminal SCCs, and sorts colors according to how many attractors they have.
-pub fn compute_attractors(graph: &SymbolicAsyncGraph) -> Vec<GraphColors> {
+/// Compute terminal SCCs, and sort all the colors according to how many attractors they have.
+/// Returns the vector, where on index i are all colors with i attractors.
+pub fn sort_colors_by_attr_num(graph: &SymbolicAsyncGraph) -> Vec<GraphColors> {
     // First, perform ITGR reduction.
     let (universe, active_variables) =
         interleaved_transition_guided_reduction(graph, graph.mk_unit_colored_vertices());
@@ -22,6 +33,9 @@ pub fn compute_attractors(graph: &SymbolicAsyncGraph) -> Vec<GraphColors> {
     colors_by_num_attrs
 }
 
+/// Process a component found by Xie-Beerel (attractor component for a subset of colors).
+/// Update the `colors_by_num_attrs` so that on index i are all colors with i attractors,
+/// after taking the new component into account.
 fn process_component(colors_by_num_attrs: &mut Vec<GraphColors>, component: &GraphColoredVertices) {
     let component_colors = component.colors();
     let tmp_colors_by_num_attrs = colors_by_num_attrs.clone();

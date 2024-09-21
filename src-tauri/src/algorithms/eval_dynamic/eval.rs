@@ -1,6 +1,6 @@
 use crate::sketchbook::properties::DynProperty;
 use crate::{
-    algorithms::_aeon_algorithms::compute_attractors::compute_attractors,
+    algorithms::eval_dynamic::_attractors::sort_colors_by_attr_num,
     sketchbook::properties::dynamic_props::DynPropertyType,
 };
 use biodivine_hctl_model_checker::model_checking::model_check_formula_dirty;
@@ -23,10 +23,10 @@ pub fn eval_dyn_prop(
         }
         DynPropertyType::AttractorCount(prop) => {
             // custom implementation (can be made more efficient if needed)
-            // todo: optimization - first just compute fixed-points and get colors where N_fp <= MAX_ATTR
+            // todo: optimize - first just compute fixed-points and get colors where N_fp <= MAX_ATTR
 
-            // compute full attractors (on remaining colors) and get colors with correct n of attrs
-            let colors_per_num_attrs = compute_attractors(graph);
+            // compute full attractors (on remaining colors) and get colors with correct n. of attrs
+            let colors_per_num_attrs: Vec<GraphColors> = sort_colors_by_attr_num(graph);
             let mut sat_colors = graph.mk_empty_colors();
             for (num_attrs, color_set) in colors_per_num_attrs.iter().enumerate() {
                 if num_attrs >= prop.minimal && num_attrs <= prop.maximal {
