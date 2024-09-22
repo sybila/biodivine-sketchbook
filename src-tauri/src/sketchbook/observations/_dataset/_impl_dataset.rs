@@ -266,6 +266,11 @@ impl Dataset {
         &self.variables
     }
 
+    /// Vector of all variable names.
+    pub fn variable_names(&self) -> Vec<String> {
+        self.variables.iter().map(|v| v.to_string()).collect()
+    }
+
     /// Get `VarId` for a corresponding string identifier, if it is valid.
     pub fn get_var_id(&self, id: &str) -> Result<&VarId, String> {
         // there is at max one var with given id

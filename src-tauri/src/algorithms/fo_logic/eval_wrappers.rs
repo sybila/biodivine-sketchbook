@@ -1,10 +1,9 @@
 use crate::algorithms::fo_logic::eval_algorithm::eval_node;
 use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
 use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
+use crate::algorithms::fo_logic::utils::*;
 use biodivine_hctl_model_checker::postprocessing::sanitizing::sanitize_colored_vertices;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
-
-use super::utils::*;
 
 /// Evaluate each of a list of FOL formulas given by their syntax trees on a given transition `graph`.
 ///

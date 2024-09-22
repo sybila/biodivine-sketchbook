@@ -1,11 +1,8 @@
 use crate::algorithms::fo_logic::operator_enums::*;
-
-use crate::algorithms::fo_logic::operator_enums::FunctionSymbol;
+use crate::algorithms::fo_logic::utils::is_update_fn_symbol;
 use std::fmt;
 use std::iter::Peekable;
 use std::str::Chars;
-
-use super::utils::is_update_fn_symbol;
 
 /// Enum of all possible tokens occurring in a FOL formula string.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]

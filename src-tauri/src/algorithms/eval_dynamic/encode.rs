@@ -1,4 +1,4 @@
-use super::DataEncodingType;
+use crate::algorithms::eval_dynamic::processed_props::DataEncodingType;
 use crate::sketchbook::ids::ObservationId;
 use crate::sketchbook::observations::{Dataset, Observation, VarValue};
 use crate::sketchbook::properties::HctlFormula;
@@ -11,6 +11,8 @@ use std::fmt::Write;
 ///    (see [mk_formula_fixed_point_list]) that ensures each observation correspond to a fixed point.
 /// b) Attractor dataset is encoded as a conjunction of "attractor formulas",
 ///    (see [mk_formula_attractor_list]) that ensures each observation correspond to an attractor.
+/// b) Trap-space dataset is encoded as a conjunction of "trap-space formulas",
+///    (see [mk_formula_trap_space_list]) that ensures each observation correspond to a trap space.
 pub fn encode_dataset_hctl_str(
     dataset: &Dataset,
     observation_id: Option<ObservationId>,
@@ -33,6 +35,7 @@ pub fn encode_dataset_hctl_str(
     match category {
         DataEncodingType::Attractor => Ok(mk_formula_attractor_list(&encoded_observations)),
         DataEncodingType::FixedPoint => Ok(mk_formula_fixed_point_list(&encoded_observations)),
+        DataEncodingType::TrapSpace => Ok(mk_formula_trap_space_list(&encoded_observations)),
     }
 }
 

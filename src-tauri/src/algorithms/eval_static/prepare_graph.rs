@@ -1,7 +1,6 @@
+use crate::algorithms::eval_static::processed_props::ProcessedStatProp;
 use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
 use crate::algorithms::fo_logic::utils::collect_unique_fol_vars;
-use crate::sketchbook::properties::static_props::StatPropertyType;
-use crate::sketchbook::properties::StatProperty;
 use biodivine_lib_bdd::Bdd;
 use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
 use biodivine_lib_param_bn::BooleanNetwork;
@@ -12,11 +11,14 @@ use std::collections::HashMap;
 /// evaluation of the static properties.
 ///
 /// Since all the static properties are encoded as FOL properties, we just need to
-/// handle this case. This means we need to prepare symbolic variables to cover all
-/// variables in FOL formulas.
-pub fn prepare_graph_for_static(
+/// handle this one case. This means we need to prepare symbolic variables to cover
+/// all variables in FOL formulas.
+///
+/// Arg `unit` is optional unit BDD with potentially different symbolic context (can
+/// have different symbolic variables, but has the same bn vars and colors).
+pub fn prepare_graph_for_static_fol(
     bn: &BooleanNetwork,
-    static_props: &Vec<StatProperty>,
+    static_props: &Vec<ProcessedStatProp>,
     base_var_name: &str,
     unit: Option<(&Bdd, &SymbolicContext)>,
 ) -> Result<SymbolicAsyncGraph, String> {
@@ -25,15 +27,10 @@ pub fn prepare_graph_for_static(
     let mut num_fol_vars: usize = 0;
     //let plain_context = SymbolicContext::new(&bn).unwrap();
     for prop in static_props {
-        match prop.get_prop_data() {
-            StatPropertyType::GenericStatProp(p) => {
-                let formula = &p.raw_formula;
-                let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
-                let num_tree_vars = collect_unique_fol_vars(&tree).len();
-                num_fol_vars = max(num_fol_vars, num_tree_vars);
-            }
-            _ => unreachable!(), // all properties should be encoded in FOL by now
-        }
+        let formula = &prop.formula;
+        let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
+        let num_tree_vars = collect_unique_fol_vars(&tree).len();
+        num_fol_vars = max(num_fol_vars, num_tree_vars);
     }
 
     get_fol_extended_symbolic_graph(bn, num_fol_vars as u16, base_var_name, unit)
@@ -42,7 +39,7 @@ pub fn prepare_graph_for_static(
 /// Prepare the symbolic context and generate the symbolic transition graph for
 /// evaluation of FOL formulas. This means we need to prepare symbolic variables to
 /// cover all variables in FOL formulas.
-fn get_fol_extended_symbolic_graph(
+pub fn get_fol_extended_symbolic_graph(
     bn: &BooleanNetwork,
     num_fol_vars: u16,
     base_var_name: &str,
