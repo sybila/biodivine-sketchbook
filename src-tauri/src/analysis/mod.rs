@@ -13,3 +13,7 @@ mod inference_solver;
 /// Utilities to sample and download networks.
 /// Some functionality is taken from our repository [biodivine-bn-classifier].
 mod sampling_networks;
+
+/// **(internal)** Several test scenarios for the inference procedure.
+#[cfg(test)]
+mod _test_inference;

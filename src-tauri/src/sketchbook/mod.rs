@@ -23,7 +23,7 @@ pub mod bn_utils;
 /// The main `Sketch` manager object and its utilities.
 mod _sketch;
 /// **(internal)** Utility functions specifically related to events.
-mod event_utils;
+pub(crate) mod event_utils;
 /// **(internal)** General utilities used throughout the module (e.g., serialization
 /// helper methods).
 mod utils;

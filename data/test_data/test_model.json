@@ -2,56 +2,67 @@
   "model": {
     "variables": [
       {
-        "id": "n0",
-        "name": "n0",
-        "update_fn": "g(n0) & n1"
+        "id": "A",
+        "name": "A",
+        "update_fn": "h(C)"
       },
       {
-        "id": "n1",
-        "name": "n1",
-        "update_fn": "!n0 & !n1"
+        "id": "B",
+        "name": "B",
+        "update_fn": "f(A, D)"
       },
       {
-        "id": "n2",
-        "name": "n2",
-        "update_fn": "f(n1, n2)"
+        "id": "C",
+        "name": "C",
+        "update_fn": "A & g(C, B)"
+      },
+      {
+        "id": "D",
+        "name": "D",
+        "update_fn": ""
       }
     ],
     "regulations": [
       {
-        "regulator": "n0",
-        "target": "n0",
-        "sign": "Unknown",
-        "essential": "True"
-      },
-      {
-        "regulator": "n0",
-        "target": "n1",
-        "sign": "Inhibition",
-        "essential": "True"
-      },
-      {
-        "regulator": "n1",
-        "target": "n0",
+        "regulator": "A",
+        "target": "B",
         "sign": "Activation",
-        "essential": "Unknown"
+        "essential": "True"
       },
       {
-        "regulator": "n1",
-        "target": "n1",
-        "sign": "Inhibition",
-        "essential": "Unknown"
+        "regulator": "A",
+        "target": "C",
+        "sign": "Activation",
+        "essential": "True"
       },
       {
-        "regulator": "n1",
-        "target": "n2",
+        "regulator": "B",
+        "target": "C",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "C",
+        "target": "A",
         "sign": "Unknown",
         "essential": "Unknown"
       },
       {
-        "regulator": "n2",
-        "target": "n2",
+        "regulator": "C",
+        "target": "C",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "D",
+        "target": "B",
         "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "D",
+        "target": "D",
+        "sign": "Unknown",
         "essential": "True"
       }
     ],
@@ -78,6 +89,21 @@
           [
             "Unknown",
             "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "h",
+        "name": "h",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
           ]
         ],
         "expression": ""
@@ -90,21 +116,27 @@
         "nodes": [
           {
             "layout": "default",
-            "variable": "n0",
-            "px": 213.02036,
-            "py": 198.71938
+            "variable": "A",
+            "px": 346.89832,
+            "py": 183.03789
           },
           {
             "layout": "default",
-            "variable": "n1",
-            "px": 219.01414,
-            "py": 338.2469
+            "variable": "B",
+            "px": 0.0,
+            "py": 0.0
           },
           {
             "layout": "default",
-            "variable": "n2",
-            "px": 76.83789,
-            "py": 338.18445
+            "variable": "D",
+            "px": 642.49677,
+            "py": 185.15988
+          },
+          {
+            "layout": "default",
+            "variable": "C",
+            "px": 504.7078,
+            "py": 101.93903
           }
         ]
       }
@@ -114,66 +146,102 @@
   "dyn_properties": [],
   "stat_properties": [
     {
-      "id": "monotonicity_n1_n0",
+      "id": "essentiality_D_D",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "D",
+      "target": "D",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_C",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_B_C",
       "name": "Regulation monotonicity property",
       "variant": "RegulationMonotonic",
-      "input": "n1",
-      "target": "n0",
+      "input": "B",
+      "target": "C",
       "value": "Activation",
       "context": null
     },
     {
-      "id": "essentiality_n0_n1",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "n0",
-      "target": "n1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_n2_n2",
-      "name": "Regulation essentiality property",
-      "variant": "RegulationEssential",
-      "input": "n2",
-      "target": "n2",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_n2_n2",
+      "id": "monotonicity_A_C",
       "name": "Regulation monotonicity property",
       "variant": "RegulationMonotonic",
-      "input": "n2",
-      "target": "n2",
+      "input": "A",
+      "target": "C",
       "value": "Activation",
       "context": null
     },
     {
-      "id": "essentiality_n0_n0",
+      "id": "essentiality_C_C",
       "name": "Regulation essentiality property",
       "variant": "RegulationEssential",
-      "input": "n0",
-      "target": "n0",
+      "input": "C",
+      "target": "C",
       "value": "True",
       "context": null
     },
     {
-      "id": "monotonicity_n1_n1",
+      "id": "essentiality_B_C",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "B",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_B",
       "name": "Regulation monotonicity property",
       "variant": "RegulationMonotonic",
-      "input": "n1",
-      "target": "n1",
+      "input": "A",
+      "target": "B",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_D_B",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "D",
+      "target": "B",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_D_B",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "D",
+      "target": "B",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_C_C",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "C",
+      "target": "C",
       "value": "Inhibition",
       "context": null
     },
     {
-      "id": "monotonicity_n0_n1",
-      "name": "Regulation monotonicity property",
-      "variant": "RegulationMonotonic",
-      "input": "n0",
-      "target": "n1",
-      "value": "Inhibition",
+      "id": "essentiality_A_B",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "B",
+      "value": "True",
       "context": null
     }
   ]

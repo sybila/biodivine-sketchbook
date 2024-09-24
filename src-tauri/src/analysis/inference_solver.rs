@@ -72,7 +72,7 @@ pub struct InferenceSolver {
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
     status_updates: Vec<(InferenceStatus, SystemTime)>,
-    /// Flag to signal cancellation
+    /// Flag to signal cancellation.
     should_stop: Arc<AtomicBool>,
     /// Channel to send updates regarding the computation.
     sender_channel: Sender<String>,
@@ -397,8 +397,8 @@ impl InferenceSolver {
     /// Internal modular variant of the inference. You can choose which parts to select.
     /// For example, you can only consider static properties, only dynamic properties, or all.
     ///
-    /// TODO: Some parts (like evaluation for template dynamic properties) are still not implemented.
-    fn run_inference_modular(
+    /// TODO: Some parts (like evaluation for time-series properties) are still not implemented.
+    pub(crate) fn run_inference_modular(
         &mut self,
         analysis_type: AnalysisType,
         sketch: Sketch,

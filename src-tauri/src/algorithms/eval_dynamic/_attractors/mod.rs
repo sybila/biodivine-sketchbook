@@ -49,7 +49,6 @@ fn process_component(colors_by_num_attrs: &mut Vec<GraphColors>, component: &Gra
 
         // move the intersect colors one index up
         if num_attrs == colors_by_num_attrs.len() - 1 {
-            println!("last");
             colors_by_num_attrs.push(intersect.clone());
         } else {
             colors_by_num_attrs[num_attrs + 1] =
