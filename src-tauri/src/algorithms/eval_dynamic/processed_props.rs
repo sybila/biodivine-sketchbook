@@ -97,7 +97,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
 
                 // if we only want to encode single observation, lets restrict the dataset
                 if let Some(obs_id) = &prop.observation {
-                    let observation = dataset.get_observation(obs_id)?.clone();
+                    let observation = dataset.get_obs(obs_id)?.clone();
                     let var_names = dataset.variable_names();
                     let var_names_ref = var_names.iter().map(|v| v.as_str()).collect();
                     dataset = Dataset::new(vec![observation], var_names_ref)?;

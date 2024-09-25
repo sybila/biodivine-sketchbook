@@ -25,7 +25,7 @@ pub fn encode_dataset_hctl_str(
         .collect::<Vec<String>>();
 
     let encoded_observations = if let Some(obs_id) = observation_id {
-        let observation = dataset.get_observation(&obs_id)?;
+        let observation = dataset.get_obs(&obs_id)?;
         vec![encode_observation_str(observation, &var_names)?]
     } else {
         let observations = dataset.observations();

@@ -56,8 +56,8 @@ impl Dataset {
     ///
     /// The observation must have the same length as is the number of dataset's variables, and its
     /// id must not be already present in the dataset.
-    pub fn push_observation(&mut self, obs: Observation) -> Result<(), String> {
-        self.assert_no_observation(obs.get_id())?;
+    pub fn push_obs(&mut self, obs: Observation) -> Result<(), String> {
+        self.assert_no_obs(obs.get_id())?;
         self.index_map
             .insert(obs.get_id().clone(), self.observations.len());
         self.observations.push(obs);
@@ -66,7 +66,7 @@ impl Dataset {
 
     /// Remove observation from the end of the dataset.
     /// If no observations, nothing happens.
-    pub fn pop_observation(&mut self) {
+    pub fn pop_obs(&mut self) {
         if let Some(obs) = self.observations.pop() {
             self.index_map.remove(obs.get_id());
         }
@@ -75,8 +75,8 @@ impl Dataset {
     /// Remove observation with given ID from the dataset. The ID must be valid
     ///
     /// This operation might be very costly, as we must reindex all subsequent observations.
-    pub fn remove_observation(&mut self, id: &ObservationId) -> Result<(), String> {
-        let idx = self.get_observation_index(id)?;
+    pub fn remove_obs(&mut self, id: &ObservationId) -> Result<(), String> {
+        let idx = self.get_obs_index(id)?;
         // re-index everything after the to-be-deleted observation
         self.observations.iter().enumerate().for_each(|(i, o)| {
             if i > idx {
@@ -92,9 +92,9 @@ impl Dataset {
     /// Add observation to a given index in the dataset.
     ///
     /// This operation might be very costly, as we must reindex all subsequent observations.
-    pub fn insert_observation(&mut self, index: usize, obs: Observation) -> Result<(), String> {
+    pub fn insert_obs(&mut self, index: usize, obs: Observation) -> Result<(), String> {
         // check that inputs are valid
-        self.assert_no_observation(obs.get_id())?;
+        self.assert_no_obs(obs.get_id())?;
         if index > self.num_observations() {
             return Err("Index is larger than number of observations.".to_string());
         }
@@ -152,12 +152,12 @@ impl Dataset {
 
     /// Swap value vector for an observation with given ID.
     /// The new vector of values must be of the same length as the original.
-    pub fn swap_observation_data(
+    pub fn swap_obs_data(
         &mut self,
         id: &ObservationId,
         new_values: Vec<VarValue>,
     ) -> Result<(), String> {
-        let idx = self.get_observation_index(id)?;
+        let idx = self.get_obs_index(id)?;
         self.observations[idx].set_all_values(new_values)
     }
 
@@ -186,11 +186,11 @@ impl Dataset {
         original_id: &ObservationId,
         new_id: ObservationId,
     ) -> Result<(), String> {
-        self.assert_valid_observation(original_id)?;
-        self.assert_no_observation(&new_id)?;
+        self.assert_valid_obs(original_id)?;
+        self.assert_no_obs(&new_id)?;
 
         // we must update both the observation instance and the index map
-        let idx = self.get_observation_index(original_id)?;
+        let idx = self.get_obs_index(original_id)?;
         self.observations
             .get_mut(idx)
             .unwrap()
@@ -226,12 +226,12 @@ impl Dataset {
     }
 
     /// Check if observation is present in this dataset.
-    pub fn is_valid_observation(&self, id: &ObservationId) -> bool {
+    pub fn is_valid_obs(&self, id: &ObservationId) -> bool {
         self.index_map.contains_key(id)
     }
 
     /// Observation on given index (indexing starts at 0).
-    pub fn get_observation_on_idx(&self, index: usize) -> Result<&Observation, String> {
+    pub fn get_obs_on_idx(&self, index: usize) -> Result<&Observation, String> {
         if index >= self.num_observations() {
             return Err("Index is larger than number of observations.".to_string());
         }
@@ -239,20 +239,29 @@ impl Dataset {
     }
 
     /// Observation with given ID.
-    pub fn get_observation(&self, id: &ObservationId) -> Result<&Observation, String> {
-        let obs_idx = self.get_observation_index(id)?;
-        self.get_observation_on_idx(obs_idx)
+    pub fn get_obs(&self, id: &ObservationId) -> Result<&Observation, String> {
+        let obs_idx = self.get_obs_index(id)?;
+        self.get_obs_on_idx(obs_idx)
     }
 
     /// ID of an observation on given index.
-    pub fn get_observation_id(&self, index: usize) -> &ObservationId {
+    pub fn get_obs_id(&self, index: usize) -> &ObservationId {
         self.observations[index].get_id()
+    }
+
+    /// ID of an observation on given index.
+    pub fn get_obs_id_by_str(&self, id: &str) -> Result<ObservationId, String> {
+        let obs_id = ObservationId::new(id)?;
+        if self.is_valid_obs(&obs_id) {
+            return Ok(obs_id);
+        }
+        Err(format!("Observation with ID {id} does not exist."))
     }
 
     /// Get index of given observation, or None (if not present).
     /// Indexing starts at 0.
-    pub fn get_observation_index(&self, id: &ObservationId) -> Result<usize, String> {
-        self.assert_valid_observation(id)?;
+    pub fn get_obs_index(&self, id: &ObservationId) -> Result<usize, String> {
+        self.assert_valid_obs(id)?;
         Ok(*self.index_map.get(id).unwrap())
     }
 
@@ -329,8 +338,8 @@ impl Dataset {
     }
 
     /// **(internal)** Utility method to ensure there is no observation with given ID yet.
-    fn assert_no_observation(&self, id: &ObservationId) -> Result<(), String> {
-        if self.is_valid_observation(id) {
+    fn assert_no_obs(&self, id: &ObservationId) -> Result<(), String> {
+        if self.is_valid_obs(id) {
             Err(format!("Observation with id {id} already exists."))
         } else {
             Ok(())
@@ -338,8 +347,8 @@ impl Dataset {
     }
 
     /// **(internal)** Utility method to ensure there is a observation with given ID.
-    fn assert_valid_observation(&self, id: &ObservationId) -> Result<(), String> {
-        if self.is_valid_observation(id) {
+    fn assert_valid_obs(&self, id: &ObservationId) -> Result<(), String> {
+        if self.is_valid_obs(id) {
             Ok(())
         } else {
             Err(format!("Observation with id {id} does not exist."))
@@ -423,25 +432,25 @@ mod tests {
         let mut dataset = Dataset::new(initial_obs_list, vec!["a", "b"]).unwrap();
 
         // add observation
-        dataset.push_observation(obs3.clone()).unwrap();
+        dataset.push_obs(obs3.clone()).unwrap();
         let all_three_obs = vec![obs1.clone(), obs2.clone(), obs3.clone()];
         assert_eq!(dataset.observations(), &all_three_obs);
 
         // try adding same observation again (should fail)
-        assert!(dataset.push_observation(obs3.clone()).is_err());
+        assert!(dataset.push_obs(obs3.clone()).is_err());
         assert_eq!(dataset.observations(), &all_three_obs);
 
         // remove observation that is not last
         let obs1_id = obs1.get_id();
-        dataset.remove_observation(obs1_id).unwrap();
+        dataset.remove_obs(obs1_id).unwrap();
         assert_eq!(dataset.observations(), &vec![obs2.clone(), obs3.clone()]);
 
         // remove last observation
-        dataset.pop_observation();
+        dataset.pop_obs();
         assert_eq!(dataset.observations(), &vec![obs2.clone()]);
 
         // finally, try re-adding one of the removed observations
-        dataset.push_observation(obs1.clone()).unwrap();
+        dataset.push_obs(obs1.clone()).unwrap();
         assert_eq!(dataset.observations(), &vec![obs2.clone(), obs1.clone()]);
     }
 
@@ -454,10 +463,7 @@ mod tests {
 
         // valid case
         dataset.set_obs_id_by_str("o", "o2").unwrap();
-        assert_eq!(
-            dataset.get_observation_on_idx(0).unwrap().get_id().as_str(),
-            "o2"
-        );
+        assert_eq!(dataset.get_obs_on_idx(0).unwrap().get_id().as_str(), "o2");
 
         // invalid case, ID already in use
         assert!(dataset.set_obs_id_by_str("p", "o2").is_err());

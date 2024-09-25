@@ -3,19 +3,20 @@ use crate::analysis::analysis_type::AnalysisType;
 use crate::analysis::inference_solver::InferenceSolver;
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
+use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
 use std::fs::File;
 use std::io::Read;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
-/// Wrapper to read the test model from AEON file.
+/// Wrapper to read the test model from JSON file.
 pub fn load_test_model() -> Sketch {
-    let mut aeon_sketch_file = File::open("../data/test_data/test_model.aeon").unwrap();
-    let mut aeon_contents = String::new();
-    aeon_sketch_file.read_to_string(&mut aeon_contents).unwrap();
+    let mut json_sketch_file = File::open("../data/test_data/test_model_with_data.json").unwrap();
+    let mut json_contents = String::new();
+    json_sketch_file.read_to_string(&mut json_contents).unwrap();
 
-    Sketch::from_aeon(&aeon_contents).unwrap()
+    Sketch::from_custom_json(&json_contents).unwrap()
 }
 
 /// Wrapper to create an inference solver, run the inference on a given sketch, and return results.
@@ -60,4 +61,26 @@ pub fn apply_event_fully(sketch: &mut Sketch, event: &Event, at_path: &[&str]) {
             assert!(!matches!(res_inner, Consumed::Restart(_)))
         }
     }
+}
+
+/// Wrapper to add a given dynamic property to the model, run the inference, and return the number  
+/// of satisfying candidates.
+pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str: &str) -> u64 {
+    sketch
+        .properties
+        .add_raw_dynamic_by_str(id_str, property)
+        .unwrap();
+    let results = run_inference(sketch);
+    return results.num_sat_networks;
+}
+
+/// Wrapper to add a given static property to the model, run the inference, and return the number  
+/// of satisfying candidates.
+pub fn add_stat_prop_and_infer(mut sketch: Sketch, property: StatProperty, id_str: &str) -> u64 {
+    sketch
+        .properties
+        .add_raw_static_by_str(id_str, property)
+        .unwrap();
+    let results = run_inference(sketch);
+    return results.num_sat_networks;
 }

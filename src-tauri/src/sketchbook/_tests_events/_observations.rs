@@ -107,7 +107,7 @@ fn test_push_pop_observations() {
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     // check observation was added, test reverse action
     let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
-    let pushed_obs = manager.get_observation(&d1_id, new_obs.get_id()).unwrap();
+    let pushed_obs = manager.get_obs(&d1_id, new_obs.get_id()).unwrap();
     assert_eq!(modified_dataset.num_observations(), 3);
     assert_eq!(pushed_obs, &new_obs);
     check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
@@ -118,11 +118,11 @@ fn test_push_pop_observations() {
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     // check observation was added, test reverse action
     let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
-    let obs_id = modified_dataset.get_observation_id(2);
+    let obs_id = modified_dataset.get_obs_id(2);
     let expected_obs =
         Observation::new_full_unspecified(modified_dataset.num_variables(), obs_id.as_str())
             .unwrap();
-    let pushed_obs = manager.get_observation(&d1_id, obs_id).unwrap();
+    let pushed_obs = manager.get_obs(&d1_id, obs_id).unwrap();
     assert_eq!(modified_dataset.num_observations(), 3);
     assert_eq!(pushed_obs, &expected_obs);
     check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
@@ -144,7 +144,7 @@ fn test_remove_observations() {
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let orig_dataset = manager.get_dataset_by_str("d1").unwrap();
     assert_eq!(orig_dataset.num_observations(), 2);
-    assert_eq!(orig_dataset.get_observation_id(0).as_str(), "o1");
+    assert_eq!(orig_dataset.get_obs_id(0).as_str(), "o1");
 
     // perform observation remove event (remove the first of two observations)
     let full_path = ["observations", "d1", "o1", "remove"];
@@ -153,7 +153,7 @@ fn test_remove_observations() {
     // check observation was removed
     let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
     assert_eq!(modified_dataset.num_observations(), 1);
-    assert_eq!(modified_dataset.get_observation_id(0).as_str(), "o2");
+    assert_eq!(modified_dataset.get_obs_id(0).as_str(), "o2");
 }
 
 #[test]
@@ -168,20 +168,20 @@ fn test_set_observation_fields() {
     let full_path = ["observations", "d1", "o1", "set_id"];
     let event = Event::build(&full_path, Some("new_id"));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
-    assert!(manager.get_observation_by_str("d1", "o1").is_err());
-    assert!(manager.get_observation_by_str("d1", "new_id").is_ok());
+    assert!(manager.get_obs_by_str("d1", "o1").is_err());
+    assert!(manager.get_obs_by_str("d1", "new_id").is_ok());
     let reverse_at_path = ["d1", "new_id", "set_id"];
     check_reverse(&mut manager, &manager_orig, result, &reverse_at_path);
 
     // 2) event to change observation's inner "data"
-    let obs_original = manager.get_observation_by_str("d1", "o1").unwrap();
+    let obs_original = manager.get_obs_by_str("d1", "o1").unwrap();
     assert_eq!(obs_original.num_zeros(), 0);
     let new_obs = Observation::try_from_str("000", "doesnt_matter").unwrap();
     let new_obs_data = ObservationData::from_obs(&new_obs, &d1_id);
     let full_path = ["observations", "d1", "o1", "set_content"];
     let event = Event::build(&full_path, Some(&new_obs_data.to_json_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
-    let obs_modified = manager.get_observation_by_str("d1", "o1").unwrap();
+    let obs_modified = manager.get_obs_by_str("d1", "o1").unwrap();
     assert_eq!(obs_modified.num_zeros(), 3);
     check_reverse(
         &mut manager,
@@ -217,6 +217,6 @@ fn test_refresh() {
     let at_path = ["get_observation", "d1", "o2"];
     let event = manager.refresh(&full_path, &at_path).unwrap();
     let obs_data = ObservationData::from_json_str(&event.payload.unwrap()).unwrap();
-    let expected_obs = d1.get_observation_on_idx(1).unwrap();
+    let expected_obs = d1.get_obs_on_idx(1).unwrap();
     assert_eq!(&obs_data.to_observation().unwrap(), expected_obs);
 }

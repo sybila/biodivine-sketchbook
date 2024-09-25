@@ -19,7 +19,7 @@ impl Dataset {
     pub fn generate_obs_id(&self, ideal_id: &str, start_index: Option<usize>) -> ObservationId {
         self.generate_id(
             ideal_id,
-            &(Self::is_valid_observation),
+            &(Self::is_valid_obs),
             self.num_observations(),
             start_index,
         )

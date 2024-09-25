@@ -220,30 +220,34 @@ impl ObservationManager {
         self.get_dataset(&dataset_id)
     }
 
+    /// Shorthand to get `ObservationId` from a specified dataset.
+    ///
+    /// Return `Err` if such dataset does not exist (the ID is invalid in this context).
+    pub fn get_obs_id(&self, dataset_id: &str, obs_id: &str) -> Result<ObservationId, String> {
+        let dataset = self.get_dataset_by_str(dataset_id)?;
+        dataset.get_obs_id_by_str(obs_id)
+    }
+
     /// Shorthand to get `Observation` with a given id, from a specified dataset.
     ///
     /// Return `Err` if such dataset does not exist (the ID is invalid in this context).
-    pub fn get_observation(
+    pub fn get_obs(
         &self,
         dataset_id: &DatasetId,
         obs_id: &ObservationId,
     ) -> Result<&Observation, String> {
         let dataset = self.get_dataset(dataset_id)?;
-        dataset.get_observation(obs_id)
+        dataset.get_obs(obs_id)
     }
 
     /// Shorthand to get `Observation` with a given string id, from a specified dataset.
     ///
     /// Return `Err` if such dataset (or observation) does not exist (the ID is invalid
     /// in this context).
-    pub fn get_observation_by_str(
-        &self,
-        dataset_id: &str,
-        obs_id: &str,
-    ) -> Result<&Observation, String> {
+    pub fn get_obs_by_str(&self, dataset_id: &str, obs_id: &str) -> Result<&Observation, String> {
         let dataset_id = DatasetId::new(dataset_id)?;
         let obs_id = ObservationId::new(obs_id)?;
-        self.get_observation(&dataset_id, &obs_id)
+        self.get_obs(&dataset_id, &obs_id)
     }
 
     /// Return an iterator over all datasets of this model.

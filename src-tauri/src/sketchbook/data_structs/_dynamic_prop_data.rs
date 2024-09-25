@@ -129,8 +129,10 @@ impl DynPropertyData {
     /// Extract the corresponding `DynProperty` instance from this `DynPropertyData`.
     pub fn to_property(&self) -> Result<DynProperty, String> {
         let name = self.name.as_str();
-        match &self.variant {
-            DynPropertyTypeData::GenericDynProp(p) => DynProperty::mk_generic(name, &p.formula),
+        let property = match &self.variant {
+            DynPropertyTypeData::GenericDynProp(p) => {
+                DynProperty::try_mk_generic(name, &p.formula)?
+            }
             DynPropertyTypeData::ExistsFixedPoint(p) => DynProperty::mk_fixed_point(
                 name,
                 p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
@@ -159,9 +161,10 @@ impl DynPropertyData {
                     .and_then(|t| ObservationId::new(t).ok()),
             ),
             DynPropertyTypeData::AttractorCount(p) => {
-                DynProperty::mk_attractor_count(name, p.minimal, p.maximal)
+                DynProperty::try_mk_attractor_count(name, p.minimal, p.maximal)?
             }
-        }
+        };
+        Ok(property)
     }
 
     /// **(internal)** Shorthand to create new `DynPropertyData` instance given all its fields.

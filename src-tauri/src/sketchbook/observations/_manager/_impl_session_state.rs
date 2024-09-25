@@ -75,7 +75,7 @@ impl SessionState for ObservationManager {
                 let dataset_id = self.get_dataset_id(dataset_id_str)?;
                 let obs_id_str = at_path[2];
 
-                let observation = self.get_observation_by_str(dataset_id_str, obs_id_str)?;
+                let observation = self.get_obs_by_str(dataset_id_str, obs_id_str)?;
                 let obs_data = ObservationData::from_obs(observation, &dataset_id);
                 let payload = Some(obs_data.to_json_str());
 

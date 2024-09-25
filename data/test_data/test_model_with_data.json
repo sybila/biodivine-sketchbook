@@ -1,0 +1,291 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "A",
+        "name": "A",
+        "update_fn": "h(C)"
+      },
+      {
+        "id": "B",
+        "name": "B",
+        "update_fn": "f(A, D)"
+      },
+      {
+        "id": "C",
+        "name": "C",
+        "update_fn": "A & g(C, B)"
+      },
+      {
+        "id": "D",
+        "name": "D",
+        "update_fn": ""
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "A",
+        "target": "B",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "A",
+        "target": "C",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "B",
+        "target": "C",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "C",
+        "target": "A",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "C",
+        "target": "C",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "D",
+        "target": "B",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "D",
+        "target": "D",
+        "sign": "Unknown",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [
+      {
+        "id": "f",
+        "name": "f",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "g",
+        "name": "g",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "h",
+        "name": "h",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      }
+    ],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "D",
+            "px": 642.49677,
+            "py": 185.15988
+          },
+          {
+            "layout": "default",
+            "variable": "C",
+            "px": 504.7078,
+            "py": 101.93903
+          },
+          {
+            "layout": "default",
+            "variable": "A",
+            "px": 346.89832,
+            "py": 183.03789
+          },
+          {
+            "layout": "default",
+            "variable": "B",
+            "px": 0.0,
+            "py": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "id": "data_mts",
+      "observations": [
+        {
+          "id": "abc",
+          "dataset": "data_mts",
+          "values": "111*"
+        },
+        {
+          "id": "ab",
+          "dataset": "data_mts",
+          "values": "11**"
+        }
+      ],
+      "variables": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "id": "data_fp",
+      "observations": [
+        {
+          "id": "ones",
+          "dataset": "data_fp",
+          "values": "1111"
+        },
+        {
+          "id": "zeros",
+          "dataset": "data_fp",
+          "values": "0000"
+        }
+      ],
+      "variables": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    }
+  ],
+  "dyn_properties": [],
+  "stat_properties": [
+    {
+      "id": "essentiality_D_B",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "D",
+      "target": "B",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_B",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "B",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_B",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "B",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_D_D",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "D",
+      "target": "D",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_B_C",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "B",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_C_C",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "C",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_B_C",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "B",
+      "target": "C",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_C_C",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "C",
+      "target": "C",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_C",
+      "name": "Regulation essentiality property",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_C",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "C",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_D_B",
+      "name": "Regulation monotonicity property",
+      "variant": "RegulationMonotonic",
+      "input": "D",
+      "target": "B",
+      "value": "Activation",
+      "context": null
+    }
+  ]
+}

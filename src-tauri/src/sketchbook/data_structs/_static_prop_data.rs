@@ -183,8 +183,10 @@ impl StatPropertyData {
     /// Extract the corresponding `StatProperty` instance from this `StatPropertyData`.
     pub fn to_property(&self) -> Result<StatProperty, String> {
         let name = self.name.as_str();
-        match &self.variant {
-            StatPropertyTypeData::GenericStatProp(p) => StatProperty::mk_generic(name, &p.formula),
+        let property = match &self.variant {
+            StatPropertyTypeData::GenericStatProp(p) => {
+                StatProperty::try_mk_generic(name, &p.formula)?
+            }
             StatPropertyTypeData::FnInputMonotonic(p) => StatProperty::mk_fn_input_monotonic(
                 name,
                 input_id_to_index(&p.input)?,
@@ -253,7 +255,8 @@ impl StatPropertyData {
                     p.context.clone().ok_or("Context missing.")?,
                 )
             }
-        }
+        };
+        Ok(property)
     }
 
     /// **(internal)** Shorthand to create new `StatPropertyData` instance given all its fields.

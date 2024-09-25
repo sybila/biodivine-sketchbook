@@ -26,13 +26,13 @@ impl Sketch {
 
             if reg.get_essentiality() != &Essentiality::Unknown {
                 let prop_id = get_essentiality_prop_id(input_var, target_var);
-                let prop = get_essentiality_prop(input_var, target_var, *reg.get_essentiality());
+                let prop = mk_essentiality_prop(input_var, target_var, *reg.get_essentiality());
                 sketch.properties.add_raw_static(prop_id, prop)?;
             }
 
             if reg.get_sign() != &Monotonicity::Unknown {
                 let prop_id = get_monotonicity_prop_id(input_var, target_var);
-                let prop = get_monotonicity_prop(input_var, target_var, *reg.get_sign());
+                let prop = mk_monotonicity_prop(input_var, target_var, *reg.get_sign());
                 sketch.properties.add_raw_static(prop_id, prop)?;
             }
         }

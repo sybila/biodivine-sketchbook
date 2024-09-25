@@ -25,7 +25,7 @@ impl Dataset {
         let payload = Self::clone_payload_str(event, component_name)?;
         let observation_data = ObservationData::from_json_str(payload.as_str())?;
         let observation = observation_data.to_observation()?;
-        self.push_observation(observation)?;
+        self.push_obs(observation)?;
 
         // prepare the state-change variant (remove IDs from the path)
         let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
@@ -48,7 +48,7 @@ impl Dataset {
         let id = self.generate_obs_id("obs", Some(1));
         let observation = Observation::new_full_unspecified(self.num_variables(), id.as_str())?;
         let observation_data = ObservationData::from_obs(&observation, &dataset_id);
-        self.push_observation(observation)?;
+        self.push_obs(observation)?;
 
         // prepare the state-change variant - classical push_obs event
         let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
@@ -73,7 +73,7 @@ impl Dataset {
         let obs_data = ObservationData::from_obs(last_obs, &dataset_id);
 
         // perform the action, prepare the state-change variant (move IDs from path to payload)
-        self.pop_observation();
+        self.pop_obs();
         let state_change = mk_obs_state_change(&["pop_obs"], &obs_data);
 
         // prepare the reverse 'add_last' event (path has no ids, all info carried by payload)
@@ -95,11 +95,11 @@ impl Dataset {
 
         if action == "remove" {
             // save the original observation data for state change and reverse event
-            let original_obs = self.get_observation(&obs_id)?.clone();
+            let original_obs = self.get_obs(&obs_id)?.clone();
             let obs_data = ObservationData::from_obs(&original_obs, &dataset_id);
 
             // perform the action, prepare the state-change variant (move IDs from path to payload)
-            self.remove_observation(&obs_id)?;
+            self.remove_obs(&obs_id)?;
             let state_change = mk_obs_state_change(&["remove_obs"], &obs_data);
 
             // TODO: make this potentially reversible?
@@ -132,14 +132,14 @@ impl Dataset {
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_obs_data = ObservationData::from_json_str(&payload)?;
             let new_obs = new_obs_data.to_observation()?;
-            let orig_obs = self.get_observation(&obs_id)?;
+            let orig_obs = self.get_obs(&obs_id)?;
             if orig_obs == &new_obs {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the action, prepare the state-change variant (move id from path to payload)
             let orig_obs_data = ObservationData::from_obs(orig_obs, &dataset_id);
-            self.swap_observation_data(&obs_id, new_obs.get_values().clone())?;
+            self.swap_obs_data(&obs_id, new_obs.get_values().clone())?;
             let state_change = mk_obs_state_change(&["set_obs_content"], &new_obs_data);
 
             // prepare the reverse event (setting the original ID back)
