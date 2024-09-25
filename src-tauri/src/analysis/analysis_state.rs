@@ -1,6 +1,7 @@
 use crate::analysis::analysis_results::AnalysisResults;
 use crate::analysis::analysis_type::AnalysisType;
 use crate::analysis::data_structs::SamplingData;
+use crate::analysis::inference_solver::FinishedInferenceSolver;
 use crate::analysis::inference_solver::InferenceSolver;
 use crate::analysis::sampling_networks::download_witnesses;
 use crate::app::event::Event;
@@ -13,8 +14,6 @@ use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
-
-use super::inference_solver::FinishedInferenceSolver;
 
 /// Object encompassing all of the components of the Analysis tab.
 /// That inludes boths the components that are exchanged with frontend,

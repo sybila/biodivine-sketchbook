@@ -1,14 +1,13 @@
 use crate::algorithms::eval_dynamic::eval::eval_dyn_prop;
-use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic;
-use crate::algorithms::eval_static::encode::*;
+use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic_hctl;
+use crate::algorithms::eval_dynamic::processed_props::{process_dynamic_props, ProcessedDynProp};
 use crate::algorithms::eval_static::eval::eval_static_prop;
-use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static;
+use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static_fol;
+use crate::algorithms::eval_static::processed_props::{process_static_props, ProcessedStatProp};
 use crate::algorithms::fo_logic::utils::get_implicit_function_name;
 use crate::analysis::analysis_results::AnalysisResults;
 use crate::analysis::analysis_type::AnalysisType;
 use crate::debug;
-use crate::sketchbook::properties::static_props::StatPropertyType;
-use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
 use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
@@ -31,8 +30,10 @@ pub enum InferenceStatus {
     Started,
     /// Sketch input is processed (BN object created, ...).
     ProcessedInputs,
-    /// Symbolic context and graph is created (can happen multiple times).
-    GeneratedGraph,
+    /// Symbolic context and graph for static props is created.
+    GeneratedContextStatic,
+    /// Symbolic context and graph for dynamic props is created.
+    GeneratedContextDynamic,
     /// Static property is evaluated (can happen multiple times).
     EvaluatedStatic,
     /// All static properties are evaluated.
@@ -63,15 +64,15 @@ pub struct InferenceSolver {
     /// Its set of unit colors is gradually updated during computation, and it consists of
     /// currently remaining valid candidate colors.
     graph: Option<SymbolicAsyncGraph>,
-    /// Static properties (once collected).
-    static_props: Option<Vec<StatProperty>>,
-    /// Dynamic properties (once collected).
-    dynamic_props: Option<Vec<DynProperty>>,
+    /// Static properties (once processed).
+    static_props: Option<Vec<ProcessedStatProp>>,
+    /// Dynamic properties (once processed).
+    dynamic_props: Option<Vec<ProcessedDynProp>>,
     /// Set of final satisfying colors ((if computation finishes successfully).
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
     status_updates: Vec<(InferenceStatus, SystemTime)>,
-    /// Flag to signal cancellation
+    /// Flag to signal cancellation.
     should_stop: Arc<AtomicBool>,
     /// Channel to send updates regarding the computation.
     sender_channel: Sender<String>,
@@ -134,7 +135,7 @@ impl InferenceSolver {
     }
 
     /// Reference getter for a vector of formulas for static properties.
-    pub fn stat_props(&self) -> Result<&Vec<StatProperty>, String> {
+    pub fn stat_props(&self) -> Result<&Vec<ProcessedStatProp>, String> {
         if let Some(stat_props) = &self.static_props {
             Ok(stat_props)
         } else {
@@ -143,7 +144,7 @@ impl InferenceSolver {
     }
 
     /// Reference getter for a vector of formulas for dynamic properties.
-    pub fn dyn_props(&self) -> Result<&Vec<DynProperty>, String> {
+    pub fn dyn_props(&self) -> Result<&Vec<ProcessedDynProp>, String> {
         if let Some(dyn_props) = &self.dynamic_props {
             Ok(dyn_props)
         } else {
@@ -278,7 +279,7 @@ impl InferenceSolver {
     /// The results are saved to sepcific fields of the provided solver and can be retrieved later.
     /// They are also returned, which is now used for logging later.
     ///
-    /// TODO: Some parts (like evaluation for template dynamic properties) are still not implemented.
+    /// TODO: Some parts (like evaluation for time-series properties) are still not implemented.
     pub async fn run_inference_async(
         solver: Arc<RwLock<InferenceSolver>>,
         sketch: Sketch,
@@ -327,14 +328,8 @@ impl InferenceSolver {
         results
     }
 
-    /// Extract and convert relevant components from the sketch (boolean network, properties).
-    ///
-    /// Translates all static properties into Generic properties (by encoding the property to FOL).
-    ///
-    /// TODO: Processing for template dynamic properties is still not implemented.
-    fn process_inputs(
-        sketch: Sketch,
-    ) -> Result<(BooleanNetwork, Vec<StatProperty>, Vec<DynProperty>), String> {
+    /// Extract and process BN component from the sketch.
+    fn extract_bn(sketch: &Sketch) -> Result<BooleanNetwork, String> {
         let bn = sketch.model.to_bn_with_plain_regulations(None);
         // remove all unused function symbols, as these would cause problems later
         let mut bn = bn.prune_unused_parameters();
@@ -356,92 +351,7 @@ impl InferenceSolver {
                     .unwrap();
             }
         }
-
-        let mut static_props = vec![];
-        for (id, stat_prop) in sketch.properties.stat_props() {
-            let name = stat_prop.get_name();
-
-            // currently, everything is encoded into first-order logic (into a "generic" property)
-            let stat_prop_processed = match stat_prop.get_prop_data() {
-                StatPropertyType::GenericStatProp(..) => stat_prop.clone(),
-                StatPropertyType::RegulationEssential(prop)
-                | StatPropertyType::RegulationEssentialContext(prop) => {
-                    let input_name = prop.input.clone().unwrap();
-                    let target_name = prop.target.clone().unwrap();
-                    let mut formula = encode_regulation_essentiality(
-                        input_name.as_str(),
-                        target_name.as_str(),
-                        prop.clone().value,
-                        &bn,
-                    );
-                    if let Some(context_formula) = &prop.context {
-                        formula = encode_property_in_context(context_formula, &formula);
-                    }
-                    StatProperty::mk_generic(name, &formula)?
-                }
-                StatPropertyType::RegulationMonotonic(prop)
-                | StatPropertyType::RegulationMonotonicContext(prop) => {
-                    let input_name = prop.input.clone().unwrap();
-                    let target_name = prop.target.clone().unwrap();
-                    let mut formula = encode_regulation_monotonicity(
-                        input_name.as_str(),
-                        target_name.as_str(),
-                        prop.clone().value,
-                        &bn,
-                    );
-                    if let Some(context_formula) = &prop.context {
-                        formula = encode_property_in_context(context_formula, &formula);
-                    }
-                    StatProperty::mk_generic(name, &formula)?
-                }
-                StatPropertyType::FnInputEssential(prop)
-                | StatPropertyType::FnInputEssentialContext(prop) => {
-                    let fn_id = prop.target.clone().unwrap();
-                    let input_idx = prop.input_index.unwrap();
-                    let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
-                    let mut formula = encode_essentiality(
-                        number_inputs,
-                        input_idx,
-                        fn_id.as_str(),
-                        prop.clone().value,
-                    );
-                    if let Some(context_formula) = &prop.context {
-                        formula = encode_property_in_context(context_formula, &formula);
-                    }
-                    StatProperty::mk_generic(name, &formula)?
-                }
-                StatPropertyType::FnInputMonotonic(prop)
-                | StatPropertyType::FnInputMonotonicContext(prop) => {
-                    let fn_id = prop.target.clone().unwrap();
-                    let input_idx = prop.input_index.unwrap();
-                    let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
-                    let mut formula = encode_monotonicity(
-                        number_inputs,
-                        input_idx,
-                        fn_id.as_str(),
-                        prop.clone().value,
-                    );
-                    if let Some(context_formula) = &prop.context {
-                        formula = encode_property_in_context(context_formula, &formula);
-                    }
-                    StatProperty::mk_generic(name, &formula)?
-                }
-            };
-            static_props.push((id, stat_prop_processed))
-        }
-
-        let mut dynamic_props = vec![];
-        for (id, dyn_prop) in sketch.properties.dyn_props() {
-            dynamic_props.push((id, dyn_prop.clone()));
-        }
-
-        // sort properties by IDs for deterministic computation times (and remove the IDs)
-        dynamic_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
-        let dynamic_props = dynamic_props.into_iter().map(|p| p.1).collect();
-        static_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
-        let static_props = static_props.into_iter().map(|p| p.1).collect();
-
-        Ok((bn, static_props, dynamic_props))
+        Ok(bn)
     }
 
     /// Evaluate previously collected static properties, and restrict the unit set of the
@@ -487,8 +397,8 @@ impl InferenceSolver {
     /// Internal modular variant of the inference. You can choose which parts to select.
     /// For example, you can only consider static properties, only dynamic properties, or all.
     ///
-    /// TODO: Some parts (like evaluation for template dynamic properties) are still not implemented.
-    fn run_inference_modular(
+    /// TODO: Some parts (like evaluation for time-series properties) are still not implemented.
+    pub(crate) fn run_inference_modular(
         &mut self,
         analysis_type: AnalysisType,
         sketch: Sketch,
@@ -503,7 +413,9 @@ impl InferenceSolver {
 
         /* >> STEP 1: process basic components of the sketch to be used */
         // this also does few input simplifications, like filtering out unused function symbols from the BN
-        let (bn, static_props, dynamic_props) = Self::process_inputs(sketch)?;
+        let bn = Self::extract_bn(&sketch)?;
+        let static_props = process_static_props(&sketch, &bn)?;
+        let dynamic_props = process_dynamic_props(&sketch)?;
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);
@@ -520,13 +432,13 @@ impl InferenceSolver {
             let base_var = self.bn()?.variables().collect::<Vec<_>>()[0];
             let base_var_name = self.bn()?.as_graph().get_variable_name(base_var).clone();
 
-            self.graph = Some(prepare_graph_for_static(
+            self.graph = Some(prepare_graph_for_static_fol(
                 self.bn()?,
                 self.stat_props()?,
                 &base_var_name,
                 None,
             )?);
-            self.update_status(InferenceStatus::GeneratedGraph);
+            self.update_status(InferenceStatus::GeneratedContextStatic);
             let msg = format!(
                 "N. of candidates before evaluating any properties: {}\n",
                 self.current_candidate_colors()?.approx_cardinality()
@@ -548,17 +460,12 @@ impl InferenceSolver {
             /* >> STEP 3A: make symbolic transition graph for HCTL evaluation with restricted unit BDD */
             let old_unit_bdd = self.current_candidate_colors()?.into_bdd();
             let old_context = self.graph()?.symbolic_context();
-            self.graph = Some(prepare_graph_for_dynamic(
+            self.graph = Some(prepare_graph_for_dynamic_hctl(
                 self.bn()?,
                 self.dyn_props()?,
                 Some((&old_unit_bdd, old_context)),
             )?);
-            self.update_status(InferenceStatus::GeneratedGraph);
-            //let msg = format!(
-            //    "N. of candidates before evaluating any dynamic properties: {}\n",
-            //    self.current_candidate_colors()?.approx_cardinality()
-            //);
-            //metadata.push_str(&msg);
+            self.update_status(InferenceStatus::GeneratedContextDynamic);
 
             /* >> STEP 3B: actually evaluate dynamic properties */
             self.eval_dynamic()?;

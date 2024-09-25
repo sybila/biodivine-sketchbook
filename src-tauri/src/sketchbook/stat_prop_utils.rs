@@ -22,8 +22,8 @@ pub fn get_essentiality_prop_id(regulator: &VarId, target: &VarId) -> StatProper
 }
 
 /// Shorthand to get a static property that describes essentiality of a regulation
-/// between `regulator` and `target`.
-pub fn get_essentiality_prop(
+/// between `regulator` and `target`. Name is generic.
+pub fn mk_essentiality_prop(
     regulator: &VarId,
     target: &VarId,
     essentiality: Essentiality,
@@ -36,12 +36,11 @@ pub fn get_essentiality_prop(
         Some(target.clone()),
         essentiality,
     )
-    .unwrap()
 }
 
-/// **(internal)** Shorthand to get a static property that describes monotonicity of a regulation
-/// between `regulator` and `target`.
-pub fn get_monotonicity_prop(
+/// Shorthand to get a static property that describes monotonicity of a regulation
+/// between `regulator` and `target`. Name is generic.
+pub fn mk_monotonicity_prop(
     regulator: &VarId,
     target: &VarId,
     monotonicity: Monotonicity,
@@ -54,5 +53,4 @@ pub fn get_monotonicity_prop(
         Some(target.clone()),
         monotonicity,
     )
-    .unwrap()
 }

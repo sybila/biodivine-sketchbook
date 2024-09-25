@@ -39,13 +39,13 @@ impl PropertyManager {
             let prop_id = DynPropertyId::new(id)?;
             manager
                 .dyn_properties
-                .insert(prop_id, DynProperty::mk_generic(name, formula)?);
+                .insert(prop_id, DynProperty::try_mk_generic(name, formula)?);
         }
         for (id, name, formula) in stat_properties {
             let prop_id = StatPropertyId::new(id)?;
             manager
                 .stat_properties
-                .insert(prop_id, StatProperty::mk_generic(name, formula)?);
+                .insert(prop_id, StatProperty::try_mk_generic(name, formula)?);
         }
         Ok(manager)
     }
@@ -113,7 +113,7 @@ impl PropertyManager {
         raw_formula: &str,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_generic(name, raw_formula)?;
+        let property = DynProperty::try_mk_generic(name, raw_formula)?;
         self.dyn_properties.insert(id, property);
         Ok(())
     }
@@ -128,7 +128,7 @@ impl PropertyManager {
         observation: Option<ObservationId>,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_fixed_point(name, dataset, observation)?;
+        let property = DynProperty::mk_fixed_point(name, dataset, observation);
         self.dyn_properties.insert(id, property);
         Ok(())
     }
@@ -146,7 +146,7 @@ impl PropertyManager {
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
         let property =
-            DynProperty::mk_trap_space(name, dataset, observation, minimal, non_percolable)?;
+            DynProperty::mk_trap_space(name, dataset, observation, minimal, non_percolable);
         self.dyn_properties.insert(id, property);
         Ok(())
     }
@@ -160,7 +160,7 @@ impl PropertyManager {
         dataset: Option<DatasetId>,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_trajectory(name, dataset)?;
+        let property = DynProperty::mk_trajectory(name, dataset);
         self.dyn_properties.insert(id, property);
         Ok(())
     }
@@ -174,7 +174,7 @@ impl PropertyManager {
         maximal: usize,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_attractor_count(name, minimal, maximal)?;
+        let property = DynProperty::try_mk_attractor_count(name, minimal, maximal)?;
         self.dyn_properties.insert(id, property);
         Ok(())
     }
@@ -189,7 +189,7 @@ impl PropertyManager {
         observation: Option<ObservationId>,
     ) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_has_attractor(name, dataset, observation)?;
+        let property = DynProperty::mk_has_attractor(name, dataset, observation);
         self.dyn_properties.insert(id, property);
         Ok(())
     }
@@ -203,7 +203,7 @@ impl PropertyManager {
         raw_formula: &str,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
-        let property = StatProperty::mk_generic(name, raw_formula)?;
+        let property = StatProperty::try_mk_generic(name, raw_formula)?;
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -219,7 +219,7 @@ impl PropertyManager {
         value: Essentiality,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
-        let property = StatProperty::mk_regulation_essential(name, input, target, value)?;
+        let property = StatProperty::mk_regulation_essential(name, input, target, value);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -237,7 +237,7 @@ impl PropertyManager {
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_regulation_essential_context(name, input, target, value, context)?;
+            StatProperty::mk_regulation_essential_context(name, input, target, value, context);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -253,7 +253,7 @@ impl PropertyManager {
         value: Monotonicity,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
-        let property = StatProperty::mk_regulation_monotonic(name, input, target, value)?;
+        let property = StatProperty::mk_regulation_monotonic(name, input, target, value);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -271,7 +271,7 @@ impl PropertyManager {
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_regulation_monotonic_context(name, input, target, value, context)?;
+            StatProperty::mk_regulation_monotonic_context(name, input, target, value, context);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -287,7 +287,7 @@ impl PropertyManager {
         value: Essentiality,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
-        let property = StatProperty::mk_fn_input_essential(name, input_index, target, value)?;
+        let property = StatProperty::mk_fn_input_essential(name, input_index, target, value);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -305,7 +305,7 @@ impl PropertyManager {
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_fn_input_essential_context(name, input_index, target, value, context)?;
+            StatProperty::mk_fn_input_essential_context(name, input_index, target, value, context);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -321,7 +321,7 @@ impl PropertyManager {
         value: Monotonicity,
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
-        let property = StatProperty::mk_fn_input_monotonic(name, input_index, target, value)?;
+        let property = StatProperty::mk_fn_input_monotonic(name, input_index, target, value);
         self.stat_properties.insert(id, property);
         Ok(())
     }
@@ -339,7 +339,7 @@ impl PropertyManager {
     ) -> Result<(), String> {
         self.assert_no_static(&id)?;
         let property =
-            StatProperty::mk_fn_input_monotonic_context(name, input_index, target, value, context)?;
+            StatProperty::mk_fn_input_monotonic_context(name, input_index, target, value, context);
         self.stat_properties.insert(id, property);
         Ok(())
     }

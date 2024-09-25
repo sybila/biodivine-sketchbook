@@ -35,7 +35,7 @@ impl ObservationManager {
             let observation = Observation::new(values, id)?;
             observations.push(observation);
         }
-        Dataset::new_unspecified(observations, variables)
+        Dataset::new(observations, variables)
     }
 
     /// Load a dataset from given CSV file, and add it to this `ObservationManager`. The header

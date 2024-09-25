@@ -21,7 +21,7 @@ pub struct StatProperty {
 impl StatProperty {
     /// Create "generic" `StatProperty` instance directly from a formula, which must be in a
     /// correct format (which is verified).
-    pub fn mk_generic(name: &str, raw_formula: &str) -> Result<StatProperty, String> {
+    pub fn try_mk_generic(name: &str, raw_formula: &str) -> Result<StatProperty, String> {
         let property = GenericStatProp {
             raw_formula: raw_formula.to_string(),
             processed_formula: FirstOrderFormula::try_from_str(raw_formula)?,
@@ -38,17 +38,17 @@ impl StatProperty {
         input: Option<VarId>,
         target: Option<VarId>,
         value: Essentiality,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = RegulationEssential {
             input,
             target,
             value,
             context: None,
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::RegulationEssential(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an update function is essential
@@ -59,17 +59,17 @@ impl StatProperty {
         target: Option<VarId>,
         value: Essentiality,
         context: String,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = RegulationEssential {
             input,
             target,
             value,
             context: Some(context),
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::RegulationEssentialContext(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an update function is monotonic.
@@ -78,17 +78,17 @@ impl StatProperty {
         input: Option<VarId>,
         target: Option<VarId>,
         value: Monotonicity,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = RegulationMonotonic {
             input,
             target,
             value,
             context: None,
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::RegulationMonotonic(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an update function is monotonic
@@ -99,17 +99,17 @@ impl StatProperty {
         target: Option<VarId>,
         value: Monotonicity,
         context: String,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = RegulationMonotonic {
             input,
             target,
             value,
             context: Some(context),
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::RegulationMonotonicContext(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
@@ -119,17 +119,17 @@ impl StatProperty {
         input_index: Option<usize>,
         target: Option<UninterpretedFnId>,
         value: Essentiality,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = FnInputEssential {
             input_index,
             target,
             value,
             context: None,
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::FnInputEssentialContext(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
@@ -140,17 +140,17 @@ impl StatProperty {
         target: Option<UninterpretedFnId>,
         value: Essentiality,
         context: String,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = FnInputEssential {
             input_index,
             target,
             value,
             context: Some(context),
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::FnInputEssentialContext(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
@@ -160,17 +160,17 @@ impl StatProperty {
         input_index: Option<usize>,
         target: Option<UninterpretedFnId>,
         value: Monotonicity,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = FnInputMonotonic {
             input_index,
             target,
             value,
             context: None,
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::FnInputMonotonic(property),
-        })
+        }
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
@@ -181,17 +181,17 @@ impl StatProperty {
         target: Option<UninterpretedFnId>,
         value: Monotonicity,
         context: String,
-    ) -> Result<StatProperty, String> {
+    ) -> StatProperty {
         let property = FnInputMonotonic {
             input_index,
             target,
             value,
             context: Some(context),
         };
-        Ok(StatProperty {
+        StatProperty {
             name: name.to_string(),
             variant: StatPropertyType::FnInputMonotonicContext(property),
-        })
+        }
     }
 
     /// Create default `StatProperty` instance of specified variant.
@@ -219,14 +219,13 @@ impl StatProperty {
 
     /// Create default "generic" `StatProperty` instance, representing "true" formula.
     pub fn default_generic() -> StatProperty {
-        Self::mk_generic("Generic static property", "true").unwrap()
+        Self::try_mk_generic("Generic static property", "true").unwrap()
     }
 
     /// Create default `StatProperty` instance for regulation essentiality (with empty `input` and
     /// `target` fields and `Unknown` essentiality).
     pub fn default_regulation_essential() -> StatProperty {
         Self::mk_regulation_essential("Regulation essential", None, None, Essentiality::Unknown)
-            .unwrap()
     }
 
     /// Create default `StatProperty` instance for regulation essentiality in a context
@@ -239,14 +238,12 @@ impl StatProperty {
             Essentiality::Unknown,
             "true".to_string(),
         )
-        .unwrap()
     }
 
     /// Create default `StatProperty` instance for regulation monotonicity (with empty `input` and
     /// `target` fields and `Unknown` monotonicity).
     pub fn default_regulation_monotonic() -> StatProperty {
         Self::mk_regulation_monotonic("Regulation monotonic", None, None, Monotonicity::Unknown)
-            .unwrap()
     }
 
     /// Create default `StatProperty` instance for regulation monotonicity in a context
@@ -259,7 +256,6 @@ impl StatProperty {
             Monotonicity::Unknown,
             "true".to_string(),
         )
-        .unwrap()
     }
 
     /// Create default `StatProperty` instance for function input essentiality (with empty `input`
@@ -271,7 +267,6 @@ impl StatProperty {
             None,
             Essentiality::Unknown,
         )
-        .unwrap()
     }
 
     /// Create default `StatProperty` instance for function input essentiality in a context
@@ -284,7 +279,6 @@ impl StatProperty {
             Essentiality::Unknown,
             "true".to_string(),
         )
-        .unwrap()
     }
 
     /// Create default `StatProperty` instance for function input monotonicity (with empty `input`
@@ -296,7 +290,6 @@ impl StatProperty {
             None,
             Monotonicity::Unknown,
         )
-        .unwrap()
     }
 
     /// Create default `StatProperty` instance for function input monotonicity in a context
@@ -309,7 +302,6 @@ impl StatProperty {
             Monotonicity::Unknown,
             "true".to_string(),
         )
-        .unwrap()
     }
 }
 

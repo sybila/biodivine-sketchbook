@@ -2,7 +2,7 @@ import { css, html, LitElement, type PropertyValues, type TemplateResult, unsafe
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
-import { ContentData, DataCategory, type IObservation, type IObservationSet } from '../../util/data-interfaces'
+import { ContentData, type IObservation, type IObservationSet } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
@@ -79,8 +79,7 @@ export default class ObservationsEditor extends LitElement {
     return {
       id: datasetData.id,
       observations,
-      variables: datasetData.variables,
-      category: datasetData.category
+      variables: datasetData.variables
     }
   }
 
@@ -91,8 +90,7 @@ export default class ObservationsEditor extends LitElement {
     return {
       id: dataset.id,
       observations,
-      variables: dataset.variables,
-      category: dataset.category
+      variables: dataset.variables
     }
   }
 
@@ -160,8 +158,7 @@ export default class ObservationsEditor extends LitElement {
       const modifiedDataset: IObservationSet = {
         id: name,
         observations: event.payload,
-        variables,
-        category: DataCategory.UNSPECIFIED
+        variables
       }
       // temporarily add the dataset in its current version, but also send an event to backend with changes
       this.updateObservations(this.contentData.observations.concat(modifiedDataset))

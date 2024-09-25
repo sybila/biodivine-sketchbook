@@ -8,7 +8,7 @@ use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_obs_event, mk_obs_state_change,
 };
 use crate::sketchbook::ids::{DatasetId, ObservationId};
-use crate::sketchbook::observations::{DataCategory, Dataset, ObservationManager};
+use crate::sketchbook::observations::{Dataset, ObservationManager};
 use crate::sketchbook::JsonSerde;
 
 impl SessionHelper for ObservationManager {}
@@ -75,7 +75,7 @@ impl SessionState for ObservationManager {
                 let dataset_id = self.get_dataset_id(dataset_id_str)?;
                 let obs_id_str = at_path[2];
 
-                let observation = self.get_observation_by_str(dataset_id_str, obs_id_str)?;
+                let observation = self.get_obs_by_str(dataset_id_str, obs_id_str)?;
                 let obs_data = ObservationData::from_obs(observation, &dataset_id);
                 let payload = Some(obs_data.to_json_str());
 
@@ -229,25 +229,6 @@ impl ObservationManager {
                 state_change,
                 reset: true,
             })
-        } else if Self::starts_with("set_category", at_path).is_some() {
-            // get the payload - string for data type
-            let payload = Self::clone_payload_str(event, component_name)?;
-            let category: DataCategory = serde_json::from_str(&payload)?;
-            let orig_dataset = self.get_dataset(&dataset_id)?;
-            if orig_dataset.category() == &category {
-                return Ok(Consumed::NoChange);
-            }
-
-            // perform the event, prepare the state-change variant (move id from path to payload)
-            let orig_metadata = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
-            self.set_category(&dataset_id, category)?;
-            let state_change = mk_obs_state_change(&["set_category"], &orig_metadata);
-
-            // prepare the reverse event
-            let reverse_at_path = [dataset_id.as_str(), "set_category"];
-            let payload = orig_metadata.category.to_json_str();
-            let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
-            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_var_id", at_path).is_some() {
             // get the payload - string for ChangeIdData
             let payload = Self::clone_payload_str(event, component_name)?;

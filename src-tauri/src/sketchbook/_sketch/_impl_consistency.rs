@@ -258,7 +258,7 @@ impl Sketch {
     ) -> Result<(), String> {
         if let Some(obs) = obs_id {
             let dataset = self.observations.get_dataset(dataset_id)?;
-            if !dataset.is_valid_observation(obs) {
+            if !dataset.is_valid_obs(obs) {
                 let msg = format!("Observation `{obs}` is not valid in dataset `{dataset_id}`.");
                 return Err(msg);
             }

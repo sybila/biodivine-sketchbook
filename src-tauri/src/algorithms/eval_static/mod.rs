@@ -4,3 +4,5 @@ pub mod encode;
 pub mod eval;
 /// Prepare graph and symbolic context to handle all static properties.
 pub mod prepare_graph;
+/// Processed variants of static properties for evaluation.
+pub mod processed_props;

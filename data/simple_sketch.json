@@ -309,8 +309,7 @@
         "SBF",
         "HCM1",
         "SFF"
-      ],
-      "category": "Unspecified"
+      ]
     },
     {
       "id": "dataset0",
@@ -341,8 +340,7 @@
         "SBF",
         "HCM1",
         "SFF"
-      ],
-      "category": "Unspecified"
+      ]
     }
   ],
   "dyn_properties": [

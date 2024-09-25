@@ -20,10 +20,13 @@ pub mod properties;
 /// Utilities regarding conversion of BN components and similar.
 pub mod bn_utils;
 
+/// **(internal)** Utility functions specifically related to events.
+pub(crate) mod event_utils;
+/// **(internal)** Utilities regarding static proeprties (shortcuts).
+pub(crate) mod stat_prop_utils;
+
 /// The main `Sketch` manager object and its utilities.
 mod _sketch;
-/// **(internal)** Utility functions specifically related to events.
-mod event_utils;
 /// **(internal)** General utilities used throughout the module (e.g., serialization
 /// helper methods).
 mod utils;
@@ -31,7 +34,6 @@ mod utils;
 /// **(internal)** Tests for the event-based API of various top-level components.
 #[cfg(test)]
 mod _tests_events;
-mod stat_prop_utils;
 
 pub use crate::sketchbook::_sketch::Sketch;
 
