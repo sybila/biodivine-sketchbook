@@ -34,7 +34,7 @@ pub fn run_inference_check_statuses(
 ) -> AnalysisResults {
     let (send_channel, rec_channel): (Sender<String>, Receiver<String>) = mpsc::channel();
     let mut solver = InferenceSolver::new(send_channel);
-    let results = solver.run_inference_modular(AnalysisType::Inference, sketch, true, true);
+    let results = solver.run_inference_modular(AnalysisType::FullInference, sketch, true, true);
 
     // test cases are always valid sketches, so we just unwrap
     if let Some(expected_num) = num_statuses {

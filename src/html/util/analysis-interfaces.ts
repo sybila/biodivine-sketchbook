@@ -1,5 +1,5 @@
 export enum AnalysisType {
-  Inference = 'Inference',
-  StaticCheck = 'StaticCheck',
-  DynamicCheck = 'DynamicCheck'
+  FullInference = 'FullInference',
+  StaticInference = 'StaticInference',
+  DynamicInference = 'DynamicInference'
 }

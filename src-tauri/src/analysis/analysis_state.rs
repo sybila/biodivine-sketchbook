@@ -235,30 +235,30 @@ impl SessionState for AnalysisState {
                     "Event `run_inference` received. Starting full inference with all properties."
                 );
 
-                self.start_analysis(AnalysisType::Inference)?; // Start analysis and handle asynchronously
+                self.start_analysis(AnalysisType::FullInference)?; // Start analysis and handle asynchronously
                 let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
                 })
             }
-            Some(&"run_partial_static") => {
+            Some(&"run_static_inference") => {
                 Self::assert_payload_empty(event, "analysis")?;
-                debug!("Event `run_partial_static` received. Starting partial inference with static properties.");
+                debug!("Event `run_static_inference` received. Starting partial inference with static properties.");
 
-                self.start_analysis(AnalysisType::StaticCheck)?; // Start analysis and handle asynchronously
-                let state_change = Event::build(&["analysis", "static_running"], Some("true"));
+                self.start_analysis(AnalysisType::StaticInference)?; // Start analysis and handle asynchronously
+                let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
                 })
             }
-            Some(&"run_partial_dynamic") => {
+            Some(&"run_dynamic_inference") => {
                 Self::assert_payload_empty(event, "analysis")?;
-                debug!("Event `run_partial_dynamic` received. Starting partial inference with dynamic properties.");
+                debug!("Event `run_dynamic_inference` received. Starting partial inference with dynamic properties.");
 
-                self.start_analysis(AnalysisType::DynamicCheck)?; // Start analysis and handle asynchronously
-                let state_change = Event::build(&["analysis", "dynamic_running"], Some("true"));
+                self.start_analysis(AnalysisType::DynamicInference)?; // Start analysis and handle asynchronously
+                let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
@@ -283,17 +283,7 @@ impl SessionState for AnalysisState {
                     let state_change = match self.get_results() {
                         Ok(results) => {
                             let payload = results.to_json_str();
-                            match results.analysis_type {
-                                AnalysisType::Inference => {
-                                    Event::build(&["analysis", "inference_results"], Some(&payload))
-                                }
-                                AnalysisType::StaticCheck => {
-                                    Event::build(&["analysis", "static_results"], Some(&payload))
-                                }
-                                AnalysisType::DynamicCheck => {
-                                    Event::build(&["analysis", "dynamic_results"], Some(&payload))
-                                }
-                            }
+                            Event::build(&["analysis", "inference_results"], Some(&payload))
                         }
                         Err(message) => {
                             let payload = serde_json::to_string(&message).unwrap();

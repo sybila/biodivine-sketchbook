@@ -4,9 +4,7 @@ import style_less from './analysis-component.less?inline'
 import {
   aeonState,
   type SketchData,
-  type InferenceResults,
-  type StaticCheckResults,
-  type DynamicCheckResults
+  type InferenceResults
 } from '../../../aeon_events'
 import {
   AnalysisType
@@ -22,7 +20,7 @@ export default class AnalysisComponent extends LitElement {
   // Type of the analysis we are running
   @state() selected_analysis: AnalysisType | null = null
   // Results of analysis
-  @state() results: InferenceResults | StaticCheckResults | DynamicCheckResults | null = null
+  @state() results: InferenceResults | null = null
   // Track the state of the "Randomize" checkbox for sampling
   @state() isRandomizeChecked: boolean = false
   // ID of the `setInterval` we use for pinging backend to get results
@@ -52,22 +50,10 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.inferenceStarted.addEventListener(
       this.#onInferenceStarted.bind(this)
     )
-    aeonState.analysis.staticCheckStarted.addEventListener(
-      this.#onStaticCheckStarted.bind(this)
-    )
-    aeonState.analysis.dynamicCheckStarted.addEventListener(
-      this.#onDynamicCheckStarted.bind(this)
-    )
 
     // updates regarding analysis results
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
-    )
-    aeonState.analysis.staticCheckResultsReceived.addEventListener(
-      this.#onStaticCheckResultsReceived.bind(this)
-    )
-    aeonState.analysis.dynamicCheckResultsReceived.addEventListener(
-      this.#onDynamicCheckResultsReceived.bind(this)
     )
 
     // updates regarding analysis progress or errors
@@ -119,40 +105,6 @@ export default class AnalysisComponent extends LitElement {
     }, inferencePingTimer)
   }
 
-  #onStaticCheckStarted (success: boolean): void {
-    if (success) {
-      console.log('Inference with static properties sucessfully started. Starting interval pinging backend.')
-    } else {
-      console.log('Error starting inference analysis.')
-    }
-
-    this.waitingMainMessage = 'Computation is running. Waiting for the results.<br>'
-    this.waitingProgressReport += 'Intermediate progress report:\n--------------\n'
-
-    // start pinging backend
-    this.pingIntervalId = setInterval(() => {
-      this.pingCounter += 1
-      aeonState.analysis.pingForInferenceResults()
-    }, inferencePingTimer)
-  }
-
-  #onDynamicCheckStarted (success: boolean): void {
-    if (success) {
-      console.log('Inference with dynamic properties sucessfully started. Starting interval pinging backend.')
-    } else {
-      console.log('Error starting inference analysis.')
-    }
-
-    this.waitingMainMessage = 'Computation is running. Waiting for the results.<br>'
-    this.waitingProgressReport += 'Intermediate progress report:\n--------------\n'
-
-    // start pinging backend
-    this.pingIntervalId = setInterval(() => {
-      this.pingCounter += 1
-      aeonState.analysis.pingForInferenceResults()
-    }, inferencePingTimer)
-  }
-
   #onComputationUpdateMessageReceived (message: string): void {
     console.log(message)
     this.waitingProgressReport += message
@@ -179,26 +131,7 @@ export default class AnalysisComponent extends LitElement {
     console.log('Received full inference results.')
   }
 
-  #onStaticCheckResultsReceived (results: StaticCheckResults): void {
-    // stop pinging backend
-    clearInterval(this.pingIntervalId)
-    this.pingIntervalId = undefined
-    this.pingCounter = 0
-
-    this.results = results
-    console.log('Received static check results.')
-  }
-
-  #onDynamicCheckResultsReceived (results: DynamicCheckResults): void {
-    // stop pinging backend
-    clearInterval(this.pingIntervalId)
-    this.pingIntervalId = undefined
-    this.pingCounter = 0
-
-    this.results = results
-    console.log('Received dynamic check results.')
-  }
-
+  // TODO: use this dialog when restarting inference that did not finish yet
   private async confirmDialog (): Promise<boolean> {
     return await dialog.ask('Are you sure?', {
       type: 'warning',
@@ -211,17 +144,17 @@ export default class AnalysisComponent extends LitElement {
   private runInference (): void {
     console.log('Initiating inference analysis.')
     aeonState.analysis.startFullInference()
-    this.selected_analysis = AnalysisType.Inference
+    this.selected_analysis = AnalysisType.FullInference
   }
 
-  private runStaticCheck (): void {
-    console.log('Initiating static check.')
-    aeonState.analysis.startStaticCheck()
-    this.selected_analysis = AnalysisType.StaticCheck
+  private runStaticInference (): void {
+    console.log('Initiating inference with static properties.')
+    aeonState.analysis.startStaticInference()
+    this.selected_analysis = AnalysisType.StaticInference
   }
 
   // Method to format the results for display
-  private formatResultsOverview (results: InferenceResults | StaticCheckResults | DynamicCheckResults): string {
+  private formatResultsOverview (results: InferenceResults): string {
     const compTime = Math.max(results.comp_time, 1) // just in case, to not have "0 seconds"
     return 'Analysis finished!<br><br>' +
       `Number of satisfying networks: ${results.num_sat_networks}<br>` +
@@ -229,7 +162,7 @@ export default class AnalysisComponent extends LitElement {
   }
 
   // Method to format the results for display
-  private formatResultsMetadata (results: InferenceResults | StaticCheckResults | DynamicCheckResults): string {
+  private formatResultsMetadata (results: InferenceResults): string {
     return 'Computation metadata:\n' +
       '--------------\n' +
       `Analysis type: ${results.analysis_type}\n` +
@@ -321,8 +254,8 @@ export default class AnalysisComponent extends LitElement {
               <div class="uk-flex uk-flex-row uk-flex-center">
                 <button class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
-                          this.runStaticCheck()
-                        }}">Static check
+                          this.runStaticInference()
+                        }}">Run static inference
                 </button>
               </div>
             `

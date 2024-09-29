@@ -296,13 +296,13 @@ impl InferenceSolver {
 
         let mut solver_write = solver.write().await;
         let results = match analysis_type {
-            AnalysisType::Inference => {
+            AnalysisType::FullInference => {
                 solver_write.run_inference_modular(analysis_type, sketch, true, true)
             }
-            AnalysisType::StaticCheck => {
+            AnalysisType::StaticInference => {
                 solver_write.run_inference_modular(analysis_type, sketch, true, false)
             }
-            AnalysisType::DynamicCheck => {
+            AnalysisType::DynamicInference => {
                 solver_write.run_inference_modular(analysis_type, sketch, false, true)
             }
         };

@@ -358,26 +358,14 @@ interface AeonState {
 
     /** Start the full inference analysis. */
     startFullInference: () => void
+    /** Start the inference analysis with static properties only. */
+    startStaticInference: () => void
+    /** Start the inference analysis with dynamic properties only. */
+    startDynamicInference: () => void
     /** Information that async inference analysis was successfully started. */
     inferenceStarted: Observable<boolean>
     /** Inference analysis results. */
     inferenceResultsReceived: Observable<InferenceResults>
-
-    /** Start the static check analysis. */
-    startStaticCheck: () => void
-    /** Information that static check analysis was started.
-     * Currently not utilized. */
-    staticCheckStarted: Observable<boolean>
-    /** Static check analysis results. */
-    staticCheckResultsReceived: Observable<StaticCheckResults>
-
-    /** Start the dynamic check analysis. */
-    startDynamicCheck: () => void
-    /** Information that static check analysis was started.
-     * Currently not utilized. */
-    dynamicCheckStarted: Observable<boolean>
-    /** Static check analysis results. */
-    dynamicCheckResultsReceived: Observable<DynamicCheckResults>
 
     /** Ping backend to see if the results are ready. Can be used regardless of
      * what analysis is running. */
@@ -511,22 +499,6 @@ export interface StatPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing all information regarding inference analysis results. */
 export interface InferenceResults {
-  analysis_type: AnalysisType
-  num_sat_networks: number
-  comp_time: number
-  metadata_log: string
-}
-
-/** An object representing all information regarding static check analysis results. */
-export interface StaticCheckResults {
-  analysis_type: AnalysisType
-  num_sat_networks: number
-  comp_time: number
-  metadata_log: string
-}
-
-/** An object representing all information regarding dynamic check analysis results. */
-export interface DynamicCheckResults {
   analysis_type: AnalysisType
   num_sat_networks: number
   comp_time: number
@@ -1440,11 +1412,7 @@ export const aeonState: AeonState = {
     },
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
-    staticCheckResultsReceived: new Observable<StaticCheckResults>(['analysis', 'static_results']),
-    dynamicCheckResultsReceived: new Observable<DynamicCheckResults>(['analysis', 'dynamic_results']),
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
-    staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
-    dynamicCheckStarted: new Observable<boolean>(['analysis', 'dynamic_running']),
     computationUpdated: new Observable<string>(['analysis', 'computation_update']),
     computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
 
@@ -1454,21 +1422,21 @@ export const aeonState: AeonState = {
         payload: null
       })
     },
+    startStaticInference (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_static_inference'],
+        payload: null
+      })
+    },
+    startDynamicInference (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_dynamic_inference'],
+        payload: null
+      })
+    },
     pingForInferenceResults (): void {
       aeonEvents.emitAction({
         path: ['analysis', 'get_inference_results'],
-        payload: null
-      })
-    },
-    startStaticCheck (): void {
-      aeonEvents.emitAction({
-        path: ['analysis', 'run_partial_static'],
-        payload: null
-      })
-    },
-    startDynamicCheck (): void {
-      aeonEvents.emitAction({
-        path: ['analysis', 'run_partial_dynamic'],
         payload: null
       })
     }
