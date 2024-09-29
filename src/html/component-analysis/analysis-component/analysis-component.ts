@@ -3,11 +3,12 @@ import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './analysis-component.less?inline'
 import {
   aeonState,
-  type SketchData,
-  type InferenceResults
+  type SketchData
 } from '../../../aeon_events'
 import {
-  AnalysisType
+  type InferenceStatusReport,
+  InferenceType,
+  type InferenceResults
 } from '../../util/analysis-interfaces'
 import { dialog } from '@tauri-apps/api'
 import { inferencePingTimer } from '../../util/config'
@@ -18,7 +19,7 @@ export default class AnalysisComponent extends LitElement {
   @property() sketchData: SketchData | null = null
 
   // Type of the analysis we are running
-  @state() selected_analysis: AnalysisType | null = null
+  @state() selected_analysis: InferenceType | null = null
   // Results of analysis
   @state() results: InferenceResults | null = null
   // Track the state of the "Randomize" checkbox for sampling
@@ -32,6 +33,10 @@ export default class AnalysisComponent extends LitElement {
   @state() waitingMainMessage: string = ''
   // Intermediate progress report when waiting for analysis results (can be updated during computation)
   @state() waitingProgressReport: string = ''
+  // Number of already evaluated static properties
+  @state() staticDone: number = 0
+  // Number of already evaluated dynamic properties
+  @state() dynamicDone: number = 0
 
   constructor () {
     super()
@@ -58,7 +63,7 @@ export default class AnalysisComponent extends LitElement {
 
     // updates regarding analysis progress or errors
     aeonState.analysis.computationUpdated.addEventListener(
-      this.#onComputationUpdateMessageReceived.bind(this)
+      this.#onComputationUpdateReceived.bind(this)
     )
     aeonState.analysis.computationErrorReceived.addEventListener(
       this.#onComputationErrorMessageReceived.bind(this)
@@ -95,8 +100,8 @@ export default class AnalysisComponent extends LitElement {
       console.log('Error starting inference analysis.')
     }
 
-    this.waitingMainMessage = 'Computation is running. Waiting for the results.<br>'
-    this.waitingProgressReport += 'Intermediate progress report:\n--------------\n'
+    this.waitingProgressReport += '--------------\nDetailed progress report:\n--------------\n'
+    this.waitingMainMessage = this.formatWaitingOverview()
 
     // start pinging backend
     this.pingIntervalId = setInterval(() => {
@@ -105,9 +110,31 @@ export default class AnalysisComponent extends LitElement {
     }, inferencePingTimer)
   }
 
-  #onComputationUpdateMessageReceived (message: string): void {
-    console.log(message)
-    this.waitingProgressReport += message
+  // Format the message shown during computation, with an overview of progress (into string with
+  // HTML tag newlines).
+  private formatWaitingOverview (): string {
+    const staticTotal = this.sketchData?.stat_properties.length
+    const dynamicTotal = this.sketchData?.dyn_properties.length
+
+    const message = 'Computation is running. Waiting for the results.<br>' +
+      `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>` +
+      `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
+    return message
+  }
+
+  #onComputationUpdateReceived (progressReports: InferenceStatusReport[]): void {
+    progressReports.forEach((progressUpdate) => {
+      console.log(progressUpdate)
+      console.log(progressUpdate.status)
+      if (typeof progressUpdate.status === 'object' && 'EvaluatedStatic' in progressUpdate.status) {
+        this.staticDone += 1
+      }
+      if (typeof progressUpdate.status === 'object' && 'EvaluatedDynamic' in progressUpdate.status) {
+        this.dynamicDone += 1
+      }
+      this.waitingMainMessage = this.formatWaitingOverview()
+      this.waitingProgressReport += progressUpdate.message + '\n'
+    })
   }
 
   #onComputationErrorMessageReceived (message: string): void {
@@ -128,7 +155,7 @@ export default class AnalysisComponent extends LitElement {
     this.pingCounter = 0
 
     this.results = results
-    console.log('Received full inference results.')
+    console.log('Received inference results.')
   }
 
   // TODO: use this dialog when restarting inference that did not finish yet
@@ -144,29 +171,55 @@ export default class AnalysisComponent extends LitElement {
   private runInference (): void {
     console.log('Initiating inference analysis.')
     aeonState.analysis.startFullInference()
-    this.selected_analysis = AnalysisType.FullInference
+    this.selected_analysis = InferenceType.FullInference
   }
 
   private runStaticInference (): void {
     console.log('Initiating inference with static properties.')
     aeonState.analysis.startStaticInference()
-    this.selected_analysis = AnalysisType.StaticInference
+    this.selected_analysis = InferenceType.StaticInference
   }
 
-  // Method to format the results for display
+  // Format computation time (given in milliseconds).
+  private formatCompTime (ms: number): string {
+    if (ms >= 1000) {
+      const seconds = Math.floor(ms / 1000)
+      const milliseconds = ms % 1000
+      return `${seconds}.${milliseconds.toString().padStart(3, '0')} seconds`
+    } else {
+      return `${ms} milliseconds`
+    }
+  }
+
+  // Format the results overview (into string with HTML tag newlines).
   private formatResultsOverview (results: InferenceResults): string {
-    const compTime = Math.max(results.comp_time, 1) // just in case, to not have "0 seconds"
-    return 'Analysis finished!<br><br>' +
-      `Number of satisfying networks: ${results.num_sat_networks}<br>` +
-      `Computation time: ${compTime} seconds<br>`
+    /// format time (from pure milliseconds)
+    const compTimeStr = this.formatCompTime(results.comp_time)
+
+    // different message if sketch is satisfiable/unsatisfiable
+    if (results.num_sat_networks > 0) {
+      return 'Analysis finished!<br><br>' +
+        `Number of satisfying candidates: ${results.num_sat_networks}<br>` +
+        `Computation time: ${compTimeStr}<br>`
+    } else {
+      return 'Analysis finished!<br><br>' +
+        'There are no satisfying candidates.' +
+        `Computation time: ${compTimeStr}<br>`
+    }
   }
 
   // Method to format the results for display
   private formatResultsMetadata (results: InferenceResults): string {
-    return 'Computation metadata:\n' +
-      '--------------\n' +
-      `Analysis type: ${results.analysis_type}\n` +
-      `${results.metadata_log}\n`
+    const progressSummary = results
+      .progress_statuses
+      .slice(1) // skip the first status
+      .map(statusReport => statusReport.message)
+      .join('\n')
+
+    return '--------------\nExtended summary:\n--------------\n' +
+      `${results.summary_message}\n` +
+      '--------------\nDetailed progress report:\n--------------\n' +
+      progressSummary
   }
 
   private resetAnalysis (): void {
@@ -185,6 +238,8 @@ export default class AnalysisComponent extends LitElement {
     this.waitingMainMessage = ''
     this.waitingProgressReport = ''
     this.results = null
+    this.staticDone = 0
+    this.dynamicDone = 0
   }
 
   private async sampleNetworks (): Promise<void> {
@@ -274,11 +329,11 @@ export default class AnalysisComponent extends LitElement {
 ? html`
               <div class="results-window">
                 <div class="overview-message"
-                  .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4 + 1) + '<br>'}">
+                  .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4) + '<br>'}">
                 </div>
 
-                <textarea rows="10" cols="70" readonly style="text-align: center;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
-  
+                <textarea rows="12" cols="100" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
+
                 <!-- Conditionally render "Sample network" section if results are set -->
                 ${this.results !== null
 ? html`

@@ -8,7 +8,10 @@ import {
   type DynamicPropertyType,
   type StaticPropertyType
 } from './html/util/data-interfaces'
-import { type AnalysisType } from './html/util/analysis-interfaces'
+import {
+  type InferenceStatusReport,
+  type InferenceResults
+} from './html/util/analysis-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -371,7 +374,7 @@ interface AeonState {
      * what analysis is running. */
     pingForInferenceResults: () => void
     /** Update message from the inference solver. Can be multi-line. */
-    computationUpdated: Observable<string>
+    computationUpdated: Observable<InferenceStatusReport[]>
     /** Error message from the inference solver. */
     computationErrorReceived: Observable<string>
   }
@@ -496,14 +499,6 @@ export interface DynPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing information needed for static property's id change. */
 export interface StatPropIdUpdateData { original_id: string, new_id: string }
-
-/** An object representing all information regarding inference analysis results. */
-export interface InferenceResults {
-  analysis_type: AnalysisType
-  num_sat_networks: number
-  comp_time: number
-  metadata_log: string
-}
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -1413,7 +1408,7 @@ export const aeonState: AeonState = {
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
-    computationUpdated: new Observable<string>(['analysis', 'computation_update']),
+    computationUpdated: new Observable<InferenceStatusReport[]>(['analysis', 'computation_update']),
     computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
 
     startFullInference (): void {
