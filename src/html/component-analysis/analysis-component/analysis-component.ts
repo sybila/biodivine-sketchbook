@@ -203,7 +203,7 @@ export default class AnalysisComponent extends LitElement {
         `Computation time: ${compTimeStr}<br>`
     } else {
       return 'Analysis finished!<br><br>' +
-        'There are no satisfying candidates.' +
+        'There are no satisfying candidates.<br>' +
         `Computation time: ${compTimeStr}<br>`
     }
   }
@@ -276,6 +276,27 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.sampleNetworks(witnessCount, randomSeed, fileName)
   }
 
+  private async dumpSatColorsBdd (): Promise<void> {
+    const handle = await dialog.save({
+      defaultPath: 'result_bdd_dump.txt',
+      filters: [{
+        name: 'TXT',
+        extensions: ['txt']
+      }]
+    })
+    if (handle === null) return
+
+    let fileName
+    if (Array.isArray(handle)) {
+      fileName = handle.pop() ?? 'unknown'
+    } else {
+      fileName = handle
+    }
+
+    console.log(`Dumping satisfying colors as BDD at: ${fileName}`)
+    aeonState.analysis.dumpSatColorBdd(fileName)
+  }
+
   // Add a handler to update the checkbox state
   private handleRandomizeChange (event: Event): void {
     const checkbox = event.target as HTMLInputElement
@@ -334,9 +355,17 @@ export default class AnalysisComponent extends LitElement {
 
                 <textarea rows="12" cols="100" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
 
-                <!-- Conditionally render "Sample network" section if results are set -->
-                ${this.results !== null
+                <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
+                ${this.results !== null && this.results.num_sat_networks > 0
 ? html`
+                  <div class="dump-bdd-options">
+                    <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
+                            @click="${async () => {
+                              await this.dumpSatColorsBdd()
+                            }}">Dump BDD with results
+                    </button>
+                  </div>
+
                   <div class="sample-options">
                     <label>Candidate networks sampling:</label>
                     <div style="display: flex; align-items: center; justify-content: center;">

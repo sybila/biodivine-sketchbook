@@ -257,14 +257,16 @@ impl InferenceSolver {
     }
 
     /// Utility to check whether the sketch (during computation) is already found to be
-    /// unsatisfiable. If unsat, updates the status (with [InferenceStatus::DetectedUnsat])
-    /// and returns `true`.
+    /// unsatisfiable.
+    ///
+    /// If arg `update_status`` is true and sketch is unsat, the status is update with
+    ///  [InferenceStatus::DetectedUnsat].
     ///
     /// This method only makes sense when the computation is already on the way.
-    fn check_if_finished_unsat(&mut self) -> Result<bool, String> {
+    fn check_if_finished_unsat(&mut self, update_status: bool) -> Result<bool, String> {
         if let Ok(candidate_set) = self.current_candidate_colors() {
             let unsat = candidate_set.exact_cardinality() == BigInt::from(0);
-            if unsat {
+            if update_status && unsat {
                 self.update_status(InferenceStatus::DetectedUnsat);
             }
             Ok(unsat)
@@ -308,6 +310,28 @@ impl InferenceSolver {
             last_status.status,
             InferenceStatus::FinishedSuccessfully | InferenceStatus::Error
         )
+    }
+
+    /// Number of dynamic properties that were already successfully evaluated.
+    pub fn num_finished_dyn_props(&self) -> u64 {
+        self.status_updates.iter().fold(0, |accum, status| {
+            if matches!(status.status, InferenceStatus::EvaluatedDynamic(..)) {
+                accum + 1
+            } else {
+                accum
+            }
+        })
+    }
+
+    /// Number of static properties that were already successfully evaluated.
+    pub fn num_finished_stat_props(&self) -> u64 {
+        self.status_updates.iter().fold(0, |accum, status| {
+            if matches!(status.status, InferenceStatus::EvaluatedStatic(..)) {
+                accum + 1
+            } else {
+                accum
+            }
+        })
     }
 }
 
@@ -425,7 +449,7 @@ impl InferenceSolver {
             let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
             self.graph = Some(new_graph);
             self.update_status(InferenceStatus::EvaluatedStatic(prop_id));
-            if self.check_if_finished_unsat()? {
+            if self.check_if_finished_unsat(true)? {
                 return Ok(());
             }
         }
@@ -451,7 +475,7 @@ impl InferenceSolver {
             let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
             self.graph = Some(new_graph);
             self.update_status(InferenceStatus::EvaluatedDynamic(prop_id));
-            if self.check_if_finished_unsat()? {
+            if self.check_if_finished_unsat(true)? {
                 return Ok(());
             }
         }
@@ -519,7 +543,7 @@ impl InferenceSolver {
             );
             summary_msg.push_str(&msg);
         }
-        finished_early = self.check_if_finished_unsat()?;
+        finished_early = self.check_if_finished_unsat(false)?;
 
         /* >> STEP 3: evaluation of dynamic properties */
         if use_dynamic && !finished_early {
@@ -542,15 +566,41 @@ impl InferenceSolver {
             summary_msg.push_str(&msg);
         }
 
-        /* >> STEP 4: save results */
+        /* >> STEP 4: process and save results */
         self.raw_sat_colors = Some(self.graph()?.mk_unit_colors());
-        self.update_status(InferenceStatus::FinishedSuccessfully);
-
         let num_sat_networks = self
             .final_sat_colors()?
             .exact_cardinality()
             .to_u128()
             .unwrap();
+
+        if num_sat_networks == 0 {
+            let msg = format!(
+                "Sketch found unsatisfiable after processing {} static and {} dynamic properties\n",
+                self.num_finished_stat_props(),
+                self.num_finished_dyn_props()
+            );
+            summary_msg.push_str(&msg);
+        } else {
+            // let's convert all symbolic structs to the "pure" symbolic context (without any additional vars)
+            // this is useful if we export the color BDD and want to reload it later
+            let current_context: &biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext =
+                self.graph()?.symbolic_context();
+            let pure_context = current_context.as_canonical_context();
+            let current_sat_colors = self.graph()?.mk_unit_colors();
+            let current_unit_bdd = current_sat_colors.as_bdd();
+            let pure_unit_bdd = pure_context
+                .transfer_from(current_unit_bdd, current_context)
+                .unwrap();
+            let pure_sat_colors = GraphColors::new(pure_unit_bdd.clone(), &pure_context);
+            let pure_graph =
+                SymbolicAsyncGraph::with_custom_context(self.bn()?, pure_context, pure_unit_bdd)?;
+
+            self.graph = Some(pure_graph);
+            self.raw_sat_colors = Some(pure_sat_colors);
+        }
+        self.update_status(InferenceStatus::FinishedSuccessfully);
+
         let total_time = self.total_duration().unwrap();
         let results = InferenceResults::new(
             analysis_type,
