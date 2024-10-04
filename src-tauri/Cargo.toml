@@ -1,11 +1,12 @@
 [package]
 name = "aeon-sketchbook"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+description = "A multi-platform application for designing and analysing large-scale logical models."
+authors = ["Ondrej Huvar <xhuvar@fi.muni.cz>", "Samuel Pastva <sam.pastva@gmail.com>", "Petr Ivicic"]
+license = "MIT"
+repository = "https://github.com/sybila/biodivine-aeon-sketchbook"
 edition = "2021"
+readme = "README.md"
 
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
@@ -21,10 +22,11 @@ rand = "0.8.5"
 regex = "1.10.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tauri = { version = "1.6", features = [ "os-all", "dialog-all", "path-all", "shell-open", "window-close", "window-create", "window-set-focus", "window-set-size"] }
+tauri = { version = "1.6", features = ["dialog-all", "os-all", "path-all", "shell-open", "window-close", "window-create", "window-set-focus", "window-set-size"] }
 tokio = { version = "1.40.0", features = ["sync"] }
 zip = "0.6.3"
 num-bigint = "0.4.4"
+num-traits = "0.2.19"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

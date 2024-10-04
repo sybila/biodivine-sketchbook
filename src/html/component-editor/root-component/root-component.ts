@@ -399,8 +399,7 @@ export default class RootComponent extends LitElement {
     return {
       id: datasetData.id,
       observations,
-      variables: datasetData.variables,
-      category: datasetData.category
+      variables: datasetData.variables
     }
   }
 

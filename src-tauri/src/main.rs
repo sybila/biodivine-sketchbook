@@ -122,6 +122,8 @@ fn main() {
                             "Inference Workflow (started on {})",
                             time_now.to_rfc2822()
                         ))
+                        .min_inner_size(800., 600.)
+                        .inner_size(1000., 666.)
                         .build();
 
                         match new_window {

@@ -54,8 +54,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "AEON Sketchbook",
-        "width": 1200,
-        "height": 800,
+        "width": 1000,
+        "height": 666,
         "minWidth": 800,
         "minHeight": 600,
         "url": "src/html/sketch-editor.html"

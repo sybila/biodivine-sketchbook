@@ -8,7 +8,10 @@ import {
   type DynamicPropertyType,
   type StaticPropertyType
 } from './html/util/data-interfaces'
-import { type AnalysisType } from './html/util/analysis-interfaces'
+import {
+  type InferenceStatusReport,
+  type InferenceResults
+} from './html/util/analysis-interfaces'
 
 /* Names of relevant events that communicate with the Tauri backend. */
 
@@ -355,35 +358,25 @@ interface AeonState {
     /** Sample given number of Boolean networks from the results, either dereministically
      * or randomly. The networks are saved in a zip archive at given path. */
     sampleNetworks: (count: number, seed: number | null, path: string) => void
+    /** Dump BDD with all satisfying colors (in a string format) to the given path. */
+    dumpSatColorBdd: (path: string) => void
 
     /** Start the full inference analysis. */
     startFullInference: () => void
+    /** Start the inference analysis with static properties only. */
+    startStaticInference: () => void
+    /** Start the inference analysis with dynamic properties only. */
+    startDynamicInference: () => void
     /** Information that async inference analysis was successfully started. */
     inferenceStarted: Observable<boolean>
     /** Inference analysis results. */
     inferenceResultsReceived: Observable<InferenceResults>
 
-    /** Start the static check analysis. */
-    startStaticCheck: () => void
-    /** Information that static check analysis was started.
-     * Currently not utilized. */
-    staticCheckStarted: Observable<boolean>
-    /** Static check analysis results. */
-    staticCheckResultsReceived: Observable<StaticCheckResults>
-
-    /** Start the dynamic check analysis. */
-    startDynamicCheck: () => void
-    /** Information that static check analysis was started.
-     * Currently not utilized. */
-    dynamicCheckStarted: Observable<boolean>
-    /** Static check analysis results. */
-    dynamicCheckResultsReceived: Observable<DynamicCheckResults>
-
     /** Ping backend to see if the results are ready. Can be used regardless of
      * what analysis is running. */
     pingForInferenceResults: () => void
     /** Update message from the inference solver. Can be multi-line. */
-    computationUpdated: Observable<string>
+    computationUpdated: Observable<InferenceStatusReport[]>
     /** Error message from the inference solver. */
     computationErrorReceived: Observable<string>
   }
@@ -508,30 +501,6 @@ export interface DynPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing information needed for static property's id change. */
 export interface StatPropIdUpdateData { original_id: string, new_id: string }
-
-/** An object representing all information regarding inference analysis results. */
-export interface InferenceResults {
-  analysis_type: AnalysisType
-  num_sat_networks: number
-  comp_time: number
-  metadata_log: string
-}
-
-/** An object representing all information regarding static check analysis results. */
-export interface StaticCheckResults {
-  analysis_type: AnalysisType
-  num_sat_networks: number
-  comp_time: number
-  metadata_log: string
-}
-
-/** An object representing all information regarding dynamic check analysis results. */
-export interface DynamicCheckResults {
-  analysis_type: AnalysisType
-  num_sat_networks: number
-  comp_time: number
-  metadata_log: string
-}
 
 /** A function that is notified when a state value changes. */
 export type OnStateValue<T> = (value: T) => void
@@ -1438,14 +1407,16 @@ export const aeonState: AeonState = {
         payload: JSON.stringify({ count, seed, path })
       })
     },
+    dumpSatColorBdd (path: string): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'dump_sat_bdd'],
+        payload: path
+      })
+    },
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
-    staticCheckResultsReceived: new Observable<StaticCheckResults>(['analysis', 'static_results']),
-    dynamicCheckResultsReceived: new Observable<DynamicCheckResults>(['analysis', 'dynamic_results']),
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
-    staticCheckStarted: new Observable<boolean>(['analysis', 'static_running']),
-    dynamicCheckStarted: new Observable<boolean>(['analysis', 'dynamic_running']),
-    computationUpdated: new Observable<string>(['analysis', 'computation_update']),
+    computationUpdated: new Observable<InferenceStatusReport[]>(['analysis', 'computation_update']),
     computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
 
     startFullInference (): void {
@@ -1454,21 +1425,21 @@ export const aeonState: AeonState = {
         payload: null
       })
     },
+    startStaticInference (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_static_inference'],
+        payload: null
+      })
+    },
+    startDynamicInference (): void {
+      aeonEvents.emitAction({
+        path: ['analysis', 'run_dynamic_inference'],
+        payload: null
+      })
+    },
     pingForInferenceResults (): void {
       aeonEvents.emitAction({
         path: ['analysis', 'get_inference_results'],
-        payload: null
-      })
-    },
-    startStaticCheck (): void {
-      aeonEvents.emitAction({
-        path: ['analysis', 'run_partial_static'],
-        payload: null
-      })
-    },
-    startDynamicCheck (): void {
-      aeonEvents.emitAction({
-        path: ['analysis', 'run_partial_dynamic'],
         payload: null
       })
     }

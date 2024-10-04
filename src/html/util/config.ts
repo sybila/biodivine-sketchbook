@@ -2,7 +2,7 @@ import { TabData } from './tab-data'
 import { html } from 'lit'
 
 export const functionDebounceTimer = 1500
-export const inferencePingTimer = 500
+export const inferencePingTimer = 300
 
 let index = 0
 
