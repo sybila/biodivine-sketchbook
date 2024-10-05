@@ -20,6 +20,7 @@ mod _impl_serde;
 /// of the `ObservationManager`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Dataset {
+    name: String,
     /// List of binarized observations.
     observations: Vec<Observation>,
     /// Variables captured by the observations.
@@ -33,10 +34,3 @@ impl<'de> JsonSerde<'de> for Dataset {}
 // We give `Manager` trait to Dataset as it simplifies many things.
 // It really behaves like a manager class, but is slightly different than the other ones.
 impl Manager for Dataset {}
-
-impl Default for Dataset {
-    /// Default dataset instance with no Variables or Observations.
-    fn default() -> Dataset {
-        Dataset::new_empty(Vec::new()).unwrap()
-    }
-}

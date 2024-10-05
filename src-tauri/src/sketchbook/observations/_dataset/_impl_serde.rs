@@ -16,6 +16,7 @@ impl Serialize for Dataset {
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("Dataset", 4)?;
+        state.serialize_field("name", &self.name)?;
         state.serialize_field("observations", &self.observations)?;
         state.serialize_field("variables", &self.variables)?;
 
@@ -35,6 +36,7 @@ impl<'de> Deserialize<'de> for Dataset {
         D: Deserializer<'de>,
     {
         enum Field {
+            Name,
             Observations,
             Variables,
             IndexMap,
@@ -51,7 +53,7 @@ impl<'de> Deserialize<'de> for Dataset {
                     type Value = Field;
 
                     fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-                        formatter.write_str("`observations`, `variables`, or `index_map`")
+                        formatter.write_str("`name`, `observations`, `variables`, or `index_map`")
                     }
 
                     fn visit_str<E>(self, value: &str) -> Result<Field, E>
@@ -59,6 +61,7 @@ impl<'de> Deserialize<'de> for Dataset {
                         E: de::Error,
                     {
                         match value {
+                            "name" => Ok(Field::Name),
                             "observations" => Ok(Field::Observations),
                             "variables" => Ok(Field::Variables),
                             "index_map" => Ok(Field::IndexMap),
@@ -83,6 +86,7 @@ impl<'de> Deserialize<'de> for Dataset {
             where
                 V: MapAccess<'de>,
             {
+                let mut name = None;
                 let mut observations = None;
                 let mut variables = None;
                 let mut index_map = None;
@@ -94,6 +98,12 @@ impl<'de> Deserialize<'de> for Dataset {
                                 return Err(de::Error::duplicate_field("observations"));
                             }
                             observations = Some(map.next_value()?);
+                        }
+                        Field::Name => {
+                            if name.is_some() {
+                                return Err(de::Error::duplicate_field("name"));
+                            }
+                            name = Some(map.next_value()?);
                         }
                         Field::Variables => {
                             if variables.is_some() {
@@ -111,11 +121,13 @@ impl<'de> Deserialize<'de> for Dataset {
                     }
                 }
 
+                let name = name.ok_or_else(|| de::Error::missing_field("name"))?;
                 let observations =
                     observations.ok_or_else(|| de::Error::missing_field("observations"))?;
                 let variables = variables.ok_or_else(|| de::Error::missing_field("variables"))?;
                 let index_map = index_map.ok_or_else(|| de::Error::missing_field("index_map"))?;
                 Ok(Dataset {
+                    name,
                     observations,
                     variables,
                     index_map,
@@ -123,7 +135,7 @@ impl<'de> Deserialize<'de> for Dataset {
             }
         }
 
-        const FIELDS: &[&str] = &["observations", "variables", "index_map"];
+        const FIELDS: &[&str] = &["name", "observations", "variables", "index_map"];
         deserializer.deserialize_struct("Dataset", FIELDS, DatasetVisitor)
     }
 }

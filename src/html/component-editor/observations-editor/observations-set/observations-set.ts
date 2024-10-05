@@ -6,7 +6,7 @@ import { Tabulator, type ColumnDefinition, type CellComponent } from 'tabulator-
 import { type IObservation, type IObservationSet } from '../../../util/data-interfaces'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
+import { checkboxColumn, dataCell, loadTabulatorPlugins, idColumn, nameColumn, tabulatorOptions } from '../tabulator-utility'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faAdd, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons'
 
@@ -39,7 +39,8 @@ export default class ObservationsSet extends LitElement {
   private async init (): Promise<void> {
     const columns: ColumnDefinition[] = [
       checkboxColumn,
-      nameColumn
+      nameColumn(false),
+      idColumn(false)
     ]
     this.data.variables.forEach(v => {
       columns.push(dataCell(v))
@@ -103,7 +104,7 @@ export default class ObservationsSet extends LitElement {
         this.tabulatorReady = true
         this.tabulator?.on('cellEdited', (cell) => {
           const data = cell.getData() as IObservation
-          this.changeObservation(data.id, data)
+          this.changeObservation(data.id, data.name, data)
         })
       })
     }
@@ -111,6 +112,16 @@ export default class ObservationsSet extends LitElement {
 
   private pushNewObservation (): void {
     this.dispatchEvent(new CustomEvent('push-new-observation', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
+  private addVariable (): void {
+    this.dispatchEvent(new CustomEvent('add-dataset-variable', {
       detail: {
         id: this.data.id
       },
@@ -130,10 +141,11 @@ export default class ObservationsSet extends LitElement {
     }))
   }
 
-  private changeObservation (id: string, observation: IObservation): void {
+  private changeObservation (id: string, name: string, observation: IObservation): void {
     this.dispatchEvent(new CustomEvent('change-observation', {
       detail: {
         dataset: this.data.id,
+        name,
         id,
         observation
       },
@@ -171,7 +183,7 @@ export default class ObservationsSet extends LitElement {
       this.dialogs[obs.id] = undefined
       const index = this.data.observations.findIndex(observation => observation.id === obs.id)
       if (index === -1) return
-      this.changeObservation(obs.id, event.payload.data)
+      this.changeObservation(obs.id, obs.name, event.payload.data)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[obs.id] = undefined
@@ -198,6 +210,16 @@ export default class ObservationsSet extends LitElement {
     }))
   }
 
+  changeDatasetId (): void {
+    this.dispatchEvent(new CustomEvent('change-dataset-id', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   render (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-right uk-margin-small-bottom">
@@ -207,13 +229,26 @@ export default class ObservationsSet extends LitElement {
             ${icon(faEdit).node}
             Rename dataset
           </div>
-          
+        </button>
+        <button class="uk-button uk-button-small uk-button-secondary"
+                @click=${this.changeDatasetId}>
+          <div class="button-label">
+            ${icon(faEdit).node}
+            Change ID
+          </div>
         </button>
         <button class="uk-button uk-button-small uk-button-secondary"
                 @click=${this.pushNewObservation}>
           <div class="button-label">
             ${icon(faAdd).node}
-            Add observation
+            Add row
+          </div>
+        </button>
+        <button class="uk-button uk-button-small uk-button-secondary"
+                @click=${this.addVariable}>
+          <div class="button-label">
+            ${icon(faAdd).node}
+            Add column
           </div>
         </button>
         <button class="uk-button uk-button-small uk-button-danger"

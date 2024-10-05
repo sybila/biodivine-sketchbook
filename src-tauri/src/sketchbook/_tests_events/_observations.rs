@@ -12,7 +12,7 @@ fn prepare_dataset_3v_2o() -> Dataset {
     let obs2 = Observation::try_from_str("000", "o2").unwrap();
     let obs_list = vec![obs1, obs2];
     let var_names = vec!["a", "b", "c"];
-    Dataset::new(obs_list.clone(), var_names.clone()).unwrap()
+    Dataset::new("dataset_3v_2o", obs_list.clone(), var_names.clone()).unwrap()
 }
 
 /// Prepare a simple dataset with 2 variables and 1 observation.
@@ -20,7 +20,7 @@ fn prepare_dataset_2v_1o() -> Dataset {
     let obs1 = Observation::try_from_str("11", "o1").unwrap();
     let obs_list = vec![obs1];
     let var_names = vec!["v1", "v2"];
-    Dataset::new(obs_list.clone(), var_names.clone()).unwrap()
+    Dataset::new("dataset_2v_1o", obs_list.clone(), var_names.clone()).unwrap()
 }
 
 #[test]

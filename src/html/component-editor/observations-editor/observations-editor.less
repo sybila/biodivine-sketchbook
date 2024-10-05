@@ -6,7 +6,7 @@
   .uk-flex-between;
   .uk-flex-middle;
   .uk-box-shadow-small;
-  padding: 0.5em 1em;
+  padding: 0.5em 2em 0.5em 1em;
   position: sticky;
   top: 0;
   z-index: 99;
@@ -17,11 +17,26 @@
   color: @text-dark;
 }
 
-.set-name {
+.set-name, .set-data-id {
   &:read-only {
     background-color: transparent;
     border: none;
   }
+}
+
+.name-id-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.set-name,
+.set-data-id {
+  flex: 0.2;
+  padding: 0;
+}
+.set-name {
+  margin: 0.5em;
 }
 
 
@@ -90,9 +105,13 @@
   overflow-x: hidden;
 }
 
-.import-button {
+.buttons-container {
+  display: flex; 
+  gap: 1.5em;
+}
+
+.import-button, .create-button {
   height: 2em;
-  right: -1em;
 }
 
 .heading {
@@ -104,12 +123,11 @@
     color: white;
   }
 
-  .set-name {
+  .set-name, .set-data-id {
     &:read-only {
       color: white;
     }
   }
-
 }
 
 @media (prefers-color-scheme: light) {

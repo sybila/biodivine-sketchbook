@@ -292,9 +292,11 @@
   "datasets": [
     {
       "id": "dataset1",
+      "name": "dataset1",
       "observations": [
         {
           "id": "Observation1",
+          "name": "Observation1",
           "dataset": "dataset1",
           "values": "101010101"
         }
@@ -313,19 +315,23 @@
     },
     {
       "id": "dataset0",
+      "name": "dataset0",
       "observations": [
         {
           "id": "Observation1",
+          "name": "Observation1",
           "dataset": "dataset0",
           "values": "101010101"
         },
         {
           "id": "Observation2",
+          "name": "Observation2",
           "dataset": "dataset0",
           "values": "010101010"
         },
         {
           "id": "Observation3",
+          "name": "Observation3",
           "dataset": "dataset0",
           "values": "101010101"
         }

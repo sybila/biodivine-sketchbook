@@ -384,7 +384,7 @@ export default class RootComponent extends LitElement {
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = { id: observationData.id, name: observationData.id, selected: false }
+    const obs: IObservation = { id: observationData.id, name: observationData.name, selected: false }
     variables.forEach(((v, idx) => {
       const value = observationData.values[idx]
       obs[v] = (value === '*') ? '' : value
@@ -398,6 +398,7 @@ export default class RootComponent extends LitElement {
     )
     return {
       id: datasetData.id,
+      name: datasetData.name,
       observations,
       variables: datasetData.variables
     }

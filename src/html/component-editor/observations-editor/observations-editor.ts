@@ -11,6 +11,7 @@ import { debounce } from 'lodash'
 import { functionDebounceTimer } from '../../util/config'
 import {
   aeonState,
+  type DatasetMetaData,
   type DatasetData,
   type DatasetIdUpdateData,
   type ObservationData,
@@ -28,22 +29,33 @@ export default class ObservationsEditor extends LitElement {
   constructor () {
     super()
 
+    // changes to whole datasets triggered by table buttons
+    this.addEventListener('change-dataset-id', this.changeDatasetId)
     this.addEventListener('rename-dataset', this.renameDataset)
+    this.addEventListener('push-new-observation', this.pushNewObservation)
+    this.addEventListener('remove-observation', this.removeObservation)
+    this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
+    this.addEventListener('add-dataset-variable', this.addVariable)
 
-    // observations-related event listeners
+    // changes to observations triggered by table edits
+    this.addEventListener('change-observation', this.changeObservation)
+
+    // event listeners for backend updates
     aeonState.sketch.observations.datasetLoaded.addEventListener(this.#onDatasetLoaded.bind(this))
+    aeonState.sketch.observations.datasetCreated.addEventListener(this.#onDatasetCreated.bind(this))
+    aeonState.sketch.observations.datasetRemoved.addEventListener(this.#onDatasetRemoved.bind(this))
+
     aeonState.sketch.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
     aeonState.sketch.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
-    this.addEventListener('push-new-observation', this.pushNewObservation)
+    aeonState.sketch.observations.datasetNameChanged.addEventListener(this.#onDatasetNameChanged.bind(this))
+
     aeonState.sketch.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
-    this.addEventListener('remove-observation', this.removeObservation)
     aeonState.sketch.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
-    this.addEventListener('change-observation', this.changeObservation)
-    aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+
     aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
-    this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
-    aeonState.sketch.observations.datasetRemoved.addEventListener(this.#onDatasetRemoved.bind(this))
-    // TODO add all other events
+    // these two handled the same way
+    aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.sketch.observations.observationNameChanged.addEventListener(this.#onObservationContentChanged.bind(this))
 
     // refresh-event listeners
     aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
@@ -57,7 +69,7 @@ export default class ObservationsEditor extends LitElement {
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = { id: observationData.id, name: observationData.id, selected: false }
+    const obs: IObservation = { id: observationData.id, name: observationData.name, selected: false }
     variables.forEach(((v, idx) => {
       const value = observationData.values[idx]
       obs[v] = (value === '*') ? '' : value
@@ -69,7 +81,7 @@ export default class ObservationsEditor extends LitElement {
     const valueString = variables.map(v => {
       return (observation[v] === '') ? '*' : observation[v]
     }).join('')
-    return { id: observation.id, dataset: datasetId, values: valueString }
+    return { id: observation.id, name: observation.name, dataset: datasetId, values: valueString }
   }
 
   private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
@@ -78,6 +90,7 @@ export default class ObservationsEditor extends LitElement {
     )
     return {
       id: datasetData.id,
+      name: datasetData.name,
       observations,
       variables: datasetData.variables
     }
@@ -89,6 +102,7 @@ export default class ObservationsEditor extends LitElement {
     )
     return {
       id: dataset.id,
+      name: dataset.name,
       observations,
       variables: dataset.variables
     }
@@ -148,21 +162,33 @@ export default class ObservationsEditor extends LitElement {
       x: pos.x + (size.width / 2) - 200,
       y: pos.y + size.height / 4
     })
+
+    // Once loaded, show the dialog to edit and import the dataset.
     void importDialog.once('loaded', () => {
       void importDialog.emit('observations_import_update', {
         data,
         variables
       })
     })
+
+    // Handle the case when data are successfully edited and imported
     void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
       const modifiedDataset: IObservationSet = {
         id: name,
+        name,
         observations: event.payload,
         variables
       }
       // temporarily add the dataset in its current version, but also send an event to backend with changes
       this.updateObservations(this.contentData.observations.concat(modifiedDataset))
       aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
+    })
+
+    // Handle the case when the dialog is closed/cancelled
+    void importDialog.once('observations_import_cancelled', () => {
+      console.log('Import dialog was closed or cancelled.')
+      // the dataset was temporarily added in its original form, now we just remove it
+      aeonState.sketch.observations.removeDataset(name)
     })
   }
 
@@ -176,9 +202,25 @@ export default class ObservationsEditor extends LitElement {
     this.updateObservations(datasets)
   }
 
+  private createDataset (): void {
+    aeonState.sketch.observations.addDefaultDataset()
+  }
+
+  #onDatasetCreated (data: DatasetData): void {
+    console.log('Adding new dataset.')
+    const newDataset = this.convertToIObservationSet(data)
+    this.updateObservations(this.contentData.observations.concat(newDataset))
+  }
+
   updateDatasetId = debounce((newId: string, index: number) => {
     const originalId = this.contentData.observations[index].id
     aeonState.sketch.observations.setDatasetId(originalId, newId)
+  }, functionDebounceTimer
+  )
+
+  updateDatasetName = debounce((newName: string, index: number) => {
+    const originalId = this.contentData.observations[index].id
+    aeonState.sketch.observations.setDatasetName(originalId, newName)
   }, functionDebounceTimer
   )
 
@@ -190,6 +232,19 @@ export default class ObservationsEditor extends LitElement {
     datasets[index] = {
       ...datasets[index],
       id: data.new_id
+    }
+    this.updateObservations(datasets)
+  }
+
+  #onDatasetNameChanged (data: DatasetMetaData): void {
+    console.log(data)
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.id)
+    if (datasetIndex === -1) return
+
+    const datasets = structuredClone(this.contentData.observations)
+    datasets[datasetIndex] = {
+      ...datasets[datasetIndex],
+      name: data.name
     }
     this.updateObservations(datasets)
   }
@@ -214,6 +269,13 @@ export default class ObservationsEditor extends LitElement {
     aeonState.sketch.observations.removeObservation(detail.dataset, detail.id)
   }
 
+  private addVariable (event: Event): void {
+    // add new variable (placeholder) that is fully generated on backend
+    const detail = (event as CustomEvent).detail
+    aeonState.sketch.observations.addDatasetVariable(detail.id)
+    aeonState.sketch.observations.refreshDatasets()
+  }
+
   #onObservationRemoved (data: ObservationData): void {
     const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
@@ -230,7 +292,10 @@ export default class ObservationsEditor extends LitElement {
       aeonState.sketch.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
     }
     const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
-    aeonState.sketch.observations.setObservationContent(detail.dataset, obsData)
+    if (detail.name !== obsData.name) {
+      aeonState.sketch.observations.setObservationName(dataset.id, obsData)
+    }
+    aeonState.sketch.observations.setObservationContent(dataset.id, obsData)
   }
 
   #onObservationContentChanged (data: ObservationData): void {
@@ -251,7 +316,6 @@ export default class ObservationsEditor extends LitElement {
     if (obsIndex === -1) return
     const datasets: IObservationSet[] = structuredClone(this.contentData.observations)
     datasets[datasetIndex].observations[obsIndex].id = data.new_id
-    datasets[datasetIndex].observations[obsIndex].name = data.new_id
     this.updateObservations(datasets)
   }
 
@@ -269,6 +333,12 @@ export default class ObservationsEditor extends LitElement {
     const detail = (event as CustomEvent).detail
     this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
     (this.shadowRoot?.querySelector('#set-name-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
+  }
+
+  changeDatasetId (event: Event): void {
+    const detail = (event as CustomEvent).detail
+    this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
+    (this.shadowRoot?.querySelector('#set-data-id-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
   }
 
   async removeDataset (event: Event): Promise<void> {
@@ -298,27 +368,47 @@ export default class ObservationsEditor extends LitElement {
       <div class="observations">
         <div class="header uk-background-primary uk-margin-bottom">
           <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Observations</h3>
-          <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
+          <div class="buttons-container">
+            <button @click="${this.createDataset}" class="uk-button uk-button-primary uk-button-small create-button">+ Create</button>
+            <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
+          </div>
         </div>
         ${this.contentData?.observations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label uk-margin-bottom">No observations loaded</span></div>` : ''}
         <div class="accordion-body">
           <div class="accordion uk-margin-small-left uk-margin-small-right">
             ${map(this.contentData.observations, (dataset, index) => html`
               <div class="container ${this.shownDatasets.includes(index) ? 'active' : ''}" id="${'container' + index}">
-                <div class="label" @click="${() => {
+                <div class="label name-id-container" @click="${() => {
                   this.toggleDataset(index)
-                }}"><input
-                      @input="${(e: InputEvent) => {
-                        this.updateDatasetId((e.target as HTMLInputElement).value, index)
-                      }}"
-                      ?readonly="${this.datasetRenameIndex !== index}"
-                      @keydown="${(e: KeyboardEvent) => {
-                        if (e.key === 'Enter') {
-                          this.datasetRenameIndex = -1
-                        }
-                      }}"
-                      class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
-                      .value="${dataset.id}"/></div>
+                }}">
+                  <input
+                    @input="${(e: InputEvent) => {
+                      this.updateDatasetName((e.target as HTMLInputElement).value, index)
+                    }}"
+                    ?readonly="${this.datasetRenameIndex !== index}"
+                    @keydown="${(e: KeyboardEvent) => {
+                      if (e.key === 'Enter') {
+                        this.datasetRenameIndex = -1
+                      }
+                    }}"
+                    @blur="${() => { this.datasetRenameIndex = -1 }}"
+                    class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
+                    .value="${dataset.name}"/>
+                  ID = 
+                  <input
+                    @input="${(e: InputEvent) => {
+                      this.updateDatasetId((e.target as HTMLInputElement).value, index)
+                    }}"
+                    ?readonly="${this.datasetRenameIndex !== index}"
+                    @keydown="${(e: KeyboardEvent) => {
+                      if (e.key === 'Enter') {
+                        this.datasetRenameIndex = -1
+                      }
+                    }}"
+                    @blur="${() => { this.datasetRenameIndex = -1 }}"
+                    class="set-data-id heading uk-input uk-form-blank" id="${'set-data-id-' + index}"
+                    .value="${dataset.id}"/>
+                </div>
                 ${when(this.shownDatasets.includes(index), () => html`
                   <div class="content">
                     <observations-set

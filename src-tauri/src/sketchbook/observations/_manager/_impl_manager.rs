@@ -90,6 +90,20 @@ impl ObservationManager {
         self.swap_dataset_content(&dataset_id, new_content)
     }
 
+    /// Set name of a dataset with given id. The name must be valid name string.
+    pub fn set_dataset_name(&mut self, id: &DatasetId, name: &str) -> Result<(), String> {
+        self.assert_valid_dataset(id)?;
+        let dataset = self.datasets.get_mut(id).unwrap();
+        dataset.set_name(name)?;
+        Ok(())
+    }
+
+    /// Set name of a dataset with given string id. The name must be valid name string.
+    pub fn set_dataset_name_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
+        let dataset_id = DatasetId::new(id)?;
+        self.set_dataset_name(&dataset_id, name)
+    }
+
     /// Set the id of dataset with `original_id` to `new_id`.
     pub fn set_dataset_id(
         &mut self,
@@ -157,6 +171,23 @@ impl ObservationManager {
         let dataset_id = DatasetId::new(dataset_id)?;
         let var_id = VarId::new(id)?;
         self.remove_var(&dataset_id, &var_id)
+    }
+
+    /// Add variable column and fill all its values (in each existing observation) with *.
+    pub fn add_var(&mut self, dataset_id: &DatasetId, var_id: VarId) -> Result<(), String> {
+        self.assert_valid_dataset(dataset_id)?;
+        let new_var_idx = self.get_dataset(dataset_id)?.num_variables();
+        self.datasets
+            .get_mut(dataset_id)
+            .unwrap()
+            .add_var_default(var_id, new_var_idx)
+    }
+
+    /// Add variable column and fill all its values (in each existing observation) with *.
+    pub fn add_var_by_str(&mut self, dataset_id: &str, id: &str) -> Result<(), String> {
+        let dataset_id = DatasetId::new(dataset_id)?;
+        let var_id = VarId::new(id)?;
+        self.add_var(&dataset_id, var_id)
     }
 
     /// Remove the dataset with given `id` from this manager.
@@ -284,8 +315,8 @@ mod tests {
         let manager = ObservationManager::new_empty();
         assert_eq!(manager.num_datasets(), 0);
 
-        let d1 = Dataset::new(vec![], vec!["a", "b"]).unwrap();
-        let d2 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
+        let d1 = Dataset::new("d1", vec![], vec!["a", "b"]).unwrap();
+        let d2 = Dataset::new("d2", vec![], vec!["a", "c"]).unwrap();
         let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
         let manager = ObservationManager::from_datasets(dataset_list).unwrap();
         assert_eq!(manager.num_datasets(), 2);
@@ -301,20 +332,20 @@ mod tests {
         let o1 = Observation::try_from_str("*", "o").unwrap();
         let o2 = Observation::try_from_str("0", "p").unwrap();
 
-        let d1 = Dataset::new(vec![o1, o2], vec!["a"]).unwrap();
-        let d2 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
+        let d1 = Dataset::new("d1", vec![o1, o2], vec!["a"]).unwrap();
+        let d2 = Dataset::new("d2", vec![], vec!["a", "c"]).unwrap();
         let dataset_list = vec![("d1", d1.clone()), ("d2", d2.clone())];
 
         let mut manager = ObservationManager::from_datasets(dataset_list).unwrap();
         assert_eq!(manager.num_datasets(), 2);
 
         // add dataset
-        let d3 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
+        let d3 = Dataset::new("d3", vec![], vec!["a", "c"]).unwrap();
         manager.add_dataset_by_str("d3", d3.clone()).unwrap();
         assert_eq!(manager.num_datasets(), 3);
 
         // try adding dataset with the same ID again (should fail)
-        let d3 = Dataset::new(vec![], vec!["a", "c"]).unwrap();
+        let d3 = Dataset::new("d3", vec![], vec!["a", "c"]).unwrap();
         assert!(manager.add_multiple_datasets(vec![("d3", d3)]).is_err());
         assert_eq!(manager.num_datasets(), 3);
 
@@ -332,7 +363,7 @@ mod tests {
     fn test_edit_dataset() {
         let o1 = Observation::try_from_str("*1", "o").unwrap();
         let o2 = Observation::try_from_str("00", "p").unwrap();
-        let d1 = Dataset::new(vec![o1, o2], vec!["a", "b"]).unwrap();
+        let d1 = Dataset::new("d1", vec![o1, o2], vec!["a", "b"]).unwrap();
         let dataset_list = vec![("dataset1", d1.clone())];
         let mut manager = ObservationManager::from_datasets(dataset_list).unwrap();
 
@@ -342,7 +373,7 @@ mod tests {
         assert!(manager.get_dataset_id("d1").is_ok());
 
         // try setting content
-        let new_dataset = Dataset::new(vec![], vec!["a", "b"]).unwrap();
+        let new_dataset = Dataset::new("d1", vec![], vec!["a", "b"]).unwrap();
         manager
             .swap_dataset_content_by_str("d1", new_dataset.clone())
             .unwrap();

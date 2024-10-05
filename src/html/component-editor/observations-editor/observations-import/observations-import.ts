@@ -7,7 +7,7 @@ import { appWindow } from '@tauri-apps/api/window'
 import { type IObservation } from '../../../util/data-interfaces'
 import style_tab from '../tabulator-style.less?inline'
 import { type ColumnDefinition, Tabulator } from 'tabulator-tables'
-import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, tabulatorOptions } from '../tabulator-utility'
+import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, idColumn, tabulatorOptions } from '../tabulator-utility'
 
 @customElement('observations-import')
 export default class ObservationsImport extends LitElement {
@@ -24,6 +24,12 @@ export default class ObservationsImport extends LitElement {
     super()
     loadTabulatorPlugins()
     this.table.id = 'table-wrapper'
+
+    // Listen for window close event to emit cancellation
+    void appWindow.onCloseRequested(() => {
+      void emit('observations_import_cancelled', {})
+      void appWindow.close()
+    })
   }
 
   async firstUpdated (): Promise<void> {
@@ -41,7 +47,8 @@ export default class ObservationsImport extends LitElement {
   createColumns (): ColumnDefinition[] {
     const columns: ColumnDefinition[] = [
       checkboxColumn,
-      nameColumn
+      nameColumn(true),
+      idColumn(true)
     ]
     this.variables.forEach(v => {
       columns.push(dataCell(v))
@@ -75,7 +82,7 @@ export default class ObservationsImport extends LitElement {
     return html`${when(this.loaded,
         () => html`
           <div class="header uk-background-primary">
-            <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Select rows to be imported</h3>
+            <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Select rows to be imported, edit values</h3>
           </div>
           <div id="import-wrapper">
             ${this.table}

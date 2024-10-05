@@ -122,7 +122,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                     let observation = dataset.get_obs(obs_id)?.clone();
                     let var_names = dataset.variable_names();
                     let var_names_ref = var_names.iter().map(|v| v.as_str()).collect();
-                    dataset = Dataset::new(vec![observation], var_names_ref)?;
+                    dataset = Dataset::new("trap_space_data", vec![observation], var_names_ref)?;
                 }
 
                 ProcessedDynProp::mk_trap_space(

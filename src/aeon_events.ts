@@ -251,6 +251,10 @@ interface AeonState {
       datasetIdChanged: Observable<DatasetIdUpdateData>
       /** Set ID of dataset with given original ID to a new id. */
       setDatasetId: (originalId: string, newId: string) => void
+      /** DatasetMetaData (with updated `name`) of a modified dataset. */
+      datasetNameChanged: Observable<DatasetMetaData>
+      /** Set name of dataset with given ID. */
+      setDatasetName: (id: string, newName: string) => void
       /** DatasetData of a fully modified dataset. */
       datasetContentChanged: Observable<DatasetData>
       /** Set content (variables, observations - everything) of dataset with given ID. */
@@ -260,9 +264,13 @@ interface AeonState {
       /** Set variable's ID within a specified dataset. */
       setDatasetVariable: (datasetId: string, originalId: string, newId: string) => void
       /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
-      datasetVariableRemoved: Observable<DatasetMetaData>
+      datasetVariableRemoved: Observable<DatasetData>
       /** Remove variable from a specified dataset (removing "a column" of a dataset's table). */
       removeDatasetVariable: (datasetId: string, varId: string) => void
+      /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
+      datasetVariableAdded: Observable<DatasetData>
+      /** Add (placeholder) variable to a specified dataset (adding an empty column to a dataset's table). */
+      addDatasetVariable: (datasetId: string) => void
 
       /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
       observationPushed: Observable<ObservationData>
@@ -285,6 +293,10 @@ interface AeonState {
       observationContentChanged: Observable<ObservationData>
       /** Modify a content of a particular observation.  */
       setObservationContent: (datasetId: string, observation: ObservationData) => void
+      /** ObservationData for an observation with modified name (also contains corresponding dataset ID). */
+      observationNameChanged: Observable<ObservationData>
+      /** Modify a name of a particular observation.  */
+      setObservationName: (datasetId: string, observation: ObservationData) => void
     }
 
     /** The state of the dynamic and static properties. */
@@ -461,6 +473,7 @@ export interface LayoutNodeDataPrototype {
 /** An object representing basic information regarding an observation (in a particular dataset). */
 export interface ObservationData {
   id: string
+  name: string
   dataset: string
   values: string // string with `0`/`1`/`*`, for instance: "0001**110"
 }
@@ -468,6 +481,7 @@ export interface ObservationData {
 /** An object representing all information regarding a whole dataset. */
 export interface DatasetData {
   id: string
+  name: string
   observations: ObservationData[]
   variables: string[]
 }
@@ -478,6 +492,7 @@ export interface DatasetData {
  * */
 export interface DatasetMetaData {
   id: string
+  name: string
   variables: [string]
 }
 
@@ -1200,14 +1215,17 @@ export const aeonState: AeonState = {
       datasetRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove']),
       datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
       datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
+      datasetNameChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_name']),
       datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
-      datasetVariableRemoved: new Observable<DatasetMetaData>(['sketch', 'observations', 'remove_var']),
+      datasetVariableRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove_var']),
+      datasetVariableAdded: new Observable<DatasetData>(['sketch', 'observations', 'add_var']),
 
       observationPushed: new Observable<ObservationData>(['sketch', 'observations', 'push_obs']),
       observationPopped: new Observable<ObservationData>(['sketch', 'observations', 'pop_obs']),
       observationRemoved: new Observable<ObservationData>(['sketch', 'observations', 'remove_obs']),
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
+      observationNameChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_name']),
 
       addDataset (id: string, variables: string[], observations: ObservationData[]): void {
         aeonEvents.emitAction({
@@ -1249,6 +1267,12 @@ export const aeonState: AeonState = {
           payload: JSON.stringify(newContent)
         })
       },
+      setDatasetName (id: string, newName: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'set_name'],
+          payload: newName
+        })
+      },
       setDatasetVariable (datasetId: string, originalId: string, newId: string): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, 'set_variable'],
@@ -1259,6 +1283,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, 'remove_var'],
           payload: varId
+        })
+      },
+      addDatasetVariable (datasetId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, 'add_var'],
+          payload: null
         })
       },
       pushObservation (datasetId: string, observation?: ObservationData): void {
@@ -1296,6 +1326,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
           payload: JSON.stringify(observation)
+        })
+      },
+      setObservationName (datasetId: string, observation: ObservationData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, observation.id, 'set_name'],
+          payload: observation.name
         })
       }
     },

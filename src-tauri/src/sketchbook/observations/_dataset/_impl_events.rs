@@ -133,7 +133,7 @@ impl Dataset {
             let new_obs_data = ObservationData::from_json_str(&payload)?;
             let new_obs = new_obs_data.to_observation()?;
             let orig_obs = self.get_obs(&obs_id)?;
-            if orig_obs == &new_obs {
+            if orig_obs.get_values() == new_obs.get_values() {
                 return Ok(Consumed::NoChange);
             }
 
@@ -142,10 +142,29 @@ impl Dataset {
             self.swap_obs_data(&obs_id, new_obs.get_values().clone())?;
             let state_change = mk_obs_state_change(&["set_obs_content"], &new_obs_data);
 
-            // prepare the reverse event (setting the original ID back)
+            // prepare the reverse event (setting the original content back)
             let reverse_at_path = [dataset_id.as_str(), obs_id.as_str(), "set_content"];
             let payload = orig_obs_data.to_json_str();
             let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if action == "set_name" {
+            // get the payload - string encoding a new name
+            let new_name = Self::clone_payload_str(event, component_name)?;
+            let orig_obs = self.get_obs(&obs_id)?;
+            let orig_name = orig_obs.get_name().to_string();
+            if orig_name == new_name {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the action, prepare the state-change variant (move id from path to payload)
+            self.set_obs_name(&obs_id, &new_name)?;
+            let new_obs = self.get_obs(&obs_id)?;
+            let new_obs_data = ObservationData::from_obs(new_obs, &dataset_id);
+            let state_change = mk_obs_state_change(&["set_obs_name"], &new_obs_data);
+
+            // prepare the reverse event (setting the original name back)
+            let reverse_at_path = [dataset_id.as_str(), obs_id.as_str(), "set_name"];
+            let reverse_event = mk_obs_event(&reverse_at_path, Some(&orig_name));
             Ok(make_reversible(state_change, event, reverse_event))
         } else {
             AeonError::throw(format!(

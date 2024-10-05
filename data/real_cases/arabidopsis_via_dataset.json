@@ -440,14 +440,17 @@
   "datasets": [
     {
       "id": "dataset_1",
+      "name": "dataset_1",
       "observations": [
         {
           "id": "Observation1",
+          "name": "Observation1",
           "dataset": "dataset_1",
           "values": "100110011111001001000"
         },
         {
           "id": "Observation2",
+          "name": "Observation2",
           "dataset": "dataset_1",
           "values": "011101100001110111111"
         }

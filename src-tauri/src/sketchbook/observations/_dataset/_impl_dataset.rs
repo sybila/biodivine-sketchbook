@@ -1,6 +1,6 @@
 use crate::sketchbook::ids::{ObservationId, VarId};
 use crate::sketchbook::observations::{Dataset, Observation, VarValue};
-use crate::sketchbook::utils::assert_ids_unique;
+use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
 use std::collections::HashMap;
 
 /// Creating new `Dataset` instances.
@@ -9,7 +9,13 @@ impl Dataset {
     ///
     /// Length of each observation and number of variables must match.
     /// Observation IDs must be valid identifiers and must be unique.
-    pub fn new(observations: Vec<Observation>, var_names: Vec<&str>) -> Result<Self, String> {
+    pub fn new(
+        name: &str,
+        observations: Vec<Observation>,
+        var_names: Vec<&str>,
+    ) -> Result<Self, String> {
+        assert_name_valid(name)?;
+
         // check that all variables are unique and valid, same for observation IDs
         let variables = Self::try_convert_vars(&var_names)?;
         assert_ids_unique(&variables)?;
@@ -30,6 +36,7 @@ impl Dataset {
         }
 
         Ok(Self {
+            name: name.to_string(),
             observations,
             variables,
             index_map,
@@ -37,8 +44,13 @@ impl Dataset {
     }
 
     /// Shorthand to create new `empty` dataset over given variables.
-    pub fn new_empty(var_names: Vec<&str>) -> Result<Self, String> {
-        Self::new(Vec::new(), var_names)
+    pub fn new_empty(name: &str, var_names: Vec<&str>) -> Result<Self, String> {
+        Self::new(name, Vec::new(), var_names)
+    }
+
+    /// Default dataset instance with no Variables or Observations.
+    pub fn default(name: &str) -> Dataset {
+        Dataset::new_empty(name, Vec::new()).unwrap()
     }
 
     /// **(internal)** Try converting variables string slices into VarIDs.
@@ -52,6 +64,13 @@ impl Dataset {
 
 /// Editing `Dataset` instances.
 impl Dataset {
+    /// Set dataset's name.
+    pub fn set_name(&mut self, name: &str) -> Result<(), String> {
+        assert_name_valid(name)?;
+        self.name = name.to_string();
+        Ok(())
+    }
+
     /// Add observation at the end of the dataset.
     ///
     /// The observation must have the same length as is the number of dataset's variables, and its
@@ -132,8 +151,8 @@ impl Dataset {
     /// placeholders.
     pub fn add_var_default(&mut self, var_id: VarId, index: usize) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
-        if index > self.num_observations() {
-            return Err("Index is larger than number of observations.".to_string());
+        if index > self.num_variables() {
+            return Err("Index is larger than number of variables.".to_string());
         }
 
         self.variables.insert(index, var_id);
@@ -206,10 +225,21 @@ impl Dataset {
         let new_id = ObservationId::new(new_id)?;
         self.set_obs_id(&original_id, new_id)
     }
+
+    /// Set name of a given observation.
+    pub fn set_obs_name(&mut self, id: &ObservationId, new_name: &str) -> Result<(), String> {
+        let idx = self.get_obs_index(id)?;
+        self.observations[idx].set_name(new_name)
+    }
 }
 
 /// Observing `Dataset` instances.
 impl Dataset {
+    /// Number of variables tracked by the dataset.
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
     /// Number of observations in the dataset.
     pub fn num_observations(&self) -> usize {
         self.observations.len()
@@ -385,16 +415,17 @@ mod tests {
     #[test]
     /// Test that valid datasets are created correctly.
     fn test_new_dataset() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("*11", "i1").unwrap();
         let obs2 = Observation::try_from_str("000", "i2").unwrap();
         let obs_list = vec![obs1, obs2];
         let var_names = vec!["a", "b", "c"];
 
-        let dataset = Dataset::new_empty(var_names.clone()).unwrap();
+        let dataset = Dataset::new_empty(name, var_names.clone()).unwrap();
         assert_eq!(dataset.num_observations(), 0);
         assert_eq!(dataset.num_variables(), 3);
 
-        let dataset = Dataset::new(obs_list.clone(), var_names.clone()).unwrap();
+        let dataset = Dataset::new(name, obs_list.clone(), var_names.clone()).unwrap();
         assert_eq!(dataset.num_observations(), 2);
         assert_eq!(dataset.num_variables(), 3);
     }
@@ -402,34 +433,36 @@ mod tests {
     #[test]
     /// Test that invalid datasets cannot be created.
     fn test_invalid_dataset() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("*1", "i1").unwrap();
         let obs2 = Observation::try_from_str("000", "i2").unwrap();
         let var_names = vec!["a", "b"];
 
         // two cases where length of observation and number variables differs
         let observations = vec![obs2.clone()];
-        let obs_list = Dataset::new(observations, var_names.clone());
+        let obs_list = Dataset::new(name, observations, var_names.clone());
         assert!(obs_list.is_err());
 
         let observations = vec![obs1.clone(), obs2.clone()];
-        let obs_list = Dataset::new(observations, var_names.clone());
+        let obs_list = Dataset::new(name, observations, var_names.clone());
         assert!(obs_list.is_err());
 
         // trying to add observation with the same id twice
         let observations = vec![obs1.clone(), obs1.clone()];
-        let obs_list = Dataset::new(observations, var_names.clone());
+        let obs_list = Dataset::new(name, observations, var_names.clone());
         assert!(obs_list.is_err());
     }
 
     #[test]
     /// Test adding/removing/editing observations in a dataset (both valid and invalid cases).
     fn test_manipulate_observations() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
         let obs3 = Observation::try_from_str("11", "q").unwrap();
 
         let initial_obs_list = vec![obs1.clone(), obs2.clone()];
-        let mut dataset = Dataset::new(initial_obs_list, vec!["a", "b"]).unwrap();
+        let mut dataset = Dataset::new(name, initial_obs_list, vec!["a", "b"]).unwrap();
 
         // add observation
         dataset.push_obs(obs3.clone()).unwrap();
@@ -457,9 +490,10 @@ mod tests {
     #[test]
     /// Test changing observation's ID (both valid and invalid cases).
     fn test_set_observation_id() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"]).unwrap();
+        let mut dataset = Dataset::new(name, vec![obs1, obs2], vec!["a", "b"]).unwrap();
 
         // valid case
         dataset.set_obs_id_by_str("o", "o2").unwrap();
@@ -472,7 +506,8 @@ mod tests {
     #[test]
     /// Test changing variable's ID (both valid and invalid cases).
     fn test_set_var_id() {
-        let mut dataset = Dataset::new_empty(vec!["a", "b"]).unwrap();
+        let name = "dataset";
+        let mut dataset = Dataset::new_empty(name, vec!["a", "b"]).unwrap();
 
         // valid case
         dataset.set_var_id_by_str("a", "a2").unwrap();
@@ -485,15 +520,16 @@ mod tests {
     #[test]
     /// Test removing variable from a dataset.
     fn test_remove_variable() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"]).unwrap();
+        let mut dataset = Dataset::new(name, vec![obs1, obs2], vec!["a", "b"]).unwrap();
         dataset.remove_var_by_str("a").unwrap();
 
         let obs1_expected = Observation::try_from_str("1", "o").unwrap();
         let obs2_expected = Observation::try_from_str("0", "p").unwrap();
         let obs_expected = vec![obs1_expected, obs2_expected];
-        let dataset_expected = Dataset::new(obs_expected, vec!["b"]).unwrap();
+        let dataset_expected = Dataset::new(name, obs_expected, vec!["b"]).unwrap();
 
         assert_eq!(dataset, dataset_expected);
     }
@@ -501,15 +537,16 @@ mod tests {
     #[test]
     /// Test adding variable with default values to a dataset.
     fn test_add_variable_default() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("1", "o").unwrap();
         let obs2 = Observation::try_from_str("0", "p").unwrap();
-        let mut dataset = Dataset::new(vec![obs1, obs2], vec!["b"]).unwrap();
+        let mut dataset = Dataset::new(name, vec![obs1, obs2], vec!["b"]).unwrap();
         dataset.add_var_default_by_str("a", 0).unwrap();
 
         let obs1_expected = Observation::try_from_str("*1", "o").unwrap();
         let obs2_expected = Observation::try_from_str("*0", "p").unwrap();
         let obs_expected = vec![obs1_expected, obs2_expected];
-        let dataset_expected = Dataset::new(obs_expected, vec!["a", "b"]).unwrap();
+        let dataset_expected = Dataset::new(name, obs_expected, vec!["a", "b"]).unwrap();
 
         assert_eq!(dataset, dataset_expected);
     }
@@ -517,9 +554,10 @@ mod tests {
     #[test]
     /// Test displaying of string description of datasets.
     fn test_debug_str() {
+        let name = "dataset";
         let obs1 = Observation::try_from_str("*1", "o").unwrap();
         let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let dataset = Dataset::new(vec![obs1, obs2], vec!["a", "b"]).unwrap();
+        let dataset = Dataset::new(name, vec![obs1, obs2], vec!["a", "b"]).unwrap();
 
         let full_str = "2 observations with vars [a, b]: [o(*1), p(00)]";
         let short_str = "2 observations with vars [a, b]";

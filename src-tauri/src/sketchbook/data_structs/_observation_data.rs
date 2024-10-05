@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ObservationData {
     pub id: String,
+    pub name: String,
     pub dataset: String,
     pub values: String,
 }
@@ -19,9 +20,10 @@ impl<'de> JsonSerde<'de> for ObservationData {}
 
 impl ObservationData {
     /// Create new `ObservationData` instance given `id` and values string slices.
-    pub fn new(obs_id: &str, dataset_id: &str, values: &str) -> ObservationData {
+    pub fn new(obs_id: &str, name: &str, dataset_id: &str, values: &str) -> ObservationData {
         ObservationData {
             id: obs_id.to_string(),
+            name: name.to_string(),
             dataset: dataset_id.to_string(),
             values: values.to_string(),
         }
@@ -32,6 +34,7 @@ impl ObservationData {
     pub fn from_obs(obs: &Observation, dataset_id: &DatasetId) -> ObservationData {
         ObservationData::new(
             obs.get_id().as_str(),
+            obs.get_name(),
             dataset_id.as_str(),
             &obs.to_values_string(),
         )
@@ -40,7 +43,7 @@ impl ObservationData {
     /// Extract the corresponding `Observation` from the `ObservationData`.
     /// There is a syntax check just to make sure that the data are valid.
     pub fn to_observation(&self) -> Result<Observation, String> {
-        Observation::try_from_str(&self.values.clone(), &self.id)
+        Observation::try_from_str_named(&self.values.clone(), &self.id, &self.name)
     }
 }
 

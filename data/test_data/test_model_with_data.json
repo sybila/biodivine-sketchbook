@@ -145,14 +145,17 @@
   "datasets": [
     {
       "id": "data_mts",
+      "name": "data_mts",
       "observations": [
         {
           "id": "abc",
+          "name": "abc",
           "dataset": "data_mts",
           "values": "111*"
         },
         {
           "id": "ab",
+          "name": "ab",
           "dataset": "data_mts",
           "values": "11**"
         }
@@ -166,14 +169,17 @@
     },
     {
       "id": "data_fp",
+      "name": "data_fp",
       "observations": [
         {
           "id": "ones",
+          "name": "ones",
           "dataset": "data_fp",
           "values": "1111"
         },
         {
           "id": "zeros",
+          "name": "zeros",
           "dataset": "data_fp",
           "values": "0000"
         }

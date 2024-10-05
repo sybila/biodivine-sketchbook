@@ -35,14 +35,28 @@ export const checkboxColumn: ColumnDefinition = {
   headerSort: false
 }
 
-export const nameColumn: ColumnDefinition = {
-  title: 'Name',
-  field: 'name',
-  width: 100,
-  sorter: 'string',
-  headerFilter: 'input',
-  editable: true,
-  editor: 'textarea'
+export const nameColumn = (editable: boolean): ColumnDefinition => {
+  return {
+    title: 'Name',
+    field: 'name',
+    width: 100,
+    sorter: 'string',
+    headerFilter: 'input',
+    editable,
+    editor: 'textarea'
+  }
+}
+
+export const idColumn = (editable: boolean): ColumnDefinition => {
+  return {
+    title: 'ID',
+    field: 'id',
+    width: 100,
+    sorter: 'string',
+    headerFilter: 'input',
+    editable,
+    editor: 'textarea'
+  }
 }
 
 export const tabulatorOptions: Options = {

@@ -1,5 +1,5 @@
-use crate::sketchbook::ids::ObservationId;
 use crate::sketchbook::observations::_var_value::VarValue;
+use crate::sketchbook::{ids::ObservationId, utils::assert_name_valid};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -7,31 +7,45 @@ use std::str::FromStr;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Observation {
     id: ObservationId,
+    name: String,
     values: Vec<VarValue>,
 }
 
 /// Creating observations.
 impl Observation {
     /// Create `Observation` object from a vector with values, and string ID (which must be
-    /// a valid identifier).
+    /// a valid identifier). Name is initialized same as ID.
     pub fn new(values: Vec<VarValue>, id: &str) -> Result<Self, String> {
         Ok(Self {
             values,
             id: ObservationId::new(id)?,
+            name: id.to_string(),
         })
     }
 
-    /// Create `Observation` encoding a vector of `n` ones.
+    /// Create `Observation` object from a vector with values, string ID (which must be
+    /// a valid identifier), and name.
+    pub fn new_with_name(values: Vec<VarValue>, id: &str, name: &str) -> Result<Self, String> {
+        assert_name_valid(name)?;
+        Ok(Self {
+            values,
+            id: ObservationId::new(id)?,
+            name: name.to_string(),
+        })
+    }
+
+    /// Create `Observation` encoding a vector of `n` ones. Name is initialized same as ID.
     pub fn new_full_ones(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::True; n], id)
     }
 
-    /// Create `Observation` encoding a vector of `n` zeros.
+    /// Create `Observation` encoding a vector of `n` zeros. Name is initialized same as ID.
     pub fn new_full_zeros(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::False; n], id)
     }
 
     /// Create `Observation` encoding a vector of `n` unspecified values.
+    /// Name is initialized same as ID.
     pub fn new_full_unspecified(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::Any; n], id)
     }
@@ -39,7 +53,7 @@ impl Observation {
     /// Create `Observation` object from string encoding of its (ordered) values.
     /// Values are encoded using characters `1`, `0`, or `*`.
     ///
-    /// Observation cannot be empty.
+    /// Observation cannot be empty. Name is initialized same as ID.
     pub fn try_from_str(observation_str: &str, id: &str) -> Result<Self, String> {
         let mut observation_vec: Vec<VarValue> = Vec::new();
         for c in observation_str.chars() {
@@ -51,10 +65,27 @@ impl Observation {
 
         Self::new(observation_vec, id)
     }
+
+    /// Create `Observation` object from string encoding of its (ordered) values.
+    /// Values are encoded using characters `1`, `0`, or `*`.
+    ///
+    /// Observation cannot be empty.
+    pub fn try_from_str_named(observation_str: &str, id: &str, name: &str) -> Result<Self, String> {
+        let mut obs = Self::try_from_str(observation_str, id)?;
+        obs.set_name(name)?;
+        Ok(obs)
+    }
 }
 
 /// Editing observations.
 impl Observation {
+    /// Set name.
+    pub fn set_name(&mut self, name: &str) -> Result<(), String> {
+        assert_name_valid(name)?;
+        self.name = name.to_string();
+        Ok(())
+    }
+
     /// Set the value at given idx.
     pub fn set_value(&mut self, index: usize, value: VarValue) -> Result<(), String> {
         if index >= self.num_values() {
@@ -124,6 +155,11 @@ impl Observation {
 
 /// Observing `Observation` instances.
 impl Observation {
+    /// Get observation's name.
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
     /// Get reference to observation's vector of values.
     pub fn get_values(&self) -> &Vec<VarValue> {
         &self.values

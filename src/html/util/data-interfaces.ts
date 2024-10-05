@@ -62,6 +62,7 @@ export interface IObservation {
 
 export interface IObservationSet {
   id: string
+  name: string
   observations: IObservation[]
   variables: string[]
 }
