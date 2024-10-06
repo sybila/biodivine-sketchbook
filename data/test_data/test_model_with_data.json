@@ -147,16 +147,19 @@
     {
       "id": "data_mts",
       "name": "data_mts",
+      "annotation":"",
       "observations": [
         {
           "id": "abc",
           "name": "abc",
+          "annotation":"",
           "dataset": "data_mts",
           "values": "111*"
         },
         {
           "id": "ab",
           "name": "ab",
+          "annotation":"",
           "dataset": "data_mts",
           "values": "11**"
         }
@@ -171,16 +174,19 @@
     {
       "id": "data_fp",
       "name": "data_fp",
+      "annotation":"",
       "observations": [
         {
           "id": "ones",
           "name": "ones",
+          "annotation":"",
           "dataset": "data_fp",
           "values": "1111"
         },
         {
           "id": "zeros",
           "name": "zeros",
+          "annotation":"",
           "dataset": "data_fp",
           "values": "0000"
         }

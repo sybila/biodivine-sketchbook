@@ -18,7 +18,10 @@ mod _impl_id_generating;
 /// of the `ObservationManager`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Dataset {
+    // Name of the dataset.
     name: String,
+    // String with arbitrary custom information.
+    annotation: String,
     /// List of binarized observations.
     observations: Vec<Observation>,
     /// Variables captured by the observations.

@@ -442,16 +442,19 @@
     {
       "id": "dataset_1",
       "name": "dataset_1",
+      "annotation":"",
       "observations": [
         {
           "id": "Observation1",
           "name": "Observation1",
+          "annotation":"",
           "dataset": "dataset_1",
           "values": "100110011111001001000"
         },
         {
           "id": "Observation2",
           "name": "Observation2",
+          "annotation":"",
           "dataset": "dataset_1",
           "values": "011101100001110111111"
         }

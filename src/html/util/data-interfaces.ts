@@ -56,6 +56,7 @@ export interface IObservation {
   selected: boolean
   id: string
   name: string
+  annotation: string
 
   [key: string]: string | number | boolean
 }
@@ -63,6 +64,7 @@ export interface IObservation {
 export interface IObservationSet {
   id: string
   name: string
+  annotation: string
   observations: IObservation[]
   variables: string[]
 }

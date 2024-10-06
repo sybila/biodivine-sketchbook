@@ -6,6 +6,8 @@ impl ObservationManager {
     /// Load a dataset from given CSV file. The header line specifies variables, following lines
     /// represent individual observations (id and values).
     ///
+    /// The resulting dataset has empty annotation string (same for all its observations).
+    ///
     /// For example, the following might be a valid CSV file for a dataset with 2 observations:
     ///    ID,YOX1,CLN3,YHP1,ACE2,SWI5,MBF
     ///    Observation1,0,1,0,1,0,1
@@ -40,6 +42,8 @@ impl ObservationManager {
 
     /// Load a dataset from given CSV file, and add it to this `ObservationManager`. The header
     /// line specifies variables, following lines represent individual observations (id and values).
+    ///
+    /// See [Self::load_dataset] for details.
     pub fn load_and_add_dataset(&mut self, csv_path: &str, id: &str) -> Result<(), String> {
         // use same name as ID
         let dataset = Self::load_dataset(id, csv_path)?;

@@ -69,7 +69,12 @@ export default class ObservationsEditor extends LitElement {
   }
 
   private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = { id: observationData.id, name: observationData.name, selected: false }
+    const obs: IObservation = {
+      id: observationData.id,
+      name: observationData.name,
+      annotation: observationData.annotation,
+      selected: false
+    }
     variables.forEach(((v, idx) => {
       const value = observationData.values[idx]
       obs[v] = (value === '*') ? '' : value
@@ -81,7 +86,13 @@ export default class ObservationsEditor extends LitElement {
     const valueString = variables.map(v => {
       return (observation[v] === '') ? '*' : observation[v]
     }).join('')
-    return { id: observation.id, name: observation.name, dataset: datasetId, values: valueString }
+    return {
+      id: observation.id,
+      name: observation.name,
+      annotation: observation.annotation,
+      dataset: datasetId,
+      values: valueString
+    }
   }
 
   private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
@@ -91,6 +102,7 @@ export default class ObservationsEditor extends LitElement {
     return {
       id: datasetData.id,
       name: datasetData.name,
+      annotation: datasetData.annotation,
       observations,
       variables: datasetData.variables
     }
@@ -103,6 +115,7 @@ export default class ObservationsEditor extends LitElement {
     return {
       id: dataset.id,
       name: dataset.name,
+      annotation: dataset.annotation,
       observations,
       variables: dataset.variables
     }
@@ -173,13 +186,15 @@ export default class ObservationsEditor extends LitElement {
 
     // Handle the case when data are successfully edited and imported
     void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
+      // this is just a placeholder, only the `observations` part will be used by backend
       const modifiedDataset: IObservationSet = {
         id: name,
         name,
+        annotation: '',
         observations: event.payload,
         variables
       }
-      // temporarily add the dataset in its current version, but also send an event to backend with changes
+      // temporarily add the dataset in its current placeholder version, and send an event to backend with changes
       this.updateObservations(this.contentData.observations.concat(modifiedDataset))
       aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
     })

@@ -88,6 +88,7 @@ export interface LayoutNodeDataPrototype {
 export interface ObservationData {
   id: string
   name: string
+  annotation: string
   dataset: string
   values: string // string with `0`/`1`/`*`, for instance: "0001**110"
 }
@@ -96,6 +97,7 @@ export interface ObservationData {
 export interface DatasetData {
   id: string
   name: string
+  annotation: string
   observations: ObservationData[]
   variables: string[]
 }
@@ -107,6 +109,7 @@ export interface DatasetData {
 export interface DatasetMetaData {
   id: string
   name: string
+  annotation: string
   variables: [string]
 }
 

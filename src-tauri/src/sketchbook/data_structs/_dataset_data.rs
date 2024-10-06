@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 pub struct DatasetData {
     pub name: String,
     pub id: String,
+    pub annotation: String,
     pub observations: Vec<ObservationData>,
     pub variables: Vec<String>,
 }
@@ -25,6 +26,7 @@ pub struct DatasetData {
 pub struct DatasetMetaData {
     pub name: String,
     pub id: String,
+    pub annotation: String,
     pub variables: Vec<String>,
 }
 
@@ -40,9 +42,12 @@ impl DatasetData {
             .map(|o| ObservationData::from_obs(o, id))
             .collect();
         let variables = dataset.variables().iter().map(|v| v.to_string()).collect();
+        let annotation = dataset.get_annotation().to_string();
+        let name = dataset.get_name().to_string();
         DatasetData {
-            name: dataset.get_name().to_string(),
+            name,
             id: id.to_string(),
+            annotation,
             observations,
             variables,
         }
@@ -57,7 +62,7 @@ impl DatasetData {
             .map(|o| o.to_observation())
             .collect::<Result<Vec<Observation>, String>>()?;
         let variables = self.variables.iter().map(|v| v.as_str()).collect();
-        Dataset::new(self.name.as_str(), observations, variables)
+        Dataset::new_annotated(&self.name, &self.annotation, observations, variables)
     }
 }
 
@@ -68,6 +73,7 @@ impl DatasetMetaData {
         DatasetMetaData {
             name: dataset.get_name().to_string(),
             id: id.to_string(),
+            annotation: dataset.get_annotation().to_string(),
             variables,
         }
     }
