@@ -49,11 +49,13 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/uninterpreted_fn";
 
-        // parse the payload and perform the event
+        // parse the payload
         let payload = Self::clone_payload_str(event, component_name)?;
         let fn_data = UninterpretedFnData::from_json_str(payload.as_str())?;
         let arity = fn_data.arguments.len();
-        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+        // add funtion in two steps (to also include annotation)
+        self.add_empty_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+        self.set_fn_annot_by_str(&fn_data.id, &fn_data.annotation)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let reverse_at_path = ["uninterpreted_fn", &fn_data.id, "remove"];
@@ -79,7 +81,7 @@ impl ModelState {
         let fn_id = self.generate_uninterpreted_fn_id("fn", Some(1));
         let uninterpreted_fn = UninterpretedFn::new_without_constraints(fn_id.as_str(), arity)?;
         let fn_data = UninterpretedFnData::from_fn(&fn_id, &uninterpreted_fn);
-        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+        self.add_empty_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let state_change = mk_model_state_change(&["uninterpreted_fn", "add"], &fn_data);

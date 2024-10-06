@@ -49,6 +49,7 @@ export class ContentData extends Data {
 
 export interface IFunctionData {
   id: string
+  annotation: string
   function: string
   variables: IRegulationData[]
 }

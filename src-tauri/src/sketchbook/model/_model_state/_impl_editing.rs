@@ -74,9 +74,10 @@ impl ModelState {
             .collect();
         model.set_multiple_update_fns(update_fns)?;
 
-        // set expressions and arguments for uninterpreted fns
+        // set expressions, arguments, and annotations for uninterpreted fns
         for f in &model_data.uninterpreted_fns {
             model.set_uninterpreted_fn_expression_by_str(&f.id, &f.expression)?;
+            model.set_fn_annot_by_str(&f.id, &f.annotation)?;
             let arguments = f
                 .arguments
                 .iter()
@@ -172,10 +173,11 @@ impl ModelState {
         name: &str,
         arguments: Vec<FnArgument>,
         expression: &str,
+        annot: &str,
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
         let arity = arguments.len();
-        let f = UninterpretedFn::new(name, expression, arguments, self, &fn_id)?;
+        let f = UninterpretedFn::new(name, annot, expression, arguments, self, &fn_id)?;
         self.uninterpreted_fns.insert(fn_id, f);
         self.add_placeholder_vars_if_needed(arity);
         Ok(())
@@ -205,7 +207,7 @@ impl ModelState {
     ///
     /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_uninterpreted_fn_by_str(
+    pub fn add_empty_uninterpreted_fn_by_str(
         &mut self,
         id: &str,
         name: &str,
@@ -216,7 +218,7 @@ impl ModelState {
     }
 
     /// Shorthand to add a list of new uninterpreted fns, each with a string ID, name, and arity,
-    /// to this `ModelState`.
+    /// to this `ModelState`. Details (incl. annotations) for these functions are left empty.
     ///
     /// Each ID must be valid identifier that is not already used by some other uninterpreted fns.
     /// Returns `Err` in case the `id` is already being used.
@@ -232,7 +234,7 @@ impl ModelState {
         self.assert_ids_unique_and_new(&fn_ids, &(Self::assert_no_uninterpreted_fn))?;
         // now we can safely add them
         for (id, name, arity) in id_name_arity_tuples {
-            self.add_uninterpreted_fn_by_str(id, name, arity)?;
+            self.add_empty_uninterpreted_fn_by_str(id, name, arity)?;
         }
         Ok(())
     }
@@ -312,6 +314,20 @@ impl ModelState {
     pub fn set_var_name_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
         let var_id = VarId::new(id)?;
         self.set_var_name(&var_id, name)
+    }
+
+    /// Set the annotation of a network variable given by id `var_id`.
+    pub fn set_var_annot(&mut self, var_id: &VarId, annot: &str) -> Result<(), String> {
+        self.assert_valid_variable(var_id)?;
+        let variable = self.variables.get_mut(var_id).unwrap();
+        variable.set_annotation(annot);
+        Ok(())
+    }
+
+    /// Set the annotation of a network variable given by id `var_id`.
+    pub fn set_var_annot_by_str(&mut self, id: &str, annot: &str) -> Result<(), String> {
+        let var_id = VarId::new(id)?;
+        self.set_var_annot(&var_id, annot)
     }
 
     /// Set the id of variable with `original_id` to `new_id`.
@@ -435,7 +451,21 @@ impl ModelState {
         self.set_uninterpreted_fn_name(&fn_id, name)
     }
 
-    /// Set the arity of an uninterpreted fn given by id `fn_id`.
+    /// Set annotation of an uninterpreted fn given by id `fn_id`.
+    pub fn set_fn_annot(&mut self, fn_id: &UninterpretedFnId, annot: &str) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
+        uninterpreted_fn.set_annotation(annot);
+        Ok(())
+    }
+
+    /// Set annotation of an uninterpreted fn given by string `id`.
+    pub fn set_fn_annot_by_str(&mut self, id: &str, annot: &str) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.set_fn_annot(&fn_id, annot)
+    }
+
+    /// Set arity of an uninterpreted fn given by id `fn_id`.
     ///
     /// In order to change arity of a function symbol, it must not currently be used in any
     /// update/uninterpreted function's expression (because in expressions, it is used on a
@@ -1081,8 +1111,12 @@ mod tests {
     fn test_adding_uninterpreted_fns() {
         let mut model = ModelState::new_empty();
 
-        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
-        model.add_uninterpreted_fn_by_str("g", "g", 0).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 1)
+            .unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("g", "g", 0)
+            .unwrap();
         let f_id = model.get_uninterpreted_fn_id("f").unwrap();
         let f = model.get_uninterpreted_fn(&f_id).unwrap();
         assert_eq!(model.num_uninterpreted_fns(), 2);

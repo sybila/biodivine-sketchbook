@@ -310,7 +310,9 @@ mod tests {
     /// Test parsing of a valid update function's expression.
     fn test_valid_update_fn() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
-        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 1)
+            .unwrap();
 
         let expression = "a & (b | f(b))";
         let fn_tree = FnTree::try_from_str(expression, &model, None).unwrap();
@@ -323,8 +325,12 @@ mod tests {
     fn test_valid_uninterpreted_fn() {
         let mut model = ModelState::new_empty();
         let arity = 2;
-        model.add_uninterpreted_fn_by_str("f", "f", arity).unwrap();
-        model.add_uninterpreted_fn_by_str("g", "g", arity).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", arity)
+            .unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("g", "g", arity)
+            .unwrap();
 
         // this is a valid expression for function `g` (not for `f` though)
         let expression = "var0 & (var1 | f(var0, var0))";
@@ -340,7 +346,9 @@ mod tests {
     /// Test parsing of several invalid update functions' expressions.
     fn test_invalid_update_fns() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
-        model.add_uninterpreted_fn_by_str("f", "f", 2).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 2)
+            .unwrap();
 
         // try using an invalid network variables
         let expression = "var0 & var1";
@@ -362,8 +370,12 @@ mod tests {
     /// Test parsing invalid uninterpreted functions' expressions.
     fn test_invalid_uninterpreted_fn() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
-        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
-        model.add_uninterpreted_fn_by_str("g", "g", 2).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 1)
+            .unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("g", "g", 2)
+            .unwrap();
 
         // this would be a valid `update fn`, but not an uninterpreted fn (contains network variables)
         let expression = "a & (b | f(a))";
@@ -391,8 +403,12 @@ mod tests {
     /// Test variable & uninterpreted fn substitution.
     fn test_substitution() {
         let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
-        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
-        model.add_uninterpreted_fn_by_str("g", "g", 1).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 1)
+            .unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("g", "g", 1)
+            .unwrap();
         let a = model.get_var_id("a").unwrap();
         let b = model.get_var_id("b").unwrap();
         let f = model.get_uninterpreted_fn_id("f").unwrap();
@@ -429,7 +445,9 @@ mod tests {
     fn test_collect_vars() {
         let variables = vec![("a", "a"), ("b", "b"), ("c", "c")];
         let mut model = ModelState::new_from_vars(variables).unwrap();
-        model.add_uninterpreted_fn_by_str("f", "f", 1).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 1)
+            .unwrap();
         let a = model.get_var_id("a").unwrap();
         let b = model.get_var_id("b").unwrap();
 

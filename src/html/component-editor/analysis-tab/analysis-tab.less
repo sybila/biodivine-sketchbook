@@ -1,12 +1,5 @@
 @import '/src/uikit-theme';
 
-/* The height of the header based on the known theme settings. */
-@header-height: @button-line-height + (2 * @button-border-width);
-
-.header {
-  height: @header-height;
-}
-
 .container {
   container-name: analyses-list;
   container-type: inline-size;
@@ -25,7 +18,7 @@
 
 .section {
   min-width: 25em;
-  max-width: 40em;
+  max-width: 45em;
   overflow: auto;
   width: 50%;
 }
@@ -51,7 +44,7 @@
   color: @text-dark;
 }
 
-@container analyses-list (max-width: 52em) {
+@container analyses-list (max-width: 64em) {
 
   .section {
     width: 100%;

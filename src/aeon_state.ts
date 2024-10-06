@@ -48,6 +48,7 @@ export interface VariableData {
 export interface UninterpretedFnData {
   id: string
   name: string
+  annotation: string
   arguments: Array<[Monotonicity, Essentiality]>
   expression: string
 }

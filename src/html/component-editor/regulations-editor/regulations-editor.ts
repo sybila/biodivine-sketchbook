@@ -111,7 +111,7 @@ export class RegulationsEditor extends LitElement {
   render (): TemplateResult {
     return html`
       <div class="header uk-background-primary">
-        <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Regulations</h3>
+        <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Network</h3>
       </div>
       <!-- Prepares a clean environment for the cytoscape element with a floating menu. -->
       <div style="width: 100%; height: 100%; position: relative;">

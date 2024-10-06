@@ -379,6 +379,7 @@ export default class RootComponent extends LitElement {
       })
     return {
       id: fnData.id,
+      annotation: fnData.annotation,
       function: fnData.expression,
       variables
     }

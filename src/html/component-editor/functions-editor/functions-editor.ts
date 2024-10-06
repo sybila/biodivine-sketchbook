@@ -231,6 +231,7 @@ export class FunctionsEditor extends LitElement {
       })
     return {
       id: fnData.id,
+      annotation: fnData.annotation,
       function: fnData.expression,
       variables
     }
@@ -251,7 +252,7 @@ export class FunctionsEditor extends LitElement {
         <div class="function-list">
           <div class="section" id="variables">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Variables</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Update functions</h3>
             </div>
             ${this.contentData?.variables.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No variables defined</span></div>` : ''}
             <div class="uk-list uk-text-center">
@@ -267,7 +268,7 @@ export class FunctionsEditor extends LitElement {
           </div>
           <div class="section" id="functions">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Functions</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Uninterpreted functions</h3>
               <div class="uk-text-center">
                 <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
               </div>

@@ -5,35 +5,45 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-/// An explicit uninterpreted function of a `BooleanNetwork`; a function symbol with a given `name` and `arity`.
-/// Fields `essentiality_list` and `monotonicity_list` hold information regarding properties of the function
-/// with respect to each of its arguments (in order).
+/// An uninterpreted function of a partially specified model.
+///
+/// Field `arguments` hold information regarding properties of the function
+/// with respect to each of its arguments (in order). It also tracks the arity.
+///
+/// You can leave the function completely unspecified, or you can add an
+/// "partial expression". Field `tree` holds the parsed version of that formula,
+/// while `expression` tracks the original formula.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFn {
     name: String,
+    annotation: String,
     arguments: Vec<FnArgument>,
     tree: Option<FnTree>,
     expression: String,
 }
 
+/// Creating new `UninterpretedFn` instances.
 impl UninterpretedFn {
     /// Create new `UninterpretedFn` object that has no constraints regarding monotonicity,
-    /// essentiality, or its expression.
+    /// essentiality, or its expression. Annotation is empty.
     pub fn new_without_constraints(name: &str, arity: usize) -> Result<UninterpretedFn, String> {
         assert_name_valid(name)?;
 
         Ok(UninterpretedFn {
             name: name.to_string(),
+            annotation: String::new(),
             arguments: vec![FnArgument::default(); arity],
             tree: None,
             expression: String::new(),
         })
     }
 
-    /// Create new `UninterpretedFn` instance given its components.
-    /// Model and ID are used for validity check during argument parsing.
+    /// Create new `UninterpretedFn` instance given all its raw components.
+    ///
+    /// The model and function's ID are used for validity check during argument parsing.
     pub fn new(
         name: &str,
+        annotation: &str,
         expression: &str,
         arguments: Vec<FnArgument>,
         model: &ModelState,
@@ -44,6 +54,8 @@ impl UninterpretedFn {
         let mut f = UninterpretedFn::new_without_constraints(name, arity)?;
         f.set_all_arguments(arguments)?;
         f.set_fn_expression(expression, model, own_id)?;
+        f.set_annotation(annotation);
+
         Ok(f)
     }
 
@@ -70,17 +82,10 @@ impl UninterpretedFn {
         original_fn.substitute_fn_symbol(old_id, new_id, context);
         original_fn
     }
+}
 
-    /// Human-readable name of this uninterpreted fn.
-    pub fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    /// Read arity (number of arguments) of this uninterpreted fn.
-    pub fn get_arity(&self) -> usize {
-        self.arguments.len()
-    }
-
+/// Editing `UninterpretedFn` instances.
+impl UninterpretedFn {
     /// Rename this uninterpreted fn.
     pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
         assert_name_valid(new_name)?;
@@ -88,21 +93,9 @@ impl UninterpretedFn {
         Ok(())
     }
 
-    /// Get highest index of a variable that is actually used in the function's expression.
-    /// This number might be lower than function's actual arity.
-    fn get_highest_var_idx_in_expression(&self) -> Option<usize> {
-        if let Some(tree) = &self.tree {
-            tree.collect_variables()
-                .iter()
-                .filter_map(|v| {
-                    v.to_string()
-                        .strip_prefix("var")
-                        .and_then(|num_str| num_str.parse::<usize>().ok())
-                })
-                .max()
-        } else {
-            None
-        }
+    /// Change annotation of this uninterpreted fn.
+    pub fn set_annotation(&mut self, annotation: &str) {
+        self.annotation = annotation.to_string();
     }
 
     /// Change arity of this uninterpreted fn.
@@ -155,11 +148,6 @@ impl UninterpretedFn {
         self.arguments.push(FnArgument::default());
     }
 
-    /// Get function's expression.
-    pub fn get_fn_expression(&self) -> &str {
-        &self.expression
-    }
-
     /// Set the function's expression to a given string.
     ///
     /// `model` is used to provide context regarding valid IDs.
@@ -181,26 +169,6 @@ impl UninterpretedFn {
             self.tree = Some(syntactic_tree);
         }
         Ok(())
-    }
-
-    /// Get function's argument (`FnArgument` object) on given `index` (starting from 0).
-    pub fn get_argument(&self, index: usize) -> &FnArgument {
-        &self.arguments[index]
-    }
-
-    /// Get `Essentiality` of argument with given `index` (starting from 0).
-    pub fn get_essential(&self, index: usize) -> &Essentiality {
-        &self.arguments[index].essential
-    }
-
-    /// Get `Monotonicity` of argument with given `index` (starting from 0).
-    pub fn get_monotonic(&self, index: usize) -> &Monotonicity {
-        &self.arguments[index].monotonicity
-    }
-
-    /// Get list of all ordered arguments (`FnArgument` objects) of this function.
-    pub fn get_all_arguments(&self) -> &Vec<FnArgument> {
-        &self.arguments
     }
 
     /// Set properties of an argument with given `index` (starting from 0).
@@ -244,6 +212,80 @@ impl UninterpretedFn {
         }
     }
 
+    /// Substitute all occurrences of a given function symbol in the syntactic tree.
+    pub fn substitute_fn_symbol(
+        &mut self,
+        old_id: &UninterpretedFnId,
+        new_id: &UninterpretedFnId,
+        context: &ModelState,
+    ) {
+        if let Some(tree) = &self.tree {
+            let new_tree = tree.substitute_fn_symbol(old_id, new_id);
+            self.expression = new_tree.to_string(context, Some(self.get_arity()));
+            self.tree = Some(new_tree);
+        }
+    }
+}
+
+/// Observing `UninterpretedFn` instances.
+impl UninterpretedFn {
+    /// Human-readable name of this uninterpreted fn.
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    /// Annotation of this uninterpreted fn.
+    pub fn get_annotation(&self) -> &str {
+        &self.annotation
+    }
+
+    /// Read arity (number of arguments) of this uninterpreted fn.
+    pub fn get_arity(&self) -> usize {
+        self.arguments.len()
+    }
+
+    /// Get highest index of a variable that is actually used in the function's expression.
+    /// This number might be lower than function's actual arity.
+    fn get_highest_var_idx_in_expression(&self) -> Option<usize> {
+        if let Some(tree) = &self.tree {
+            tree.collect_variables()
+                .iter()
+                .filter_map(|v| {
+                    v.to_string()
+                        .strip_prefix("var")
+                        .and_then(|num_str| num_str.parse::<usize>().ok())
+                })
+                .max()
+        } else {
+            None
+        }
+    }
+
+    /// Get function's expression.
+    pub fn get_fn_expression(&self) -> &str {
+        &self.expression
+    }
+
+    /// Get function's argument (`FnArgument` object) on given `index` (starting from 0).
+    pub fn get_argument(&self, index: usize) -> &FnArgument {
+        &self.arguments[index]
+    }
+
+    /// Get `Essentiality` of argument with given `index` (starting from 0).
+    pub fn get_essential(&self, index: usize) -> &Essentiality {
+        &self.arguments[index].essential
+    }
+
+    /// Get `Monotonicity` of argument with given `index` (starting from 0).
+    pub fn get_monotonic(&self, index: usize) -> &Monotonicity {
+        &self.arguments[index].monotonicity
+    }
+
+    /// Get list of all ordered arguments (`FnArgument` objects) of this function.
+    pub fn get_all_arguments(&self) -> &Vec<FnArgument> {
+        &self.arguments
+    }
+
     /// Return a set of all variables that are actually used as inputs in this function.
     pub fn collect_variables(&self) -> HashSet<VarId> {
         if let Some(tree) = &self.tree {
@@ -259,20 +301,6 @@ impl UninterpretedFn {
             tree.collect_fn_symbols()
         } else {
             HashSet::new()
-        }
-    }
-
-    /// Substitute all occurrences of a given function symbol in the syntactic tree.
-    pub fn substitute_fn_symbol(
-        &mut self,
-        old_id: &UninterpretedFnId,
-        new_id: &UninterpretedFnId,
-        context: &ModelState,
-    ) {
-        if let Some(tree) = &self.tree {
-            let new_tree = tree.substitute_fn_symbol(old_id, new_id);
-            self.expression = new_tree.to_string(context, Some(self.get_arity()));
-            self.tree = Some(new_tree);
         }
     }
 }
@@ -313,7 +341,9 @@ mod tests {
         // object that owns it
 
         let mut context = ModelState::new_empty();
-        context.add_uninterpreted_fn_by_str("f", "f", 3).unwrap();
+        context
+            .add_empty_uninterpreted_fn_by_str("f", "f", 3)
+            .unwrap();
 
         let fn_id = UninterpretedFnId::new("f").unwrap();
         let mut f = UninterpretedFn::new_without_constraints("f", 3).unwrap();
