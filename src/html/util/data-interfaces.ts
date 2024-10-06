@@ -4,6 +4,7 @@ import { Data } from 'dataclass'
 export interface IVariableData {
   id: string
   name: string
+  annotation: string
   function: string
 }
 

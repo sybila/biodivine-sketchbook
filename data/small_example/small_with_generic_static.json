@@ -5,16 +5,19 @@
       {
         "id": "v_1",
         "name": "v_1",
+        "annotation": "",
         "update_fn": "f(v_3)"
       },
       {
         "id": "v_2",
         "name": "v_2",
+        "annotation": "",
         "update_fn": "g(v_1)"
       },
       {
         "id": "v_3",
         "name": "v_3",
+        "annotation": "",
         "update_fn": "h(v_1, v_2) | v_3"
       }
     ],

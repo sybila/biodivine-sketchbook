@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 pub struct VariableData {
     pub id: String,
     pub name: String,
+    pub annotation: String,
     pub update_fn: String,
 }
 
@@ -28,10 +29,11 @@ impl<'de> JsonSerde<'de> for VariableWithLayoutData {}
 
 impl VariableData {
     /// Create new `VariableData` object given a variable's `name` and `id` string slices.
-    pub fn new(id: &str, name: &str, update_fn: &str) -> VariableData {
+    pub fn new(id: &str, name: &str, annotation: &str, update_fn: &str) -> VariableData {
         VariableData {
             id: id.to_string(),
             name: name.to_string(),
+            annotation: annotation.to_string(),
             update_fn: update_fn.to_string(),
         }
     }
@@ -42,12 +44,13 @@ impl VariableData {
         VariableData::new(
             var_id.as_str(),
             variable.get_name(),
+            variable.get_annotation(),
             update_fn.get_fn_expression(),
         )
     }
 
     /// Extract new `Variable` instance from this data.
     pub fn to_var(&self) -> Result<Variable, String> {
-        Variable::new(self.name.as_str())
+        Variable::new_annotated(&self.name, &self.annotation)
     }
 }

@@ -93,6 +93,7 @@ impl ModelState {
     ///
     /// The IDs must be unique valid identifiers.
     /// The names might be same as the IDs. It also might be empty or non-unique.
+    /// The variable annotations are left empty.
     ///
     /// Return `Err` in case the IDs are not unique.
     pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<ModelState, String> {
@@ -118,9 +119,10 @@ impl ModelState {
     /// The names might be same as the ID. It also might be empty or non-unique.
     ///
     /// Returns `Err` in case the `id` is already being used.
-    pub fn add_var(&mut self, var_id: VarId, name: &str) -> Result<(), String> {
+    pub fn add_var(&mut self, var_id: VarId, name: &str, annot: &str) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
-        self.variables.insert(var_id.clone(), Variable::new(name)?);
+        let variable = Variable::new_annotated(name, annot)?;
+        self.variables.insert(var_id.clone(), variable);
         self.add_default_update_fn(var_id.clone())?;
         self.insert_to_all_layouts(var_id)?;
         Ok(())
@@ -133,15 +135,16 @@ impl ModelState {
     /// The names might be same as the ID. It also might be empty or non-unique.
     ///
     /// Returns `Err` in case the `id` is not a valid identifier or if it is already being used.
-    pub fn add_var_by_str(&mut self, id: &str, name: &str) -> Result<(), String> {
+    pub fn add_var_by_str(&mut self, id: &str, name: &str, annot: &str) -> Result<(), String> {
         let var_id = VarId::new(id)?;
-        self.add_var(var_id, name)
+        self.add_var(var_id, name, annot)
     }
 
     /// Shorthand to add a list of new variables with given string IDs and names to this `ModelState`.
     ///
     /// Each ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
+    /// Variable annotations are left empty.
     ///
     /// Returns `Err` in case some `id` is already being used.
     pub fn add_multiple_variables(
@@ -157,7 +160,7 @@ impl ModelState {
         }
         // now we can safely add them
         for (id, name) in id_name_pairs {
-            self.add_var_by_str(id, name)?;
+            self.add_var_by_str(id, name, "")?;
         }
         Ok(())
     }
@@ -1060,9 +1063,9 @@ mod tests {
         let mut model = ModelState::new_empty();
 
         // one by one add variables a, b, c
-        model.add_var_by_str("a", "a_name").unwrap();
-        model.add_var_by_str("b", "b_name").unwrap();
-        model.add_var_by_str("c", "c_name").unwrap();
+        model.add_var_by_str("a", "a_name", "").unwrap();
+        model.add_var_by_str("b", "b_name", "").unwrap();
+        model.add_var_by_str("c", "c_name", "").unwrap();
         assert_eq!(model.num_vars(), 3);
         assert!(model.is_valid_var_id_str("c"));
 
@@ -1144,7 +1147,7 @@ mod tests {
         let var_b = model.get_var_id("b").unwrap();
         assert!(model.get_regulation(&var_a, &var_b).is_err());
         assert_eq!(model.num_regulations(), 1);
-        assert!(model.add_var(var_a, "name_a").is_ok());
+        assert!(model.add_var(var_a, "name_a", "").is_ok());
 
         // test removing a regulation and then re-adding it again
         model.remove_regulation_by_str("b -> c").unwrap();
@@ -1249,11 +1252,11 @@ mod tests {
         assert_eq!(model.num_vars(), 2);
 
         // adding same ID again should cause error
-        assert!(model.add_var_by_str("a", "whatever").is_err());
+        assert!(model.add_var_by_str("a", "whatever", "").is_err());
         // adding invalid ID string should cause error
-        assert!(model.add_var_by_str("a ", "whatever2").is_err());
-        assert!(model.add_var_by_str("(", "whatever3").is_err());
-        assert!(model.add_var_by_str("aa+a", "whatever4").is_err());
+        assert!(model.add_var_by_str("a ", "whatever2", "").is_err());
+        assert!(model.add_var_by_str("(", "whatever3", "").is_err());
+        assert!(model.add_var_by_str("aa+a", "whatever4", "").is_err());
 
         assert_eq!(model.num_vars(), 2);
     }
@@ -1308,9 +1311,9 @@ mod tests {
     fn test_var_id_change() {
         let mut model = ModelState::new_empty();
         let var_a = model.generate_var_id("a", None);
-        model.add_var(var_a.clone(), "a_name").unwrap();
+        model.add_var(var_a.clone(), "a_name", "").unwrap();
         let var_b = model.generate_var_id("b", None);
-        model.add_var(var_b.clone(), "b_name").unwrap();
+        model.add_var(var_b.clone(), "b_name", "").unwrap();
 
         // add regulations a -> a, a -> b, b -> a, b -> b
         let regulations = vec!["a -> a", "a -> b", "b -> a", "b -> b"];

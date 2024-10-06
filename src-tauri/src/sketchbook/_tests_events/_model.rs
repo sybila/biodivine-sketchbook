@@ -17,7 +17,7 @@ fn test_add_var() {
     assert_eq!(model.num_vars(), 1);
 
     // test variable add event
-    let payload = VariableData::new("b", "b", "").to_json_str();
+    let payload = VariableData::new("b", "b", "", "").to_json_str();
     let at_path = ["variable", "add_raw"];
     let event = mk_model_event(&at_path, Some(&payload));
     let result = model.perform_event(&event, &at_path).unwrap();
@@ -59,7 +59,7 @@ fn test_remove_var_complex() {
 
     // expected result
     let mut model_expected = ModelState::new_empty();
-    model_expected.add_var_by_str("b", "b").unwrap();
+    model_expected.add_var_by_str("b", "b", "").unwrap();
     model_expected.add_regulation_by_str("b -> b").unwrap();
 
     // test variable remove event
@@ -148,7 +148,7 @@ fn test_set_update_fn() {
 fn test_invalid_var_events() {
     let mut model = ModelState::new_empty();
     let var_id = model.generate_var_id("a", None);
-    model.add_var(var_id.clone(), "a-name").unwrap();
+    model.add_var(var_id.clone(), "a-name", "").unwrap();
     let model_orig = model.clone();
 
     // adding variable `a` again
@@ -248,7 +248,7 @@ fn test_change_position() {
     let mut model = ModelState::new_empty();
     let layout_id = ModelState::get_default_layout_id();
     let var_id = model.generate_var_id("a", None);
-    model.add_var(var_id.clone(), "a_name").unwrap();
+    model.add_var(var_id.clone(), "a_name", "").unwrap();
     let model_orig = model.clone();
 
     // test position change event

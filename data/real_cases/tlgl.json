@@ -5,91 +5,109 @@
       {
         "id": "Apoptosis_",
         "name": "Apoptosis_",
+        "annotation": "",
         "update_fn": "function(Caspase, Apoptosis_)"
       },
       {
         "id": "BID_",
         "name": "BID_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & k(MCL1)"
       },
       {
         "id": "CREB",
         "name": "CREB",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & e(IFNG_)"
       },
       {
         "id": "CTLA4_",
         "name": "CTLA4_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & h(TCR)"
       },
       {
         "id": "Caspase",
         "name": "Caspase",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & m(BID_, DISC_, IAP_)"
       },
       {
         "id": "Ceramide_",
         "name": "Ceramide_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & n(Fas, S1P)"
       },
       {
         "id": "DISC_",
         "name": "DISC_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & j(Fas, Ceramide_, FLIP_)"
       },
       {
         "id": "FLIP_",
         "name": "FLIP_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & i(DISC_)"
       },
       {
         "id": "Fas",
         "name": "Fas",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & o(sFas)"
       },
       {
         "id": "GPCR_",
         "name": "GPCR_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & b(S1P)"
       },
       {
         "id": "IAP_",
         "name": "IAP_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & a(BID_)"
       },
       {
         "id": "IFNG_",
         "name": "IFNG_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & f(P2, SMAD_)"
       },
       {
         "id": "MCL1",
         "name": "MCL1",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & l(DISC_)"
       },
       {
         "id": "P2",
         "name": "P2",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & d(P2, IFNG_)"
       },
       {
         "id": "S1P",
         "name": "S1P",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & q(Ceramide_)"
       },
       {
         "id": "SMAD_",
         "name": "SMAD_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & c(GPCR_)"
       },
       {
         "id": "TCR",
         "name": "TCR",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & g(CTLA4_)"
       },
       {
         "id": "sFas",
         "name": "sFas",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & p(S1P)"
       }
     ],

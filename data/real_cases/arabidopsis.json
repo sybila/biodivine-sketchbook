@@ -5,106 +5,127 @@
       {
         "id": "AGO1",
         "name": "AGO1",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AGO10",
         "name": "AGO10",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AGO1_miR165",
         "name": "AGO1_miR165",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AGO7",
         "name": "AGO7",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AGO7_miR390",
         "name": "AGO7_miR390",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "ANT",
         "name": "ANT",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "ARF4",
         "name": "ARF4",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AS1",
         "name": "AS1",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AS1_AS2",
         "name": "AS1_AS2",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AS2",
         "name": "AS2",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "AUXINh",
         "name": "AUXINh",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "CKh",
         "name": "CKh",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "ETT",
         "name": "ETT",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "FIL",
         "name": "FIL",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "GTE6",
         "name": "GTE6",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "IPT5",
         "name": "IPT5",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "KAN1",
         "name": "KAN1",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "REV",
         "name": "REV",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "TAS3siRNA",
         "name": "TAS3siRNA",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "miR165",
         "name": "miR165",
+        "annotation": "",
         "update_fn": ""
       },
       {
         "id": "miR390",
         "name": "miR390",
+        "annotation": "",
         "update_fn": ""
       }
     ],

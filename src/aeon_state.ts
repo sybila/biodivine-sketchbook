@@ -40,6 +40,7 @@ export interface ModelData {
 export interface VariableData {
   id: string
   name: string
+  annotation: string
   update_fn: string
 }
 

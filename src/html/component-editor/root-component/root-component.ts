@@ -216,7 +216,8 @@ export default class RootComponent extends LitElement {
     variables.push({
       id: data.id,
       name: data.name,
-      function: ''
+      annotation: data.annotation,
+      function: data.update_fn
     })
     this.saveVariables(variables)
   }

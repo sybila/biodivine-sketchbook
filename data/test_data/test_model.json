@@ -5,21 +5,25 @@
       {
         "id": "A",
         "name": "A",
+        "annotation": "",
         "update_fn": "h(C)"
       },
       {
         "id": "B",
         "name": "B",
+        "annotation": "",
         "update_fn": "f(A, D)"
       },
       {
         "id": "C",
         "name": "C",
+        "annotation": "",
         "update_fn": "A & g(C, B)"
       },
       {
         "id": "D",
         "name": "D",
+        "annotation": "",
         "update_fn": ""
       }
     ],

@@ -7,7 +7,7 @@ use crate::sketchbook::data_structs::{
 use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
-use crate::sketchbook::model::{ModelState, Variable};
+use crate::sketchbook::model::{ModelState, UpdateFn, Variable};
 use crate::sketchbook::JsonSerde;
 
 /// Implementation for events related to `variables` of the model.
@@ -103,7 +103,8 @@ impl ModelState {
         // start indexing at 1
         let var_id = self.generate_var_id("var", Some(1));
         let variable = Variable::new(var_id.as_str())?;
-        let variable_data = VariableData::new(var_id.as_str(), variable.get_name(), "");
+        let empty_update = UpdateFn::default();
+        let variable_data = VariableData::from_var(&var_id, &variable, &empty_update);
 
         // must add variable and then change its position
         let mut event_list = Vec::new();
@@ -139,7 +140,11 @@ impl ModelState {
         // get payload components and perform the event
         let payload = Self::clone_payload_str(event, component_name)?;
         let variable_data = VariableData::from_json_str(payload.as_str())?;
-        self.add_var_by_str(&variable_data.id, &variable_data.name)?;
+        self.add_var_by_str(
+            &variable_data.id,
+            &variable_data.name,
+            &variable_data.annotation,
+        )?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let state_change = mk_model_state_change(&["variable", "add"], &variable_data);
