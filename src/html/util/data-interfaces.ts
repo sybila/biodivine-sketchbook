@@ -93,6 +93,7 @@ export type PropertyType = StaticPropertyType | DynamicPropertyType
 export interface IProperty {
   id: string
   name: string
+  annotation: string
   variant: PropertyType
 }
 

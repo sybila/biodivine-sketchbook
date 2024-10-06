@@ -22,8 +22,6 @@ pub mod bn_utils;
 
 /// **(internal)** Utility functions specifically related to events.
 pub(crate) mod event_utils;
-/// **(internal)** Utilities regarding static proeprties (shortcuts).
-pub(crate) mod stat_prop_utils;
 
 /// The main `Sketch` manager object and its utilities.
 mod _sketch;

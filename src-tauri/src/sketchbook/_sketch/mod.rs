@@ -25,6 +25,7 @@ pub struct Sketch {
     pub model: ModelState,
     pub observations: ObservationManager,
     pub properties: PropertyManager,
+    pub annotation: String,
 }
 
 impl<'de> JsonSerde<'de> for Sketch {}
@@ -37,6 +38,7 @@ impl Default for Sketch {
             model: ModelState::default(),
             observations: ObservationManager::default(),
             properties: PropertyManager::default(),
+            annotation: String::default(),
         }
     }
 }

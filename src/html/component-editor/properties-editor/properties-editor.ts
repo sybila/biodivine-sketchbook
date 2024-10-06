@@ -20,7 +20,7 @@ import {
 } from '../../util/data-interfaces'
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
-import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_events'
+import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_state'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {

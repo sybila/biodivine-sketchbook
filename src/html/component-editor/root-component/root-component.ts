@@ -17,7 +17,7 @@ import {
   type UninterpretedFnData,
   type VariableData,
   type VariableIdUpdateData
-} from '../../../aeon_events'
+} from '../../../aeon_state'
 import { tabList } from '../../util/config'
 import {
   ContentData,

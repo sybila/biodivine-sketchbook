@@ -59,6 +59,7 @@ impl Sketch {
             model,
             observations: obs_manager,
             properties: prop_manager,
+            annotation: sketch_data.annotation.clone(),
         })
     }
 
@@ -83,5 +84,15 @@ impl Sketch {
         self.model = ModelState::default();
         self.observations = ObservationManager::default();
         self.properties = PropertyManager::default();
+    }
+
+    /// Get annotation string.
+    pub fn get_annotation(&self) -> &str {
+        &self.annotation
+    }
+
+    /// Set annotation string.
+    pub fn set_annotation(&mut self, annotation: &str) {
+        self.annotation = annotation.to_string()
     }
 }

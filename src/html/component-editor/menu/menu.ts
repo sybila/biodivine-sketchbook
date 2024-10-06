@@ -6,7 +6,7 @@ import { open, save } from '@tauri-apps/api/dialog'
 import { appWindow } from '@tauri-apps/api/window'
 import {
   aeonState
-} from '../../../aeon_events'
+} from '../../../aeon_state'
 import { dialog } from '@tauri-apps/api'
 import { when } from 'lit/directives/when.js'
 import { computePosition } from '@floating-ui/dom'

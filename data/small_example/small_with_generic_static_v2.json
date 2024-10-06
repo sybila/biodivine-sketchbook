@@ -1,4 +1,5 @@
 {
+  "annotation": "",
   "model": {
     "variables": [
       {
@@ -120,18 +121,21 @@
     {
       "id": "prior_knowledge",
       "name": "Generic dynamic property",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "3{a}: (3{b}: (3{c}: (@{c}: ((EF {a}) & (EF {b}) & (@{a}: AG EF {a}) & (@{b}: (AG EF {b} & ~EF {a}))))))"
     },
     {
       "id": "data_2",
       "name": "Generic dynamic property",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "3{y}:@{y}: v_1 & v_2 & ~v_3 & AG EF {y}"
     },
     {
       "id": "data_1",
       "name": "Generic dynamic property",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "3{x}:@{x}: ~v_1 & ~v_2 & v_3 & AG EF {x}"
     }
@@ -140,30 +144,35 @@
     {
       "id": "inhib_v3_v1",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "f_v_1(1) => f_v_1(0)"
     },
     {
       "id": "essencial_v3_v1",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "f_v_1(0) ^ f_v_1(1)"
     },
     {
       "id": "essencial_v1_v3",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "\\exists x, y: f_v_3(0, x, y) ^ f_v_3(1, x, y)"
     },
     {
       "id": "activ_v1_v3",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "\\forall x, y: f_v_3(0, x, y) => f_v_3(1, x, y)"
     },
     {
       "id": "essencial_v2_v3",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "\\exists x, y: f_v_3(x, 0, y) ^ f_v_3(x, 1, y)"
     }

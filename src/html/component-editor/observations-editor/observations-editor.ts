@@ -16,7 +16,7 @@ import {
   type DatasetIdUpdateData,
   type ObservationData,
   type ObservationIdUpdateData
-} from '../../../aeon_events'
+} from '../../../aeon_state'
 import { when } from 'lit/directives/when.js'
 
 @customElement('observations-editor')

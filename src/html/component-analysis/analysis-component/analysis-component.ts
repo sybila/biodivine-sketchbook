@@ -4,7 +4,7 @@ import style_less from './analysis-component.less?inline'
 import {
   aeonState,
   type SketchData
-} from '../../../aeon_events'
+} from '../../../aeon_state'
 import {
   type InferenceStatusReport,
   InferenceType,

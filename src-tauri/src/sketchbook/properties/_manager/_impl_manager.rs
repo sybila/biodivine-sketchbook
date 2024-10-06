@@ -21,35 +21,6 @@ impl PropertyManager {
         }
     }
 
-    /// Instantiate `PropertyManager` with (generic) dynamic and static properties given as a list
-    /// of ID-name-formula tuples.
-    pub fn new_from_formulae(
-        dyn_properties: Vec<(&str, &str, &str)>,
-        stat_properties: Vec<(&str, &str, &str)>,
-    ) -> Result<PropertyManager, String> {
-        let mut manager = PropertyManager::new_empty();
-
-        let dyn_prop_ids = dyn_properties.iter().map(|pair| pair.0).collect();
-        assert_ids_unique(&dyn_prop_ids)?;
-
-        let stat_prop_ids = stat_properties.iter().map(|pair| pair.0).collect();
-        assert_ids_unique(&stat_prop_ids)?;
-
-        for (id, name, formula) in dyn_properties {
-            let prop_id = DynPropertyId::new(id)?;
-            manager
-                .dyn_properties
-                .insert(prop_id, DynProperty::try_mk_generic(name, formula)?);
-        }
-        for (id, name, formula) in stat_properties {
-            let prop_id = StatPropertyId::new(id)?;
-            manager
-                .stat_properties
-                .insert(prop_id, StatProperty::try_mk_generic(name, formula)?);
-        }
-        Ok(manager)
-    }
-
     /// Instantiate `PropertyManager` with dynamic and static properties given as a list
     /// of ID-property pairs.
     pub fn new_from_properties(
@@ -79,269 +50,29 @@ impl PropertyManager {
 /// Editing `PropertyManager`.
 impl PropertyManager {
     /// Add pre-generated dynamic property.
-    pub fn add_raw_dynamic(&mut self, id: DynPropertyId, prop: DynProperty) -> Result<(), String> {
+    pub fn add_dynamic(&mut self, id: DynPropertyId, prop: DynProperty) -> Result<(), String> {
         self.assert_no_dynamic(&id)?;
         self.dyn_properties.insert(id, prop);
         Ok(())
     }
 
     /// Add pre-generated dynamic property with id given by str.
-    pub fn add_raw_dynamic_by_str(&mut self, id: &str, prop: DynProperty) -> Result<(), String> {
+    pub fn add_dynamic_by_str(&mut self, id: &str, prop: DynProperty) -> Result<(), String> {
         let id = DynPropertyId::new(id)?;
-        self.add_raw_dynamic(id, prop)
+        self.add_dynamic(id, prop)
     }
 
     /// Add pre-generated static property.
-    pub fn add_raw_static(&mut self, id: StatPropertyId, prop: StatProperty) -> Result<(), String> {
+    pub fn add_static(&mut self, id: StatPropertyId, prop: StatProperty) -> Result<(), String> {
         self.assert_no_static(&id)?;
         self.stat_properties.insert(id, prop);
         Ok(())
     }
 
     /// Add pre-generated static property with id given by str.
-    pub fn add_raw_static_by_str(&mut self, id: &str, prop: StatProperty) -> Result<(), String> {
+    pub fn add_static_by_str(&mut self, id: &str, prop: StatProperty) -> Result<(), String> {
         let id = StatPropertyId::new(id)?;
-        self.add_raw_static(id, prop)
-    }
-
-    /// Add a new "generic" `DynProperty` instance with a given formula, which must be in a
-    /// correct format (which is verified).
-    pub fn add_dyn_generic(
-        &mut self,
-        id: DynPropertyId,
-        name: &str,
-        raw_formula: &str,
-    ) -> Result<(), String> {
-        self.assert_no_dynamic(&id)?;
-        let property = DynProperty::try_mk_generic(name, raw_formula)?;
-        self.dyn_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add a new `DynProperty` instance describing existence of a fixed point corresponding to
-    /// a given observation.
-    pub fn add_dyn_fixed_point(
-        &mut self,
-        id: DynPropertyId,
-        name: &str,
-        dataset: Option<DatasetId>,
-        observation: Option<ObservationId>,
-    ) -> Result<(), String> {
-        self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_fixed_point(name, dataset, observation);
-        self.dyn_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add a new `DynProperty` instance describing existence of a trap space corresponding to
-    /// a given observation.
-    pub fn add_dyn_trap_space(
-        &mut self,
-        id: DynPropertyId,
-        name: &str,
-        dataset: Option<DatasetId>,
-        observation: Option<ObservationId>,
-        minimal: bool,
-        non_percolable: bool,
-    ) -> Result<(), String> {
-        self.assert_no_dynamic(&id)?;
-        let property =
-            DynProperty::mk_trap_space(name, dataset, observation, minimal, non_percolable);
-        self.dyn_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add a new `DynProperty` instance describing existence of a trajectory corresponding to
-    /// observations from a given observation (in the given order).
-    pub fn add_dyn_trajectory(
-        &mut self,
-        id: DynPropertyId,
-        name: &str,
-        dataset: Option<DatasetId>,
-    ) -> Result<(), String> {
-        self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_trajectory(name, dataset);
-        self.dyn_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add a new `DynProperty` instance describing the number of existing attractors.
-    pub fn add_dyn_attractor_count(
-        &mut self,
-        id: DynPropertyId,
-        name: &str,
-        minimal: usize,
-        maximal: usize,
-    ) -> Result<(), String> {
-        self.assert_no_dynamic(&id)?;
-        let property = DynProperty::try_mk_attractor_count(name, minimal, maximal)?;
-        self.dyn_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add a new `DynProperty` instance describing the existence of an attractor corresponding to
-    /// a corresponding dataset, or some specific observation in it.
-    pub fn add_dyn_has_attractor(
-        &mut self,
-        id: DynPropertyId,
-        name: &str,
-        dataset: Option<DatasetId>,
-        observation: Option<ObservationId>,
-    ) -> Result<(), String> {
-        self.assert_no_dynamic(&id)?;
-        let property = DynProperty::mk_has_attractor(name, dataset, observation);
-        self.dyn_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new "generic" `StatProperty` instance directly from a formula, which must be in a
-    /// correct format (which is verified).
-    pub fn add_stat_generic(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        raw_formula: &str,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property = StatProperty::try_mk_generic(name, raw_formula)?;
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that a regulation is essential (i.e., an input
-    /// of an update function is essential).
-    pub fn add_stat_reg_essential(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input: Option<VarId>,
-        target: Option<VarId>,
-        value: Essentiality,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property = StatProperty::mk_regulation_essential(name, input, target, value);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that a regulation is essential (i.e., an input
-    /// of an update function is essential) in a given context.
-    pub fn add_stat_reg_essential_context(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input: Option<VarId>,
-        target: Option<VarId>,
-        value: Essentiality,
-        context: String,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property =
-            StatProperty::mk_regulation_essential_context(name, input, target, value, context);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that a regulation is monotonic (i.e., an input
-    /// of an update function is monotonic).
-    pub fn add_stat_reg_monotonic(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input: Option<VarId>,
-        target: Option<VarId>,
-        value: Monotonicity,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property = StatProperty::mk_regulation_monotonic(name, input, target, value);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that a regulation is monotonic (i.e., an input
-    /// of an update function is monotonic) in a given context.
-    pub fn add_stat_reg_monotonic_context(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input: Option<VarId>,
-        target: Option<VarId>,
-        value: Monotonicity,
-        context: String,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property =
-            StatProperty::mk_regulation_monotonic_context(name, input, target, value, context);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that an input of an uninterpreted function
-    /// is essential.
-    pub fn add_stat_fn_input_essential(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input_index: Option<usize>,
-        target: Option<UninterpretedFnId>,
-        value: Essentiality,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property = StatProperty::mk_fn_input_essential(name, input_index, target, value);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that an input of an uninterpreted function
-    /// is essential in a certain context.
-    pub fn add_stat_fn_input_essential_context(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input_index: Option<usize>,
-        target: Option<UninterpretedFnId>,
-        value: Essentiality,
-        context: String,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property =
-            StatProperty::mk_fn_input_essential_context(name, input_index, target, value, context);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that an input of an uninterpreted function
-    /// is monotonic.
-    pub fn add_stat_fn_input_monotonic(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input_index: Option<usize>,
-        target: Option<UninterpretedFnId>,
-        value: Monotonicity,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property = StatProperty::mk_fn_input_monotonic(name, input_index, target, value);
-        self.stat_properties.insert(id, property);
-        Ok(())
-    }
-
-    /// Add new `StatProperty` instance describing that an input of an uninterpreted function
-    /// is monotonic in a certain context.
-    pub fn add_stat_fn_input_monotonic_context(
-        &mut self,
-        id: StatPropertyId,
-        name: &str,
-        input_index: Option<usize>,
-        target: Option<UninterpretedFnId>,
-        value: Monotonicity,
-        context: String,
-    ) -> Result<(), String> {
-        self.assert_no_static(&id)?;
-        let property =
-            StatProperty::mk_fn_input_monotonic_context(name, input_index, target, value, context);
-        self.stat_properties.insert(id, property);
-        Ok(())
+        self.add_static(id, prop)
     }
 
     /// Set name for given dynamic property.

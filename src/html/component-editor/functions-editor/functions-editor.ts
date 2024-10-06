@@ -9,7 +9,7 @@ import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import { type Ace } from 'ace-builds'
 import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
 import { dialog } from '@tauri-apps/api'
-import { aeonState, type UninterpretedFnData, type UninterpretedFnIdUpdateData } from '../../../aeon_events'
+import { aeonState, type UninterpretedFnData, type UninterpretedFnIdUpdateData } from '../../../aeon_state'
 
 @customElement('functions-editor')
 export class FunctionsEditor extends LitElement {

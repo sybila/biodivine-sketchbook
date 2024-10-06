@@ -1,4 +1,5 @@
 {
+  "annotation": "",
   "model": {
     "variables": [
       {
@@ -484,6 +485,7 @@
     {
       "id": "dynamic_1",
       "name": "Fixed point existence",
+      "annotation": "",
       "variant": "ExistsFixedPoint",
       "dataset": "dataset_1",
       "observation": null
@@ -493,6 +495,7 @@
     {
       "id": "essentiality_KAN1_AS2",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "KAN1",
       "target": "AS2",
@@ -502,6 +505,7 @@
     {
       "id": "monotonicity_TAS3siRNA_ETT",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "TAS3siRNA",
       "target": "ETT",
@@ -511,6 +515,7 @@
     {
       "id": "essentiality_AGO1_miR165_REV",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "AGO1_miR165",
       "target": "REV",
@@ -520,6 +525,7 @@
     {
       "id": "essentiality_miR165_AGO1_miR165",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "miR165",
       "target": "AGO1_miR165",
@@ -529,6 +535,7 @@
     {
       "id": "monotonicity_AUXINh_ARF4",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AUXINh",
       "target": "ARF4",
@@ -538,6 +545,7 @@
     {
       "id": "monotonicity_REV_AGO10",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "REV",
       "target": "AGO10",
@@ -547,6 +555,7 @@
     {
       "id": "monotonicity_IPT5_CKh",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "IPT5",
       "target": "CKh",
@@ -556,6 +565,7 @@
     {
       "id": "essentiality_AS1_AS1_AS2",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "AS1",
       "target": "AS1_AS2",
@@ -565,6 +575,7 @@
     {
       "id": "monotonicity_ANT_FIL",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "ANT",
       "target": "FIL",
@@ -574,6 +585,7 @@
     {
       "id": "monotonicity_AUXINh_miR390",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AUXINh",
       "target": "miR390",
@@ -583,6 +595,7 @@
     {
       "id": "essentiality_GTE6_AS1",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "GTE6",
       "target": "AS1",
@@ -592,6 +605,7 @@
     {
       "id": "monotonicity_FIL_KAN1",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "FIL",
       "target": "KAN1",
@@ -601,6 +615,7 @@
     {
       "id": "monotonicity_AS1_AS2_miR165",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AS1_AS2",
       "target": "miR165",
@@ -610,6 +625,7 @@
     {
       "id": "essentiality_TAS3siRNA_ETT",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "TAS3siRNA",
       "target": "ETT",
@@ -619,6 +635,7 @@
     {
       "id": "monotonicity_miR390_AGO7_miR390",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "miR390",
       "target": "AGO7_miR390",
@@ -628,6 +645,7 @@
     {
       "id": "essentiality_AGO1_AGO1_miR165",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "AGO1",
       "target": "AGO1_miR165",
@@ -637,6 +655,7 @@
     {
       "id": "monotonicity_AUXINh_REV",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AUXINh",
       "target": "REV",
@@ -646,6 +665,7 @@
     {
       "id": "monotonicity_AGO7_AGO7_miR390",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AGO7",
       "target": "AGO7_miR390",
@@ -655,6 +675,7 @@
     {
       "id": "monotonicity_miR165_AGO1_miR165",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "miR165",
       "target": "AGO1_miR165",
@@ -664,6 +685,7 @@
     {
       "id": "monotonicity_AGO10_AGO1",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AGO10",
       "target": "AGO1",
@@ -673,6 +695,7 @@
     {
       "id": "essentiality_miR390_AGO7_miR390",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "miR390",
       "target": "AGO7_miR390",
@@ -682,6 +705,7 @@
     {
       "id": "monotonicity_REV_AGO7",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "REV",
       "target": "AGO7",
@@ -691,6 +715,7 @@
     {
       "id": "essentiality_TAS3siRNA_ARF4",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "TAS3siRNA",
       "target": "ARF4",
@@ -700,6 +725,7 @@
     {
       "id": "monotonicity_AUXINh_AUXINh",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AUXINh",
       "target": "AUXINh",
@@ -709,6 +735,7 @@
     {
       "id": "monotonicity_AGO1_miR165_REV",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AGO1_miR165",
       "target": "REV",
@@ -718,6 +745,7 @@
     {
       "id": "monotonicity_AGO7_miR390_TAS3siRNA",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AGO7_miR390",
       "target": "TAS3siRNA",
@@ -727,6 +755,7 @@
     {
       "id": "monotonicity_FIL_ETT",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "FIL",
       "target": "ETT",
@@ -736,6 +765,7 @@
     {
       "id": "monotonicity_ARF4_FIL",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "ARF4",
       "target": "FIL",
@@ -745,6 +775,7 @@
     {
       "id": "monotonicity_AS1_AS1_AS2",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AS1",
       "target": "AS1_AS2",
@@ -754,6 +785,7 @@
     {
       "id": "monotonicity_GTE6_AS1",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "GTE6",
       "target": "AS1",
@@ -763,6 +795,7 @@
     {
       "id": "monotonicity_AS1_AS2_KAN1",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AS1_AS2",
       "target": "KAN1",
@@ -772,6 +805,7 @@
     {
       "id": "essentiality_IPT5_CKh",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "IPT5",
       "target": "CKh",
@@ -781,6 +815,7 @@
     {
       "id": "monotonicity_TAS3siRNA_miR165",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "TAS3siRNA",
       "target": "miR165",
@@ -790,6 +825,7 @@
     {
       "id": "monotonicity_AGO1_AGO1_miR165",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AGO1",
       "target": "AGO1_miR165",
@@ -799,6 +835,7 @@
     {
       "id": "monotonicity_AUXINh_ANT",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AUXINh",
       "target": "ANT",
@@ -808,6 +845,7 @@
     {
       "id": "monotonicity_CKh_GTE6",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "CKh",
       "target": "GTE6",
@@ -817,6 +855,7 @@
     {
       "id": "essentiality_AGO7_miR390_TAS3siRNA",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "AGO7_miR390",
       "target": "TAS3siRNA",
@@ -826,6 +865,7 @@
     {
       "id": "essentiality_AGO7_AGO7_miR390",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "AGO7",
       "target": "AGO7_miR390",
@@ -835,6 +875,7 @@
     {
       "id": "monotonicity_FIL_ARF4",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "FIL",
       "target": "ARF4",
@@ -844,6 +885,7 @@
     {
       "id": "monotonicity_REV_IPT5",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "REV",
       "target": "IPT5",
@@ -853,6 +895,7 @@
     {
       "id": "monotonicity_AS2_AS1_AS2",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AS2",
       "target": "AS1_AS2",
@@ -862,6 +905,7 @@
     {
       "id": "monotonicity_ETT_FIL",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "ETT",
       "target": "FIL",
@@ -871,6 +915,7 @@
     {
       "id": "monotonicity_TAS3siRNA_ARF4",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "TAS3siRNA",
       "target": "ARF4",
@@ -880,6 +925,7 @@
     {
       "id": "monotonicity_KAN1_AS2",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "KAN1",
       "target": "AS2",
@@ -889,6 +935,7 @@
     {
       "id": "essentiality_AS2_AS1_AS2",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "AS2",
       "target": "AS1_AS2",

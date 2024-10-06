@@ -9,7 +9,7 @@ import '../observations-editor/observations-editor'
 import '../properties-editor/properties-editor'
 import '../analysis-tab/analysis-tab'
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons'
-import { aeonState } from '../../../aeon_events'
+import { aeonState } from '../../../aeon_state'
 import { ContentData } from '../../util/data-interfaces'
 
 library.add(faLock, faLockOpen)

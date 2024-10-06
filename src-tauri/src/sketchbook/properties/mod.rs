@@ -4,6 +4,8 @@ use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
 mod _manager;
 /// Structs and utilities regarding dynamic properties.
 pub mod dynamic_props;
+/// Utilities and shortcuts for simpler property generating, mainly for tests.
+pub mod shortcuts;
 /// Structs and utilities regarding static properties.
 pub mod static_props;
 

@@ -1,4 +1,5 @@
-{
+{      
+  "annotation": "",
   "model": {
     "variables": [
       {
@@ -120,18 +121,21 @@
     {
       "id": "data_1",
       "name": "Generic dynamic property",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "3{x}:@{x}: ~v_1 & ~v_2 & v_3 & AG EF {x}"
     },
     {
       "id": "data_2",
       "name": "Generic dynamic property",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "3{y}:@{y}: v_1 & v_2 & ~v_3 & AG EF {y}"
     },
     {
       "id": "prior_knowledge",
       "name": "Generic dynamic property",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "3{a}: (3{b}: (3{c}: (@{c}: ((EF {a}) & (EF {b}) & (@{a}: AG EF {a}) & (@{b}: (AG EF {b} & ~EF {a}))))))"
     }
@@ -140,30 +144,35 @@
     {
       "id": "static_3",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "f(0) ^ f(1)"
     },
     {
       "id": "static_2",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "f(1) => f(0)"
     },
     {
       "id": "static_4",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "\\exists x: h(0, x) ^ h(1, x)"
     },
     {
       "id": "static_1",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "\\forall x: h(0, x) => h(1, x)"
     },
     {
       "id": "static_5",
       "name": "Generic static property",
+      "annotation": "",
       "variant": "GenericStatProp",
       "formula": "\\exists x: h(x, 0) ^ h(x, 1)"
     }

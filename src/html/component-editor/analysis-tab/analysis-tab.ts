@@ -4,7 +4,7 @@ import style_less from './analysis-tab.less?inline'
 import { ContentData } from '../../util/data-interfaces'
 import {
   aeonState
-} from '../../../aeon_events'
+} from '../../../aeon_state'
 
 @customElement('analysis-tab')
 export class AnalysisTab extends LitElement {
