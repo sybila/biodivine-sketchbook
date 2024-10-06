@@ -1,8 +1,7 @@
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::ObservationManager;
 use crate::sketchbook::properties::PropertyManager;
-use crate::sketchbook::{JsonSerde, Manager};
-use serde::{Deserialize, Serialize};
+use crate::sketchbook::Manager;
 
 /// **(internal)** Utilities to check consistency of `Sketch` instances.
 mod _impl_consistency;
@@ -20,7 +19,7 @@ mod _impl_sketch;
 /// Most of the actual functionality is implemented by the modules themselves, `Sketch`
 /// currently only distributes events and handles situations when cooperation between
 /// modules is needed.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Sketch {
     pub model: ModelState,
     pub observations: ObservationManager,
@@ -28,7 +27,6 @@ pub struct Sketch {
     pub annotation: String,
 }
 
-impl<'de> JsonSerde<'de> for Sketch {}
 impl Manager for Sketch {}
 
 impl Default for Sketch {

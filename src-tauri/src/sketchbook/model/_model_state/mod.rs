@@ -1,7 +1,7 @@
 use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::layout::Layout;
 use crate::sketchbook::model::{Regulation, UninterpretedFn, UpdateFn, Variable};
-use crate::sketchbook::{JsonSerde, Manager};
+use crate::sketchbook::Manager;
 use std::collections::{HashMap, HashSet};
 
 /// **(internal)** Methods for converting between `ModelState` and `BooleanNetwork`.
@@ -14,8 +14,6 @@ mod _impl_editing;
 mod _impl_id_generating;
 /// **(internal)** Methods for observing instances of `ModelState` (various getters, etc.).
 mod _impl_observing;
-/// **(internal)** Implementation of serialization traits [Serialize] and [Deserialize].
-mod _impl_serde;
 /// **(internal)** Implementation of event-based API for the [SessionState] trait.
 mod _impl_session_state;
 
@@ -34,7 +32,6 @@ pub struct ModelState {
     placeholder_variables: HashSet<VarId>,
 }
 
-impl<'de> JsonSerde<'de> for ModelState {}
 impl Manager for ModelState {}
 
 impl Default for ModelState {

@@ -24,7 +24,6 @@ fn inference_added_dual() {
     let at_path = ["model", "regulation", "D", "D", "set_sign"];
     let event = mk_model_event(&at_path, Some(&new_sign));
     apply_event_fully(&mut sketch, &event, &at_path);
-    print!("{}", sketch.to_pretty_json_str());
 
     let results = run_inference(sketch);
     assert_eq!(results.num_sat_networks, 0);
