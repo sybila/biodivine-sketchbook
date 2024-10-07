@@ -158,6 +158,16 @@ impl ModelState {
         Ok(uninterpreted_fn.get_arity())
     }
 
+    /// Return annotation of a `UninterpretedFn` corresponding to a given `UninterpretedFnId`.
+    ///
+    /// Return `Err` if no such uninterpreted fn exists (the ID is invalid in this context).
+    pub fn get_uninterpreted_fn_annot(&self, fn_id: &UninterpretedFnId) -> Result<&str, String> {
+        let uninterpreted_fn = self.uninterpreted_fns.get(fn_id).ok_or(format!(
+            "UninterpretedFn with ID {fn_id} does not exist in this model."
+        ))?;
+        Ok(uninterpreted_fn.get_annotation())
+    }
+
     /// Shortcut to return a name of the variable corresponding to a given `VarId`.
     ///
     /// Return `Err` if such variable does not exist (the ID is invalid in this context).
@@ -166,6 +176,16 @@ impl ModelState {
             "Variable with ID {var_id} does not exist in this model."
         ))?;
         Ok(variable.get_name())
+    }
+
+    /// Shortcut to return an annotation of the variable corresponding to a given `VarId`.
+    ///
+    /// Return `Err` if such variable does not exist (the ID is invalid in this context).
+    pub fn get_var_annotation(&self, var_id: &VarId) -> Result<&str, String> {
+        let variable = self.variables.get(var_id).ok_or(format!(
+            "Variable with ID {var_id} does not exist in this model."
+        ))?;
+        Ok(variable.get_annotation())
     }
 
     /// Find a `Regulation` between two variables if it exists.

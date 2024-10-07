@@ -70,6 +70,8 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
     this.addEventListener('set-variable-id', this.setVariableId)
     aeonState.sketch.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
+    this.addEventListener('set-variable-annotation', this.setVariableAnnotation)
+    aeonState.sketch.model.variableAnnotationChanged.addEventListener(this.#onVariableAnnotationChanged.bind(this))
     this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
     aeonState.sketch.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
     this.addEventListener('toggle-regulation-monotonicity', this.toggleRegulationMonotonicity)
@@ -197,6 +199,22 @@ export default class RootComponent extends LitElement {
       ...variables[variableIndex],
       id: data.id,
       name: data.name
+    }
+    this.saveVariables(variables)
+  }
+
+  setVariableAnnotation (event: Event): void {
+    const details = (event as CustomEvent).detail
+    aeonState.sketch.model.setVariableAnnotation(details.id, details.annotation)
+  }
+
+  #onVariableAnnotationChanged (data: VariableData): void {
+    const variables = [...this.data.variables]
+    const variableIndex = variables.findIndex(variable => variable.id === data.id)
+    variables[variableIndex] = {
+      ...variables[variableIndex],
+      id: data.id,
+      annotation: data.annotation
     }
     this.saveVariables(variables)
   }

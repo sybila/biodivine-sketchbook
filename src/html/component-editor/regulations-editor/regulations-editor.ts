@@ -36,8 +36,8 @@ export class RegulationsEditor extends LitElement {
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
     this.addEventListener('add-edge', this.addEdge)
-    this.addEventListener('rename-node', (e) => {
-      void this.renameNodeDialog(e)
+    this.addEventListener('edit-variable', (e) => {
+      void this.editVariableDialog(e)
     })
     window.addEventListener('focus-function-field', () => {
       this.toggleMenu(ElementType.NONE)
@@ -232,10 +232,11 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
-  private async renameNodeDialog (event: Event): Promise<void> {
+  private async editVariableDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
     const variableName = (event as CustomEvent).detail.name
+    const variableAnnotation = (event as CustomEvent).detail.annotation
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[variableId] !== undefined) {
@@ -250,8 +251,8 @@ export class RegulationsEditor extends LitElement {
       minimizable: false,
       skipTaskbar: true,
       resizable: false,
-      height: 100,
-      width: 400,
+      height: 300,
+      width: 500,
       x: pos.x + (size.width / 2) - 200,
       y: pos.y + size.height / 4
     })
@@ -259,10 +260,11 @@ export class RegulationsEditor extends LitElement {
     void renameDialog.once('loaded', () => {
       void renameDialog.emit('edit_node_update', {
         id: variableId,
-        name: variableName
+        name: variableName,
+        annotation: variableAnnotation
       })
     })
-    void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+    void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string, annotation: string }>) => {
       this.dialogs[variableId] = undefined
       if (event.payload.name !== variableName) {
         this.dispatchEvent(new CustomEvent('rename-variable', {
@@ -279,6 +281,16 @@ export class RegulationsEditor extends LitElement {
           detail: {
             oldId: variableId,
             newId: event.payload.id
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
+      if (event.payload.annotation !== variableAnnotation) {
+        this.dispatchEvent(new CustomEvent('set-variable-annotation', {
+          detail: {
+            id: variableId,
+            annotation: event.payload.annotation
           },
           bubbles: true,
           composed: true
@@ -322,9 +334,9 @@ export class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.EDGE, position, zoom, edge.data())
   }
 
-  private addNode (id: string, name: string, position = { x: 0, y: 0 }): void {
+  private addNode (id: string, name: string, annotation: string, position = { x: 0, y: 0 }): void {
     this.cy?.add({
-      data: { id, name },
+      data: { id, name, annotation },
       position: { ...position }
     })
   }
@@ -372,7 +384,7 @@ export class RegulationsEditor extends LitElement {
 
   private addNodes (): void {
     this.contentData.variables.forEach((node) => {
-      this.addNode(node.id, node.name, this.contentData.layout.get(node.id))
+      this.addNode(node.id, node.name, node.annotation, this.contentData.layout.get(node.id))
     })
   }
 

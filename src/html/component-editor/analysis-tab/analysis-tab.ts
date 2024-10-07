@@ -2,9 +2,7 @@ import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './analysis-tab.less?inline'
 import { ContentData } from '../../util/data-interfaces'
-import {
-  aeonState
-} from '../../../aeon_state'
+import { aeonState } from '../../../aeon_state'
 
 @customElement('analysis-tab')
 export class AnalysisTab extends LitElement {

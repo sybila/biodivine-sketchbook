@@ -247,6 +247,27 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_name);
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_annotation", at_path).is_some() {
+            // get the payload - string for "new_annotation"
+            let new_annotation = Self::clone_payload_str(event, component_name)?;
+            let original_annotation = self.get_var_annotation(&var_id)?.to_string();
+            if new_annotation == original_annotation {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            self.set_var_annot(&var_id, &new_annotation)?;
+            let var_data = VariableData::from_var(
+                &var_id,
+                self.get_variable(&var_id)?,
+                self.get_update_fn(&var_id)?,
+            );
+            let state_change = mk_model_state_change(&["variable", "set_annotation"], &var_data);
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(original_annotation);
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;

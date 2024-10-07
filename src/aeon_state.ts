@@ -247,6 +247,10 @@ interface AeonState {
       variableUpdateFnChanged: Observable<VariableData>
       /** Set an expression of update function for variable with given ID. */
       setVariableUpdateFn: (varId: string, newExpression: string) => void
+      /** VariableData (with updated `annotation`) for a variable with modified annotation. */
+      variableAnnotationChanged: Observable<VariableData>
+      /** Set an annotation for variable with given ID. */
+      setVariableAnnotation: (varId: string, newAnnotation: string) => void
 
       /** Uninterpreted function-related setter events: */
 
@@ -642,6 +646,7 @@ export const aeonState: AeonState = {
       variableNameChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_name']),
       variableIdChanged: new Observable<VariableIdUpdateData>(['sketch', 'model', 'variable', 'set_id']),
       variableUpdateFnChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_update_fn']),
+      variableAnnotationChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_annotation']),
 
       uninterpretedFnCreated: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'add']),
       uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'remove']),
@@ -714,7 +719,13 @@ export const aeonState: AeonState = {
       setVariableUpdateFn (varId: string, newExpression: string): void {
         aeonEvents.emitAction({
           path: ['sketch', 'model', 'variable', varId, 'set_update_fn'],
-          payload: newExpression.toString()
+          payload: newExpression
+        })
+      },
+      setVariableAnnotation (varId: string, newAnnotation: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'variable', varId, 'set_annotation'],
+          payload: newAnnotation
         })
       },
       addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
