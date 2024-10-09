@@ -104,6 +104,20 @@ impl ObservationManager {
         self.set_dataset_name(&dataset_id, name)
     }
 
+    /// Set annotation of a dataset with given id.
+    pub fn set_dataset_annot(&mut self, id: &DatasetId, annot: &str) -> Result<(), String> {
+        self.assert_valid_dataset(id)?;
+        let dataset = self.datasets.get_mut(id).unwrap();
+        dataset.set_annotation(annot);
+        Ok(())
+    }
+
+    /// Set annotation of a dataset with given string id.
+    pub fn set_dataset_annot_by_str(&mut self, id: &str, annot: &str) -> Result<(), String> {
+        let dataset_id = DatasetId::new(id)?;
+        self.set_dataset_annot(&dataset_id, annot)
+    }    
+
     /// Set the id of dataset with `original_id` to `new_id`.
     pub fn set_dataset_id(
         &mut self,

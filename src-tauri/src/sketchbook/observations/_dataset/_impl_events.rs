@@ -166,6 +166,25 @@ impl Dataset {
             let reverse_at_path = [dataset_id.as_str(), obs_id.as_str(), "set_name"];
             let reverse_event = mk_obs_event(&reverse_at_path, Some(&orig_name));
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if action == "set_annotation" {
+            // get the payload - string encoding a new annotation
+            let new_annotation = Self::clone_payload_str(event, component_name)?;
+            let orig_obs = self.get_obs(&obs_id)?;
+            let orig_annotation = orig_obs.get_annotation().to_string();
+            if orig_annotation == new_annotation {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the action, prepare the state-change variant (move id from path to payload)
+            self.set_obs_annot(&obs_id, &new_annotation)?;
+            let new_obs = self.get_obs(&obs_id)?;
+            let new_obs_data = ObservationData::from_obs(new_obs, &dataset_id);
+            let state_change = mk_obs_state_change(&["set_obs_annotation"], &new_obs_data);
+
+            // prepare the reverse event (setting the original annotation back)
+            let reverse_at_path = [dataset_id.as_str(), obs_id.as_str(), "set_annotation"];
+            let reverse_event = mk_obs_event(&reverse_at_path, Some(&orig_annotation));
+            Ok(make_reversible(state_change, event, reverse_event))
         } else {
             AeonError::throw(format!(
                 "`{component_name}` cannot perform action `{action}`."

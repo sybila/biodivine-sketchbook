@@ -317,8 +317,11 @@ export default class RootComponent extends LitElement {
     // TODO: od this more efficiently (but still on backend)
     this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
     this.data.layout.delete(data.original_id)
-    aeonState.sketch.model.refreshVariables()
-    aeonState.sketch.model.refreshRegulations()
+
+    setTimeout(() => {
+      aeonState.sketch.model.refreshVariables()
+      aeonState.sketch.model.refreshRegulations()
+    }, 50)
   }
 
   private toggleRegulationEssentiality (event: Event): void {
@@ -381,7 +384,9 @@ export default class RootComponent extends LitElement {
     )
 
     // todo: this is a hack for now, to avoid issues in static prop removing after the regulation is removed
-    aeonState.sketch.properties.refreshStaticProps()
+    setTimeout(() => {
+      aeonState.sketch.properties.refreshStaticProps()
+    }, 50)
   }
 
   private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {

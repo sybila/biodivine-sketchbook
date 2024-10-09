@@ -131,8 +131,10 @@ export class FunctionsEditor extends LitElement {
 
     // TODO: this refresh is a temporary solution to get potentially modified update function and uninterpreted
     // functions' expressions
-    aeonState.sketch.model.refreshUninterpretedFns()
-    aeonState.sketch.model.refreshVariables()
+    setTimeout(() => {
+      aeonState.sketch.model.refreshUninterpretedFns()
+      aeonState.sketch.model.refreshVariables()
+    }, 50)
   }
 
   private addFunctionVariable (event: Event): void {
@@ -268,7 +270,7 @@ export class FunctionsEditor extends LitElement {
           </div>
           <div class="section" id="functions">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Uninterpreted functions</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Supplementary functions</h3>
               <div class="uk-text-center">
                 <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
               </div>

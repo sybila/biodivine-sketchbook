@@ -376,6 +376,10 @@ interface AeonState {
       datasetNameChanged: Observable<DatasetMetaData>
       /** Set name of dataset with given ID. */
       setDatasetName: (id: string, newName: string) => void
+      /** DatasetMetaData (with updated `annotation`) of a modified dataset. */
+      datasetAnnotationChanged: Observable<DatasetMetaData>
+      /** Set annotation of dataset with given ID. */
+      setDatasetAnnotation: (id: string, newAnnotation: string) => void
       /** DatasetData of a fully modified dataset. */
       datasetContentChanged: Observable<DatasetData>
       /** Set content (variables, observations - everything) of dataset with given ID. */
@@ -418,6 +422,10 @@ interface AeonState {
       observationNameChanged: Observable<ObservationData>
       /** Modify a name of a particular observation.  */
       setObservationName: (datasetId: string, observation: ObservationData) => void
+      /** ObservationData for an observation with modified annotation (also contains corresponding dataset ID). */
+      observationAnnotationChanged: Observable<ObservationData>
+      /** Modify annotation of a particular observation.  */
+      setObservationAnnotation: (datasetId: string, observation: ObservationData) => void
     }
 
     /** The state of the dynamic and static properties. */
@@ -870,6 +878,7 @@ export const aeonState: AeonState = {
       datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
       datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
       datasetNameChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_name']),
+      datasetAnnotationChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_annotation']),
       datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
       datasetVariableRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove_var']),
       datasetVariableAdded: new Observable<DatasetData>(['sketch', 'observations', 'add_var']),
@@ -880,6 +889,7 @@ export const aeonState: AeonState = {
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
       observationNameChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_name']),
+      observationAnnotationChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_annotation']),
 
       addDataset (id: string, variables: string[], observations: ObservationData[]): void {
         aeonEvents.emitAction({
@@ -925,6 +935,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', id, 'set_name'],
           payload: newName
+        })
+      },
+      setDatasetAnnotation (id: string, newAnnotation: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'set_annotation'],
+          payload: newAnnotation
         })
       },
       setDatasetVariable (datasetId: string, originalId: string, newId: string): void {
@@ -986,6 +1002,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, observation.id, 'set_name'],
           payload: observation.name
+        })
+      },
+      setObservationAnnotation (datasetId: string, observation: ObservationData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', datasetId, observation.id, 'set_annotation'],
+          payload: observation.annotation
         })
       }
     },

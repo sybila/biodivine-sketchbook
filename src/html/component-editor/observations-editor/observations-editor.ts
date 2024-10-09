@@ -25,17 +25,18 @@ export default class ObservationsEditor extends LitElement {
   @property() contentData = ContentData.create()
   @state() datasetRenameIndex = -1
   @state() shownDatasets: number[] = []
+  // dataset edit dialogs
+  dialogs: Record<string, WebviewWindow | undefined> = {}
 
   constructor () {
     super()
 
     // changes to whole datasets triggered by table buttons
-    this.addEventListener('change-dataset-id', this.changeDatasetId)
-    this.addEventListener('rename-dataset', this.renameDataset)
     this.addEventListener('push-new-observation', this.pushNewObservation)
     this.addEventListener('remove-observation', this.removeObservation)
     this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
     this.addEventListener('add-dataset-variable', this.addVariable)
+    this.addEventListener('edit-dataset', (e) => { void this.editDataset(e) })
 
     // changes to observations triggered by table edits
     this.addEventListener('change-observation', this.changeObservation)
@@ -48,14 +49,16 @@ export default class ObservationsEditor extends LitElement {
     aeonState.sketch.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
     aeonState.sketch.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
     aeonState.sketch.observations.datasetNameChanged.addEventListener(this.#onDatasetNameChanged.bind(this))
+    aeonState.sketch.observations.datasetAnnotationChanged.addEventListener(this.#onDatasetAnnotChanged.bind(this))
 
     aeonState.sketch.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
     aeonState.sketch.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
 
     aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
-    // these two handled the same way
+    // these are handled the same way
     aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
     aeonState.sketch.observations.observationNameChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.sketch.observations.observationAnnotationChanged.addEventListener(this.#onObservationContentChanged.bind(this))
 
     // refresh-event listeners
     aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
@@ -264,6 +267,19 @@ export default class ObservationsEditor extends LitElement {
     this.updateObservations(datasets)
   }
 
+  #onDatasetAnnotChanged (data: DatasetMetaData): void {
+    console.log(data)
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.id)
+    if (datasetIndex === -1) return
+
+    const datasets = structuredClone(this.contentData.observations)
+    datasets[datasetIndex] = {
+      ...datasets[datasetIndex],
+      annotation: data.annotation
+    }
+    this.updateObservations(datasets)
+  }
+
   private pushNewObservation (event: Event): void {
     // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
@@ -288,7 +304,10 @@ export default class ObservationsEditor extends LitElement {
     // add new variable (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
     aeonState.sketch.observations.addDatasetVariable(detail.id)
-    aeonState.sketch.observations.refreshDatasets()
+
+    setTimeout(() => {
+      aeonState.sketch.observations.refreshDatasets()
+    }, 50)
   }
 
   #onObservationRemoved (data: ObservationData): void {
@@ -303,14 +322,25 @@ export default class ObservationsEditor extends LitElement {
     const detail = (event as CustomEvent).detail
     const dataset = this.contentData.observations.find(ds => ds.id === detail.dataset)
     if (dataset === undefined) return
-    if (detail.id !== detail.observation.id) {
-      aeonState.sketch.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
+    const origObservation = dataset.observations.find(o => o.id === detail.id)
+    if (origObservation === undefined) return
+
+    const newObsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
+
+    // id might have changed
+    if (origObservation.id !== newObsData.id) {
+      aeonState.sketch.observations.setObservationId(dataset.id, origObservation.id, newObsData.id)
     }
-    const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
-    if (detail.name !== obsData.name) {
-      aeonState.sketch.observations.setObservationName(dataset.id, obsData)
+    // name might have changed
+    if (origObservation.name !== newObsData.name) {
+      aeonState.sketch.observations.setObservationName(dataset.id, newObsData)
     }
-    aeonState.sketch.observations.setObservationContent(dataset.id, obsData)
+    // annotation might have changed
+    if (origObservation.annotation !== newObsData.annotation) {
+      aeonState.sketch.observations.setObservationAnnotation(dataset.id, newObsData)
+    }
+    // content might have changed
+    aeonState.sketch.observations.setObservationContent(dataset.id, newObsData)
   }
 
   #onObservationContentChanged (data: ObservationData): void {
@@ -344,16 +374,64 @@ export default class ObservationsEditor extends LitElement {
     }))
   }
 
-  renameDataset (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
-    (this.shadowRoot?.querySelector('#set-name-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
+  private changeDataset (id: string, updatedDataset: IObservationSet): void {
+    const origDataset = this.contentData.observations.find(ds => ds.id === id)
+    if (origDataset === undefined) return
+    const datasetData = this.convertFromIObservationSet(updatedDataset)
+
+    // id might have changed
+    if (origDataset.id !== datasetData.id) {
+      aeonState.sketch.observations.setDatasetId(origDataset.id, datasetData.id)
+    }
+    // name might have changed
+    if (origDataset.name !== datasetData.name) {
+      aeonState.sketch.observations.setDatasetName(datasetData.id, datasetData.name)
+    }
+    // annotation might have changed
+    if (origDataset.annotation !== datasetData.annotation) {
+      aeonState.sketch.observations.setDatasetAnnotation(datasetData.id, datasetData.annotation)
+    }
   }
 
-  changeDatasetId (event: Event): void {
+  private async editDataset (event: Event): Promise<void> {
     const detail = (event as CustomEvent).detail
-    this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
-    (this.shadowRoot?.querySelector('#set-data-id-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === detail.id)
+    if (datasetIndex === -1) return
+    const dataset = this.contentData.observations[datasetIndex]
+
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    if (this.dialogs[dataset.id] !== undefined) {
+      await this.dialogs[dataset.id]?.setFocus()
+      return
+    }
+    const editDatasetDialog = new WebviewWindow(`editDataset${Math.floor(Math.random() * 1000000)}`, {
+      url: 'src/html/component-editor/observations-editor/edit-dataset/edit-dataset.html',
+      title: `Edit dataset (${dataset.id} / ${dataset.name})`,
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      height: 500,
+      width: 400,
+      x: pos.x + (size.width / 2) - 200,
+      y: pos.y + size.height / 4
+    })
+    this.dialogs[dataset.id] = editDatasetDialog
+    void editDatasetDialog.once('loaded', () => {
+      void editDatasetDialog.emit('edit_dataset_update', {
+        ...dataset
+      })
+    })
+    void editDatasetDialog.once('edit_dataset_dialog', (event: TauriEvent<{ id: string, data: IObservationSet }>) => {
+      this.dialogs[dataset.id] = undefined
+      const index = this.contentData.observations.findIndex(d => d.id === dataset.id)
+      if (index === -1) return
+      this.changeDataset(dataset.id, event.payload.data)
+    })
+    void editDatasetDialog.onCloseRequested(() => {
+      this.dialogs[dataset.id] = undefined
+    })
   }
 
   async removeDataset (event: Event): Promise<void> {
@@ -396,33 +474,7 @@ export default class ObservationsEditor extends LitElement {
                 <div class="label name-id-container" @click="${() => {
                   this.toggleDataset(index)
                 }}">
-                  <input
-                    @input="${(e: InputEvent) => {
-                      this.updateDatasetName((e.target as HTMLInputElement).value, index)
-                    }}"
-                    ?readonly="${this.datasetRenameIndex !== index}"
-                    @keydown="${(e: KeyboardEvent) => {
-                      if (e.key === 'Enter') {
-                        this.datasetRenameIndex = -1
-                      }
-                    }}"
-                    @blur="${() => { this.datasetRenameIndex = -1 }}"
-                    class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
-                    .value="${dataset.name}"/>
-                  ID = 
-                  <input
-                    @input="${(e: InputEvent) => {
-                      this.updateDatasetId((e.target as HTMLInputElement).value, index)
-                    }}"
-                    ?readonly="${this.datasetRenameIndex !== index}"
-                    @keydown="${(e: KeyboardEvent) => {
-                      if (e.key === 'Enter') {
-                        this.datasetRenameIndex = -1
-                      }
-                    }}"
-                    @blur="${() => { this.datasetRenameIndex = -1 }}"
-                    class="set-data-id heading uk-input uk-form-blank" id="${'set-data-id-' + index}"
-                    .value="${dataset.id}"/>
+                ${html`${dataset.id}&nbsp;&nbsp;&nbsp;(${dataset.name})`}
                 </div>
                 ${when(this.shownDatasets.includes(index), () => html`
                   <div class="content">

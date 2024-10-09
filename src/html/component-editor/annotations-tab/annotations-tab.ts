@@ -18,7 +18,7 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatSketchAnnotation (): TemplateResult<1> {
-    return html`TODO: sketch annotation`
+    return html`No annotations available for the sketch.`
   }
 
   addVarAnnot (): void {
@@ -26,9 +26,12 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatVarAnnotations (): TemplateResult<1> {
-    return html`${this.contentData.variables
-        .filter(variable => variable.annotation.trim() !== '')
-        .map(variable => html`${variable.id}: ${variable.annotation}<br>`)}`
+    const annotatedVars = this.contentData.variables
+        .filter(variable => variable.annotation.trim() !== "");
+    if (annotatedVars.length === 0) {
+        return html`<p>No annotations available for variables.</p>`;
+    }
+    return html`${annotatedVars.map(variable => html`${variable.id}: ${variable.annotation}<br>`)}`;
   }
 
   addFnAnnot (): void {
@@ -36,7 +39,12 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatFnAnnotations (): TemplateResult<1> {
-    return html`TODO: list of function annotations`
+    const annotatedFns = this.contentData.functions
+        .filter(func => func.annotation.trim() !== "");
+    if (annotatedFns.length === 0) {
+        return html`<p>No annotations available for functions.</p>`;
+    }
+    return html`${annotatedFns.map(func => html`${func.id}: ${func.annotation}<br>`)}`;
   }
 
   addDatasetAnnot (): void {
@@ -44,7 +52,20 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatDatasetAnnotations (): TemplateResult<1> {
-    return html`TODO: list of dataset annotations + inner lists with observations<br>`
+    return html`${this.contentData.observations
+      .filter(dataset => dataset.annotation.trim() !== "" || dataset.observations.some(observation => observation.annotation.trim() !== ""))
+      .map(dataset => html`
+      <div class="dataset">
+          <p>${dataset.id}: ${dataset.annotation}</p>
+          <ul>
+            ${dataset.observations
+                .filter(observation => observation.annotation.trim() !== "")
+                .map(observation => html`
+                  <li>${observation.id}: ${observation.annotation}</li>
+                `)}
+          </ul>
+      </div>
+    `)}`;
   }
 
   addDynPropAnnot (): void {
@@ -52,7 +73,12 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatDynPropAnnotations (): TemplateResult<1> {
-    return html`TODO: list of property annotations`
+    const annotatedProps = this.contentData.dynamicProperties
+        .filter(dynProp => dynProp.annotation.trim() !== "");
+    if (annotatedProps.length === 0) {
+        return html`<p>No annotations available for dynamic properties.</p>`;
+    }
+    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`;
   }
 
   addStatPropAnnot (): void {
@@ -60,7 +86,12 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatStatPropAnnotations (): TemplateResult<1> {
-    return html`TODO: list of property annotations`
+    const annotatedProps = this.contentData.staticProperties
+        .filter(dynProp => dynProp.annotation.trim() !== "");
+    if (annotatedProps.length === 0) {
+        return html`<p>No annotations available for static properties.</p>`;
+    }
+    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`;
   }
 
   protected render (): TemplateResult {

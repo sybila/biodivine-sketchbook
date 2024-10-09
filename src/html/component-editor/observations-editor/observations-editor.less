@@ -17,28 +17,11 @@
   color: @text-dark;
 }
 
-.set-name, .set-data-id {
-  &:read-only {
-    background-color: transparent;
-    border: none;
-  }
-}
-
 .name-id-container {
   display: flex;
   align-items: center;
   gap: 0.5em;
 }
-
-.set-name,
-.set-data-id {
-  flex: 0.2;
-  padding: 0;
-}
-.set-name {
-  margin: 0.5em;
-}
-
 
 .accordion {
   .container {
@@ -58,11 +41,6 @@
   .label {
     font-size: 1.5em;
     position: relative;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .label input {
     cursor: pointer;
     user-select: none;
   }
@@ -91,7 +69,6 @@
     text-align: justify;
     overflow: hidden;
   }
-
 }
 
 .observations {
@@ -123,7 +100,7 @@
     color: white;
   }
 
-  .set-name, .set-data-id {
+  .name-id-container {
     &:read-only {
       color: white;
     }

@@ -251,6 +251,13 @@ impl Dataset {
         let idx = self.get_obs_index(id)?;
         self.observations[idx].set_name(new_name)
     }
+
+    /// Set annotation of a given observation.
+    pub fn set_obs_annot(&mut self, id: &ObservationId, new_annot: &str) -> Result<(), String> {
+        let idx = self.get_obs_index(id)?;
+        self.observations[idx].set_annotation(new_annot);
+        Ok(())
+    }    
 }
 
 /// Observing `Dataset` instances.

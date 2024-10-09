@@ -234,6 +234,26 @@ impl ObservationManager {
             let payload = orig_dataset_data.to_json_str();
             let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with("set_annotation", at_path).is_some() {
+            // get the payload - json string encoding a new annotation
+            let new_annotation = Self::clone_payload_str(event, component_name)?;
+            let orig_dataset = self.get_dataset(&dataset_id)?;
+            if orig_dataset.get_annotation() == new_annotation {
+                return Ok(Consumed::NoChange);
+            }
+
+            // perform the event, prepare the state-change variant (move id from path to payload)
+            let orig_dataset_data = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
+            self.set_dataset_annot(&dataset_id, &new_annotation)?;
+            let new_dataset_data =
+                DatasetMetaData::from_dataset(&dataset_id, self.get_dataset(&dataset_id)?);
+            let state_change = mk_obs_state_change(&["set_annotation"], &new_dataset_data);
+
+            // prepare the reverse event (setting the original ID back)
+            let reverse_at_path = [dataset_id.as_str(), "set_annotation"];
+            let payload = orig_dataset_data.to_json_str();
+            let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("remove_var", at_path).is_some() {
             // get the payload - string encoding a new dataset data
             let var_id_str = Self::clone_payload_str(event, component_name)?;

@@ -48,7 +48,8 @@ export default defineConfig(async () => ({
         state_space_explorer: resolve(__dirname, 'src/html/state-space-explorer.html'),
         edit_node_dialog: resolve(__dirname, 'src/html/component-editor/regulations-editor/rename-dialog/rename-dialog.html'),
         import_observation_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/observations-import/observations-import.html'),
-        edit_observation_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/edit-observation/edit-observation.html')
+        edit_observation_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/edit-observation/edit-observation.html'),
+        edit_dataset_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/edit-dataset/edit-dataset.html')
       }
     }
   },
