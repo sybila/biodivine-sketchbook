@@ -178,7 +178,7 @@ fn test_set_observation_fields() {
     assert_eq!(obs_original.num_zeros(), 0);
     let new_obs = Observation::try_from_str("000", "doesnt_matter").unwrap();
     let new_obs_data = ObservationData::from_obs(&new_obs, &d1_id);
-    let full_path = ["observations", "d1", "o1", "set_content"];
+    let full_path = ["observations", "d1", "o1", "set_data"];
     let event = Event::build(&full_path, Some(&new_obs_data.to_json_str()));
     let result = manager.perform_event(&event, &full_path[1..]).unwrap();
     let obs_modified = manager.get_obs_by_str("d1", "o1").unwrap();
@@ -187,7 +187,7 @@ fn test_set_observation_fields() {
         &mut manager,
         &manager_orig,
         result,
-        &["d1", "o1", "set_content"],
+        &["d1", "o1", "set_data"],
     );
 }
 

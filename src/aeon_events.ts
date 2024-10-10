@@ -267,17 +267,19 @@ class AeonEvents {
 
   /** Request a retransmission of state data managed at the provided path. */
   refresh (path: string[]): void {
-    emit(AEON_REFRESH, {
-      session: this.sessionId,
-      path
-    }).catch((error) => {
-      dialog.message(
-                `Cannot refresh [${JSON.stringify(path)}]: ${String(error)}`,
-                { title: 'Internal app error', type: 'error' }
-      ).catch((e) => {
-        console.error(e)
+    setTimeout(() => {
+      emit(AEON_REFRESH, {
+        session: this.sessionId,
+        path
+      }).catch((error) => {
+        dialog.message(
+                  `Cannot refresh [${JSON.stringify(path)}]: ${String(error)}`,
+                  { title: 'Internal app error', type: 'error' }
+        ).catch((e) => {
+          console.error(e)
+        })
       })
-    })
+    }, 50)
   }
 
   /**
@@ -289,17 +291,20 @@ class AeonEvents {
     if (!(events instanceof Array)) {
       events = [events]
     }
-    emit(AEON_ACTION, {
-      session: this.sessionId,
-      events
-    }).catch((error) => {
-      dialog.message(
-                `Cannot process events [${JSON.stringify(events)}]: ${error}`,
-                { title: 'Internal app error', type: 'error' }
-      ).catch((e) => {
-        console.error(e)
+
+    setTimeout(() => {
+      emit(AEON_ACTION, {
+        session: this.sessionId,
+        events
+      }).catch((error) => {
+        dialog.message(
+                  `Cannot process events [${JSON.stringify(events)}]: ${error}`,
+                  { title: 'Internal app error', type: 'error' }
+        ).catch((e) => {
+          console.error(e)
+        })
       })
-    })
+    }, 50)
   }
 
   /**
@@ -340,6 +345,7 @@ class AeonEvents {
     // Find listener residing at the specified path, or return if no listener exists.
     let listener = this.listeners
     let path = event.path
+    console.log('Received event to:', event.path)
     while (path.length > 0) {
       const key = path[0]
       path = path.slice(1)

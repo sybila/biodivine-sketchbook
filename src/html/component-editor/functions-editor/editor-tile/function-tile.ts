@@ -4,7 +4,7 @@ import { map } from 'lit/directives/map.js'
 import { type IRegulationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faMagnifyingGlass, faTrash, faPlus, faAngleDown, faAngleUp, faClose } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faTrash, faPlus, faAngleDown, faAngleUp, faClose, faPen } from '@fortawesome/free-solid-svg-icons'
 import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
@@ -72,6 +72,16 @@ export class FunctionTile extends EditorTile {
     }))
   }, functionDebounceTimer
   )
+
+  async editFunction (): Promise<void> {
+    this.dispatchEvent(new CustomEvent('edit-function-definition', {
+      detail: {
+        id: this.functions[this.index].id
+      },
+      composed: true,
+      bubbles: true
+    }))
+  }
 
   async removeVariable (): Promise<void> {
     this.dispatchEvent(new CustomEvent('remove-function-definition', {
@@ -152,6 +162,10 @@ export class FunctionTile extends EditorTile {
             ${icon(faPlus).node}
           </button>
           
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.editFunction}">
+            ${icon(faPen).node}
+          </button>
+
           <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
             ${icon(faTrash).node}
           </button>

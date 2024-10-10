@@ -296,6 +296,24 @@ impl ModelState {
         Ok(())
     }
 
+    /// Set the raw variable data for a variable `var_id`.
+    pub fn set_raw_var(&mut self, var_id: &VarId, var_data: Variable) -> Result<(), String> {
+        self.assert_valid_variable(var_id)?;
+        self.variables.insert(var_id.clone(), var_data);
+        Ok(())
+    }
+
+    /// Set the raw uninterpreted function data for a function `fn_id`.
+    pub fn set_raw_function(
+        &mut self,
+        fn_id: &UninterpretedFnId,
+        fn_data: UninterpretedFn,
+    ) -> Result<(), String> {
+        self.assert_valid_uninterpreted_fn(fn_id)?;
+        self.uninterpreted_fns.insert(fn_id.clone(), fn_data);
+        Ok(())
+    }
+
     /// Set the name of a network variable given by id `var_id`.
     /// The name does not have to be unique, as multiple variables might share a name.
     ///

@@ -112,7 +112,7 @@ export interface DatasetMetaData {
   id: string
   name: string
   annotation: string
-  variables: [string]
+  variables: string[]
 }
 
 /** An object representing information needed for loading a dataset. */
@@ -235,22 +235,20 @@ interface AeonState {
       variableRemoved: Observable<VariableData>
       /** Remove a variable with given ID. */
       removeVariable: (varId: string) => void
-      /** VariableData (with updated `name`) for a renamed variable. */
-      variableNameChanged: Observable<VariableData>
-      /** Set a name of variable with given ID to a given new name. */
-      setVariableName: (varId: string, newName: string) => void
-      /** Object with `original_id` of a variable and its `new_id`. */
-      variableIdChanged: Observable<VariableIdUpdateData>
+      /** VariableData (with updated name or annotation) for a modified variable. */
+      variableDataChanged: Observable<VariableData>
+      /** Set a variable data for a var with given ID. */
+      setVariableData: (varId: string, variableData: VariableData) => void
+      /** ModelData after variable's ID is changed.
+       * Since variable ID change can affect many parts of the model (update fns, regulations, ...), we
+       * get the whole model data at once. */
+      variableIdChanged: Observable<ModelData>
       /** Set an ID of variable with given original ID to a new id. */
       setVariableId: (originalId: string, newId: string) => void
       /** VariableData (with updated `update_fn`) for a variable with modified update function. */
       variableUpdateFnChanged: Observable<VariableData>
       /** Set an expression of update function for variable with given ID. */
       setVariableUpdateFn: (varId: string, newExpression: string) => void
-      /** VariableData (with updated `annotation`) for a variable with modified annotation. */
-      variableAnnotationChanged: Observable<VariableData>
-      /** Set an annotation for variable with given ID. */
-      setVariableAnnotation: (varId: string, newAnnotation: string) => void
 
       /** Uninterpreted function-related setter events: */
 
@@ -266,10 +264,10 @@ interface AeonState {
       uninterpretedFnRemoved: Observable<UninterpretedFnData>
       /** Remove uninterpreted function with given ID. */
       removeUninterpretedFn: (uninterpretedFnId: string) => void
-      /** UninterpretedFnData (with updated `name`) for a renamed uninterpreted function. */
-      uninterpretedFnNameChanged: Observable<UninterpretedFnData>
-      /** Set name of uninterpreted function with given ID. */
-      setUninterpretedFnName: (uninterpretedFnId: string, newName: string) => void
+      /** UninterpretedFnData (with updated name or annotation) for a modified uninterpreted function. */
+      uninterpretedFnDataChanged: Observable<UninterpretedFnData>
+      /** Set data of uninterpreted function with given ID. */
+      setUninterpretedFnData: (uninterpretedFnId: string, fnData: UninterpretedFnData) => void
       /** UninterpretedFnData (with updated `arity`) for a modified uninterpreted function. */
       uninterpretedFnArityChanged: Observable<UninterpretedFnData>
       /** Set arity of uninterpreted function with given ID. */
@@ -282,8 +280,10 @@ interface AeonState {
       uninterpretedFnArityDecremented: Observable<UninterpretedFnData>
       /** Decrement arity of uninterpreted function with given ID. */
       decrementUninterpretedFnArity: (uninterpretedFnId: string) => void
-      /** Object with `original_id` of an uninterpreted function and its `new_id`. */
-      uninterpretedFnIdChanged: Observable<UninterpretedFnIdUpdateData>
+      /** ModelData after function's ID is changed.
+       * Since function ID change can affect many parts of the model (update fns, other uninterpreted fns, ...), we
+       * get the whole model data at once. */
+      uninterpretedFnIdChanged: Observable<ModelData>
       /** Set an ID of an uninterpreted function with given original ID to a new id. */
       setUninterpretedFnId: (originalId: string, newId: string) => void
       /** UninterpretedFnData (with updated `expression`) for a modified uninterpreted function. */
@@ -372,14 +372,10 @@ interface AeonState {
       datasetIdChanged: Observable<DatasetIdUpdateData>
       /** Set ID of dataset with given original ID to a new id. */
       setDatasetId: (originalId: string, newId: string) => void
-      /** DatasetMetaData (with updated `name`) of a modified dataset. */
-      datasetNameChanged: Observable<DatasetMetaData>
-      /** Set name of dataset with given ID. */
-      setDatasetName: (id: string, newName: string) => void
-      /** DatasetMetaData (with updated `annotation`) of a modified dataset. */
-      datasetAnnotationChanged: Observable<DatasetMetaData>
-      /** Set annotation of dataset with given ID. */
-      setDatasetAnnotation: (id: string, newAnnotation: string) => void
+      /** DatasetMetaData of a modified dataset (could be modified name or annotation). */
+      datasetMetadataChanged: Observable<DatasetMetaData>
+      /** Set metadata (could be name or annotation) of a dataset with given ID. */
+      setDatasetMetadata: (id: string, metadata: DatasetMetaData) => void
       /** DatasetData of a fully modified dataset. */
       datasetContentChanged: Observable<DatasetData>
       /** Set content (variables, observations - everything) of dataset with given ID. */
@@ -414,18 +410,10 @@ interface AeonState {
       observationIdChanged: Observable<ObservationIdUpdateData>
       /** Set ID of observation (in a specified dataset) with given original ID to a new id. */
       setObservationId: (datasetId: string, originalId: string, newId: string) => void
-      /** ObservationData for an observation with modified content (also contains corresponding dataset ID). */
-      observationContentChanged: Observable<ObservationData>
-      /** Modify a content of a particular observation.  */
-      setObservationContent: (datasetId: string, observation: ObservationData) => void
-      /** ObservationData for an observation with modified name (also contains corresponding dataset ID). */
-      observationNameChanged: Observable<ObservationData>
-      /** Modify a name of a particular observation.  */
-      setObservationName: (datasetId: string, observation: ObservationData) => void
-      /** ObservationData for an observation with modified annotation (also contains corresponding dataset ID). */
-      observationAnnotationChanged: Observable<ObservationData>
-      /** Modify annotation of a particular observation.  */
-      setObservationAnnotation: (datasetId: string, observation: ObservationData) => void
+      /** ObservationData for a modified observation. */
+      observationDataChanged: Observable<ObservationData>
+      /** Modify a particular observation (could be name, annotations, values).  */
+      setObservationData: (datasetId: string, observation: ObservationData) => void
     }
 
     /** The state of the dynamic and static properties. */
@@ -651,18 +639,17 @@ export const aeonState: AeonState = {
 
       variableCreated: new Observable<VariableData>(['sketch', 'model', 'variable', 'add']),
       variableRemoved: new Observable<VariableData>(['sketch', 'model', 'variable', 'remove']),
-      variableNameChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_name']),
-      variableIdChanged: new Observable<VariableIdUpdateData>(['sketch', 'model', 'variable', 'set_id']),
+      variableDataChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_data']),
+      variableIdChanged: new Observable<ModelData>(['sketch', 'model', 'variable', 'set_id']),
       variableUpdateFnChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_update_fn']),
-      variableAnnotationChanged: new Observable<VariableData>(['sketch', 'model', 'variable', 'set_annotation']),
 
       uninterpretedFnCreated: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'add']),
       uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'remove']),
-      uninterpretedFnNameChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_name']),
+      uninterpretedFnDataChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_data']),
       uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_arity']),
       uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'increment_arity']),
       uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'decrement_arity']),
-      uninterpretedFnIdChanged: new Observable<UninterpretedFnIdUpdateData>(['sketch', 'model', 'uninterpreted_fn', 'set_id']),
+      uninterpretedFnIdChanged: new Observable<ModelData>(['sketch', 'model', 'uninterpreted_fn', 'set_id']),
       uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_expression']),
       uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_monotonicity']),
       uninterpretedFnEssentialityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_essentiality']),
@@ -712,10 +699,10 @@ export const aeonState: AeonState = {
           payload: null
         })
       },
-      setVariableName (varId: string, newName: string): void {
+      setVariableData (varId: string, variableData: VariableData): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'model', 'variable', varId, 'set_name'],
-          payload: newName
+          path: ['sketch', 'model', 'variable', varId, 'set_data'],
+          payload: JSON.stringify(variableData)
         })
       },
       setVariableId (originalId: string, newId: string): void {
@@ -728,12 +715,6 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'model', 'variable', varId, 'set_update_fn'],
           payload: newExpression
-        })
-      },
-      setVariableAnnotation (varId: string, newAnnotation: string): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'model', 'variable', varId, 'set_annotation'],
-          payload: newAnnotation
         })
       },
       addUninterpretedFn (uninterpretedFnId: string, arity: number, uninterpretedFnName: string = ''): void {
@@ -762,10 +743,10 @@ export const aeonState: AeonState = {
           payload: null
         })
       },
-      setUninterpretedFnName (uninterpretedFnId: string, newName: string): void {
+      setUninterpretedFnData (uninterpretedFnId: string, fnData: UninterpretedFnData): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_name'],
-          payload: newName
+          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_data'],
+          payload: JSON.stringify(fnData)
         })
       },
       setUninterpretedFnArity (uninterpretedFnId: string, newArity: number): void {
@@ -877,8 +858,7 @@ export const aeonState: AeonState = {
       datasetRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove']),
       datasetIdChanged: new Observable<DatasetIdUpdateData>(['sketch', 'observations', 'set_id']),
       datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
-      datasetNameChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_name']),
-      datasetAnnotationChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_annotation']),
+      datasetMetadataChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_metadata']),
       datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
       datasetVariableRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove_var']),
       datasetVariableAdded: new Observable<DatasetData>(['sketch', 'observations', 'add_var']),
@@ -887,9 +867,7 @@ export const aeonState: AeonState = {
       observationPopped: new Observable<ObservationData>(['sketch', 'observations', 'pop_obs']),
       observationRemoved: new Observable<ObservationData>(['sketch', 'observations', 'remove_obs']),
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
-      observationContentChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_content']),
-      observationNameChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_name']),
-      observationAnnotationChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_annotation']),
+      observationDataChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_data']),
 
       addDataset (id: string, variables: string[], observations: ObservationData[]): void {
         aeonEvents.emitAction({
@@ -931,16 +909,10 @@ export const aeonState: AeonState = {
           payload: JSON.stringify(newContent)
         })
       },
-      setDatasetName (id: string, newName: string): void {
+      setDatasetMetadata (id: string, metadata: DatasetMetaData): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'observations', id, 'set_name'],
-          payload: newName
-        })
-      },
-      setDatasetAnnotation (id: string, newAnnotation: string): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'observations', id, 'set_annotation'],
-          payload: newAnnotation
+          path: ['sketch', 'observations', id, 'set_metadata'],
+          payload: JSON.stringify(metadata)
         })
       },
       setDatasetVariable (datasetId: string, originalId: string, newId: string): void {
@@ -992,22 +964,10 @@ export const aeonState: AeonState = {
           payload: newId
         })
       },
-      setObservationContent (datasetId: string, observation: ObservationData): void {
+      setObservationData (datasetId: string, observation: ObservationData): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, observation.id, 'set_content'],
+          path: ['sketch', 'observations', datasetId, observation.id, 'set_data'],
           payload: JSON.stringify(observation)
-        })
-      },
-      setObservationName (datasetId: string, observation: ObservationData): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, observation.id, 'set_name'],
-          payload: observation.name
-        })
-      },
-      setObservationAnnotation (datasetId: string, observation: ObservationData): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, observation.id, 'set_annotation'],
-          payload: observation.annotation
         })
       }
     },

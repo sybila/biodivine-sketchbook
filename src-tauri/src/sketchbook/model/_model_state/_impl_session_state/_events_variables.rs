@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{
-    ChangeIdData, LayoutNodeData, LayoutNodeDataPrototype, VariableData, VariableWithLayoutData,
+    LayoutNodeData, LayoutNodeDataPrototype, ModelData, VariableData, VariableWithLayoutData,
 };
 use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::VarId;
@@ -226,47 +226,27 @@ impl ModelState {
                 }
                 Ok(Consumed::Restart(event_list))
             }
-        } else if Self::starts_with("set_name", at_path).is_some() {
-            // get the payload - string for "new_name"
-            let new_name = Self::clone_payload_str(event, component_name)?;
-            let original_name = self.get_var_name(&var_id)?.to_string();
-            if new_name == original_name {
+        } else if Self::starts_with("set_data", at_path).is_some() {
+            // get the payload - string with modified variable data
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_data = VariableData::from_json_str(&payload)?;
+            let new_var = new_data.to_var()?;
+            let original_var = self.get_variable(&var_id)?;
+            let original_data =
+                VariableData::from_var(&var_id, original_var, self.get_update_fn(&var_id)?);
+            if &new_var == original_var {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            self.set_var_name(&var_id, new_name.as_str())?;
-            let var_data = VariableData::from_var(
-                &var_id,
-                self.get_variable(&var_id)?,
-                self.get_update_fn(&var_id)?,
-            );
-            let state_change = mk_model_state_change(&["variable", "set_name"], &var_data);
+            self.set_raw_var(&var_id, new_var)?;
+            let new_var = self.get_variable(&var_id)?;
+            let new_data = VariableData::from_var(&var_id, new_var, self.get_update_fn(&var_id)?);
+            let state_change = mk_model_state_change(&["variable", "set_data"], &new_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(original_name);
-            Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_annotation", at_path).is_some() {
-            // get the payload - string for "new_annotation"
-            let new_annotation = Self::clone_payload_str(event, component_name)?;
-            let original_annotation = self.get_var_annotation(&var_id)?.to_string();
-            if new_annotation == original_annotation {
-                return Ok(Consumed::NoChange);
-            }
-
-            // perform the event, prepare the state-change variant (move id from path to payload)
-            self.set_var_annot(&var_id, &new_annotation)?;
-            let var_data = VariableData::from_var(
-                &var_id,
-                self.get_variable(&var_id)?,
-                self.get_update_fn(&var_id)?,
-            );
-            let state_change = mk_model_state_change(&["variable", "set_annotation"], &var_data);
-
-            // prepare the reverse event
-            let mut reverse_event = event.clone();
-            reverse_event.payload = Some(original_annotation);
+            reverse_event.payload = Some(original_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
@@ -275,16 +255,15 @@ impl ModelState {
                 return Ok(Consumed::NoChange);
             }
 
-            // TODO: all changes to update functions (where this variable appears) must be
-            //       propagated to the frontend -- for now, frontend just refreshes the content
-            //       afterwards, but that could probably be avoided...
-
-            // perform the event, prepare the state-change variant (move id from path to payload)
+            // perform the ID change (which can modify many parts of the model)
             self.set_var_id_by_str(var_id.as_str(), new_id.as_str())?;
-            let id_change_data = ChangeIdData::new(var_id.as_str(), new_id.as_str());
-            let state_change = mk_model_state_change(&["variable", "set_id"], &id_change_data);
 
-            // prepare the reverse event
+            // This event is a bit special - since variable ID change can affect many parts of the model
+            // (update fns, regulations, layout, ...), the event returns the whole updated model data to the FE.
+            let model_data = ModelData::from_model(self);
+            let state_change = mk_model_state_change(&["variable", "set_id"], &model_data);
+
+            // prepare the reverse event (the reverse event is as usual)
             let reverse_at_path = ["variable", new_id.as_str(), "set_id"];
             let reverse_event = mk_model_event(&reverse_at_path, Some(var_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))

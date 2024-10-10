@@ -10,7 +10,7 @@ export class AnnotationsTab extends LitElement {
 
   constructor () {
     super()
-    console.log('debug print')
+    console.log('annotations debug print')
   }
 
   addSketchAnnot (): void {
@@ -27,11 +27,11 @@ export class AnnotationsTab extends LitElement {
 
   formatVarAnnotations (): TemplateResult<1> {
     const annotatedVars = this.contentData.variables
-        .filter(variable => variable.annotation.trim() !== "");
+      .filter(variable => variable.annotation.trim() !== '')
     if (annotatedVars.length === 0) {
-        return html`<p>No annotations available for variables.</p>`;
+      return html`<p>No annotations available for variables.</p>`
     }
-    return html`${annotatedVars.map(variable => html`${variable.id}: ${variable.annotation}<br>`)}`;
+    return html`${annotatedVars.map(variable => html`${variable.id}: ${variable.annotation}<br>`)}`
   }
 
   addFnAnnot (): void {
@@ -40,11 +40,11 @@ export class AnnotationsTab extends LitElement {
 
   formatFnAnnotations (): TemplateResult<1> {
     const annotatedFns = this.contentData.functions
-        .filter(func => func.annotation.trim() !== "");
+      .filter(func => func.annotation.trim() !== '')
     if (annotatedFns.length === 0) {
-        return html`<p>No annotations available for functions.</p>`;
+      return html`<p>No annotations available for functions.</p>`
     }
-    return html`${annotatedFns.map(func => html`${func.id}: ${func.annotation}<br>`)}`;
+    return html`${annotatedFns.map(func => html`${func.id}: ${func.annotation}<br>`)}`
   }
 
   addDatasetAnnot (): void {
@@ -52,20 +52,26 @@ export class AnnotationsTab extends LitElement {
   }
 
   formatDatasetAnnotations (): TemplateResult<1> {
-    return html`${this.contentData.observations
-      .filter(dataset => dataset.annotation.trim() !== "" || dataset.observations.some(observation => observation.annotation.trim() !== ""))
-      .map(dataset => html`
-      <div class="dataset">
-          <p>${dataset.id}: ${dataset.annotation}</p>
-          <ul>
-            ${dataset.observations
-                .filter(observation => observation.annotation.trim() !== "")
-                .map(observation => html`
-                  <li>${observation.id}: ${observation.annotation}</li>
-                `)}
-          </ul>
-      </div>
-    `)}`;
+    const annotatedDatasets = this.contentData.observations
+      .filter(d => d.annotation.trim() !== '' || d.observations.some(obs => obs.annotation.trim() !== ''))
+
+    if (annotatedDatasets.length === 0) {
+      return html`<p>No annotations available for datasets or observations.</p>`
+    }
+
+    return html`${annotatedDatasets.map(dataset => html`
+        <div class="dataset">
+            <p>${dataset.id}: ${dataset.annotation}</p>
+            <ul>
+              ${dataset.observations
+                  .filter(observation => observation.annotation.trim() !== '')
+                  .map(observation => html`
+                    <li>${observation.id}: ${observation.annotation}</li>
+                  `)}
+            </ul>
+        </div>
+        <br>
+    `)}`
   }
 
   addDynPropAnnot (): void {
@@ -74,11 +80,11 @@ export class AnnotationsTab extends LitElement {
 
   formatDynPropAnnotations (): TemplateResult<1> {
     const annotatedProps = this.contentData.dynamicProperties
-        .filter(dynProp => dynProp.annotation.trim() !== "");
+      .filter(dynProp => dynProp.annotation.trim() !== '')
     if (annotatedProps.length === 0) {
-        return html`<p>No annotations available for dynamic properties.</p>`;
+      return html`<p>No annotations available for dynamic properties.</p>`
     }
-    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`;
+    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`
   }
 
   addStatPropAnnot (): void {
@@ -87,11 +93,11 @@ export class AnnotationsTab extends LitElement {
 
   formatStatPropAnnotations (): TemplateResult<1> {
     const annotatedProps = this.contentData.staticProperties
-        .filter(dynProp => dynProp.annotation.trim() !== "");
+      .filter(dynProp => dynProp.annotation.trim() !== '')
     if (annotatedProps.length === 0) {
-        return html`<p>No annotations available for static properties.</p>`;
+      return html`<p>No annotations available for static properties.</p>`
     }
-    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`;
+    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`
   }
 
   protected render (): TemplateResult {
@@ -100,7 +106,7 @@ export class AnnotationsTab extends LitElement {
         <div class="components-list">
           <div class="section" id="whole-sketch">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Sketch Annotation</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Sketch annotation</h3>
               <button id="add-sketch-annot-button" class="add-annot uk-button uk-button-small uk-button-primary"
                       @click="${this.addSketchAnnot}">
                       + Add
@@ -124,7 +130,7 @@ export class AnnotationsTab extends LitElement {
           </div>
           <div class="section" id="functions">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Uninterpreted Functions</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Uninterpreted functions</h3>
               <button id="add-fn-annot-button" class="add-annot uk-button uk-button-small uk-button-primary"
                       @click="${this.addFnAnnot}">
                       + Add
@@ -148,7 +154,7 @@ export class AnnotationsTab extends LitElement {
          </div>
           <div class="section" id="static">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Static Properties</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Static properties</h3>
               <button id="add-stat-annot-button" class="add-annot uk-button uk-button-small uk-button-primary"
                       @click="${this.addStatPropAnnot}">
                       + Add
@@ -160,7 +166,7 @@ export class AnnotationsTab extends LitElement {
           </div>
           <div class="section" id="dynamic">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Dynamic Properties</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Dynamic properties</h3>
               <button id="add-dyn-annot-button" class="add-annot uk-button uk-button-small uk-button-primary"
                       @click="${this.addDynPropAnnot}">
                       + Add

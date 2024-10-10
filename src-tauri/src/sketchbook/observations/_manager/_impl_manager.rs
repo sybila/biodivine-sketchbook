@@ -116,7 +116,7 @@ impl ObservationManager {
     pub fn set_dataset_annot_by_str(&mut self, id: &str, annot: &str) -> Result<(), String> {
         let dataset_id = DatasetId::new(id)?;
         self.set_dataset_annot(&dataset_id, annot)
-    }    
+    }
 
     /// Set the id of dataset with `original_id` to `new_id`.
     pub fn set_dataset_id(

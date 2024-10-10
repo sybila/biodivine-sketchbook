@@ -10,6 +10,7 @@ import { edgeOptions, initOptions } from './regulations-editor.config'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
+import _ from 'lodash'
 
 @customElement('regulations-editor')
 export class RegulationsEditor extends LitElement {
@@ -83,8 +84,24 @@ export class RegulationsEditor extends LitElement {
     // triggered when data are updated
     // all elements are updated and menu is reopened if it was opened
 
+    /*
     super.updated(_changedProperties)
     if (_changedProperties.get('contentData') === undefined) return
+    */
+
+    super.updated(_changedProperties)
+
+    // only re-render if variables or regulations were updated
+    if (_changedProperties.get('contentData') === undefined) return
+    const newContentData = _changedProperties.get('contentData')
+    if (_.isEqual(this.contentData.variables, newContentData.variables) &&
+        _.isEqual(this.contentData.regulations, newContentData.regulations) &&
+        _.isEqual(this.contentData.layout, newContentData.layout)) {
+      console.log('returning...')
+      return
+    }
+    console.log('continuing...')
+
     this.cy?.remove('node')
     this.cy?.edges().remove()
     this.addNodes()
@@ -266,40 +283,38 @@ export class RegulationsEditor extends LitElement {
     })
     void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string, annotation: string }>) => {
       this.dialogs[variableId] = undefined
-      if (event.payload.name !== variableName) {
-        this.dispatchEvent(new CustomEvent('rename-variable', {
-          detail: {
-            id: variableId,
-            name: event.payload.name
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
-      if (event.payload.id !== variableId) {
-        this.dispatchEvent(new CustomEvent('set-variable-id', {
-          detail: {
-            oldId: variableId,
-            newId: event.payload.id
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
-      if (event.payload.annotation !== variableAnnotation) {
-        this.dispatchEvent(new CustomEvent('set-variable-annotation', {
-          detail: {
-            id: variableId,
-            annotation: event.payload.annotation
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
+      const index = this.contentData.variables.findIndex(v => v.id === variableId)
+      if (index === -1) return
+      this.changeVariable(variableId, event.payload.id, event.payload.name, event.payload.annotation)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[variableId] = undefined
     })
+  }
+
+  private changeVariable (id: string, newId: string, newName: string, newAnnot: string): void {
+    // first send the event to change the name & annot (with the old ID)
+    this.dispatchEvent(new CustomEvent('set-variable-data', {
+      detail: {
+        id,
+        name: newName,
+        annotation: newAnnot
+      },
+      bubbles: true,
+      composed: true
+    }))
+
+    // after quick timeout send the event to change the ID
+    setTimeout(() => {
+      this.dispatchEvent(new CustomEvent('set-variable-id', {
+        detail: {
+          oldId: id,
+          newId
+        },
+        bubbles: true,
+        composed: true
+      }))
+    }, 50)
   }
 
   private adjustPan (event: Event): void {

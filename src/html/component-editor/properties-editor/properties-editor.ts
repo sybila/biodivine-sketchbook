@@ -335,12 +335,18 @@ export default class PropertiesEditor extends LitElement {
                       + Add
               </button>
             </div>
-            <div class="uk-margin-small">
-              <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleRegulationPropertiesVisibility}">
-                ${this.showRegulationProperties ? 'Hide' : 'Show'} Generated Regulation Properties
-              </button>
-            </div>
-            ${this.contentData?.staticProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No static properties defined</span></div>` : ''}
+
+            ${this.contentData?.staticProperties.length === 0
+? html`
+              <div class="uk-text-center uk-margin-bottom">
+                  <span class="uk-label">No static properties defined</span>
+              </div>`
+: html`
+              <div class="uk-margin-small">
+                <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleRegulationPropertiesVisibility}">
+                  ${this.showRegulationProperties ? 'Hide' : 'Show'} Generated Regulation Properties
+                </button>
+              </div>`}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
                 switch (prop.variant) {

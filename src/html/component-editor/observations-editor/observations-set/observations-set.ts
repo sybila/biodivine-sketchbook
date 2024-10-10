@@ -23,7 +23,6 @@ export default class ObservationsSet extends LitElement {
   constructor () {
     super()
     loadTabulatorPlugins()
-    // todo: add events properly
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
@@ -33,9 +32,25 @@ export default class ObservationsSet extends LitElement {
 
   protected async updated (_changedProperties: PropertyValues): Promise<void> {
     super.updated(_changedProperties)
-    if (this.tabulatorReady) void this.tabulator?.setData(this.data.observations)
-    // some changes mean adding/removing columns to the table, which requires whole init()
-    await this.init()
+
+    // check if variables changed - if so, it means adding/removing columns, which requires whole init()
+    const newData = _changedProperties.get('data')
+    if (newData !== undefined && newData.variables !== undefined && this.data !== undefined && !this.areVariablesEqual(this.data.variables, newData.variables)) {
+      console.log(newData.variables)
+      console.log(this.data.variables)
+      await this.init()
+    } else if (this.tabulatorReady) {
+      void this.tabulator?.setData(this.data.observations)
+    }
+  }
+
+  // Helper method to compare the arrays
+  areVariablesEqual (prev: string[] | undefined, current: string[]): boolean {
+    if (prev === undefined || prev.length !== current.length) {
+      return false
+    }
+    // Compare each element
+    return prev.every((value, index) => value === current[index])
   }
 
   private async init (): Promise<void> {

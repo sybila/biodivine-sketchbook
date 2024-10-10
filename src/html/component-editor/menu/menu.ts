@@ -152,7 +152,7 @@ export default class Menu extends LitElement {
 
   openMenu (): void {
     this.menuVisible = true
-    console.log(this.menuButtonElement, this.menuContentElement)
+    // console.log(this.menuButtonElement, this.menuContentElement)
     void computePosition(this.menuButtonElement, this.menuContentElement,
       { placement: 'bottom-start' })
       .then(({ x, y }) => {

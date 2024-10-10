@@ -135,7 +135,7 @@ impl ObservationManager {
         let file_path = Self::clone_payload_str(event, component_name)?;
 
         // generate new ID (and name at the same time), start indexing at 1
-        let dataset_id = self.generate_dataset_id("dataset", Some(1));
+        let dataset_id: DatasetId = self.generate_dataset_id("dataset", Some(1));
         // load the dataset and add it
         let dataset = Self::load_dataset(dataset_id.as_str(), &file_path)?;
         let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
@@ -214,44 +214,26 @@ impl ObservationManager {
             let payload = orig_dataset_data.to_json_str();
             let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_name", at_path).is_some() {
-            // get the payload - json string encoding a new name
-            let new_name = Self::clone_payload_str(event, component_name)?;
+        } else if Self::starts_with("set_metadata", at_path).is_some() {
+            // get the payload - json string encoding metadata with (potentially) a new name or annotation
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_metadata = DatasetMetaData::from_json_str(&payload)?;
             let orig_dataset = self.get_dataset(&dataset_id)?;
-            if orig_dataset.get_name() == new_name {
+            if orig_dataset.get_name() == new_metadata.name
+                && orig_dataset.get_annotation() == new_metadata.annotation
+            {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            let orig_dataset_data = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
-            self.set_dataset_name(&dataset_id, &new_name)?;
-            let new_dataset_data =
-                DatasetMetaData::from_dataset(&dataset_id, self.get_dataset(&dataset_id)?);
-            let state_change = mk_obs_state_change(&["set_name"], &new_dataset_data);
+            let orig_metadata = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
+            self.set_dataset_name(&dataset_id, &new_metadata.name)?;
+            self.set_dataset_annot(&dataset_id, &new_metadata.annotation)?;
+            let state_change = mk_obs_state_change(&["set_metadata"], &new_metadata);
 
             // prepare the reverse event (setting the original ID back)
-            let reverse_at_path = [dataset_id.as_str(), "set_name"];
-            let payload = orig_dataset_data.to_json_str();
-            let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
-            Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_annotation", at_path).is_some() {
-            // get the payload - json string encoding a new annotation
-            let new_annotation = Self::clone_payload_str(event, component_name)?;
-            let orig_dataset = self.get_dataset(&dataset_id)?;
-            if orig_dataset.get_annotation() == new_annotation {
-                return Ok(Consumed::NoChange);
-            }
-
-            // perform the event, prepare the state-change variant (move id from path to payload)
-            let orig_dataset_data = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
-            self.set_dataset_annot(&dataset_id, &new_annotation)?;
-            let new_dataset_data =
-                DatasetMetaData::from_dataset(&dataset_id, self.get_dataset(&dataset_id)?);
-            let state_change = mk_obs_state_change(&["set_annotation"], &new_dataset_data);
-
-            // prepare the reverse event (setting the original ID back)
-            let reverse_at_path = [dataset_id.as_str(), "set_annotation"];
-            let payload = orig_dataset_data.to_json_str();
+            let reverse_at_path = [dataset_id.as_str(), "set_metadata"];
+            let payload = orig_metadata.to_json_str();
             let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("remove_var", at_path).is_some() {

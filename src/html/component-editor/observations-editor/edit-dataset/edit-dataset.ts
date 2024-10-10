@@ -9,8 +9,7 @@ import { type IObservationSet } from '../../../util/data-interfaces'
 @customElement('edit-dataset')
 export default class EditDataset extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @query('#node-name') nameField: HTMLInputElement | undefined
-  @query('#node-id') variableIdField: HTMLInputElement | undefined
+  @query('#dataset-id') idField: HTMLInputElement | undefined
   @state() data: IObservationSet | undefined
   id = ''
 
@@ -20,7 +19,7 @@ export default class EditDataset extends LitElement {
       this.data = event.payload
     })
     await emit('loaded', {})
-    this.variableIdField?.focus()
+    this.idField?.focus()
   }
 
   private async handleSubmit (event: Event): Promise<void> {
@@ -48,12 +47,12 @@ export default class EditDataset extends LitElement {
         <form class="uk-form-horizontal uk-flex uk-flex-column uk-flex-between">
           <div class="fields">
             <!-- Only allow edit certain properties -->
-          ${map(this.data ? ["id", "name", "annotation"] : [], (key) => {
+          ${map(this.data !== undefined ? ['id', 'name', 'annotation'] : [], (key) => {
               return html`
             <div class="uk-margin-small">
               <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>
               <div class="uk-form-controls">
-                <input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="node-id" type="text" placeholder="${key}"/>
+                <input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="dataset-${key}" type="text" placeholder="${key}"/>
               </div>
             </div>`
             })}

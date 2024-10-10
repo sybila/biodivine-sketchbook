@@ -49,7 +49,8 @@ export default defineConfig(async () => ({
         edit_node_dialog: resolve(__dirname, 'src/html/component-editor/regulations-editor/rename-dialog/rename-dialog.html'),
         import_observation_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/observations-import/observations-import.html'),
         edit_observation_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/edit-observation/edit-observation.html'),
-        edit_dataset_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/edit-dataset/edit-dataset.html')
+        edit_dataset_dialog: resolve(__dirname, 'src/html/component-editor/observations-editor/edit-dataset/edit-dataset.html'),
+        edit_function_dialog: resolve(__dirname, 'src/html/component-editor/functions-editor/edit-fn-dialog/edit-fn-dialog.html')
       }
     }
   },

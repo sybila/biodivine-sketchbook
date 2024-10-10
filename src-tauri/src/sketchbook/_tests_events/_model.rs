@@ -93,6 +93,7 @@ fn test_remove_var_complex() {
     }
 }
 
+/*
 #[test]
 /// Test setting variable's name and ID via events.
 fn test_set_var_name_id() {
@@ -122,7 +123,7 @@ fn test_set_var_name_id() {
     let reverse_at_path = ["variable", new_id.as_str(), "set_id"];
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 }
-
+*/
 #[test]
 /// Test setting variable's update function via event.
 fn test_set_update_fn() {

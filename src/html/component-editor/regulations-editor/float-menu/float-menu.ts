@@ -221,7 +221,6 @@ export default class FloatMenu extends LitElement {
   }
 
   private editVariable (): void {
-    console.log(this.data)
     this.dispatchEvent(new CustomEvent('edit-variable', {
       detail: {
         id: this.data?.id,

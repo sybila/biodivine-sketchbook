@@ -189,9 +189,20 @@ impl Dataset {
         self.add_var_default(var_id, index)
     }
 
+    /// Swap the whole observation data for given ID.
+    pub fn set_observation_raw(
+        &mut self,
+        id: &ObservationId,
+        obs: Observation,
+    ) -> Result<(), String> {
+        let idx = self.get_obs_index(id)?;
+        self.observations[idx] = obs;
+        Ok(())
+    }
+
     /// Swap value vector for an observation with given ID.
     /// The new vector of values must be of the same length as the original.
-    pub fn swap_obs_data(
+    pub fn swap_obs_values(
         &mut self,
         id: &ObservationId,
         new_values: Vec<VarValue>,
@@ -257,7 +268,7 @@ impl Dataset {
         let idx = self.get_obs_index(id)?;
         self.observations[idx].set_annotation(new_annot);
         Ok(())
-    }    
+    }
 }
 
 /// Observing `Dataset` instances.
