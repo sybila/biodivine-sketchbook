@@ -15,6 +15,10 @@ import {
   type ObservationData,
   type ObservationIdUpdateData
 } from '../../../aeon_state'
+import {
+  convertFromIObservation, convertToIObservation,
+  convertFromIObservationSet, convertToIObservationSet
+} from '../../util/utilities'
 import { when } from 'lit/directives/when.js'
 
 @customElement('observations-editor')
@@ -65,61 +69,8 @@ export default class ObservationsEditor extends LitElement {
     super.updated(_changedProperties)
   }
 
-  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = {
-      id: observationData.id,
-      name: observationData.name,
-      annotation: observationData.annotation,
-      selected: false
-    }
-    variables.forEach(((v, idx) => {
-      const value = observationData.values[idx]
-      obs[v] = (value === '*') ? '' : value
-    }))
-    return obs
-  }
-
-  private convertFromIObservation (observation: IObservation, datasetId: string, variables: string[]): ObservationData {
-    const valueString = variables.map(v => {
-      return (observation[v] === '') ? '*' : observation[v]
-    }).join('')
-    return {
-      id: observation.id,
-      name: observation.name,
-      annotation: observation.annotation,
-      dataset: datasetId,
-      values: valueString
-    }
-  }
-
-  private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
-    const observations = datasetData.observations.map(
-      observationData => this.convertToIObservation(observationData, datasetData.variables)
-    )
-    return {
-      id: datasetData.id,
-      name: datasetData.name,
-      annotation: datasetData.annotation,
-      observations,
-      variables: datasetData.variables
-    }
-  }
-
-  private convertFromIObservationSet (dataset: IObservationSet): DatasetData {
-    const observations = dataset.observations.map(
-      obs => this.convertFromIObservation(obs, dataset.id, dataset.variables)
-    )
-    return {
-      id: dataset.id,
-      name: dataset.name,
-      annotation: dataset.annotation,
-      observations,
-      variables: dataset.variables
-    }
-  }
-
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
-    const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
+    const datasets = refreshedDatasets.map(d => convertToIObservationSet(d))
     this.updateObservations(datasets)
   }
 
@@ -153,7 +104,7 @@ export default class ObservationsEditor extends LitElement {
   }
 
   #onDatasetLoaded (data: DatasetData): void {
-    const newDataset = this.convertToIObservationSet(data)
+    const newDataset = convertToIObservationSet(data)
     // just call import dialog, dataset will be filtered and then added
     void this.importObservations(newDataset.id, newDataset.observations, newDataset.variables)
   }
@@ -192,7 +143,7 @@ export default class ObservationsEditor extends LitElement {
       }
       // temporarily add the dataset in its current placeholder version, and send an event to backend with changes
       this.updateObservations(this.contentData.observations.concat(modifiedDataset))
-      aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
+      aeonState.sketch.observations.setDatasetContent(name, convertFromIObservationSet(modifiedDataset))
     })
 
     // Handle the case when the dialog is closed/cancelled
@@ -204,7 +155,7 @@ export default class ObservationsEditor extends LitElement {
   }
 
   #onDatasetContentChanged (data: DatasetData): void {
-    const observationSet = this.convertToIObservationSet(data)
+    const observationSet = convertToIObservationSet(data)
     const index = this.contentData.observations.findIndex(item => item.id === data.id)
     if (index === -1) return
     const datasets = structuredClone(this.contentData.observations)
@@ -219,7 +170,7 @@ export default class ObservationsEditor extends LitElement {
 
   #onDatasetCreated (data: DatasetData): void {
     console.log('Adding new dataset.')
-    const newDataset = this.convertToIObservationSet(data)
+    const newDataset = convertToIObservationSet(data)
     this.updateObservations(this.contentData.observations.concat(newDataset))
   }
 
@@ -257,7 +208,7 @@ export default class ObservationsEditor extends LitElement {
     const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
     const datasets = structuredClone(this.contentData.observations)
-    datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
+    datasets[datasetIndex].observations.push(convertToIObservation(data, datasets[datasetIndex].variables))
     this.updateObservations(datasets)
   }
 
@@ -292,7 +243,7 @@ export default class ObservationsEditor extends LitElement {
     const origObservation = dataset.observations.find(o => o.id === detail.id)
     if (origObservation === undefined) return
 
-    const newObsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
+    const newObsData = convertFromIObservation(detail.observation, dataset.id, dataset.variables)
 
     // id might have changed
     if (origObservation.id !== newObsData.id) {
@@ -310,7 +261,7 @@ export default class ObservationsEditor extends LitElement {
     const obsIndex = this.contentData.observations[datasetIndex].observations.findIndex(obs => obs.id === data.id)
     if (obsIndex === -1) return
     const datasets: IObservationSet[] = structuredClone(this.contentData.observations)
-    datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
+    datasets[datasetIndex].observations[obsIndex] = convertToIObservation(data, datasets[datasetIndex].variables)
     this.updateObservations(datasets)
   }
 
@@ -338,7 +289,7 @@ export default class ObservationsEditor extends LitElement {
   private changeDataset (id: string, updatedDataset: IObservationSet): void {
     const origDataset = this.contentData.observations.find(ds => ds.id === id)
     if (origDataset === undefined) return
-    const datasetData = this.convertFromIObservationSet(updatedDataset)
+    const datasetData = convertFromIObservationSet(updatedDataset)
     const datasetMetaData = {
       id: datasetData.id,
       annotation: datasetData.annotation,

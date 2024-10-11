@@ -6,31 +6,21 @@ import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
 import {
-  aeonState,
-  type LayoutNodeData,
-  type LayoutNodeDataPrototype,
-  type ModelData,
-  type RegulationData,
-  type SketchData,
-  type DatasetData,
-  type ObservationData,
-  type UninterpretedFnData,
-  type VariableData
+  aeonState, type LayoutNodeData, type LayoutNodeDataPrototype,
+  type ModelData, type RegulationData, type SketchData, type VariableData
 } from '../../../aeon_state'
 import { tabList } from '../../util/config'
 import {
-  ContentData,
-  type IFunctionData,
-  type ILayoutData,
-  type IObservationSet,
-  type IRegulationData,
-  type IVariableData,
-  type DynamicProperty,
-  type StaticProperty,
-  type IObservation
+  ContentData, type IFunctionData, type ILayoutData,
+  type IObservationSet, type IRegulationData, type IVariableData,
+  type DynamicProperty, type StaticProperty
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
-import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
+import {
+  getNextEssentiality, getNextMonotonicity,
+  convertToIFunction, convertToILayout, convertToIVariable,
+  convertToIObservationSet, convertToIRegulation
+} from '../../util/utilities'
 
 const LAYOUT = 'default'
 
@@ -393,83 +383,11 @@ export default class RootComponent extends LitElement {
     }, 50)
   }
 
-  private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
-    const variables = fnData.arguments.map(
-      (arg, index) => {
-        return {
-          id: index.toString(),
-          source: 'var' + index.toString(),
-          target: fnData.id,
-          monotonicity: arg[0],
-          essential: arg[1]
-        }
-      })
-    return {
-      id: fnData.id,
-      name: fnData.name,
-      annotation: fnData.annotation,
-      function: fnData.expression,
-      variables
-    }
-  }
-
-  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = {
-      id: observationData.id,
-      name: observationData.name,
-      annotation: observationData.annotation,
-      selected: false
-    }
-    variables.forEach(((v, idx) => {
-      const value = observationData.values[idx]
-      obs[v] = (value === '*') ? '' : value
-    }))
-    return obs
-  }
-
-  private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
-    const observations = datasetData.observations.map(
-      observationData => this.convertToIObservation(observationData, datasetData.variables)
-    )
-    return {
-      id: datasetData.id,
-      name: datasetData.name,
-      annotation: datasetData.annotation,
-      observations,
-      variables: datasetData.variables
-    }
-  }
-
-  private convertToIVariable (variable: VariableData): IVariableData {
-    return {
-      ...variable,
-      function: variable.update_fn
-    }
-  }
-
-  private convertToILayout (layoutNodes: LayoutNodeData[]): ILayoutData {
-    const layout: ILayoutData = new Map()
-    layoutNodes.forEach(layoutNode => {
-      layout.set(layoutNode.variable, { x: layoutNode.px, y: layoutNode.py })
-    })
-    return layout
-  }
-
-  private convertToIRegulation (regulation: RegulationData): IRegulationData {
-    return {
-      id: regulation.regulator + regulation.target,
-      source: regulation.regulator,
-      target: regulation.target,
-      essential: regulation.essential,
-      monotonicity: regulation.sign
-    }
-  }
-
   #onSketchRefreshed (sketch: SketchData): void {
     // update model first
     this.#onModelRefreshed(sketch.model)
     // then observations
-    const datasets = sketch.datasets.map(d => this.convertToIObservationSet(d))
+    const datasets = sketch.datasets.map(d => convertToIObservationSet(d))
     this.saveObservations(datasets)
     // lastly properties that depend on the model or observations
     this.saveStaticProperties(sketch.stat_properties)
@@ -478,24 +396,24 @@ export default class RootComponent extends LitElement {
 
   // refresh all components of the model, and save them at the same time
   #onModelRefreshed (model: ModelData): void {
-    const functions = model.uninterpreted_fns.map(f => this.convertToIFunction(f))
-    const variables = model.variables.map(v => this.convertToIVariable(v))
-    const regulations = model.regulations.map(r => this.convertToIRegulation(r))
-    const layout = this.convertToILayout(model.layouts[0].nodes)
+    const functions = model.uninterpreted_fns.map(f => convertToIFunction(f))
+    const variables = model.variables.map(v => convertToIVariable(v))
+    const regulations = model.regulations.map(r => convertToIRegulation(r))
+    const layout = convertToILayout(model.layouts[0].nodes)
     // save everything at once
     this.saveWholeModel(functions, variables, regulations, layout)
   }
 
   #onVariablesRefreshed (variables: VariableData[]): void {
-    this.saveVariables(variables.map(v => this.convertToIVariable(v)))
+    this.saveVariables(variables.map(v => convertToIVariable(v)))
   }
 
   #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
-    this.saveLayout(this.convertToILayout(layoutNodes))
+    this.saveLayout(convertToILayout(layoutNodes))
   }
 
   #onRegulationsRefreshed (regulations: RegulationData[]): void {
-    this.saveRegulations(regulations.map(r => this.convertToIRegulation(r)))
+    this.saveRegulations(regulations.map(r => convertToIRegulation(r)))
   }
 
   private async confirmDialog (): Promise<boolean> {

@@ -4,10 +4,13 @@ import style_less from './functions-editor.less?inline'
 import { map } from 'lit/directives/map.js'
 import './editor-tile/variable-tile'
 import './editor-tile/function-tile'
-import { ContentData, type Essentiality, type Monotonicity, type IFunctionData } from '../../util/data-interfaces'
+import { ContentData, type IFunctionData } from '../../util/data-interfaces'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import { type Ace } from 'ace-builds'
-import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
+import {
+  getNextEssentiality, getNextMonotonicity,
+  convertFromIFunction, convertToIFunction
+} from '../../util/utilities'
 import { dialog } from '@tauri-apps/api'
 import { aeonState, type UninterpretedFnData } from '../../../aeon_state'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
@@ -89,7 +92,7 @@ export class FunctionsEditor extends LitElement {
 
   #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {
     const fns = functions.map((data): IFunctionData => {
-      return this.convertToIFunction(data)
+      return convertToIFunction(data)
     })
     this.saveFunctions(fns)
   }
@@ -99,7 +102,7 @@ export class FunctionsEditor extends LitElement {
   }
 
   #onFunctionCreated (data: UninterpretedFnData): void {
-    const newFunction = this.convertToIFunction(data)
+    const newFunction = convertToIFunction(data)
     this.contentData.functions.push(newFunction)
     this.saveFunctions([...this.contentData.functions])
   }
@@ -148,7 +151,7 @@ export class FunctionsEditor extends LitElement {
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
-    const modifiedFunction = this.convertToIFunction(data)
+    const modifiedFunction = convertToIFunction(data)
     const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
     this.saveFunctions(functions)
@@ -165,7 +168,7 @@ export class FunctionsEditor extends LitElement {
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
-    const modifiedFunction = this.convertToIFunction(data)
+    const modifiedFunction = convertToIFunction(data)
     const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
     this.saveFunctions(functions)
@@ -182,7 +185,7 @@ export class FunctionsEditor extends LitElement {
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
-    const modifiedFunction = this.convertToIFunction(data)
+    const modifiedFunction = convertToIFunction(data)
     const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
     this.saveFunctions(functions)
@@ -198,7 +201,7 @@ export class FunctionsEditor extends LitElement {
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
-    const modifiedFunction = this.convertToIFunction(data)
+    const modifiedFunction = convertToIFunction(data)
     const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
     this.saveFunctions(functions)
@@ -215,7 +218,7 @@ export class FunctionsEditor extends LitElement {
     if (index === -1) return
 
     // not most efficient, but probably sufficient and clear
-    const modifiedFunction = this.convertToIFunction(data)
+    const modifiedFunction = convertToIFunction(data)
     const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
     this.saveFunctions(functions)
@@ -273,7 +276,7 @@ export class FunctionsEditor extends LitElement {
     const origFn = this.contentData.functions.find(f => f.id === id)
     if (origFn === undefined) return
 
-    const fnData = this.convertFromIFunction(updatedFn)
+    const fnData = convertFromIFunction(updatedFn)
 
     // ID might have changed
     if (origFn.id !== fnData.id) {
@@ -283,39 +286,6 @@ export class FunctionsEditor extends LitElement {
     setTimeout(() => {
       aeonState.sketch.model.setUninterpretedFnData(fnData.id, fnData)
     }, 50)
-  }
-
-  private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
-    const variables = fnData.arguments.map(
-      (arg, index) => {
-        return {
-          id: index.toString(),
-          source: 'var' + index.toString(),
-          target: fnData.id,
-          monotonicity: arg[0],
-          essential: arg[1]
-        }
-      })
-    return {
-      id: fnData.id,
-      name: fnData.name,
-      annotation: fnData.annotation,
-      function: fnData.expression,
-      variables
-    }
-  }
-
-  private convertFromIFunction (iFunction: IFunctionData): UninterpretedFnData {
-    const fnArguments = iFunction.variables.map(varData => {
-      return [varData.monotonicity, varData.essential] as [Monotonicity, Essentiality]
-    })
-    return {
-      id: iFunction.id,
-      name: iFunction.name,
-      annotation: iFunction.annotation,
-      arguments: fnArguments,
-      expression: iFunction.function
-    }
   }
 
   private async confirmDialog (): Promise<boolean> {
