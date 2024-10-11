@@ -279,7 +279,7 @@ class AeonEvents {
           console.error(e)
         })
       })
-    }, 50)
+    }, 75)
   }
 
   /**
@@ -304,7 +304,7 @@ class AeonEvents {
           console.error(e)
         })
       })
-    }, 50)
+    }, 75)
   }
 
   /**

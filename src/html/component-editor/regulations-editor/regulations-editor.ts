@@ -97,10 +97,8 @@ export class RegulationsEditor extends LitElement {
     if (_.isEqual(this.contentData.variables, newContentData.variables) &&
         _.isEqual(this.contentData.regulations, newContentData.regulations) &&
         _.isEqual(this.contentData.layout, newContentData.layout)) {
-      console.log('returning...')
       return
     }
-    console.log('continuing...')
 
     this.cy?.remove('node')
     this.cy?.edges().remove()

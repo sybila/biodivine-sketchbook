@@ -384,9 +384,9 @@ export default class PropertiesEditor extends LitElement {
                     // Only render if showRegulationProperties is true
                     return this.showRegulationProperties
 ? html`
-                      <static-input-essential .index=${index}
+                      <static-input-monotonic .index=${index}
                                               .property=${prop}>
-                      </static-input-essential>`
+                      </static-input-monotonic>`
 : ''
                   case StaticPropertyType.FunctionInputMonotonicWithCondition:
                   case StaticPropertyType.VariableRegulationMonotonicWithCondition:
