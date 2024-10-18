@@ -21,6 +21,8 @@ import {
 import { when } from 'lit/directives/when.js'
 import { computePosition, flip } from '@floating-ui/dom'
 import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_state'
+import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
+import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
@@ -34,6 +36,10 @@ export default class PropertiesEditor extends LitElement {
   @state() addStaticMenuVisible = false
   // visibility of automatically generated regulation properties
   @state() showRegulationProperties = true
+  // static prop edit dialogs
+  dialogsStatic: Record<string, WebviewWindow | undefined> = {}
+  // dynamic prop edit dialogs
+  dialogsDynamic: Record<string, WebviewWindow | undefined> = {}
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
@@ -96,6 +102,8 @@ export default class PropertiesEditor extends LitElement {
     aeonState.sketch.properties.dynamicIdChanged.addEventListener(this.#onDynamicIdChanged.bind(this))
     this.addEventListener('static-property-id-changed', this.changeStaticPropertyId)
     aeonState.sketch.properties.staticIdChanged.addEventListener(this.#onStaticIdChanged.bind(this))
+    this.addEventListener('dynamic-property-edited', (e) => { void this.editDynProperty(e) })
+    this.addEventListener('static-property-edited', (e) => { void this.editStatProperty(e) })
 
     // refresh-event listeners
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
@@ -127,6 +135,117 @@ export default class PropertiesEditor extends LitElement {
       bubbles: true,
       composed: true
     }))
+  }
+
+  private async editStatProperty (event: Event): Promise<void> {
+    const detail = (event as CustomEvent).detail
+    const propertyIndex = this.contentData.staticProperties.findIndex(p => p.id === detail.id)
+    if (propertyIndex === -1) return
+    const property = this.contentData.staticProperties[propertyIndex]
+
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    if (this.dialogsStatic[property.id] !== undefined) {
+      await this.dialogsStatic[property.id]?.setFocus()
+      return
+    }
+    const editStaticDialog = new WebviewWindow(`editProperty${Math.floor(Math.random() * 1000000)}`, {
+      url: 'src/html/component-editor/properties-editor/edit-property/edit-property.html',
+      title: `Edit property (${property.id} / ${property.name})`,
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      height: 500,
+      width: 400,
+      x: pos.x + (size.width / 2) - 200,
+      y: pos.y + size.height / 4
+    })
+    this.dialogsStatic[property.id] = editStaticDialog
+    void editStaticDialog.once('loaded', () => {
+      void editStaticDialog.emit('edit_property_update', {
+        ...property
+      })
+    })
+    void editStaticDialog.once('edit_property_dialog', (event: TauriEvent<{ id: string, property: StaticProperty }>) => {
+      this.dialogsStatic[property.id] = undefined
+      const index = this.contentData.staticProperties.findIndex(p => p.id === property.id)
+      if (index === -1) return
+      this.finishEditStatic(property.id, event.payload.property)
+    })
+    void editStaticDialog.onCloseRequested(() => {
+      this.dialogsStatic[property.id] = undefined
+    })
+  }
+
+  private finishEditStatic (id: string, updatedProp: StaticProperty): void {
+    const origProp = this.contentData.staticProperties.find(p => p.id === id)
+    if (origProp === undefined) return
+
+    // id might have changed
+    if (origProp.id !== updatedProp.id) {
+      aeonState.sketch.properties.setStaticId(origProp.id, updatedProp.id)
+    }
+    // name or annotation might have changed
+    setTimeout(() => {
+      aeonState.sketch.properties.setStaticContent(updatedProp.id, updatedProp)
+    }, 50)
+  }
+
+  private async editDynProperty (event: Event): Promise<void> {
+    const detail = (event as CustomEvent).detail
+    console.log(detail)
+    const propertyIndex = this.contentData.dynamicProperties.findIndex(p => p.id === detail.id)
+    if (propertyIndex === -1) return
+    const property = this.contentData.dynamicProperties[propertyIndex]
+
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    if (this.dialogsDynamic[property.id] !== undefined) {
+      await this.dialogsDynamic[property.id]?.setFocus()
+      return
+    }
+    const editDynamicDialog = new WebviewWindow(`editProperty${Math.floor(Math.random() * 1000000)}`, {
+      url: 'src/html/component-editor/properties-editor/edit-property/edit-property.html',
+      title: `Edit property (${property.id} / ${property.name})`,
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      height: 500,
+      width: 400,
+      x: pos.x + (size.width / 2) - 200,
+      y: pos.y + size.height / 4
+    })
+    this.dialogsDynamic[property.id] = editDynamicDialog
+    void editDynamicDialog.once('loaded', () => {
+      void editDynamicDialog.emit('edit_property_update', {
+        ...property
+      })
+    })
+    void editDynamicDialog.once('edit_property_dialog', (event: TauriEvent<{ id: string, property: DynamicProperty }>) => {
+      this.dialogsDynamic[property.id] = undefined
+      const index = this.contentData.dynamicProperties.findIndex(p => p.id === property.id)
+      if (index === -1) return
+      this.finishEditDynamic(property.id, event.payload.property)
+    })
+    void editDynamicDialog.onCloseRequested(() => {
+      this.dialogsDynamic[property.id] = undefined
+    })
+  }
+
+  private finishEditDynamic (id: string, updatedProp: DynamicProperty): void {
+    const origProp = this.contentData.dynamicProperties.find(p => p.id === id)
+    if (origProp === undefined) return
+
+    // id might have changed
+    if (origProp.id !== updatedProp.id) {
+      aeonState.sketch.properties.setDynamicId(origProp.id, updatedProp.id)
+    }
+    // name or annotation might have changed
+    setTimeout(() => {
+      aeonState.sketch.properties.setDynamicContent(updatedProp.id, updatedProp)
+    }, 50)
   }
 
   #onDynamicRefreshed (refreshedDynamic: DynamicProperty[]): void {

@@ -31,7 +31,7 @@ export class AnnotationsTab extends LitElement {
     if (annotatedVars.length === 0) {
       return html`<p>No annotations available for variables.</p>`
     }
-    return html`${annotatedVars.map(variable => html`${variable.id}: ${variable.annotation}<br>`)}`
+    return html`${annotatedVars.map(variable => html`<b>${variable.id}</b>: ${variable.annotation}<br>`)}`
   }
 
   addFnAnnot (): void {
@@ -44,7 +44,7 @@ export class AnnotationsTab extends LitElement {
     if (annotatedFns.length === 0) {
       return html`<p>No annotations available for functions.</p>`
     }
-    return html`${annotatedFns.map(func => html`${func.id}: ${func.annotation}<br>`)}`
+    return html`${annotatedFns.map(func => html`<b>${func.id}</b>: ${func.annotation}<br>`)}`
   }
 
   addDatasetAnnot (): void {
@@ -61,16 +61,15 @@ export class AnnotationsTab extends LitElement {
 
     return html`${annotatedDatasets.map(dataset => html`
         <div class="dataset">
-            <p>${dataset.id}: ${dataset.annotation}</p>
+            <p><b>${dataset.id}</b>: ${dataset.annotation}</p>
             <ul>
               ${dataset.observations
                   .filter(observation => observation.annotation.trim() !== '')
                   .map(observation => html`
-                    <li>${observation.id}: ${observation.annotation}</li>
+                    <li><b>${observation.id}</b>: ${observation.annotation}</li>
                   `)}
             </ul>
         </div>
-        <br>
     `)}`
   }
 
@@ -84,7 +83,7 @@ export class AnnotationsTab extends LitElement {
     if (annotatedProps.length === 0) {
       return html`<p>No annotations available for dynamic properties.</p>`
     }
-    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`
+    return html`${annotatedProps.map(dynProp => html`<b>${dynProp.id}</b>: ${dynProp.annotation}<br>`)}`
   }
 
   addStatPropAnnot (): void {
@@ -97,7 +96,7 @@ export class AnnotationsTab extends LitElement {
     if (annotatedProps.length === 0) {
       return html`<p>No annotations available for static properties.</p>`
     }
-    return html`${annotatedProps.map(dynProp => html`${dynProp.id}: ${dynProp.annotation}<br>`)}`
+    return html`${annotatedProps.map(statProp => html`<b>${statProp.id}</b>: ${statProp.annotation}<br>`)}`
   }
 
   protected render (): TemplateResult {

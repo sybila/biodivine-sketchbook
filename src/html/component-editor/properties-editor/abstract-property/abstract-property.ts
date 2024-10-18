@@ -51,4 +51,14 @@ export default class AbstractProperty extends LitElement {
       composed: true
     }))
   }
+
+  editProperty (id: string, eventName: string): void {
+    this.dispatchEvent(new CustomEvent(eventName, {
+      detail: {
+        id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
 }

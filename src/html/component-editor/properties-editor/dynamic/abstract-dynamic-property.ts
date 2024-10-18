@@ -1,7 +1,7 @@
 import { type DynamicProperty, type StaticProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { html, type TemplateResult } from 'lit'
 import { functionDebounceTimer } from '../../../util/config'
@@ -9,6 +9,7 @@ import { functionDebounceTimer } from '../../../util/config'
 const EVENT_PROPERTY_CHANGED = 'dynamic-property-changed'
 const EVENT_PROPERTY_ID_CHANGED = 'dynamic-property-id-changed'
 const EVENT_PROPERTY_REMOVED = 'dynamic-property-removed'
+const EVENT_PROPERTY_EDITED = 'dynamic-property-edited'
 
 export default class AbstractDynamicProperty extends AbstractProperty {
   nameUpdated = debounce((name: string) => {
@@ -27,6 +28,10 @@ export default class AbstractDynamicProperty extends AbstractProperty {
     super.updateProperty(property, EVENT_PROPERTY_CHANGED)
   }
 
+  editDynProperty (): void {
+    super.editProperty(this.property.id, EVENT_PROPERTY_EDITED)
+  }
+
   renderNameplate (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
@@ -40,6 +45,9 @@ export default class AbstractDynamicProperty extends AbstractProperty {
           <input id="name-field" class="name-field" .value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
         </div>
+        <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.editDynProperty}">
+          ${icon(faEdit).node}
+        </button>
         <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
           ${icon(faTrash).node}
         </button>

@@ -196,6 +196,26 @@ export default class RootComponent extends LitElement {
     this.data = this.data.copy({ functions, variables, regulations, layout })
   }
 
+  // Wrapper to save all components of the model at the same time.
+  // Saving everything at the same time can help dealing with inconsistencies.
+  private saveWholeSketch (
+    functions: IFunctionData[],
+    variables: IVariableData[],
+    regulations: IRegulationData[],
+    layout: ILayoutData,
+    observations: IObservationSet[],
+    staticProperties: StaticProperty[],
+    dynamicProperties: DynamicProperty[]
+  ): void {
+    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
+    variables.sort((a, b) => (a.id > b.id ? 1 : -1))
+    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+    staticProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
+    dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
+    observations.sort((a, b) => (a.id > b.id ? 1 : -1))
+    this.data = this.data.copy({ functions, variables, regulations, layout, staticProperties, dynamicProperties, observations })
+  }
+
   // Set variable data (currently, sets a name and annotation).
   // The event should have fields 'id' with the variables (unchanged) ID and then (modified)
   // 'name' and 'annotation'.
@@ -384,14 +404,13 @@ export default class RootComponent extends LitElement {
   }
 
   #onSketchRefreshed (sketch: SketchData): void {
-    // update model first
-    this.#onModelRefreshed(sketch.model)
-    // then observations
     const datasets = sketch.datasets.map(d => convertToIObservationSet(d))
-    this.saveObservations(datasets)
-    // lastly properties that depend on the model or observations
-    this.saveStaticProperties(sketch.stat_properties)
-    this.saveDynamicProperties(sketch.dyn_properties)
+    const functions = sketch.model.uninterpreted_fns.map(f => convertToIFunction(f))
+    const variables = sketch.model.variables.map(v => convertToIVariable(v))
+    const regulations = sketch.model.regulations.map(r => convertToIRegulation(r))
+    const layout = convertToILayout(sketch.model.layouts[0].nodes)
+
+    this.saveWholeSketch(functions, variables, regulations, layout, datasets, sketch.stat_properties, sketch.dyn_properties)
   }
 
   // refresh all components of the model, and save them at the same time
