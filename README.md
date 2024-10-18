@@ -14,5 +14,3 @@ Run the cargo commands inside `src-tauri` folder, and eslint in the main directo
 - `cargo fmt`
 - `cargo clippy`
 - `cargo test`
-
-To properly the build the app, you can also use `cargo tauri build`.
