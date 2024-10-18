@@ -52,7 +52,9 @@ export default class EditDataset extends LitElement {
             <div class="uk-margin-small">
               <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>
               <div class="uk-form-controls">
-                <input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="dataset-${key}" type="text" placeholder="${key}"/>
+                ${key === 'annotation'
+                  ? html`<textarea class="uk-textarea" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLTextAreaElement).value) }}" id="dataset-${key}" placeholder="${key}"></textarea>`
+                  : html`<input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="dataset-${key}" type="text" placeholder="${key}"/>`}
               </div>
             </div>`
             })}

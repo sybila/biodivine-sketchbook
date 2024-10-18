@@ -10,7 +10,7 @@ export class RenameDialog extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @query('#node-name') nameField: HTMLInputElement | undefined
   @query('#node-id') variableIdField: HTMLInputElement | undefined
-  @query('#node-annotation') annotationField: HTMLInputElement | undefined
+  @query('#node-annotation') annotationField: HTMLTextAreaElement | undefined
   variableId = ''
   name = ''
   annotation = ''
@@ -71,7 +71,7 @@ export class RenameDialog extends LitElement {
   }
 
   private handleAnnotationUpdate (e: Event): void {
-    this.annotation = (e.target as HTMLInputElement).value
+    this.annotation = (e.target as HTMLTextAreaElement).value
   }
 
   render (): TemplateResult {
@@ -93,7 +93,7 @@ export class RenameDialog extends LitElement {
           <div class="uk-margin-small">
             <label class="uk-form-label" for="form-horizontal-text">Variable Annotation</label>
             <div class="uk-flex uk-flex-row">
-              <input class="uk-input" @input="${this.handleAnnotationUpdate}" id="node-annotation" type="text" placeholder="Annotation" />
+              <textarea class="uk-textarea" @input="${this.handleAnnotationUpdate}" id="node-annotation" placeholder="Annotation"></textarea>
             </div>
           </div>
           <button class="uk-button uk-button-primary uk-width-1-1" @click="${this.handleSubmit}">Submit</button>

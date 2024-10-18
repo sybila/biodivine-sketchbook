@@ -10,7 +10,7 @@ export class EditFnDialog extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @query('#fn-name') nameField: HTMLInputElement | undefined
   @query('#fn-id') idField: HTMLInputElement | undefined
-  @query('#fn-annotation') annotationField: HTMLInputElement | undefined
+  @query('#fn-annotation') annotationField: HTMLTextAreaElement | undefined
   id = ''
   name = ''
   annotation = ''
@@ -71,7 +71,7 @@ export class EditFnDialog extends LitElement {
   }
 
   private handleAnnotationUpdate (e: Event): void {
-    this.annotation = (e.target as HTMLInputElement).value
+    this.annotation = (e.target as HTMLTextAreaElement).value
   }
 
   render (): TemplateResult {
@@ -93,7 +93,7 @@ export class EditFnDialog extends LitElement {
           <div class="uk-margin-small">
             <label class="uk-form-label" for="form-horizontal-text">Function Annotation</label>
             <div class="uk-flex uk-flex-row">
-              <input class="uk-input" @input="${this.handleAnnotationUpdate}" id="fn-annotation" type="text" placeholder="Annotation" />
+              <textarea class="uk-textarea" @input="${this.handleAnnotationUpdate}" id="fn-annotation" placeholder="Annotation"></textarea>
             </div>
           </div>
           <button class="uk-button uk-button-primary uk-width-1-1" @click="${this.handleSubmit}">Submit</button>

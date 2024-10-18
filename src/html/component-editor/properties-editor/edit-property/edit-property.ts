@@ -52,7 +52,9 @@ export default class EditProperty extends LitElement {
             <div class="uk-margin-small">
               <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>
               <div class="uk-form-controls">
-                <input class="uk-input" .value="${this.getValue(this.property, key)}" @input="${(e: InputEvent) => { this.setValue(this.property, key, (e.target as HTMLInputElement).value) }}" id="property-${key}" type="text" placeholder="${key}"/>
+                ${key === 'annotation'
+                  ? html`<textarea class="uk-textarea" .value="${this.getValue(this.property, key)}" @input="${(e: InputEvent) => { this.setValue(this.property, key, (e.target as HTMLTextAreaElement).value) }}" id="property-${key}" placeholder="${key}"></textarea>`
+                  : html`<input class="uk-input" .value="${this.getValue(this.property, key)}" @input="${(e: InputEvent) => { this.setValue(this.property, key, (e.target as HTMLInputElement).value) }}" id="property-${key}" type="text" placeholder="${key}"/>`}
               </div>
             </div>`
             })}
