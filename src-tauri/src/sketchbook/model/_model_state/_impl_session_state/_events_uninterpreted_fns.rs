@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{
-    ChangeArgEssentialData, ChangeArgMonotoneData, ChangeIdData, UninterpretedFnData,
+    ChangeArgEssentialData, ChangeArgMonotoneData, ModelData, UninterpretedFnData,
 };
 use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
 use crate::sketchbook::ids::UninterpretedFnId;
@@ -49,11 +49,13 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/uninterpreted_fn";
 
-        // parse the payload and perform the event
+        // parse the payload
         let payload = Self::clone_payload_str(event, component_name)?;
         let fn_data = UninterpretedFnData::from_json_str(payload.as_str())?;
         let arity = fn_data.arguments.len();
-        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+        // add funtion in two steps (to also include annotation)
+        self.add_empty_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+        self.set_fn_annot_by_str(&fn_data.id, &fn_data.annotation)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let reverse_at_path = ["uninterpreted_fn", &fn_data.id, "remove"];
@@ -79,7 +81,7 @@ impl ModelState {
         let fn_id = self.generate_uninterpreted_fn_id("fn", Some(1));
         let uninterpreted_fn = UninterpretedFn::new_without_constraints(fn_id.as_str(), arity)?;
         let fn_data = UninterpretedFnData::from_fn(&fn_id, &uninterpreted_fn);
-        self.add_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
+        self.add_empty_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let state_change = mk_model_state_change(&["uninterpreted_fn", "add"], &fn_data);
@@ -115,23 +117,26 @@ impl ModelState {
             let payload = fn_data.to_json_str();
             let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_name", at_path).is_some() {
-            // get the payload - string for "new_name"
-            let new_name = Self::clone_payload_str(event, component_name)?;
-            let original_name = self.get_uninterpreted_fn(&fn_id)?.get_name().to_string();
-            if new_name == original_name {
+        } else if Self::starts_with("set_data", at_path).is_some() {
+            // get the payload - string with modified function data
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_data = UninterpretedFnData::from_json_str(&payload)?;
+            let new_fn = new_data.to_uninterpreted_fn(self)?;
+            let original_fn = self.get_uninterpreted_fn(&fn_id)?;
+            let original_data = UninterpretedFnData::from_fn(&fn_id, original_fn);
+            if &new_fn == original_fn {
                 return Ok(Consumed::NoChange);
             }
 
             // perform the event, prepare the state-change variant (move id from path to payload)
-            self.set_uninterpreted_fn_name(&fn_id, new_name.as_str())?;
+            self.set_raw_function(&fn_id, new_fn)?;
             let new_fn = self.get_uninterpreted_fn(&fn_id)?;
-            let fn_data = UninterpretedFnData::from_fn(&fn_id, new_fn);
-            let state_change = mk_model_state_change(&["uninterpreted_fn", "set_name"], &fn_data);
+            let new_data = UninterpretedFnData::from_fn(&fn_id, new_fn);
+            let state_change = mk_model_state_change(&["uninterpreted_fn", "set_data"], &new_data);
 
             // prepare the reverse event
             let mut reverse_event = event.clone();
-            reverse_event.payload = Some(original_name);
+            reverse_event.payload = Some(original_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_id", at_path).is_some() {
             // get the payload - string for "new_id"
@@ -140,14 +145,13 @@ impl ModelState {
                 return Ok(Consumed::NoChange);
             }
 
-            // TODO: all changes to update/uninterpreted functions (where this function symbol
-            //       appears) must be propagated to the frontend
-
-            // perform the event, prepare the state-change variant (move id from path to payload)
+            // perform the ID change (which can modify many parts of the model)
             self.set_uninterpreted_fn_id_by_str(fn_id.as_str(), new_id.as_str())?;
-            let id_change_data = ChangeIdData::new(fn_id.as_str(), new_id.as_str());
-            let state_change =
-                mk_model_state_change(&["uninterpreted_fn", "set_id"], &id_change_data);
+
+            // This event is a bit special - since variable ID change can affect many parts of the model
+            // (update fns, regulations, layout, ...), the event returns the whole updated model data to the FE.
+            let model_data = ModelData::from_model(self);
+            let state_change = mk_model_state_change(&["uninterpreted_fn", "set_id"], &model_data);
 
             // prepare the reverse event
             let reverse_at_path = ["uninterpreted_fn", new_id.as_str(), "set_id"];

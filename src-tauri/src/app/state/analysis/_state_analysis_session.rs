@@ -40,7 +40,7 @@ impl StackSession for AnalysisSession {
         // message with sketch data sent from Editor session
         let result = if path == vec!["sketch_sent".to_string()] {
             if let Some(sketch_payload) = message.message.payload.clone() {
-                let sketch = Sketch::from_json_str(&sketch_payload)?;
+                let sketch = Sketch::from_custom_json(&sketch_payload)?;
                 reset_stack = true;
                 self.analysis_state.set_sketch(sketch);
             } else {

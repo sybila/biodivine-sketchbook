@@ -114,6 +114,7 @@ impl ModelState {
     /// Convert the `ModelState` into the corresponding `BooleanNetwork` object (that will contain
     /// all of the variables, regulations, update functions, and uninterpreted functions).
     ///
+    /// Annotations for both variables and functions are let empty.
     /// See [ModelState::from_reg_graph] for details on how regulations and variables are handled.
     ///
     /// A name of parameters used in BooleanNetwork (which should be unique) is used as both
@@ -126,7 +127,7 @@ impl ModelState {
         for param_id in bn.parameters() {
             let param = bn.get_parameter(param_id);
             let name = param.get_name();
-            model.add_uninterpreted_fn_by_str(name, name, param.get_arity() as usize)?;
+            model.add_empty_uninterpreted_fn_by_str(name, name, param.get_arity() as usize)?;
         }
 
         // and also add update functions
@@ -153,7 +154,9 @@ mod tests {
         model
             .add_multiple_regulations(vec!["a -> b", "b -> a", "a -| a"])
             .unwrap();
-        model.add_uninterpreted_fn_by_str("f", "f", 2).unwrap();
+        model
+            .add_empty_uninterpreted_fn_by_str("f", "f", 2)
+            .unwrap();
         model.set_update_fn(&var_a, "b & !a").unwrap();
         model
     }

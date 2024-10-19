@@ -1,7 +1,7 @@
 use crate::sketchbook::data_structs::SketchData;
-use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
-use crate::sketchbook::stat_prop_utils::*;
+use crate::sketchbook::properties::shortcuts::*;
+use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::{JsonSerde, Sketch};
 use biodivine_lib_param_bn::{BooleanNetwork, ModelAnnotation};
 use regex::Regex;
@@ -11,7 +11,8 @@ type NamedProperties = Vec<(String, String)>;
 impl Sketch {
     /// Create sketch instance from a AEON model format.
     ///
-    // TODO: aeon format currently does not support template properties and datasets.
+    // TODO: our variant of aeon format currently does not consider template properties and datasets.
+    // TODO: our variant of aeon format currently does not consider annotation.
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
         let mut sketch = Sketch::default();
 
@@ -25,15 +26,15 @@ impl Sketch {
             let target_var = reg.get_target();
 
             if reg.get_essentiality() != &Essentiality::Unknown {
-                let prop_id = get_essentiality_prop_id(input_var, target_var);
+                let prop_id = StatProperty::get_essentiality_prop_id(input_var, target_var);
                 let prop = mk_essentiality_prop(input_var, target_var, *reg.get_essentiality());
-                sketch.properties.add_raw_static(prop_id, prop)?;
+                sketch.properties.add_static(prop_id, prop)?;
             }
 
             if reg.get_sign() != &Monotonicity::Unknown {
-                let prop_id = get_monotonicity_prop_id(input_var, target_var);
+                let prop_id = StatProperty::get_monotonicity_prop_id(input_var, target_var);
                 let prop = mk_monotonicity_prop(input_var, target_var, *reg.get_sign());
-                sketch.properties.add_raw_static(prop_id, prop)?;
+                sketch.properties.add_static(prop_id, prop)?;
             }
         }
 
@@ -51,12 +52,12 @@ impl Sketch {
         let aeon_annotations = ModelAnnotation::from_model_string(aeon_str);
         let (stat_props, dyn_props) = Self::extract_model_properties(&aeon_annotations)?;
         for (name, formula) in stat_props {
-            let id = StatPropertyId::new(&name)?;
-            sketch.properties.add_stat_generic(id, &name, &formula)?
+            let prop = StatProperty::try_mk_generic(&name, &formula, "")?;
+            sketch.properties.add_static_by_str(&name, prop)?
         }
         for (name, formula) in dyn_props {
-            let id = DynPropertyId::new(&name)?;
-            sketch.properties.add_dyn_generic(id, &name, &formula)?
+            let prop = DynProperty::try_mk_generic(&name, &formula, "")?;
+            sketch.properties.add_dynamic_by_str(&name, prop)?
         }
 
         Ok(sketch)

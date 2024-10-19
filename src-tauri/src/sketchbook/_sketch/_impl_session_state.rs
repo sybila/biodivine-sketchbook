@@ -20,7 +20,7 @@ impl SessionState for Sketch {
             self.properties.perform_event(event, at_path)
         } else if Self::starts_with("new_sketch", at_path).is_some() {
             self.set_to_empty();
-            let sketch_data = SketchData::new(&self.model, &self.observations, &self.properties);
+            let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
             // this is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {
@@ -100,7 +100,7 @@ impl SessionState for Sketch {
         } else if let Some(at_path) = Self::starts_with("properties", at_path) {
             self.properties.refresh(full_path, at_path)
         } else if Self::starts_with("get_whole_sketch", at_path).is_some() {
-            let sketch_data = SketchData::new(&self.model, &self.observations, &self.properties);
+            let sketch_data = SketchData::new_from_sketch(self);
             Ok(Event {
                 path: full_path.to_vec(),
                 payload: Some(sketch_data.to_json_str()),

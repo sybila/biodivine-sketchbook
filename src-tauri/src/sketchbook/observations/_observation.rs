@@ -8,44 +8,52 @@ use std::str::FromStr;
 pub struct Observation {
     id: ObservationId,
     name: String,
+    annotation: String,
     values: Vec<VarValue>,
 }
 
 /// Creating observations.
 impl Observation {
     /// Create `Observation` object from a vector with values, and string ID (which must be
-    /// a valid identifier). Name is initialized same as ID.
+    /// a valid identifier).
+    ///
+    /// Name is initialized same as ID, and annotation is empty.
+    /// For full initializer with name and annotation, check [Self::new_annotated].
     pub fn new(values: Vec<VarValue>, id: &str) -> Result<Self, String> {
-        Ok(Self {
-            values,
-            id: ObservationId::new(id)?,
-            name: id.to_string(),
-        })
+        Self::new_annotated(values, id, id, "")
     }
 
     /// Create `Observation` object from a vector with values, string ID (which must be
-    /// a valid identifier), and name.
-    pub fn new_with_name(values: Vec<VarValue>, id: &str, name: &str) -> Result<Self, String> {
+    /// a valid identifier), string name, and annotation.
+    pub fn new_annotated(
+        values: Vec<VarValue>,
+        id: &str,
+        name: &str,
+        annot: &str,
+    ) -> Result<Self, String> {
         assert_name_valid(name)?;
         Ok(Self {
-            values,
             id: ObservationId::new(id)?,
             name: name.to_string(),
+            annotation: annot.to_string(),
+            values,
         })
     }
 
-    /// Create `Observation` encoding a vector of `n` ones. Name is initialized same as ID.
+    /// Create `Observation` encoding a vector of `n` ones.
+    /// Name is initialized same as ID, and annotation is empty.
     pub fn new_full_ones(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::True; n], id)
     }
 
-    /// Create `Observation` encoding a vector of `n` zeros. Name is initialized same as ID.
+    /// Create `Observation` encoding a vector of `n` zeros.
+    /// Name is initialized same as ID, and annotation is empty.
     pub fn new_full_zeros(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::False; n], id)
     }
 
     /// Create `Observation` encoding a vector of `n` unspecified values.
-    /// Name is initialized same as ID.
+    /// Name is initialized same as ID, and annotation is empty.
     pub fn new_full_unspecified(n: usize, id: &str) -> Result<Self, String> {
         Self::new(vec![VarValue::Any; n], id)
     }
@@ -53,7 +61,8 @@ impl Observation {
     /// Create `Observation` object from string encoding of its (ordered) values.
     /// Values are encoded using characters `1`, `0`, or `*`.
     ///
-    /// Observation cannot be empty. Name is initialized same as ID.
+    /// Observation cannot be empty. Name is initialized same as ID, and annotation is empty.
+    /// For full initializer with name and annotation, check [Self::try_from_str_annotated].
     pub fn try_from_str(observation_str: &str, id: &str) -> Result<Self, String> {
         let mut observation_vec: Vec<VarValue> = Vec::new();
         for c in observation_str.chars() {
@@ -70,9 +79,15 @@ impl Observation {
     /// Values are encoded using characters `1`, `0`, or `*`.
     ///
     /// Observation cannot be empty.
-    pub fn try_from_str_named(observation_str: &str, id: &str, name: &str) -> Result<Self, String> {
+    pub fn try_from_str_annotated(
+        observation_str: &str,
+        id: &str,
+        name: &str,
+        annot: &str,
+    ) -> Result<Self, String> {
         let mut obs = Self::try_from_str(observation_str, id)?;
         obs.set_name(name)?;
+        obs.set_annotation(annot);
         Ok(obs)
     }
 }
@@ -84,6 +99,11 @@ impl Observation {
         assert_name_valid(name)?;
         self.name = name.to_string();
         Ok(())
+    }
+
+    /// Set annotation string.
+    pub fn set_annotation(&mut self, annotation: &str) {
+        self.annotation = annotation.to_string();
     }
 
     /// Set the value at given idx.
@@ -158,6 +178,11 @@ impl Observation {
     /// Get observation's name.
     pub fn get_name(&self) -> &str {
         &self.name
+    }
+
+    /// Annotation string of the observation.
+    pub fn get_annotation(&self) -> &str {
+        &self.annotation
     }
 
     /// Get reference to observation's vector of values.

@@ -68,7 +68,7 @@ pub fn apply_event_fully(sketch: &mut Sketch, event: &Event, at_path: &[&str]) {
 pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str: &str) -> u128 {
     sketch
         .properties
-        .add_raw_dynamic_by_str(id_str, property)
+        .add_dynamic_by_str(id_str, property)
         .unwrap();
     let results = run_inference(sketch);
     return results.num_sat_networks;
@@ -79,7 +79,7 @@ pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str:
 pub fn add_stat_prop_and_infer(mut sketch: Sketch, property: StatProperty, id_str: &str) -> u128 {
     sketch
         .properties
-        .add_raw_static_by_str(id_str, property)
+        .add_static_by_str(id_str, property)
         .unwrap();
     let results = run_inference(sketch);
     return results.num_sat_networks;

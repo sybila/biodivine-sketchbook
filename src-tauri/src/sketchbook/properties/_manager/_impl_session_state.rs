@@ -99,7 +99,7 @@ impl PropertyManager {
         let payload = Self::clone_payload_str(event, component_name)?;
         let prop_data = DynPropertyData::from_json_str(payload.as_str())?;
         let property = prop_data.to_property()?;
-        self.add_raw_dynamic_by_str(&prop_data.id, property)?;
+        self.add_dynamic_by_str(&prop_data.id, property)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let reverse_event = mk_dyn_prop_event(&[&prop_data.id, "remove"], None);
@@ -124,7 +124,7 @@ impl PropertyManager {
         let prop_data = DynPropertyData::from_property(&prop_id, &property);
 
         // actually add the property
-        self.add_raw_dynamic_by_str(&prop_data.id, property)?;
+        self.add_dynamic_by_str(&prop_data.id, property)?;
 
         // prepare the state-change (which is add event) and reverse event (which is a remove event)
         let state_change = mk_dyn_prop_state_change(&["add"], &prop_data);
@@ -209,7 +209,7 @@ impl PropertyManager {
         let payload = Self::clone_payload_str(event, component_name)?;
         let prop_data = StatPropertyData::from_json_str(payload.as_str())?;
         let property = prop_data.to_property()?;
-        self.add_raw_static_by_str(&prop_data.id, property)?;
+        self.add_static_by_str(&prop_data.id, property)?;
 
         // prepare the state-change and reverse event (which is a remove event)
         let reverse_event = mk_stat_prop_event(&[&prop_data.id, "remove"], None);
@@ -231,7 +231,7 @@ impl PropertyManager {
         let prop_data = StatPropertyData::from_property(&prop_id, &property);
 
         // actually add the property
-        self.add_raw_static_by_str(&prop_data.id, property)?;
+        self.add_static_by_str(&prop_data.id, property)?;
 
         // prepare the state-change (which is add event) and reverse event (which is a remove event)
         let state_change = mk_stat_prop_state_change(&["add"], &prop_data);

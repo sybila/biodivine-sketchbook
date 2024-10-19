@@ -4,7 +4,7 @@ use crate::app::state::editor::TabBarState;
 use crate::app::state::{Consumed, SessionHelper, SessionState, StackSession};
 use crate::app::{AeonError, DynError};
 use crate::debug;
-use crate::sketchbook::{JsonSerde, Sketch};
+use crate::sketchbook::Sketch;
 
 /// The state of one editor session.
 ///
@@ -43,7 +43,7 @@ impl StackSession for EditorSession {
 
         // request from new Analysis session for sending a sketch
         let result = if path == vec!["send_sketch".to_string()] {
-            let sketch_string = self.sketch.to_json_str();
+            let sketch_string = self.sketch.to_custom_json();
             let response_msg = SessionMessage {
                 message: Event::build(&["sketch_sent"], Some(&sketch_string)),
             };

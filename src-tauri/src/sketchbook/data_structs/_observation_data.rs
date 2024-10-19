@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 pub struct ObservationData {
     pub id: String,
     pub name: String,
+    pub annotation: String,
     pub dataset: String,
     pub values: String,
 }
@@ -19,11 +20,18 @@ pub struct ObservationData {
 impl<'de> JsonSerde<'de> for ObservationData {}
 
 impl ObservationData {
-    /// Create new `ObservationData` instance given `id` and values string slices.
-    pub fn new(obs_id: &str, name: &str, dataset_id: &str, values: &str) -> ObservationData {
+    /// Create new `ObservationData` instance given all its components.
+    pub fn new(
+        obs_id: &str,
+        name: &str,
+        annot: &str,
+        dataset_id: &str,
+        values: &str,
+    ) -> ObservationData {
         ObservationData {
             id: obs_id.to_string(),
             name: name.to_string(),
+            annotation: annot.to_string(),
             dataset: dataset_id.to_string(),
             values: values.to_string(),
         }
@@ -35,6 +43,7 @@ impl ObservationData {
         ObservationData::new(
             obs.get_id().as_str(),
             obs.get_name(),
+            obs.get_annotation(),
             dataset_id.as_str(),
             &obs.to_values_string(),
         )
@@ -43,7 +52,12 @@ impl ObservationData {
     /// Extract the corresponding `Observation` from the `ObservationData`.
     /// There is a syntax check just to make sure that the data are valid.
     pub fn to_observation(&self) -> Result<Observation, String> {
-        Observation::try_from_str_named(&self.values.clone(), &self.id, &self.name)
+        Observation::try_from_str_annotated(
+            &self.values.clone(),
+            &self.id,
+            &self.name,
+            &self.annotation,
+        )
     }
 }
 

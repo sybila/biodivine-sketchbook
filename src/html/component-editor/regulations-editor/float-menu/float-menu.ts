@@ -52,7 +52,7 @@ export default class FloatMenu extends LitElement {
       case ElementType.NODE:
         switch (event.key.toUpperCase()) {
           case 'E':
-            this.renameNode()
+            this.editVariable()
             break
           case 'A':
             this.addEdge()
@@ -86,12 +86,12 @@ export default class FloatMenu extends LitElement {
   nodeButtons: IButton[] = [
     {
       icon: () => icon(faPen).node[0],
-      label: () => 'Edit name (E)',
-      click: this.renameNode
+      label: () => 'Edit variable (E)',
+      click: this.editVariable
     },
     {
       icon: () => icon(faPlus).node[0],
-      label: () => 'Add Edge (A)',
+      label: () => 'Add edge (A)',
       click: this.addEdge
     },
     {
@@ -220,11 +220,12 @@ export default class FloatMenu extends LitElement {
     }
   }
 
-  private renameNode (): void {
-    this.dispatchEvent(new CustomEvent('rename-node', {
+  private editVariable (): void {
+    this.dispatchEvent(new CustomEvent('edit-variable', {
       detail: {
         id: this.data?.id,
-        name: this.data?.name
+        name: this.data?.name,
+        annotation: this.data?.annotation
       },
       bubbles: true,
       composed: true

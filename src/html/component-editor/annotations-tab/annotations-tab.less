@@ -1,0 +1,53 @@
+@import '/src/uikit-theme';
+
+.container {
+  container-name: annotations-list;
+  container-type: inline-size;
+  height: 100%;
+  width: 100%;
+}
+
+.components-list {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  overflow: auto;
+}
+
+.section {
+  min-width: 25em;
+  overflow: auto;
+  width: 100%;
+}
+
+.annotation {
+  margin-left: 2em;
+  margin-top: 1em;
+  margin-bottom: 2em;
+  color: white;
+}
+
+/*
+  Header sticks to the top of the list.
+*/
+
+.header {
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-between;
+  .uk-flex-middle;
+  .uk-box-shadow-small;
+  padding: 0.5em 1em;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+@heading-bullet-border: @text-dark;
+.header h3 {
+  color: @text-dark;
+}
+
+.add-annot {
+  width: 5em;
+}

@@ -44,6 +44,11 @@ impl UpdateFn {
         }
     }
 
+    /// Make an "empty" update function (same as [Self::default]).
+    pub fn new_empty() -> UpdateFn {
+        Self::default()
+    }
+
     /// Get function's expression.
     pub fn get_fn_expression(&self) -> &str {
         &self.expression

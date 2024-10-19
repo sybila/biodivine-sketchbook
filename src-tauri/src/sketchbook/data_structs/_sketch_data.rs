@@ -12,6 +12,7 @@ pub struct SketchData {
     pub datasets: Vec<DatasetData>,
     pub dyn_properties: Vec<DynPropertyData>,
     pub stat_properties: Vec<StatPropertyData>,
+    pub annotation: String,
 }
 
 impl<'de> JsonSerde<'de> for SketchData {}
@@ -22,6 +23,7 @@ impl SketchData {
         model: &ModelState,
         observations: &ObservationManager,
         properties: &PropertyManager,
+        annotation: &str,
     ) -> SketchData {
         let datasets = observations
             .datasets()
@@ -41,11 +43,17 @@ impl SketchData {
             datasets,
             dyn_properties,
             stat_properties,
+            annotation: annotation.to_string(),
         }
     }
 
     /// Create new `SketchData` instance given a reference to the `Sketch` instance.
     pub fn new_from_sketch(sketch: &Sketch) -> SketchData {
-        Self::new(&sketch.model, &sketch.observations, &sketch.properties)
+        Self::new(
+            &sketch.model,
+            &sketch.observations,
+            &sketch.properties,
+            &sketch.annotation,
+        )
     }
 }

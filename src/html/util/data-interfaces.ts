@@ -4,6 +4,7 @@ import { Data } from 'dataclass'
 export interface IVariableData {
   id: string
   name: string
+  annotation: string
   function: string
 }
 
@@ -48,6 +49,8 @@ export class ContentData extends Data {
 
 export interface IFunctionData {
   id: string
+  name: string
+  annotation: string
   function: string
   variables: IRegulationData[]
 }
@@ -56,6 +59,7 @@ export interface IObservation {
   selected: boolean
   id: string
   name: string
+  annotation: string
 
   [key: string]: string | number | boolean
 }
@@ -63,6 +67,7 @@ export interface IObservation {
 export interface IObservationSet {
   id: string
   name: string
+  annotation: string
   observations: IObservation[]
   variables: string[]
 }
@@ -93,6 +98,7 @@ export type PropertyType = StaticPropertyType | DynamicPropertyType
 export interface IProperty {
   id: string
   name: string
+  annotation: string
   variant: PropertyType
 }
 

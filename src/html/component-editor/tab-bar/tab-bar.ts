@@ -5,7 +5,7 @@ import style_less from './tab-bar.less?inline'
 import { type TabData } from '../../util/tab-data'
 import { faLock, fas, type IconName } from '@fortawesome/free-solid-svg-icons'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
-import { aeonState } from '../../../aeon_events'
+import { aeonState } from '../../../aeon_state'
 library.add(faLock, fas)
 
 @customElement('tab-bar')

@@ -103,6 +103,7 @@ impl ModelState {
     /// and name in the resulting `ModelState`.
     ///
     /// Note that only the default layout (all nodes at 0,0) is created for the `ModelState`.
+    /// Variables' annotations are left empty.
     pub fn from_reg_graph(reg_graph: &RegulatoryGraph) -> Result<ModelState, String> {
         let mut model = ModelState::new_empty();
 
@@ -110,7 +111,7 @@ impl ModelState {
         for v in reg_graph.variables() {
             // name in the `RegulatoryGraph` is a unique valid identifier
             let name_in_graph = reg_graph.get_variable_name(v);
-            model.add_var(VarId::new(name_in_graph.as_str())?, name_in_graph)?;
+            model.add_var(VarId::new(name_in_graph.as_str())?, name_in_graph, "")?;
         }
 
         // regulations

@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js'
 import style_less from './undo-redo.less?inline'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { aeonState } from '../../../aeon_events'
+import { aeonState } from '../../../aeon_state'
 library.add(faArrowLeft, faArrowRight)
 
 @customElement('undo-redo')

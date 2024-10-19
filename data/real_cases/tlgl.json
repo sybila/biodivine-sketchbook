@@ -1,94 +1,113 @@
 {
+  "annotation": "",
   "model": {
     "variables": [
       {
         "id": "Apoptosis_",
         "name": "Apoptosis_",
+        "annotation": "",
         "update_fn": "function(Caspase, Apoptosis_)"
       },
       {
         "id": "BID_",
         "name": "BID_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & k(MCL1)"
       },
       {
         "id": "CREB",
         "name": "CREB",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & e(IFNG_)"
       },
       {
         "id": "CTLA4_",
         "name": "CTLA4_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & h(TCR)"
       },
       {
         "id": "Caspase",
         "name": "Caspase",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & m(BID_, DISC_, IAP_)"
       },
       {
         "id": "Ceramide_",
         "name": "Ceramide_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & n(Fas, S1P)"
       },
       {
         "id": "DISC_",
         "name": "DISC_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & j(Fas, Ceramide_, FLIP_)"
       },
       {
         "id": "FLIP_",
         "name": "FLIP_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & i(DISC_)"
       },
       {
         "id": "Fas",
         "name": "Fas",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & o(sFas)"
       },
       {
         "id": "GPCR_",
         "name": "GPCR_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & b(S1P)"
       },
       {
         "id": "IAP_",
         "name": "IAP_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & a(BID_)"
       },
       {
         "id": "IFNG_",
         "name": "IFNG_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & f(P2, SMAD_)"
       },
       {
         "id": "MCL1",
         "name": "MCL1",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & l(DISC_)"
       },
       {
         "id": "P2",
         "name": "P2",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & d(P2, IFNG_)"
       },
       {
         "id": "S1P",
         "name": "S1P",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & q(Ceramide_)"
       },
       {
         "id": "SMAD_",
         "name": "SMAD_",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & c(GPCR_)"
       },
       {
         "id": "TCR",
         "name": "TCR",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & g(CTLA4_)"
       },
       {
         "id": "sFas",
         "name": "sFas",
+        "annotation": "",
         "update_fn": "!Apoptosis_ & p(S1P)"
       }
     ],
@@ -356,6 +375,7 @@
       {
         "id": "a",
         "name": "a",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -367,6 +387,7 @@
       {
         "id": "b",
         "name": "b",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -378,6 +399,7 @@
       {
         "id": "c",
         "name": "c",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -389,6 +411,7 @@
       {
         "id": "d",
         "name": "d",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -404,6 +427,7 @@
       {
         "id": "e",
         "name": "e",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -415,6 +439,7 @@
       {
         "id": "f",
         "name": "f",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -430,6 +455,7 @@
       {
         "id": "function",
         "name": "function",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -445,6 +471,7 @@
       {
         "id": "g",
         "name": "g",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -456,6 +483,7 @@
       {
         "id": "h",
         "name": "h",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -467,6 +495,7 @@
       {
         "id": "i",
         "name": "i",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -478,6 +507,7 @@
       {
         "id": "j",
         "name": "j",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -497,6 +527,7 @@
       {
         "id": "k",
         "name": "k",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -508,6 +539,7 @@
       {
         "id": "l",
         "name": "l",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -519,6 +551,7 @@
       {
         "id": "m",
         "name": "m",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -538,6 +571,7 @@
       {
         "id": "n",
         "name": "n",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -553,6 +587,7 @@
       {
         "id": "o",
         "name": "o",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -564,6 +599,7 @@
       {
         "id": "p",
         "name": "p",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -575,6 +611,7 @@
       {
         "id": "q",
         "name": "q",
+        "annotation": "",
         "arguments": [
           [
             "Unknown",
@@ -706,12 +743,14 @@
     {
       "id": "b_healthy_fixed_point",
       "name": "b_healthy_fixed_point",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "(3{x}: (@{x}: (Apoptosis_ & ~S1P & ~sFas & ~Fas & ~Ceramide_ & ~Caspase & ~MCL1 & ~BID_ & ~DISC_ & ~FLIP_ & ~CTLA4_ & ~TCR & ~IFNG_ & ~CREB & ~P2 & ~SMAD_ & ~GPCR_ & ~IAP_ & (AX (Apoptosis_ & ~S1P & ~sFas & ~Fas & ~Ceramide_ & ~Caspase & ~MCL1 & ~BID_ & ~DISC_ & ~FLIP_ & ~CTLA4_ & ~TCR & ~IFNG_ & ~CREB & ~P2 & ~SMAD_ & ~GPCR_ & ~IAP_)))))"
     },
     {
       "id": "a_diseased_attr",
       "name": "a_diseased_attr",
+      "annotation": "",
       "variant": "GenericDynProp",
       "formula": "(3{x}: (@{x}: (~Apoptosis_ & S1P & sFas & ~Fas & ~Ceramide_ & ~Caspase & MCL1 & ~BID_ & ~DISC_ & FLIP_ & ~IFNG_ & GPCR_ & (AG EF (~Apoptosis_ & S1P & sFas & ~Fas & ~Ceramide_ & ~Caspase & MCL1 & ~BID_ & ~DISC_ & FLIP_ & ~IFNG_ & GPCR_ & {x})))))"
     }
@@ -720,6 +759,7 @@
     {
       "id": "monotonicity_IFNG__CREB",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "IFNG_",
       "target": "CREB",
@@ -729,6 +769,7 @@
     {
       "id": "essentiality_IFNG__P2",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "IFNG_",
       "target": "P2",
@@ -738,6 +779,7 @@
     {
       "id": "essentiality_GPCR__SMAD_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "GPCR_",
       "target": "SMAD_",
@@ -747,6 +789,7 @@
     {
       "id": "monotonicity_DISC__Caspase",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "DISC_",
       "target": "Caspase",
@@ -756,6 +799,7 @@
     {
       "id": "monotonicity_BID__IAP_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "BID_",
       "target": "IAP_",
@@ -765,6 +809,7 @@
     {
       "id": "monotonicity_Apoptosis__IAP_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "IAP_",
@@ -774,6 +819,7 @@
     {
       "id": "monotonicity_Apoptosis__SMAD_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "SMAD_",
@@ -783,6 +829,7 @@
     {
       "id": "essentiality_TCR_CTLA4_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "TCR",
       "target": "CTLA4_",
@@ -792,6 +839,7 @@
     {
       "id": "monotonicity_Apoptosis__BID_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "BID_",
@@ -801,6 +849,7 @@
     {
       "id": "monotonicity_Apoptosis__FLIP_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "FLIP_",
@@ -810,6 +859,7 @@
     {
       "id": "monotonicity_TCR_CTLA4_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "TCR",
       "target": "CTLA4_",
@@ -819,6 +869,7 @@
     {
       "id": "monotonicity_IAP__Caspase",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "IAP_",
       "target": "Caspase",
@@ -828,6 +879,7 @@
     {
       "id": "essentiality_IAP__Caspase",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "IAP_",
       "target": "Caspase",
@@ -837,6 +889,7 @@
     {
       "id": "essentiality_Apoptosis__BID_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "BID_",
@@ -846,6 +899,7 @@
     {
       "id": "essentiality_Apoptosis__Caspase",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "Caspase",
@@ -855,6 +909,7 @@
     {
       "id": "monotonicity_Fas_DISC_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Fas",
       "target": "DISC_",
@@ -864,6 +919,7 @@
     {
       "id": "monotonicity_CTLA4__TCR",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "CTLA4_",
       "target": "TCR",
@@ -873,6 +929,7 @@
     {
       "id": "monotonicity_Fas_Ceramide_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Fas",
       "target": "Ceramide_",
@@ -882,6 +939,7 @@
     {
       "id": "monotonicity_sFas_Fas",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "sFas",
       "target": "Fas",
@@ -891,6 +949,7 @@
     {
       "id": "essentiality_P2_IFNG_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "P2",
       "target": "IFNG_",
@@ -900,6 +959,7 @@
     {
       "id": "essentiality_IFNG__CREB",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "IFNG_",
       "target": "CREB",
@@ -909,6 +969,7 @@
     {
       "id": "essentiality_sFas_Fas",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "sFas",
       "target": "Fas",
@@ -918,6 +979,7 @@
     {
       "id": "monotonicity_S1P_sFas",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "S1P",
       "target": "sFas",
@@ -927,6 +989,7 @@
     {
       "id": "monotonicity_Apoptosis__CREB",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "CREB",
@@ -936,6 +999,7 @@
     {
       "id": "essentiality_Apoptosis__GPCR_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "GPCR_",
@@ -945,6 +1009,7 @@
     {
       "id": "essentiality_Apoptosis__IAP_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "IAP_",
@@ -954,6 +1019,7 @@
     {
       "id": "monotonicity_Apoptosis__MCL1",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "MCL1",
@@ -963,6 +1029,7 @@
     {
       "id": "essentiality_Caspase_Apoptosis_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Caspase",
       "target": "Apoptosis_",
@@ -972,6 +1039,7 @@
     {
       "id": "essentiality_Apoptosis__Apoptosis_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "Apoptosis_",
@@ -981,6 +1049,7 @@
     {
       "id": "essentiality_FLIP__DISC_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "FLIP_",
       "target": "DISC_",
@@ -990,6 +1059,7 @@
     {
       "id": "essentiality_Apoptosis__S1P",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "S1P",
@@ -999,6 +1069,7 @@
     {
       "id": "essentiality_Apoptosis__CREB",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "CREB",
@@ -1008,6 +1079,7 @@
     {
       "id": "monotonicity_Apoptosis__TCR",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "TCR",
@@ -1017,6 +1089,7 @@
     {
       "id": "essentiality_Apoptosis__CTLA4_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "CTLA4_",
@@ -1026,6 +1099,7 @@
     {
       "id": "essentiality_Apoptosis__DISC_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "DISC_",
@@ -1035,6 +1109,7 @@
     {
       "id": "monotonicity_Apoptosis__P2",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "P2",
@@ -1044,6 +1119,7 @@
     {
       "id": "essentiality_DISC__FLIP_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "DISC_",
       "target": "FLIP_",
@@ -1053,6 +1129,7 @@
     {
       "id": "monotonicity_Apoptosis__Caspase",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "Caspase",
@@ -1062,6 +1139,7 @@
     {
       "id": "monotonicity_Apoptosis__CTLA4_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "CTLA4_",
@@ -1071,6 +1149,7 @@
     {
       "id": "essentiality_Apoptosis__P2",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "P2",
@@ -1080,6 +1159,7 @@
     {
       "id": "essentiality_S1P_Ceramide_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "S1P",
       "target": "Ceramide_",
@@ -1089,6 +1169,7 @@
     {
       "id": "essentiality_Apoptosis__TCR",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "TCR",
@@ -1098,6 +1179,7 @@
     {
       "id": "monotonicity_P2_P2",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "P2",
       "target": "P2",
@@ -1107,6 +1189,7 @@
     {
       "id": "essentiality_Fas_Ceramide_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Fas",
       "target": "Ceramide_",
@@ -1116,6 +1199,7 @@
     {
       "id": "monotonicity_Caspase_Apoptosis_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Caspase",
       "target": "Apoptosis_",
@@ -1125,6 +1209,7 @@
     {
       "id": "monotonicity_Apoptosis__DISC_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "DISC_",
@@ -1134,6 +1219,7 @@
     {
       "id": "monotonicity_Apoptosis__sFas",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "sFas",
@@ -1143,6 +1229,7 @@
     {
       "id": "essentiality_P2_P2",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "P2",
       "target": "P2",
@@ -1152,6 +1239,7 @@
     {
       "id": "monotonicity_Apoptosis__Ceramide_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "Ceramide_",
@@ -1161,6 +1249,7 @@
     {
       "id": "monotonicity_FLIP__DISC_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "FLIP_",
       "target": "DISC_",
@@ -1170,6 +1259,7 @@
     {
       "id": "monotonicity_BID__Caspase",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "BID_",
       "target": "Caspase",
@@ -1179,6 +1269,7 @@
     {
       "id": "monotonicity_MCL1_BID_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "MCL1",
       "target": "BID_",
@@ -1188,6 +1279,7 @@
     {
       "id": "monotonicity_P2_IFNG_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "P2",
       "target": "IFNG_",
@@ -1197,6 +1289,7 @@
     {
       "id": "essentiality_DISC__MCL1",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "DISC_",
       "target": "MCL1",
@@ -1206,6 +1299,7 @@
     {
       "id": "essentiality_S1P_sFas",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "S1P",
       "target": "sFas",
@@ -1215,6 +1309,7 @@
     {
       "id": "monotonicity_DISC__MCL1",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "DISC_",
       "target": "MCL1",
@@ -1224,6 +1319,7 @@
     {
       "id": "monotonicity_Apoptosis__GPCR_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "GPCR_",
@@ -1233,6 +1329,7 @@
     {
       "id": "monotonicity_Apoptosis__Apoptosis_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "Apoptosis_",
@@ -1242,6 +1339,7 @@
     {
       "id": "monotonicity_Ceramide__S1P",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Ceramide_",
       "target": "S1P",
@@ -1251,6 +1349,7 @@
     {
       "id": "monotonicity_S1P_Ceramide_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "S1P",
       "target": "Ceramide_",
@@ -1260,6 +1359,7 @@
     {
       "id": "essentiality_Ceramide__DISC_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Ceramide_",
       "target": "DISC_",
@@ -1269,6 +1369,7 @@
     {
       "id": "monotonicity_Apoptosis__S1P",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "S1P",
@@ -1278,6 +1379,7 @@
     {
       "id": "essentiality_SMAD__IFNG_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "SMAD_",
       "target": "IFNG_",
@@ -1287,6 +1389,7 @@
     {
       "id": "monotonicity_Apoptosis__IFNG_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "IFNG_",
@@ -1296,6 +1399,7 @@
     {
       "id": "essentiality_DISC__Caspase",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "DISC_",
       "target": "Caspase",
@@ -1305,6 +1409,7 @@
     {
       "id": "essentiality_Apoptosis__FLIP_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "FLIP_",
@@ -1314,6 +1419,7 @@
     {
       "id": "essentiality_Apoptosis__sFas",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "sFas",
@@ -1323,6 +1429,7 @@
     {
       "id": "essentiality_CTLA4__TCR",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "CTLA4_",
       "target": "TCR",
@@ -1332,6 +1439,7 @@
     {
       "id": "monotonicity_Apoptosis__Fas",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Apoptosis_",
       "target": "Fas",
@@ -1341,6 +1449,7 @@
     {
       "id": "monotonicity_IFNG__P2",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "IFNG_",
       "target": "P2",
@@ -1350,6 +1459,7 @@
     {
       "id": "essentiality_Apoptosis__SMAD_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "SMAD_",
@@ -1359,6 +1469,7 @@
     {
       "id": "essentiality_Apoptosis__MCL1",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "MCL1",
@@ -1368,6 +1479,7 @@
     {
       "id": "monotonicity_Ceramide__DISC_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "Ceramide_",
       "target": "DISC_",
@@ -1377,6 +1489,7 @@
     {
       "id": "essentiality_Apoptosis__Ceramide_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "Ceramide_",
@@ -1386,6 +1499,7 @@
     {
       "id": "essentiality_Fas_DISC_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Fas",
       "target": "DISC_",
@@ -1395,6 +1509,7 @@
     {
       "id": "essentiality_BID__IAP_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "BID_",
       "target": "IAP_",
@@ -1404,6 +1519,7 @@
     {
       "id": "monotonicity_S1P_GPCR_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "S1P",
       "target": "GPCR_",
@@ -1413,6 +1529,7 @@
     {
       "id": "monotonicity_DISC__FLIP_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "DISC_",
       "target": "FLIP_",
@@ -1422,6 +1539,7 @@
     {
       "id": "essentiality_Apoptosis__Fas",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "Fas",
@@ -1431,6 +1549,7 @@
     {
       "id": "monotonicity_SMAD__IFNG_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "SMAD_",
       "target": "IFNG_",
@@ -1440,6 +1559,7 @@
     {
       "id": "essentiality_Ceramide__S1P",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Ceramide_",
       "target": "S1P",
@@ -1449,6 +1569,7 @@
     {
       "id": "monotonicity_GPCR__SMAD_",
       "name": "Regulation monotonicity property",
+      "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "GPCR_",
       "target": "SMAD_",
@@ -1458,6 +1579,7 @@
     {
       "id": "essentiality_Apoptosis__IFNG_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "Apoptosis_",
       "target": "IFNG_",
@@ -1467,6 +1589,7 @@
     {
       "id": "essentiality_BID__Caspase",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "BID_",
       "target": "Caspase",
@@ -1476,6 +1599,7 @@
     {
       "id": "essentiality_S1P_GPCR_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "S1P",
       "target": "GPCR_",
@@ -1485,6 +1609,7 @@
     {
       "id": "essentiality_MCL1_BID_",
       "name": "Regulation essentiality property",
+      "annotation": "",
       "variant": "RegulationEssential",
       "input": "MCL1",
       "target": "BID_",

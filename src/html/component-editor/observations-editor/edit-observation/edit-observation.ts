@@ -9,8 +9,7 @@ import { type IObservation } from '../../../util/data-interfaces'
 @customElement('edit-observation')
 export default class EditObservation extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
-  @query('#node-name') nameField: HTMLInputElement | undefined
-  @query('#node-id') variableIdField: HTMLInputElement | undefined
+  @query('#node-id') idField: HTMLInputElement | undefined
   @state() data: IObservation | undefined
   id = ''
 
@@ -20,7 +19,7 @@ export default class EditObservation extends LitElement {
       this.data = event.payload
     })
     await emit('loaded', {})
-    this.variableIdField?.focus()
+    this.idField?.focus()
   }
 
   private async handleSubmit (event: Event): Promise<void> {
@@ -52,7 +51,9 @@ export default class EditObservation extends LitElement {
             <div class="uk-margin-small">
               <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>
               <div class="uk-form-controls">
-                <input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="node-id" type="text" placeholder="${key}"/>
+                ${key === 'annotation'
+                  ? html`<textarea class="uk-textarea" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLTextAreaElement).value) }}" id="node-${key}" placeholder="${key}"></textarea>`
+                  : html`<input class="uk-input" .value="${this.getValue(this.data, key)}" @input="${(e: InputEvent) => { this.setValue(this.data, key, (e.target as HTMLInputElement).value) }}" id="node-${key}" type="text" placeholder="${key}"/>`}
               </div>
             </div>`
             })}

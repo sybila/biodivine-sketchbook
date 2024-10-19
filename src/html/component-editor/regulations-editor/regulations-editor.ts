@@ -10,6 +10,7 @@ import { edgeOptions, initOptions } from './regulations-editor.config'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
+import _ from 'lodash'
 
 @customElement('regulations-editor')
 export class RegulationsEditor extends LitElement {
@@ -36,8 +37,8 @@ export class RegulationsEditor extends LitElement {
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
     this.addEventListener('add-edge', this.addEdge)
-    this.addEventListener('rename-node', (e) => {
-      void this.renameNodeDialog(e)
+    this.addEventListener('edit-variable', (e) => {
+      void this.editVariableDialog(e)
     })
     window.addEventListener('focus-function-field', () => {
       this.toggleMenu(ElementType.NONE)
@@ -83,8 +84,22 @@ export class RegulationsEditor extends LitElement {
     // triggered when data are updated
     // all elements are updated and menu is reopened if it was opened
 
+    /*
     super.updated(_changedProperties)
     if (_changedProperties.get('contentData') === undefined) return
+    */
+
+    super.updated(_changedProperties)
+
+    // only re-render if variables or regulations were updated
+    if (_changedProperties.get('contentData') === undefined) return
+    const newContentData = _changedProperties.get('contentData')
+    if (_.isEqual(this.contentData.variables, newContentData.variables) &&
+        _.isEqual(this.contentData.regulations, newContentData.regulations) &&
+        _.isEqual(this.contentData.layout, newContentData.layout)) {
+      return
+    }
+
     this.cy?.remove('node')
     this.cy?.edges().remove()
     this.addNodes()
@@ -111,7 +126,7 @@ export class RegulationsEditor extends LitElement {
   render (): TemplateResult {
     return html`
       <div class="header uk-background-primary">
-        <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Regulations</h3>
+        <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Network</h3>
       </div>
       <!-- Prepares a clean environment for the cytoscape element with a floating menu. -->
       <div style="width: 100%; height: 100%; position: relative;">
@@ -232,10 +247,11 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
-  private async renameNodeDialog (event: Event): Promise<void> {
+  private async editVariableDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
     const variableName = (event as CustomEvent).detail.name
+    const variableAnnotation = (event as CustomEvent).detail.annotation
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[variableId] !== undefined) {
@@ -250,8 +266,8 @@ export class RegulationsEditor extends LitElement {
       minimizable: false,
       skipTaskbar: true,
       resizable: false,
-      height: 100,
-      width: 400,
+      height: 300,
+      width: 500,
       x: pos.x + (size.width / 2) - 200,
       y: pos.y + size.height / 4
     })
@@ -259,35 +275,44 @@ export class RegulationsEditor extends LitElement {
     void renameDialog.once('loaded', () => {
       void renameDialog.emit('edit_node_update', {
         id: variableId,
-        name: variableName
+        name: variableName,
+        annotation: variableAnnotation
       })
     })
-    void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string }>) => {
+    void renameDialog.once('edit_node_dialog', (event: TauriEvent<{ id: string, name: string, annotation: string }>) => {
       this.dialogs[variableId] = undefined
-      if (event.payload.name !== variableName) {
-        this.dispatchEvent(new CustomEvent('rename-variable', {
-          detail: {
-            id: variableId,
-            name: event.payload.name
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
-      if (event.payload.id !== variableId) {
-        this.dispatchEvent(new CustomEvent('set-variable-id', {
-          detail: {
-            oldId: variableId,
-            newId: event.payload.id
-          },
-          bubbles: true,
-          composed: true
-        }))
-      }
+      const index = this.contentData.variables.findIndex(v => v.id === variableId)
+      if (index === -1) return
+      this.changeVariable(variableId, event.payload.id, event.payload.name, event.payload.annotation)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[variableId] = undefined
     })
+  }
+
+  private changeVariable (id: string, newId: string, newName: string, newAnnot: string): void {
+    // first send the event to change the name & annot (with the old ID)
+    this.dispatchEvent(new CustomEvent('set-variable-data', {
+      detail: {
+        id,
+        name: newName,
+        annotation: newAnnot
+      },
+      bubbles: true,
+      composed: true
+    }))
+
+    // after quick timeout send the event to change the ID
+    setTimeout(() => {
+      this.dispatchEvent(new CustomEvent('set-variable-id', {
+        detail: {
+          oldId: id,
+          newId
+        },
+        bubbles: true,
+        composed: true
+      }))
+    }, 50)
   }
 
   private adjustPan (event: Event): void {
@@ -322,9 +347,9 @@ export class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.EDGE, position, zoom, edge.data())
   }
 
-  private addNode (id: string, name: string, position = { x: 0, y: 0 }): void {
+  private addNode (id: string, name: string, annotation: string, position = { x: 0, y: 0 }): void {
     this.cy?.add({
-      data: { id, name },
+      data: { id, name, annotation },
       position: { ...position }
     })
   }
@@ -372,7 +397,7 @@ export class RegulationsEditor extends LitElement {
 
   private addNodes (): void {
     this.contentData.variables.forEach((node) => {
-      this.addNode(node.id, node.name, this.contentData.layout.get(node.id))
+      this.addNode(node.id, node.name, node.annotation, this.contentData.layout.get(node.id))
     })
   }
 

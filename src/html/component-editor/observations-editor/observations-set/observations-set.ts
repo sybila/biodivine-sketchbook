@@ -23,7 +23,6 @@ export default class ObservationsSet extends LitElement {
   constructor () {
     super()
     loadTabulatorPlugins()
-    // todo: add events properly
   }
 
   protected async firstUpdated (_changedProperties: PropertyValues): Promise<void> {
@@ -31,9 +30,27 @@ export default class ObservationsSet extends LitElement {
     await this.init()
   }
 
-  protected updated (_changedProperties: PropertyValues): void {
+  protected async updated (_changedProperties: PropertyValues): Promise<void> {
     super.updated(_changedProperties)
-    if (this.tabulatorReady) void this.tabulator?.setData(this.data.observations)
+
+    // check if variables changed - if so, it means adding/removing columns, which requires whole init()
+    const newData = _changedProperties.get('data')
+    if (newData !== undefined && newData.variables !== undefined && this.data !== undefined && !this.areVariablesEqual(this.data.variables, newData.variables)) {
+      console.log(newData.variables)
+      console.log(this.data.variables)
+      await this.init()
+    } else if (this.tabulatorReady) {
+      void this.tabulator?.setData(this.data.observations)
+    }
+  }
+
+  // Helper method to compare the arrays
+  areVariablesEqual (prev: string[] | undefined, current: string[]): boolean {
+    if (prev === undefined || prev.length !== current.length) {
+      return false
+    }
+    // Compare each element
+    return prev.every((value, index) => value === current[index])
   }
 
   private async init (): Promise<void> {
@@ -104,7 +121,7 @@ export default class ObservationsSet extends LitElement {
         this.tabulatorReady = true
         this.tabulator?.on('cellEdited', (cell) => {
           const data = cell.getData() as IObservation
-          this.changeObservation(data.id, data.name, data)
+          this.changeObservation(data.id, data)
         })
       })
     }
@@ -141,11 +158,10 @@ export default class ObservationsSet extends LitElement {
     }))
   }
 
-  private changeObservation (id: string, name: string, observation: IObservation): void {
+  private changeObservation (id: string, observation: IObservation): void {
     this.dispatchEvent(new CustomEvent('change-observation', {
       detail: {
         dataset: this.data.id,
-        name,
         id,
         observation
       },
@@ -183,7 +199,7 @@ export default class ObservationsSet extends LitElement {
       this.dialogs[obs.id] = undefined
       const index = this.data.observations.findIndex(observation => observation.id === obs.id)
       if (index === -1) return
-      this.changeObservation(obs.id, obs.name, event.payload.data)
+      this.changeObservation(obs.id, event.payload.data)
     })
     void renameDialog.onCloseRequested(() => {
       this.dialogs[obs.id] = undefined
@@ -220,21 +236,24 @@ export default class ObservationsSet extends LitElement {
     }))
   }
 
+  editDataset (): void {
+    this.dispatchEvent(new CustomEvent('edit-dataset', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   render (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-right uk-margin-small-bottom">
         <button class="uk-button uk-button-small uk-button-secondary"
-                @click=${this.renameDataset}>
+                @click=${this.editDataset}>
           <div class="button-label">
             ${icon(faEdit).node}
-            Rename dataset
-          </div>
-        </button>
-        <button class="uk-button uk-button-small uk-button-secondary"
-                @click=${this.changeDatasetId}>
-          <div class="button-label">
-            ${icon(faEdit).node}
-            Change ID
+            Edit dataset
           </div>
         </button>
         <button class="uk-button uk-button-small uk-button-secondary"

@@ -87,6 +87,7 @@ pub enum StatPropertyTypeData {
 pub struct StatPropertyData {
     pub id: String,
     pub name: String,
+    pub annotation: String,
     #[serde(flatten)]
     pub variant: StatPropertyTypeData,
 }
@@ -95,17 +96,18 @@ impl<'de> JsonSerde<'de> for StatPropertyData {}
 
 impl StatPropertyData {
     /// Shorthand to create new generic `StatPropertyData` instance given a properties
-    /// `id`, `name`, and `formula`.
-    pub fn new_generic(id: &str, name: &str, formula: &str) -> StatPropertyData {
+    /// `id`, `name`, `formula`, and `annotation`.
+    pub fn new_generic(id: &str, name: &str, formula: &str, annot: &str) -> StatPropertyData {
         let variant = StatPropertyTypeData::GenericStatProp(GenericStatPropData {
             formula: formula.to_string(),
         });
-        Self::new_raw(id, name, variant)
+        Self::new_raw(id, name, variant, annot)
     }
 
     /// Create new `StatPropertyData` object given a reference to a property and its `id`.
     pub fn from_property(id: &StatPropertyId, property: &StatProperty) -> StatPropertyData {
         let name = property.get_name();
+        let annot = property.get_annotation();
         let variant = match property.get_prop_data() {
             StatPropertyType::GenericStatProp(p) => {
                 StatPropertyTypeData::GenericStatProp(GenericStatPropData {
@@ -177,15 +179,16 @@ impl StatPropertyData {
                 })
             }
         };
-        Self::new_raw(id.as_str(), name, variant)
+        Self::new_raw(id.as_str(), name, variant, annot)
     }
 
     /// Extract the corresponding `StatProperty` instance from this `StatPropertyData`.
     pub fn to_property(&self) -> Result<StatProperty, String> {
         let name = self.name.as_str();
+        let annot = self.annotation.as_str();
         let property = match &self.variant {
             StatPropertyTypeData::GenericStatProp(p) => {
-                StatProperty::try_mk_generic(name, &p.formula)?
+                StatProperty::try_mk_generic(name, &p.formula, annot)?
             }
             StatPropertyTypeData::FnInputMonotonic(p) => StatProperty::mk_fn_input_monotonic(
                 name,
@@ -194,6 +197,7 @@ impl StatPropertyData {
                     .as_ref()
                     .and_then(|t| UninterpretedFnId::new(t).ok()),
                 p.value,
+                annot,
             ),
             StatPropertyTypeData::FnInputMonotonicContext(p) => {
                 StatProperty::mk_fn_input_monotonic_context(
@@ -204,6 +208,7 @@ impl StatPropertyData {
                         .and_then(|t| UninterpretedFnId::new(t).ok()),
                     p.value,
                     p.context.clone().ok_or("Context missing.")?,
+                    annot,
                 )
             }
             StatPropertyTypeData::FnInputEssential(p) => StatProperty::mk_fn_input_essential(
@@ -213,6 +218,7 @@ impl StatPropertyData {
                     .as_ref()
                     .and_then(|t| UninterpretedFnId::new(t).ok()),
                 p.value,
+                annot,
             ),
             StatPropertyTypeData::FnInputEssentialContext(p) => {
                 StatProperty::mk_fn_input_essential_context(
@@ -223,6 +229,7 @@ impl StatPropertyData {
                         .and_then(|t| UninterpretedFnId::new(t).ok()),
                     p.value,
                     p.context.clone().ok_or("Context missing.")?,
+                    annot,
                 )
             }
             StatPropertyTypeData::RegulationMonotonic(p) => StatProperty::mk_regulation_monotonic(
@@ -230,6 +237,7 @@ impl StatPropertyData {
                 p.input.as_ref().and_then(|i| VarId::new(i).ok()),
                 p.target.as_ref().and_then(|t| VarId::new(t).ok()),
                 p.value,
+                annot,
             ),
             StatPropertyTypeData::RegulationMonotonicContext(p) => {
                 StatProperty::mk_regulation_monotonic_context(
@@ -238,6 +246,7 @@ impl StatPropertyData {
                     p.target.as_ref().and_then(|t| VarId::new(t).ok()),
                     p.value,
                     p.context.clone().ok_or("Context missing.")?,
+                    annot,
                 )
             }
             StatPropertyTypeData::RegulationEssential(p) => StatProperty::mk_regulation_essential(
@@ -245,6 +254,7 @@ impl StatPropertyData {
                 p.input.as_ref().and_then(|i| VarId::new(i).ok()),
                 p.target.as_ref().and_then(|t| VarId::new(t).ok()),
                 p.value,
+                annot,
             ),
             StatPropertyTypeData::RegulationEssentialContext(p) => {
                 StatProperty::mk_regulation_essential_context(
@@ -253,6 +263,7 @@ impl StatPropertyData {
                     p.target.as_ref().and_then(|t| VarId::new(t).ok()),
                     p.value,
                     p.context.clone().ok_or("Context missing.")?,
+                    annot,
                 )
             }
         };
@@ -260,11 +271,17 @@ impl StatPropertyData {
     }
 
     /// **(internal)** Shorthand to create new `StatPropertyData` instance given all its fields.
-    fn new_raw(id: &str, name: &str, variant: StatPropertyTypeData) -> StatPropertyData {
+    fn new_raw(
+        id: &str,
+        name: &str,
+        variant: StatPropertyTypeData,
+        annot: &str,
+    ) -> StatPropertyData {
         StatPropertyData {
             id: id.to_string(),
             name: name.to_string(),
             variant,
+            annotation: annot.to_string(),
         }
     }
 }

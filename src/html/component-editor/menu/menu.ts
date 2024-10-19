@@ -6,7 +6,7 @@ import { open, save } from '@tauri-apps/api/dialog'
 import { appWindow } from '@tauri-apps/api/window'
 import {
   aeonState
-} from '../../../aeon_events'
+} from '../../../aeon_state'
 import { dialog } from '@tauri-apps/api'
 import { when } from 'lit/directives/when.js'
 import { computePosition } from '@floating-ui/dom'
@@ -152,7 +152,7 @@ export default class Menu extends LitElement {
 
   openMenu (): void {
     this.menuVisible = true
-    console.log(this.menuButtonElement, this.menuContentElement)
+    // console.log(this.menuButtonElement, this.menuContentElement)
     void computePosition(this.menuButtonElement, this.menuContentElement,
       { placement: 'bottom-start' })
       .then(({ x, y }) => {

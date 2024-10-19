@@ -3,14 +3,14 @@ import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
 import { html, type TemplateResult } from 'lit'
 import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { when } from 'lit/directives/when.js'
 import { functionDebounceTimer } from '../../../util/config'
 
 const EVENT_PROPERTY_CHANGED = 'static-property-changed'
 const EVENT_PROPERTY_ID_CHANGED = 'static-property-id-changed'
-
 const EVENT_PROPERTY_REMOVED = 'static-property-removed'
+const EVENT_PROPERTY_EDITED = 'static-property-edited'
 
 export default class abstractStaticProperty extends AbstractProperty {
   nameUpdated = debounce((name: string) => {
@@ -29,6 +29,10 @@ export default class abstractStaticProperty extends AbstractProperty {
     super.updateProperty(property, EVENT_PROPERTY_CHANGED)
   }
 
+  editStatProperty (): void {
+    super.editProperty(this.property.id, EVENT_PROPERTY_EDITED)
+  }
+
   renderNameplate (removeButton: boolean = true): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
@@ -43,6 +47,9 @@ export default class abstractStaticProperty extends AbstractProperty {
 
         </div>
         ${when(removeButton, () => html`
+          <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.editStatProperty}">
+            ${icon(faEdit).node}
+          </button>
           <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
             ${icon(faTrash).node}
           </button>

@@ -2,9 +2,7 @@ import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './analysis-tab.less?inline'
 import { ContentData } from '../../util/data-interfaces'
-import {
-  aeonState
-} from '../../../aeon_events'
+import { aeonState } from '../../../aeon_state'
 
 @customElement('analysis-tab')
 export class AnalysisTab extends LitElement {
@@ -44,19 +42,19 @@ export class AnalysisTab extends LitElement {
         <div class="analyses-list">
           <div class="section" id="inference">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Inference</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Inference workflow</h3>
             </div>
             <div class="uk-flex uk-flex-row uk-flex-center">
               <button class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
                       @click="${() => {
                         this.runInference()
-                      }}">Start analysis workflow
+                      }}">Start inference workflow
               </button>
             </div>
           </div>
           <div class="section" id="consistency-check">
             <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Consistency Check</h3>
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Consistency check</h3>
             </div>
             <div class="uk-flex uk-flex-row uk-flex-center">
               <button class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"

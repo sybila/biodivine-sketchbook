@@ -9,9 +9,9 @@ let index = 0
 export const tabList: TabData[] = [
   TabData.create({
     id: index++,
-    name: 'Regulations',
+    name: 'Network',
     content: (contentData) => html`<regulations-editor .contentData=${contentData}></regulations-editor>`,
-    icon: 'r',
+    icon: 'n',
     active: true
   }),
   TabData.create({
@@ -34,8 +34,14 @@ export const tabList: TabData[] = [
   }),
   TabData.create({
     id: index++,
-    name: 'Analysis',
-    content: (contentData) => html`<analysis-tab .contentData=${contentData}></analysis-tab>`,
+    name: 'Annotations',
+    content: (contentData) => html`<annotations-tab .contentData=${contentData}></annotations-tab>`,
     icon: 'a'
+  }),
+  TabData.create({
+    id: index++,
+    name: 'Inference',
+    content: (contentData) => html`<analysis-tab .contentData=${contentData}></analysis-tab>`,
+    icon: 'i'
   })
 ]

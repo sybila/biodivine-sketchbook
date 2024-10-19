@@ -6,32 +6,21 @@ import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
 import { type TabData } from '../../util/tab-data'
 import {
-  aeonState,
-  type LayoutNodeData,
-  type LayoutNodeDataPrototype,
-  type ModelData,
-  type RegulationData,
-  type SketchData,
-  type DatasetData,
-  type ObservationData,
-  type UninterpretedFnData,
-  type VariableData,
-  type VariableIdUpdateData
-} from '../../../aeon_events'
+  aeonState, type LayoutNodeData, type LayoutNodeDataPrototype,
+  type ModelData, type RegulationData, type SketchData, type VariableData
+} from '../../../aeon_state'
 import { tabList } from '../../util/config'
 import {
-  ContentData,
-  type IFunctionData,
-  type ILayoutData,
-  type IObservationSet,
-  type IRegulationData,
-  type IVariableData,
-  type DynamicProperty,
-  type StaticProperty,
-  type IObservation
+  ContentData, type IFunctionData, type ILayoutData,
+  type IObservationSet, type IRegulationData, type IVariableData,
+  type DynamicProperty, type StaticProperty
 } from '../../util/data-interfaces'
 import { dialog } from '@tauri-apps/api'
-import { getNextEssentiality, getNextMonotonicity } from '../../util/utilities'
+import {
+  getNextEssentiality, getNextMonotonicity,
+  convertToIFunction, convertToILayout, convertToIVariable,
+  convertToIObservationSet, convertToIRegulation
+} from '../../util/utilities'
 
 const LAYOUT = 'default'
 
@@ -55,33 +44,37 @@ export default class RootComponent extends LitElement {
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
 
-    // model editor related event listeners
+    // window focus event listeners
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
     window.addEventListener('focus-variable', this.focusVariable.bind(this))
+
+    // variable-related events
     this.addEventListener('add-variable', this.addNewVariable)
     aeonState.sketch.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
     aeonState.sketch.model.regulationCreated.addEventListener(this.#onRegulationCreated.bind(this))
     this.addEventListener('set-update-function-expression', this.setVariableFunction)
     aeonState.sketch.model.variableUpdateFnChanged.addEventListener(this.#onUpdateFnChanged.bind(this))
-    this.addEventListener('rename-variable', this.renameVariable)
-    aeonState.sketch.model.variableNameChanged.addEventListener(this.#onVariableNameChanged.bind(this))
+    this.addEventListener('set-variable-data', this.setVariableData)
+    aeonState.sketch.model.variableDataChanged.addEventListener(this.#onVariableDataChanged.bind(this))
     this.addEventListener('change-node-position', this.changeNodePosition)
     aeonState.sketch.model.nodePositionChanged.addEventListener(this.#onNodePositionChanged.bind(this))
     this.addEventListener('set-variable-id', this.setVariableId)
-    aeonState.sketch.model.variableIdChanged.addEventListener(this.#onVariableIdChanged.bind(this))
+    // Since variable ID change can affect many parts of the model (update fns, regulations, layout, ...),
+    // the event fetches the whole updated model data.
+    aeonState.sketch.model.variableIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
+    this.addEventListener('remove-variable', (e) => { void this.removeVariable(e) })
+    aeonState.sketch.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
+
+    // regulation-related events
     this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
     aeonState.sketch.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
     this.addEventListener('toggle-regulation-monotonicity', this.toggleRegulationMonotonicity)
     aeonState.sketch.model.regulationSignChanged.addEventListener(this.#onRegulationMonotonicityChanged.bind(this))
-    this.addEventListener('remove-variable', (e) => {
-      void this.removeVariable(e)
-    })
-    aeonState.sketch.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
     this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
     aeonState.sketch.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
 
-    // refresh-event listeners
+    // listeners for refresh events from backend
     aeonState.sketch.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
     aeonState.sketch.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.sketch.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
@@ -98,7 +91,11 @@ export default class RootComponent extends LitElement {
     this.addEventListener('save-dynamic-properties', this.saveDynamicPropertyData.bind(this))
     this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
 
-    // refreshing content of the whole sketch from backend
+    // Since function ID change can affect many parts of the model (update fns, other uninterpreted fns, ...),
+    // the event fetches the whole updated model data, and we make the change here in the root component.
+    aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
+
+    // at the beginning, refresh content of the whole sketch from backend
     aeonState.sketch.refreshSketch()
   }
 
@@ -185,18 +182,67 @@ export default class RootComponent extends LitElement {
     this.data = this.data.copy({ layout })
   }
 
-  renameVariable (event: Event): void {
-    const details = (event as CustomEvent).detail
-    aeonState.sketch.model.setVariableName(details.id, details.name)
+  // Wrapper to save all components of the model at the same time.
+  // Saving everything at the same time can help dealing with inconsistencies.
+  private saveWholeModel (
+    functions: IFunctionData[],
+    variables: IVariableData[],
+    regulations: IRegulationData[],
+    layout: ILayoutData
+  ): void {
+    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
+    variables.sort((a, b) => (a.id > b.id ? 1 : -1))
+    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+    this.data = this.data.copy({ functions, variables, regulations, layout })
   }
 
-  #onVariableNameChanged (data: VariableData): void {
+  // Wrapper to save all components of the model at the same time.
+  // Saving everything at the same time can help dealing with inconsistencies.
+  private saveWholeSketch (
+    functions: IFunctionData[],
+    variables: IVariableData[],
+    regulations: IRegulationData[],
+    layout: ILayoutData,
+    observations: IObservationSet[],
+    staticProperties: StaticProperty[],
+    dynamicProperties: DynamicProperty[]
+  ): void {
+    functions.sort((a, b) => (a.id > b.id ? 1 : -1))
+    variables.sort((a, b) => (a.id > b.id ? 1 : -1))
+    regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
+    staticProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
+    dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
+    observations.sort((a, b) => (a.id > b.id ? 1 : -1))
+    this.data = this.data.copy({ functions, variables, regulations, layout, staticProperties, dynamicProperties, observations })
+  }
+
+  // Set variable data (currently, sets a name and annotation).
+  // The event should have fields 'id' with the variables (unchanged) ID and then (modified)
+  // 'name' and 'annotation'.
+  setVariableData (event: Event): void {
+    const details = (event as CustomEvent).detail
+    const variableIndex = this.data.variables.findIndex(v => v.id === details.id)
+    if (variableIndex === -1) return
+
+    const varData = {
+      id: details.id,
+      name: details.name,
+      annotation: details.annotation,
+      update_fn: this.data.variables[variableIndex].function
+    }
+    aeonState.sketch.model.setVariableData(details.id, varData)
+  }
+
+  #onVariableDataChanged (data: VariableData): void {
     const variables = [...this.data.variables]
     const variableIndex = variables.findIndex(variable => variable.id === data.id)
+    if (variableIndex === -1) return
+
     variables[variableIndex] = {
       ...variables[variableIndex],
       id: data.id,
-      name: data.name
+      name: data.name,
+      annotation: data.annotation
     }
     this.saveVariables(variables)
   }
@@ -216,7 +262,8 @@ export default class RootComponent extends LitElement {
     variables.push({
       id: data.id,
       name: data.name,
-      function: ''
+      annotation: data.annotation,
+      function: data.update_fn
     })
     this.saveVariables(variables)
   }
@@ -278,7 +325,6 @@ export default class RootComponent extends LitElement {
   }
 
   #onNodePositionChanged (data: LayoutNodeData): void {
-    // TODO: add support for layouts
     const layout = new Map(this.data.layout)
     layout.set(data.variable, {
       x: data.px,
@@ -290,16 +336,6 @@ export default class RootComponent extends LitElement {
   private setVariableId (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setVariableId(details.oldId, details.newId)
-  }
-
-  #onVariableIdChanged (data: VariableIdUpdateData): void {
-    // we need to refresh all the affected components - that can be any update function, any regulation,
-    // and then the variable itself and its layout node
-    // TODO: od this more efficiently (but still on backend)
-    this.data.layout.set(data.new_id, this.data.layout.get(data.original_id) ?? { x: 0, y: 0 })
-    this.data.layout.delete(data.original_id)
-    aeonState.sketch.model.refreshVariables()
-    aeonState.sketch.model.refreshRegulations()
   }
 
   private toggleRegulationEssentiality (event: Event): void {
@@ -362,96 +398,41 @@ export default class RootComponent extends LitElement {
     )
 
     // todo: this is a hack for now, to avoid issues in static prop removing after the regulation is removed
-    aeonState.sketch.properties.refreshStaticProps()
-  }
-
-  private convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
-    const variables = fnData.arguments.map(
-      (arg, index) => {
-        return {
-          id: index.toString(),
-          source: 'var' + index.toString(),
-          target: fnData.id,
-          monotonicity: arg[0],
-          essential: arg[1]
-        }
-      })
-    return {
-      id: fnData.id,
-      function: fnData.expression,
-      variables
-    }
-  }
-
-  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = { id: observationData.id, name: observationData.name, selected: false }
-    variables.forEach(((v, idx) => {
-      const value = observationData.values[idx]
-      obs[v] = (value === '*') ? '' : value
-    }))
-    return obs
-  }
-
-  private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
-    const observations = datasetData.observations.map(
-      observationData => this.convertToIObservation(observationData, datasetData.variables)
-    )
-    return {
-      id: datasetData.id,
-      name: datasetData.name,
-      observations,
-      variables: datasetData.variables
-    }
+    setTimeout(() => {
+      aeonState.sketch.properties.refreshStaticProps()
+    }, 50)
   }
 
   #onSketchRefreshed (sketch: SketchData): void {
-    // update model first
-    this.#onModelRefreshed(sketch.model)
-    // then observations
-    const datasets = sketch.datasets.map(d => this.convertToIObservationSet(d))
-    this.saveObservations(datasets)
-    // lastly properties that depend on the model or observations
-    this.saveStaticProperties(sketch.stat_properties)
-    this.saveDynamicProperties(sketch.dyn_properties)
+    const datasets = sketch.datasets.map(d => convertToIObservationSet(d))
+    const functions = sketch.model.uninterpreted_fns.map(f => convertToIFunction(f))
+    const variables = sketch.model.variables.map(v => convertToIVariable(v))
+    const regulations = sketch.model.regulations.map(r => convertToIRegulation(r))
+    const layout = convertToILayout(sketch.model.layouts[0].nodes)
+
+    this.saveWholeSketch(functions, variables, regulations, layout, datasets, sketch.stat_properties, sketch.dyn_properties)
   }
 
+  // refresh all components of the model, and save them at the same time
   #onModelRefreshed (model: ModelData): void {
-    const functions = model.uninterpreted_fns.map((data): IFunctionData => {
-      return this.convertToIFunction(data)
-    })
-    this.saveFunctions(functions)
-
-    this.#onVariablesRefreshed(model.variables)
-    this.#onRegulationsRefreshed(model.regulations)
-    // TODO: this will have to change if more layouts will be possible
-    this.#onLayoutNodesRefreshed(model.layouts[0].nodes)
+    const functions = model.uninterpreted_fns.map(f => convertToIFunction(f))
+    const variables = model.variables.map(v => convertToIVariable(v))
+    const regulations = model.regulations.map(r => convertToIRegulation(r))
+    const layout = convertToILayout(model.layouts[0].nodes)
+    // save everything at once
+    this.saveWholeModel(functions, variables, regulations, layout)
   }
 
   #onVariablesRefreshed (variables: VariableData[]): void {
-    this.saveVariables(
-      variables.map(v => { return { ...v, function: v.update_fn } })
-    )
+    this.saveVariables(variables.map(v => convertToIVariable(v)))
   }
 
   #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
-    const layout: ILayoutData = new Map()
-    layoutNodes.forEach(layoutNode => {
-      layout.set(layoutNode.variable, { x: layoutNode.px, y: layoutNode.py })
-    })
-    this.saveLayout(layout)
+    this.saveLayout(convertToILayout(layoutNodes))
   }
 
   #onRegulationsRefreshed (regulations: RegulationData[]): void {
-    const regs = regulations.map((data): IRegulationData => {
-      return {
-        id: data.regulator + data.target,
-        source: data.regulator,
-        target: data.target,
-        essential: data.essential,
-        monotonicity: data.sign
-      }
-    })
-    this.saveRegulations(regs)
+    this.saveRegulations(regulations.map(r => convertToIRegulation(r)))
   }
 
   private async confirmDialog (): Promise<boolean> {

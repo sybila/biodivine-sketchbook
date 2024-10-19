@@ -7,8 +7,6 @@ import { map } from 'lit/directives/map.js'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { debounce } from 'lodash'
-import { functionDebounceTimer } from '../../util/config'
 import {
   aeonState,
   type DatasetMetaData,
@@ -16,7 +14,11 @@ import {
   type DatasetIdUpdateData,
   type ObservationData,
   type ObservationIdUpdateData
-} from '../../../aeon_events'
+} from '../../../aeon_state'
+import {
+  convertFromIObservation, convertToIObservation,
+  convertFromIObservationSet, convertToIObservationSet
+} from '../../util/utilities'
 import { when } from 'lit/directives/when.js'
 
 @customElement('observations-editor')
@@ -25,17 +27,18 @@ export default class ObservationsEditor extends LitElement {
   @property() contentData = ContentData.create()
   @state() datasetRenameIndex = -1
   @state() shownDatasets: number[] = []
+  // dataset edit dialogs
+  dialogs: Record<string, WebviewWindow | undefined> = {}
 
   constructor () {
     super()
 
     // changes to whole datasets triggered by table buttons
-    this.addEventListener('change-dataset-id', this.changeDatasetId)
-    this.addEventListener('rename-dataset', this.renameDataset)
     this.addEventListener('push-new-observation', this.pushNewObservation)
     this.addEventListener('remove-observation', this.removeObservation)
     this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
     this.addEventListener('add-dataset-variable', this.addVariable)
+    this.addEventListener('edit-dataset', (e) => { void this.editDataset(e) })
 
     // changes to observations triggered by table edits
     this.addEventListener('change-observation', this.changeObservation)
@@ -47,15 +50,13 @@ export default class ObservationsEditor extends LitElement {
 
     aeonState.sketch.observations.datasetContentChanged.addEventListener(this.#onDatasetContentChanged.bind(this))
     aeonState.sketch.observations.datasetIdChanged.addEventListener(this.#onDatasetIdChanged.bind(this))
-    aeonState.sketch.observations.datasetNameChanged.addEventListener(this.#onDatasetNameChanged.bind(this))
+    aeonState.sketch.observations.datasetMetadataChanged.addEventListener(this.#onDatasetMetadataChanged.bind(this))
 
     aeonState.sketch.observations.observationPushed.addEventListener(this.#onObservationPushed.bind(this))
     aeonState.sketch.observations.observationRemoved.addEventListener(this.#onObservationRemoved.bind(this))
 
     aeonState.sketch.observations.observationIdChanged.addEventListener(this.#onObservationIdChanged.bind(this))
-    // these two handled the same way
-    aeonState.sketch.observations.observationContentChanged.addEventListener(this.#onObservationContentChanged.bind(this))
-    aeonState.sketch.observations.observationNameChanged.addEventListener(this.#onObservationContentChanged.bind(this))
+    aeonState.sketch.observations.observationDataChanged.addEventListener(this.#onObservationContentChanged.bind(this))
 
     // refresh-event listeners
     aeonState.sketch.observations.datasetsRefreshed.addEventListener(this.#onDatasetsRefreshed.bind(this))
@@ -68,48 +69,8 @@ export default class ObservationsEditor extends LitElement {
     super.updated(_changedProperties)
   }
 
-  private convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
-    const obs: IObservation = { id: observationData.id, name: observationData.name, selected: false }
-    variables.forEach(((v, idx) => {
-      const value = observationData.values[idx]
-      obs[v] = (value === '*') ? '' : value
-    }))
-    return obs
-  }
-
-  private convertFromIObservation (observation: IObservation, datasetId: string, variables: string[]): ObservationData {
-    const valueString = variables.map(v => {
-      return (observation[v] === '') ? '*' : observation[v]
-    }).join('')
-    return { id: observation.id, name: observation.name, dataset: datasetId, values: valueString }
-  }
-
-  private convertToIObservationSet (datasetData: DatasetData): IObservationSet {
-    const observations = datasetData.observations.map(
-      observationData => this.convertToIObservation(observationData, datasetData.variables)
-    )
-    return {
-      id: datasetData.id,
-      name: datasetData.name,
-      observations,
-      variables: datasetData.variables
-    }
-  }
-
-  private convertFromIObservationSet (dataset: IObservationSet): DatasetData {
-    const observations = dataset.observations.map(
-      obs => this.convertFromIObservation(obs, dataset.id, dataset.variables)
-    )
-    return {
-      id: dataset.id,
-      name: dataset.name,
-      observations,
-      variables: dataset.variables
-    }
-  }
-
   #onDatasetsRefreshed (refreshedDatasets: DatasetData[]): void {
-    const datasets = refreshedDatasets.map(d => this.convertToIObservationSet(d))
+    const datasets = refreshedDatasets.map(d => convertToIObservationSet(d))
     this.updateObservations(datasets)
   }
 
@@ -139,12 +100,11 @@ export default class ObservationsEditor extends LitElement {
     } else {
       fileName = handle
     }
-    // TODO: move dataset id generation to backend
     aeonState.sketch.observations.loadDataset(fileName)
   }
 
   #onDatasetLoaded (data: DatasetData): void {
-    const newDataset = this.convertToIObservationSet(data)
+    const newDataset = convertToIObservationSet(data)
     // just call import dialog, dataset will be filtered and then added
     void this.importObservations(newDataset.id, newDataset.observations, newDataset.variables)
   }
@@ -173,15 +133,17 @@ export default class ObservationsEditor extends LitElement {
 
     // Handle the case when data are successfully edited and imported
     void importDialog.once('observations_import_dialog', (event: TauriEvent<IObservation[]>) => {
+      // this is just a placeholder, only the `observations` part will be used by backend
       const modifiedDataset: IObservationSet = {
         id: name,
         name,
+        annotation: '',
         observations: event.payload,
         variables
       }
-      // temporarily add the dataset in its current version, but also send an event to backend with changes
+      // temporarily add the dataset in its current placeholder version, and send an event to backend with changes
       this.updateObservations(this.contentData.observations.concat(modifiedDataset))
-      aeonState.sketch.observations.setDatasetContent(name, this.convertFromIObservationSet(modifiedDataset))
+      aeonState.sketch.observations.setDatasetContent(name, convertFromIObservationSet(modifiedDataset))
     })
 
     // Handle the case when the dialog is closed/cancelled
@@ -193,7 +155,7 @@ export default class ObservationsEditor extends LitElement {
   }
 
   #onDatasetContentChanged (data: DatasetData): void {
-    const observationSet = this.convertToIObservationSet(data)
+    const observationSet = convertToIObservationSet(data)
     const index = this.contentData.observations.findIndex(item => item.id === data.id)
     if (index === -1) return
     const datasets = structuredClone(this.contentData.observations)
@@ -208,24 +170,11 @@ export default class ObservationsEditor extends LitElement {
 
   #onDatasetCreated (data: DatasetData): void {
     console.log('Adding new dataset.')
-    const newDataset = this.convertToIObservationSet(data)
+    const newDataset = convertToIObservationSet(data)
     this.updateObservations(this.contentData.observations.concat(newDataset))
   }
 
-  updateDatasetId = debounce((newId: string, index: number) => {
-    const originalId = this.contentData.observations[index].id
-    aeonState.sketch.observations.setDatasetId(originalId, newId)
-  }, functionDebounceTimer
-  )
-
-  updateDatasetName = debounce((newName: string, index: number) => {
-    const originalId = this.contentData.observations[index].id
-    aeonState.sketch.observations.setDatasetName(originalId, newName)
-  }, functionDebounceTimer
-  )
-
   #onDatasetIdChanged (data: DatasetIdUpdateData): void {
-    console.log(data)
     const index = this.contentData.observations.findIndex(d => d.id === data.original_id)
     if (index === -1) return
     const datasets = structuredClone(this.contentData.observations)
@@ -236,15 +185,15 @@ export default class ObservationsEditor extends LitElement {
     this.updateObservations(datasets)
   }
 
-  #onDatasetNameChanged (data: DatasetMetaData): void {
-    console.log(data)
+  #onDatasetMetadataChanged (data: DatasetMetaData): void {
     const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.id)
     if (datasetIndex === -1) return
 
     const datasets = structuredClone(this.contentData.observations)
     datasets[datasetIndex] = {
       ...datasets[datasetIndex],
-      name: data.name
+      name: data.name,
+      annotation: data.annotation
     }
     this.updateObservations(datasets)
   }
@@ -259,7 +208,7 @@ export default class ObservationsEditor extends LitElement {
     const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.dataset)
     if (datasetIndex === -1) return
     const datasets = structuredClone(this.contentData.observations)
-    datasets[datasetIndex].observations.push(this.convertToIObservation(data, datasets[datasetIndex].variables))
+    datasets[datasetIndex].observations.push(convertToIObservation(data, datasets[datasetIndex].variables))
     this.updateObservations(datasets)
   }
 
@@ -273,7 +222,10 @@ export default class ObservationsEditor extends LitElement {
     // add new variable (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
     aeonState.sketch.observations.addDatasetVariable(detail.id)
-    aeonState.sketch.observations.refreshDatasets()
+
+    setTimeout(() => {
+      aeonState.sketch.observations.refreshDatasets()
+    }, 50)
   }
 
   #onObservationRemoved (data: ObservationData): void {
@@ -288,14 +240,19 @@ export default class ObservationsEditor extends LitElement {
     const detail = (event as CustomEvent).detail
     const dataset = this.contentData.observations.find(ds => ds.id === detail.dataset)
     if (dataset === undefined) return
-    if (detail.id !== detail.observation.id) {
-      aeonState.sketch.observations.setObservationId(dataset.id, detail.id, detail.observation.id)
+    const origObservation = dataset.observations.find(o => o.id === detail.id)
+    if (origObservation === undefined) return
+
+    const newObsData = convertFromIObservation(detail.observation, dataset.id, dataset.variables)
+
+    // id might have changed
+    if (origObservation.id !== newObsData.id) {
+      aeonState.sketch.observations.setObservationId(dataset.id, origObservation.id, newObsData.id)
     }
-    const obsData = this.convertFromIObservation(detail.observation, dataset.id, dataset.variables)
-    if (detail.name !== obsData.name) {
-      aeonState.sketch.observations.setObservationName(dataset.id, obsData)
-    }
-    aeonState.sketch.observations.setObservationContent(dataset.id, obsData)
+    // name, annotation, or one of the values might have changed
+    setTimeout(() => {
+      aeonState.sketch.observations.setObservationData(dataset.id, newObsData)
+    }, 50)
   }
 
   #onObservationContentChanged (data: ObservationData): void {
@@ -304,12 +261,12 @@ export default class ObservationsEditor extends LitElement {
     const obsIndex = this.contentData.observations[datasetIndex].observations.findIndex(obs => obs.id === data.id)
     if (obsIndex === -1) return
     const datasets: IObservationSet[] = structuredClone(this.contentData.observations)
-    datasets[datasetIndex].observations[obsIndex] = this.convertToIObservation(data, datasets[datasetIndex].variables)
+    datasets[datasetIndex].observations[obsIndex] = convertToIObservation(data, datasets[datasetIndex].variables)
     this.updateObservations(datasets)
   }
 
   #onObservationIdChanged (data: ObservationIdUpdateData): void {
-    // data.metadata seems to be dataset todo: confirm with ondrej
+    // data.metadata references the dataset id
     const datasetIndex = this.contentData.observations.findIndex(d => d.id === data.metadata)
     if (datasetIndex === -1) return
     const obsIndex = this.contentData.observations[datasetIndex].observations.findIndex(obs => obs.id === data.original_id)
@@ -329,16 +286,66 @@ export default class ObservationsEditor extends LitElement {
     }))
   }
 
-  renameDataset (event: Event): void {
-    const detail = (event as CustomEvent).detail
-    this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
-    (this.shadowRoot?.querySelector('#set-name-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
+  private changeDataset (id: string, updatedDataset: IObservationSet): void {
+    const origDataset = this.contentData.observations.find(ds => ds.id === id)
+    if (origDataset === undefined) return
+    const datasetData = convertFromIObservationSet(updatedDataset)
+    const datasetMetaData = {
+      id: datasetData.id,
+      annotation: datasetData.annotation,
+      name: datasetData.name,
+      variables: datasetData.variables
+    }
+
+    // id might have changed
+    if (origDataset.id !== datasetData.id) {
+      aeonState.sketch.observations.setDatasetId(origDataset.id, datasetData.id)
+    }
+    // name or annotation might have changed
+    setTimeout(() => {
+      aeonState.sketch.observations.setDatasetMetadata(datasetData.id, datasetMetaData)
+    }, 50)
   }
 
-  changeDatasetId (event: Event): void {
+  private async editDataset (event: Event): Promise<void> {
     const detail = (event as CustomEvent).detail
-    this.datasetRenameIndex = this.contentData.observations.findIndex(d => d.id === detail.id);
-    (this.shadowRoot?.querySelector('#set-data-id-' + this.datasetRenameIndex) as HTMLInputElement)?.focus()
+    const datasetIndex = this.contentData.observations.findIndex(d => d.id === detail.id)
+    if (datasetIndex === -1) return
+    const dataset = this.contentData.observations[datasetIndex]
+
+    const pos = await appWindow.outerPosition()
+    const size = await appWindow.outerSize()
+    if (this.dialogs[dataset.id] !== undefined) {
+      await this.dialogs[dataset.id]?.setFocus()
+      return
+    }
+    const editDatasetDialog = new WebviewWindow(`editDataset${Math.floor(Math.random() * 1000000)}`, {
+      url: 'src/html/component-editor/observations-editor/edit-dataset/edit-dataset.html',
+      title: `Edit dataset (${dataset.id} / ${dataset.name})`,
+      alwaysOnTop: true,
+      maximizable: false,
+      minimizable: false,
+      skipTaskbar: true,
+      height: 500,
+      width: 400,
+      x: pos.x + (size.width / 2) - 200,
+      y: pos.y + size.height / 4
+    })
+    this.dialogs[dataset.id] = editDatasetDialog
+    void editDatasetDialog.once('loaded', () => {
+      void editDatasetDialog.emit('edit_dataset_update', {
+        ...dataset
+      })
+    })
+    void editDatasetDialog.once('edit_dataset_dialog', (event: TauriEvent<{ id: string, data: IObservationSet }>) => {
+      this.dialogs[dataset.id] = undefined
+      const index = this.contentData.observations.findIndex(d => d.id === dataset.id)
+      if (index === -1) return
+      this.changeDataset(dataset.id, event.payload.data)
+    })
+    void editDatasetDialog.onCloseRequested(() => {
+      this.dialogs[dataset.id] = undefined
+    })
   }
 
   async removeDataset (event: Event): Promise<void> {
@@ -381,33 +388,7 @@ export default class ObservationsEditor extends LitElement {
                 <div class="label name-id-container" @click="${() => {
                   this.toggleDataset(index)
                 }}">
-                  <input
-                    @input="${(e: InputEvent) => {
-                      this.updateDatasetName((e.target as HTMLInputElement).value, index)
-                    }}"
-                    ?readonly="${this.datasetRenameIndex !== index}"
-                    @keydown="${(e: KeyboardEvent) => {
-                      if (e.key === 'Enter') {
-                        this.datasetRenameIndex = -1
-                      }
-                    }}"
-                    @blur="${() => { this.datasetRenameIndex = -1 }}"
-                    class="set-name heading uk-input uk-form-blank" id="${'set-name-' + index}"
-                    .value="${dataset.name}"/>
-                  ID = 
-                  <input
-                    @input="${(e: InputEvent) => {
-                      this.updateDatasetId((e.target as HTMLInputElement).value, index)
-                    }}"
-                    ?readonly="${this.datasetRenameIndex !== index}"
-                    @keydown="${(e: KeyboardEvent) => {
-                      if (e.key === 'Enter') {
-                        this.datasetRenameIndex = -1
-                      }
-                    }}"
-                    @blur="${() => { this.datasetRenameIndex = -1 }}"
-                    class="set-data-id heading uk-input uk-form-blank" id="${'set-data-id-' + index}"
-                    .value="${dataset.id}"/>
+                ${html`${dataset.id}&nbsp;&nbsp;&nbsp;(${dataset.name})`}
                 </div>
                 ${when(this.shownDatasets.includes(index), () => html`
                   <div class="content">

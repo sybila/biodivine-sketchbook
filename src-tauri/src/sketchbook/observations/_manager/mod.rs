@@ -1,6 +1,6 @@
 use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::{JsonSerde, Manager};
+use crate::sketchbook::Manager;
 use std::collections::HashMap;
 
 /// **(internal)** Implementation of the safe identifier generating.
@@ -9,8 +9,6 @@ mod _impl_id_generating;
 mod _impl_load_dataset;
 /// **(internal)** Basic utility methods for `ObservationManager`.
 mod _impl_manager;
-/// **(internal)** Implementation of [Serialize] and [Deserialize] traits for `ObservationManager`.
-mod _impl_serde;
 /// **(internal)** Implementation of event-based API for the [SessionState] trait.
 mod _impl_session_state;
 
@@ -22,8 +20,6 @@ mod _impl_session_state;
 pub struct ObservationManager {
     datasets: HashMap<DatasetId, Dataset>,
 }
-
-impl<'de> JsonSerde<'de> for ObservationManager {}
 
 impl Manager for ObservationManager {}
 

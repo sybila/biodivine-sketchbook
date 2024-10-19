@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 pub struct UninterpretedFnData {
     pub id: String,
     pub name: String,
+    pub annotation: String,
     pub arguments: Vec<(Monotonicity, Essentiality)>,
     pub expression: String,
 }
@@ -25,6 +26,7 @@ impl UninterpretedFnData {
     pub fn new(
         id: &str,
         name: &str,
+        annot: &str,
         arguments: &[FnArgument],
         expression: &str,
     ) -> UninterpretedFnData {
@@ -35,6 +37,7 @@ impl UninterpretedFnData {
         UninterpretedFnData {
             id: id.to_string(),
             name: name.to_string(),
+            annotation: annot.to_string(),
             arguments: arguments_transformed,
             expression: expression.to_string(),
         }
@@ -49,6 +52,7 @@ impl UninterpretedFnData {
         UninterpretedFnData::new(
             fn_id.as_str(),
             uninterpreted_fn.get_name(),
+            uninterpreted_fn.get_annotation(),
             arguments,
             uninterpreted_fn.get_fn_expression(),
         )
@@ -66,6 +70,7 @@ impl UninterpretedFnData {
             .collect();
         UninterpretedFn::new(
             &self.name,
+            &self.annotation,
             &self.expression,
             arguments,
             model,

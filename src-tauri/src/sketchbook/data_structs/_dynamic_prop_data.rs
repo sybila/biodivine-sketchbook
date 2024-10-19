@@ -66,6 +66,7 @@ pub enum DynPropertyTypeData {
 pub struct DynPropertyData {
     pub id: String,
     pub name: String,
+    pub annotation: String,
     #[serde(flatten)]
     pub variant: DynPropertyTypeData,
 }
@@ -74,17 +75,18 @@ impl<'de> JsonSerde<'de> for DynPropertyData {}
 
 impl DynPropertyData {
     /// Shorthand to create new generic `DynPropertyData` instance given a properties
-    /// `id`, `name`, and `formula`.
-    pub fn new_generic(id: &str, name: &str, formula: &str) -> DynPropertyData {
+    /// `id`, `name`, `formula`, and `annotation`.
+    pub fn new_generic(id: &str, name: &str, formula: &str, annotation: &str) -> DynPropertyData {
         let variant = DynPropertyTypeData::GenericDynProp(GenericDynPropData {
             formula: formula.to_string(),
         });
-        Self::new_raw(id, name, variant)
+        Self::new_raw(id, name, variant, annotation)
     }
 
     /// Create new `DynPropertyData` object given a reference to a property and its `id`.
     pub fn from_property(id: &DynPropertyId, property: &DynProperty) -> DynPropertyData {
         let name = property.get_name();
+        let annot = property.get_annotation();
         let variant = match property.get_prop_data() {
             DynPropertyType::GenericDynProp(p) => {
                 DynPropertyTypeData::GenericDynProp(GenericDynPropData {
@@ -123,15 +125,16 @@ impl DynPropertyData {
                 })
             }
         };
-        Self::new_raw(id.as_str(), name, variant)
+        Self::new_raw(id.as_str(), name, variant, annot)
     }
 
     /// Extract the corresponding `DynProperty` instance from this `DynPropertyData`.
     pub fn to_property(&self) -> Result<DynProperty, String> {
         let name = self.name.as_str();
+        let annot = self.annotation.as_str();
         let property = match &self.variant {
             DynPropertyTypeData::GenericDynProp(p) => {
-                DynProperty::try_mk_generic(name, &p.formula)?
+                DynProperty::try_mk_generic(name, &p.formula, annot)?
             }
             DynPropertyTypeData::ExistsFixedPoint(p) => DynProperty::mk_fixed_point(
                 name,
@@ -139,6 +142,7 @@ impl DynPropertyData {
                 p.observation
                     .as_ref()
                     .and_then(|t| ObservationId::new(t).ok()),
+                annot,
             ),
             DynPropertyTypeData::ExistsTrapSpace(p) => DynProperty::mk_trap_space(
                 name,
@@ -148,10 +152,11 @@ impl DynPropertyData {
                     .and_then(|t| ObservationId::new(t).ok()),
                 p.minimal,
                 p.nonpercolable,
+                annot,
             ),
             DynPropertyTypeData::ExistsTrajectory(p) => {
                 let dataset = p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok());
-                DynProperty::mk_trajectory(name, dataset)
+                DynProperty::mk_trajectory(name, dataset, annot)
             }
             DynPropertyTypeData::HasAttractor(p) => DynProperty::mk_has_attractor(
                 name,
@@ -159,19 +164,26 @@ impl DynPropertyData {
                 p.observation
                     .as_ref()
                     .and_then(|t| ObservationId::new(t).ok()),
+                annot,
             ),
             DynPropertyTypeData::AttractorCount(p) => {
-                DynProperty::try_mk_attractor_count(name, p.minimal, p.maximal)?
+                DynProperty::try_mk_attractor_count(name, p.minimal, p.maximal, annot)?
             }
         };
         Ok(property)
     }
 
     /// **(internal)** Shorthand to create new `DynPropertyData` instance given all its fields.
-    fn new_raw(id: &str, name: &str, variant: DynPropertyTypeData) -> DynPropertyData {
+    fn new_raw(
+        id: &str,
+        name: &str,
+        variant: DynPropertyTypeData,
+        annotation: &str,
+    ) -> DynPropertyData {
         DynPropertyData {
             id: id.to_string(),
             name: name.to_string(),
+            annotation: annotation.to_string(),
             variant,
         }
     }

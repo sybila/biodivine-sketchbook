@@ -7,10 +7,24 @@ use std::collections::HashMap;
 impl Dataset {
     /// Create new dataset from a list of observations and variables.
     ///
-    /// Length of each observation and number of variables must match.
-    /// Observation IDs must be valid identifiers and must be unique.
+    /// Length of each observation and number of variables must match. Observation
+    /// IDs must be valid identifiers and must be unique. Annotation is empty (for
+    /// annotated version, check [Dataset::new_annotated])
     pub fn new(
         name: &str,
+        observations: Vec<Observation>,
+        var_names: Vec<&str>,
+    ) -> Result<Self, String> {
+        Self::new_annotated(name, "", observations, var_names)
+    }
+
+    /// Create new dataset from a list of observations and variables.
+    ///
+    /// Length of each observation and number of variables must match.
+    /// Observation IDs must be valid identifiers and must be unique.
+    pub fn new_annotated(
+        name: &str,
+        annotation: &str,
         observations: Vec<Observation>,
         var_names: Vec<&str>,
     ) -> Result<Self, String> {
@@ -37,18 +51,19 @@ impl Dataset {
 
         Ok(Self {
             name: name.to_string(),
+            annotation: annotation.to_string(),
             observations,
             variables,
             index_map,
         })
     }
 
-    /// Shorthand to create new `empty` dataset over given variables.
+    /// Shorthand to create new `empty` dataset over given variables, with empty annotation.
     pub fn new_empty(name: &str, var_names: Vec<&str>) -> Result<Self, String> {
         Self::new(name, Vec::new(), var_names)
     }
 
-    /// Default dataset instance with no Variables or Observations.
+    /// Default dataset instance with no Variables or Observations, and with an empty annotation.
     pub fn default(name: &str) -> Dataset {
         Dataset::new_empty(name, Vec::new()).unwrap()
     }
@@ -69,6 +84,11 @@ impl Dataset {
         assert_name_valid(name)?;
         self.name = name.to_string();
         Ok(())
+    }
+
+    /// Set dataset's annotation string.
+    pub fn set_annotation(&mut self, annotation: &str) {
+        self.annotation = annotation.to_string();
     }
 
     /// Add observation at the end of the dataset.
@@ -169,9 +189,20 @@ impl Dataset {
         self.add_var_default(var_id, index)
     }
 
+    /// Swap the whole observation data for given ID.
+    pub fn set_observation_raw(
+        &mut self,
+        id: &ObservationId,
+        obs: Observation,
+    ) -> Result<(), String> {
+        let idx = self.get_obs_index(id)?;
+        self.observations[idx] = obs;
+        Ok(())
+    }
+
     /// Swap value vector for an observation with given ID.
     /// The new vector of values must be of the same length as the original.
-    pub fn swap_obs_data(
+    pub fn swap_obs_values(
         &mut self,
         id: &ObservationId,
         new_values: Vec<VarValue>,
@@ -231,13 +262,25 @@ impl Dataset {
         let idx = self.get_obs_index(id)?;
         self.observations[idx].set_name(new_name)
     }
+
+    /// Set annotation of a given observation.
+    pub fn set_obs_annot(&mut self, id: &ObservationId, new_annot: &str) -> Result<(), String> {
+        let idx = self.get_obs_index(id)?;
+        self.observations[idx].set_annotation(new_annot);
+        Ok(())
+    }
 }
 
 /// Observing `Dataset` instances.
 impl Dataset {
-    /// Number of variables tracked by the dataset.
+    /// Name of the dataset.
     pub fn get_name(&self) -> &str {
         &self.name
+    }
+
+    /// Annotation string of the dataset.
+    pub fn get_annotation(&self) -> &str {
+        &self.annotation
     }
 
     /// Number of observations in the dataset.

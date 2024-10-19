@@ -8,15 +8,23 @@ use std::fmt::{Display, Error, Formatter};
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Variable {
     name: String,
+    annotation: String,
     // TODO: add compartments in future
 }
 
 impl Variable {
-    /// Create new `Variable` objects.
-    pub fn new(name_str: &str) -> Result<Variable, String> {
+    /// Create new `Variable` instance with an annotation.
+    pub fn new_annotated(name_str: &str, annotation: &str) -> Result<Variable, String> {
         assert_name_valid(name_str)?;
-        let name = name_str.to_string();
-        Ok(Variable { name })
+        Ok(Variable {
+            name: name_str.to_string(),
+            annotation: annotation.to_string(),
+        })
+    }
+
+    /// Create new `Variable` instance. Annotation is left empty.
+    pub fn new(name_str: &str) -> Result<Variable, String> {
+        Self::new_annotated(name_str, "")
     }
 
     /// Human-readable name of this variable.
@@ -24,11 +32,21 @@ impl Variable {
         &self.name
     }
 
+    /// Annotation of the variable.
+    pub fn get_annotation(&self) -> &str {
+        &self.annotation
+    }
+
     /// Rename this variable.
     pub fn set_name(&mut self, new_name: &str) -> Result<(), String> {
         assert_name_valid(new_name)?;
         self.name = new_name.to_string();
         Ok(())
+    }
+
+    /// Change annotation of this variable.
+    pub fn set_annotation(&mut self, annotation: &str) {
+        self.annotation = annotation.to_string();
     }
 }
 

@@ -57,10 +57,11 @@ export class VariableTile extends EditorTile {
   }
 
   nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('rename-variable', {
+    this.dispatchEvent(new CustomEvent('set-variable-data', {
       detail: {
         id: this.variables[this.index].id,
-        name
+        name,
+        annotation: this.variables[this.index].annotation
       },
       bubbles: true,
       composed: true
