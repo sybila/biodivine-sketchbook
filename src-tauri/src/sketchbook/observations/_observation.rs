@@ -14,7 +14,7 @@ pub struct Observation {
 
 /// Creating observations.
 impl Observation {
-    /// Create `Observation` object from a vector with values, and string ID (which must be
+    /// Create `Observation` object from a vector of values, and string ID (which must be
     /// a valid identifier).
     ///
     /// Name is initialized same as ID, and annotation is empty.
@@ -61,15 +61,12 @@ impl Observation {
     /// Create `Observation` object from string encoding of its (ordered) values.
     /// Values are encoded using characters `1`, `0`, or `*`.
     ///
-    /// Observation cannot be empty. Name is initialized same as ID, and annotation is empty.
+    /// Name is initialized same as ID, and annotation is empty.
     /// For full initializer with name and annotation, check [Self::try_from_str_annotated].
     pub fn try_from_str(observation_str: &str, id: &str) -> Result<Self, String> {
         let mut observation_vec: Vec<VarValue> = Vec::new();
         for c in observation_str.chars() {
             observation_vec.push(VarValue::from_str(&c.to_string())?)
-        }
-        if observation_vec.is_empty() {
-            return Err("Observation can't be empty.".to_string());
         }
 
         Self::new(observation_vec, id)
@@ -77,8 +74,6 @@ impl Observation {
 
     /// Create `Observation` object from string encoding of its (ordered) values.
     /// Values are encoded using characters `1`, `0`, or `*`.
-    ///
-    /// Observation cannot be empty.
     pub fn try_from_str_annotated(
         observation_str: &str,
         id: &str,
@@ -336,11 +331,9 @@ mod tests {
     fn test_err_observation_from_str() {
         let observation_str1 = "0 1**";
         let observation_str2 = "0**a";
-        let observation_str3 = "";
 
         assert!(Observation::try_from_str(observation_str1, "obs1").is_err());
         assert!(Observation::try_from_str(observation_str2, "obs2").is_err());
-        assert!(Observation::try_from_str(observation_str3, "obs3").is_err());
     }
 
     #[test]

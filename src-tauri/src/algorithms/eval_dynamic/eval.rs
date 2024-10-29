@@ -9,9 +9,7 @@ use biodivine_hctl_model_checker::model_checking::model_check_formula_dirty;
 use biodivine_lib_param_bn::biodivine_std::traits::Set;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
 
-/// Evaluate given dynamic property given the transition graph.
-///
-/// TODO: We still need to handle time-series properties.
+/// Evaluate given dynamic property given the symbolic transition graph.
 pub fn eval_dyn_prop(
     dyn_prop: ProcessedDynProp,
     graph: &SymbolicAsyncGraph,

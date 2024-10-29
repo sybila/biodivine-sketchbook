@@ -346,8 +346,6 @@ impl InferenceSolver {
     ///
     /// The results are saved to sepcific fields of the provided solver and can be retrieved later.
     /// They are also returned, which is now used for logging later.
-    ///
-    /// TODO: Some parts (like evaluation for time-series properties) are still not implemented.
     pub async fn run_inference_async(
         solver: Arc<RwLock<InferenceSolver>>,
         sketch: Sketch,
@@ -485,8 +483,6 @@ impl InferenceSolver {
 
     /// Internal modular variant of the inference. You can choose which parts to select.
     /// For example, you can only consider static properties, only dynamic properties, or all.
-    ///
-    /// TODO: Some parts (like evaluation for time-series properties) are still not implemented.
     pub(crate) fn run_inference_modular(
         &mut self,
         analysis_type: InferenceType,

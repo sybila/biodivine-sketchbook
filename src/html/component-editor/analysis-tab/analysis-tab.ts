@@ -1,4 +1,4 @@
-import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
+import { css, html, LitElement, unsafeCSS, type TemplateResult, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import style_less from './analysis-tab.less?inline'
 import { ContentData } from '../../util/data-interfaces'
@@ -18,6 +18,16 @@ export class AnalysisTab extends LitElement {
     )
   }
 
+  protected updated (_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+
+    // Once some part of the actual sketch is updated, hide the consistency check results
+    // as they are no longer valid.
+    if (_changedProperties.has('contentData')) {
+      this.consistency_results = null
+    }
+  }
+
   runInference (): void {
     aeonState.new_session.createNewAnalysisSession()
   }
@@ -29,7 +39,6 @@ export class AnalysisTab extends LitElement {
   #onConsistencyResults (results: string): void {
     this.consistency_results = results
     console.log('Received consistency check results.')
-    console.log(results)
   }
 
   closeConsistencyResults (): void {

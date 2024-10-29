@@ -3,12 +3,13 @@ use crate::sketchbook::observations::Dataset;
 use crate::sketchbook::properties::dynamic_props::DynPropertyType;
 use crate::sketchbook::Sketch;
 
-/// Enum of possible variants of data to encode.
+/// Enum of possible variants of data encodings via HCTL.
 #[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub enum DataEncodingType {
     Attractor,
     FixedPoint,
     TrapSpace,
+    TimeSeries,
 }
 
 /// Property requiring that a particular HCTL formula is satisfied.
@@ -102,8 +103,6 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
 
     let mut processed_props = Vec::new();
     for (id, dyn_prop) in dynamic_props {
-        // TODO: currently, some types of properties (like time-series) are still not implemented
-
         // we translate as many types of properties into HCTL, but we also treat some
         // as special cases (these will have their own optimized evaluation)
 
@@ -136,7 +135,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
             DynPropertyType::GenericDynProp(prop) => {
                 ProcessedDynProp::mk_hctl(id.as_str(), prop.processed_formula.as_str())
             }
-            // translate to generic HCTL
+            // encode fixed-points HCTL formula
             DynPropertyType::ExistsFixedPoint(prop) => {
                 // TODO: maybe encode as multiple formulae if we have more than one observation (instead of a conjunction)?
                 let dataset_id = prop.dataset.clone().unwrap();
@@ -148,7 +147,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                 )?;
                 ProcessedDynProp::mk_hctl(id.as_str(), &formula)
             }
-            // translate to generic HCTL
+            // encode attractors with HCTL formula
             DynPropertyType::HasAttractor(prop) => {
                 // TODO: maybe encode as multiple formulae if we have more than one observation (instead of a conjunction)?
                 let dataset_id = prop.dataset.clone().unwrap();
@@ -160,8 +159,17 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                 )?;
                 ProcessedDynProp::mk_hctl(id.as_str(), &formula)
             }
-            // TODO: finish handling of time-series
-            DynPropertyType::ExistsTrajectory(..) => todo!(),
+            // encode time series with HCTL formula
+            DynPropertyType::ExistsTrajectory(prop) => {
+                let dataset_id = prop.dataset.clone().unwrap();
+                let dataset = sketch.observations.get_dataset(&dataset_id)?;
+                let formula = encode_dataset_hctl_str(
+                    dataset,
+                    None,
+                    DataEncodingType::TimeSeries,
+                )?;
+                ProcessedDynProp::mk_hctl(id.as_str(), &formula)
+            }
         };
         processed_props.push(dyn_prop_processed);
     }

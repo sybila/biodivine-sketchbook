@@ -395,7 +395,7 @@ interface AeonState {
 
       /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
       observationPushed: Observable<ObservationData>
-      /** Push a new observation with into a specified dataset. If observation data are not provided,
+      /** Push a new observation into a specified dataset. If observation data are not provided,
        * the observation is newly generated on backend (with unspecified values). */
       pushObservation: (datasetId: string, observation?: ObservationData) => void
       /** ObservationData for a popped (removed from the end) observation (also contains corresponding dataset ID). */

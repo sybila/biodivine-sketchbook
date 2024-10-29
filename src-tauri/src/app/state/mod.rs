@@ -249,7 +249,7 @@ pub trait StackSession: SessionState {
                 let perform = UserAction { events: perform };
                 let reverse = UserAction { events: reverse };
                 if !self.undo_stack_mut().do_action(perform, reverse) {
-                    // TODO: Not match we can do here, maybe except issuing a warning.
+                    // TODO: Not much we can do here, maybe except issuing a warning.
                     self.undo_stack_mut().clear();
                 }
 
