@@ -66,7 +66,7 @@ export const indexColumn = (): ColumnDefinition => {
     width: 75,
     sorter: 'number',
     headerFilter: 'input',
-    editable: false,
+    editable: false
   }
 }
 

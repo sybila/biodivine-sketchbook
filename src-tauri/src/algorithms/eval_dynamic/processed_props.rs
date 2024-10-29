@@ -163,11 +163,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
             DynPropertyType::ExistsTrajectory(prop) => {
                 let dataset_id = prop.dataset.clone().unwrap();
                 let dataset = sketch.observations.get_dataset(&dataset_id)?;
-                let formula = encode_dataset_hctl_str(
-                    dataset,
-                    None,
-                    DataEncodingType::TimeSeries,
-                )?;
+                let formula = encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
                 ProcessedDynProp::mk_hctl(id.as_str(), &formula)
             }
         };

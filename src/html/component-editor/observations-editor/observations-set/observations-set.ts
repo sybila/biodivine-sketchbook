@@ -38,7 +38,7 @@ export default class ObservationsSet extends LitElement {
     if (newData !== undefined && newData.variables !== undefined && this.data !== undefined && !this.areVariablesEqual(this.data.variables, newData.variables)) {
       await this.init()
     } else if (this.tabulatorReady) {
-      this.data.observations = this.data.observations.map((obs, idx) => ({ ...obs, index: idx + 1 }));
+      this.data.observations = this.data.observations.map((obs, idx) => ({ ...obs, index: idx + 1 }))
       void this.tabulator?.setData(this.data.observations)
     }
   }
@@ -54,7 +54,7 @@ export default class ObservationsSet extends LitElement {
 
   private async init (): Promise<void> {
     // Add index to each observation based on its original position
-    this.data.observations = this.data.observations.map((obs, idx) => ({ ...obs, index: idx + 1 }));
+    this.data.observations = this.data.observations.map((obs, idx) => ({ ...obs, index: idx + 1 }))
 
     const columns: ColumnDefinition[] = [
       checkboxColumn,
