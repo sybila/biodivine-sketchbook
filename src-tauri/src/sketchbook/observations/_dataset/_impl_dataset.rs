@@ -230,6 +230,31 @@ impl Dataset {
         self.set_var_id(&original_id, new_id)
     }
 
+    /// Set the list of all variable IDs (essentially renaming some/all of them).
+    /// The length of the new list must be the same as existing one (only renaming, not adding/removing variables).
+    pub fn set_all_variables(&mut self, new_variables_list: Vec<VarId>) -> Result<(), String> {
+        if new_variables_list.len() != self.num_variables() {
+            return Err("Vectors of old and new variables differ in length.".to_string());
+        }
+        assert_ids_unique(&new_variables_list)?;
+
+        self.variables = new_variables_list;
+        Ok(())
+    }
+
+    /// Set the list with all variable IDs (essentially renaming some/all of them) using string names.
+    /// The length of the new list must be the same as existing one (only renaming, not adding/removing variables).
+    pub fn set_all_variables_by_str(
+        &mut self,
+        new_variables_list: Vec<&str>,
+    ) -> Result<(), String> {
+        if new_variables_list.len() != self.num_variables() {
+            return Err("Vectors of old and new variables differ in length.".to_string());
+        }
+        let variables = Self::try_convert_vars(&new_variables_list)?;
+        self.set_all_variables(variables)
+    }
+
     /// Set the id of an observation with `original_id` to `new_id`.
     pub fn set_obs_id(
         &mut self,

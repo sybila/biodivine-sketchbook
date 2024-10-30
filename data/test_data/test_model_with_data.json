@@ -1,5 +1,4 @@
 {
-  "annotation": "",
   "model": {
     "variables": [
       {
@@ -124,9 +123,9 @@
         "nodes": [
           {
             "layout": "default",
-            "variable": "D",
-            "px": 642.49677,
-            "py": 185.15988
+            "variable": "B",
+            "px": 0.0,
+            "py": 0.0
           },
           {
             "layout": "default",
@@ -136,15 +135,15 @@
           },
           {
             "layout": "default",
-            "variable": "A",
-            "px": 346.89832,
-            "py": 183.03789
+            "variable": "D",
+            "px": 642.49677,
+            "py": 185.15988
           },
           {
             "layout": "default",
-            "variable": "B",
-            "px": 0.0,
-            "py": 0.0
+            "variable": "A",
+            "px": 346.89832,
+            "py": 183.03789
           }
         ]
       }
@@ -152,23 +151,37 @@
   },
   "datasets": [
     {
-      "id": "data_mts",
-      "name": "data_mts",
-      "annotation":"",
+      "name": "data_time_series",
+      "id": "data_time_series",
+      "annotation": "",
       "observations": [
         {
-          "id": "abc",
-          "name": "abc",
-          "annotation":"",
-          "dataset": "data_mts",
-          "values": "111*"
+          "id": "a",
+          "name": "a",
+          "annotation": "",
+          "dataset": "data_time_series",
+          "values": "1000"
         },
         {
-          "id": "ab",
-          "name": "ab",
-          "annotation":"",
-          "dataset": "data_mts",
-          "values": "11**"
+          "id": "b",
+          "name": "b",
+          "annotation": "",
+          "dataset": "data_time_series",
+          "values": "1100"
+        },
+        {
+          "id": "c",
+          "name": "c",
+          "annotation": "",
+          "dataset": "data_time_series",
+          "values": "1110"
+        },
+        {
+          "id": "d",
+          "name": "d",
+          "annotation": "",
+          "dataset": "data_time_series",
+          "values": "1111"
         }
       ],
       "variables": [
@@ -179,23 +192,50 @@
       ]
     },
     {
-      "id": "data_fp",
       "name": "data_fp",
-      "annotation":"",
+      "id": "data_fp",
+      "annotation": "",
       "observations": [
         {
           "id": "ones",
           "name": "ones",
-          "annotation":"",
+          "annotation": "",
           "dataset": "data_fp",
           "values": "1111"
         },
         {
           "id": "zeros",
           "name": "zeros",
-          "annotation":"",
+          "annotation": "",
           "dataset": "data_fp",
           "values": "0000"
+        }
+      ],
+      "variables": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "name": "data_mts",
+      "id": "data_mts",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "abc",
+          "name": "abc",
+          "annotation": "",
+          "dataset": "data_mts",
+          "values": "111*"
+        },
+        {
+          "id": "ab",
+          "name": "ab",
+          "annotation": "",
+          "dataset": "data_mts",
+          "values": "11**"
         }
       ],
       "variables": [
@@ -209,16 +249,6 @@
   "dyn_properties": [],
   "stat_properties": [
     {
-      "id": "essentiality_D_B",
-      "name": "Regulation essentiality property",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "D",
-      "target": "B",
-      "value": "True",
-      "context": null
-    },
-    {
       "id": "essentiality_A_B",
       "name": "Regulation essentiality property",
       "annotation": "",
@@ -226,16 +256,6 @@
       "input": "A",
       "target": "B",
       "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_A_B",
-      "name": "Regulation monotonicity property",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "A",
-      "target": "B",
-      "value": "Activation",
       "context": null
     },
     {
@@ -249,22 +269,12 @@
       "context": null
     },
     {
-      "id": "essentiality_B_C",
+      "id": "essentiality_D_B",
       "name": "Regulation essentiality property",
       "annotation": "",
       "variant": "RegulationEssential",
-      "input": "B",
-      "target": "C",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_C_C",
-      "name": "Regulation essentiality property",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "C",
-      "target": "C",
+      "input": "D",
+      "target": "B",
       "value": "True",
       "context": null
     },
@@ -279,6 +289,26 @@
       "context": null
     },
     {
+      "id": "essentiality_C_C",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "C",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_B_C",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "B",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
       "id": "monotonicity_C_C",
       "name": "Regulation monotonicity property",
       "annotation": "",
@@ -286,6 +316,16 @@
       "input": "C",
       "target": "C",
       "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_B",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "B",
+      "value": "Activation",
       "context": null
     },
     {
@@ -299,16 +339,6 @@
       "context": null
     },
     {
-      "id": "monotonicity_A_C",
-      "name": "Regulation monotonicity property",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "A",
-      "target": "C",
-      "value": "Activation",
-      "context": null
-    },
-    {
       "id": "monotonicity_D_B",
       "name": "Regulation monotonicity property",
       "annotation": "",
@@ -317,6 +347,17 @@
       "target": "B",
       "value": "Activation",
       "context": null
+    },
+    {
+      "id": "monotonicity_A_C",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "C",
+      "value": "Activation",
+      "context": null
     }
-  ]
+  ],
+  "annotation": ""
 }

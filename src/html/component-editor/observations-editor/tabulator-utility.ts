@@ -59,6 +59,17 @@ export const idColumn = (editable: boolean): ColumnDefinition => {
   }
 }
 
+export const indexColumn = (): ColumnDefinition => {
+  return {
+    title: 'Index',
+    field: 'index',
+    width: 75,
+    sorter: 'number',
+    headerFilter: 'input',
+    editable: false
+  }
+}
+
 export const tabulatorOptions: Options = {
   layout: 'fitData',
   // resizableColumnFit: true,
@@ -66,7 +77,7 @@ export const tabulatorOptions: Options = {
   renderVerticalBuffer: 300,
   sortMode: 'local',
   initialSort: [{
-    column: 'name',
+    column: 'index',
     dir: 'asc'
   }],
   headerSort: true,

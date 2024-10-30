@@ -169,6 +169,35 @@ impl ObservationManager {
         self.set_var_id(&dataset_id, &original_id, new_id)
     }
 
+    /// Set the list of all variable IDs (in a given dataset), essentially renaming some/all of them.
+    /// The length of the new list must be the same as existing one (only renaming, not adding/removing variables).
+    pub fn set_all_variables(
+        &mut self,
+        dataset_id: &DatasetId,
+        new_variables_list: Vec<VarId>,
+    ) -> Result<(), String> {
+        self.assert_valid_dataset(dataset_id)?;
+        self.datasets
+            .get_mut(dataset_id)
+            .unwrap()
+            .set_all_variables(new_variables_list)
+    }
+
+    /// Set the list of all variable IDs (in a given dataset), essentially renaming some/all of them.
+    /// The length of the new list must be the same as existing one (only renaming, not adding/removing variables).
+    pub fn set_all_variables_by_str(
+        &mut self,
+        dataset_id: &str,
+        new_variables_list: Vec<&str>,
+    ) -> Result<(), String> {
+        let dataset_id = DatasetId::new(dataset_id)?;
+        self.assert_valid_dataset(&dataset_id)?;
+        self.datasets
+            .get_mut(&dataset_id)
+            .unwrap()
+            .set_all_variables_by_str(new_variables_list)
+    }
+
     /// Remove variable and all the values corresponding to it from a dataset (decrementing
     /// dimension of the dataset in process).
     pub fn remove_var(&mut self, dataset_id: &DatasetId, var_id: &VarId) -> Result<(), String> {

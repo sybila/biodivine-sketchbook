@@ -23,7 +23,7 @@ pub fn sign_to_monotonicity(regulation_sign: &Monotonicity) -> Option<Lib_Pbn_Mo
         Monotonicity::Activation => Some(Lib_Pbn_Monotonicity::Activation),
         Monotonicity::Inhibition => Some(Lib_Pbn_Monotonicity::Inhibition),
         Monotonicity::Unknown => None,
-        // todo: maybe put "unimplemented" here?
+        // TODO: maybe put "unimplemented" here?
         Monotonicity::Dual => None,
     }
 }

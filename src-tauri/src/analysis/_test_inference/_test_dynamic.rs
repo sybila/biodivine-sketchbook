@@ -116,3 +116,17 @@ fn inference_template_trap_space() {
     let property = DynProperty::mk_trap_space(id, Some(data_id), Some(obs_id), true, true, "");
     assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 2);
 }
+
+#[test]
+/// Test inference using the test model with added trajectory template properties.
+fn inference_template_time_series() {
+    // There is a trajectory 1000 -> 1100 -> 1110 -> 1111
+    let sketch = load_test_model();
+    let id = "time_serie";
+    let data_id = sketch
+        .observations
+        .get_dataset_id("data_time_series")
+        .unwrap();
+    let property = DynProperty::mk_trajectory(id, Some(data_id), "");
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 16);
+}

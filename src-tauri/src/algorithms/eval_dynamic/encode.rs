@@ -7,12 +7,14 @@ use std::fmt::Write;
 /// Encode a dataset of observations as a single HCTL formula. The particular formula
 /// template is chosen depending on the type of data (attractor data, fixed-points, ...).
 ///
-/// a) Fixed-point dataset is encoded as a conjunction of "steady-state formulas",
+/// a) Fixed-point dataset is encoded with a conjunction of "steady-state formulas"
 ///    (see [mk_formula_fixed_point_list]) that ensures each observation correspond to a fixed point.
-/// b) Attractor dataset is encoded as a conjunction of "attractor formulas",
+/// b) Attractor dataset is encoded with a conjunction of "attractor formulas"
 ///    (see [mk_formula_attractor_list]) that ensures each observation correspond to an attractor.
-/// b) Trap-space dataset is encoded as a conjunction of "trap-space formulas",
+/// c) Trap-space dataset is encoded with a conjunction of "trap-space formulas"
 ///    (see [mk_formula_trap_space_list]) that ensures each observation correspond to a trap space.
+/// d) Time-series dataset is encoded with a "reachability chain" formula,
+///    (see [mk_formula_reachability_chain]) ensuring there is path between each consecutive observations.
 pub fn encode_dataset_hctl_str(
     dataset: &Dataset,
     observation_id: Option<ObservationId>,
@@ -36,6 +38,7 @@ pub fn encode_dataset_hctl_str(
         DataEncodingType::Attractor => Ok(mk_formula_attractor_list(&encoded_observations)),
         DataEncodingType::FixedPoint => Ok(mk_formula_fixed_point_list(&encoded_observations)),
         DataEncodingType::TrapSpace => Ok(mk_formula_trap_space_list(&encoded_observations)),
+        DataEncodingType::TimeSeries => Ok(mk_formula_reachability_chain(&encoded_observations)),
     }
 }
 

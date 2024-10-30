@@ -190,10 +190,46 @@ export default class ObservationsEditor extends LitElement {
     if (datasetIndex === -1) return
 
     const datasets = structuredClone(this.contentData.observations)
-    datasets[datasetIndex] = {
-      ...datasets[datasetIndex],
-      name: data.name,
-      annotation: data.annotation
+    if (!this.areVariablesEqual(data.variables, datasets[datasetIndex].variables)) {
+      // if variable names changed, we need to update the corresponding fields in all observations
+      const oldVariables = datasets[datasetIndex].variables
+      const newVariables = data.variables
+
+      const observations = datasets[datasetIndex].observations.map((obs) => {
+        // Create a new observation object with updated keys
+        const updatedObservation: IObservation = {
+          selected: obs.selected,
+          name: obs.name,
+          annotation: obs.annotation,
+          id: obs.id
+        }
+
+        oldVariables.forEach((oldVar, index) => {
+          const newVar = newVariables[index]
+          // If the variable name has changed, use the new name; otherwise, keep the original
+          if (oldVar !== newVar) {
+            updatedObservation[newVar] = obs[oldVar]
+          } else {
+            updatedObservation[oldVar] = obs[oldVar]
+          }
+        })
+        return updatedObservation
+      })
+
+      datasets[datasetIndex] = {
+        ...datasets[datasetIndex],
+        name: data.name,
+        annotation: data.annotation,
+        variables: data.variables,
+        observations
+      }
+    } else {
+      // otherwise only change the name and annotation
+      datasets[datasetIndex] = {
+        ...datasets[datasetIndex],
+        name: data.name,
+        annotation: data.annotation
+      }
     }
     this.updateObservations(datasets)
   }
@@ -357,6 +393,15 @@ export default class ObservationsEditor extends LitElement {
   #onDatasetRemoved (data: DatasetData): void {
     const datasets = this.contentData.observations.filter(d => d.id !== data.id)
     this.updateObservations(datasets)
+  }
+
+  // Helper method to compare the variable name arrays
+  private areVariablesEqual (prev: string[] | undefined, current: string[]): boolean {
+    if (prev === undefined || prev.length !== current.length) {
+      return false
+    }
+    // Compare each element
+    return prev.every((value, index) => value === current[index])
   }
 
   toggleDataset (index: number): void {
