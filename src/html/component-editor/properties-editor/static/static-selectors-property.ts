@@ -36,7 +36,6 @@ export default class StaticSelectorsProperty extends AbstractStaticProperty {
   targetChanged (event: Event): void {
     let value: string | null = (event.target as HTMLSelectElement).value
     value = value === '' ? null : value
-    console.log(value)
     if (this.isFunctionInput()) {
       this.updateProperty({
         ...this.property,

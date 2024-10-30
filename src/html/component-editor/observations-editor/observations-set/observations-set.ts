@@ -31,10 +31,10 @@ export default class ObservationsSet extends LitElement {
   }
 
   protected async updated (_changedProperties: PropertyValues): Promise<void> {
+    const newData = _changedProperties.get('data')
     super.updated(_changedProperties)
 
     // check if variables changed - if so, it means adding/removing columns, which requires whole init()
-    const newData = _changedProperties.get('data')
     if (newData !== undefined && newData.variables !== undefined && this.data !== undefined && !this.areVariablesEqual(this.data.variables, newData.variables)) {
       await this.init()
     } else if (this.tabulatorReady) {

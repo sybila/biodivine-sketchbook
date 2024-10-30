@@ -194,7 +194,6 @@ export default class PropertiesEditor extends LitElement {
 
   private async editDynProperty (event: Event): Promise<void> {
     const detail = (event as CustomEvent).detail
-    console.log(detail)
     const propertyIndex = this.contentData.dynamicProperties.findIndex(p => p.id === detail.id)
     if (propertyIndex === -1) return
     const property = this.contentData.dynamicProperties[propertyIndex]
@@ -342,7 +341,6 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onDynamicIdChanged (data: DynPropIdUpdateData): void {
-    console.log(data)
     const index = this.contentData.dynamicProperties.findIndex(d => d.id === data.original_id)
     if (index === -1) return
     const properties = [...this.contentData.dynamicProperties]
@@ -359,7 +357,6 @@ export default class PropertiesEditor extends LitElement {
   }
 
   #onStaticIdChanged (data: StatPropIdUpdateData): void {
-    console.log(data)
     const index = this.contentData.staticProperties.findIndex(d => d.id === data.original_id)
     if (index === -1) return
     const properties = [...this.contentData.staticProperties]

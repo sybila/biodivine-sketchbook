@@ -215,12 +215,13 @@ impl ObservationManager {
             let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("set_metadata", at_path).is_some() {
-            // get the payload - json string encoding metadata with (potentially) a new name or annotation
+            // get the payload - json string encoding metadata with (potentially) new name/annotation/variables
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_metadata = DatasetMetaData::from_json_str(&payload)?;
             let orig_dataset = self.get_dataset(&dataset_id)?;
             if orig_dataset.get_name() == new_metadata.name
                 && orig_dataset.get_annotation() == new_metadata.annotation
+                && orig_dataset.variable_names() == new_metadata.variables
             {
                 return Ok(Consumed::NoChange);
             }
@@ -229,6 +230,8 @@ impl ObservationManager {
             let orig_metadata = DatasetMetaData::from_dataset(&dataset_id, orig_dataset);
             self.set_dataset_name(&dataset_id, &new_metadata.name)?;
             self.set_dataset_annot(&dataset_id, &new_metadata.annotation)?;
+            let variables = new_metadata.variables.iter().map(|v| v.as_str()).collect();
+            self.set_all_variables_by_str(dataset_id.as_str(), variables)?;
             let state_change = mk_obs_state_change(&["set_metadata"], &new_metadata);
 
             // prepare the reverse event (setting the original ID back)
