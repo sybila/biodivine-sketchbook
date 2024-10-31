@@ -31,6 +31,10 @@ export default class Menu extends LitElement {
       action: () => { void this.importAeonModel() }
     },
     {
+      label: 'Import SBML',
+      action: () => { void this.importSbmlModel() }
+    },
+    {
       label: 'Export JSON',
       action: () => { void this.exportSketch() }
     },
@@ -103,6 +107,36 @@ export default class Menu extends LitElement {
 
     console.log('importing', importFile)
     aeonState.sketch.importAeon(importFile)
+  }
+
+  async importSbmlModel (): Promise<void> {
+    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+      type: 'warning',
+      okLabel: 'Import',
+      cancelLabel: 'Cancel',
+      title: 'Import new model'
+    })
+    if (!confirmation) return
+
+    const selected = await open({
+      title: 'Import sbml model...',
+      multiple: false,
+      filters: [{
+        name: '*.sbml',
+        extensions: ['sbml']
+      }]
+    })
+    if (selected === null) return
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importSbml(importFile)
   }
 
   async exportSketch (): Promise<void> {

@@ -67,6 +67,24 @@ impl SessionState for Sketch {
                 state_change,
                 reset: true,
             })
+        } else if Self::starts_with("import_sbml", at_path).is_some() {
+            let file_path = Self::clone_payload_str(event, "sketch")?;
+            // read the file contents
+            let mut file = File::open(file_path)?;
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)?;
+
+            // parse the SBML format (only psbn, no additional properties or datasets)
+            let new_sketch = Sketch::from_sbml(&contents)?;
+            self.modify_from_sketch(&new_sketch);
+
+            let sketch_data = SketchData::new_from_sketch(self);
+            let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
+            // this is probably one of the real irreversible changes
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: true,
+            })
         } else if Self::starts_with("check_consistency", at_path).is_some() {
             let (success, message) = self.run_consistency_check();
             let results = if success {

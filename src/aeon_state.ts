@@ -186,6 +186,8 @@ interface AeonState {
     importSketch: (path: string) => void
     /** Import the sketch data from a AEON file. */
     importAeon: (path: string) => void
+    /** Import model from a SBML file. */
+    importSbml: (path: string) => void
     /** Set the sketch to a "default" mode, essentially emptying it and starting anew. */
     newSketch: () => void
     /** The whole replaced sketch instance (after importing or starting a new sketch). */
@@ -595,6 +597,12 @@ export const aeonState: AeonState = {
     importAeon (path: string): void {
       aeonEvents.emitAction({
         path: ['sketch', 'import_aeon'],
+        payload: path
+      })
+    },
+    importSbml (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'import_sbml'],
         payload: path
       })
     },
