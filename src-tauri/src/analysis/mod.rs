@@ -15,6 +15,8 @@ mod candidate_sampling;
 /// Structures and methods to run the whole inference process.
 /// This involves the general workflow, the details are in a separate module [analysis].
 mod inference_solver;
+/// Utilities to download results.
+mod results_export;
 
 /// **(internal)** Several test scenarios for the inference procedure.
 #[cfg(test)]

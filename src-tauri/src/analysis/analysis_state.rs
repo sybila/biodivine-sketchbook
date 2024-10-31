@@ -10,14 +10,13 @@ use crate::app::{AeonError, DynError};
 use crate::debug;
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::{JsonSerde, Sketch};
-use std::fs::File;
-use std::io::BufWriter;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 
 use super::inference_status::InferenceStatusReport;
+use super::results_export::export_results;
 
 /// Object encompassing all of the components of the Analysis tab.
 /// That inludes boths the components that are exchanged with frontend,
@@ -356,18 +355,15 @@ impl SessionState for AnalysisState {
                     )
                 }
             }
-            Some(&"dump_sat_bdd") => {
-                let file_name = Self::clone_payload_str(event, component)?;
+            Some(&"dump_full_results") => {
+                let archive_name = Self::clone_payload_str(event, component)?;
 
                 if let Some(Ok(solver)) = &self.finished_solver {
-                    let color_bdd = solver.sat_colors.as_bdd();
-                    let file = File::create(file_name)?;
-                    let mut writer = BufWriter::new(file);
-                    color_bdd.write_as_string(&mut writer)?;
+                    export_results(&archive_name, solver, &self.sketch)?;
                     Ok(Consumed::NoChange {})
                 } else {
                     AeonError::throw(
-                        "Cannot dump color BDD because inference results were not fetched yet (or were erronous).",
+                        "Cannot dump inference results, they were not fetched yet (or were erronous).",
                     )
                 }
             }

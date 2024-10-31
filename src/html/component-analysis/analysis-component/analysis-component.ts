@@ -276,12 +276,12 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.sampleNetworks(witnessCount, randomSeed, fileName)
   }
 
-  private async dumpSatColorsBdd (): Promise<void> {
+  private async dumpFullResults (): Promise<void> {
     const handle = await dialog.save({
-      defaultPath: 'result_bdd_dump.txt',
+      defaultPath: 'results.zip',
       filters: [{
-        name: 'TXT',
-        extensions: ['txt']
+        name: 'ZIP',
+        extensions: ['zip']
       }]
     })
     if (handle === null) return
@@ -293,8 +293,8 @@ export default class AnalysisComponent extends LitElement {
       fileName = handle
     }
 
-    console.log(`Dumping satisfying colors as BDD at: ${fileName}`)
-    aeonState.analysis.dumpSatColorBdd(fileName)
+    console.log(`Dumping results at: ${fileName}`)
+    aeonState.analysis.dumpFullResults(fileName)
   }
 
   // Add a handler to update the checkbox state
@@ -361,8 +361,8 @@ export default class AnalysisComponent extends LitElement {
                   <div class="dump-bdd-options">
                     <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
                             @click="${async () => {
-                              await this.dumpSatColorsBdd()
-                            }}">Dump BDD with results
+                              await this.dumpFullResults()
+                            }}">Save full results
                     </button>
                   </div>
 

@@ -4,11 +4,13 @@
 #! dynamic_property: prior_knowledge: #`(3{a}: (3{b}: (3{c}: (@{c}: ((EF {a}) & (EF {b}) & (@{a}: AG EF {a}) & (@{b}: (AG EF {b} & ~EF {a})))))))`#
 
 ## MODEL
+$v_1:f(v_3)
 #position:v_1:344.0,190.6
 v_3 -| v_1
+$v_2:g(v_1)
 #position:v_2:503.0,269.6
 v_1 -?? v_2
-$v_3:f(v_1, v_2) | v_3
+$v_3:h(v_1, v_2) | v_3
 #position:v_3:532.0,109.6
 v_2 -? v_3
 v_1 -> v_3

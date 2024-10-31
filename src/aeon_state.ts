@@ -487,8 +487,9 @@ interface AeonState {
     /** Sample given number of Boolean networks from the results, either dereministically
      * or randomly. The networks are saved in a zip archive at given path. */
     sampleNetworks: (count: number, seed: number | null, path: string) => void
-    /** Dump BDD with all satisfying colors (in a string format) to the given path. */
-    dumpSatColorBdd: (path: string) => void
+    /** Dump archive with results (including the sketch, the converted aeon BN used for analysis, and
+     * a BDD with all satisfying colors) to the given path. */
+    dumpFullResults: (path: string) => void
 
     /** Start the full inference analysis. */
     startFullInference: () => void
@@ -1079,9 +1080,9 @@ export const aeonState: AeonState = {
         payload: JSON.stringify({ count, seed, path })
       })
     },
-    dumpSatColorBdd (path: string): void {
+    dumpFullResults (path: string): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'dump_sat_bdd'],
+        path: ['analysis', 'dump_full_results'],
         payload: path
       })
     },
