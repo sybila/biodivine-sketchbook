@@ -32,22 +32,17 @@ impl ModelState {
     }
 
     /// Create a new `ModelState` given a corresponding `ModelData` instance.
-    ///
-    /// TODO: try to rewrite more efficiently without compromising the correctness.
     pub fn new_from_model_data(model_data: &ModelData) -> Result<ModelState, String> {
+        let mut model = ModelState::new_empty();
         // start with variables and plain function symbols (so that they can be used in expressions later)
-        let variables = model_data
+        model_data
             .variables
             .iter()
-            .map(|v| (v.id.as_str(), v.name.as_str()))
-            .collect();
-        let plain_functions = model_data
-            .uninterpreted_fns
-            .iter()
-            .map(|f| (f.id.as_str(), f.name.as_str(), f.arguments.len()))
-            .collect();
-        let mut model = ModelState::new_from_vars(variables)?;
-        model.add_multiple_uninterpreted_fns(plain_functions)?;
+            .try_for_each(|v| model.add_var_by_str(&v.id, &v.name, &v.annotation))?;
+        model_data.uninterpreted_fns.iter().try_for_each(|f| {
+            model.add_empty_uninterpreted_fn_by_str(&f.id, &f.name, f.arguments.len())?;
+            model.set_fn_annot_by_str(&f.id, &f.annotation)
+        })?;
 
         // add regulations
         model_data.regulations.iter().try_for_each(|r| {

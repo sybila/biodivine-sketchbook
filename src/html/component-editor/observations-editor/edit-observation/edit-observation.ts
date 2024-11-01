@@ -46,7 +46,7 @@ export default class EditObservation extends LitElement {
       <div class="uk-container uk-margin-medium-bottom">
         <form class="uk-form-horizontal uk-flex uk-flex-column uk-flex-between">
           <div class="fields">
-            ${map(Object.keys(this.data ?? {}).filter(key => key !== 'index'), (key) => {
+            ${map(Object.keys(this.data ?? {}).filter(key => key !== 'index' && key !== 'selected'), (key) => {
               return html`
             <div class="uk-margin-small">
               <label class="uk-form-label uk-text-bold" for="form-horizontal-text">${key.toUpperCase()}</label>

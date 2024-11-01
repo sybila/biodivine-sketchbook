@@ -195,7 +195,7 @@ export default class ObservationsEditor extends LitElement {
       const oldVariables = datasets[datasetIndex].variables
       const newVariables = data.variables
 
-      const observations = datasets[datasetIndex].observations.map((obs) => {
+      const observations = datasets[datasetIndex].observations.map((obs: IObservation) => {
         // Create a new observation object with updated keys
         const updatedObservation: IObservation = {
           selected: obs.selected,
@@ -204,7 +204,7 @@ export default class ObservationsEditor extends LitElement {
           id: obs.id
         }
 
-        oldVariables.forEach((oldVar, index) => {
+        oldVariables.forEach((oldVar: string, index: number) => {
           const newVar = newVariables[index]
           // If the variable name has changed, use the new name; otherwise, keep the original
           if (oldVar !== newVar) {

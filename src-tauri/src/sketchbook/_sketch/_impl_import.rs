@@ -9,34 +9,20 @@ use regex::Regex;
 type NamedProperties = Vec<(String, String)>;
 
 impl Sketch {
-    /// Create sketch instance from a AEON model format.
+    /// Create sketch instance from a AEON model format. This variant includes:
+    /// - variables
+    /// - regulations (and corresponding automatically generated static properties)
+    /// - update functions and function symbols
+    /// - layout information
+    /// - HCTL dynamic properties
+    /// - FOL static properties
     ///
     // TODO: our variant of aeon format currently does not consider template properties and datasets.
     // TODO: our variant of aeon format currently does not consider annotation.
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
-        let mut sketch = Sketch::default();
-
+        // set psbn info (variables, functions, regulations and corresponding properties)
         let bn = BooleanNetwork::try_from(aeon_str)?;
-        let model = ModelState::from_bn(&bn)?;
-
-        sketch.model = model;
-        // correctly set regulation static properties if needed
-        for reg in sketch.model.regulations() {
-            let input_var = reg.get_regulator();
-            let target_var = reg.get_target();
-
-            if reg.get_essentiality() != &Essentiality::Unknown {
-                let prop_id = StatProperty::get_essentiality_prop_id(input_var, target_var);
-                let prop = mk_essentiality_prop(input_var, target_var, *reg.get_essentiality());
-                sketch.properties.add_static(prop_id, prop)?;
-            }
-
-            if reg.get_sign() != &Monotonicity::Unknown {
-                let prop_id = StatProperty::get_monotonicity_prop_id(input_var, target_var);
-                let prop = mk_monotonicity_prop(input_var, target_var, *reg.get_sign());
-                sketch.properties.add_static(prop_id, prop)?;
-            }
-        }
+        let mut sketch = Sketch::from_boolean_network(&bn)?;
 
         // set layout info
         let node_positions = Self::extract_aeon_layout_info(aeon_str);
@@ -63,11 +49,62 @@ impl Sketch {
         Ok(sketch)
     }
 
+    /// Create sketch instance from a SBML model format. This variant includes:
+    /// - variables
+    /// - regulations (and corresponding automatically generated static properties)
+    /// - update functions and function symbols
+    /// - layout information
+    pub fn from_sbml(sbml_str: &str) -> Result<Sketch, String> {
+        // set psbn info (variables, functions, regulations and corresponding properties)
+        let (bn, layout_map) = BooleanNetwork::try_from_sbml(sbml_str)?;
+        let mut sketch = Sketch::from_boolean_network(&bn)?;
+
+        let default_layout = ModelState::get_default_layout_id();
+        for (node, (px, py)) in layout_map {
+            let node_id = sketch.model.get_var_id(&node)?;
+            sketch
+                .model
+                .update_position(&default_layout, &node_id, px as f32, py as f32)?;
+        }
+
+        Ok(sketch)
+    }
+
+    /// Create sketch instance from a BooleanNetwork instance of `lib-param-bn`.
+    /// This includes processing:
+    /// - variables
+    /// - regulations (and corresponding automatically generated static properties)
+    /// - update functions and function symbols
+    pub fn from_boolean_network(bn: &BooleanNetwork) -> Result<Sketch, String> {
+        let mut sketch = Sketch::default();
+        let model = ModelState::from_bn(bn)?;
+
+        sketch.model = model;
+        // correctly set regulation static properties if needed
+        for reg in sketch.model.regulations() {
+            let input_var = reg.get_regulator();
+            let target_var = reg.get_target();
+
+            if reg.get_essentiality() != &Essentiality::Unknown {
+                let prop_id = StatProperty::get_essentiality_prop_id(input_var, target_var);
+                let prop = mk_essentiality_prop(input_var, target_var, *reg.get_essentiality());
+                sketch.properties.add_static(prop_id, prop)?;
+            }
+
+            if reg.get_sign() != &Monotonicity::Unknown {
+                let prop_id = StatProperty::get_monotonicity_prop_id(input_var, target_var);
+                let prop = mk_monotonicity_prop(input_var, target_var, *reg.get_sign());
+                sketch.properties.add_static(prop_id, prop)?;
+            }
+        }
+        Ok(sketch)
+    }
+
     /// Extract positions of nodes from the aeon model string.
     /// Positions are lines `#position:NODE_ID:X,Y`.
     /// Return list of triplets <node_id, x, y>.
     fn extract_aeon_layout_info(aeon_str: &str) -> Vec<(String, f32, f32)> {
-        let re = Regex::new(r"^#position:(\w+):([+-]?\d*\.\d+),([+-]?\d*\.\d+)$").unwrap();
+        let re = Regex::new(r"^#position:(\w+):([+-]?\d+(\.\d+)?),([+-]?\d+(\.\d+)?)$").unwrap();
 
         let mut positions = Vec::new();
         for line in aeon_str.lines() {
@@ -75,9 +112,19 @@ impl Sketch {
             if let Some(captures) = re.captures(line) {
                 // Extract the NODE_ID, X, and Y values from the captures
                 let node_id = captures.get(1).unwrap().as_str().to_string();
-                let x = captures.get(2).unwrap().as_str().parse::<f32>().unwrap();
-                let y = captures.get(3).unwrap().as_str().parse::<f32>().unwrap();
-                positions.push((node_id, x, y))
+                let x = captures
+                    .get(2)
+                    .unwrap()
+                    .as_str()
+                    .parse::<f32>()
+                    .unwrap_or(0.0);
+                let y = captures
+                    .get(4)
+                    .unwrap()
+                    .as_str()
+                    .parse::<f32>()
+                    .unwrap_or(0.0);
+                positions.push((node_id, x, y));
             }
         }
         positions
@@ -159,19 +206,25 @@ mod tests {
     use std::io::Read;
 
     #[test]
-    /// Test that importing the same data from two different formats results in the same sketch.
+    /// Test that importing the same data from different formats results in the same sketch.
+    /// These models only include PSBN (no additional datasets or porperties).
     fn sketch_import() {
         let mut aeon_sketch_file = File::open("../data/test_data/test_model.aeon").unwrap();
         let mut json_sketch_file = File::open("../data/test_data/test_model.json").unwrap();
+        let mut sbml_sketch_file = File::open("../data/test_data/test_model.sbml").unwrap();
 
         let mut aeon_contents = String::new();
         aeon_sketch_file.read_to_string(&mut aeon_contents).unwrap();
         let mut json_contents = String::new();
         json_sketch_file.read_to_string(&mut json_contents).unwrap();
+        let mut sbml_contents = String::new();
+        sbml_sketch_file.read_to_string(&mut sbml_contents).unwrap();
 
         let sketch1 = Sketch::from_aeon(&aeon_contents).unwrap();
         let sketch2 = Sketch::from_custom_json(&json_contents).unwrap();
+        let sketch3 = Sketch::from_sbml(&sbml_contents).unwrap();
 
         assert_eq!(sketch1, sketch2);
+        assert_eq!(sketch2, sketch3);
     }
 }

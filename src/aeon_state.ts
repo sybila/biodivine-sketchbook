@@ -177,8 +177,7 @@ interface AeonState {
 
     /** Run the explicit consistency check on the sketch. */
     checkConsistency: () => void
-    /** Results of an explicit consistency check. */
-    // TODO: make properly (now just a string)
+    /** Results of an explicit consistency check (a summary message). */
     consistencyResults: Observable<string>
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
@@ -186,10 +185,16 @@ interface AeonState {
     importSketch: (path: string) => void
     /** Import the sketch data from a AEON file. */
     importAeon: (path: string) => void
+    /** Import model from a SBML file. */
+    importSbml: (path: string) => void
     /** Set the sketch to a "default" mode, essentially emptying it and starting anew. */
     newSketch: () => void
     /** The whole replaced sketch instance (after importing or starting a new sketch). */
     sketchReplaced: Observable<SketchData>
+    /** Set annotation of the whole sketch. */
+    setAnnotation: (annotation: string) => void
+    /** Annotation of the whole sketch was changed. */
+    annotationChanged: Observable<string>
 
     /** The state of the main model. */
     model: {
@@ -487,8 +492,9 @@ interface AeonState {
     /** Sample given number of Boolean networks from the results, either dereministically
      * or randomly. The networks are saved in a zip archive at given path. */
     sampleNetworks: (count: number, seed: number | null, path: string) => void
-    /** Dump BDD with all satisfying colors (in a string format) to the given path. */
-    dumpSatColorBdd: (path: string) => void
+    /** Dump archive with results (including the sketch, the converted aeon BN used for analysis, and
+     * a BDD with all satisfying colors) to the given path. */
+    dumpFullResults: (path: string) => void
 
     /** Start the full inference analysis. */
     startFullInference: () => void
@@ -575,6 +581,10 @@ export const aeonState: AeonState = {
   },
   sketch: {
     sketchRefreshed: new Observable<SketchData>(['sketch', 'get_whole_sketch']),
+    consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
+    sketchReplaced: new Observable<SketchData>(['sketch', 'set_all']),
+    annotationChanged: new Observable<string>(['sketch', 'set_annotation']),
+
     refreshSketch (): void {
       aeonEvents.refresh(['sketch', 'get_whole_sketch'])
     },
@@ -584,7 +594,6 @@ export const aeonState: AeonState = {
         payload: path
       })
     },
-    sketchReplaced: new Observable<SketchData>(['sketch', 'set_all']),
     importSketch (path: string): void {
       aeonEvents.emitAction({
         path: ['sketch', 'import_sketch'],
@@ -594,6 +603,12 @@ export const aeonState: AeonState = {
     importAeon (path: string): void {
       aeonEvents.emitAction({
         path: ['sketch', 'import_aeon'],
+        payload: path
+      })
+    },
+    importSbml (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'import_sbml'],
         payload: path
       })
     },
@@ -609,7 +624,12 @@ export const aeonState: AeonState = {
         payload: null
       })
     },
-    consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
+    setAnnotation (annotation: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'set_annotation'],
+        payload: annotation
+      })
+    },
 
     model: {
       modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),
@@ -1079,9 +1099,9 @@ export const aeonState: AeonState = {
         payload: JSON.stringify({ count, seed, path })
       })
     },
-    dumpSatColorBdd (path: string): void {
+    dumpFullResults (path: string): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'dump_sat_bdd'],
+        path: ['analysis', 'dump_full_results'],
         payload: path
       })
     },
