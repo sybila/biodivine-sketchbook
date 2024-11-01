@@ -90,6 +90,7 @@ export default class RootComponent extends LitElement {
     this.addEventListener('save-observations', this.saveObservationData.bind(this))
     this.addEventListener('save-dynamic-properties', this.saveDynamicPropertyData.bind(this))
     this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
+    this.addEventListener('save-annotation', this.saveAnnotationData.bind(this))
 
     // Since function ID change can affect many parts of the model (update fns, other uninterpreted fns, ...),
     // the event fetches the whole updated model data, and we make the change here in the root component.
@@ -148,6 +149,12 @@ export default class RootComponent extends LitElement {
     this.saveDynamicProperties(properties)
   }
 
+  saveAnnotationData (event: Event): void {
+    // update annotation propagated from AnnotationTab
+    const annotation: string = (event as CustomEvent).detail.annotation
+    this.saveAnnotation(annotation)
+  }
+
   private saveDynamicProperties (dynamicProperties: DynamicProperty[]): void {
     dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ dynamicProperties })
@@ -182,6 +189,10 @@ export default class RootComponent extends LitElement {
     this.data = this.data.copy({ layout })
   }
 
+  private saveAnnotation (annotation: string): void {
+    this.data = this.data.copy({ annotation })
+  }
+
   // Wrapper to save all components of the model at the same time.
   // Saving everything at the same time can help dealing with inconsistencies.
   private saveWholeModel (
@@ -205,7 +216,8 @@ export default class RootComponent extends LitElement {
     layout: ILayoutData,
     observations: IObservationSet[],
     staticProperties: StaticProperty[],
-    dynamicProperties: DynamicProperty[]
+    dynamicProperties: DynamicProperty[],
+    annotation: string
   ): void {
     functions.sort((a, b) => (a.id > b.id ? 1 : -1))
     variables.sort((a, b) => (a.id > b.id ? 1 : -1))
@@ -213,7 +225,16 @@ export default class RootComponent extends LitElement {
     staticProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     observations.sort((a, b) => (a.id > b.id ? 1 : -1))
-    this.data = this.data.copy({ functions, variables, regulations, layout, staticProperties, dynamicProperties, observations })
+    this.data = this.data.copy({
+      functions,
+      variables,
+      regulations,
+      layout,
+      staticProperties,
+      dynamicProperties,
+      observations,
+      annotation
+    })
   }
 
   // Set variable data (currently, sets a name and annotation).
@@ -410,7 +431,16 @@ export default class RootComponent extends LitElement {
     const regulations = sketch.model.regulations.map(r => convertToIRegulation(r))
     const layout = convertToILayout(sketch.model.layouts[0].nodes)
 
-    this.saveWholeSketch(functions, variables, regulations, layout, datasets, sketch.stat_properties, sketch.dyn_properties)
+    this.saveWholeSketch(
+      functions,
+      variables,
+      regulations,
+      layout,
+      datasets,
+      sketch.stat_properties,
+      sketch.dyn_properties,
+      sketch.annotation
+    )
   }
 
   // refresh all components of the model, and save them at the same time

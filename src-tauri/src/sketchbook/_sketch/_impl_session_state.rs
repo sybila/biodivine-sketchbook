@@ -2,7 +2,7 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::DynError;
 use crate::sketchbook::data_structs::SketchData;
-use crate::sketchbook::event_utils::make_state_change;
+use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::{JsonSerde, Sketch};
 use std::fs::File;
 use std::io::Read;
@@ -100,6 +100,21 @@ impl SessionState for Sketch {
                 state_change,
                 reset: false,
             })
+        } else if Self::starts_with("set_annotation", at_path).is_some() {
+            let new_annotation = Self::clone_payload_str(event, "sketch")?;
+            let orig_annotation = self.get_annotation().to_string();
+            if new_annotation == orig_annotation {
+                return Ok(Consumed::NoChange);
+            }
+
+            // set the annotation and prepare state-change + reverse events
+            self.set_annotation(&new_annotation);
+            let payload = serde_json::to_string(&new_annotation).unwrap();
+            let state_change = Event::build(&["sketch", "set_annotation"], Some(&payload));
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(orig_annotation);
+
+            Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with("assert_consistency", at_path).is_some() {
             // this is a "synthetic" event that either returns an error, or Consumed::NoChange
             self.assert_consistency()?;

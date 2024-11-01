@@ -45,6 +45,7 @@ export class ContentData extends Data {
   observations: IObservationSet[] = []
   dynamicProperties: DynamicProperty[] = []
   staticProperties: StaticProperty[] = []
+  annotation: string = ''
 }
 
 export interface IFunctionData {

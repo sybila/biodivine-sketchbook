@@ -48,3 +48,28 @@
 .header h3 {
   color: @text-dark;
 }
+
+.sketch-annotation {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  resize: vertical;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+}
+
+textarea::placeholder {
+  font-weight: inherit;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sketch-annotation:focus {
+  border: 1px solid lightgray; 
+}
+
+.placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}

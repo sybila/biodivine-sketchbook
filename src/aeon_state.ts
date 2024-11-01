@@ -177,8 +177,7 @@ interface AeonState {
 
     /** Run the explicit consistency check on the sketch. */
     checkConsistency: () => void
-    /** Results of an explicit consistency check. */
-    // TODO: make properly (now just a string)
+    /** Results of an explicit consistency check (a summary message). */
     consistencyResults: Observable<string>
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
@@ -192,6 +191,10 @@ interface AeonState {
     newSketch: () => void
     /** The whole replaced sketch instance (after importing or starting a new sketch). */
     sketchReplaced: Observable<SketchData>
+    /** Set annotation of the whole sketch. */
+    setAnnotation: (annotation: string) => void
+    /** Annotation of the whole sketch was changed. */
+    annotationChanged: Observable<string>
 
     /** The state of the main model. */
     model: {
@@ -578,6 +581,10 @@ export const aeonState: AeonState = {
   },
   sketch: {
     sketchRefreshed: new Observable<SketchData>(['sketch', 'get_whole_sketch']),
+    consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
+    sketchReplaced: new Observable<SketchData>(['sketch', 'set_all']),
+    annotationChanged: new Observable<string>(['sketch', 'set_annotation']),
+
     refreshSketch (): void {
       aeonEvents.refresh(['sketch', 'get_whole_sketch'])
     },
@@ -587,7 +594,6 @@ export const aeonState: AeonState = {
         payload: path
       })
     },
-    sketchReplaced: new Observable<SketchData>(['sketch', 'set_all']),
     importSketch (path: string): void {
       aeonEvents.emitAction({
         path: ['sketch', 'import_sketch'],
@@ -618,7 +624,12 @@ export const aeonState: AeonState = {
         payload: null
       })
     },
-    consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
+    setAnnotation (annotation: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'set_annotation'],
+        payload: annotation
+      })
+    },
 
     model: {
       modelRefreshed: new Observable<ModelData>(['sketch', 'model', 'get_whole_model']),
