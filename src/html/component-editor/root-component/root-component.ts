@@ -4,6 +4,7 @@ import { map } from 'lit/directives/map.js'
 import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
+import '../initial-screen/initial-screen'
 import { type TabData } from '../../util/tab-data'
 import {
   aeonState, type LayoutNodeData, type LayoutNodeDataPrototype,
@@ -29,6 +30,7 @@ export default class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() data: ContentData = ContentData.create()
   @state() tabs: TabData[] = tabList
+  @state() editorStarted: boolean = false
 
   constructor () {
     super()
@@ -47,6 +49,9 @@ export default class RootComponent extends LitElement {
     // window focus event listeners
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
     window.addEventListener('focus-variable', this.focusVariable.bind(this))
+
+    // listeners to events from initial screen
+    window.addEventListener('start-new-sketch', this.startNewSketch.bind(this))
 
     // variable-related events
     this.addEventListener('add-variable', this.addNewVariable)
@@ -96,6 +101,10 @@ export default class RootComponent extends LitElement {
     // the event fetches the whole updated model data, and we make the change here in the root component.
     aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
 
+    // load variable editorStarted from session storage (so it survives refresh)
+    const storedEditorStarted = sessionStorage.getItem('editorStarted')
+    this.editorStarted = storedEditorStarted === 'true'
+
     // at the beginning, refresh content of the whole sketch from backend
     aeonState.sketch.refreshSketch()
   }
@@ -123,6 +132,11 @@ export default class RootComponent extends LitElement {
       })
     )
     this.adjustRegEditor()
+  }
+
+  startNewSketch (_event: Event): void {
+    this.editorStarted = true
+    sessionStorage.setItem('editorStarted', 'true')
   }
 
   saveFunctionData (event: Event): void {
@@ -477,18 +491,22 @@ export default class RootComponent extends LitElement {
   render (): TemplateResult {
     const visibleTabs = this.visibleTabs()
     return html`
-      <div class="root-component">
-        <div class="header uk-margin-small-top uk-margin-small-bottom">
-          <nav-bar .tabs=${this.tabs}></nav-bar>
+      ${this.editorStarted
+? html`
+        <div class="root-component">
+          <div class="header uk-margin-small-top uk-margin-small-bottom">
+            <nav-bar .tabs=${this.tabs}></nav-bar>
+          </div>
+          <div class="content">
+            ${map(this.tabs, (tab) => html`
+              <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
+                            class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'} ${(tab.active || tab.pinned) ? 'visible' : ''}" .tab=${tab}
+                            .data=${this.data}></content-pane>
+            `)}
+          </div>
         </div>
-        <div class="content">
-          ${map(this.tabs, (tab) => html`
-            <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
-                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'} ${(tab.active || tab.pinned) ? 'visible' : ''}" .tab=${tab}
-                          .data=${this.data}></content-pane>
-          `)}
-        </div>
-      </div>
-    `
+      `
+: html`<initial-screen></initial-screen>`
+      }`
   }
 }

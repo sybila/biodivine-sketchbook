@@ -1,0 +1,70 @@
+@import '/src/uikit-theme';
+
+/* The height of the header based on the known theme settings. */
+@header-height: 1.2 * @button-line-height + (2 * @button-border-width);
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.header {
+  height: @header-height;
+  width: 95vw;
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-between;
+  .uk-flex-middle;
+  .uk-box-shadow-small;
+  gap: 30px;
+  padding: 0.5em 1em;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+.intro-section {
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 8px;
+  width: 450px;
+  margin: 60px auto;
+  font-size: 1em;
+  background-color: rgb(30, 135, 240);
+  color: white;
+}
+
+.options {
+  text-align: left;
+}
+
+@heading-bullet-border: @text-dark;
+.intro-section h3 {
+  color: @text-dark;
+}  
+
+.button-group {
+  padding: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  padding: 10px;
+  font-size: 0.9em;
+  border-radius: 5px;
+  width: 180px;
+}
+
+.logo-image {
+  width: 140px;
+  height: auto;
+}
+  
+@heading-bullet-border: @text-dark;
+.header h2 {
+  color: @text-dark;
+}  
