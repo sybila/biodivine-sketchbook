@@ -4,6 +4,7 @@ import { map } from 'lit/directives/map.js'
 import style_less from './root-component.less?inline'
 import '../content-pane/content-pane'
 import '../nav-bar/nav-bar'
+import '../initial-screen/initial-screen'
 import { type TabData } from '../../util/tab-data'
 import {
   aeonState, type LayoutNodeData, type LayoutNodeDataPrototype,
@@ -15,12 +16,16 @@ import {
   type IObservationSet, type IRegulationData, type IVariableData,
   type DynamicProperty, type StaticProperty
 } from '../../util/data-interfaces'
+import { open } from '@tauri-apps/api/dialog'
 import { dialog } from '@tauri-apps/api'
 import {
   getNextEssentiality, getNextMonotonicity,
   convertToIFunction, convertToILayout, convertToIVariable,
   convertToIObservationSet, convertToIRegulation
 } from '../../util/utilities'
+import { resolveResource } from '@tauri-apps/api/path'
+
+const exampleModelPath = await resolveResource('resources/tlgl.json')
 
 const LAYOUT = 'default'
 
@@ -29,6 +34,7 @@ export default class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() data: ContentData = ContentData.create()
   @state() tabs: TabData[] = tabList
+  @state() editorStarted: boolean = false
 
   constructor () {
     super()
@@ -47,6 +53,18 @@ export default class RootComponent extends LitElement {
     // window focus event listeners
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
     window.addEventListener('focus-variable', this.focusVariable.bind(this))
+
+    // listeners to events from initial screen
+    window.addEventListener('start-new-sketch', this.startNewSketch.bind(this))
+    window.addEventListener('start-import-json', (e) => { void this.startImportJson(e) })
+    window.addEventListener('start-import-aeon', (e) => { void this.startImportAeon(e) })
+    window.addEventListener('start-import-sbml', (e) => { void this.startImportSbml(e) })
+    window.addEventListener('start-import-example', this.startImportExample.bind(this))
+
+    // listeners to import events from editor menu
+    window.addEventListener('import-json', (e) => { void this.importJson(e) })
+    window.addEventListener('import-aeon', (e) => { void this.importAeon(e) })
+    window.addEventListener('import-sbml', (e) => { void this.importSbml(e) })
 
     // variable-related events
     this.addEventListener('add-variable', this.addNewVariable)
@@ -96,8 +114,13 @@ export default class RootComponent extends LitElement {
     // the event fetches the whole updated model data, and we make the change here in the root component.
     aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
 
-    // at the beginning, refresh content of the whole sketch from backend
-    aeonState.sketch.refreshSketch()
+    // load variable editorStarted from session storage (so it survives refresh)
+    const storedEditorStarted = sessionStorage.getItem('editorStarted')
+    this.editorStarted = storedEditorStarted === 'true'
+    if (this.editorStarted) {
+      // at the beginning, refresh content of the whole sketch from backend
+      aeonState.sketch.refreshSketch()
+    }
   }
 
   async #onErrorMessage (errorMessage: string): Promise<void> {
@@ -123,6 +146,127 @@ export default class RootComponent extends LitElement {
       })
     )
     this.adjustRegEditor()
+  }
+
+  // utility to set the flag for editor rendering (and save to session storage)
+  private startEditor (): void {
+    this.editorStarted = true
+    sessionStorage.setItem('editorStarted', 'true')
+  }
+
+  startNewSketch (_event: Event): void {
+    this.startEditor()
+  }
+
+  async startImportJson (_event: Event): Promise<void> {
+    const success = await this.importJsonInternal()
+    if (success) {
+      this.startEditor()
+    }
+  }
+
+  async startImportAeon (_event: Event): Promise<void> {
+    const success = await this.importAeonInternal()
+    if (success) {
+      this.startEditor()
+    }
+  }
+
+  async startImportSbml (_event: Event): Promise<void> {
+    const success = await this.importSbmlInternal()
+    if (success) {
+      this.startEditor()
+    }
+  }
+
+  startImportExample (_event: Event): void {
+    console.log('importing example model')
+    aeonState.sketch.importSketch(exampleModelPath)
+    this.startEditor()
+  }
+
+  async importJson (_event: Event): Promise<void> {
+    await this.importJsonInternal()
+  }
+
+  async importAeon (_event: Event): Promise<void> {
+    await this.importAeonInternal()
+  }
+
+  async importSbml (_event: Event): Promise<void> {
+    await this.importSbmlInternal()
+  }
+
+  private async importJsonInternal (): Promise<boolean> {
+    const selected = await open({
+      title: 'Import sketch...',
+      multiple: false,
+      filters: [{
+        name: '*.json',
+        extensions: ['json']
+      }]
+    })
+    if (selected === null) return false
+
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return false
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importSketch(importFile)
+    return true
+  }
+
+  private async importAeonInternal (): Promise<boolean> {
+    const selected = await open({
+      title: 'Import aeon model...',
+      multiple: false,
+      filters: [{
+        name: '*.aeon',
+        extensions: ['aeon']
+      }]
+    })
+    if (selected === null) return false
+
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return false
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importAeon(importFile)
+    return true
+  }
+
+  private async importSbmlInternal (): Promise<boolean> {
+    const selected = await open({
+      title: 'Import sbml model...',
+      multiple: false,
+      filters: [{
+        name: '*.sbml',
+        extensions: ['sbml']
+      }]
+    })
+    if (selected === null) return false
+
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return false
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importSbml(importFile)
+    return true
   }
 
   saveFunctionData (event: Event): void {
@@ -307,8 +451,9 @@ export default class RootComponent extends LitElement {
   }
 
   private async removeVariable (event: Event): Promise<void> {
-    if (!await this.confirmDialog()) return
     const variableId = (event as CustomEvent).detail.id
+    const message = `Removing variable ${variableId} will also erase all its regulations. Do you want to proceed?`
+    if (!await this.confirmDeleteDialog(message)) return
     aeonState.sketch.model.removeVariable(variableId)
   }
 
@@ -408,7 +553,6 @@ export default class RootComponent extends LitElement {
   }
 
   private async removeRegulation (event: Event): Promise<void> {
-    if (!await this.confirmDialog()) return
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.removeRegulation(details.source, details.target)
   }
@@ -465,8 +609,8 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(regulations.map(r => convertToIRegulation(r)))
   }
 
-  private async confirmDialog (): Promise<boolean> {
-    return await dialog.ask('Are you sure?', {
+  private async confirmDeleteDialog (message: string): Promise<boolean> {
+    return await dialog.ask(message, {
       type: 'warning',
       okLabel: 'Delete',
       cancelLabel: 'Keep',
@@ -477,18 +621,22 @@ export default class RootComponent extends LitElement {
   render (): TemplateResult {
     const visibleTabs = this.visibleTabs()
     return html`
-      <div class="root-component">
-        <div class="header uk-margin-small-top uk-margin-small-bottom">
-          <nav-bar .tabs=${this.tabs}></nav-bar>
+      ${this.editorStarted
+? html`
+        <div class="root-component">
+          <div class="header uk-margin-small-top uk-margin-small-bottom">
+            <nav-bar .tabs=${this.tabs}></nav-bar>
+          </div>
+          <div class="content">
+            ${map(this.tabs, (tab) => html`
+              <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
+                            class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'} ${(tab.active || tab.pinned) ? 'visible' : ''}" .tab=${tab}
+                            .data=${this.data}></content-pane>
+            `)}
+          </div>
         </div>
-        <div class="content">
-          ${map(this.tabs, (tab) => html`
-            <content-pane id="${tab.name.toLowerCase()}" ?hidden="${!(tab.pinned || tab.active)}"
-                          class="uk-width-1-${visibleTabs.length} ${tab.active ? 'active' : 'inactive'} ${(tab.active || tab.pinned) ? 'visible' : ''}" .tab=${tab}
-                          .data=${this.data}></content-pane>
-          `)}
-        </div>
-      </div>
-    `
+      `
+: html`<initial-screen></initial-screen>`
+      }`
   }
 }

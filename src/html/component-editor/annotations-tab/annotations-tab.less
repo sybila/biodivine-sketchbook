@@ -25,7 +25,6 @@
   margin-right: 2em;
   margin-top: 1em;
   margin-bottom: 2em;
-  color: white;
 }
 
 /*
@@ -57,13 +56,13 @@
   resize: vertical;
   font-size: inherit;
   font-family: inherit;
-  color: inherit;
   outline: none;
+  color: @text-dark;
 }
 
 textarea::placeholder {
   font-weight: inherit;
-  color: rgba(255, 255, 255, 0.7);
+  color: @text-muted;
 }
 
 .sketch-annotation:focus {
@@ -71,5 +70,5 @@ textarea::placeholder {
 }
 
 .placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: @text-muted;
 }

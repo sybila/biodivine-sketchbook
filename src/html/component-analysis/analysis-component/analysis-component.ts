@@ -159,8 +159,8 @@ export default class AnalysisComponent extends LitElement {
   }
 
   // TODO: use this dialog when restarting inference that did not finish yet
-  private async confirmDialog (): Promise<boolean> {
-    return await dialog.ask('Are you sure?', {
+  private async confirmInferenceRestartDialog (): Promise<boolean> {
+    return await dialog.ask('Restarting the inference will loose the current progress. Do you want to proceed?', {
       type: 'warning',
       okLabel: 'Delete',
       cancelLabel: 'Keep',
@@ -305,8 +305,8 @@ export default class AnalysisComponent extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="container">
-        <div class="inference">
+      <div class="container uk-container">
+        <div class="inference uk-container">
           <div class="section" id="inference">
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
@@ -349,7 +349,7 @@ export default class AnalysisComponent extends LitElement {
             ${this.selected_analysis !== null
 ? html`
               <div class="results-window">
-                <div class="overview-message"
+                <div class="overview-message uk-text" 
                   .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4) + '<br>'}">
                 </div>
 
