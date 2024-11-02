@@ -21,7 +21,7 @@
 
 @text-dark: #f6f6f6;
 @text-light: #0f0f0f;
-
+@text-muted: #808080;
 
 @monotonicity-inhibition: rgb(240, 80, 110);
 @monotonicity-activation: rgb(50, 210, 150);
@@ -58,12 +58,19 @@
     background-color: @button-light;
     color: @text-light;
   }
+
+  .help-message-block {
+    background-color: @button-light;
+    color: @text-light;
+  }
+
 }
 
 @media (prefers-color-scheme: dark) {
   
   :root {
     .uk-light;
+    color: @text-dark;
     background-color: @background-dark;    
     border-top: 1px solid @separator-dark;
   }
@@ -71,6 +78,11 @@
   .uk-button-secondary {
     background-color: @button-dark;
     color: @text-dark;
+  }
+
+  .help-message-block {
+    background-color: @button-light;
+    color: @text-light;
   }
 
   a:hover {

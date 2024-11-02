@@ -451,8 +451,9 @@ export default class RootComponent extends LitElement {
   }
 
   private async removeVariable (event: Event): Promise<void> {
-    if (!await this.confirmDialog()) return
     const variableId = (event as CustomEvent).detail.id
+    const message = `Removing variable ${variableId} will also erase all its regulations. Do you want to proceed?`
+    if (!await this.confirmDeleteDialog(message)) return
     aeonState.sketch.model.removeVariable(variableId)
   }
 
@@ -552,7 +553,6 @@ export default class RootComponent extends LitElement {
   }
 
   private async removeRegulation (event: Event): Promise<void> {
-    if (!await this.confirmDialog()) return
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.removeRegulation(details.source, details.target)
   }
@@ -609,8 +609,8 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(regulations.map(r => convertToIRegulation(r)))
   }
 
-  private async confirmDialog (): Promise<boolean> {
-    return await dialog.ask('Are you sure?', {
+  private async confirmDeleteDialog (message: string): Promise<boolean> {
+    return await dialog.ask(message, {
       type: 'warning',
       okLabel: 'Delete',
       cancelLabel: 'Keep',

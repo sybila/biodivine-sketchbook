@@ -32,8 +32,7 @@ export class AnnotationsTab extends LitElement {
 
   formatSketchAnnotation (): TemplateResult<1> {
     return html`
-      <textarea
-        class="sketch-annotation"
+      <textarea class="uk-textarea sketch-annotation"
         .value="${this.contentData.annotation}"
         @focusout="${this.changeAnnotation}"
         placeholder="Click to annotate the sketch..."
@@ -46,7 +45,7 @@ export class AnnotationsTab extends LitElement {
     const annotatedVars = this.contentData.variables
       .filter(variable => variable.annotation.trim() !== '')
     if (annotatedVars.length === 0) {
-      return html`<div class="placeholder"><p>No annotations available for variables.</p></div>`
+      return html`<div class="placeholder uk-text-left"><p>No annotations available for variables.</p></div>`
     }
     return html`<div>${annotatedVars.map(variable => this.renderAnnotationTile(variable.id, variable.annotation))}</div>`
   }
@@ -102,7 +101,7 @@ export class AnnotationsTab extends LitElement {
         <div class="header uk-background-primary uk-margin-bottom">
           <h3 class="uk-heading-bullet uk-margin-remove-bottom">${sectionTitle}</h3>
         </div>
-        <div class="annotation">
+        <div class="annotation uk-container">
           ${formatAnnotationsFn()}
         </div>
       </div>
@@ -111,8 +110,8 @@ export class AnnotationsTab extends LitElement {
 
   protected render (): TemplateResult {
     return html`
-      <div class="container">
-        <div class="components-list">
+      <div class="container uk-container">
+        <div class="components-list uk-container">
           ${this.renderAnnotationsSection('whole-sketch', 'Sketch annotation', this.formatSketchAnnotation.bind(this))}
           ${this.renderAnnotationsSection('variables', 'Variables', this.formatVarAnnotations.bind(this))}
           ${this.renderAnnotationsSection('functions', 'Supplementary functions', this.formatFnAnnotations.bind(this))}

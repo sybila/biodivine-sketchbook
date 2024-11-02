@@ -50,7 +50,7 @@ export default class Menu extends LitElement {
   }
 
   async importSketch (): Promise<void> {
-    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+    const confirmation = await dialog.ask('Importing new sketch will erase the current one. Do you want to proceed?', {
       type: 'warning',
       okLabel: 'Import',
       cancelLabel: 'Cancel',
@@ -66,7 +66,7 @@ export default class Menu extends LitElement {
   }
 
   async importAeonModel (): Promise<void> {
-    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+    const confirmation = await dialog.ask('Importing new model will erase the current sketch. Do you want to proceed?', {
       type: 'warning',
       okLabel: 'Import',
       cancelLabel: 'Cancel',
@@ -82,7 +82,7 @@ export default class Menu extends LitElement {
   }
 
   async importSbmlModel (): Promise<void> {
-    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+    const confirmation = await dialog.ask('Importing new model will erase the current sketch. Do you want to proceed?', {
       type: 'warning',
       okLabel: 'Import',
       cancelLabel: 'Cancel',
@@ -113,7 +113,7 @@ export default class Menu extends LitElement {
   }
 
   async newSketch (): Promise<void> {
-    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+    const confirmation = await dialog.ask('Starting new sketch will erase the current one. Do you want to proceed?', {
       type: 'warning',
       okLabel: 'New sketch',
       cancelLabel: 'Cancel',
@@ -126,7 +126,7 @@ export default class Menu extends LitElement {
   }
 
   async quit (): Promise<void> {
-    const confirmation = await dialog.ask('Are you sure? This operation is irreversible.', {
+    const confirmation = await dialog.ask('Quiting the application will erase the current sketch. Do you want to proceed?', {
       type: 'warning',
       okLabel: 'Quit',
       cancelLabel: 'Cancel',

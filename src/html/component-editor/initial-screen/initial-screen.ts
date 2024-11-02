@@ -55,9 +55,10 @@ export class InitialScreen extends LitElement {
           <img src="${logoPath}" alt="Logo" class="logo-image" />
         </div>
         
-        <div class="intro-section">
+        <div class="intro-section help-message-block">
           <h3>Choose starting action below!</h3>
-          <p>Clicking one of the buttons will open the editor. You can:</p>
+          <p>Clicking one of the buttons below will open the editor.</p>
+          <p>You can:</p>
           <ul class="options">
           <li>open a new project and create your sketch from scratch</li>
           <li>load a project you saved before</li>

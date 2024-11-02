@@ -122,8 +122,9 @@ export class FunctionsEditor extends LitElement {
   }
 
   private async removeFunction (event: Event): Promise<void> {
-    if (!await this.confirmDialog()) return
     const id = (event as CustomEvent).detail.id
+    const message = `Do you want to proceed removing function '${id}'?`
+    if (!await this.confirmDeleteDialog(message)) return
     aeonState.sketch.model.removeUninterpretedFn(id)
   }
 
@@ -208,7 +209,6 @@ export class FunctionsEditor extends LitElement {
   }
 
   private async removeFunctionVariable (event: Event): Promise<void> {
-    if (!await this.confirmDialog()) return
     const detail = (event as CustomEvent).detail
     aeonState.sketch.model.decrementUninterpretedFnArity(detail.id)
   }
@@ -288,8 +288,8 @@ export class FunctionsEditor extends LitElement {
     }, 50)
   }
 
-  private async confirmDialog (): Promise<boolean> {
-    return await dialog.ask('Are you sure?', {
+  private async confirmDeleteDialog (message: string): Promise<boolean> {
+    return await dialog.ask(message, {
       type: 'warning',
       okLabel: 'Delete',
       cancelLabel: 'Keep',
