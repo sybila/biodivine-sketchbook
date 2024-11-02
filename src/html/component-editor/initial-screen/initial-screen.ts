@@ -1,6 +1,7 @@
 import { css, html, LitElement, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import style_less from './initial-screen.less?inline'
+import logoPath from '../../../assets/logo-placeholder.png'
 
 @customElement('initial-screen')
 export class InitialScreen extends LitElement {
@@ -15,19 +16,35 @@ export class InitialScreen extends LitElement {
   }
 
   importJsonProject (): void {
-    // Placeholder for import JSON project functionality
+    this.dispatchEvent(new CustomEvent('start-import-json', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   importAeonModel (): void {
-    // Placeholder for import AEON model functionality
+    this.dispatchEvent(new CustomEvent('start-import-aeon', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   importSbmlModel (): void {
-    // Placeholder for import SBML model functionality
+    this.dispatchEvent(new CustomEvent('start-import-sbml', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   openExampleSketch (): void {
-    // Placeholder for open example sketch functionality
+    this.dispatchEvent(new CustomEvent('start-import-example', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   protected render (): TemplateResult {
@@ -35,7 +52,7 @@ export class InitialScreen extends LitElement {
       <div class="container">
         <div class="header uk-background-primary uk-margin-bottom">
           <h2 class="uk-heading-bullet uk-margin-remove-bottom ">Welcome to SketchBook</h2>
-          <img src="/src/assets/logo-placeholder.png" alt="Logo" class="logo-image" />
+          <img src="${logoPath}" alt="Logo" class="logo-image" />
         </div>
         
         <div class="intro-section">

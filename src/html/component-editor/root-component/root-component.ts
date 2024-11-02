@@ -16,12 +16,16 @@ import {
   type IObservationSet, type IRegulationData, type IVariableData,
   type DynamicProperty, type StaticProperty
 } from '../../util/data-interfaces'
+import { open } from '@tauri-apps/api/dialog'
 import { dialog } from '@tauri-apps/api'
 import {
   getNextEssentiality, getNextMonotonicity,
   convertToIFunction, convertToILayout, convertToIVariable,
   convertToIObservationSet, convertToIRegulation
 } from '../../util/utilities'
+import { resolveResource } from '@tauri-apps/api/path'
+
+const exampleModelPath = await resolveResource('resources/tlgl.json')
 
 const LAYOUT = 'default'
 
@@ -52,6 +56,15 @@ export default class RootComponent extends LitElement {
 
     // listeners to events from initial screen
     window.addEventListener('start-new-sketch', this.startNewSketch.bind(this))
+    window.addEventListener('start-import-json', (e) => { void this.startImportJson(e) })
+    window.addEventListener('start-import-aeon', (e) => { void this.startImportAeon(e) })
+    window.addEventListener('start-import-sbml', (e) => { void this.startImportSbml(e) })
+    window.addEventListener('start-import-example', this.startImportExample.bind(this))
+
+    // listeners to import events from editor menu
+    window.addEventListener('import-json', (e) => { void this.importJson(e) })
+    window.addEventListener('import-aeon', (e) => { void this.importAeon(e) })
+    window.addEventListener('import-sbml', (e) => { void this.importSbml(e) })
 
     // variable-related events
     this.addEventListener('add-variable', this.addNewVariable)
@@ -104,9 +117,10 @@ export default class RootComponent extends LitElement {
     // load variable editorStarted from session storage (so it survives refresh)
     const storedEditorStarted = sessionStorage.getItem('editorStarted')
     this.editorStarted = storedEditorStarted === 'true'
-
-    // at the beginning, refresh content of the whole sketch from backend
-    aeonState.sketch.refreshSketch()
+    if (this.editorStarted) {
+      // at the beginning, refresh content of the whole sketch from backend
+      aeonState.sketch.refreshSketch()
+    }
   }
 
   async #onErrorMessage (errorMessage: string): Promise<void> {
@@ -134,9 +148,125 @@ export default class RootComponent extends LitElement {
     this.adjustRegEditor()
   }
 
-  startNewSketch (_event: Event): void {
+  // utility to set the flag for editor rendering (and save to session storage)
+  private startEditor (): void {
     this.editorStarted = true
     sessionStorage.setItem('editorStarted', 'true')
+  }
+
+  startNewSketch (_event: Event): void {
+    this.startEditor()
+  }
+
+  async startImportJson (_event: Event): Promise<void> {
+    const success = await this.importJsonInternal()
+    if (success) {
+      this.startEditor()
+    }
+  }
+
+  async startImportAeon (_event: Event): Promise<void> {
+    const success = await this.importAeonInternal()
+    if (success) {
+      this.startEditor()
+    }
+  }
+
+  async startImportSbml (_event: Event): Promise<void> {
+    const success = await this.importSbmlInternal()
+    if (success) {
+      this.startEditor()
+    }
+  }
+
+  startImportExample (_event: Event): void {
+    console.log('importing example model')
+    aeonState.sketch.importSketch(exampleModelPath)
+    this.startEditor()
+  }
+
+  async importJson (_event: Event): Promise<void> {
+    await this.importJsonInternal()
+  }
+
+  async importAeon (_event: Event): Promise<void> {
+    await this.importAeonInternal()
+  }
+
+  async importSbml (_event: Event): Promise<void> {
+    await this.importSbmlInternal()
+  }
+
+  private async importJsonInternal (): Promise<boolean> {
+    const selected = await open({
+      title: 'Import sketch...',
+      multiple: false,
+      filters: [{
+        name: '*.json',
+        extensions: ['json']
+      }]
+    })
+    if (selected === null) return false
+
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return false
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importSketch(importFile)
+    return true
+  }
+
+  private async importAeonInternal (): Promise<boolean> {
+    const selected = await open({
+      title: 'Import aeon model...',
+      multiple: false,
+      filters: [{
+        name: '*.aeon',
+        extensions: ['aeon']
+      }]
+    })
+    if (selected === null) return false
+
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return false
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importAeon(importFile)
+    return true
+  }
+
+  private async importSbmlInternal (): Promise<boolean> {
+    const selected = await open({
+      title: 'Import sbml model...',
+      multiple: false,
+      filters: [{
+        name: '*.sbml',
+        extensions: ['sbml']
+      }]
+    })
+    if (selected === null) return false
+
+    let importFile = ''
+    if (Array.isArray(selected)) {
+      if (selected.length === 0) return false
+      importFile = selected[0]
+    } else {
+      importFile = selected
+    }
+
+    console.log('importing', importFile)
+    aeonState.sketch.importSbml(importFile)
+    return true
   }
 
   saveFunctionData (event: Event): void {

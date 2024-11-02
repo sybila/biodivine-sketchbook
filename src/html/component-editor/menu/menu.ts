@@ -2,7 +2,7 @@ import { html, css, unsafeCSS, LitElement, type TemplateResult } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import style_less from './menu.less?inline'
 import { map } from 'lit/directives/map.js'
-import { open, save } from '@tauri-apps/api/dialog'
+import { save } from '@tauri-apps/api/dialog'
 import { appWindow } from '@tauri-apps/api/window'
 import {
   aeonState
@@ -58,25 +58,11 @@ export default class Menu extends LitElement {
     })
     if (!confirmation) return
 
-    const selected = await open({
-      title: 'Import sketch...',
-      multiple: false,
-      filters: [{
-        name: '*.json',
-        extensions: ['json']
-      }]
-    })
-    if (selected === null) return
-    let importFile = ''
-    if (Array.isArray(selected)) {
-      if (selected.length === 0) return
-      importFile = selected[0]
-    } else {
-      importFile = selected
-    }
-
-    console.log('importing', importFile)
-    aeonState.sketch.importSketch(importFile)
+    this.dispatchEvent(new CustomEvent('import-json', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   async importAeonModel (): Promise<void> {
@@ -88,25 +74,11 @@ export default class Menu extends LitElement {
     })
     if (!confirmation) return
 
-    const selected = await open({
-      title: 'Import aeon model...',
-      multiple: false,
-      filters: [{
-        name: '*.aeon',
-        extensions: ['aeon']
-      }]
-    })
-    if (selected === null) return
-    let importFile = ''
-    if (Array.isArray(selected)) {
-      if (selected.length === 0) return
-      importFile = selected[0]
-    } else {
-      importFile = selected
-    }
-
-    console.log('importing', importFile)
-    aeonState.sketch.importAeon(importFile)
+    this.dispatchEvent(new CustomEvent('import-aeon', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   async importSbmlModel (): Promise<void> {
@@ -118,25 +90,11 @@ export default class Menu extends LitElement {
     })
     if (!confirmation) return
 
-    const selected = await open({
-      title: 'Import sbml model...',
-      multiple: false,
-      filters: [{
-        name: '*.sbml',
-        extensions: ['sbml']
-      }]
-    })
-    if (selected === null) return
-    let importFile = ''
-    if (Array.isArray(selected)) {
-      if (selected.length === 0) return
-      importFile = selected[0]
-    } else {
-      importFile = selected
-    }
-
-    console.log('importing', importFile)
-    aeonState.sketch.importSbml(importFile)
+    this.dispatchEvent(new CustomEvent('import-sbml', {
+      bubbles: true,
+      composed: true,
+      detail: {} // maybe include some information later
+    }))
   }
 
   async exportSketch (): Promise<void> {
