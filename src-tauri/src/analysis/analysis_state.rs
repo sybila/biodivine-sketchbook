@@ -17,6 +17,8 @@ use tauri::async_runtime::RwLock;
 
 use super::inference_status::InferenceStatusReport;
 use super::results_export::export_results;
+use super::update_fn_details::get_all_update_fn_variants;
+use super::update_fn_details::num_update_fn_variants_per_var;
 
 /// Object encompassing all of the components of the Analysis tab.
 /// That inludes boths the components that are exchanged with frontend,
@@ -364,6 +366,42 @@ impl SessionState for AnalysisState {
                 } else {
                     AeonError::throw(
                         "Cannot dump inference results, they were not fetched yet (or were erronous).",
+                    )
+                }
+            }
+            Some(&"num_candidates_per_update") => {
+                Self::assert_payload_empty(event, component)?;
+
+                if let Some(Ok(solver)) = &self.finished_solver {
+                    let num_per_var = num_update_fn_variants_per_var(solver);
+                    let payload = serde_json::to_string(&num_per_var).unwrap();
+                    let state_change =
+                        Event::build(&["analysis", "num_candidates_per_update"], Some(&payload));
+                    Ok(Consumed::Irreversible {
+                        state_change,
+                        reset: true,
+                    })
+                } else {
+                    AeonError::throw(
+                        "Cannot dump summarize candidate functions, results were not fetched yet (or were erronous).",
+                    )
+                }
+            }
+            Some(&"all_update_fn_variants") => {
+                let var_name = Self::clone_payload_str(event, component)?;
+
+                if let Some(Ok(solver)) = &self.finished_solver {
+                    let all_variants = get_all_update_fn_variants(solver, &var_name)?;
+                    let payload = serde_json::to_string(&all_variants).unwrap();
+                    let state_change =
+                        Event::build(&["analysis", "all_update_fn_variants"], Some(&payload));
+                    Ok(Consumed::Irreversible {
+                        state_change,
+                        reset: true,
+                    })
+                } else {
+                    AeonError::throw(
+                        "Cannot dump summarize candidate functions, results were not fetched yet (or were erronous).",
                     )
                 }
             }

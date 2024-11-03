@@ -60,6 +60,9 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
     )
+    aeonState.analysis.numCandidatesPerUpdateFnReceived.addEventListener(
+      this.#updateFnSummaryReceived.bind(this)
+    )
 
     // updates regarding analysis progress or errors
     aeonState.analysis.computationUpdated.addEventListener(
@@ -116,9 +119,11 @@ export default class AnalysisComponent extends LitElement {
     const staticTotal = this.sketchData?.stat_properties.length
     const dynamicTotal = this.sketchData?.dyn_properties.length
 
-    const message = 'Computation is running. Waiting for the results.<br>' +
-      `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>` +
-      `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
+    let message = 'Computation is running. Waiting for the results.<br>' +
+      `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>`
+    if (this.selected_analysis === InferenceType.FullInference) {
+      message += `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
+    }
     return message
   }
 
@@ -160,11 +165,11 @@ export default class AnalysisComponent extends LitElement {
 
   // TODO: use this dialog when restarting inference that did not finish yet
   private async confirmInferenceRestartDialog (): Promise<boolean> {
-    return await dialog.ask('Restarting the inference will loose the current progress. Do you want to proceed?', {
+    return await dialog.ask('Restarting the inference will erase the current progress and results. Do you want to proceed?', {
       type: 'warning',
-      okLabel: 'Delete',
+      okLabel: 'Restart',
       cancelLabel: 'Keep',
-      title: 'Delete'
+      title: 'Restart Inference'
     })
   }
 
@@ -222,7 +227,8 @@ export default class AnalysisComponent extends LitElement {
       progressSummary
   }
 
-  private resetAnalysis (): void {
+  private async resetAnalysis (): Promise<void> {
+    if (!await this.confirmInferenceRestartDialog()) return
     console.log('Resetting analysis.')
 
     // stop pinging backend
@@ -297,6 +303,22 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.dumpFullResults(fileName)
   }
 
+  private getUpdateFnSummary (): void {
+    console.log('Asking for update fns summary.')
+    aeonState.analysis.getNumCandidatesPerUpdateFn()
+  }
+
+  #updateFnSummaryReceived (summary: Record<string, number>): void {
+    // only 1000 variants is considered
+    const MAX_FUNCTIONS_CAP = 1000
+    const stringifiedSummary = Object.entries(summary).map(([key, value]) => [
+      key,
+      value < MAX_FUNCTIONS_CAP ? value.toString() : 'more than 1000'
+    ])
+
+    console.log(stringifiedSummary)
+  }
+
   // Add a handler to update the checkbox state
   private handleRandomizeChange (event: Event): void {
     const checkbox = event.target as HTMLInputElement
@@ -339,7 +361,7 @@ export default class AnalysisComponent extends LitElement {
               <div class="reset-buttons">
                 <button class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
-                          this.resetAnalysis()
+                          void this.resetAnalysis()
                         }}">Start again
                 </button>
               </div>
@@ -358,11 +380,16 @@ export default class AnalysisComponent extends LitElement {
                 <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
                 ${this.results !== null && this.results.num_sat_networks > 0
 ? html`
-                  <div class="dump-bdd-options">
+                  <div class="results-options uk-container">
                     <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
                             @click="${async () => {
                               await this.dumpFullResults()
                             }}">Save full results
+                    </button>
+                    <button id="get-details-update-fns" class="uk-button uk-button-large uk-button-secondary"
+                            @click="${() => {
+                              this.getUpdateFnSummary()
+                            }}">Functions summary
                     </button>
                   </div>
 

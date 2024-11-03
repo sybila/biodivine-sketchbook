@@ -17,6 +17,8 @@ mod candidate_sampling;
 mod inference_solver;
 /// Utilities to download results.
 mod results_export;
+/// Utilities to explore canditate update functions.
+mod update_fn_details;
 
 /// **(internal)** Several test scenarios for the inference procedure.
 #[cfg(test)]
