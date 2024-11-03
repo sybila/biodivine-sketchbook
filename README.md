@@ -14,4 +14,4 @@ Run the cargo commands inside `src-tauri` folder, and eslint in the main directo
 - `cargo fmt`
 - `cargo clippy`
 - `cargo test`
-- `cargo doc --no-deps`
+- `cargo doc --no-deps --document-private-items`

@@ -1,7 +1,18 @@
 use crate::sketchbook::ids::VarId;
-use crate::sketchbook::layout::{Layout, LayoutNode, LayoutNodeIterator, NodePosition};
+use crate::sketchbook::layout::{LayoutNode, LayoutNodeIterator, NodePosition};
 use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
+use crate::sketchbook::Manager;
 use std::collections::HashMap;
+
+/// Structure to capture all the layout data regarding one particular layout of the regulations
+/// editor.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Layout {
+    name: String,
+    nodes: HashMap<VarId, LayoutNode>,
+}
+
+impl Manager for Layout {}
 
 /// Methods for safely constructing or mutating instances of `Layout`.
 impl Layout {

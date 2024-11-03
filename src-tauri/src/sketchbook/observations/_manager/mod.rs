@@ -9,7 +9,7 @@ mod _impl_id_generating;
 mod _impl_load_dataset;
 /// **(internal)** Basic utility methods for `ObservationManager`.
 mod _impl_manager;
-/// **(internal)** Implementation of event-based API for the [SessionState] trait.
+/// **(internal)** Implementation of event-based API for the [crate::app::state::SessionState] trait.
 mod _impl_session_state;
 
 /// Class to manage all observations and datasets.

@@ -338,7 +338,7 @@ impl InferenceSolver {
 /// Methods for asynchronous manipulation of `InferenceSolver` (starting/cancelling inference).
 impl InferenceSolver {
     /// Run the prototype version of the inference using the given solver.
-    /// This wraps the [run_inference_modular] to also log potential errors.
+    /// This wraps the [Self::run_inference_modular] to also log potential errors.
     ///
     /// The argument `analysis_type` specifies which kind of inference should be used.
     /// Currently, we support full inference with all properties, and partial inferences with only

@@ -54,7 +54,7 @@ pub fn try_encode_observation(
 }
 
 /// Encode each of the several observations, one by one.
-/// For details, see [encode_observation_str].
+/// For details, see [try_encode_observation].
 pub fn try_encode_multiple_observations(
     observations: &[Observation],
     var_names: &[String],
@@ -100,7 +100,7 @@ fn encode_observation_str(
 }
 
 /// Encode several observation vectors with conjunction formulae, one by one.
-/// Also see [Self::encode_observation_str] for details.
+/// Also see [encode_observation_str] for details.
 fn encode_multiple_observations_str(
     observations: &[Observation],
     prop_names: &[String],

@@ -9,7 +9,7 @@ mod _impl_consistency;
 mod _impl_export;
 /// **(internal)** Importing sketch in various formats.
 mod _impl_import;
-/// **(internal)** Implementation of event-based API for the [SessionState] trait.
+/// **(internal)** Implementation of event-based API for the [crate::app::state::SessionState] trait.
 mod _impl_session_state;
 /// **(internal)** Utility methods for `Sketch`.
 mod _impl_sketch;

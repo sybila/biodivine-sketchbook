@@ -14,7 +14,7 @@ mod _impl_editing;
 mod _impl_id_generating;
 /// **(internal)** Methods for observing instances of `ModelState` (various getters, etc.).
 mod _impl_observing;
-/// **(internal)** Implementation of event-based API for the [SessionState] trait.
+/// **(internal)** Implementation of event-based API for the [crate::app::state::SessionState] trait.
 mod _impl_session_state;
 
 /// Object representing the state of the model in the Boolean network editor. The model encompasses

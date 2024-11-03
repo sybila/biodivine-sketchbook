@@ -1,23 +1,23 @@
 use crate::sketchbook::ids::{DatasetId, DynPropertyId, ObservationId};
-use crate::sketchbook::properties::dynamic_props::DynPropertyType;
-use crate::sketchbook::properties::DynProperty;
+use crate::sketchbook::properties::dynamic_props;
 use crate::sketchbook::JsonSerde;
+use dynamic_props::{DynProperty, DynPropertyType};
 use serde::{Deserialize, Serialize};
 
-/// Simplified variant to carry data regarding [GenericDynProp] dynamic property.
+/// Simplified variant to carry data regarding [dynamic_props::GenericDynProp] dynamic property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GenericDynPropData {
     pub formula: String,
 }
 
-/// Simplified variant to carry data regarding [ExistsFixedPoint] dynamic property.
+/// Simplified variant to carry data regarding [dynamic_props::ExistsFixedPoint] dynamic property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ExistsFixedPointData {
     pub dataset: Option<String>,
     pub observation: Option<String>,
 }
 
-/// Simplified variant to carry data regarding [ExistsTrapSpace] dynamic property.
+/// Simplified variant to carry data regarding [dynamic_props::ExistsTrapSpace] dynamic property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ExistsTrapSpaceData {
     pub dataset: Option<String>,
@@ -26,20 +26,20 @@ pub struct ExistsTrapSpaceData {
     pub nonpercolable: bool,
 }
 
-/// Simplified variant to carry data regarding [ExistsTrajectory] dynamic property.
+/// Simplified variant to carry data regarding [dynamic_props::ExistsTrajectory] dynamic property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ExistsTrajectoryData {
     pub dataset: Option<String>,
 }
 
-/// Simplified variant to carry data regarding [AttractorCount] dynamic property.
+/// Simplified variant to carry data regarding [dynamic_props::AttractorCount] dynamic property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AttractorCountData {
     pub minimal: usize,
     pub maximal: usize,
 }
 
-/// Simplified variant to carry data regarding [HasAttractor] dynamic property.
+/// Simplified variant to carry data regarding [dynamic_props::HasAttractor] dynamic property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HasAttractorData {
     pub dataset: Option<String>,

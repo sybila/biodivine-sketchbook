@@ -94,7 +94,7 @@ impl FolTreeNode {
         Self::mk_atom(Atom::Var(var_name.to_string()))
     }
 
-    /// A helper function which creates a new [FolTreeNode] for the given [Term] value.
+    /// A helper function which creates a new [FolTreeNode] for the given [Atom] value.
     fn mk_atom(atom: Atom) -> FolTreeNode {
         FolTreeNode {
             formula_str: atom.to_string(),

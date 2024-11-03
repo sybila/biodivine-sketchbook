@@ -46,8 +46,6 @@ impl ObservationManager {
     /// Generate valid `VarId` that's currently not used by any variable in a particular
     /// dataset of this `ObservationManager`.
     ///
-    /// For more, see [Dataset::generate_var_id].
-    ///
     /// Assumes that `dataset_id` was checked beforehand.
     pub fn generate_var_id(
         &self,
