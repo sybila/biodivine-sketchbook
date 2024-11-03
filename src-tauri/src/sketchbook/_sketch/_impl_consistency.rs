@@ -7,7 +7,7 @@ use crate::sketchbook::Sketch;
 /// Utilities to perform consistency checks.
 impl Sketch {
     /// Assert that the sketch is consistent, return error otherwise.
-    /// See [run_consistency_check] for details on which criteria are checked.
+    /// See [Self::run_consistency_check] for details on which criteria are checked.
     pub fn assert_consistency(&self) -> Result<(), String> {
         if self.run_consistency_check().0 {
             Ok(())

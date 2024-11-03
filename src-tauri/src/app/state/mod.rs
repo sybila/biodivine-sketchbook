@@ -119,7 +119,7 @@ pub trait StackSession: SessionState {
     /// single [StateChange] entry.
     ///
     /// In this top-level method, we explicitly test for undo-stack actions. Once that is done,
-    /// the processing continues via [perform_categorized_action].
+    /// the processing continues via [StackSession::perform_categorized_action].
     fn perform_action(&mut self, action: &UserAction) -> Result<StateChange, DynError> {
         // Explicit test for undo-stack actions.
         // TODO:
@@ -159,7 +159,7 @@ pub trait StackSession: SessionState {
     ///
     /// This method assumes the action was already categorized into one of `undo` (stack should be
     /// bypassed) or `regular` (goes to the undo stack).
-    /// If you want to run the full process including categorizing the action, use [perform_action].
+    /// If you want to run the full process including categorizing the action, use [StackSession::perform_action].
     fn perform_categorized_action(
         &mut self,
         action: &UserAction,

@@ -2,8 +2,9 @@ use crate::sketchbook::layout::NodePosition;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-/// A node for a particular `Variable`'s in a particular `Layout`. This structure only holds information
-/// about the node itself, the id of the variable and layout is held elsewhere (see [Layout] or [ModelState]).
+/// A node for a particular `Variable`'s in a particular `Layout`. This structure only
+/// holds information about the node itself, the id of the variable and layout is held
+/// elsewhere (see [super::Layout] or [crate::sketchbook::model::ModelState]).
 ///
 /// Currently, only the position is stored.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
