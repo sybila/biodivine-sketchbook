@@ -1,11 +1,12 @@
+use crate::analysis::inference_results::InferenceResults;
+use crate::analysis::inference_solver::FinishedInferenceSolver;
+use crate::analysis::update_fn_details::{get_update_fn_variants, MAX_UPDATE_FN_COUNT};
+use crate::sketchbook::Sketch;
+
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use zip::write::{FileOptions, ZipWriter};
-
-use crate::sketchbook::Sketch;
-
-use super::{inference_results::InferenceResults, inference_solver::FinishedInferenceSolver};
 
 /// Export archive with complete results to the given path.
 /// The results archive include:
@@ -13,6 +14,7 @@ use super::{inference_results::InferenceResults, inference_solver::FinishedInfer
 /// - original sketch in JSON format for replicability in SketchBook
 /// - BDD with satisfying colors
 /// - a PSBN model derived from the sketch (in aeon format) that can be used as a context for the BDD
+/// - a folder with update function variants per variable
 pub fn export_results(
     path: &str,
     finished_solver: &FinishedInferenceSolver,
@@ -43,6 +45,24 @@ pub fn export_results(
     // write the report
     let formatted_report = format_inference_results(&finished_solver.results);
     write_to_zip("report.txt", &mut zip_writer, formatted_report)?;
+
+    // create directory with update function variants per variable
+    zip_writer
+        .add_directory("admissible_update_functions/", FileOptions::default())
+        .map_err(|e| format!("{e:?}"))?;
+
+    // for each variable, add a file with update function variants (one per line)
+    for (var, &count) in &finished_solver.results.num_update_fns_per_var {
+        let variants = get_update_fn_variants_from_solver(finished_solver, var)?;
+        // "admissible_update_functions/varname_XY_fns"
+        let file_name = format!(
+            "admissible_update_functions/{}_{}_functions.txt",
+            var, count
+        );
+
+        let variants_content = variants.into_iter().collect::<Vec<_>>().join("\n");
+        write_to_zip(&file_name, &mut zip_writer, variants_content)?;
+    }
 
     zip_writer.finish().map_err(|e| format!("{e:?}"))?;
     Ok(())
@@ -78,9 +98,22 @@ fn format_inference_results(results: &InferenceResults) -> String {
     output.push_str(&format!("{}\n", results.summary_message));
 
     output.push_str("--------------\n");
+    output.push_str("Number of admissible update functions per variable:\n");
+    output.push_str("--------------\n");
+    let mut sorted_vars: Vec<_> = results.num_update_fns_per_var.iter().collect();
+    sorted_vars.sort_by_key(|&(var, _)| var);
+    for (var, &count) in sorted_vars {
+        let count_display = if count >= MAX_UPDATE_FN_COUNT {
+            format!("more than {MAX_UPDATE_FN_COUNT}")
+        } else {
+            count.to_string()
+        };
+        output.push_str(&format!("{}: {}\n", var, count_display));
+    }
+
+    output.push_str("--------------\n");
     output.push_str("Detailed progress report:\n");
     output.push_str("--------------\n");
-
     for report in &results.progress_statuses {
         let report_line = match report.num_candidates {
             Some(candidates) => format!(
@@ -93,4 +126,13 @@ fn format_inference_results(results: &InferenceResults) -> String {
     }
 
     output
+}
+
+/// For a given variable, get all valid interpretations of its update function present in the
+/// satisfying `colors` (taken from the results of the solver). Variable must be present in the network.
+pub fn get_update_fn_variants_from_solver(
+    solver: &FinishedInferenceSolver,
+    var_name: &str,
+) -> Result<Vec<String>, String> {
+    get_update_fn_variants(&solver.sat_colors, &solver.bn, var_name)
 }

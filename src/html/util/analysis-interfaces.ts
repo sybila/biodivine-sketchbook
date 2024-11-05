@@ -30,4 +30,5 @@ export interface InferenceResults {
   comp_time: number
   summary_message: string
   progress_statuses: InferenceStatusReport[]
+  num_update_fns_per_var: Record<string, number>
 }

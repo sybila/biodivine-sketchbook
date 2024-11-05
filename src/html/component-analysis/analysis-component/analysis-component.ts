@@ -60,9 +60,6 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
     )
-    aeonState.analysis.numCandidatesPerUpdateFnReceived.addEventListener(
-      this.#updateFnSummaryReceived.bind(this)
-    )
 
     // updates regarding analysis progress or errors
     aeonState.analysis.computationUpdated.addEventListener(
@@ -221,8 +218,19 @@ export default class AnalysisComponent extends LitElement {
       .map(statusReport => statusReport.message)
       .join('\n')
 
+    // prepare the summary with update functions per variable, sorted by var name
+    const updateFnsSummary = Object.entries(results.num_update_fns_per_var)
+      .sort(([varNameA], [varNameB]) => varNameA.localeCompare(varNameB))
+      .map(([varName, count]) => {
+        const countDisplay = count >= 1000 ? 'more than 1000' : count.toString()
+        return `${varName}: ${countDisplay}`
+      })
+      .join('\n')
+
     return '--------------\nExtended summary:\n--------------\n' +
       `${results.summary_message}\n` +
+      '--------------\nNumber of admissible update functions per variable:\n--------------\n' +
+      updateFnsSummary + '\n\n' +
       '--------------\nDetailed progress report:\n--------------\n' +
       progressSummary
   }
@@ -303,22 +311,6 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.dumpFullResults(fileName)
   }
 
-  private getUpdateFnSummary (): void {
-    console.log('Asking for update fns summary.')
-    aeonState.analysis.getNumCandidatesPerUpdateFn()
-  }
-
-  #updateFnSummaryReceived (summary: Record<string, number>): void {
-    // only 1000 variants is considered
-    const MAX_FUNCTIONS_CAP = 1000
-    const stringifiedSummary = Object.entries(summary).map(([key, value]) => [
-      key,
-      value < MAX_FUNCTIONS_CAP ? value.toString() : 'more than 1000'
-    ])
-
-    console.log(stringifiedSummary)
-  }
-
   // Add a handler to update the checkbox state
   private handleRandomizeChange (event: Event): void {
     const checkbox = event.target as HTMLInputElement
@@ -327,8 +319,8 @@ export default class AnalysisComponent extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="container uk-container">
-        <div class="inference uk-container">
+      <div class="container">
+        <div class="inference">
           <div class="section" id="inference">
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
@@ -385,11 +377,6 @@ export default class AnalysisComponent extends LitElement {
                             @click="${async () => {
                               await this.dumpFullResults()
                             }}">Save full results
-                    </button>
-                    <button id="get-details-update-fns" class="uk-button uk-button-large uk-button-secondary"
-                            @click="${() => {
-                              this.getUpdateFnSummary()
-                            }}">Functions summary
                     </button>
                   </div>
 

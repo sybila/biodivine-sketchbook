@@ -520,14 +520,6 @@ interface AeonState {
     /** Dump archive with results (including the sketch, the converted aeon BN used for analysis, and
      * a BDD with all satisfying colors) to the given path. */
     dumpFullResults: (path: string) => void
-    /** Compute numbers of candidate update functions per each variable. */
-    getNumCandidatesPerUpdateFn: () => void
-    /** Numbers of candidate update functions per each variable. */
-    numCandidatesPerUpdateFnReceived: Observable<Record<string, number>>
-    /** Compute all variants of candidate update functions for given variable. */
-    getAllUpdateFnVariants: (varName: string) => void
-    /** Candidate update functions for given variable. */
-    allUpdateFnVariantsReceived: Observable<[string, string]>
   }
 
   /** The information about errors occurring when processing events on backend. */
@@ -1119,25 +1111,11 @@ export const aeonState: AeonState = {
         payload: path
       })
     },
-    getNumCandidatesPerUpdateFn (): void {
-      aeonEvents.emitAction({
-        path: ['analysis', 'num_candidates_per_update'],
-        payload: null
-      })
-    },
-    getAllUpdateFnVariants (varName: string): void {
-      aeonEvents.emitAction({
-        path: ['analysis', 'all_update_fn_variants'],
-        payload: varName
-      })
-    },
 
     inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
     inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
     computationUpdated: new Observable<InferenceStatusReport[]>(['analysis', 'computation_update']),
     computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
-    numCandidatesPerUpdateFnReceived: new Observable<Record<string, number>>(['analysis', 'num_candidates_per_update']),
-    allUpdateFnVariantsReceived: new Observable<[string, string]>(['analysis', 'all_update_fn_variants']),
 
     startFullInference (): void {
       aeonEvents.emitAction({
