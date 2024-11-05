@@ -116,9 +116,11 @@ export default class AnalysisComponent extends LitElement {
     const staticTotal = this.sketchData?.stat_properties.length
     const dynamicTotal = this.sketchData?.dyn_properties.length
 
-    const message = 'Computation is running. Waiting for the results.<br>' +
-      `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>` +
-      `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
+    let message = 'Computation is running. Waiting for the results.<br>' +
+      `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>`
+    if (this.selected_analysis === InferenceType.FullInference) {
+      message += `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
+    }
     return message
   }
 
@@ -160,11 +162,11 @@ export default class AnalysisComponent extends LitElement {
 
   // TODO: use this dialog when restarting inference that did not finish yet
   private async confirmInferenceRestartDialog (): Promise<boolean> {
-    return await dialog.ask('Restarting the inference will loose the current progress. Do you want to proceed?', {
+    return await dialog.ask('Restarting the inference will erase the current progress and results. Do you want to proceed?', {
       type: 'warning',
-      okLabel: 'Delete',
+      okLabel: 'Restart',
       cancelLabel: 'Keep',
-      title: 'Delete'
+      title: 'Restart Inference'
     })
   }
 
@@ -216,13 +218,25 @@ export default class AnalysisComponent extends LitElement {
       .map(statusReport => statusReport.message)
       .join('\n')
 
+    // prepare the summary with update functions per variable, sorted by var name
+    const updateFnsSummary = Object.entries(results.num_update_fns_per_var)
+      .sort(([varNameA], [varNameB]) => varNameA.localeCompare(varNameB))
+      .map(([varName, count]) => {
+        const countDisplay = count >= 1000 ? 'more than 1000' : count.toString()
+        return `${varName}: ${countDisplay}`
+      })
+      .join('\n')
+
     return '--------------\nExtended summary:\n--------------\n' +
       `${results.summary_message}\n` +
+      '--------------\nNumber of admissible update functions per variable:\n--------------\n' +
+      updateFnsSummary + '\n\n' +
       '--------------\nDetailed progress report:\n--------------\n' +
       progressSummary
   }
 
-  private resetAnalysis (): void {
+  private async resetAnalysis (): Promise<void> {
+    if (!await this.confirmInferenceRestartDialog()) return
     console.log('Resetting analysis.')
 
     // stop pinging backend
@@ -305,8 +319,8 @@ export default class AnalysisComponent extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="container uk-container">
-        <div class="inference uk-container">
+      <div class="container">
+        <div class="inference">
           <div class="section" id="inference">
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
@@ -339,7 +353,7 @@ export default class AnalysisComponent extends LitElement {
               <div class="reset-buttons">
                 <button class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
-                          this.resetAnalysis()
+                          void this.resetAnalysis()
                         }}">Start again
                 </button>
               </div>
@@ -358,7 +372,7 @@ export default class AnalysisComponent extends LitElement {
                 <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
                 ${this.results !== null && this.results.num_sat_networks > 0
 ? html`
-                  <div class="dump-bdd-options">
+                  <div class="results-options uk-container">
                     <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
                             @click="${async () => {
                               await this.dumpFullResults()

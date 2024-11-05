@@ -15,9 +15,9 @@ pub enum FolToken {
     TokenList(Vec<FolToken>),
 }
 
-/// Try to tokenize given FOL formula string.
+/// Try to tokenize given FOL formula string, turning it into a vector of [FolToken] instances.
 ///
-/// This is a wrapper for the (more general) recursive [try_tokenize_recursive]` function.
+/// This is just a wrapper, check the recursive `try_tokenize_recursive` function for details.
 pub fn try_tokenize_formula(formula: String) -> Result<Vec<FolToken>, String> {
     let (tokens, _) = try_tokenize_recursive(&mut formula.chars().peekable(), true, false)?;
     Ok(tokens)

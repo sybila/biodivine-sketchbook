@@ -41,7 +41,7 @@ impl FolTreeNode {
     /// "Parse" a new [FolTreeNode] from a list of [FolToken] objects.
     ///
     /// Note that this is a very "low-level" function. Unless you know what you are doing,
-    /// you should probably use some of the functions in [algorithms::fo_logic::parser] instead.
+    /// you should probably use some of the functions in [crate::algorithms::fo_logic::parser] instead.
     pub fn from_tokens(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
         parse_fol_tokens(tokens)
     }
@@ -82,19 +82,19 @@ impl FolTreeNode {
 
     /// Create a [FolTreeNode] representing a Boolean constant.
     ///
-    /// See also [NodeType::Terminal] and [Atomic::True] / [Atomic::False].
+    /// See also [NodeType::Terminal] and [Atom::True] / [Atom::False].
     pub fn mk_constant(constant_val: bool) -> FolTreeNode {
         Self::mk_atom(Atom::from(constant_val))
     }
 
     /// Create a [FolTreeNode] representing a variable.
     ///
-    /// See also [NodeType::Terminal] and [Atomic::Var].
+    /// See also [NodeType::Terminal] and [Atom::Var].
     pub fn mk_variable(var_name: &str) -> FolTreeNode {
         Self::mk_atom(Atom::Var(var_name.to_string()))
     }
 
-    /// A helper function which creates a new [FolTreeNode] for the given [Term] value.
+    /// A helper function which creates a new [FolTreeNode] for the given [Atom] value.
     fn mk_atom(atom: Atom) -> FolTreeNode {
         FolTreeNode {
             formula_str: atom.to_string(),

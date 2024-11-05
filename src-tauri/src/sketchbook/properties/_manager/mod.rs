@@ -7,13 +7,13 @@ use std::collections::HashMap;
 mod _impl_id_generating;
 /// **(internal)** Basic utility methods for `PropertyManager`.
 mod _impl_manager;
-/// **(internal)** Implementation of event-based API for the [SessionState] trait.
+/// **(internal)** Implementation of event-based API for the [crate::app::state::SessionState] trait.
 mod _impl_session_state;
 
 /// Class to manage all properties of the sketch.
 ///
 /// `PropertyManager` can be managed through its classical Rust API, as well as
-/// through the external events (as it implements the `SessionState` event).
+/// through the external events (as it implements the `SessionState` trait).
 #[derive(Clone, Debug, PartialEq)]
 pub struct PropertyManager {
     dyn_properties: HashMap<DynPropertyId, DynProperty>,

@@ -45,7 +45,7 @@ export class AnnotationsTab extends LitElement {
     const annotatedVars = this.contentData.variables
       .filter(variable => variable.annotation.trim() !== '')
     if (annotatedVars.length === 0) {
-      return html`<div class="placeholder uk-text-left"><p>No annotations available for variables.</p></div>`
+      return html`<div class="placeholder"><p>No annotations available for variables.</p></div>`
     }
     return html`<div>${annotatedVars.map(variable => this.renderAnnotationTile(variable.id, variable.annotation))}</div>`
   }
@@ -110,8 +110,8 @@ export class AnnotationsTab extends LitElement {
 
   protected render (): TemplateResult {
     return html`
-      <div class="container uk-container">
-        <div class="components-list uk-container">
+      <div class="container">
+        <div class="components-list">
           ${this.renderAnnotationsSection('whole-sketch', 'Sketch annotation', this.formatSketchAnnotation.bind(this))}
           ${this.renderAnnotationsSection('variables', 'Variables', this.formatVarAnnotations.bind(this))}
           ${this.renderAnnotationsSection('functions', 'Supplementary functions', this.formatFnAnnotations.bind(this))}

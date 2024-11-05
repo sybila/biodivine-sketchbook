@@ -13,10 +13,13 @@ pub mod sampling_data;
 /// Some functionality is taken from our repository [biodivine-bn-classifier].
 mod candidate_sampling;
 /// Structures and methods to run the whole inference process.
-/// This involves the general workflow, the details are in a separate module [analysis].
+/// This module covers the general async workflow, the details regarding the actual
+/// algorithms are in the module [crate::algorithms].
 mod inference_solver;
 /// Utilities to download results.
 mod results_export;
+/// Utilities to explore canditate update functions.
+mod update_fn_details;
 
 /// **(internal)** Several test scenarios for the inference procedure.
 #[cfg(test)]

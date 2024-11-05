@@ -80,7 +80,7 @@ impl AnalysisState {
     /// Getter for pre-processed results from the internal solver.
     /// If the results were not fetched yet (analysis still running), returns error.
     ///
-    /// This method is only a simple getter. See [try_fetch_results] for actual result fetching.
+    /// This method is only a simple getter. See [Self::try_fetch_results] for actual result fetching.
     pub fn get_results(&self) -> Result<InferenceResults, String> {
         if let Some(Ok(solver)) = &self.finished_solver {
             let results = solver.results.clone();
@@ -196,8 +196,8 @@ impl AnalysisState {
     /// Start the inference computation on a separate thread. If some previous computation is
     /// running, it is cancelled first.
     ///
-    /// The computation solver has its own thread. Method [try_fetch_results] can be used to
-    /// test if the results are ready (and fetch them if so). Method [try_get_solver_progress]
+    /// The computation solver has its own thread. Method [Self::try_fetch_results] can be used to
+    /// test if the results are ready (and fetch them if so). Method [Self::try_get_solver_progress]
     /// can be used to collect progress messages sent from the solver.
     pub fn start_analysis(&mut self, analysis_type: InferenceType) -> Result<(), DynError> {
         if !self.sketch_received || self.sketch.model.num_vars() == 0 {

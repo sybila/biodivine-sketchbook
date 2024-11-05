@@ -175,10 +175,6 @@ interface AeonState {
     /** Refresh the whole sketch. */
     refreshSketch: () => void
 
-    /** Run the explicit consistency check on the sketch. */
-    checkConsistency: () => void
-    /** Results of an explicit consistency check (a summary message). */
-    consistencyResults: Observable<string>
     /** Export the sketch data to a file. */
     exportSketch: (path: string) => void
     /** Import the sketch data from a special sketch JSON file. */
@@ -195,6 +191,10 @@ interface AeonState {
     setAnnotation: (annotation: string) => void
     /** Annotation of the whole sketch was changed. */
     annotationChanged: Observable<string>
+    /** Run the explicit consistency check on the sketch. */
+    checkConsistency: () => void
+    /** Results of an explicit consistency check (a summary message). */
+    consistencyResults: Observable<string>
 
     /** The state of the main model. */
     model: {
@@ -480,21 +480,15 @@ interface AeonState {
 
   /** The events regarding the analysis workflow. */
   analysis: {
+    /** State related events. */
+
     /** Sketch data transfered from backend (useful to initiate the state). */
     sketchRefreshed: Observable<SketchData>
     /** Ask for a sketch data (might be useful to update analysis window, or if automatic sketch
      * transfer from backend does not work). */
     refreshSketch: () => void
-    /** Fully reset the analysis and start again. The same sketch will be used. */
-    resetAnalysis: () => void
-    /** Information that analysis was reset. */
-    analysisReset: Observable<boolean>
-    /** Sample given number of Boolean networks from the results, either dereministically
-     * or randomly. The networks are saved in a zip archive at given path. */
-    sampleNetworks: (count: number, seed: number | null, path: string) => void
-    /** Dump archive with results (including the sketch, the converted aeon BN used for analysis, and
-     * a BDD with all satisfying colors) to the given path. */
-    dumpFullResults: (path: string) => void
+
+    /** Inference computation related events. */
 
     /** Start the full inference analysis. */
     startFullInference: () => void
@@ -504,9 +498,10 @@ interface AeonState {
     startDynamicInference: () => void
     /** Information that async inference analysis was successfully started. */
     inferenceStarted: Observable<boolean>
-    /** Inference analysis results. */
-    inferenceResultsReceived: Observable<InferenceResults>
-
+    /** Fully reset the analysis and start again. The same sketch will be used. */
+    resetAnalysis: () => void
+    /** Information that analysis was reset. */
+    analysisReset: Observable<boolean>
     /** Ping backend to see if the results are ready. Can be used regardless of
      * what analysis is running. */
     pingForInferenceResults: () => void
@@ -514,6 +509,17 @@ interface AeonState {
     computationUpdated: Observable<InferenceStatusReport[]>
     /** Error message from the inference solver. */
     computationErrorReceived: Observable<string>
+
+    /** Inference results related events. */
+
+    /** Inference analysis results. */
+    inferenceResultsReceived: Observable<InferenceResults>
+    /** Sample given number of Boolean networks from the results, either dereministically
+     * or randomly. The networks are saved in a zip archive at given path. */
+    sampleNetworks: (count: number, seed: number | null, path: string) => void
+    /** Dump archive with results (including the sketch, the converted aeon BN used for analysis, and
+     * a BDD with all satisfying colors) to the given path. */
+    dumpFullResults: (path: string) => void
   }
 
   /** The information about errors occurring when processing events on backend. */

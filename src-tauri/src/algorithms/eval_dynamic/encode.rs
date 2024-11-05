@@ -54,7 +54,7 @@ pub fn try_encode_observation(
 }
 
 /// Encode each of the several observations, one by one.
-/// For details, see [Self::encode_observation].
+/// For details, see [try_encode_observation].
 pub fn try_encode_multiple_observations(
     observations: &[Observation],
     var_names: &[String],
@@ -100,7 +100,7 @@ fn encode_observation_str(
 }
 
 /// Encode several observation vectors with conjunction formulae, one by one.
-/// Also see [encode_observation] for details.
+/// Also see [encode_observation_str] for details.
 fn encode_multiple_observations_str(
     observations: &[Observation],
     prop_names: &[String],
@@ -126,7 +126,7 @@ pub fn mk_formula_attractor_specific(attractor_state: &str) -> String {
 /// that is part of an attractor.
 ///
 /// This function works for sub-spaces in general, but if you have a singleton sub-space
-/// (a state), we recommend using [mk_attractor_formula_specific] - is more optimized).
+/// (a state), we recommend using [mk_formula_attractor_specific] - is more optimized).
 ///
 /// > `EXISTS x. JUMP x. ({state} & (AG EF ({state} & x)))`
 ///

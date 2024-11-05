@@ -24,6 +24,7 @@ use std::time::{Duration, SystemTime};
 use tauri::async_runtime::RwLock;
 
 use super::inference_status::InferenceStatusReport;
+use super::update_fn_details::num_update_fn_variants_per_var;
 
 /// Object encompassing the process of the BN inference computation.
 ///
@@ -338,7 +339,7 @@ impl InferenceSolver {
 /// Methods for asynchronous manipulation of `InferenceSolver` (starting/cancelling inference).
 impl InferenceSolver {
     /// Run the prototype version of the inference using the given solver.
-    /// This wraps the [run_inference_modular] to also log potential errors.
+    /// This wraps the [Self::run_inference_modular] to also log potential errors.
     ///
     /// The argument `analysis_type` specifies which kind of inference should be used.
     /// Currently, we support full inference with all properties, and partial inferences with only
@@ -597,6 +598,8 @@ impl InferenceSolver {
         }
         self.update_status(InferenceStatus::FinishedSuccessfully);
 
+        let num_update_fns_per_var =
+            num_update_fn_variants_per_var(self.final_sat_colors()?, self.bn()?);
         let total_time = self.total_duration().unwrap();
         let results = InferenceResults::new(
             analysis_type,
@@ -604,6 +607,7 @@ impl InferenceSolver {
             total_time,
             &summary_msg,
             self.status_updates.clone(),
+            num_update_fns_per_var,
         );
         self.results = Some(results.clone());
         Ok(results)

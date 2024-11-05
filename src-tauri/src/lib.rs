@@ -4,7 +4,7 @@ extern crate core;
 
 /// Algorithms for the inference process.
 pub mod algorithms;
-/// State of the inference analysis tab.
+/// State of the inference analysis tab and solvers.
 pub mod analysis;
 /// General functionality for window mechanism, event stack, tab management, and more.
 pub mod app;

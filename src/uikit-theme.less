@@ -9,7 +9,7 @@
 @primary-color: #5282ee;
 @secondary-light: #dedede;
 @secondary-dark: #222222;
-@background-light: #fafafa;
+@background-light: #f0f0f0;
 @background-dark: #2f2f2f;
 @separator-light: darken(@secondary-light, 20%);
 @separator-dark: lighten(@secondary-dark, 20%);
@@ -18,6 +18,10 @@
 @button-border-width: 0;
 @button-light: rgb(222, 222, 222);
 @button-dark: rgb(34, 34, 34);
+
+// Slightly different shades of light gray
+@help-message-block-light: rgb(215, 215, 219);
+@help-message-block-dark: rgb(164, 164, 170);
 
 @text-dark: #f6f6f6;
 @text-light: #0f0f0f;
@@ -60,7 +64,7 @@
   }
 
   .help-message-block {
-    background-color: @button-light;
+    background-color: @help-message-block-light;
     color: @text-light;
   }
 
@@ -81,7 +85,7 @@
   }
 
   .help-message-block {
-    background-color: @button-light;
+    background-color: @help-message-block-dark;
     color: @text-light;
   }
 

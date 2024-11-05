@@ -15,7 +15,7 @@ use tauri::{Manager, Window};
 ///  - Ability to add/remove windows as they are opened/closed.
 ///  - Error handling and retransmission of events.
 ///
-/// As such, [AppState] does not actually implement the [SessionState] trait.
+/// As such, [AppState] does not actually implement the [super::SessionState] trait.
 pub struct AppState {
     // Assigns a state object to every session.
     session_state: Mutex<HashMap<String, DynSession>>,

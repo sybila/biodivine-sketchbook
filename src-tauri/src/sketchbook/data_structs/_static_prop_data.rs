@@ -1,9 +1,9 @@
 use crate::sketchbook::ids::{StatPropertyId, UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, Monotonicity};
-use crate::sketchbook::properties::static_props::StatPropertyType;
-use crate::sketchbook::properties::StatProperty;
+use crate::sketchbook::properties::static_props;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
+use static_props::{StatProperty, StatPropertyType};
 
 /// **(internal)** Convert function input from its string format `varN` into its index `N`.
 fn input_id_to_index(input_id: &Option<String>) -> Result<Option<usize>, String> {
@@ -22,13 +22,13 @@ fn input_index_to_id(input_index: usize) -> String {
     format!("var{}", input_index)
 }
 
-/// Simplified variant to carry data regarding [GenericStatProp] static property.
+/// Simplified variant to carry data regarding [static_props::GenericStatProp] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GenericStatPropData {
     pub formula: String,
 }
 
-/// Simplified variant to carry data regarding [RegulationEssential] static property.
+/// Simplified variant to carry data regarding [static_props::RegulationEssential] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegulationEssentialData {
     pub input: Option<String>,
@@ -37,7 +37,7 @@ pub struct RegulationEssentialData {
     pub context: Option<String>,
 }
 
-/// Simplified variant to carry data regarding [FnInputEssential] static property.
+/// Simplified variant to carry data regarding [static_props::FnInputEssential] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FnInputEssentialData {
     pub input: Option<String>,
@@ -46,7 +46,7 @@ pub struct FnInputEssentialData {
     pub context: Option<String>,
 }
 
-/// Simplified variant to carry data regarding [RegulationMonotonic] static property.
+/// Simplified variant to carry data regarding [static_props::RegulationMonotonic] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RegulationMonotonicData {
     pub input: Option<String>,
@@ -55,7 +55,7 @@ pub struct RegulationMonotonicData {
     pub context: Option<String>,
 }
 
-/// Simplified variant to carry data regarding [FnInputMonotonic] static property.
+/// Simplified variant to carry data regarding [static_props::FnInputMonotonic] static property.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FnInputMonotonicData {
     pub input: Option<String>,

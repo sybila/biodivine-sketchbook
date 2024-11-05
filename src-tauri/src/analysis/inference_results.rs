@@ -1,7 +1,7 @@
 use crate::analysis::inference_type::InferenceType;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use super::inference_status::InferenceStatusReport;
 
@@ -19,6 +19,8 @@ pub struct InferenceResults {
     pub summary_message: String,
     /// All status updates of the solver (from creation to finish).
     pub progress_statuses: Vec<InferenceStatusReport>,
+    /// Number of admissible update functions per each variable.
+    pub num_update_fns_per_var: HashMap<String, usize>,
 }
 
 impl<'de> JsonSerde<'de> for InferenceResults {}
@@ -31,6 +33,7 @@ impl InferenceResults {
         comp_time: Duration,
         summary_message: &str,
         progress_statuses: Vec<InferenceStatusReport>,
+        num_update_fns_per_var: HashMap<String, usize>,
     ) -> InferenceResults {
         InferenceResults {
             analysis_type,
@@ -38,6 +41,7 @@ impl InferenceResults {
             comp_time: comp_time.as_millis(),
             summary_message: summary_message.to_string(),
             progress_statuses,
+            num_update_fns_per_var,
         }
     }
 
