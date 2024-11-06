@@ -31,6 +31,10 @@ impl SessionState for Sketch {
             let path = Self::clone_payload_str(event, "sketch")?;
             self.export_to_custom_json(&path)?;
             Ok(Consumed::NoChange)
+        } else if Self::starts_with("export_aeon", at_path).is_some() {
+            let path = Self::clone_payload_str(event, "sketch")?;
+            self.export_to_aeon(&path)?;
+            Ok(Consumed::NoChange)
         } else if Self::starts_with("import_sketch", at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
             // read the file contents

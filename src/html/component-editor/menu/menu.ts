@@ -39,6 +39,10 @@ export default class Menu extends LitElement {
       action: () => { void this.exportSketch() }
     },
     {
+      label: 'Export AEON',
+      action: () => { void this.exportAeon() }
+    },
+    {
       label: 'Quit',
       action: () => { void this.quit() }
     }
@@ -99,7 +103,7 @@ export default class Menu extends LitElement {
 
   async exportSketch (): Promise<void> {
     const filePath = await save({
-      title: 'Export sketch...',
+      title: 'Export sketch in JSON format...',
       filters: [{
         name: '*.json',
         extensions: ['json']
@@ -108,8 +112,23 @@ export default class Menu extends LitElement {
     })
     if (filePath === null) return
 
-    console.log('exporting to', filePath)
+    console.log('exporting json to', filePath)
     aeonState.sketch.exportSketch(filePath)
+  }
+
+  async exportAeon (): Promise<void> {
+    const filePath = await save({
+      title: 'Export sketch in extended AEON format...',
+      filters: [{
+        name: '*.aeon',
+        extensions: ['aeon']
+      }],
+      defaultPath: 'project_name_here'
+    })
+    if (filePath === null) return
+
+    console.log('exporting aeon to', filePath)
+    aeonState.sketch.exportAeon(filePath)
   }
 
   async newSketch (): Promise<void> {

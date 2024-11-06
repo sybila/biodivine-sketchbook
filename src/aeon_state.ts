@@ -175,8 +175,10 @@ interface AeonState {
     /** Refresh the whole sketch. */
     refreshSketch: () => void
 
-    /** Export the sketch data to a file. */
+    /** Export the sketch data to a file in the custom JSON format. */
     exportSketch: (path: string) => void
+    /** Export the sketch data to a file in the extended AEON format. */
+    exportAeon: (path: string) => void
     /** Import the sketch data from a special sketch JSON file. */
     importSketch: (path: string) => void
     /** Import the sketch data from a AEON file. */
@@ -597,6 +599,12 @@ export const aeonState: AeonState = {
     exportSketch (path: string): void {
       aeonEvents.emitAction({
         path: ['sketch', 'export_sketch'],
+        payload: path
+      })
+    },
+    exportAeon (path: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'export_aeon'],
         payload: path
       })
     },
