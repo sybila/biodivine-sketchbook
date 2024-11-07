@@ -228,6 +228,12 @@ impl ModelState {
             .ok_or(format!("Layout with ID {id} does not exist in this model."))
     }
 
+    /// Return a default `Layout`.
+    pub fn get_default_layout(&self) -> &Layout {
+        let default_id = ModelState::get_default_layout_id();
+        self.layouts.get(&default_id).unwrap()
+    }
+
     /// Return a valid layout's `LayoutId` corresponding to the Id given by a `String`.
     ///
     /// Return `Err` if such variable does not exist (and the ID is invalid).

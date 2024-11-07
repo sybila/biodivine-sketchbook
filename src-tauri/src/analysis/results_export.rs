@@ -9,12 +9,14 @@ use std::path::Path;
 use zip::write::{FileOptions, ZipWriter};
 
 /// Export archive with complete results to the given path.
+/// The output archive is tailored for a case where sketch is satisfiable.
+///
 /// The results archive include:
 /// - a summary report (basically information tracked by the `InferenceResults` struct)
 /// - original sketch in JSON format for replicability in SketchBook
 /// - BDD with satisfying colors
 /// - a PSBN model derived from the sketch (in aeon format) that can be used as a context for the BDD
-/// - a folder with update function variants per variable
+/// - a folder with admissible update function variants per variable
 pub fn export_results(
     path: &str,
     finished_solver: &FinishedInferenceSolver,
@@ -81,6 +83,8 @@ fn write_to_zip(
     Ok(())
 }
 
+/// Prepare a formated summary of inference results, basically a "report" on the
+/// computation progress and results.
 fn format_inference_results(results: &InferenceResults) -> String {
     let mut output = String::new();
 
@@ -129,7 +133,8 @@ fn format_inference_results(results: &InferenceResults) -> String {
 }
 
 /// For a given variable, get all valid interpretations of its update function present in the
-/// satisfying `colors` (taken from the results of the solver). Variable must be present in the network.
+/// satisfying `colors` (taken from the results of the solver).
+/// Variable must be present in the network.
 pub fn get_update_fn_variants_from_solver(
     solver: &FinishedInferenceSolver,
     var_name: &str,

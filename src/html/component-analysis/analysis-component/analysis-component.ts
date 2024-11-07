@@ -218,21 +218,24 @@ export default class AnalysisComponent extends LitElement {
       .map(statusReport => statusReport.message)
       .join('\n')
 
-    // prepare the summary with update functions per variable, sorted by var name
-    const updateFnsSummary = Object.entries(results.num_update_fns_per_var)
-      .sort(([varNameA], [varNameB]) => varNameA.localeCompare(varNameB))
-      .map(([varName, count]) => {
-        const countDisplay = count >= 1000 ? 'more than 1000' : count.toString()
-        return `${varName}: ${countDisplay}`
-      })
-      .join('\n')
+    let resultsMessage = '--------------\nExtended summary:\n--------------\n' +
+      `${results.summary_message}\n`
+    if (results.num_sat_networks > 0) {
+      // prepare the summary with update functions per variable, sorted by var name
+      const updateFnsSummary = Object.entries(results.num_update_fns_per_var)
+        .sort(([varNameA], [varNameB]) => varNameA.localeCompare(varNameB))
+        .map(([varName, count]) => {
+          const countDisplay = count >= 1000 ? 'more than 1000' : count.toString()
+          return `${varName}: ${countDisplay}`
+        })
+        .join('\n')
 
-    return '--------------\nExtended summary:\n--------------\n' +
-      `${results.summary_message}\n` +
-      '--------------\nNumber of admissible update functions per variable:\n--------------\n' +
-      updateFnsSummary + '\n\n' +
-      '--------------\nDetailed progress report:\n--------------\n' +
+      resultsMessage += '--------------\nNumber of admissible update functions per variable:\n--------------\n' +
+        updateFnsSummary + '\n\n'
+    }
+    resultsMessage += '--------------\nDetailed progress report:\n--------------\n' +
       progressSummary
+    return resultsMessage
   }
 
   private async resetAnalysis (): Promise<void> {
