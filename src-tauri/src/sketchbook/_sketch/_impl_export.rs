@@ -35,10 +35,11 @@ impl Sketch {
     /// This format includes the standard AEON format for PSBN and layout.
     /// This format is compatible with other biodivine tools, but might not cover all
     /// parts of the sketch.
-    /// 
-    /// Apart from that, all details of the sketch are given via model annotations.
-    /// Currently the annotations are given simpy as `component_type: id: json_string`.
-    /// These components can be variables, functions, properties, of datasets.
+    ///
+    /// Apart from that, most remaining details of the sketch are given via model annotations.
+    /// Currently the annotations are given simpy as
+    ///   #!entity_type: ID: #`json_string`#
+    /// These entities can be variables, functions, static/dynamic properties, and datasets.
     pub fn to_aeon(&self) -> String {
         // for standard part of aeon format, we use the transformation into aeon BN
         // this loses some info (like new regulation types), but that is preserved via annotations

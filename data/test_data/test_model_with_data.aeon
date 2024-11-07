@@ -1,0 +1,35 @@
+C -?? A
+C -| C
+D -> B
+D -? D
+B -> C
+A -> C
+A -> B
+$A: h(C)
+$B: f(A, D)
+$C: A & g(C, B)
+#position:A:346.89832,183.03789
+#position:C:504.7078,101.93903
+#position:B:0,0
+#position:D:642.49677,185.15988
+#!dataset:data_fp:#`{"name":"data_fp","id":"data_fp","annotation":"","observations":[{"id":"ones","name":"ones","annotation":"","dataset":"data_fp","values":"1111"},{"id":"zeros","name":"zeros","annotation":"","dataset":"data_fp","values":"0000"}],"variables":["A","B","C","D"]}`#
+#!dataset:data_mts:#`{"name":"data_mts","id":"data_mts","annotation":"","observations":[{"id":"abc","name":"abc","annotation":"","dataset":"data_mts","values":"111*"},{"id":"ab","name":"ab","annotation":"","dataset":"data_mts","values":"11**"}],"variables":["A","B","C","D"]}`#
+#!dataset:data_time_series:#`{"name":"data_time_series","id":"data_time_series","annotation":"","observations":[{"id":"a","name":"a","annotation":"","dataset":"data_time_series","values":"1000"},{"id":"b","name":"b","annotation":"","dataset":"data_time_series","values":"1100"},{"id":"c","name":"c","annotation":"","dataset":"data_time_series","values":"1110"},{"id":"d","name":"d","annotation":"","dataset":"data_time_series","values":"1111"}],"variables":["A","B","C","D"]}`#
+#!function:f:#`{"id":"f","name":"f","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:g:#`{"id":"g","name":"g","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:h:#`{"id":"h","name":"h","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!static_property:essentiality_A_B:#`{"id":"essentiality_A_B","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"A","target":"B","value":"True","context":null}`#
+#!static_property:essentiality_A_C:#`{"id":"essentiality_A_C","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"A","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_B_C:#`{"id":"essentiality_B_C","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"B","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_C_C:#`{"id":"essentiality_C_C","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"C","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_D_B:#`{"id":"essentiality_D_B","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"D","target":"B","value":"True","context":null}`#
+#!static_property:essentiality_D_D:#`{"id":"essentiality_D_D","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"D","target":"D","value":"True","context":null}`#
+#!static_property:monotonicity_A_B:#`{"id":"monotonicity_A_B","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"A","target":"B","value":"Activation","context":null}`#
+#!static_property:monotonicity_A_C:#`{"id":"monotonicity_A_C","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"A","target":"C","value":"Activation","context":null}`#
+#!static_property:monotonicity_B_C:#`{"id":"monotonicity_B_C","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"B","target":"C","value":"Activation","context":null}`#
+#!static_property:monotonicity_C_C:#`{"id":"monotonicity_C_C","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"C","target":"C","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_D_B:#`{"id":"monotonicity_D_B","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"D","target":"B","value":"Activation","context":null}`#
+#!variable:A:#`{"id":"A","name":"A","annotation":"","update_fn":"h(C)"}`#
+#!variable:B:#`{"id":"B","name":"B","annotation":"","update_fn":"f(A, D)"}`#
+#!variable:C:#`{"id":"C","name":"C","annotation":"","update_fn":"A & g(C, B)"}`#
+#!variable:D:#`{"id":"D","name":"D","annotation":"","update_fn":""}`#

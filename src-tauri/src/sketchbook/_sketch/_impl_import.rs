@@ -1,4 +1,7 @@
-use crate::sketchbook::data_structs::SketchData;
+use crate::sketchbook::data_structs::{
+    DatasetData, DynPropertyData, SketchData, StatPropertyData, StatPropertyTypeData,
+    UninterpretedFnData, VariableData,
+};
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
 use crate::sketchbook::properties::shortcuts::*;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
@@ -6,19 +9,24 @@ use crate::sketchbook::{JsonSerde, Sketch};
 use biodivine_lib_param_bn::{BooleanNetwork, ModelAnnotation};
 use regex::Regex;
 
-type NamedProperties = Vec<(String, String)>;
-
 impl Sketch {
-    /// Create sketch instance from a AEON model format. This variant includes:
-    /// - variables
+    /// Create sketch instance from a customized version of AEON model format.
+    /// The original part of the AEON format (compatible with other biodivine tools) includes:
+    /// - variable IDs
     /// - regulations (and corresponding automatically generated static properties)
     /// - update functions and function symbols
     /// - layout information
-    /// - HCTL dynamic properties
-    /// - FOL static properties
     ///
-    // TODO: our variant of aeon format currently does not consider template properties and datasets.
-    // TODO: our variant of aeon format currently does not consider annotation.
+    /// The custom extension covers most remaining parts of the sketch via model annotations.
+    /// Currently the annotations are given simpy as
+    ///   #!entity_type: ID: #`json_string`#
+    /// These annotations either cover additional information (complementing variables and
+    /// functions), or completely new components like static/dynamic properties and datasets.
+    ///
+    /// We allow a special case for writing HCTL and FOL properties, compatible with the
+    /// original BN sketches prototype format:
+    ///   #!static_property: ID: #`fol_formula_string`#
+    ///   #!dynamic_property: ID: #`hctl_formula_string`#
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
         // set psbn info (variables, functions, regulations and corresponding properties)
         let bn = BooleanNetwork::try_from(aeon_str)?;
@@ -34,16 +42,68 @@ impl Sketch {
                 .update_position(&default_layout, &node_id, x, y)?;
         }
 
-        // set generic static& dynamic properties from aeon model annotations
+        // recover the remaining components from aeon model annotations
         let aeon_annotations = ModelAnnotation::from_model_string(aeon_str);
-        let (stat_props, dyn_props) = Self::extract_model_properties(&aeon_annotations)?;
-        for (name, formula) in stat_props {
-            let prop = StatProperty::try_mk_generic(&name, &formula, "")?;
-            sketch.properties.add_static_by_str(&name, prop)?
+        let variables = Self::extract_entities(&aeon_annotations, "variable")?;
+        let functions = Self::extract_entities(&aeon_annotations, "function")?;
+        let datasets = Self::extract_entities(&aeon_annotations, "dataset")?;
+        let stat_props = Self::extract_entities(&aeon_annotations, "static_property")?;
+        let dyn_props = Self::extract_entities(&aeon_annotations, "dynamic_property")?;
+
+        // for variables and functions, there can be additional info (like names, annotations, ...)
+        for (id, variable_str) in variables {
+            let var_data = VariableData::from_json_str(&variable_str)?;
+            let var_id = sketch.model.get_var_id(&id)?;
+            sketch.model.set_raw_var(&var_id, var_data.to_var()?)?;
+            sketch.model.set_update_fn(&var_id, &var_data.update_fn)?;
         }
-        for (name, formula) in dyn_props {
-            let prop = DynProperty::try_mk_generic(&name, &formula, "")?;
-            sketch.properties.add_dynamic_by_str(&name, prop)?
+        for (id, fn_str) in functions {
+            let fn_data = UninterpretedFnData::from_json_str(&fn_str)?;
+            let fn_id = sketch.model.get_uninterpreted_fn_id(&id)?;
+            sketch
+                .model
+                .set_raw_function(&fn_id, fn_data.to_uninterpreted_fn(&sketch.model)?)?;
+        }
+
+        // datasets have to be added from scratch
+        for (id, dataset_str) in datasets {
+            let dataset_data = DatasetData::from_json_str(&dataset_str)?;
+            sketch
+                .observations
+                .add_dataset_by_str(&id, dataset_data.to_dataset()?)?;
+        }
+
+        // properties have to be added from scratch (apart from automatically generated static props)
+        // we allow two modes - a JSON string for any property, or formula string for HCTL/FOL properties
+        for (id, content_str) in stat_props {
+            // try parsing formula
+            if let Ok(prop) = StatProperty::try_mk_generic(&id, &content_str, "") {
+                sketch.properties.add_static_by_str(&id, prop)?
+            } else {
+                let prop_data = StatPropertyData::from_json_str(&content_str)?;
+                let property = prop_data.to_property()?;
+
+                // ignore automatically generated static props as they were added before
+                // todo: this can loose some info as standard AEON format does not cover all regulation types
+                match prop_data.variant {
+                    StatPropertyTypeData::RegulationEssential(..)
+                    | StatPropertyTypeData::RegulationMonotonic(..) => {}
+                    _ => {
+                        sketch.properties.add_static_by_str(&id, property)?;
+                    }
+                }
+            }
+        }
+        for (id, content_str) in dyn_props {
+            // try parsing formula
+            if let Ok(prop) = DynProperty::try_mk_generic(&id, &content_str, "") {
+                sketch.properties.add_dynamic_by_str(&id, prop)?
+            } else {
+                let prop_data = DynPropertyData::from_json_str(&content_str)?;
+                sketch
+                    .properties
+                    .add_dynamic_by_str(&id, prop_data.to_property()?)?;
+            }
         }
 
         Ok(sketch)
@@ -101,8 +161,10 @@ impl Sketch {
     }
 
     /// Extract positions of nodes from the aeon model string.
-    /// Positions are lines `#position:NODE_ID:X,Y`.
-    /// Return list of triplets <node_id, x, y>.
+    /// Positions are expect as lines in forllowing format:
+    ///   #position:NODE_ID:X,Y
+    ///
+    /// This funtction returns a list of triplets <node_id, x, y>.
     fn extract_aeon_layout_info(aeon_str: &str) -> Vec<(String, f32, f32)> {
         let re = Regex::new(r"^#position:(\w+):([+-]?\d+(\.\d+)?),([+-]?\d+(\.\d+)?)$").unwrap();
 
@@ -130,60 +192,55 @@ impl Sketch {
         positions
     }
 
-    /// Extract two lists of named properties (static and dynamic) from an `.aeon` model
+    /// Extract list of named entities (tuples with id/content) from an `.aeon` model
     /// annotation object.
     ///
-    /// The properties are expected to appear as one of:
-    /// - `#!dynamic_property: NAME: HCTL_FORMULA` for dynamic properties.
-    /// - `#!static_property: NAME: FOL_FORMULA` for static properties.
+    /// The entities are expected to appear as:
+    ///   #!entity_type: ID: #`CONTENT`#
+    /// So, for example:
+    ///   #!variable:ANT:#`{"id":"ANT","name":"ANT","annotation":"","update_fn":""}`#
     ///
-    /// Each list is returned in alphabetic order w.r.t. the property name.
-    fn extract_model_properties(
+    /// Each list is returned in alphabetic order w.r.t. the entity name.
+    fn extract_entities(
         annotations: &ModelAnnotation,
-    ) -> Result<(NamedProperties, NamedProperties), String> {
-        let stat_props = if let Some(property_node) = annotations.get_child(&["static_property"]) {
-            Self::process_property_node(property_node)?
+        entity_type: &str,
+    ) -> Result<Vec<(String, String)>, String> {
+        if let Some(entity_node) = annotations.get_child(&[entity_type]) {
+            Self::process_entity_node(entity_node, entity_type)
         } else {
-            Vec::new()
-        };
-        let dyn_props = if let Some(property_node) = annotations.get_child(&["dynamic_property"]) {
-            Self::process_property_node(property_node)?
-        } else {
-            Vec::new()
-        };
-        Ok((stat_props, dyn_props))
+            Ok(Vec::new())
+        }
     }
 
-    /// Given a `ModelAnnotation` node corresponding to `dynamic_property` or `static_property`,
-    /// collect all named properties from its child nodes.
+    /// Given a `ModelAnnotation` node corresponding to a particular entity type (like 'variable'),
+    /// collect all entities of given type from the child nodes.
     ///
-    /// This is possible because both `dynamic_property` and `static_property` annotations
-    /// share common structure.
+    /// This is general for all entity types as annotations share common structure.
+    ///   #!entity_type: ID: #`CONTENT`#
     ///
-    /// The properties are expected to appear as one of:
-    /// - `#!dynamic_property: NAME: FORMULA` for dynamic properties.
-    /// - `#!static_property: NAME: FORMULA` for static properties.
-    ///
-    /// Each list is returned in alphabetic order w.r.t. the property name.
-    fn process_property_node(
-        property_node: &ModelAnnotation,
+    /// List is returned in alphabetic order w.r.t. the property name.
+    fn process_entity_node(
+        enitity_node: &ModelAnnotation,
+        enitity_type: &str,
     ) -> Result<Vec<(String, String)>, String> {
-        let mut properties = Vec::with_capacity(property_node.children().len());
-        for (name, child) in property_node.children() {
+        let mut entities = Vec::with_capacity(enitity_node.children().len());
+        for (id, child) in enitity_node.children() {
             if !child.children().is_empty() {
-                return Err(format!("Property `{name}` contains nested values."));
+                return Err(format!("{enitity_type} `{id}` contains nested values."));
             }
             let Some(value) = child.value() else {
-                return Err(format!("Found empty dynamic property `{name}`."));
+                return Err(format!("Found empty {enitity_type} `{id}`."));
             };
             if value.lines().count() > 1 {
-                return Err(format!("Found multiple properties named `{name}`."));
+                return Err(format!(
+                    "Found multiple entities of type {enitity_type} with id `{id}`."
+                ));
             }
-            properties.push((name.clone(), value.clone()));
+            entities.push((id.clone(), value.clone()));
         }
         // Sort alphabetically to avoid possible non-determinism down the line.
-        properties.sort_by(|(x, _), (y, _)| x.cmp(y));
-        Ok(properties)
+        entities.sort_by(|(x, _), (y, _)| x.cmp(y));
+        Ok(entities)
     }
 }
 
@@ -207,8 +264,8 @@ mod tests {
 
     #[test]
     /// Test that importing the same data from different formats results in the same sketch.
-    /// These models only include PSBN (no additional datasets or porperties).
-    fn sketch_import() {
+    /// These models only include PSBN (no additional datasets or properties).
+    fn basic_import() {
         let mut aeon_sketch_file = File::open("../data/test_data/test_model.aeon").unwrap();
         let mut json_sketch_file = File::open("../data/test_data/test_model.json").unwrap();
         let mut sbml_sketch_file = File::open("../data/test_data/test_model.sbml").unwrap();
@@ -226,5 +283,24 @@ mod tests {
 
         assert_eq!(sketch1, sketch2);
         assert_eq!(sketch2, sketch3);
+    }
+
+    #[test]
+    /// Test that importing the same data from aeon and json format results in the same sketch.
+    /// This test involves a full sketch format with datasets and properties.
+    fn full_import() {
+        let mut aeon_sketch_file =
+            File::open("../data/test_data/test_model_with_data.aeon").unwrap();
+        let mut json_sketch_file =
+            File::open("../data/test_data/test_model_with_data.json").unwrap();
+
+        let mut aeon_contents = String::new();
+        aeon_sketch_file.read_to_string(&mut aeon_contents).unwrap();
+        let mut json_contents = String::new();
+        json_sketch_file.read_to_string(&mut json_contents).unwrap();
+
+        let sketch1 = Sketch::from_aeon(&aeon_contents).unwrap();
+        let sketch2 = Sketch::from_custom_json(&json_contents).unwrap();
+        assert_eq!(sketch1, sketch2);
     }
 }
