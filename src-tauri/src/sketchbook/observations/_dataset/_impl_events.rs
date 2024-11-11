@@ -7,6 +7,15 @@ use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::JsonSerde;
 
+/* Constants for event path segments for various events related to `Dataset` observations. */
+
+// remove an observation from the dataset
+const REMOVE_OBSERVATION_PATH: &str = "remove";
+// set observation's ID
+const SET_OBSERVATION_ID_PATH: &str = "set_id";
+// set observation's data
+const SET_OBSERVATION_DATA_PATH: &str = "set_data";
+
 impl SessionHelper for Dataset {}
 
 /// Implementation for events related to modifying `observations` in a particular `Dataset`.
@@ -83,7 +92,6 @@ impl Dataset {
         Ok(make_reversible(state_change, event, reverse_event))
     }
 
-    /// Perform event of modifying or removing existing `observation` component of this `Dataset`.
     pub(in crate::sketchbook::observations) fn event_modify_observation(
         &mut self,
         event: &Event,
@@ -93,64 +101,74 @@ impl Dataset {
     ) -> Result<Consumed, DynError> {
         let component_name = "observations/dataset";
 
-        if action == "remove" {
-            // save the original observation data for state change and reverse event
-            let original_obs = self.get_obs(&obs_id)?.clone();
-            let obs_data = ObservationData::from_obs(&original_obs, &dataset_id);
+        match action {
+            REMOVE_OBSERVATION_PATH => {
+                // Save the original observation data for state change and reverse event
+                let original_obs = self.get_obs(&obs_id)?.clone();
+                let obs_data = ObservationData::from_obs(&original_obs, &dataset_id);
 
-            // perform the action, prepare the state-change variant (move IDs from path to payload)
-            self.remove_obs(&obs_id)?;
-            let state_change = mk_obs_state_change(&["remove_obs"], &obs_data);
+                // Perform the action and prepare the state-change variant
+                self.remove_obs(&obs_id)?;
+                let state_change = mk_obs_state_change(&[REMOVE_OBSERVATION_PATH], &obs_data);
 
-            // TODO: make this potentially reversible?
-            Ok(Consumed::Irreversible {
-                state_change,
-                reset: true,
-            })
-        } else if action == "set_id" {
-            // get the payload - string for "new_id"
-            let new_id = Self::clone_payload_str(event, component_name)?;
-            if obs_id.as_str() == new_id.as_str() {
-                return Ok(Consumed::NoChange);
+                Ok(Consumed::Irreversible {
+                    state_change,
+                    reset: true,
+                })
             }
+            SET_OBSERVATION_ID_PATH => {
+                // Get the payload - string for "new_id"
+                let new_id = Self::clone_payload_str(event, component_name)?;
+                if obs_id.as_str() == new_id.as_str() {
+                    return Ok(Consumed::NoChange);
+                }
 
-            // perform the action, prepare the state-change variant (move id from path to payload)
-            self.set_obs_id_by_str(obs_id.as_str(), new_id.as_str())?;
-            let id_change_data = ChangeIdData::new_with_metadata(
-                obs_id.as_str(),
-                new_id.as_str(),
-                dataset_id.as_str(),
-            );
-            let state_change = mk_obs_state_change(&["set_obs_id"], &id_change_data);
+                // Perform the action and prepare the state-change variant
+                self.set_obs_id_by_str(obs_id.as_str(), new_id.as_str())?;
+                let id_change_data = ChangeIdData::new_with_metadata(
+                    obs_id.as_str(),
+                    new_id.as_str(),
+                    dataset_id.as_str(),
+                );
+                let state_change = mk_obs_state_change(&[SET_OBSERVATION_ID_PATH], &id_change_data);
 
-            // prepare the reverse event (setting the original ID back)
-            let reverse_at_path = [dataset_id.as_str(), new_id.as_str(), "set_id"];
-            let reverse_event = mk_obs_event(&reverse_at_path, Some(obs_id.as_str()));
-            Ok(make_reversible(state_change, event, reverse_event))
-        } else if action == "set_data" {
-            // get the payload - string encoding a new modified observation data
-            let payload = Self::clone_payload_str(event, component_name)?;
-            let new_obs_data = ObservationData::from_json_str(&payload)?;
-            let new_obs = new_obs_data.to_observation()?;
-            let orig_obs = self.get_obs(&obs_id)?;
-            if orig_obs == &new_obs {
-                return Ok(Consumed::NoChange);
+                // Prepare the reverse event
+                let reverse_at_path = [
+                    dataset_id.as_str(),
+                    new_id.as_str(),
+                    SET_OBSERVATION_ID_PATH,
+                ];
+                let reverse_event = mk_obs_event(&reverse_at_path, Some(obs_id.as_str()));
+                Ok(make_reversible(state_change, event, reverse_event))
             }
+            SET_OBSERVATION_DATA_PATH => {
+                // Get the payload - string encoding a new modified observation data
+                let payload = Self::clone_payload_str(event, component_name)?;
+                let new_obs_data = ObservationData::from_json_str(&payload)?;
+                let new_obs = new_obs_data.to_observation()?;
+                let orig_obs = self.get_obs(&obs_id)?;
+                if orig_obs == &new_obs {
+                    return Ok(Consumed::NoChange);
+                }
 
-            // perform the action, prepare the state-change variant (move id from path to payload)
-            let orig_obs_data = ObservationData::from_obs(orig_obs, &dataset_id);
-            self.set_observation_raw(&obs_id, new_obs)?;
-            let state_change = mk_obs_state_change(&["set_obs_data"], &new_obs_data);
+                // Perform the action and prepare the state-change variant
+                let orig_obs_data = ObservationData::from_obs(orig_obs, &dataset_id);
+                self.set_observation_raw(&obs_id, new_obs)?;
+                let state_change = mk_obs_state_change(&[SET_OBSERVATION_DATA_PATH], &new_obs_data);
 
-            // prepare the reverse event (setting the original content back)
-            let reverse_at_path = [dataset_id.as_str(), obs_id.as_str(), "set_data"];
-            let payload = orig_obs_data.to_json_str();
-            let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
-            Ok(make_reversible(state_change, event, reverse_event))
-        } else {
-            AeonError::throw(format!(
+                // Prepare the reverse event
+                let reverse_at_path = [
+                    dataset_id.as_str(),
+                    obs_id.as_str(),
+                    SET_OBSERVATION_DATA_PATH,
+                ];
+                let payload = orig_obs_data.to_json_str();
+                let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
+                Ok(make_reversible(state_change, event, reverse_event))
+            }
+            _ => AeonError::throw(format!(
                 "`{component_name}` cannot perform action `{action}`."
-            ))
+            )),
         }
     }
 }

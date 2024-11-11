@@ -7,18 +7,47 @@ use crate::sketchbook::{JsonSerde, Sketch};
 use std::fs::File;
 use std::io::Read;
 
+/** Constants for event path segments for various events. */
+
+// events being delegated to `model` subcomponent
+const MODEL_PATH: &str = "model";
+// events being delegated to `observations` subcomponent
+const OBSERVATIONS_PATH: &str = "observations";
+// events being delegated to `properties` subcomponent
+const PROPERTIES_PATH: &str = "properties";
+// create new sketch and replace the current data
+const NEW_SKETCH_PATH: &str = "new_sketch";
+// export the current sketch to custom format
+const EXPORT_SKETCH_PATH: &str = "export_sketch";
+// export the current sketch to extended aeon format
+const EXPORT_AEON_PATH: &str = "export_aeon";
+// import sketch from custom format and replace the current data
+const IMPORT_SKETCH_PATH: &str = "import_sketch";
+// import sketch from aeon format and replace the current data
+const IMPORT_AEON_PATH: &str = "import_aeon";
+// import model from sbml format and replace the current data
+const IMPORT_SBML_PATH: &str = "import_sbml";
+// check if various components of sketch are consistent together (and report issues)
+const CHECK_CONSISTENCY_PATH: &str = "check_consistency";
+// assert that various components of sketch are consistent together
+const ASSERT_CONSISTENCY_PATH: &str = "assert_consistency";
+// set annotation for the sketch
+const SET_ANNOTATION_PATH: &str = "set_annotation";
+// refresh the whole sketch
+const GET_WHOLE_SKETCH_PATH: &str = "get_whole_sketch";
+
 impl SessionHelper for Sketch {}
 
 impl SessionState for Sketch {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         // just distribute the events one layer down, or answer some specific cases
-        if let Some(at_path) = Self::starts_with("model", at_path) {
+        if let Some(at_path) = Self::starts_with(MODEL_PATH, at_path) {
             self.model.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("observations", at_path) {
+        } else if let Some(at_path) = Self::starts_with(OBSERVATIONS_PATH, at_path) {
             self.observations.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("properties", at_path) {
+        } else if let Some(at_path) = Self::starts_with(PROPERTIES_PATH, at_path) {
             self.properties.perform_event(event, at_path)
-        } else if Self::starts_with("new_sketch", at_path).is_some() {
+        } else if Self::starts_with(NEW_SKETCH_PATH, at_path).is_some() {
             self.set_to_empty();
             let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
@@ -27,15 +56,15 @@ impl SessionState for Sketch {
                 state_change,
                 reset: true,
             })
-        } else if Self::starts_with("export_sketch", at_path).is_some() {
+        } else if Self::starts_with(EXPORT_SKETCH_PATH, at_path).is_some() {
             let path = Self::clone_payload_str(event, "sketch")?;
             self.export_to_custom_json(&path)?;
             Ok(Consumed::NoChange)
-        } else if Self::starts_with("export_aeon", at_path).is_some() {
+        } else if Self::starts_with(EXPORT_AEON_PATH, at_path).is_some() {
             let path = Self::clone_payload_str(event, "sketch")?;
             self.export_to_aeon(&path)?;
             Ok(Consumed::NoChange)
-        } else if Self::starts_with("import_sketch", at_path).is_some() {
+        } else if Self::starts_with(IMPORT_SKETCH_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
             // read the file contents
             let mut file = File::open(file_path)?;
@@ -52,7 +81,7 @@ impl SessionState for Sketch {
                 state_change,
                 reset: true,
             })
-        } else if Self::starts_with("import_aeon", at_path).is_some() {
+        } else if Self::starts_with(IMPORT_AEON_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
             // read the file contents
             let mut file = File::open(file_path)?;
@@ -71,7 +100,7 @@ impl SessionState for Sketch {
                 state_change,
                 reset: true,
             })
-        } else if Self::starts_with("import_sbml", at_path).is_some() {
+        } else if Self::starts_with(IMPORT_SBML_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
             // read the file contents
             let mut file = File::open(file_path)?;
@@ -89,7 +118,7 @@ impl SessionState for Sketch {
                 state_change,
                 reset: true,
             })
-        } else if Self::starts_with("check_consistency", at_path).is_some() {
+        } else if Self::starts_with(CHECK_CONSISTENCY_PATH, at_path).is_some() {
             let (success, message) = self.run_consistency_check();
             let results = if success {
                 "No issues with the sketch were discovered!".to_string()
@@ -104,7 +133,7 @@ impl SessionState for Sketch {
                 state_change,
                 reset: false,
             })
-        } else if Self::starts_with("set_annotation", at_path).is_some() {
+        } else if Self::starts_with(SET_ANNOTATION_PATH, at_path).is_some() {
             let new_annotation = Self::clone_payload_str(event, "sketch")?;
             let orig_annotation = self.get_annotation().to_string();
             if new_annotation == orig_annotation {
@@ -119,7 +148,7 @@ impl SessionState for Sketch {
             reverse_event.payload = Some(orig_annotation);
 
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("assert_consistency", at_path).is_some() {
+        } else if Self::starts_with(ASSERT_CONSISTENCY_PATH, at_path).is_some() {
             // this is a "synthetic" event that either returns an error, or Consumed::NoChange
             self.assert_consistency()?;
             Ok(Consumed::NoChange)
@@ -130,13 +159,13 @@ impl SessionState for Sketch {
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         // just distribute the events one layer down, or answer some specific cases
-        if let Some(at_path) = Self::starts_with("model", at_path) {
+        if let Some(at_path) = Self::starts_with(MODEL_PATH, at_path) {
             self.model.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("observations", at_path) {
+        } else if let Some(at_path) = Self::starts_with(OBSERVATIONS_PATH, at_path) {
             self.observations.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("properties", at_path) {
+        } else if let Some(at_path) = Self::starts_with(PROPERTIES_PATH, at_path) {
             self.properties.refresh(full_path, at_path)
-        } else if Self::starts_with("get_whole_sketch", at_path).is_some() {
+        } else if Self::starts_with(GET_WHOLE_SKETCH_PATH, at_path).is_some() {
             let sketch_data = SketchData::new_from_sketch(self);
             Ok(Event {
                 path: full_path.to_vec(),

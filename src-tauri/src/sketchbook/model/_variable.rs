@@ -4,12 +4,11 @@ use std::fmt::{Display, Error, Formatter};
 
 /// A type safe object for a Boolean variable of a `ModelState`.
 ///
-/// Currently, it only stores the variable's `name`.
+/// Currently, it only stores the variable's `name` and `annotation`.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Variable {
     name: String,
     annotation: String,
-    // TODO: add compartments in future
 }
 
 impl Variable {
