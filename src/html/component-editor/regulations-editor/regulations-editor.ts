@@ -129,8 +129,6 @@ export class RegulationsEditor extends LitElement {
     this.cy.nodes().deselect()
     this.toggleMenu(ElementType.NONE)
     const variableId = (event as CustomEvent).detail.id
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error start wrongly defined in the *.d.ts file, it needs a node reference as argument
     this.edgeHandles?.start(this.cy?.$id(variableId))
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error renderer exists but its missing from the *.d.ts file
