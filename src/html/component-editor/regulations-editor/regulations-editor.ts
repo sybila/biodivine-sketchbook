@@ -22,6 +22,7 @@ export class RegulationsEditor extends LitElement {
   lastTabCount = 1
   highlighted = ''
   @property() contentData = ContentData.create()
+  @state() showHelp = false
   @state() menuType = ElementType.NONE
   @state() menuPosition = { x: 0, y: 0 }
   @state() menuZoom = 1.0
@@ -398,7 +399,7 @@ export class RegulationsEditor extends LitElement {
       <div class="header uk-background-primary">
         <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Network</h3>
       </div>
-      ${this.contentData.variables.length === 0
+      ${this.contentData.variables.length === 0 || this.showHelp
 ? html`
         <div id="quick-help" class="help-message-block">
           <h3 style="display: block; margin: 0 auto; float: right;">HELP</h3>
@@ -427,6 +428,9 @@ export class RegulationsEditor extends LitElement {
         <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
                     .data=${this.menuData}></float-menu>
       </div>
+      <button class="uk-button uk-button-small uk-button-secondary help-button" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
+        ?
+      </button>
     `
   }
 }
