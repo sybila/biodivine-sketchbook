@@ -1,15 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use aeon_sketchbook::app::event::{Event, SessionMessage, StateChange, UserAction};
-use aeon_sketchbook::app::event_wrappers::{AeonAction, AeonMessage, AeonRefresh};
-use aeon_sketchbook::app::state::analysis::AnalysisSession;
-use aeon_sketchbook::app::state::editor::EditorSession;
-use aeon_sketchbook::app::state::{AppState, DynSession};
-use aeon_sketchbook::app::{
+use biodivine_sketchbook::app::event::{Event, SessionMessage, StateChange, UserAction};
+use biodivine_sketchbook::app::event_wrappers::{AeonAction, AeonMessage, AeonRefresh};
+use biodivine_sketchbook::app::state::analysis::AnalysisSession;
+use biodivine_sketchbook::app::state::editor::EditorSession;
+use biodivine_sketchbook::app::state::{AppState, DynSession};
+use biodivine_sketchbook::app::{
     AeonApp, AEON_ACTION, AEON_MESSAGE, AEON_REFRESH, DEFAULT_SESSION_ID, DEFAULT_WINDOW_ID,
 };
-use aeon_sketchbook::debug;
+use biodivine_sketchbook::debug;
 use chrono::prelude::*;
 use tauri::{command, Manager, State, Window};
 
