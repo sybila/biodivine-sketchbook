@@ -38,7 +38,7 @@ impl ModelState {
         let component_name = "model/variable";
 
         // there is either adding of a new variable, or editing/removing of an existing one
-        // when adding new variable, the `at_path` is just ["add"] or ["add_default"]
+        // when adding new variable, the `at_path` is just ["add"], ["add_default"] or ["add_raw"]
         // when editing existing variable, the `at_path` is ["var_id", "<action>"]
 
         // adding default version of variable (automatically generated ID, name, empty function)

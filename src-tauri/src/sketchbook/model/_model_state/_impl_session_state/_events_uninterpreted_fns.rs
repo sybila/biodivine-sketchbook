@@ -45,7 +45,7 @@ impl ModelState {
         let component_name = "model/uninterpreted_fn";
 
         // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
-        // when adding new uninterpreted fn, the `at_path` is just ["add"]
+        // when adding new uninterpreted fn, the `at_path` is just ["add"] or ["add_default"]
         // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
 
         if Self::starts_with(ADD_DEFAULT_FN_PATH, at_path).is_some() {

@@ -41,7 +41,7 @@ impl ModelState {
         let component_name = "model/regulation";
 
         // there is either adding of a new regulation, or editing/removing of an existing one
-        // when adding new regulation, the `at_path` is just ["add"]
+        // when adding new regulation, the `at_path` is just ["add"] or ["add_raw"]
         // when editing existing variable, the `at_path` is ["regulator", "target", "<action>"]
 
         if Self::starts_with(ADD_REGULATION_PATH, at_path).is_some() {

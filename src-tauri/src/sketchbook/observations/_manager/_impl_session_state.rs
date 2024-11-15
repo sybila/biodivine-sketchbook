@@ -53,7 +53,7 @@ impl SessionState for ObservationManager {
         let component_name = "observations";
 
         // there is either adding/loading of a new dataset, or modifying/removing an existing one
-        // when adding new dataset, the `at_path` is just ["add"] or ["add_default"]
+        // when adding new dataset, the `at_path` is just ["add"], ["add_default"], or ["load"]
         // when editing existing dataset, the `at_path` is ["dataset_id", ...]
 
         if Self::starts_with(ADD_DEFAULT_DATASET_PATH, at_path).is_some() {
