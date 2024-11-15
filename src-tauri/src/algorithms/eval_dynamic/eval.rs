@@ -50,7 +50,7 @@ pub fn eval_dyn_prop(
                 let unit_bdd = sat_colors.as_bdd();
                 let original_context = graph.symbolic_context();
                 let (space_ctx, space_graph) =
-                    get_ts_extended_symbolic_graph(bn, Some((&unit_bdd, &original_context)))?;
+                    get_ts_extended_symbolic_graph(bn, Some((unit_bdd, original_context)))?;
 
                 let observations = prop.dataset.observations().clone();
                 let var_names = prop.dataset.variable_names();

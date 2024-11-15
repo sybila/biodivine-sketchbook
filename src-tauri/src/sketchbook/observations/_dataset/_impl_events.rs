@@ -39,7 +39,7 @@ impl Dataset {
         // prepare the state-change variant (remove IDs from the path)
         let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
         // prepare the reverse event (which is a pop event)
-        let reverse_at_path = [&dataset_id.as_str(), "pop_obs"];
+        let reverse_at_path = [dataset_id.as_str(), "pop_obs"];
         let reverse_event = mk_obs_event(&reverse_at_path, None);
         Ok(make_reversible(state_change, event, reverse_event))
     }
@@ -62,7 +62,7 @@ impl Dataset {
         // prepare the state-change variant - classical push_obs event
         let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
         // prepare the reverse event (which is a pop event)
-        let reverse_at_path = [&dataset_id.as_str(), "pop_obs"];
+        let reverse_at_path = [dataset_id.as_str(), "pop_obs"];
         let reverse_event = mk_obs_event(&reverse_at_path, None);
         Ok(make_reversible(state_change, event, reverse_event))
     }

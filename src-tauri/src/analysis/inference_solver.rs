@@ -72,7 +72,6 @@ pub struct FinishedInferenceSolver {
     pub bn: BooleanNetwork,
     pub graph: SymbolicAsyncGraph,
     pub sat_colors: GraphColors,
-    pub status_updates: Vec<InferenceStatusReport>,
     pub results: InferenceResults,
 }
 
@@ -288,7 +287,6 @@ impl InferenceSolver {
                 bn: self.bn.clone().unwrap(),
                 graph: self.graph.clone().unwrap(),
                 sat_colors: self.raw_sat_colors.clone().unwrap(),
-                status_updates: self.status_updates.clone(),
                 results: self.results.clone().unwrap(),
             }),
             InferenceStatus::Error => {

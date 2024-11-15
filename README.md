@@ -27,7 +27,7 @@ First, make sure you have Rust and NPM installed. For Rust, we recommend followi
 We have tested the app using following versions:
 - npm 10.9.0 
 - node 22.11.0
-- rust 1.77.1
+- rust 1.82.0
 
 Then, after cloning the repository, run `npm install` to download all JS/TS dependencies. Rust dependencies are downloaded automatically during build (next step).
 
@@ -43,16 +43,25 @@ For all the following, run the cargo commands inside `src-tauri` folder, and esl
 
 For format checking/fixing for TypeScript part of the project, you can run `npx eslint "src/**/*.{js,jsx,ts,tsx}" --config .eslintrc.yml --fix`. You can use `cargo fmt` and `cargo clippy` for the Rust side.
 
-To run the full Rust test suite, use `cargo test`.
+To run the full Rust test suite, use `cargo test`. To run the TypeScript tests, run `npx vitest --run` or `npm test`.
+
 
 To automatically generate Rust documentation, execute `cargo doc --no-deps --document-private-items`.
 
 All previous commands together for simplicity:
 ```
 npx eslint "src/**/*.{js,jsx,ts,tsx}" --config .eslintrc.yml --fix
+npx vitest --run
 cd src-tauri
 cargo fmt
 cargo clippy
 cargo test
 cargo doc --no-deps --document-private-items
 ```
+
+#### End-to-end tests
+We also provide an end-to-end Selenium-based testing framework. Note that these tests may require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). 
+
+You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html). In short, you should install `tauri-driver` (with `cargo install tauri-driver`) and then either `WebKitWebDriver` on Linux, or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). Test runner can be installed with `npm install mocha chai selenium-webdriver`. 
+To run the tests, first build the app with `cargo tauri build` and then use `npx mocha`. 
+The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.
