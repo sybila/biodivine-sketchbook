@@ -18,7 +18,17 @@ Boolean network sketches: a unifying framework for logical model inference.
 Bioinformatics, 39(4), https://doi.org/10.1093/bioinformatics/btad158.
 ```
 
+## Installation
+
+We provide pre-built binaries and installation files for the application in the [release section](https://github.com/sybila/biodivine-sketchbook/releases) (includes versions for Windows, Linux and macOS). To start using Sketchbook, download binary for your operating system - you choose between `.app` and `.dmg` for macOS, `.AppImage` or `.deb` for Linux, and `.exe` or `.msi` for Windows.
+
+> Note that the binaries are not signed, so macOS and Windows will likely ask if you trust the application or otherwise require you to explicitly allow it to run. We do not include instructions for these steps.
+
+Alternatively, if you want to build the tool locally, the instructions are provided below in the Development guide. Note that the local build requires installing additional dependencies.
+
 ## Development
+
+The following instructions desribe the local installation of the application and relevant frameworks. We recommend using the pre-built binaries described in the previous section.
 
 ### Installation of dependencies
 
@@ -34,7 +44,7 @@ Then, after cloning the repository, run `npm install` to download all JS/TS depe
 ### Building the app
 
 To build a release version of the app, run `npm run build`. Note that the first build can take a few minutes as the application backend needs to be compiled. Subsequent builds should be faster. 
-To properly build the full release bundle for the app, you can also use `cargo tauri build`.
+To properly build the full installation file for the app, you can also use `cargo tauri build`. It will create an installation bundle at `src-tauri/target/release/bundle`.
 
 To start the application in debug mode, run `npm run tauri dev`. Note that upon startup, the application window can be unresponsive for a few seconds when using development mode. This is because the whole application is running in debug mode without optimizations. This startup delay should be substantially reduced when using the release binaries produced by `npm run build`.
 
