@@ -42,7 +42,7 @@
     "@types/cytoscape-popper": "^2.0.4",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.11.19",
-    "@types/rollup-plugin-less": "^1.1.4",
+    "@wcj/rollup-plugin-less": "^2.0.0",
     "@types/tabulator-tables": "^5.5.10",
     "@types/uikit": "^3.14.0",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
