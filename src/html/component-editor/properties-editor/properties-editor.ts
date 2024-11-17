@@ -43,10 +43,10 @@ export default class PropertiesEditor extends LitElement {
 
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
-      label: 'Trap space',
+      label: 'Exists trap space',
       action: () => { this.addDynamicProperty(DynamicPropertyType.TrapSpace) }
     }, {
-      label: 'Fixed point',
+      label: 'Exists fixed point',
       action: () => { this.addDynamicProperty(DynamicPropertyType.FixedPoint) }
     }, {
       label: 'Exists trajectory',
@@ -55,7 +55,7 @@ export default class PropertiesEditor extends LitElement {
       label: 'Attractor count',
       action: () => { this.addDynamicProperty(DynamicPropertyType.AttractorCount) }
     }, {
-      label: 'Has attractor',
+      label: 'Exists attractor',
       action: () => { this.addDynamicProperty(DynamicPropertyType.HasAttractor) }
     }, {
       label: 'Generic',
@@ -65,16 +65,16 @@ export default class PropertiesEditor extends LitElement {
 
   addStaticPropertyMenu: IAddPropertyItem[] = [
     {
-      label: 'Essential function input',
+      label: 'Function input essential',
       action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
     }, {
-      label: 'Essential variable regulation',
+      label: 'Regulation essential',
       action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationEssentialWithCondition) }
     }, {
-      label: 'Monotonic function input',
+      label: 'Function input monotonic',
       action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
     }, {
-      label: 'Monotonic variable regulation',
+      label: 'Regulation monotonic',
       action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition) }
     }, {
       label: 'Generic',

@@ -40,7 +40,7 @@ export const tabList: TabData[] = [
   }),
   TabData.create({
     id: index++,
-    name: 'Inference',
+    name: 'Analysis',
     content: (contentData) => html`<analysis-tab .contentData=${contentData}></analysis-tab>`,
     icon: 'i'
   })
