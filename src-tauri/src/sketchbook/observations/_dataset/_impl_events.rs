@@ -109,7 +109,7 @@ impl Dataset {
 
                 // Perform the action and prepare the state-change variant
                 self.remove_obs(&obs_id)?;
-                let state_change = mk_obs_state_change(&[REMOVE_OBSERVATION_PATH], &obs_data);
+                let state_change = mk_obs_state_change(&["remove_obs"], &obs_data);
 
                 Ok(Consumed::Irreversible {
                     state_change,
@@ -130,7 +130,7 @@ impl Dataset {
                     new_id.as_str(),
                     dataset_id.as_str(),
                 );
-                let state_change = mk_obs_state_change(&[SET_OBSERVATION_ID_PATH], &id_change_data);
+                let state_change = mk_obs_state_change(&["set_obs_id"], &id_change_data);
 
                 // Prepare the reverse event
                 let reverse_at_path = [
@@ -154,7 +154,7 @@ impl Dataset {
                 // Perform the action and prepare the state-change variant
                 let orig_obs_data = ObservationData::from_obs(orig_obs, &dataset_id);
                 self.set_observation_raw(&obs_id, new_obs)?;
-                let state_change = mk_obs_state_change(&[SET_OBSERVATION_DATA_PATH], &new_obs_data);
+                let state_change = mk_obs_state_change(&["set_obs_data"], &new_obs_data);
 
                 // Prepare the reverse event
                 let reverse_at_path = [
