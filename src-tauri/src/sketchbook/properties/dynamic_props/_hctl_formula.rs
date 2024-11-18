@@ -17,6 +17,20 @@ pub struct HctlFormula {
     tree: HctlTreeNode,
 }
 
+/// A wrapper function for parsing HCTL formulas with extended error message.
+/// See [parse_hctl_formula] for details.
+pub fn parse_hctl_formula_wrapper(formula: &str) -> Result<HctlTreeNode, String> {
+    parse_hctl_formula(formula)
+        .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
+}
+
+/// A wrapper function for full preprocessing step for HCTL formulas, with extended error message.
+/// See [parse_and_minimize_hctl_formula] for details.
+pub fn parse_and_minimize_hctl_formula_wrapper(symbolic_context: &SymbolicContext, formula: &str) -> Result<HctlTreeNode, String> {
+    parse_and_minimize_hctl_formula(symbolic_context, formula)
+        .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
+}
+
 /// *(internal)* Serialize field `tree` of `HctlFormula` as a string.
 fn serialize_tree<S>(tree: &HctlTreeNode, serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -31,7 +45,7 @@ where
     D: Deserializer<'de>,
 {
     let s = String::deserialize(deserializer)?;
-    parse_hctl_formula(&s).map_err(de::Error::custom)
+    parse_hctl_formula_wrapper(&s).map_err(de::Error::custom)
 }
 
 impl fmt::Display for HctlFormula {
@@ -47,7 +61,7 @@ impl HctlFormula {
     /// validity.
     pub fn try_from_str(formula: &str) -> Result<HctlFormula, String> {
         Ok(HctlFormula {
-            tree: parse_hctl_formula(formula)?,
+            tree: parse_hctl_formula_wrapper(formula)?,
         })
     }
 }
@@ -56,7 +70,7 @@ impl HctlFormula {
 impl HctlFormula {
     /// Change the formula represented by this instance.
     pub fn change_formula(&mut self, new_formula: &str) -> Result<(), String> {
-        self.tree = parse_hctl_formula(new_formula)?;
+        self.tree = parse_hctl_formula_wrapper(new_formula)?;
         Ok(())
     }
 }
@@ -78,7 +92,7 @@ impl HctlFormula {
 impl HctlFormula {
     /// Assert that formula is correctly formed based on HCTL syntactic rules.
     pub fn check_syntax(formula: &str) -> Result<(), String> {
-        let res = parse_hctl_formula(formula);
+        let res = parse_hctl_formula_wrapper(formula);
         if res.is_ok() {
             Ok(())
         } else {
@@ -93,7 +107,7 @@ impl HctlFormula {
         let bn = model.to_empty_bn();
         let ctx = SymbolicContext::new(&bn)?;
 
-        let res: Result<HctlTreeNode, String> = parse_and_minimize_hctl_formula(&ctx, formula);
+        let res: Result<HctlTreeNode, String> = parse_and_minimize_hctl_formula_wrapper(&ctx, formula);
         if res.is_ok() {
             Ok(())
         } else {
