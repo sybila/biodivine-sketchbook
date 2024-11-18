@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "AEON Sketchbook",
+    "productName": "Biodivine Sketchbook",
     "version": "0.1.0"
   },
   "tauri": {
@@ -59,7 +59,7 @@
         "label": "editor",
         "fullscreen": false,
         "resizable": true,
-        "title": "AEON Sketchbook",
+        "title": "Biodivine Sketchbook",
         "width": 1100,
         "height": 666,
         "minWidth": 1000,

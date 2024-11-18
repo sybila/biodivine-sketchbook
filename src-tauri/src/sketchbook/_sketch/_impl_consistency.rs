@@ -273,3 +273,75 @@ fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> S
     log += &issue;
     log
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::sketchbook::observations::Dataset;
+    use crate::sketchbook::properties::{DynProperty, StatProperty};
+    use crate::sketchbook::Sketch;
+    use std::fs::File;
+    use std::io::Read;
+
+    #[test]
+    /// Test that consistency check is successful on our test sketch.
+    fn consistency_valid_sketch() {
+        let mut sketch_file = File::open("../data/test_data/test_model.json").unwrap();
+        let mut file_content = String::new();
+        sketch_file.read_to_string(&mut file_content).unwrap();
+        let sketch = Sketch::from_custom_json(&file_content).unwrap();
+        assert!(sketch.assert_consistency().is_ok());
+    }
+
+    #[test]
+    /// Test that consistency check fails on empty sketch.
+    fn consistency_empty_sketch() {
+        let sketch = Sketch::default();
+        assert!(sketch.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Test that consistency check fails if a HCTL/FOL property references variable not
+    /// present in the model.
+    fn consistency_properties() {
+        // build a simple sketch with one variable A and function symbol f
+        let sketch = Sketch::from_aeon("A -> A\n$A:f(A)").unwrap();
+        assert!(sketch.assert_consistency().is_ok());
+
+        // hctl referencing non-existing variable B
+        let hctl_formula = "B";
+        let dyn_prop = DynProperty::try_mk_generic("", &hctl_formula, "").unwrap();
+        let mut sketch_copy = sketch.clone();
+        sketch_copy
+            .properties
+            .add_dynamic_by_str("p", dyn_prop)
+            .unwrap();
+        assert!(sketch_copy.assert_consistency().is_err());
+
+        // fol referencing non-existing function g
+        let fol_formula = "g(1)";
+        let stat_prop = StatProperty::try_mk_generic("", &fol_formula, "").unwrap();
+        let mut sketch_copy = sketch.clone();
+        sketch_copy
+            .properties
+            .add_static_by_str("p", stat_prop)
+            .unwrap();
+        assert!(sketch_copy.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Test that consistency check fails if a dataset contains variable not
+    /// present in the model.
+    fn consistency_dataset() {
+        // build a simple sketch with one variable A and function symbol f
+        let mut sketch = Sketch::from_aeon("A -> A\n$A:f(A)").unwrap();
+        assert!(sketch.assert_consistency().is_ok());
+
+        // hctl referencing non-existing variable B
+        let dataset = Dataset::new_empty("d", vec!["A", "B"]).unwrap();
+        sketch
+            .observations
+            .add_dataset_by_str("d", dataset)
+            .unwrap();
+        assert!(sketch.assert_consistency().is_err());
+    }
+}

@@ -23,6 +23,17 @@ pub enum FnTree {
     Binary(BinaryOp, Box<FnTree>, Box<FnTree>),
 }
 
+/// A wrapper function for parsing update function formulas with extended error message.
+/// See [FnUpdate::try_from_str] for details.
+fn parse_update_fn_wrapper(
+    expression: &str,
+    bn_context: &BooleanNetwork,
+) -> Result<FnUpdate, String> {
+    let fn_update = FnUpdate::try_from_str(expression, bn_context)
+        .map_err(|e| format!("Error during update function processing: {}", e))?;
+    Ok(fn_update)
+}
+
 impl FnTree {
     /// Try to parse an update function from a string, taking IDs from the provided `ModelState`.
     ///
@@ -39,7 +50,7 @@ impl FnTree {
         } else {
             model.to_empty_bn_with_params()
         };
-        let fn_update = FnUpdate::try_from_str(expression, &bn_context)?;
+        let fn_update = parse_update_fn_wrapper(expression, &bn_context)?;
         let fn_tree = Self::from_fn_update(fn_update, model, is_uninterpreted)?;
         Ok(fn_tree)
     }

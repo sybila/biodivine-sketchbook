@@ -10,8 +10,10 @@ use crate::algorithms::fo_logic::utils::validate_and_rename_vars;
 /// the preprocessing step. Alternatively, use [parse_and_minimize_fol_formula] which
 /// offers full preprocessing and validation at once.
 pub fn parse_fol_formula(formula: &str) -> Result<FolTreeNode, String> {
-    let tokens = try_tokenize_formula(formula.to_string())?;
-    let tree = parse_fol_tokens(&tokens)?;
+    let tokens = try_tokenize_formula(formula.to_string())
+        .map_err(|e| format!("Error during FOL formula processing: {}", e))?;
+    let tree = parse_fol_tokens(&tokens)
+        .map_err(|e| format!("Error during FOL formula processing: {}", e))?;
     Ok(tree)
 }
 
@@ -28,7 +30,8 @@ pub fn parse_and_minimize_fol_formula(
     base_var_name: &str,
 ) -> Result<FolTreeNode, String> {
     let tree = parse_fol_formula(formula)?;
-    let tree = validate_and_rename_vars(tree, base_var_name)?;
+    let tree = validate_and_rename_vars(tree, base_var_name)
+        .map_err(|e| format!("Error during FOL formula processing: {}", e))?;
     Ok(tree)
 }
 

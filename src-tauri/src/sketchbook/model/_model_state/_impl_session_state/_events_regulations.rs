@@ -11,6 +11,25 @@ use crate::sketchbook::properties::shortcuts::*;
 use crate::sketchbook::properties::StatProperty;
 use crate::sketchbook::JsonSerde;
 
+/* Constants for event path segments in `ModelState` related to regulations. */
+
+// add new regulation, including changes in static properties
+const ADD_REGULATION_PATH: &str = "add";
+// add new regulation (without additional changes)
+const ADD_RAW_REGULATION_PATH: &str = "add_raw";
+// remove regulation, including changes in static properties
+const REMOVE_REGULATION_PATH: &str = "remove";
+// remove regulation (without additional changes)
+const REMOVE_RAW_REGULATION_PATH: &str = "remove_raw";
+// set regulation's sign, including changes in static properties
+const SET_SIGN_PATH: &str = "set_sign";
+// set regulation's sign (without additional changes)
+const SET_SIGN_RAW_PATH: &str = "set_sign_raw";
+// set regulation's essentiality, including changes in static properties
+const SET_ESSENTIALITY_PATH: &str = "set_essentiality";
+// set regulation's essentiality (without additional changes)
+const SET_ESSENTIALITY_RAW_PATH: &str = "set_essentiality_raw";
+
 /// Implementation for events related to `regulations` of the model.
 impl ModelState {
     /// Perform events related to `regulations` component of this `ModelState`.
@@ -22,13 +41,13 @@ impl ModelState {
         let component_name = "model/regulation";
 
         // there is either adding of a new regulation, or editing/removing of an existing one
-        // when adding new regulation, the `at_path` is just ["add"]
+        // when adding new regulation, the `at_path` is just ["add"] or ["add_raw"]
         // when editing existing variable, the `at_path` is ["regulator", "target", "<action>"]
 
-        if Self::starts_with("add", at_path).is_some() {
+        if Self::starts_with(ADD_REGULATION_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_regulation(event)
-        } else if Self::starts_with("add_raw", at_path).is_some() {
+        } else if Self::starts_with(ADD_RAW_REGULATION_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_regulation_raw(event)
         } else {
@@ -122,7 +141,7 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/regulation";
 
-        if Self::starts_with("remove", at_path).is_some() {
+        if Self::starts_with(REMOVE_REGULATION_PATH, at_path).is_some() {
             let mut event_list = Vec::new();
             // the event of removing the raw regulation itself
             let reg_event_path = [
@@ -151,7 +170,7 @@ impl ModelState {
                 event_list.push(prop_event);
             }
             Ok(Consumed::Restart(event_list))
-        } else if Self::starts_with("remove_raw", at_path).is_some() {
+        } else if Self::starts_with(REMOVE_RAW_REGULATION_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // save the original regulation data for state change and reverse event
@@ -167,7 +186,7 @@ impl ModelState {
             let payload = reg_data.to_json_str();
             let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_sign", at_path).is_some() {
+        } else if Self::starts_with(SET_SIGN_PATH, at_path).is_some() {
             // get the payload - a string for the "new_sign"
             let sign_str = Self::clone_payload_str(event, component_name)?;
             let new_sign = Monotonicity::from_json_str(&sign_str)?;
@@ -214,7 +233,7 @@ impl ModelState {
             }
 
             Ok(Consumed::Restart(event_list))
-        } else if Self::starts_with("set_sign_raw", at_path).is_some() {
+        } else if Self::starts_with(SET_SIGN_RAW_PATH, at_path).is_some() {
             // get the payload - a string for the "new_sign"
             let sign_str = Self::clone_payload_str(event, component_name)?;
             let new_sign = Monotonicity::from_json_str(&sign_str)?;
@@ -236,7 +255,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(orig_sign.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_essentiality", at_path).is_some() {
+        } else if Self::starts_with(SET_ESSENTIALITY_PATH, at_path).is_some() {
             // get the payload - a string for the "new_essentiality"
             let essentiality_str = Self::clone_payload_str(event, component_name)?;
             let new_essentiality = Essentiality::from_json_str(&essentiality_str)?;
@@ -283,7 +302,7 @@ impl ModelState {
             }
 
             Ok(Consumed::Restart(event_list))
-        } else if Self::starts_with("set_essentiality_raw", at_path).is_some() {
+        } else if Self::starts_with(SET_ESSENTIALITY_RAW_PATH, at_path).is_some() {
             // get the payload - a string for the "new_essentiality"
             let essentiality_str = Self::clone_payload_str(event, component_name)?;
             let new_essentiality = Essentiality::from_json_str(&essentiality_str)?;

@@ -119,14 +119,8 @@ fn format_inference_results(results: &InferenceResults) -> String {
     output.push_str("Detailed progress report:\n");
     output.push_str("--------------\n");
     for report in &results.progress_statuses {
-        let report_line = match report.num_candidates {
-            Some(candidates) => format!(
-                "> {}ms: {} ({} candidates)\n",
-                report.comp_time, report.message, candidates
-            ),
-            None => format!("> {}ms: {}\n", report.comp_time, report.message),
-        };
-        output.push_str(&report_line);
+        output.push_str(&report.message);
+        output.push('\n');
     }
 
     output

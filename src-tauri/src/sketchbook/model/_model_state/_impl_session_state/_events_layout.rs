@@ -8,6 +8,15 @@ use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::JsonSerde;
 
+/* Constants for event path segments in `ModelState` related to layout events. */
+
+// add whole new layout
+const ADD_LAYOUT_PATH: &str = "add";
+// update position of a node in a particular layout
+const UPDATE_POSITION_PATH: &str = "update_position";
+// remove whole layout
+const REMOVE_LAYOUT_PATH: &str = "remove";
+
 /// Implementation for events related to `layouts` of the model.
 impl ModelState {
     /// Perform events related to `layouts` component of this `ModelState`.
@@ -22,7 +31,7 @@ impl ModelState {
         // when adding new layout, the `at_path` is just ["add"]
         // when editing existing layout, the `at_path` is ["layout_id", "<action>"]
 
-        if Self::starts_with("add", at_path).is_some() {
+        if Self::starts_with(ADD_LAYOUT_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_layout(event)
         } else {
@@ -64,7 +73,7 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/layout";
 
-        if Self::starts_with("update_position", at_path).is_some() {
+        if Self::starts_with(UPDATE_POSITION_PATH, at_path).is_some() {
             // get payload components (json containing "var_id", "new_x" and "new_y")
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_node_data = LayoutNodeData::from_json_str(payload.as_str())?;
@@ -93,7 +102,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(orig_pos_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("remove", at_path).is_some() {
+        } else if Self::starts_with(REMOVE_LAYOUT_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             let layout = self.get_layout(&layout_id)?;

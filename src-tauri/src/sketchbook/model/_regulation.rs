@@ -35,7 +35,7 @@ lazy_static! {
 ///  - if the regulation is `positive`, it might only *increase* the `target` value
 ///  - if the regulation is `negative`, it might only *decrease* the `target` value
 ///  - if the regulation is `dual`, it might both *increase* or *decrease* the `target` value (in
-///  different contexts)
+///    different contexts)
 ///
 /// If essentiality is set to *true*, the `regulator` *must* have influence on the outcome
 /// of the `target` update function in *some* context. If set to `False`, this regulation must have

@@ -10,6 +10,23 @@ use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::{ModelState, UpdateFn, Variable};
 use crate::sketchbook::JsonSerde;
 
+/* Constants for event path segments in `ModelState` related to variables. */
+
+// add new propared variable (and potentially change its position)
+const ADD_VAR_PATH: &str = "add";
+// add new default variable
+const ADD_DEFAULT_VAR_PATH: &str = "add_default";
+// add new variable (without any additional changes)
+const ADD_RAW_VAR_PATH: &str = "add_raw";
+// remove variable (removing all its regulations and so on)
+const REMOVE_VAR_PATH: &str = "remove";
+// set variable's data (name and annotation)
+const SET_DATA_PATH: &str = "set_data";
+// set variable's id
+const SET_ID_PATH: &str = "set_id";
+// set variable's update fn
+const SET_UPDATE_FN_PATH: &str = "set_update_fn";
+
 /// Implementation for events related to `variables` of the model.
 impl ModelState {
     /// Perform events related to `variables` component of this `ModelState`.
@@ -21,22 +38,22 @@ impl ModelState {
         let component_name = "model/variable";
 
         // there is either adding of a new variable, or editing/removing of an existing one
-        // when adding new variable, the `at_path` is just ["add"] or ["add_default"]
+        // when adding new variable, the `at_path` is just ["add"], ["add_default"] or ["add_raw"]
         // when editing existing variable, the `at_path` is ["var_id", "<action>"]
 
         // adding default version of variable (automatically generated ID, name, empty function)
         // also handles the positioning of the variable
-        if Self::starts_with("add_default", at_path).is_some() {
+        if Self::starts_with(ADD_DEFAULT_VAR_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_default_variable(event)
         // raw event of adding variable, atomic (no event restart with re-positioning sub-events
         // or anything like that)
-        } else if Self::starts_with("add_raw", at_path).is_some() {
+        } else if Self::starts_with(ADD_RAW_VAR_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_variable_raw(event)
         // adding variable with all sub-fields given in the event
         // also handles the positioning of the variable
-        } else if Self::starts_with("add", at_path).is_some() {
+        } else if Self::starts_with(ADD_VAR_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_variable(event)
         } else {
@@ -162,7 +179,7 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/variable";
 
-        if Self::starts_with("remove", at_path).is_some() {
+        if Self::starts_with(REMOVE_VAR_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // First step - check that variable can be safely deleted, i.e., it is not contained in
@@ -226,7 +243,7 @@ impl ModelState {
                 }
                 Ok(Consumed::Restart(event_list))
             }
-        } else if Self::starts_with("set_data", at_path).is_some() {
+        } else if Self::starts_with(SET_DATA_PATH, at_path).is_some() {
             // get the payload - string with modified variable data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_data = VariableData::from_json_str(&payload)?;
@@ -248,7 +265,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_id", at_path).is_some() {
+        } else if Self::starts_with(SET_ID_PATH, at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
             if var_id.as_str() == new_id.as_str() {
@@ -267,7 +284,7 @@ impl ModelState {
             let reverse_at_path = ["variable", new_id.as_str(), "set_id"];
             let reverse_event = mk_model_event(&reverse_at_path, Some(var_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_update_fn", at_path).is_some() {
+        } else if Self::starts_with(SET_UPDATE_FN_PATH, at_path).is_some() {
             // get the payload - string for "new_expression"
             let new_expression = Self::clone_payload_str(event, component_name)?;
             let original_expression = self.get_update_fn(&var_id)?.to_string();

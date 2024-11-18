@@ -9,6 +9,31 @@ use crate::sketchbook::ids::UninterpretedFnId;
 use crate::sketchbook::model::{ModelState, UninterpretedFn};
 use crate::sketchbook::JsonSerde;
 
+/* Constants for event path segments in `ModelState` related to uninterpreted functions. */
+
+// add new prepared function
+const ADD_FN_PATH: &str = "add";
+// add new default function
+const ADD_DEFAULT_FN_PATH: &str = "add_default";
+// remove particular function
+const REMOVE_FN_PATH: &str = "remove";
+// set function's raw data
+const SET_DATA_PATH: &str = "set_data";
+// set function's ID
+const SET_ID_PATH: &str = "set_id";
+// set function's arity
+const SET_ARITY_PATH: &str = "set_arity";
+// increment function's arity
+const INCREMENT_ARITY_PATH: &str = "increment_arity";
+// decrement function's arity
+const DECREMENT_ARITY_PATH: &str = "decrement_arity";
+// set function's expression
+const SET_EXPRESSION_PATH: &str = "set_expression";
+// set monotonicity of function with respect to its argument
+const SET_MONOTONICITY_PATH: &str = "set_monotonicity";
+// set essentiality of function with respect to its argument
+const SET_ESSENTIALITY_PATH: &str = "set_essentiality";
+
 /// Implementation for events related to `uninterpreted functions` of the model.
 impl ModelState {
     /// Perform events related to `uninterpreted fns` component of this `ModelState`.
@@ -20,13 +45,13 @@ impl ModelState {
         let component_name = "model/uninterpreted_fn";
 
         // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
-        // when adding new uninterpreted fn, the `at_path` is just ["add"]
+        // when adding new uninterpreted fn, the `at_path` is just ["add"] or ["add_default"]
         // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
 
-        if Self::starts_with("add_default", at_path).is_some() {
+        if Self::starts_with(ADD_DEFAULT_FN_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_default_uninterpreted_fn(event)
-        } else if Self::starts_with("add", at_path).is_some() {
+        } else if Self::starts_with(ADD_FN_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_uninterpreted_fn(event)
         } else {
@@ -99,7 +124,7 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/uninterpreted_fn";
 
-        if Self::starts_with("remove", at_path).is_some() {
+        if Self::starts_with(REMOVE_FN_PATH, at_path).is_some() {
             // check that payload is really empty
             if event.payload.is_some() {
                 let message = "Payload must be empty for uninterpreted fn removing.".to_string();
@@ -117,7 +142,7 @@ impl ModelState {
             let payload = fn_data.to_json_str();
             let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_data", at_path).is_some() {
+        } else if Self::starts_with(SET_DATA_PATH, at_path).is_some() {
             // get the payload - string with modified function data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_data = UninterpretedFnData::from_json_str(&payload)?;
@@ -138,7 +163,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_id", at_path).is_some() {
+        } else if Self::starts_with(SET_ID_PATH, at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
             if fn_id.as_str() == new_id.as_str() {
@@ -157,7 +182,7 @@ impl ModelState {
             let reverse_at_path = ["uninterpreted_fn", new_id.as_str(), "set_id"];
             let reverse_event = mk_model_event(&reverse_at_path, Some(fn_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_arity", at_path).is_some() {
+        } else if Self::starts_with(SET_ARITY_PATH, at_path).is_some() {
             // get the payload - string for "new_arity"
             let new_arity: usize = Self::clone_payload_str(event, component_name)?.parse()?;
             let original_arity = self.get_uninterpreted_fn(&fn_id)?.get_arity();
@@ -174,7 +199,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_arity.to_string());
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("increment_arity", at_path).is_some() {
+        } else if Self::starts_with(INCREMENT_ARITY_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // perform the event, prepare the state-change variant (move id from path to payload)
@@ -187,7 +212,7 @@ impl ModelState {
             let reverse_at_path = ["uninterpreted_fn", fn_id.as_str(), "decrement_arity"];
             let reverse_event = mk_model_event(&reverse_at_path, None);
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("decrement_arity", at_path).is_some() {
+        } else if Self::starts_with(DECREMENT_ARITY_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // perform the event, prepare the state-change variant (move id from path to payload)
@@ -200,7 +225,7 @@ impl ModelState {
             let reverse_at_path = ["uninterpreted_fn", fn_id.as_str(), "increment_arity"];
             let reverse_event = mk_model_event(&reverse_at_path, None);
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_expression", at_path).is_some() {
+        } else if Self::starts_with(SET_EXPRESSION_PATH, at_path).is_some() {
             // get the payload - string for "expression"
             let new_expression = Self::clone_payload_str(event, component_name)?;
             let original_expression = self
@@ -226,7 +251,7 @@ impl ModelState {
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(original_expression);
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_monotonicity", at_path).is_some() {
+        } else if Self::starts_with(SET_MONOTONICITY_PATH, at_path).is_some() {
             // get the payload and parse it
             let payload = Self::clone_payload_str(event, component_name)?;
             let change_data = ChangeArgMonotoneData::from_json_str(payload.as_str())?;
@@ -252,7 +277,7 @@ impl ModelState {
             let reverse_change = ChangeArgMonotoneData::new(change_data.idx, original_monotonicity);
             reverse_event.payload = Some(reverse_change.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_essentiality", at_path).is_some() {
+        } else if Self::starts_with(SET_ESSENTIALITY_PATH, at_path).is_some() {
             // get the payload and parse it
             let payload = Self::clone_payload_str(event, component_name)?;
             let change_data = ChangeArgEssentialData::from_json_str(payload.as_str())?;

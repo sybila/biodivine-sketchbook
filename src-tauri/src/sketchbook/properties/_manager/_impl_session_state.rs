@@ -12,6 +12,27 @@ use crate::sketchbook::properties::static_props::SimpleStatPropertyType;
 use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
 use crate::sketchbook::JsonSerde;
 
+/** Constants for event path segments for various events. */
+
+// events regarding dynamic properties
+const DYNAMIC_PATH: &str = "dynamic";
+// events regarding static properties
+const STATIC_PATH: &str = "static";
+// add a new prepared property
+const ADD_PATH: &str = "add";
+// add a default variant of a property
+const ADD_DEFAULT_PATH: &str = "add_default";
+// remove a property
+const REMOVE_PATH: &str = "remove";
+// set ID of a property
+const SET_ID_PATH: &str = "set_id";
+// set content of a property
+const SET_CONTENT_PATH: &str = "set_content";
+// refresh all dynamic properties
+const GET_ALL_DYNAMIC_PATH: &str = "get_all_dynamic";
+// refresh all static properties
+const GET_ALL_STATIC_PATH: &str = "get_all_static";
+
 impl SessionHelper for PropertyManager {}
 
 impl SessionState for PropertyManager {
@@ -23,12 +44,12 @@ impl SessionState for PropertyManager {
         // when editing existing properties, the `at_path` continues with "property_id" and "action"
 
         match at_path.first() {
-            Some(&"dynamic") => {
+            Some(&DYNAMIC_PATH) => {
                 let at_path = &at_path[1..];
-                if Self::starts_with("add_default", at_path).is_some() {
+                if Self::starts_with(ADD_DEFAULT_PATH, at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_default_dynamic(event)
-                } else if Self::starts_with("add", at_path).is_some() {
+                } else if Self::starts_with(ADD_PATH, at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_dynamic(event)
                 } else {
@@ -38,12 +59,12 @@ impl SessionState for PropertyManager {
                     self.event_modify_dynamic(event, &at_path[1..], prop_id)
                 }
             }
-            Some(&"static") => {
+            Some(&STATIC_PATH) => {
                 let at_path = &at_path[1..];
-                if Self::starts_with("add_default", at_path).is_some() {
+                if Self::starts_with(ADD_DEFAULT_PATH, at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_default_static(event)
-                } else if Self::starts_with("add", at_path).is_some() {
+                } else if Self::starts_with(ADD_PATH, at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_static(event)
                 } else {
@@ -62,7 +83,7 @@ impl SessionState for PropertyManager {
 
         // currently three options: get all datasets, a single dataset, a single observation
         match at_path.first() {
-            Some(&"get_all_dynamic") => {
+            Some(&GET_ALL_DYNAMIC_PATH) => {
                 Self::assert_path_length(at_path, 1, component_name)?;
                 let mut properties_list: Vec<DynPropertyData> = self
                     .dyn_properties
@@ -73,7 +94,7 @@ impl SessionState for PropertyManager {
                 properties_list.sort_by(|a, b| a.id.cmp(&b.id));
                 make_refresh_event(full_path, properties_list)
             }
-            Some(&"get_all_static") => {
+            Some(&GET_ALL_STATIC_PATH) => {
                 Self::assert_path_length(at_path, 1, component_name)?;
                 let mut properties_list: Vec<StatPropertyData> = self
                     .stat_properties
@@ -142,7 +163,7 @@ impl PropertyManager {
     ) -> Result<Consumed, DynError> {
         let component_name = "properties/dynamic";
 
-        if Self::starts_with("remove", at_path).is_some() {
+        if Self::starts_with(REMOVE_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // save the original property data for state change and reverse event
@@ -157,7 +178,7 @@ impl PropertyManager {
             let payload = prop_data.to_json_str();
             let reverse_event = mk_dyn_prop_event(&["add"], Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_id", at_path).is_some() {
+        } else if Self::starts_with(SET_ID_PATH, at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
             if prop_id.as_str() == new_id.as_str() {
@@ -173,7 +194,7 @@ impl PropertyManager {
             let payload = prop_id.as_str();
             let reverse_event = mk_dyn_prop_event(&[new_id.as_str(), "set_id"], Some(payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_content", at_path).is_some() {
+        } else if Self::starts_with(SET_CONTENT_PATH, at_path).is_some() {
             // get the payload - json string encoding a new property data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_property_data = DynPropertyData::from_json_str(&payload)?;
@@ -249,7 +270,7 @@ impl PropertyManager {
     ) -> Result<Consumed, DynError> {
         let component_name = "properties/static";
 
-        if Self::starts_with("remove", at_path).is_some() {
+        if Self::starts_with(REMOVE_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;
 
             // save the original property data for state change and reverse event
@@ -264,7 +285,7 @@ impl PropertyManager {
             let payload = prop_data.to_json_str();
             let reverse_event = mk_stat_prop_event(&["add"], Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_id", at_path).is_some() {
+        } else if Self::starts_with(SET_ID_PATH, at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
             if prop_id.as_str() == new_id.as_str() {
@@ -280,7 +301,7 @@ impl PropertyManager {
             let payload = prop_id.as_str();
             let reverse_event = mk_stat_prop_event(&[new_id.as_str(), "set_id"], Some(payload));
             Ok(make_reversible(state_change, event, reverse_event))
-        } else if Self::starts_with("set_content", at_path).is_some() {
+        } else if Self::starts_with(SET_CONTENT_PATH, at_path).is_some() {
             // get the payload - json string encoding a new property data
             let payload = Self::clone_payload_str(event, component_name)?;
             let new_property_data = StatPropertyData::from_json_str(&payload)?;

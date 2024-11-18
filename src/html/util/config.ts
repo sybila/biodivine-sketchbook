@@ -2,7 +2,7 @@ import { TabData } from './tab-data'
 import { html } from 'lit'
 
 export const functionDebounceTimer = 1500
-export const inferencePingTimer = 250
+export const inferencePingTimer = 200
 
 let index = 0
 
@@ -40,7 +40,7 @@ export const tabList: TabData[] = [
   }),
   TabData.create({
     id: index++,
-    name: 'Inference',
+    name: 'Analysis',
     content: (contentData) => html`<analysis-tab .contentData=${contentData}></analysis-tab>`,
     icon: 'i'
   })

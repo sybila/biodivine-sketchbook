@@ -1,4 +1,4 @@
-# AEON Sketchbook Architecture
+# Sketchbook Architecture
 
 This document gives a general rationale behind the chosen architecture and technologies.
 

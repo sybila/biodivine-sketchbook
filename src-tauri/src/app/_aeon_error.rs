@@ -16,7 +16,7 @@ impl AeonError {
     /// Refer to [Error] regarding recommended error description format.
     ///
     /// ```rust
-    /// # use aeon_sketchbook::app::AeonError;
+    /// # use biodivine_sketchbook::app::AeonError;
     /// # use std::error::Error;
     /// let error = AeonError::new("something failed", None);
     /// let other_error = AeonError::new("something else failed", Some(Box::new(error)));
@@ -45,7 +45,7 @@ impl AeonError {
     /// See also [AeonError::throw_with_source].
     ///
     /// ```rust
-    /// # use aeon_sketchbook::app::{AeonError, DynError};
+    /// # use biodivine_sketchbook::app::{AeonError, DynError};
     /// fn division(numerator: i32, denominator: i32) -> Result<i32, DynError> {
     ///     if denominator == 0 {
     ///         AeonError::throw("division by zero")
@@ -68,7 +68,7 @@ impl AeonError {
     /// (see the example below).
     ///
     /// ```rust
-    /// # use aeon_sketchbook::app::{AeonError, DynError};
+    /// # use biodivine_sketchbook::app::{AeonError, DynError};
     /// fn read_number(num: &str) -> Result<i32, DynError> {
     ///     match num.parse::<i32>() {
     ///         Ok(num) => Ok(num),

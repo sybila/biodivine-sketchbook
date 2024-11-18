@@ -110,7 +110,7 @@ pub trait Manager {
 
         // finally, try searching for a valid number to append at the end of the id
         // start searching at index 1 (or start-index), until we try `max_idx` options
-        let start_index = if let Some(i) = start_index { i } else { 1 };
+        let start_index = start_index.unwrap_or(1);
         let last_index = start_index + num_indices;
         for n in start_index..last_index {
             let id = T::from_str(format!("{}_{}", transformed_id, n).as_str()).unwrap();
