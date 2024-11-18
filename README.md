@@ -32,6 +32,8 @@ Alternatively, if you want to build the tool locally, the instructions are provi
 
 The following instructions desribe the local installation of the application and relevant frameworks. We recommend using the pre-built binaries described in the previous section.
 
+For a summary of all technologies and detailed project structure, see `ARCHITECTURE.md`.
+
 ### Installation of dependencies
 
 First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
