@@ -25,7 +25,10 @@ pub enum FnTree {
 
 /// A wrapper function for parsing update function formulas with extended error message.
 /// See [FnUpdate::try_from_str] for details.
-fn parse_update_fn_wrapper(expression: &str, bn_context: &BooleanNetwork) -> Result<FnUpdate, String> {
+fn parse_update_fn_wrapper(
+    expression: &str,
+    bn_context: &BooleanNetwork,
+) -> Result<FnUpdate, String> {
     let fn_update = FnUpdate::try_from_str(expression, bn_context)
         .map_err(|e| format!("Error during update function processing: {}", e))?;
     Ok(fn_update)

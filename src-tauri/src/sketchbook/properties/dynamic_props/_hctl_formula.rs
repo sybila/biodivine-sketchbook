@@ -26,7 +26,10 @@ pub fn parse_hctl_formula_wrapper(formula: &str) -> Result<HctlTreeNode, String>
 
 /// A wrapper function for full preprocessing step for HCTL formulas, with extended error message.
 /// See [parse_and_minimize_hctl_formula] for details.
-pub fn parse_and_minimize_hctl_formula_wrapper(symbolic_context: &SymbolicContext, formula: &str) -> Result<HctlTreeNode, String> {
+pub fn parse_and_minimize_hctl_formula_wrapper(
+    symbolic_context: &SymbolicContext,
+    formula: &str,
+) -> Result<HctlTreeNode, String> {
     parse_and_minimize_hctl_formula(symbolic_context, formula)
         .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
 }
@@ -107,7 +110,8 @@ impl HctlFormula {
         let bn = model.to_empty_bn();
         let ctx = SymbolicContext::new(&bn)?;
 
-        let res: Result<HctlTreeNode, String> = parse_and_minimize_hctl_formula_wrapper(&ctx, formula);
+        let res: Result<HctlTreeNode, String> =
+            parse_and_minimize_hctl_formula_wrapper(&ctx, formula);
         if res.is_ok() {
             Ok(())
         } else {
