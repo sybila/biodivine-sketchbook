@@ -24,7 +24,7 @@ We provide pre-built binaries and installation files for the application in the 
 To start using Sketchbook, download binary for your operating system - you choose between `.app` and `.dmg` for macOS, `.AppImage`, `.deb` and `.rpm` for Linux, or `.exe` and `.msi` for Windows.
 If you need a different pre-built binary for a specific platform, let us know!
 
-> Note that the binaries are not signed, so macOS and Windows will likely ask if you trust the application or otherwise require you to allow it to run explicitly. We do not include instructions for these steps.
+> Note that the binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/aeon_sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
 
 Alternatively, if you want to build the tool locally, the instructions are provided in the Development guide below. Note that the local build requires additional dependencies to be installed.
 
