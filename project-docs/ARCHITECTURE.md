@@ -38,6 +38,7 @@ We use standard `cargo` utilities for Rust testing and linting. For TypeScript s
   - `resources` | Any kind of files that should be bundled together with the code and easily accessible. For now, we use it to store example models (that must not get lost).  
   - `Cargo.toml`, `build.rs` and `src` | Mostly standard Rust project.
 - `test` | Folder for end-to-end tests with `selenium` and `mocha` frameworks. For now just very simple example.
+- `project-docs` | A directory to collect design/documentation regarding the project's architecture, technologies, design, and more. This is not meant as tool documentation for users, but for developers.
 
 ## Architecture notes (early stage)
 

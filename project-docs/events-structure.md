@@ -1,8 +1,9 @@
 
 # Overview
 
-This document provides an overview of the events that can be processed by the backend state API. Events are structured in a hierarchical manner to simplify navigation and understanding.
-
+The communication between backend and frontend components of the app happens mainly through custom events.
+This document provides an overview of the events that can be processed by the backend state API. 
+Events are structured in a hierarchical manner to simplify navigation and understanding.
 
 ---
 ## Undo Stack

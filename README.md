@@ -32,7 +32,7 @@ Alternatively, if you want to build the tool locally, the instructions are provi
 
 The following instructions desribe the local installation of the application and relevant frameworks. We recommend using the pre-built binaries described in the previous section.
 
-For a summary of all technologies and detailed project structure, see `ARCHITECTURE.md`.
+For a summary of all technologies and detailed project structure, see `project-docs/ARCHITECTURE.md`. The directory `project-docs` also contains other documents relevant to the design/development.
 
 ### Installation of dependencies
 
