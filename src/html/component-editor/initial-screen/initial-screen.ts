@@ -68,19 +68,19 @@ export class InitialScreen extends LitElement {
         </div>
         
         <div class="button-group">
-          <button @click="${this.startNewSketch}" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
+          <button @click="${this.startNewSketch}" id="new-sketch-button" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
             Start new sketch
           </button>
-          <button @click="${this.importJsonProject}" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
+          <button @click="${this.importJsonProject}" id="load-json-button" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
             Load JSON project
           </button>
-          <button @click="${this.importAeonModel}" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
+          <button @click="${this.importAeonModel}" id="load-aeon-button" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
             Import AEON model
           </button>
-          <button @click="${this.importSbmlModel}" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
+          <button @click="${this.importSbmlModel}" id="load-sbml-button" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
             Import SBML model
           </button>
-          <button @click="${this.openExampleSketch}" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
+          <button @click="${this.openExampleSketch}" id="load-example-button" class="action-button uk-button uk-button-large uk-button-secondary uk-margin-bottom">
             Open example
           </button>
         </div>

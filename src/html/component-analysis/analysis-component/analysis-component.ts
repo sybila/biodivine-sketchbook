@@ -334,7 +334,7 @@ export default class AnalysisComponent extends LitElement {
             ${this.selected_analysis === null
 ? html`
               <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
-                <button class="uk-button uk-button-large uk-button-secondary"
+                <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
                           this.runInference()
                         }}">Run full inference
@@ -345,7 +345,7 @@ export default class AnalysisComponent extends LitElement {
               <div style="height: 10px;"></div>
               
               <div class="uk-flex uk-flex-row uk-flex-center">
-                <button class="uk-button uk-button-large uk-button-secondary"
+                <button id="static-inference-button" class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
                           this.runStaticInference()
                         }}">Run static inference
@@ -354,7 +354,7 @@ export default class AnalysisComponent extends LitElement {
             `
 : html`
               <div class="reset-buttons">
-                <button class="uk-button uk-button-large uk-button-secondary"
+                <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
                           void this.resetAnalysis()
                         }}">Start again

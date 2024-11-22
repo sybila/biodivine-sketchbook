@@ -29,7 +29,8 @@ before(async function () {
   // Set timeout to 5 minutes to allow the program to build if needed
   this.timeout(300000);
 
-  // Ensure the program has been built -- just build it beforehand for now
+  // Ensure the program has been built 
+  // -- we skip this test for now, since it is faster to build it beforehand
   //spawnSync('cargo', ['tauri', 'build']);
 
   // Start Tauri driver
@@ -67,16 +68,88 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-describe('Basic test attempt', () => {
-  it('should have welcome message', async () => {
+/** Utility to simplify running query selector through shadow root of we-component elems. */
+async function findInShadowRoot(element, selector, driver) {
+  return await driver.executeScript(
+    `
+    let shadowRoot = arguments[0].shadowRoot;
+    return shadowRoot ? shadowRoot.querySelector(arguments[1]) : null;
+    `,
+    element,
+    selector
+  );
+}
+
+describe('Basic walkthrough test', () => {
+  it('welcome message test', async () => {
     // Waiting for the app to fully initialize...
     await sleep(500);
 
     const rootComponent = await driver.findElement(By.css("root-component"));
-    const initialScreenComponent = await driver.executeScript("return arguments[0].shadowRoot.querySelector('initial-screen');", rootComponent);
-    const heading = await driver.executeScript("return arguments[0].shadowRoot.querySelector('h2');", initialScreenComponent);
+    const initialScreenComponent = await findInShadowRoot(rootComponent, "initial-screen", driver);
+    const heading = await findInShadowRoot(initialScreenComponent, "h2", driver);
     const headingText = await heading.getText();
 
     expect(headingText).to.match(/Welcome to SketchBook/);
+  });
+  it('Example inference walkthrough', async () => {
+    // Waiting for the app to fully initialize...
+    await sleep(500);
+
+    // check we have one window opened
+    const originalWindow = await driver.getWindowHandle();
+    expect((await driver.getAllWindowHandles()).length).to.equal(1);
+
+    // find and click on button to open example model
+    const rootComponent = await driver.findElement(By.css("root-component"));
+    const initialScreenComponent = await findInShadowRoot(rootComponent, "initial-screen", driver);
+    const loadExamplebutton = await findInShadowRoot(initialScreenComponent, '#load-example-button', driver);
+    const loadButtonText = await loadExamplebutton.getText();
+    expect(loadButtonText).to.match(/OPEN EXAMPLE/);
+    await driver.executeScript("arguments[0].click();", loadExamplebutton);
+
+    await sleep(500);
+    // find and click on button to open analysis tab
+    const navBarComponent = await findInShadowRoot(rootComponent, "nav-bar", driver);
+    const tabBarComponent = await findInShadowRoot(navBarComponent, "tab-bar", driver);
+    const analysisButton = await findInShadowRoot(tabBarComponent, 'button:last-of-type', driver);
+    const analysisButtonText = await analysisButton.getText();
+    expect(analysisButtonText).to.match(/ANALYSIS/);
+    await driver.executeScript("arguments[0].click();", analysisButton);
+
+    await sleep(500);
+    // find and  click on button to open inference window
+    const contentPaneComponent = await findInShadowRoot(rootComponent, "#analysis", driver);
+    const analysisTab = await findInShadowRoot(contentPaneComponent, "analysis-tab", driver);
+    const inferenceButton = await findInShadowRoot(analysisTab, '#open-inference-button', driver);
+    const inferenceButtonText = await inferenceButton.getText();
+    expect(inferenceButtonText).to.match(/START INFERENCE WORKFLOW/);
+    await driver.executeScript("arguments[0].click();", inferenceButton);
+
+    // now lets wait a bit for the new window and then access it
+    // https://www.selenium.dev/documentation/webdriver/interactions/windows/
+    await driver.wait(
+      async () => (await driver.getAllWindowHandles()).length === 2,
+      2000
+    );
+    const windows = await driver.getAllWindowHandles();
+    windows.forEach(async handle => {
+      if (handle !== originalWindow) {
+        await driver.switchTo().window(handle);
+      }
+    });
+    
+    // find and click button to run computation (only static inference, due to time)
+    const analysisComponent = await driver.findElement(By.css("analysis-component"));
+    const staticInferenceButton = await findInShadowRoot(analysisComponent, "#static-inference-button", driver);
+    const staticInferenceButtonText = await staticInferenceButton.getText();
+    expect(staticInferenceButtonText).to.match(/RUN STATIC INFERENCE/);
+    await driver.executeScript("arguments[0].click();", staticInferenceButton);
+    await sleep(2000);
+
+    // check the results message (should contain correct number of admissible candidates)
+    const resultsMessageElem = await findInShadowRoot(analysisComponent, ".overview-message", driver);
+    const resultsMessageText = await resultsMessageElem.getText();
+    expect(resultsMessageText).to.include("Number of satisfying candidates: 1296");
   });
 });

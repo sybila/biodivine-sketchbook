@@ -54,7 +54,7 @@ export class AnalysisTab extends LitElement {
               <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Inference workflow</h3>
             </div>
             <div class="uk-flex uk-flex-row uk-flex-center">
-              <button class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
+              <button id="open-inference-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
                       @click="${() => {
                         this.runInference()
                       }}">Start inference workflow
@@ -66,7 +66,7 @@ export class AnalysisTab extends LitElement {
               <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Consistency check</h3>
             </div>
             <div class="uk-flex uk-flex-row uk-flex-center">
-              <button class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
+              <button id="consistency-check-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
                       @click="${() => {
                         this.checkConsistency()
                       }}">Run consistency check

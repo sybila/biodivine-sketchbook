@@ -3,10 +3,10 @@
 SketchBook is a multi-platform application for the synthesis of Boolean network models.
 It provides a user-friendly interface for designing a Boolean network sketch and inferring admissible BNs.
 
-Boolean network sketches, introduced in [this paper](https://doi.org/10.1093/bioinformatics/btad158), are a framework for integrating various kinds of prior knowledge and experimental data. The sketch consists of an influence graph, partially specified update functions, update function properties, and dynamic properties (including experimental data). 
+Boolean network sketches, introduced in [this paper](https://doi.org/10.1093/bioinformatics/btad158), serve as a method for integrating various kinds of prior knowledge and experimental data. The sketch consists of an influence graph, partially specified update functions, update function properties, and dynamic properties (including experimental data). 
 Sketchbook presents a way to design all these components and more.
 
-Once you finish designing your sketch, you can run the state-of-the-art synthesis algorithms and symbolically compute all BNs consistent with your requirements. You can then sample individual BNs, or export the results and process it with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
+Once you finish designing your sketch, you can run the state-of-the-art synthesis algorithms and symbolically compute all BNs consistent with your requirements. You can then sample individual BNs, or export the results for further analysis with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
 ### Citation
 
@@ -24,7 +24,7 @@ We provide pre-built binaries and installation files for the application in the 
 To start using Sketchbook, download binary for your operating system - you choose between `.app` and `.dmg` for macOS, `.AppImage`, `.deb` and `.rpm` for Linux, or `.exe` and `.msi` for Windows.
 If you need a different pre-built binary for a specific platform, let us know!
 
-> Note that the binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/aeon_sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
+> Note that the binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/biodivine-sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
 
 Alternatively, if you want to build the tool locally, the instructions are provided in the Development guide below. Note that the local build requires additional dependencies to be installed.
 
@@ -77,5 +77,5 @@ cargo doc --no-deps --document-private-items
 We also utilize an end-to-end Selenium-based testing framework. Note that these tests require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). 
 
 You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. 
-To run the tests, first build the app with `cargo tauri build` and then use `npx mocha`. 
+To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 10000`). 
 The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.

@@ -150,7 +150,9 @@ export function convertFromIObservationSet (dataset: IObservationSet): DatasetDa
 
 export function convertToIVariable (variable: VariableData): IVariableData {
   return {
-    ...variable,
+    id: variable.id,
+    name: variable.name,
+    annotation: variable.annotation,
     function: variable.update_fn
   }
 }
