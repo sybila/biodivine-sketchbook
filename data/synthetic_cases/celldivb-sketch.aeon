@@ -1,0 +1,44 @@
+CpdR -? ClpXP_RcdA
+DivL -? CckA
+DivK -? DivL
+ChpT -? CpdR
+ClpXP_RcdA -? CtrAb
+CckA -? ChpT
+DivJ -? DivK
+PleC -? DivK
+DivK -? DivJ
+PleC -? DivJ
+DivK -? PleC
+ChpT -? CtrAb
+#position:DivK:0,0
+#position:ClpXP_RcdA:0,0
+#position:DivL:0,0
+#position:ChpT:0,0
+#position:PleC:0,0
+#position:CckA:0,0
+#position:CpdR:0,0
+#position:CtrAb:0,0
+#position:DivJ:0,0
+#!dataset:dataset_1:#`{"name":"dataset_1","id":"dataset_1","annotation":"","observations":[{"id":"Observation1","name":"Observation1","annotation":"","dataset":"dataset_1","values":"001001100"},{"id":"Observation2","name":"Observation2","annotation":"","dataset":"dataset_1","values":"110110011"}],"variables":["CckA","ChpT","ClpXP_RcdA","CpdR","CtrAb","DivJ","DivK","DivL","PleC"]}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Attractor existence","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!static_property:essentiality_CckA_ChpT:#`{"id":"essentiality_CckA_ChpT","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CckA","target":"ChpT","value":"True","context":null}`#
+#!static_property:essentiality_ChpT_CpdR:#`{"id":"essentiality_ChpT_CpdR","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ChpT","target":"CpdR","value":"True","context":null}`#
+#!static_property:essentiality_ChpT_CtrAb:#`{"id":"essentiality_ChpT_CtrAb","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ChpT","target":"CtrAb","value":"True","context":null}`#
+#!static_property:essentiality_ClpXP_RcdA_CtrAb:#`{"id":"essentiality_ClpXP_RcdA_CtrAb","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ClpXP_RcdA","target":"CtrAb","value":"True","context":null}`#
+#!static_property:essentiality_CpdR_ClpXP_RcdA:#`{"id":"essentiality_CpdR_ClpXP_RcdA","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CpdR","target":"ClpXP_RcdA","value":"True","context":null}`#
+#!static_property:essentiality_DivJ_DivK:#`{"id":"essentiality_DivJ_DivK","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DivJ","target":"DivK","value":"True","context":null}`#
+#!static_property:essentiality_DivK_DivJ:#`{"id":"essentiality_DivK_DivJ","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DivK","target":"DivJ","value":"True","context":null}`#
+#!static_property:essentiality_DivK_DivL:#`{"id":"essentiality_DivK_DivL","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DivK","target":"DivL","value":"True","context":null}`#
+#!static_property:essentiality_DivK_PleC:#`{"id":"essentiality_DivK_PleC","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DivK","target":"PleC","value":"True","context":null}`#
+#!static_property:essentiality_DivL_CckA:#`{"id":"essentiality_DivL_CckA","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DivL","target":"CckA","value":"True","context":null}`#
+#!static_property:essentiality_PleC_DivJ:#`{"id":"essentiality_PleC_DivJ","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"PleC","target":"DivJ","value":"True","context":null}`#
+#!static_property:essentiality_PleC_DivK:#`{"id":"essentiality_PleC_DivK","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"PleC","target":"DivK","value":"True","context":null}`#
+#!variable:CckA:#`{"id":"CckA","name":"CckA","annotation":"","update_fn":""}`#
+#!variable:ChpT:#`{"id":"ChpT","name":"ChpT","annotation":"","update_fn":""}`#
+#!variable:ClpXP_RcdA:#`{"id":"ClpXP_RcdA","name":"ClpXP_RcdA","annotation":"","update_fn":""}`#
+#!variable:CpdR:#`{"id":"CpdR","name":"CpdR","annotation":"","update_fn":""}`#
+#!variable:CtrAb:#`{"id":"CtrAb","name":"CtrAb","annotation":"","update_fn":""}`#
+#!variable:DivJ:#`{"id":"DivJ","name":"DivJ","annotation":"","update_fn":""}`#
+#!variable:DivK:#`{"id":"DivK","name":"DivK","annotation":"","update_fn":""}`#
+#!variable:DivL:#`{"id":"DivL","name":"DivL","annotation":"","update_fn":""}`#
+#!variable:PleC:#`{"id":"PleC","name":"PleC","annotation":"","update_fn":""}`#

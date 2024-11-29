@@ -1,0 +1,350 @@
+Nsp4 -> Nsp3_Nsp4_Nsp6_complex
+sa160_Nsp3_____rna -> sa219_Nsp3_____rna
+SIGMAR1_endoplasmic_reticulum -> SIGMAR1_Drugs_complex
+TOM_complex_complex -> TIM_complex_Nsp4_complex
+ATP6AP1 -> V_ATPase_complex_endoplasmic_reticulum
+Nsp3 -> Nsp3_Nsp4_Nsp6_complex
+V_ATPase_complex_endoplasmic_reticulum -> V_ATPase_Nsp6_complex_endoplasmic_reticulum
+V_type_space_proton_space_ATPase_complex -> H__ion
+sa218_Nsp6_____rna -> sa47_Nsp6_____rna
+NUP210_endoplasmic_reticulum -> NUP210_Selinexor_complex
+sa47_Nsp6_____rna -> Nsp6
+Nsp6 -> Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+Nsp4_NUP210_complex_endoplasmic_reticulum -> Nsp4_NUP210_complex_nucleus
+sa219_Nsp3_____rna -> sa160_Nsp3_____rna
+sa8_IDE_cell -> IDE_human_host
+Several_drugs_drug -> SIGMAR1_Drugs_complex
+sa220_Nsp4_____rna -> sa3_Nsp4_____rna
+SLC6A15 -> SLC6A15_Orf9c_complex
+NUP210_endoplasmic_reticulum -> NUP210_nucleus
+csa2_Nsp4_IDE_complex_cell -> csa4_Nsp4_IDE_complex_cell
+Nsp3_Nsp4_Nsp6_complex -> Plasma_membrane_organization_phenotype
+Orf9c -> SLC6A15_Orf9c_complex
+Nsp6 -> F_ATPase_Nsp6_complex
+Nsp4 -> Nsp4_NUP210_complex_endoplasmic_reticulum
+sa14_ALG11_endoplasmic_reticulum -> csa15_Nsp4_ALG11_complex_endoplasmic_reticulum
+Nsp4 -> TIM_complex_Nsp4_complex
+sa3_Nsp4_____rna -> sa220_Nsp4_____rna
+V_ATPase_Nsp6_complex_endoplasmic_reticulum -> V_ATPase_Nsp6_complex_endosome
+ATP6AP1 -> ATP6AP1_Bafilomycin_A1_complex
+sa47_Nsp6_____rna -> sa218_Nsp6_____rna
+csa2_Nsp4_IDE_complex_cell -> Nsp4_IDE_complex
+SIGMAR1_endoplasmic_reticulum -> Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+SLC6A15 -> SLC6A15_M_complex
+sa14_ALG11_endoplasmic_reticulum -> sa230_ALG11_endoplasmic_reticulum
+Nsp6_SIGMAR1_complex_endoplasmic_reticulum -> Nsp6_SIGMAR1_complex_nucleus
+Nsp4 -> csa2_Nsp4_IDE_complex_cell
+sa160_Nsp3_____rna -> Nsp3
+Nsp6 -> SLC6A15_Nsp6_complex
+csa15_Nsp4_ALG11_complex_endoplasmic_reticulum -> csa93_Nsp4_ALG11_complex_endoplasmic_reticulum
+Nsp4 -> csa15_Nsp4_ALG11_complex_endoplasmic_reticulum
+NUP210_endoplasmic_reticulum -> Nsp4_NUP210_complex_endoplasmic_reticulum
+SIGMAR1_endoplasmic_reticulum -> SIGMAR1_nucleus
+Bafilomycin_A1_drug -> ATP6AP1_Bafilomycin_A1_complex
+sa8_IDE_cell -> csa2_Nsp4_IDE_complex_cell
+Selinexor_drug -> NUP210_Selinexor_complex
+Loratadine_drug -> SLC6A15_Loratadine_complex
+Nsp6 -> P_ATPase_Nsp6_complex
+sa3_Nsp4_____rna -> Nsp4
+Nsp6_SIGMAR1_complex_endoplasmic_reticulum -> Nsp6_SIGMAR1_complex_cell
+DNAJC11 -> Nsp4_DNAJC11_complex
+Nsp6 -> V_ATPase_Nsp6_complex_endoplasmic_reticulum
+P_ATPase_complex -> P_ATPase_Nsp6_complex
+M -> SLC6A15_M_complex
+Nsp4 -> Nsp4_DNAJC11_complex
+sa8_IDE_cell -> sa225_IDE_cell
+Nsp6 -> Nsp3_Nsp4_Nsp6_complex
+V_type_space_proton_space_ATPase_complex -> V_ATPase_complex_endoplasmic_reticulum
+F_ATPase_complex -> F_ATPase_Nsp6_complex
+SLC6A15 -> SLC6A15_Nsp6_complex
+SLC6A15 -> SLC6A15_Loratadine_complex
+V_ATPase_complex_endoplasmic_reticulum -> V_ATPase_complex_endosome
+SIGMAR1_endoplasmic_reticulum -> SIGMAR1_cell
+$ATP6AP1: false
+$Bafilomycin_A1_drug: false
+$DNAJC11: false
+$F_ATPase_complex: false
+$H__ion: V_type_space_proton_space_ATPase_complex
+$IDE_human_host: sa8_IDE_cell
+$Loratadine_drug: false
+$M: false
+$NUP210_endoplasmic_reticulum: false
+$NUP210_nucleus: NUP210_endoplasmic_reticulum
+$Nsp3: sa160_Nsp3_____rna
+$Nsp4: sa3_Nsp4_____rna
+$Nsp4_IDE_complex: csa2_Nsp4_IDE_complex_cell
+$Nsp4_NUP210_complex_nucleus: Nsp4_NUP210_complex_endoplasmic_reticulum
+$Nsp6: sa47_Nsp6_____rna
+$Nsp6_SIGMAR1_complex_cell: Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+$Nsp6_SIGMAR1_complex_nucleus: Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+$Orf9c: false
+$P_ATPase_complex: false
+$Plasma_membrane_organization_phenotype: Nsp3_Nsp4_Nsp6_complex
+$SIGMAR1_cell: SIGMAR1_endoplasmic_reticulum
+$SIGMAR1_endoplasmic_reticulum: false
+$SIGMAR1_nucleus: SIGMAR1_endoplasmic_reticulum
+$SLC6A15: false
+$Selinexor_drug: false
+$Several_drugs_drug: false
+$TOM_complex_complex: false
+$V_ATPase_Nsp6_complex_endosome: V_ATPase_Nsp6_complex_endoplasmic_reticulum
+$V_ATPase_complex_endosome: V_ATPase_complex_endoplasmic_reticulum
+$V_type_space_proton_space_ATPase_complex: false
+$csa4_Nsp4_IDE_complex_cell: csa2_Nsp4_IDE_complex_cell
+$csa93_Nsp4_ALG11_complex_endoplasmic_reticulum: csa15_Nsp4_ALG11_complex_endoplasmic_reticulum
+$sa14_ALG11_endoplasmic_reticulum: false
+$sa160_Nsp3_____rna: sa219_Nsp3_____rna
+$sa218_Nsp6_____rna: sa47_Nsp6_____rna
+$sa219_Nsp3_____rna: sa160_Nsp3_____rna
+$sa220_Nsp4_____rna: sa3_Nsp4_____rna
+$sa225_IDE_cell: sa8_IDE_cell
+$sa230_ALG11_endoplasmic_reticulum: sa14_ALG11_endoplasmic_reticulum
+$sa3_Nsp4_____rna: sa220_Nsp4_____rna
+$sa47_Nsp6_____rna: sa218_Nsp6_____rna
+$sa8_IDE_cell: false
+#position:Nsp6_SIGMAR1_complex_endoplasmic_reticulum:0,0
+#position:Bafilomycin_A1_drug:0,0
+#position:Nsp6:0,0
+#position:Loratadine_drug:0,0
+#position:ATP6AP1:0,0
+#position:P_ATPase_Nsp6_complex:0,0
+#position:SLC6A15_Orf9c_complex:0,0
+#position:Nsp6_SIGMAR1_complex_nucleus:0,0
+#position:F_ATPase_Nsp6_complex:0,0
+#position:sa219_Nsp3_____rna:0,0
+#position:V_ATPase_Nsp6_complex_endoplasmic_reticulum:0,0
+#position:Plasma_membrane_organization_phenotype:0,0
+#position:SLC6A15_Loratadine_complex:0,0
+#position:Nsp3_Nsp4_Nsp6_complex:0,0
+#position:H__ion:0,0
+#position:ATP6AP1_Bafilomycin_A1_complex:0,0
+#position:Nsp4:0,0
+#position:Nsp4_NUP210_complex_nucleus:0,0
+#position:SLC6A15_M_complex:0,0
+#position:Orf9c:0,0
+#position:NUP210_endoplasmic_reticulum:0,0
+#position:csa2_Nsp4_IDE_complex_cell:0,0
+#position:sa220_Nsp4_____rna:0,0
+#position:P_ATPase_complex:0,0
+#position:Nsp4_NUP210_complex_endoplasmic_reticulum:0,0
+#position:SLC6A15:0,0
+#position:csa4_Nsp4_IDE_complex_cell:0,0
+#position:Selinexor_drug:0,0
+#position:M:0,0
+#position:V_ATPase_Nsp6_complex_endosome:0,0
+#position:SIGMAR1_cell:0,0
+#position:Nsp3:0,0
+#position:sa8_IDE_cell:0,0
+#position:sa218_Nsp6_____rna:0,0
+#position:TOM_complex_complex:0,0
+#position:Nsp4_DNAJC11_complex:0,0
+#position:SIGMAR1_Drugs_complex:0,0
+#position:Nsp4_IDE_complex:0,0
+#position:Several_drugs_drug:0,0
+#position:TIM_complex_Nsp4_complex:0,0
+#position:NUP210_nucleus:0,0
+#position:V_ATPase_complex_endosome:0,0
+#position:sa47_Nsp6_____rna:0,0
+#position:Nsp6_SIGMAR1_complex_cell:0,0
+#position:csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:0,0
+#position:SIGMAR1_nucleus:0,0
+#position:SLC6A15_Nsp6_complex:0,0
+#position:sa14_ALG11_endoplasmic_reticulum:0,0
+#position:SIGMAR1_endoplasmic_reticulum:0,0
+#position:IDE_human_host:0,0
+#position:sa3_Nsp4_____rna:0,0
+#position:F_ATPase_complex:0,0
+#position:NUP210_Selinexor_complex:0,0
+#position:V_type_space_proton_space_ATPase_complex:0,0
+#position:V_ATPase_complex_endoplasmic_reticulum:0,0
+#position:sa160_Nsp3_____rna:0,0
+#position:DNAJC11:0,0
+#position:csa93_Nsp4_ALG11_complex_endoplasmic_reticulum:0,0
+#position:sa225_IDE_cell:0,0
+#position:sa230_ALG11_endoplasmic_reticulum:0,0
+#!dataset:dataset_1:#`{"name":"dataset_1","id":"dataset_1","annotation":"","observations":[{"id":"Observation2","name":"Observation2","annotation":"","dataset":"dataset_1","values":"000000000000000000000000000000000000000000000000000000000000"},{"id":"Observation3","name":"Observation3","annotation":"","dataset":"dataset_1","values":"000000000000000000001000000000000000000000000000000010000010"},{"id":"Observation4","name":"Observation4","annotation":"","dataset":"dataset_1","values":"000000000000000100000000000000000000000000000000000000100100"},{"id":"Observation5","name":"Observation5","annotation":"","dataset":"dataset_1","values":"000000000000000100001000000000000000000000000000000010100110"},{"id":"Observation6","name":"Observation6","annotation":"","dataset":"dataset_1","values":"000000000000010000000000000000000000000000000000000101000000"},{"id":"Observation7","name":"Observation7","annotation":"","dataset":"dataset_1","values":"000000000000010000001000000000000000000000000000000111000010"},{"id":"Observation8","name":"Observation8","annotation":"","dataset":"dataset_1","values":"000000000000010100000000000000000000000000000000000101100100"},{"id":"Observation9","name":"Observation9","annotation":"","dataset":"dataset_1","values":"000000000000011100001000000100000000000000000000000111100110"}],"variables":["ATP6AP1","ATP6AP1_Bafilomycin_A1_complex","Bafilomycin_A1_drug","DNAJC11","F_ATPase_Nsp6_complex","F_ATPase_complex","H__ion","IDE_human_host","Loratadine_drug","M","NUP210_Selinexor_complex","NUP210_endoplasmic_reticulum","NUP210_nucleus","Nsp3","Nsp3_Nsp4_Nsp6_complex","Nsp4","Nsp4_DNAJC11_complex","Nsp4_IDE_complex","Nsp4_NUP210_complex_endoplasmic_reticulum","Nsp4_NUP210_complex_nucleus","Nsp6","Nsp6_SIGMAR1_complex_cell","Nsp6_SIGMAR1_complex_endoplasmic_reticulum","Nsp6_SIGMAR1_complex_nucleus","Orf9c","P_ATPase_Nsp6_complex","P_ATPase_complex","Plasma_membrane_organization_phenotype","SIGMAR1_Drugs_complex","SIGMAR1_cell","SIGMAR1_endoplasmic_reticulum","SIGMAR1_nucleus","SLC6A15","SLC6A15_Loratadine_complex","SLC6A15_M_complex","SLC6A15_Nsp6_complex","SLC6A15_Orf9c_complex","Selinexor_drug","Several_drugs_drug","TIM_complex_Nsp4_complex","TOM_complex_complex","V_ATPase_Nsp6_complex_endoplasmic_reticulum","V_ATPase_Nsp6_complex_endosome","V_ATPase_complex_endoplasmic_reticulum","V_ATPase_complex_endosome","V_type_space_proton_space_ATPase_complex","csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","csa2_Nsp4_IDE_complex_cell","csa4_Nsp4_IDE_complex_cell","csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","sa14_ALG11_endoplasmic_reticulum","sa160_Nsp3_____rna","sa218_Nsp6_____rna","sa219_Nsp3_____rna","sa220_Nsp4_____rna","sa225_IDE_cell","sa230_ALG11_endoplasmic_reticulum","sa3_Nsp4_____rna","sa47_Nsp6_____rna","sa8_IDE_cell"]}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Attractor existence","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!static_property:essentiality_ATP6AP1_ATP6AP1_Bafilomycin_A1_complex:#`{"id":"essentiality_ATP6AP1_ATP6AP1_Bafilomycin_A1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ATP6AP1","target":"ATP6AP1_Bafilomycin_A1_complex","value":"True","context":null}`#
+#!static_property:essentiality_ATP6AP1_V_ATPase_complex_endoplasmic_reticulum:#`{"id":"essentiality_ATP6AP1_V_ATPase_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ATP6AP1","target":"V_ATPase_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_Bafilomycin_A1_drug_ATP6AP1_Bafilomycin_A1_complex:#`{"id":"essentiality_Bafilomycin_A1_drug_ATP6AP1_Bafilomycin_A1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Bafilomycin_A1_drug","target":"ATP6AP1_Bafilomycin_A1_complex","value":"True","context":null}`#
+#!static_property:essentiality_DNAJC11_Nsp4_DNAJC11_complex:#`{"id":"essentiality_DNAJC11_Nsp4_DNAJC11_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DNAJC11","target":"Nsp4_DNAJC11_complex","value":"True","context":null}`#
+#!static_property:essentiality_F_ATPase_complex_F_ATPase_Nsp6_complex:#`{"id":"essentiality_F_ATPase_complex_F_ATPase_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"F_ATPase_complex","target":"F_ATPase_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Loratadine_drug_SLC6A15_Loratadine_complex:#`{"id":"essentiality_Loratadine_drug_SLC6A15_Loratadine_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Loratadine_drug","target":"SLC6A15_Loratadine_complex","value":"True","context":null}`#
+#!static_property:essentiality_M_SLC6A15_M_complex:#`{"id":"essentiality_M_SLC6A15_M_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"M","target":"SLC6A15_M_complex","value":"True","context":null}`#
+#!static_property:essentiality_NUP210_endoplasmic_reticulum_NUP210_Selinexor_complex:#`{"id":"essentiality_NUP210_endoplasmic_reticulum_NUP210_Selinexor_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NUP210_endoplasmic_reticulum","target":"NUP210_Selinexor_complex","value":"True","context":null}`#
+#!static_property:essentiality_NUP210_endoplasmic_reticulum_NUP210_nucleus:#`{"id":"essentiality_NUP210_endoplasmic_reticulum_NUP210_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NUP210_endoplasmic_reticulum","target":"NUP210_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_NUP210_endoplasmic_reticulum_Nsp4_NUP210_complex_endoplasmic_reticulum:#`{"id":"essentiality_NUP210_endoplasmic_reticulum_Nsp4_NUP210_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NUP210_endoplasmic_reticulum","target":"Nsp4_NUP210_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_Nsp3_Nsp4_Nsp6_complex:#`{"id":"essentiality_Nsp3_Nsp3_Nsp4_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"Nsp3_Nsp4_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_Nsp4_Nsp6_complex_Plasma_membrane_organization_phenotype:#`{"id":"essentiality_Nsp3_Nsp4_Nsp6_complex_Plasma_membrane_organization_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3_Nsp4_Nsp6_complex","target":"Plasma_membrane_organization_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_NUP210_complex_endoplasmic_reticulum_Nsp4_NUP210_complex_nucleus:#`{"id":"essentiality_Nsp4_NUP210_complex_endoplasmic_reticulum_Nsp4_NUP210_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4_NUP210_complex_endoplasmic_reticulum","target":"Nsp4_NUP210_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_Nsp3_Nsp4_Nsp6_complex:#`{"id":"essentiality_Nsp4_Nsp3_Nsp4_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4","target":"Nsp3_Nsp4_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_Nsp4_DNAJC11_complex:#`{"id":"essentiality_Nsp4_Nsp4_DNAJC11_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4","target":"Nsp4_DNAJC11_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_Nsp4_NUP210_complex_endoplasmic_reticulum:#`{"id":"essentiality_Nsp4_Nsp4_NUP210_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4","target":"Nsp4_NUP210_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_TIM_complex_Nsp4_complex:#`{"id":"essentiality_Nsp4_TIM_complex_Nsp4_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4","target":"TIM_complex_Nsp4_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"essentiality_Nsp4_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4","target":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_Nsp4_csa2_Nsp4_IDE_complex_cell:#`{"id":"essentiality_Nsp4_csa2_Nsp4_IDE_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp4","target":"csa2_Nsp4_IDE_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_F_ATPase_Nsp6_complex:#`{"id":"essentiality_Nsp6_F_ATPase_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"F_ATPase_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_Nsp3_Nsp4_Nsp6_complex:#`{"id":"essentiality_Nsp6_Nsp3_Nsp4_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"Nsp3_Nsp4_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_Nsp6_SIGMAR1_complex_endoplasmic_reticulum:#`{"id":"essentiality_Nsp6_Nsp6_SIGMAR1_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_P_ATPase_Nsp6_complex:#`{"id":"essentiality_Nsp6_P_ATPase_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"P_ATPase_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_cell:#`{"id":"essentiality_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","target":"Nsp6_SIGMAR1_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_nucleus:#`{"id":"essentiality_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","target":"Nsp6_SIGMAR1_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_SLC6A15_Nsp6_complex:#`{"id":"essentiality_Nsp6_SLC6A15_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"SLC6A15_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_V_ATPase_Nsp6_complex_endoplasmic_reticulum:#`{"id":"essentiality_Nsp6_V_ATPase_Nsp6_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_Orf9c_SLC6A15_Orf9c_complex:#`{"id":"essentiality_Orf9c_SLC6A15_Orf9c_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf9c","target":"SLC6A15_Orf9c_complex","value":"True","context":null}`#
+#!static_property:essentiality_P_ATPase_complex_P_ATPase_Nsp6_complex:#`{"id":"essentiality_P_ATPase_complex_P_ATPase_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"P_ATPase_complex","target":"P_ATPase_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_SIGMAR1_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_endoplasmic_reticulum:#`{"id":"essentiality_SIGMAR1_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SIGMAR1_endoplasmic_reticulum","target":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_SIGMAR1_endoplasmic_reticulum_SIGMAR1_Drugs_complex:#`{"id":"essentiality_SIGMAR1_endoplasmic_reticulum_SIGMAR1_Drugs_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SIGMAR1_endoplasmic_reticulum","target":"SIGMAR1_Drugs_complex","value":"True","context":null}`#
+#!static_property:essentiality_SIGMAR1_endoplasmic_reticulum_SIGMAR1_cell:#`{"id":"essentiality_SIGMAR1_endoplasmic_reticulum_SIGMAR1_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SIGMAR1_endoplasmic_reticulum","target":"SIGMAR1_cell","value":"True","context":null}`#
+#!static_property:essentiality_SIGMAR1_endoplasmic_reticulum_SIGMAR1_nucleus:#`{"id":"essentiality_SIGMAR1_endoplasmic_reticulum_SIGMAR1_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SIGMAR1_endoplasmic_reticulum","target":"SIGMAR1_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_SLC6A15_SLC6A15_Loratadine_complex:#`{"id":"essentiality_SLC6A15_SLC6A15_Loratadine_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SLC6A15","target":"SLC6A15_Loratadine_complex","value":"True","context":null}`#
+#!static_property:essentiality_SLC6A15_SLC6A15_M_complex:#`{"id":"essentiality_SLC6A15_SLC6A15_M_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SLC6A15","target":"SLC6A15_M_complex","value":"True","context":null}`#
+#!static_property:essentiality_SLC6A15_SLC6A15_Nsp6_complex:#`{"id":"essentiality_SLC6A15_SLC6A15_Nsp6_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SLC6A15","target":"SLC6A15_Nsp6_complex","value":"True","context":null}`#
+#!static_property:essentiality_SLC6A15_SLC6A15_Orf9c_complex:#`{"id":"essentiality_SLC6A15_SLC6A15_Orf9c_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"SLC6A15","target":"SLC6A15_Orf9c_complex","value":"True","context":null}`#
+#!static_property:essentiality_Selinexor_drug_NUP210_Selinexor_complex:#`{"id":"essentiality_Selinexor_drug_NUP210_Selinexor_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Selinexor_drug","target":"NUP210_Selinexor_complex","value":"True","context":null}`#
+#!static_property:essentiality_Several_drugs_drug_SIGMAR1_Drugs_complex:#`{"id":"essentiality_Several_drugs_drug_SIGMAR1_Drugs_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Several_drugs_drug","target":"SIGMAR1_Drugs_complex","value":"True","context":null}`#
+#!static_property:essentiality_TOM_complex_complex_TIM_complex_Nsp4_complex:#`{"id":"essentiality_TOM_complex_complex_TIM_complex_Nsp4_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TOM_complex_complex","target":"TIM_complex_Nsp4_complex","value":"True","context":null}`#
+#!static_property:essentiality_V_ATPase_Nsp6_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endosome:#`{"id":"essentiality_V_ATPase_Nsp6_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endosome","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","target":"V_ATPase_Nsp6_complex_endosome","value":"True","context":null}`#
+#!static_property:essentiality_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endoplasmic_reticulum:#`{"id":"essentiality_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"V_ATPase_complex_endoplasmic_reticulum","target":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_complex_endosome:#`{"id":"essentiality_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_complex_endosome","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"V_ATPase_complex_endoplasmic_reticulum","target":"V_ATPase_complex_endosome","value":"True","context":null}`#
+#!static_property:essentiality_V_type_space_proton_space_ATPase_complex_H__ion:#`{"id":"essentiality_V_type_space_proton_space_ATPase_complex_H__ion","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"V_type_space_proton_space_ATPase_complex","target":"H__ion","value":"True","context":null}`#
+#!static_property:essentiality_V_type_space_proton_space_ATPase_complex_V_ATPase_complex_endoplasmic_reticulum:#`{"id":"essentiality_V_type_space_proton_space_ATPase_complex_V_ATPase_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"V_type_space_proton_space_ATPase_complex","target":"V_ATPase_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum_csa93_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"essentiality_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum_csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","target":"csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_csa2_Nsp4_IDE_complex_cell_Nsp4_IDE_complex:#`{"id":"essentiality_csa2_Nsp4_IDE_complex_cell_Nsp4_IDE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa2_Nsp4_IDE_complex_cell","target":"Nsp4_IDE_complex","value":"True","context":null}`#
+#!static_property:essentiality_csa2_Nsp4_IDE_complex_cell_csa4_Nsp4_IDE_complex_cell:#`{"id":"essentiality_csa2_Nsp4_IDE_complex_cell_csa4_Nsp4_IDE_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa2_Nsp4_IDE_complex_cell","target":"csa4_Nsp4_IDE_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_sa14_ALG11_endoplasmic_reticulum_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"essentiality_sa14_ALG11_endoplasmic_reticulum_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa14_ALG11_endoplasmic_reticulum","target":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_sa14_ALG11_endoplasmic_reticulum_sa230_ALG11_endoplasmic_reticulum:#`{"id":"essentiality_sa14_ALG11_endoplasmic_reticulum_sa230_ALG11_endoplasmic_reticulum","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa14_ALG11_endoplasmic_reticulum","target":"sa230_ALG11_endoplasmic_reticulum","value":"True","context":null}`#
+#!static_property:essentiality_sa160_Nsp3_____rna_Nsp3:#`{"id":"essentiality_sa160_Nsp3_____rna_Nsp3","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa160_Nsp3_____rna","target":"Nsp3","value":"True","context":null}`#
+#!static_property:essentiality_sa160_Nsp3_____rna_sa219_Nsp3_____rna:#`{"id":"essentiality_sa160_Nsp3_____rna_sa219_Nsp3_____rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa160_Nsp3_____rna","target":"sa219_Nsp3_____rna","value":"True","context":null}`#
+#!static_property:essentiality_sa218_Nsp6_____rna_sa47_Nsp6_____rna:#`{"id":"essentiality_sa218_Nsp6_____rna_sa47_Nsp6_____rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa218_Nsp6_____rna","target":"sa47_Nsp6_____rna","value":"True","context":null}`#
+#!static_property:essentiality_sa219_Nsp3_____rna_sa160_Nsp3_____rna:#`{"id":"essentiality_sa219_Nsp3_____rna_sa160_Nsp3_____rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa219_Nsp3_____rna","target":"sa160_Nsp3_____rna","value":"True","context":null}`#
+#!static_property:essentiality_sa220_Nsp4_____rna_sa3_Nsp4_____rna:#`{"id":"essentiality_sa220_Nsp4_____rna_sa3_Nsp4_____rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa220_Nsp4_____rna","target":"sa3_Nsp4_____rna","value":"True","context":null}`#
+#!static_property:essentiality_sa3_Nsp4_____rna_Nsp4:#`{"id":"essentiality_sa3_Nsp4_____rna_Nsp4","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa3_Nsp4_____rna","target":"Nsp4","value":"True","context":null}`#
+#!static_property:essentiality_sa3_Nsp4_____rna_sa220_Nsp4_____rna:#`{"id":"essentiality_sa3_Nsp4_____rna_sa220_Nsp4_____rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa3_Nsp4_____rna","target":"sa220_Nsp4_____rna","value":"True","context":null}`#
+#!static_property:essentiality_sa47_Nsp6_____rna_Nsp6:#`{"id":"essentiality_sa47_Nsp6_____rna_Nsp6","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa47_Nsp6_____rna","target":"Nsp6","value":"True","context":null}`#
+#!static_property:essentiality_sa47_Nsp6_____rna_sa218_Nsp6_____rna:#`{"id":"essentiality_sa47_Nsp6_____rna_sa218_Nsp6_____rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa47_Nsp6_____rna","target":"sa218_Nsp6_____rna","value":"True","context":null}`#
+#!static_property:essentiality_sa8_IDE_cell_IDE_human_host:#`{"id":"essentiality_sa8_IDE_cell_IDE_human_host","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa8_IDE_cell","target":"IDE_human_host","value":"True","context":null}`#
+#!static_property:essentiality_sa8_IDE_cell_csa2_Nsp4_IDE_complex_cell:#`{"id":"essentiality_sa8_IDE_cell_csa2_Nsp4_IDE_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa8_IDE_cell","target":"csa2_Nsp4_IDE_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_sa8_IDE_cell_sa225_IDE_cell:#`{"id":"essentiality_sa8_IDE_cell_sa225_IDE_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa8_IDE_cell","target":"sa225_IDE_cell","value":"True","context":null}`#
+#!static_property:monotonicity_ATP6AP1_ATP6AP1_Bafilomycin_A1_complex:#`{"id":"monotonicity_ATP6AP1_ATP6AP1_Bafilomycin_A1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ATP6AP1","target":"ATP6AP1_Bafilomycin_A1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_ATP6AP1_V_ATPase_complex_endoplasmic_reticulum:#`{"id":"monotonicity_ATP6AP1_V_ATPase_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ATP6AP1","target":"V_ATPase_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_Bafilomycin_A1_drug_ATP6AP1_Bafilomycin_A1_complex:#`{"id":"monotonicity_Bafilomycin_A1_drug_ATP6AP1_Bafilomycin_A1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Bafilomycin_A1_drug","target":"ATP6AP1_Bafilomycin_A1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_DNAJC11_Nsp4_DNAJC11_complex:#`{"id":"monotonicity_DNAJC11_Nsp4_DNAJC11_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"DNAJC11","target":"Nsp4_DNAJC11_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_F_ATPase_complex_F_ATPase_Nsp6_complex:#`{"id":"monotonicity_F_ATPase_complex_F_ATPase_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"F_ATPase_complex","target":"F_ATPase_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Loratadine_drug_SLC6A15_Loratadine_complex:#`{"id":"monotonicity_Loratadine_drug_SLC6A15_Loratadine_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Loratadine_drug","target":"SLC6A15_Loratadine_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_M_SLC6A15_M_complex:#`{"id":"monotonicity_M_SLC6A15_M_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"M","target":"SLC6A15_M_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_NUP210_endoplasmic_reticulum_NUP210_Selinexor_complex:#`{"id":"monotonicity_NUP210_endoplasmic_reticulum_NUP210_Selinexor_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NUP210_endoplasmic_reticulum","target":"NUP210_Selinexor_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_NUP210_endoplasmic_reticulum_NUP210_nucleus:#`{"id":"monotonicity_NUP210_endoplasmic_reticulum_NUP210_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NUP210_endoplasmic_reticulum","target":"NUP210_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_NUP210_endoplasmic_reticulum_Nsp4_NUP210_complex_endoplasmic_reticulum:#`{"id":"monotonicity_NUP210_endoplasmic_reticulum_Nsp4_NUP210_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NUP210_endoplasmic_reticulum","target":"Nsp4_NUP210_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp3_Nsp3_Nsp4_Nsp6_complex:#`{"id":"monotonicity_Nsp3_Nsp3_Nsp4_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"Nsp3_Nsp4_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp3_Nsp4_Nsp6_complex_Plasma_membrane_organization_phenotype:#`{"id":"monotonicity_Nsp3_Nsp4_Nsp6_complex_Plasma_membrane_organization_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3_Nsp4_Nsp6_complex","target":"Plasma_membrane_organization_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_NUP210_complex_endoplasmic_reticulum_Nsp4_NUP210_complex_nucleus:#`{"id":"monotonicity_Nsp4_NUP210_complex_endoplasmic_reticulum_Nsp4_NUP210_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4_NUP210_complex_endoplasmic_reticulum","target":"Nsp4_NUP210_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_Nsp3_Nsp4_Nsp6_complex:#`{"id":"monotonicity_Nsp4_Nsp3_Nsp4_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4","target":"Nsp3_Nsp4_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_Nsp4_DNAJC11_complex:#`{"id":"monotonicity_Nsp4_Nsp4_DNAJC11_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4","target":"Nsp4_DNAJC11_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_Nsp4_NUP210_complex_endoplasmic_reticulum:#`{"id":"monotonicity_Nsp4_Nsp4_NUP210_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4","target":"Nsp4_NUP210_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_TIM_complex_Nsp4_complex:#`{"id":"monotonicity_Nsp4_TIM_complex_Nsp4_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4","target":"TIM_complex_Nsp4_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"monotonicity_Nsp4_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4","target":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp4_csa2_Nsp4_IDE_complex_cell:#`{"id":"monotonicity_Nsp4_csa2_Nsp4_IDE_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp4","target":"csa2_Nsp4_IDE_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_F_ATPase_Nsp6_complex:#`{"id":"monotonicity_Nsp6_F_ATPase_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"F_ATPase_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_Nsp3_Nsp4_Nsp6_complex:#`{"id":"monotonicity_Nsp6_Nsp3_Nsp4_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"Nsp3_Nsp4_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_Nsp6_SIGMAR1_complex_endoplasmic_reticulum:#`{"id":"monotonicity_Nsp6_Nsp6_SIGMAR1_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_P_ATPase_Nsp6_complex:#`{"id":"monotonicity_Nsp6_P_ATPase_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"P_ATPase_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_cell:#`{"id":"monotonicity_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","target":"Nsp6_SIGMAR1_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_nucleus:#`{"id":"monotonicity_Nsp6_SIGMAR1_complex_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","target":"Nsp6_SIGMAR1_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_SLC6A15_Nsp6_complex:#`{"id":"monotonicity_Nsp6_SLC6A15_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"SLC6A15_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp6_V_ATPase_Nsp6_complex_endoplasmic_reticulum:#`{"id":"monotonicity_Nsp6_V_ATPase_Nsp6_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_Orf9c_SLC6A15_Orf9c_complex:#`{"id":"monotonicity_Orf9c_SLC6A15_Orf9c_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf9c","target":"SLC6A15_Orf9c_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_P_ATPase_complex_P_ATPase_Nsp6_complex:#`{"id":"monotonicity_P_ATPase_complex_P_ATPase_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"P_ATPase_complex","target":"P_ATPase_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_SIGMAR1_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_endoplasmic_reticulum:#`{"id":"monotonicity_SIGMAR1_endoplasmic_reticulum_Nsp6_SIGMAR1_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SIGMAR1_endoplasmic_reticulum","target":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_SIGMAR1_endoplasmic_reticulum_SIGMAR1_Drugs_complex:#`{"id":"monotonicity_SIGMAR1_endoplasmic_reticulum_SIGMAR1_Drugs_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SIGMAR1_endoplasmic_reticulum","target":"SIGMAR1_Drugs_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_SIGMAR1_endoplasmic_reticulum_SIGMAR1_cell:#`{"id":"monotonicity_SIGMAR1_endoplasmic_reticulum_SIGMAR1_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SIGMAR1_endoplasmic_reticulum","target":"SIGMAR1_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_SIGMAR1_endoplasmic_reticulum_SIGMAR1_nucleus:#`{"id":"monotonicity_SIGMAR1_endoplasmic_reticulum_SIGMAR1_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SIGMAR1_endoplasmic_reticulum","target":"SIGMAR1_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_SLC6A15_SLC6A15_Loratadine_complex:#`{"id":"monotonicity_SLC6A15_SLC6A15_Loratadine_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SLC6A15","target":"SLC6A15_Loratadine_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_SLC6A15_SLC6A15_M_complex:#`{"id":"monotonicity_SLC6A15_SLC6A15_M_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SLC6A15","target":"SLC6A15_M_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_SLC6A15_SLC6A15_Nsp6_complex:#`{"id":"monotonicity_SLC6A15_SLC6A15_Nsp6_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SLC6A15","target":"SLC6A15_Nsp6_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_SLC6A15_SLC6A15_Orf9c_complex:#`{"id":"monotonicity_SLC6A15_SLC6A15_Orf9c_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"SLC6A15","target":"SLC6A15_Orf9c_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Selinexor_drug_NUP210_Selinexor_complex:#`{"id":"monotonicity_Selinexor_drug_NUP210_Selinexor_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Selinexor_drug","target":"NUP210_Selinexor_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Several_drugs_drug_SIGMAR1_Drugs_complex:#`{"id":"monotonicity_Several_drugs_drug_SIGMAR1_Drugs_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Several_drugs_drug","target":"SIGMAR1_Drugs_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TOM_complex_complex_TIM_complex_Nsp4_complex:#`{"id":"monotonicity_TOM_complex_complex_TIM_complex_Nsp4_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TOM_complex_complex","target":"TIM_complex_Nsp4_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_V_ATPase_Nsp6_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endosome:#`{"id":"monotonicity_V_ATPase_Nsp6_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endosome","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","target":"V_ATPase_Nsp6_complex_endosome","value":"Activation","context":null}`#
+#!static_property:monotonicity_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endoplasmic_reticulum:#`{"id":"monotonicity_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_Nsp6_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"V_ATPase_complex_endoplasmic_reticulum","target":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_complex_endosome:#`{"id":"monotonicity_V_ATPase_complex_endoplasmic_reticulum_V_ATPase_complex_endosome","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"V_ATPase_complex_endoplasmic_reticulum","target":"V_ATPase_complex_endosome","value":"Activation","context":null}`#
+#!static_property:monotonicity_V_type_space_proton_space_ATPase_complex_H__ion:#`{"id":"monotonicity_V_type_space_proton_space_ATPase_complex_H__ion","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"V_type_space_proton_space_ATPase_complex","target":"H__ion","value":"Activation","context":null}`#
+#!static_property:monotonicity_V_type_space_proton_space_ATPase_complex_V_ATPase_complex_endoplasmic_reticulum:#`{"id":"monotonicity_V_type_space_proton_space_ATPase_complex_V_ATPase_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"V_type_space_proton_space_ATPase_complex","target":"V_ATPase_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum_csa93_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"monotonicity_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum_csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","target":"csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa2_Nsp4_IDE_complex_cell_Nsp4_IDE_complex:#`{"id":"monotonicity_csa2_Nsp4_IDE_complex_cell_Nsp4_IDE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa2_Nsp4_IDE_complex_cell","target":"Nsp4_IDE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa2_Nsp4_IDE_complex_cell_csa4_Nsp4_IDE_complex_cell:#`{"id":"monotonicity_csa2_Nsp4_IDE_complex_cell_csa4_Nsp4_IDE_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa2_Nsp4_IDE_complex_cell","target":"csa4_Nsp4_IDE_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa14_ALG11_endoplasmic_reticulum_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"monotonicity_sa14_ALG11_endoplasmic_reticulum_csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa14_ALG11_endoplasmic_reticulum","target":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa14_ALG11_endoplasmic_reticulum_sa230_ALG11_endoplasmic_reticulum:#`{"id":"monotonicity_sa14_ALG11_endoplasmic_reticulum_sa230_ALG11_endoplasmic_reticulum","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa14_ALG11_endoplasmic_reticulum","target":"sa230_ALG11_endoplasmic_reticulum","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa160_Nsp3_____rna_Nsp3:#`{"id":"monotonicity_sa160_Nsp3_____rna_Nsp3","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa160_Nsp3_____rna","target":"Nsp3","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa160_Nsp3_____rna_sa219_Nsp3_____rna:#`{"id":"monotonicity_sa160_Nsp3_____rna_sa219_Nsp3_____rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa160_Nsp3_____rna","target":"sa219_Nsp3_____rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa218_Nsp6_____rna_sa47_Nsp6_____rna:#`{"id":"monotonicity_sa218_Nsp6_____rna_sa47_Nsp6_____rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa218_Nsp6_____rna","target":"sa47_Nsp6_____rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa219_Nsp3_____rna_sa160_Nsp3_____rna:#`{"id":"monotonicity_sa219_Nsp3_____rna_sa160_Nsp3_____rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa219_Nsp3_____rna","target":"sa160_Nsp3_____rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa220_Nsp4_____rna_sa3_Nsp4_____rna:#`{"id":"monotonicity_sa220_Nsp4_____rna_sa3_Nsp4_____rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa220_Nsp4_____rna","target":"sa3_Nsp4_____rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa3_Nsp4_____rna_Nsp4:#`{"id":"monotonicity_sa3_Nsp4_____rna_Nsp4","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa3_Nsp4_____rna","target":"Nsp4","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa3_Nsp4_____rna_sa220_Nsp4_____rna:#`{"id":"monotonicity_sa3_Nsp4_____rna_sa220_Nsp4_____rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa3_Nsp4_____rna","target":"sa220_Nsp4_____rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa47_Nsp6_____rna_Nsp6:#`{"id":"monotonicity_sa47_Nsp6_____rna_Nsp6","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa47_Nsp6_____rna","target":"Nsp6","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa47_Nsp6_____rna_sa218_Nsp6_____rna:#`{"id":"monotonicity_sa47_Nsp6_____rna_sa218_Nsp6_____rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa47_Nsp6_____rna","target":"sa218_Nsp6_____rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa8_IDE_cell_IDE_human_host:#`{"id":"monotonicity_sa8_IDE_cell_IDE_human_host","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa8_IDE_cell","target":"IDE_human_host","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa8_IDE_cell_csa2_Nsp4_IDE_complex_cell:#`{"id":"monotonicity_sa8_IDE_cell_csa2_Nsp4_IDE_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa8_IDE_cell","target":"csa2_Nsp4_IDE_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa8_IDE_cell_sa225_IDE_cell:#`{"id":"monotonicity_sa8_IDE_cell_sa225_IDE_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa8_IDE_cell","target":"sa225_IDE_cell","value":"Activation","context":null}`#
+#!variable:ATP6AP1:#`{"id":"ATP6AP1","name":"ATP6AP1","annotation":"","update_fn":"false"}`#
+#!variable:ATP6AP1_Bafilomycin_A1_complex:#`{"id":"ATP6AP1_Bafilomycin_A1_complex","name":"ATP6AP1_Bafilomycin_A1_complex","annotation":"","update_fn":""}`#
+#!variable:Bafilomycin_A1_drug:#`{"id":"Bafilomycin_A1_drug","name":"Bafilomycin_A1_drug","annotation":"","update_fn":"false"}`#
+#!variable:DNAJC11:#`{"id":"DNAJC11","name":"DNAJC11","annotation":"","update_fn":"false"}`#
+#!variable:F_ATPase_Nsp6_complex:#`{"id":"F_ATPase_Nsp6_complex","name":"F_ATPase_Nsp6_complex","annotation":"","update_fn":""}`#
+#!variable:F_ATPase_complex:#`{"id":"F_ATPase_complex","name":"F_ATPase_complex","annotation":"","update_fn":"false"}`#
+#!variable:H__ion:#`{"id":"H__ion","name":"H__ion","annotation":"","update_fn":"V_type_space_proton_space_ATPase_complex"}`#
+#!variable:IDE_human_host:#`{"id":"IDE_human_host","name":"IDE_human_host","annotation":"","update_fn":"sa8_IDE_cell"}`#
+#!variable:Loratadine_drug:#`{"id":"Loratadine_drug","name":"Loratadine_drug","annotation":"","update_fn":"false"}`#
+#!variable:M:#`{"id":"M","name":"M","annotation":"","update_fn":"false"}`#
+#!variable:NUP210_Selinexor_complex:#`{"id":"NUP210_Selinexor_complex","name":"NUP210_Selinexor_complex","annotation":"","update_fn":""}`#
+#!variable:NUP210_endoplasmic_reticulum:#`{"id":"NUP210_endoplasmic_reticulum","name":"NUP210_endoplasmic_reticulum","annotation":"","update_fn":"false"}`#
+#!variable:NUP210_nucleus:#`{"id":"NUP210_nucleus","name":"NUP210_nucleus","annotation":"","update_fn":"NUP210_endoplasmic_reticulum"}`#
+#!variable:Nsp3:#`{"id":"Nsp3","name":"Nsp3","annotation":"","update_fn":"sa160_Nsp3_____rna"}`#
+#!variable:Nsp3_Nsp4_Nsp6_complex:#`{"id":"Nsp3_Nsp4_Nsp6_complex","name":"Nsp3_Nsp4_Nsp6_complex","annotation":"","update_fn":""}`#
+#!variable:Nsp4:#`{"id":"Nsp4","name":"Nsp4","annotation":"","update_fn":"sa3_Nsp4_____rna"}`#
+#!variable:Nsp4_DNAJC11_complex:#`{"id":"Nsp4_DNAJC11_complex","name":"Nsp4_DNAJC11_complex","annotation":"","update_fn":""}`#
+#!variable:Nsp4_IDE_complex:#`{"id":"Nsp4_IDE_complex","name":"Nsp4_IDE_complex","annotation":"","update_fn":"csa2_Nsp4_IDE_complex_cell"}`#
+#!variable:Nsp4_NUP210_complex_endoplasmic_reticulum:#`{"id":"Nsp4_NUP210_complex_endoplasmic_reticulum","name":"Nsp4_NUP210_complex_endoplasmic_reticulum","annotation":"","update_fn":""}`#
+#!variable:Nsp4_NUP210_complex_nucleus:#`{"id":"Nsp4_NUP210_complex_nucleus","name":"Nsp4_NUP210_complex_nucleus","annotation":"","update_fn":"Nsp4_NUP210_complex_endoplasmic_reticulum"}`#
+#!variable:Nsp6:#`{"id":"Nsp6","name":"Nsp6","annotation":"","update_fn":"sa47_Nsp6_____rna"}`#
+#!variable:Nsp6_SIGMAR1_complex_cell:#`{"id":"Nsp6_SIGMAR1_complex_cell","name":"Nsp6_SIGMAR1_complex_cell","annotation":"","update_fn":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum"}`#
+#!variable:Nsp6_SIGMAR1_complex_endoplasmic_reticulum:#`{"id":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","name":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum","annotation":"","update_fn":""}`#
+#!variable:Nsp6_SIGMAR1_complex_nucleus:#`{"id":"Nsp6_SIGMAR1_complex_nucleus","name":"Nsp6_SIGMAR1_complex_nucleus","annotation":"","update_fn":"Nsp6_SIGMAR1_complex_endoplasmic_reticulum"}`#
+#!variable:Orf9c:#`{"id":"Orf9c","name":"Orf9c","annotation":"","update_fn":"false"}`#
+#!variable:P_ATPase_Nsp6_complex:#`{"id":"P_ATPase_Nsp6_complex","name":"P_ATPase_Nsp6_complex","annotation":"","update_fn":""}`#
+#!variable:P_ATPase_complex:#`{"id":"P_ATPase_complex","name":"P_ATPase_complex","annotation":"","update_fn":"false"}`#
+#!variable:Plasma_membrane_organization_phenotype:#`{"id":"Plasma_membrane_organization_phenotype","name":"Plasma_membrane_organization_phenotype","annotation":"","update_fn":"Nsp3_Nsp4_Nsp6_complex"}`#
+#!variable:SIGMAR1_Drugs_complex:#`{"id":"SIGMAR1_Drugs_complex","name":"SIGMAR1_Drugs_complex","annotation":"","update_fn":""}`#
+#!variable:SIGMAR1_cell:#`{"id":"SIGMAR1_cell","name":"SIGMAR1_cell","annotation":"","update_fn":"SIGMAR1_endoplasmic_reticulum"}`#
+#!variable:SIGMAR1_endoplasmic_reticulum:#`{"id":"SIGMAR1_endoplasmic_reticulum","name":"SIGMAR1_endoplasmic_reticulum","annotation":"","update_fn":"false"}`#
+#!variable:SIGMAR1_nucleus:#`{"id":"SIGMAR1_nucleus","name":"SIGMAR1_nucleus","annotation":"","update_fn":"SIGMAR1_endoplasmic_reticulum"}`#
+#!variable:SLC6A15:#`{"id":"SLC6A15","name":"SLC6A15","annotation":"","update_fn":"false"}`#
+#!variable:SLC6A15_Loratadine_complex:#`{"id":"SLC6A15_Loratadine_complex","name":"SLC6A15_Loratadine_complex","annotation":"","update_fn":""}`#
+#!variable:SLC6A15_M_complex:#`{"id":"SLC6A15_M_complex","name":"SLC6A15_M_complex","annotation":"","update_fn":""}`#
+#!variable:SLC6A15_Nsp6_complex:#`{"id":"SLC6A15_Nsp6_complex","name":"SLC6A15_Nsp6_complex","annotation":"","update_fn":""}`#
+#!variable:SLC6A15_Orf9c_complex:#`{"id":"SLC6A15_Orf9c_complex","name":"SLC6A15_Orf9c_complex","annotation":"","update_fn":""}`#
+#!variable:Selinexor_drug:#`{"id":"Selinexor_drug","name":"Selinexor_drug","annotation":"","update_fn":"false"}`#
+#!variable:Several_drugs_drug:#`{"id":"Several_drugs_drug","name":"Several_drugs_drug","annotation":"","update_fn":"false"}`#
+#!variable:TIM_complex_Nsp4_complex:#`{"id":"TIM_complex_Nsp4_complex","name":"TIM_complex_Nsp4_complex","annotation":"","update_fn":""}`#
+#!variable:TOM_complex_complex:#`{"id":"TOM_complex_complex","name":"TOM_complex_complex","annotation":"","update_fn":"false"}`#
+#!variable:V_ATPase_Nsp6_complex_endoplasmic_reticulum:#`{"id":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","name":"V_ATPase_Nsp6_complex_endoplasmic_reticulum","annotation":"","update_fn":""}`#
+#!variable:V_ATPase_Nsp6_complex_endosome:#`{"id":"V_ATPase_Nsp6_complex_endosome","name":"V_ATPase_Nsp6_complex_endosome","annotation":"","update_fn":"V_ATPase_Nsp6_complex_endoplasmic_reticulum"}`#
+#!variable:V_ATPase_complex_endoplasmic_reticulum:#`{"id":"V_ATPase_complex_endoplasmic_reticulum","name":"V_ATPase_complex_endoplasmic_reticulum","annotation":"","update_fn":""}`#
+#!variable:V_ATPase_complex_endosome:#`{"id":"V_ATPase_complex_endosome","name":"V_ATPase_complex_endosome","annotation":"","update_fn":"V_ATPase_complex_endoplasmic_reticulum"}`#
+#!variable:V_type_space_proton_space_ATPase_complex:#`{"id":"V_type_space_proton_space_ATPase_complex","name":"V_type_space_proton_space_ATPase_complex","annotation":"","update_fn":"false"}`#
+#!variable:csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum","annotation":"","update_fn":""}`#
+#!variable:csa2_Nsp4_IDE_complex_cell:#`{"id":"csa2_Nsp4_IDE_complex_cell","name":"csa2_Nsp4_IDE_complex_cell","annotation":"","update_fn":""}`#
+#!variable:csa4_Nsp4_IDE_complex_cell:#`{"id":"csa4_Nsp4_IDE_complex_cell","name":"csa4_Nsp4_IDE_complex_cell","annotation":"","update_fn":"csa2_Nsp4_IDE_complex_cell"}`#
+#!variable:csa93_Nsp4_ALG11_complex_endoplasmic_reticulum:#`{"id":"csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","name":"csa93_Nsp4_ALG11_complex_endoplasmic_reticulum","annotation":"","update_fn":"csa15_Nsp4_ALG11_complex_endoplasmic_reticulum"}`#
+#!variable:sa14_ALG11_endoplasmic_reticulum:#`{"id":"sa14_ALG11_endoplasmic_reticulum","name":"sa14_ALG11_endoplasmic_reticulum","annotation":"","update_fn":"false"}`#
+#!variable:sa160_Nsp3_____rna:#`{"id":"sa160_Nsp3_____rna","name":"sa160_Nsp3_____rna","annotation":"","update_fn":"sa219_Nsp3_____rna"}`#
+#!variable:sa218_Nsp6_____rna:#`{"id":"sa218_Nsp6_____rna","name":"sa218_Nsp6_____rna","annotation":"","update_fn":"sa47_Nsp6_____rna"}`#
+#!variable:sa219_Nsp3_____rna:#`{"id":"sa219_Nsp3_____rna","name":"sa219_Nsp3_____rna","annotation":"","update_fn":"sa160_Nsp3_____rna"}`#
+#!variable:sa220_Nsp4_____rna:#`{"id":"sa220_Nsp4_____rna","name":"sa220_Nsp4_____rna","annotation":"","update_fn":"sa3_Nsp4_____rna"}`#
+#!variable:sa225_IDE_cell:#`{"id":"sa225_IDE_cell","name":"sa225_IDE_cell","annotation":"","update_fn":"sa8_IDE_cell"}`#
+#!variable:sa230_ALG11_endoplasmic_reticulum:#`{"id":"sa230_ALG11_endoplasmic_reticulum","name":"sa230_ALG11_endoplasmic_reticulum","annotation":"","update_fn":"sa14_ALG11_endoplasmic_reticulum"}`#
+#!variable:sa3_Nsp4_____rna:#`{"id":"sa3_Nsp4_____rna","name":"sa3_Nsp4_____rna","annotation":"","update_fn":"sa220_Nsp4_____rna"}`#
+#!variable:sa47_Nsp6_____rna:#`{"id":"sa47_Nsp6_____rna","name":"sa47_Nsp6_____rna","annotation":"","update_fn":"sa218_Nsp6_____rna"}`#
+#!variable:sa8_IDE_cell:#`{"id":"sa8_IDE_cell","name":"sa8_IDE_cell","annotation":"","update_fn":"false"}`#

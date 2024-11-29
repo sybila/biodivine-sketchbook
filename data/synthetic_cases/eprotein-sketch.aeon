@@ -1,0 +1,218 @@
+ATP1A_ATP1B_FXYDs_complex -> Na__ion
+PATJ -> CRB3_PALS1_PATJ_complex_complex
+BRD4 -> BRD4
+E_cell -| ASIC1_trimer_H__STOML3_complex
+H__ion -> ASIC1
+ATP1A_ATP1B_FXYDs_complex -> Activity_of_sodium_channels_phenotype
+STOML3 -| Activity_of_sodium_channels_phenotype
+H2BC21 -> csa2_histone_complex_nucleus
+MPP5 -> CRB3_PALS1_PATJ_complex_complex
+E_nucleus -| BRD2
+STOML3 -> ASIC1_trimer_H__STOML3_complex
+BRD4 -> csa1_histone_complex_nucleus
+H3C15 -> csa2_histone_complex_nucleus
+CRB3 -> CRB3_PALS1_PATJ_complex_complex
+H4C9 -> csa2_histone_complex_nucleus
+CRB3 -> CRB3
+ASIC1 -> ASIC1_trimer_H__STOML3_complex
+JQ_1_simple_molecule -| BRD2
+E_cell -| ATP1A_ATP1B_FXYDs_complex
+H2A -> csa2_histone_complex_nucleus
+BRD2 -> BRD2
+CDK9 -> P_TEFb_complex
+BRD4 -> P_TEFb_complex
+H3C1 -> csa2_histone_complex_nucleus
+ASIC1_trimer_H__STOML3_complex -> Activity_of_sodium_channels_phenotype
+H4_16 -> csa2_histone_complex_nucleus
+MPP5 -> MPP5
+PATJ -> PATJ
+CCNT1 -> P_TEFb_complex
+E_PALS1_complex -> Maintenance_of_tight_junction_phenotype
+E_nucleus -| BRD4
+TBP -> TBP
+P_TEFb_complex -> RNA_Polymerase_II_dependent_Transcription__phenotype
+csa1_histone_complex_nucleus -> Chromatin_organization_phenotype
+H4C1 -> csa2_histone_complex_nucleus
+ATP1A_ATP1B_FXYDs_complex -> K__ion
+H4C14 -> csa2_histone_complex_nucleus
+BRD2 -> csa1_histone_complex_nucleus
+MPP5 -> E_PALS1_complex
+csa2_histone_complex_nucleus -> csa1_histone_complex_nucleus
+CRB3_PALS1_PATJ_complex_complex -> Maintenance_of_tight_junction_phenotype
+E_cell -> E_PALS1_complex
+BRD2 -> TBP
+$Activity_of_sodium_channels_phenotype: ATP1A_ATP1B_FXYDs_complex | !STOML3 | ASIC1_trimer_H__STOML3_complex
+$CCNT1: true
+$CDK9: true
+$E_cell: true
+$E_nucleus: true
+$H2A: true
+$H2BC21: true
+$H3C1: true
+$H3C15: true
+$H4C1: true
+$H4C14: true
+$H4C9: true
+$H4_16: true
+$H__ion: true
+$JQ_1_simple_molecule: true
+$STOML3: true
+$csa2_histone_complex_nucleus: H4C14 & H4_16 & H4C1 & H3C15 & H3C1 & H4C9 & H2BC21 & H2A
+#position:Maintenance_of_tight_junction_phenotype:0,0
+#position:E_cell:0,0
+#position:H3C15:0,0
+#position:CCNT1:0,0
+#position:BRD2:0,0
+#position:CRB3_PALS1_PATJ_complex_complex:0,0
+#position:csa1_histone_complex_nucleus:0,0
+#position:H2A:0,0
+#position:BRD4:0,0
+#position:Chromatin_organization_phenotype:0,0
+#position:CRB3:0,0
+#position:JQ_1_simple_molecule:0,0
+#position:H2BC21:0,0
+#position:csa2_histone_complex_nucleus:0,0
+#position:H4C9:0,0
+#position:H4_16:0,0
+#position:K__ion:0,0
+#position:Na__ion:0,0
+#position:H3C1:0,0
+#position:P_TEFb_complex:0,0
+#position:RNA_Polymerase_II_dependent_Transcription__phenotype:0,0
+#position:STOML3:0,0
+#position:TBP:0,0
+#position:Activity_of_sodium_channels_phenotype:0,0
+#position:CDK9:0,0
+#position:H__ion:0,0
+#position:ASIC1_trimer_H__STOML3_complex:0,0
+#position:ATP1A_ATP1B_FXYDs_complex:0,0
+#position:ASIC1:0,0
+#position:H4C1:0,0
+#position:H4C14:0,0
+#position:E_nucleus:0,0
+#position:MPP5:0,0
+#position:PATJ:0,0
+#position:E_PALS1_complex:0,0
+#!dataset:dataset_1:#`{"name":"dataset_1","id":"dataset_1","annotation":"","observations":[{"id":"Observation2","name":"Observation2","annotation":"","dataset":"dataset_1","values":"10000011000011111111111100000001001"},{"id":"Observation3","name":"Observation3","annotation":"","dataset":"dataset_1","values":"10000011000011111111111100001001001"},{"id":"Observation4","name":"Observation4","annotation":"","dataset":"dataset_1","values":"10000011000111111111111101100001001"},{"id":"Observation5","name":"Observation5","annotation":"","dataset":"dataset_1","values":"10000011000111111111111101101001001"},{"id":"Observation6","name":"Observation6","annotation":"","dataset":"dataset_1","values":"10000011100011111111111100000001001"},{"id":"Observation7","name":"Observation7","annotation":"","dataset":"dataset_1","values":"10000011100011111111111100001001001"},{"id":"Observation8","name":"Observation8","annotation":"","dataset":"dataset_1","values":"10000011100111111111111101100001001"},{"id":"Observation9","name":"Observation9","annotation":"","dataset":"dataset_1","values":"10000011110111111111111101101001001"}],"variables":["ASIC1","ASIC1_trimer_H__STOML3_complex","ATP1A_ATP1B_FXYDs_complex","Activity_of_sodium_channels_phenotype","BRD2","BRD4","CCNT1","CDK9","CRB3","CRB3_PALS1_PATJ_complex_complex","Chromatin_organization_phenotype","E_PALS1_complex","E_cell","E_nucleus","H2A","H2BC21","H3C1","H3C15","H4C1","H4C14","H4C9","H4_16","H__ion","JQ_1_simple_molecule","K__ion","MPP5","Maintenance_of_tight_junction_phenotype","Na__ion","PATJ","P_TEFb_complex","RNA_Polymerase_II_dependent_Transcription__phenotype","STOML3","TBP","csa1_histone_complex_nucleus","csa2_histone_complex_nucleus"]}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Attractor existence","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!static_property:essentiality_ASIC1_ASIC1_trimer_H__STOML3_complex:#`{"id":"essentiality_ASIC1_ASIC1_trimer_H__STOML3_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ASIC1","target":"ASIC1_trimer_H__STOML3_complex","value":"True","context":null}`#
+#!static_property:essentiality_ASIC1_trimer_H__STOML3_complex_Activity_of_sodium_channels_phenotype:#`{"id":"essentiality_ASIC1_trimer_H__STOML3_complex_Activity_of_sodium_channels_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ASIC1_trimer_H__STOML3_complex","target":"Activity_of_sodium_channels_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_ATP1A_ATP1B_FXYDs_complex_Activity_of_sodium_channels_phenotype:#`{"id":"essentiality_ATP1A_ATP1B_FXYDs_complex_Activity_of_sodium_channels_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ATP1A_ATP1B_FXYDs_complex","target":"Activity_of_sodium_channels_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_ATP1A_ATP1B_FXYDs_complex_K__ion:#`{"id":"essentiality_ATP1A_ATP1B_FXYDs_complex_K__ion","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ATP1A_ATP1B_FXYDs_complex","target":"K__ion","value":"True","context":null}`#
+#!static_property:essentiality_ATP1A_ATP1B_FXYDs_complex_Na__ion:#`{"id":"essentiality_ATP1A_ATP1B_FXYDs_complex_Na__ion","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ATP1A_ATP1B_FXYDs_complex","target":"Na__ion","value":"True","context":null}`#
+#!static_property:essentiality_BRD2_BRD2:#`{"id":"essentiality_BRD2_BRD2","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"BRD2","target":"BRD2","value":"True","context":null}`#
+#!static_property:essentiality_BRD2_TBP:#`{"id":"essentiality_BRD2_TBP","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"BRD2","target":"TBP","value":"True","context":null}`#
+#!static_property:essentiality_BRD2_csa1_histone_complex_nucleus:#`{"id":"essentiality_BRD2_csa1_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"BRD2","target":"csa1_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_BRD4_BRD4:#`{"id":"essentiality_BRD4_BRD4","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"BRD4","target":"BRD4","value":"True","context":null}`#
+#!static_property:essentiality_BRD4_P_TEFb_complex:#`{"id":"essentiality_BRD4_P_TEFb_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"BRD4","target":"P_TEFb_complex","value":"True","context":null}`#
+#!static_property:essentiality_BRD4_csa1_histone_complex_nucleus:#`{"id":"essentiality_BRD4_csa1_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"BRD4","target":"csa1_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_CCNT1_P_TEFb_complex:#`{"id":"essentiality_CCNT1_P_TEFb_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CCNT1","target":"P_TEFb_complex","value":"True","context":null}`#
+#!static_property:essentiality_CDK9_P_TEFb_complex:#`{"id":"essentiality_CDK9_P_TEFb_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CDK9","target":"P_TEFb_complex","value":"True","context":null}`#
+#!static_property:essentiality_CRB3_CRB3:#`{"id":"essentiality_CRB3_CRB3","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CRB3","target":"CRB3","value":"True","context":null}`#
+#!static_property:essentiality_CRB3_CRB3_PALS1_PATJ_complex_complex:#`{"id":"essentiality_CRB3_CRB3_PALS1_PATJ_complex_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CRB3","target":"CRB3_PALS1_PATJ_complex_complex","value":"True","context":null}`#
+#!static_property:essentiality_CRB3_PALS1_PATJ_complex_complex_Maintenance_of_tight_junction_phenotype:#`{"id":"essentiality_CRB3_PALS1_PATJ_complex_complex_Maintenance_of_tight_junction_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"CRB3_PALS1_PATJ_complex_complex","target":"Maintenance_of_tight_junction_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_E_PALS1_complex_Maintenance_of_tight_junction_phenotype:#`{"id":"essentiality_E_PALS1_complex_Maintenance_of_tight_junction_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E_PALS1_complex","target":"Maintenance_of_tight_junction_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_E_cell_ASIC1_trimer_H__STOML3_complex:#`{"id":"essentiality_E_cell_ASIC1_trimer_H__STOML3_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E_cell","target":"ASIC1_trimer_H__STOML3_complex","value":"True","context":null}`#
+#!static_property:essentiality_E_cell_ATP1A_ATP1B_FXYDs_complex:#`{"id":"essentiality_E_cell_ATP1A_ATP1B_FXYDs_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E_cell","target":"ATP1A_ATP1B_FXYDs_complex","value":"True","context":null}`#
+#!static_property:essentiality_E_cell_E_PALS1_complex:#`{"id":"essentiality_E_cell_E_PALS1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E_cell","target":"E_PALS1_complex","value":"True","context":null}`#
+#!static_property:essentiality_E_nucleus_BRD2:#`{"id":"essentiality_E_nucleus_BRD2","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E_nucleus","target":"BRD2","value":"True","context":null}`#
+#!static_property:essentiality_E_nucleus_BRD4:#`{"id":"essentiality_E_nucleus_BRD4","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E_nucleus","target":"BRD4","value":"True","context":null}`#
+#!static_property:essentiality_H2A_csa2_histone_complex_nucleus:#`{"id":"essentiality_H2A_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H2A","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H2BC21_csa2_histone_complex_nucleus:#`{"id":"essentiality_H2BC21_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H2BC21","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H3C15_csa2_histone_complex_nucleus:#`{"id":"essentiality_H3C15_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H3C15","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H3C1_csa2_histone_complex_nucleus:#`{"id":"essentiality_H3C1_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H3C1","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H4C14_csa2_histone_complex_nucleus:#`{"id":"essentiality_H4C14_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H4C14","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H4C1_csa2_histone_complex_nucleus:#`{"id":"essentiality_H4C1_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H4C1","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H4C9_csa2_histone_complex_nucleus:#`{"id":"essentiality_H4C9_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H4C9","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H4_16_csa2_histone_complex_nucleus:#`{"id":"essentiality_H4_16_csa2_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H4_16","target":"csa2_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_H__ion_ASIC1:#`{"id":"essentiality_H__ion_ASIC1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"H__ion","target":"ASIC1","value":"True","context":null}`#
+#!static_property:essentiality_JQ_1_simple_molecule_BRD2:#`{"id":"essentiality_JQ_1_simple_molecule_BRD2","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"JQ_1_simple_molecule","target":"BRD2","value":"True","context":null}`#
+#!static_property:essentiality_MPP5_CRB3_PALS1_PATJ_complex_complex:#`{"id":"essentiality_MPP5_CRB3_PALS1_PATJ_complex_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MPP5","target":"CRB3_PALS1_PATJ_complex_complex","value":"True","context":null}`#
+#!static_property:essentiality_MPP5_E_PALS1_complex:#`{"id":"essentiality_MPP5_E_PALS1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MPP5","target":"E_PALS1_complex","value":"True","context":null}`#
+#!static_property:essentiality_MPP5_MPP5:#`{"id":"essentiality_MPP5_MPP5","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MPP5","target":"MPP5","value":"True","context":null}`#
+#!static_property:essentiality_PATJ_CRB3_PALS1_PATJ_complex_complex:#`{"id":"essentiality_PATJ_CRB3_PALS1_PATJ_complex_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"PATJ","target":"CRB3_PALS1_PATJ_complex_complex","value":"True","context":null}`#
+#!static_property:essentiality_PATJ_PATJ:#`{"id":"essentiality_PATJ_PATJ","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"PATJ","target":"PATJ","value":"True","context":null}`#
+#!static_property:essentiality_P_TEFb_complex_RNA_Polymerase_II_dependent_Transcription__phenotype:#`{"id":"essentiality_P_TEFb_complex_RNA_Polymerase_II_dependent_Transcription__phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"P_TEFb_complex","target":"RNA_Polymerase_II_dependent_Transcription__phenotype","value":"True","context":null}`#
+#!static_property:essentiality_STOML3_ASIC1_trimer_H__STOML3_complex:#`{"id":"essentiality_STOML3_ASIC1_trimer_H__STOML3_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STOML3","target":"ASIC1_trimer_H__STOML3_complex","value":"True","context":null}`#
+#!static_property:essentiality_STOML3_Activity_of_sodium_channels_phenotype:#`{"id":"essentiality_STOML3_Activity_of_sodium_channels_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STOML3","target":"Activity_of_sodium_channels_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_TBP_TBP:#`{"id":"essentiality_TBP_TBP","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TBP","target":"TBP","value":"True","context":null}`#
+#!static_property:essentiality_csa1_histone_complex_nucleus_Chromatin_organization_phenotype:#`{"id":"essentiality_csa1_histone_complex_nucleus_Chromatin_organization_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa1_histone_complex_nucleus","target":"Chromatin_organization_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_csa2_histone_complex_nucleus_csa1_histone_complex_nucleus:#`{"id":"essentiality_csa2_histone_complex_nucleus_csa1_histone_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa2_histone_complex_nucleus","target":"csa1_histone_complex_nucleus","value":"True","context":null}`#
+#!static_property:monotonicity_ASIC1_ASIC1_trimer_H__STOML3_complex:#`{"id":"monotonicity_ASIC1_ASIC1_trimer_H__STOML3_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ASIC1","target":"ASIC1_trimer_H__STOML3_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_ASIC1_trimer_H__STOML3_complex_Activity_of_sodium_channels_phenotype:#`{"id":"monotonicity_ASIC1_trimer_H__STOML3_complex_Activity_of_sodium_channels_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ASIC1_trimer_H__STOML3_complex","target":"Activity_of_sodium_channels_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_ATP1A_ATP1B_FXYDs_complex_Activity_of_sodium_channels_phenotype:#`{"id":"monotonicity_ATP1A_ATP1B_FXYDs_complex_Activity_of_sodium_channels_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ATP1A_ATP1B_FXYDs_complex","target":"Activity_of_sodium_channels_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_ATP1A_ATP1B_FXYDs_complex_K__ion:#`{"id":"monotonicity_ATP1A_ATP1B_FXYDs_complex_K__ion","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ATP1A_ATP1B_FXYDs_complex","target":"K__ion","value":"Activation","context":null}`#
+#!static_property:monotonicity_ATP1A_ATP1B_FXYDs_complex_Na__ion:#`{"id":"monotonicity_ATP1A_ATP1B_FXYDs_complex_Na__ion","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ATP1A_ATP1B_FXYDs_complex","target":"Na__ion","value":"Activation","context":null}`#
+#!static_property:monotonicity_BRD2_BRD2:#`{"id":"monotonicity_BRD2_BRD2","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"BRD2","target":"BRD2","value":"Activation","context":null}`#
+#!static_property:monotonicity_BRD2_TBP:#`{"id":"monotonicity_BRD2_TBP","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"BRD2","target":"TBP","value":"Activation","context":null}`#
+#!static_property:monotonicity_BRD2_csa1_histone_complex_nucleus:#`{"id":"monotonicity_BRD2_csa1_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"BRD2","target":"csa1_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_BRD4_BRD4:#`{"id":"monotonicity_BRD4_BRD4","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"BRD4","target":"BRD4","value":"Activation","context":null}`#
+#!static_property:monotonicity_BRD4_P_TEFb_complex:#`{"id":"monotonicity_BRD4_P_TEFb_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"BRD4","target":"P_TEFb_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_BRD4_csa1_histone_complex_nucleus:#`{"id":"monotonicity_BRD4_csa1_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"BRD4","target":"csa1_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_CCNT1_P_TEFb_complex:#`{"id":"monotonicity_CCNT1_P_TEFb_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"CCNT1","target":"P_TEFb_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_CDK9_P_TEFb_complex:#`{"id":"monotonicity_CDK9_P_TEFb_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"CDK9","target":"P_TEFb_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_CRB3_CRB3:#`{"id":"monotonicity_CRB3_CRB3","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"CRB3","target":"CRB3","value":"Activation","context":null}`#
+#!static_property:monotonicity_CRB3_CRB3_PALS1_PATJ_complex_complex:#`{"id":"monotonicity_CRB3_CRB3_PALS1_PATJ_complex_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"CRB3","target":"CRB3_PALS1_PATJ_complex_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_CRB3_PALS1_PATJ_complex_complex_Maintenance_of_tight_junction_phenotype:#`{"id":"monotonicity_CRB3_PALS1_PATJ_complex_complex_Maintenance_of_tight_junction_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"CRB3_PALS1_PATJ_complex_complex","target":"Maintenance_of_tight_junction_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_E_PALS1_complex_Maintenance_of_tight_junction_phenotype:#`{"id":"monotonicity_E_PALS1_complex_Maintenance_of_tight_junction_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E_PALS1_complex","target":"Maintenance_of_tight_junction_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_E_cell_ASIC1_trimer_H__STOML3_complex:#`{"id":"monotonicity_E_cell_ASIC1_trimer_H__STOML3_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E_cell","target":"ASIC1_trimer_H__STOML3_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_E_cell_ATP1A_ATP1B_FXYDs_complex:#`{"id":"monotonicity_E_cell_ATP1A_ATP1B_FXYDs_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E_cell","target":"ATP1A_ATP1B_FXYDs_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_E_cell_E_PALS1_complex:#`{"id":"monotonicity_E_cell_E_PALS1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E_cell","target":"E_PALS1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_E_nucleus_BRD2:#`{"id":"monotonicity_E_nucleus_BRD2","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E_nucleus","target":"BRD2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_E_nucleus_BRD4:#`{"id":"monotonicity_E_nucleus_BRD4","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E_nucleus","target":"BRD4","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_H2A_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H2A_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H2A","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H2BC21_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H2BC21_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H2BC21","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H3C15_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H3C15_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H3C15","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H3C1_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H3C1_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H3C1","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H4C14_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H4C14_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H4C14","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H4C1_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H4C1_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H4C1","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H4C9_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H4C9_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H4C9","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H4_16_csa2_histone_complex_nucleus:#`{"id":"monotonicity_H4_16_csa2_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H4_16","target":"csa2_histone_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_H__ion_ASIC1:#`{"id":"monotonicity_H__ion_ASIC1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"H__ion","target":"ASIC1","value":"Activation","context":null}`#
+#!static_property:monotonicity_JQ_1_simple_molecule_BRD2:#`{"id":"monotonicity_JQ_1_simple_molecule_BRD2","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"JQ_1_simple_molecule","target":"BRD2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_MPP5_CRB3_PALS1_PATJ_complex_complex:#`{"id":"monotonicity_MPP5_CRB3_PALS1_PATJ_complex_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MPP5","target":"CRB3_PALS1_PATJ_complex_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MPP5_E_PALS1_complex:#`{"id":"monotonicity_MPP5_E_PALS1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MPP5","target":"E_PALS1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MPP5_MPP5:#`{"id":"monotonicity_MPP5_MPP5","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MPP5","target":"MPP5","value":"Activation","context":null}`#
+#!static_property:monotonicity_PATJ_CRB3_PALS1_PATJ_complex_complex:#`{"id":"monotonicity_PATJ_CRB3_PALS1_PATJ_complex_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"PATJ","target":"CRB3_PALS1_PATJ_complex_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_PATJ_PATJ:#`{"id":"monotonicity_PATJ_PATJ","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"PATJ","target":"PATJ","value":"Activation","context":null}`#
+#!static_property:monotonicity_P_TEFb_complex_RNA_Polymerase_II_dependent_Transcription__phenotype:#`{"id":"monotonicity_P_TEFb_complex_RNA_Polymerase_II_dependent_Transcription__phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"P_TEFb_complex","target":"RNA_Polymerase_II_dependent_Transcription__phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_STOML3_ASIC1_trimer_H__STOML3_complex:#`{"id":"monotonicity_STOML3_ASIC1_trimer_H__STOML3_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STOML3","target":"ASIC1_trimer_H__STOML3_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_STOML3_Activity_of_sodium_channels_phenotype:#`{"id":"monotonicity_STOML3_Activity_of_sodium_channels_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STOML3","target":"Activity_of_sodium_channels_phenotype","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_TBP_TBP:#`{"id":"monotonicity_TBP_TBP","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TBP","target":"TBP","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa1_histone_complex_nucleus_Chromatin_organization_phenotype:#`{"id":"monotonicity_csa1_histone_complex_nucleus_Chromatin_organization_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa1_histone_complex_nucleus","target":"Chromatin_organization_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa2_histone_complex_nucleus_csa1_histone_complex_nucleus:#`{"id":"monotonicity_csa2_histone_complex_nucleus_csa1_histone_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa2_histone_complex_nucleus","target":"csa1_histone_complex_nucleus","value":"Activation","context":null}`#
+#!variable:ASIC1:#`{"id":"ASIC1","name":"ASIC1","annotation":"","update_fn":""}`#
+#!variable:ASIC1_trimer_H__STOML3_complex:#`{"id":"ASIC1_trimer_H__STOML3_complex","name":"ASIC1_trimer_H__STOML3_complex","annotation":"","update_fn":""}`#
+#!variable:ATP1A_ATP1B_FXYDs_complex:#`{"id":"ATP1A_ATP1B_FXYDs_complex","name":"ATP1A_ATP1B_FXYDs_complex","annotation":"","update_fn":""}`#
+#!variable:Activity_of_sodium_channels_phenotype:#`{"id":"Activity_of_sodium_channels_phenotype","name":"Activity_of_sodium_channels_phenotype","annotation":"","update_fn":"ATP1A_ATP1B_FXYDs_complex | !STOML3 | ASIC1_trimer_H__STOML3_complex"}`#
+#!variable:BRD2:#`{"id":"BRD2","name":"BRD2","annotation":"","update_fn":""}`#
+#!variable:BRD4:#`{"id":"BRD4","name":"BRD4","annotation":"","update_fn":""}`#
+#!variable:CCNT1:#`{"id":"CCNT1","name":"CCNT1","annotation":"","update_fn":"true"}`#
+#!variable:CDK9:#`{"id":"CDK9","name":"CDK9","annotation":"","update_fn":"true"}`#
+#!variable:CRB3:#`{"id":"CRB3","name":"CRB3","annotation":"","update_fn":""}`#
+#!variable:CRB3_PALS1_PATJ_complex_complex:#`{"id":"CRB3_PALS1_PATJ_complex_complex","name":"CRB3_PALS1_PATJ_complex_complex","annotation":"","update_fn":""}`#
+#!variable:Chromatin_organization_phenotype:#`{"id":"Chromatin_organization_phenotype","name":"Chromatin_organization_phenotype","annotation":"","update_fn":""}`#
+#!variable:E_PALS1_complex:#`{"id":"E_PALS1_complex","name":"E_PALS1_complex","annotation":"","update_fn":""}`#
+#!variable:E_cell:#`{"id":"E_cell","name":"E_cell","annotation":"","update_fn":"true"}`#
+#!variable:E_nucleus:#`{"id":"E_nucleus","name":"E_nucleus","annotation":"","update_fn":"true"}`#
+#!variable:H2A:#`{"id":"H2A","name":"H2A","annotation":"","update_fn":"true"}`#
+#!variable:H2BC21:#`{"id":"H2BC21","name":"H2BC21","annotation":"","update_fn":"true"}`#
+#!variable:H3C1:#`{"id":"H3C1","name":"H3C1","annotation":"","update_fn":"true"}`#
+#!variable:H3C15:#`{"id":"H3C15","name":"H3C15","annotation":"","update_fn":"true"}`#
+#!variable:H4C1:#`{"id":"H4C1","name":"H4C1","annotation":"","update_fn":"true"}`#
+#!variable:H4C14:#`{"id":"H4C14","name":"H4C14","annotation":"","update_fn":"true"}`#
+#!variable:H4C9:#`{"id":"H4C9","name":"H4C9","annotation":"","update_fn":"true"}`#
+#!variable:H4_16:#`{"id":"H4_16","name":"H4_16","annotation":"","update_fn":"true"}`#
+#!variable:H__ion:#`{"id":"H__ion","name":"H__ion","annotation":"","update_fn":"true"}`#
+#!variable:JQ_1_simple_molecule:#`{"id":"JQ_1_simple_molecule","name":"JQ_1_simple_molecule","annotation":"","update_fn":"true"}`#
+#!variable:K__ion:#`{"id":"K__ion","name":"K__ion","annotation":"","update_fn":""}`#
+#!variable:MPP5:#`{"id":"MPP5","name":"MPP5","annotation":"","update_fn":""}`#
+#!variable:Maintenance_of_tight_junction_phenotype:#`{"id":"Maintenance_of_tight_junction_phenotype","name":"Maintenance_of_tight_junction_phenotype","annotation":"","update_fn":""}`#
+#!variable:Na__ion:#`{"id":"Na__ion","name":"Na__ion","annotation":"","update_fn":""}`#
+#!variable:PATJ:#`{"id":"PATJ","name":"PATJ","annotation":"","update_fn":""}`#
+#!variable:P_TEFb_complex:#`{"id":"P_TEFb_complex","name":"P_TEFb_complex","annotation":"","update_fn":""}`#
+#!variable:RNA_Polymerase_II_dependent_Transcription__phenotype:#`{"id":"RNA_Polymerase_II_dependent_Transcription__phenotype","name":"RNA_Polymerase_II_dependent_Transcription__phenotype","annotation":"","update_fn":""}`#
+#!variable:STOML3:#`{"id":"STOML3","name":"STOML3","annotation":"","update_fn":"true"}`#
+#!variable:TBP:#`{"id":"TBP","name":"TBP","annotation":"","update_fn":""}`#
+#!variable:csa1_histone_complex_nucleus:#`{"id":"csa1_histone_complex_nucleus","name":"csa1_histone_complex_nucleus","annotation":"","update_fn":""}`#
+#!variable:csa2_histone_complex_nucleus:#`{"id":"csa2_histone_complex_nucleus","name":"csa2_histone_complex_nucleus","annotation":"","update_fn":"H4C14 & H4_16 & H4C1 & H3C15 & H3C1 & H4C9 & H2BC21 & H2A"}`#

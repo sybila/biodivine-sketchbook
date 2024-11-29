@@ -1,0 +1,877 @@
+ISRE_complex -> EIF2AK_rna
+TBK1 -> MAPK8_14_complex
+IRF3_homodimer_complex_nucleus -> OAS1_rna
+TLR7 -> MYD88_TRAM_complex
+Orf9b -> ITCH
+Viral_dsRNA_rna_endosome -> MYD88_TRAM_complex
+TBK1_IKBKE_complex -> TRAF3_TBK1_IKBKE_complex_cell
+IFNAR_complex -> IFNA1_IFNAR_complex
+OAS1_cell_active -> OAS1_EIF2AK_complex
+Nsp10 -| RIG1_MDA5_complex
+p50_p65_complex_nucleus -> NLRP3_inflammasome_complex
+AP_1_complex_cell -> AP_1_complex_nucleus
+csa42_IkB_p50_p65_complex_cell -> p50_p65_complex_cell
+Nsp6 -| STAT1_phosphorylated
+TRAF3_TBK1_IKBKE_complex_cell -> TRAF3_TBK1_IKBKE_complex_cell_active
+Nsp15 -| IFIH1
+NFKB1 -> csa41_IkB_p50_p65_complex_cell
+MNS_drug -| NLRP3_inflammasome_complex
+Orf8_complex -| IRF3_homodimer_complex_cell
+DDX58_ubiquitinated -> RIG1_MDA5_complex
+TLR3_TRIF_complex -> TLR3_TRIF_RIPK1_complex
+TRAF3_TANK_TBK1_IKKepsilon_complex -> IRF7_homodimer_complex
+ISG15 -> ISG_expression_antiviral_response_phenotype
+Nsp15 -| RIG1_MDA5_complex
+p50_p65_complex_nucleus -> ISG_expression_antiviral_response_phenotype
+Nsp15 -| OAS3_cell_active
+IRF3 -> IRF3_homodimer_complex_cell
+csa41_IkB_p50_p65_complex_cell -> csa42_IkB_p50_p65_complex_cell
+IRF9 -> STAT1_2_IRF9_complex
+ITCH -| TRAF6_ubiquitinated
+pp1ab -| IRF3_homodimer_complex_cell
+Orf6 -| IRF3_homodimer_complex_nucleus
+IFNA1_cell -> sa31_IFNA1_extracellular_space
+IKBKE -> TBK1_IKBKE_complex
+IRAK1_4 -> MYD88_TRAM_complex
+Nsp14 -| RIG1_MDA5_complex
+sa27_IFNB1_extracellular_space -> IFNB1_IFNAR_complex
+p50_p65_complex_nucleus -> IFNB1_rna
+ISRE_complex -> OAS3_rna
+IFNAR_complex -> IFNB1_IFNAR_complex
+NLRP3_inflammasome_complex -> Proinflammatory_cytokine_expression_Inflammation_phenotype
+Nsp15 -| IRF3_homodimer_complex_cell
+sa3_IFNB1_extracellular_space -> IFNB1_IFNAR_complex
+MAVS -> TBK1
+IRF3_homodimer_complex_cell -> IRF3_homodimer_complex_nucleus
+STAT2_phosphorylated -> STAT1_2_IRF9_complex
+MAVS -> IRF3_homodimer_complex_cell
+TAB1_2_TRAF6_TAK1_complex -> IKKa_IKKb_NEMO_complex
+OAS2_cell -> OAS2_cell_active
+IRF7_homodimer_complex -> IFNB1_rna
+Viral_replication_phenotype -> Viral_dsRNA_rna_cell
+OAS3_rna -> OAS3_cell
+TREML4 -> MYD88_TRAM_complex
+pp1ab -| STING1_ubiquitinated
+Nsp3 -| ISG_expression_antiviral_response_phenotype
+IFNB1_IFNAR_complex -> JAK1_TYK2_complex
+Azithromycin_drug -> ISG_expression_antiviral_response_phenotype
+Nsp15 -| EIF2AK
+IRF3_homodimer_complex_nucleus -> OAS3_rna
+TLR4_TRIF_TRAM_complex -> NAP1
+TAB1 -> TAB1_2_TRAF6_TAK1_complex
+TAK1 -> TAB1_2_TRAF6_TAK1_complex
+IRAK1_4 -> TLR4_TRIF_TRAM_complex
+Orf7b -| STAT1_phosphorylated
+TLR3_TRIF_RIPK1_complex -> TAB1_2_TRAF6_TAK1_complex
+AP_1_complex_nucleus -> IFNB1_rna
+TBK1 -> TBK1_IKBKE_complex
+TAB2 -> TAB1_2_TRAF6_TAK1_complex
+MAPK8_14_complex -> AP_1_complex_cell
+STING1_ubiquitinated -> TBK1
+ITCH -| MAVS
+MYD88_TRAM_complex -> TRAF6_ubiquitinated
+Nsp3 -| TRAF3
+TYK2 -> JAK1_TYK2_complex
+TBK1 -> IKBKE
+E -> NLRP3_inflammasome_complex
+IKKa -> IKKa_IKKb_NEMO_complex
+IKKb -> IKKa_IKKb_NEMO_complex
+Nsp6 -| IRF3_homodimer_complex_cell
+JAK1 -> JAK1_TYK2_complex
+OAS2_cell_active -> OAS1_EIF2AK_complex
+IkB -> csa41_IkB_p50_p65_complex_cell
+sa31_IFNA1_extracellular_space -> type_I_IFN_response_phenotype
+Orf6 -| ISRE_complex
+Nsp5 -| STAT1_2_IRF9_complex
+EIF2AK -> OAS1_EIF2AK_complex
+Orf9b -| MAVS
+pp1ab -| TRAF3_TBK1_IKBKE_complex_cell
+sa27_IFNB1_extracellular_space -> type_I_IFN_response_phenotype
+Azithromycin_drug -> TBK1_IKBKE_complex
+Nsp3 -| TRAF6_ubiquitinated
+GRL0617_drug -| ISG15_Nsp3_complex
+TRIF -> TLR3_TRIF_complex
+Nsp13 -| STAT2_phosphorylated
+IFNA1_IFNAR_complex -> JAK1_TYK2_complex
+sa5_IFNA1_extracellular_space -> IFNA1_IFNAR_complex
+Orf6 -| STAT1_2_IRF9_complex
+M -| STAT1_phosphorylated
+Nsp13 -| TBK1
+STAT1_phosphorylated -> STAT1_2_IRF9_complex
+JAK1_TYK2_complex -> STAT1_2_IRF9_complex
+Orf6 -| IRF3_homodimer_complex_cell
+MYD88 -> MYD88_TRAM_complex
+ISG15_rna -> ISG15
+IFNA1_rna -> IFNA1_cell
+Nsp1 -| STAT1_phosphorylated
+OAS3_cell_active -> OAS1_EIF2AK_complex
+MAP3K7 -> MAPK8_14_complex
+TRAF3_TBK1_IKBKE_complex_cell_active -> TRAF3_TANK_TBK1_IKKepsilon_complex
+AP_1_complex_nucleus -> IFNA1_rna
+IFNB1_cell -> sa27_IFNB1_extracellular_space
+TRAF3 -> TRAF3_TBK1_IKBKE_complex_cell
+pp1ab -| TRAF3_TBK1_IKBKE_complex_cell_active
+Viral_dsRNA_rna_endosome -> TLR3_TRIF_complex
+MAVS -> TRAF3_TANK_TBK1_IKKepsilon_complex
+Nsp16 -| RIG1_MDA5_complex
+TRAF6_ubiquitinated -> TAB1_2_TRAF6_TAK1_complex
+NEMO -> IKKa_IKKb_NEMO_complex
+IRF7 -> IRF7_homodimer_complex
+OAS2_rna -> OAS2_cell
+RNF135 -> DDX58_ubiquitinated
+OAS1_rna -> OAS1_cell
+Nsp6 -| STAT2_phosphorylated
+Nsp3 -| IRF3_homodimer_complex_cell
+Nsp3 -| IKBKE
+csa42_IkB_p50_p65_complex_cell -> IkB_phosphorylated
+TRIF -> TLR4_TRIF_TRAM_complex
+E -> AP_1_complex_cell
+MAPK8 -> MAPK8_14_complex
+ISRE_complex -> OAS2_rna
+N -| IRF3_homodimer_complex_cell
+Azithromycin_drug -> DDX58_ubiquitinated
+TLR3_TRIF_complex -> TRAF3_TANK_TBK1_IKKepsilon_complex
+TRIM25 -> DDX58_ubiquitinated
+ISRE_complex -> OAS1_rna
+sa31_IFNA1_extracellular_space -> IFNA1_IFNAR_complex
+Azithromycin_drug -> IFNB1_rna
+p50_p65_complex_cell -> p50_p65_complex_nucleus
+N -| RIG1_MDA5_complex
+IRF7_homodimer_complex -> IFNA1_rna
+MAPK14 -> MAPK8_14_complex
+OAS1_EIF2AK_complex -> ISG_expression_antiviral_response_phenotype
+STAT1_2_IRF9_complex -> ISRE_complex
+IKBKE -> TBK1
+Nsp3 -| TBK1_IKBKE_complex
+Nsp15 -| OAS1_cell_active
+IRF3_homodimer_complex_nucleus -> EIF2AK_rna
+RIG1_MDA5_complex -> MAVS
+Orf7a -| STAT2_phosphorylated
+IFIH1 -> RIG1_MDA5_complex
+Viral_dsRNA_rna_cell -> Viral_dsRNA_rna_cell
+Orf3a -| STAT1_phosphorylated
+Azithromycin_drug -> TLR3_TRIF_complex
+RELA -> csa41_IkB_p50_p65_complex_cell
+FOS -> AP_1_complex_cell
+Nsp3 -> ISG15_Nsp3_complex
+ISRE_complex -> ISG15_rna
+sa31_IFNA1_extracellular_space -| Viral_dsRNA_rna_cell
+OAS3_cell -> OAS3_cell_active
+Viral_dsRNA_rna_cell -> RIG1_MDA5_complex
+RIP1 -> TLR3_TRIF_RIPK1_complex
+IRF3_homodimer_complex_nucleus -> OAS2_rna
+sa27_IFNB1_extracellular_space -| Viral_dsRNA_rna_cell
+Nsp13 -| STAT1_phosphorylated
+IRF3_homodimer_complex_nucleus -> IFNB1_rna
+EIF2AK_rna -> EIF2AK
+IFNB1_rna -> IFNB1_cell
+Azithromycin_drug -> IFIH1
+p50_p65_complex_nucleus -> IFNA1_rna
+Orf7b -| STAT2_phosphorylated
+JUN -> AP_1_complex_cell
+OAS1_cell -> OAS1_cell_active
+M -| RIG1_MDA5_complex
+TRAF3 -> TBK1_IKBKE_complex
+ISG15 -> ISG15_Nsp3_complex
+M -| TRAF3_TANK_TBK1_IKKepsilon_complex
+p50_p65_complex_nucleus -> Proinflammatory_cytokine_expression_Inflammation_phenotype
+STING1_ubiquitinated -> TRAF3_TBK1_IKBKE_complex_cell_active
+TLR9 -> MYD88_TRAM_complex
+Nsp15 -| OAS2_cell_active
+MYD88_TRAM_complex -> TRAF3
+NAP1 -> TBK1_IKBKE_complex
+TANK -> TRAF3_TANK_TBK1_IKKepsilon_complex
+TRAF6_ubiquitinated -> MAP3K7
+Nsp5 -| DDX58_ubiquitinated
+N -| DDX58_ubiquitinated
+MAVS -> STING1_ubiquitinated
+IKKa_IKKb_NEMO_complex -> csa42_IkB_p50_p65_complex_cell
+TREML4 -> STAT1_2_IRF9_complex
+TRAF3_TANK_TBK1_IKKepsilon_complex -> IRF3_homodimer_complex_cell
+$AP_1_complex_nucleus: AP_1_complex_cell
+$DDX58_ubiquitinated: (TRIM25 | RNF135 | Azithromycin_drug) & !N & !Nsp5
+$EIF2AK: EIF2AK_rna | !Nsp15
+$EIF2AK_rna: ISRE_complex & IRF3_homodimer_complex_nucleus
+$IFIH1: Azithromycin_drug & !Nsp15
+$IFNA1_IFNAR_complex: IFNAR_complex & sa5_IFNA1_extracellular_space & sa31_IFNA1_extracellular_space
+$IFNA1_cell: IFNA1_rna
+$IFNA1_rna: AP_1_complex_nucleus & p50_p65_complex_nucleus & IRF7_homodimer_complex
+$IFNB1_IFNAR_complex: IFNAR_complex & sa3_IFNB1_extracellular_space & sa27_IFNB1_extracellular_space
+$IFNB1_cell: IFNB1_rna
+$IFNB1_rna: AP_1_complex_nucleus & p50_p65_complex_nucleus & IRF3_homodimer_complex_nucleus & IRF7_homodimer_complex & Azithromycin_drug
+$IKBKE: TBK1 & !Nsp3
+$IKKa_IKKb_NEMO_complex: NEMO & IKKa & IKKb & TAB1_2_TRAF6_TAK1_complex
+$IRF3_homodimer_complex_cell: (MAVS | TRAF3_TANK_TBK1_IKKepsilon_complex) & IRF3 & !Nsp3 & !N & !Orf8_complex & !Orf6 & !pp1ab & !Nsp6 & !Nsp15
+$IRF3_homodimer_complex_nucleus: IRF3_homodimer_complex_cell & !Orf6
+$IRF7_homodimer_complex: IRF7 & TRAF3_TANK_TBK1_IKKepsilon_complex
+$ISG15: ISG15_rna
+$ISG15_Nsp3_complex: ISG15 & Nsp3 & !GRL0617_drug
+$ISG15_rna: ISRE_complex
+$ISG_expression_antiviral_response_phenotype: p50_p65_complex_nucleus | OAS1_EIF2AK_complex | !Nsp3 | ISG15 | Azithromycin_drug
+$ISRE_complex: STAT1_2_IRF9_complex & !Orf6
+$ITCH: Orf9b
+$IkB_phosphorylated: csa42_IkB_p50_p65_complex_cell
+$MAP3K7: TRAF6_ubiquitinated
+$MAPK8_14_complex: (TBK1 | MAP3K7) & MAPK14 & MAPK8
+$MAVS: RIG1_MDA5_complex & !Orf9b & !ITCH
+$MYD88_TRAM_complex: (TREML4 | TLR7 | TLR9 | Viral_dsRNA_rna_endosome) & MYD88 & IRAK1_4
+$NAP1: TLR4_TRIF_TRAM_complex
+$NLRP3_inflammasome_complex: (E | p50_p65_complex_nucleus) & !MNS_drug
+$OAS1_EIF2AK_complex: OAS1_cell_active & OAS3_cell_active & EIF2AK & OAS2_cell_active
+$OAS1_cell: OAS1_rna
+$OAS1_cell_active: OAS1_cell & !Nsp15
+$OAS1_rna: ISRE_complex & IRF3_homodimer_complex_nucleus
+$OAS2_cell: OAS2_rna
+$OAS2_cell_active: OAS2_cell & !Nsp15
+$OAS2_rna: ISRE_complex & IRF3_homodimer_complex_nucleus
+$OAS3_cell: OAS3_rna
+$OAS3_cell_active: OAS3_cell & !Nsp15
+$OAS3_rna: ISRE_complex & IRF3_homodimer_complex_nucleus
+$Proinflammatory_cytokine_expression_Inflammation_phenotype: p50_p65_complex_nucleus | NLRP3_inflammasome_complex
+$RIG1_MDA5_complex: DDX58_ubiquitinated & IFIH1 & Viral_dsRNA_rna_cell & !N & !Nsp10 & !Nsp14 & !Nsp16 & !Nsp15 & !M & !Nsp15
+$STAT1_2_IRF9_complex: (TREML4 | JAK1_TYK2_complex) & STAT1_phosphorylated & IRF9 & STAT2_phosphorylated & !Orf6 & !Nsp5
+$STAT1_phosphorylated: !Nsp1 & !Orf7b & !Orf3a & !M & !Nsp6 & !Nsp13
+$STING1_ubiquitinated: MAVS & !pp1ab
+$TAB1_2_TRAF6_TAK1_complex: TAB1 & TAB2 & TRAF6_ubiquitinated & TAK1 & TLR3_TRIF_RIPK1_complex
+$TBK1: (IKBKE | STING1_ubiquitinated | MAVS) & !Nsp13
+$TBK1_IKBKE_complex: (TRAF3 | NAP1 | Azithromycin_drug) & TBK1 & IKBKE & !Nsp3
+$TLR3_TRIF_RIPK1_complex: TLR3_TRIF_complex & RIP1
+$TLR3_TRIF_complex: (Viral_dsRNA_rna_endosome | Azithromycin_drug) & TRIF
+$TLR4_TRIF_TRAM_complex: IRAK1_4 & TRIF
+$TRAF3: MYD88_TRAM_complex & !Nsp3
+$TRAF3_TANK_TBK1_IKKepsilon_complex: (TLR3_TRIF_complex | MAVS) & TRAF3_TBK1_IKBKE_complex_cell_active & TANK & !M
+$TRAF3_TBK1_IKBKE_complex_cell: TBK1_IKBKE_complex & TRAF3 & !pp1ab
+$TRAF3_TBK1_IKBKE_complex_cell_active: TRAF3_TBK1_IKBKE_complex_cell & STING1_ubiquitinated & !pp1ab
+$TRAF6_ubiquitinated: MYD88_TRAM_complex & !Nsp3 & !ITCH
+$Viral_dsRNA_rna_cell: Viral_dsRNA_rna_cell & Viral_replication_phenotype & !sa31_IFNA1_extracellular_space & !sa27_IFNB1_extracellular_space
+$csa41_IkB_p50_p65_complex_cell: RELA & NFKB1 & IkB
+$csa42_IkB_p50_p65_complex_cell: csa41_IkB_p50_p65_complex_cell & IKKa_IKKb_NEMO_complex
+$p50_p65_complex_cell: csa42_IkB_p50_p65_complex_cell
+$p50_p65_complex_nucleus: p50_p65_complex_cell
+$sa27_IFNB1_extracellular_space: IFNB1_cell
+$sa31_IFNA1_extracellular_space: IFNA1_cell
+$type_I_IFN_response_phenotype: sa31_IFNA1_extracellular_space | sa27_IFNB1_extracellular_space
+#position:TLR7:0,0
+#position:STAT2_phosphorylated:0,0
+#position:Azithromycin_drug:0,0
+#position:NLRP3_inflammasome_complex:0,0
+#position:TBK1_IKBKE_complex:0,0
+#position:Viral_dsRNA_rna_endosome:0,0
+#position:RNF135:0,0
+#position:Orf8_complex:0,0
+#position:sa3_IFNB1_extracellular_space:0,0
+#position:IKKb:0,0
+#position:STING1_ubiquitinated:0,0
+#position:TRAF3_TANK_TBK1_IKKepsilon_complex:0,0
+#position:sa31_IFNA1_extracellular_space:0,0
+#position:TLR3_TRIF_complex:0,0
+#position:Orf3a:0,0
+#position:STAT1_2_IRF9_complex:0,0
+#position:TRAF3_TBK1_IKBKE_complex_cell_active:0,0
+#position:IRF3:0,0
+#position:IKKa_IKKb_NEMO_complex:0,0
+#position:OAS3_cell:0,0
+#position:MYD88_TRAM_complex:0,0
+#position:MAPK14:0,0
+#position:Nsp13:0,0
+#position:Nsp16:0,0
+#position:Nsp15:0,0
+#position:OAS2_cell_active:0,0
+#position:NAP1:0,0
+#position:OAS3_cell_active:0,0
+#position:IFIH1:0,0
+#position:TRAF3:0,0
+#position:JAK1:0,0
+#position:TBK1:0,0
+#position:IFNB1_cell:0,0
+#position:AP_1_complex_cell:0,0
+#position:IRF7_homodimer_complex:0,0
+#position:IFNAR_complex:0,0
+#position:OAS1_rna:0,0
+#position:TAB1:0,0
+#position:MAP3K7:0,0
+#position:ISRE_complex:0,0
+#position:ITCH:0,0
+#position:sa27_IFNB1_extracellular_space:0,0
+#position:MAVS:0,0
+#position:p50_p65_complex_cell:0,0
+#position:ISG15_rna:0,0
+#position:TLR3_TRIF_RIPK1_complex:0,0
+#position:IFNB1_rna:0,0
+#position:Nsp14:0,0
+#position:IRF7:0,0
+#position:Viral_replication_phenotype:0,0
+#position:ISG_expression_antiviral_response_phenotype:0,0
+#position:OAS2_rna:0,0
+#position:TANK:0,0
+#position:Nsp6:0,0
+#position:Nsp1:0,0
+#position:Viral_dsRNA_rna_cell:0,0
+#position:RIP1:0,0
+#position:M:0,0
+#position:TAK1:0,0
+#position:FOS:0,0
+#position:IkB:0,0
+#position:NFKB1:0,0
+#position:IKBKE:0,0
+#position:Orf9b:0,0
+#position:GRL0617_drug:0,0
+#position:Orf7b:0,0
+#position:EIF2AK:0,0
+#position:IRAK1_4:0,0
+#position:sa5_IFNA1_extracellular_space:0,0
+#position:OAS2_cell:0,0
+#position:DDX58_ubiquitinated:0,0
+#position:TRIF:0,0
+#position:AP_1_complex_nucleus:0,0
+#position:RIG1_MDA5_complex:0,0
+#position:TYK2:0,0
+#position:IFNA1_cell:0,0
+#position:IRF3_homodimer_complex_cell:0,0
+#position:N:0,0
+#position:NEMO:0,0
+#position:TLR9:0,0
+#position:RELA:0,0
+#position:type_I_IFN_response_phenotype:0,0
+#position:OAS1_cell:0,0
+#position:Orf6:0,0
+#position:TLR4_TRIF_TRAM_complex:0,0
+#position:STAT1_phosphorylated:0,0
+#position:TRAF6_ubiquitinated:0,0
+#position:csa41_IkB_p50_p65_complex_cell:0,0
+#position:p50_p65_complex_nucleus:0,0
+#position:pp1ab:0,0
+#position:csa42_IkB_p50_p65_complex_cell:0,0
+#position:IFNA1_IFNAR_complex:0,0
+#position:JUN:0,0
+#position:TRAF3_TBK1_IKBKE_complex_cell:0,0
+#position:MNS_drug:0,0
+#position:MYD88:0,0
+#position:E:0,0
+#position:IFNB1_IFNAR_complex:0,0
+#position:TRIM25:0,0
+#position:EIF2AK_rna:0,0
+#position:IkB_phosphorylated:0,0
+#position:Proinflammatory_cytokine_expression_Inflammation_phenotype:0,0
+#position:TAB2:0,0
+#position:IKKa:0,0
+#position:OAS1_EIF2AK_complex:0,0
+#position:Nsp5:0,0
+#position:TREML4:0,0
+#position:ISG15_Nsp3_complex:0,0
+#position:JAK1_TYK2_complex:0,0
+#position:OAS1_cell_active:0,0
+#position:Orf7a:0,0
+#position:IRF9:0,0
+#position:MAPK8:0,0
+#position:MAPK8_14_complex:0,0
+#position:TAB1_2_TRAF6_TAK1_complex:0,0
+#position:OAS3_rna:0,0
+#position:IFNA1_rna:0,0
+#position:Nsp10:0,0
+#position:IRF3_homodimer_complex_nucleus:0,0
+#position:Nsp3:0,0
+#position:ISG15:0,0
+#!dataset:dataset_1:#`{"name":"dataset_1","id":"dataset_1","annotation":"","observations":[{"id":"Observation1","name":"Observation1","annotation":"","dataset":"dataset_1","values":"1110100110000100001011100101000101101011011001111111011111111100000000001111110101100001011100111110000011111111000100110"},{"id":"Observation2","name":"Observation2","annotation":"","dataset":"dataset_1","values":"1110100110000100001011100101000101101011011001111111011111111100000000001111110101100001011100111110000011110111000100110"}],"variables":["AP_1_complex_cell","AP_1_complex_nucleus","Azithromycin_drug","DDX58_ubiquitinated","E","EIF2AK","EIF2AK_rna","FOS","GRL0617_drug","IFIH1","IFNA1_IFNAR_complex","IFNA1_cell","IFNA1_rna","IFNAR_complex","IFNB1_IFNAR_complex","IFNB1_cell","IFNB1_rna","IKBKE","IKKa","IKKa_IKKb_NEMO_complex","IKKb","IRAK1_4","IRF3","IRF3_homodimer_complex_cell","IRF3_homodimer_complex_nucleus","IRF7","IRF7_homodimer_complex","IRF9","ISG15","ISG15_Nsp3_complex","ISG15_rna","ISG_expression_antiviral_response_phenotype","ISRE_complex","ITCH","IkB","IkB_phosphorylated","JAK1","JAK1_TYK2_complex","JUN","M","MAP3K7","MAPK14","MAPK8","MAPK8_14_complex","MAVS","MNS_drug","MYD88","MYD88_TRAM_complex","N","NAP1","NEMO","NFKB1","NLRP3_inflammasome_complex","Nsp1","Nsp10","Nsp13","Nsp14","Nsp15","Nsp16","Nsp3","Nsp5","Nsp6","OAS1_EIF2AK_complex","OAS1_cell","OAS1_cell_active","OAS1_rna","OAS2_cell","OAS2_cell_active","OAS2_rna","OAS3_cell","OAS3_cell_active","OAS3_rna","Orf3a","Orf6","Orf7a","Orf7b","Orf8_complex","Orf9b","Proinflammatory_cytokine_expression_Inflammation_phenotype","RELA","RIG1_MDA5_complex","RIP1","RNF135","STAT1_2_IRF9_complex","STAT1_phosphorylated","STAT2_phosphorylated","STING1_ubiquitinated","TAB1","TAB1_2_TRAF6_TAK1_complex","TAB2","TAK1","TANK","TBK1","TBK1_IKBKE_complex","TLR3_TRIF_RIPK1_complex","TLR3_TRIF_complex","TLR4_TRIF_TRAM_complex","TLR7","TLR9","TRAF3","TRAF3_TANK_TBK1_IKKepsilon_complex","TRAF3_TBK1_IKBKE_complex_cell","TRAF3_TBK1_IKBKE_complex_cell_active","TRAF6_ubiquitinated","TREML4","TRIF","TRIM25","TYK2","Viral_dsRNA_rna_cell","Viral_dsRNA_rna_endosome","Viral_replication_phenotype","csa41_IkB_p50_p65_complex_cell","csa42_IkB_p50_p65_complex_cell","p50_p65_complex_cell","p50_p65_complex_nucleus","pp1ab","sa27_IFNB1_extracellular_space","sa31_IFNA1_extracellular_space","sa3_IFNB1_extracellular_space","sa5_IFNA1_extracellular_space","type_I_IFN_response_phenotype"]}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Attractor existence","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!static_property:essentiality_AP_1_complex_cell_AP_1_complex_nucleus:#`{"id":"essentiality_AP_1_complex_cell_AP_1_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AP_1_complex_cell","target":"AP_1_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_AP_1_complex_nucleus_IFNA1_rna:#`{"id":"essentiality_AP_1_complex_nucleus_IFNA1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AP_1_complex_nucleus","target":"IFNA1_rna","value":"True","context":null}`#
+#!static_property:essentiality_AP_1_complex_nucleus_IFNB1_rna:#`{"id":"essentiality_AP_1_complex_nucleus_IFNB1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AP_1_complex_nucleus","target":"IFNB1_rna","value":"True","context":null}`#
+#!static_property:essentiality_Azithromycin_drug_DDX58_ubiquitinated:#`{"id":"essentiality_Azithromycin_drug_DDX58_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Azithromycin_drug","target":"DDX58_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_Azithromycin_drug_IFIH1:#`{"id":"essentiality_Azithromycin_drug_IFIH1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Azithromycin_drug","target":"IFIH1","value":"True","context":null}`#
+#!static_property:essentiality_Azithromycin_drug_IFNB1_rna:#`{"id":"essentiality_Azithromycin_drug_IFNB1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Azithromycin_drug","target":"IFNB1_rna","value":"True","context":null}`#
+#!static_property:essentiality_Azithromycin_drug_ISG_expression_antiviral_response_phenotype:#`{"id":"essentiality_Azithromycin_drug_ISG_expression_antiviral_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Azithromycin_drug","target":"ISG_expression_antiviral_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_Azithromycin_drug_TBK1_IKBKE_complex:#`{"id":"essentiality_Azithromycin_drug_TBK1_IKBKE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Azithromycin_drug","target":"TBK1_IKBKE_complex","value":"True","context":null}`#
+#!static_property:essentiality_Azithromycin_drug_TLR3_TRIF_complex:#`{"id":"essentiality_Azithromycin_drug_TLR3_TRIF_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Azithromycin_drug","target":"TLR3_TRIF_complex","value":"True","context":null}`#
+#!static_property:essentiality_DDX58_ubiquitinated_RIG1_MDA5_complex:#`{"id":"essentiality_DDX58_ubiquitinated_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"DDX58_ubiquitinated","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_EIF2AK_OAS1_EIF2AK_complex:#`{"id":"essentiality_EIF2AK_OAS1_EIF2AK_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"EIF2AK","target":"OAS1_EIF2AK_complex","value":"True","context":null}`#
+#!static_property:essentiality_EIF2AK_rna_EIF2AK:#`{"id":"essentiality_EIF2AK_rna_EIF2AK","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"EIF2AK_rna","target":"EIF2AK","value":"True","context":null}`#
+#!static_property:essentiality_E_AP_1_complex_cell:#`{"id":"essentiality_E_AP_1_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E","target":"AP_1_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_E_NLRP3_inflammasome_complex:#`{"id":"essentiality_E_NLRP3_inflammasome_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"E","target":"NLRP3_inflammasome_complex","value":"True","context":null}`#
+#!static_property:essentiality_FOS_AP_1_complex_cell:#`{"id":"essentiality_FOS_AP_1_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"FOS","target":"AP_1_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_GRL0617_drug_ISG15_Nsp3_complex:#`{"id":"essentiality_GRL0617_drug_ISG15_Nsp3_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"GRL0617_drug","target":"ISG15_Nsp3_complex","value":"True","context":null}`#
+#!static_property:essentiality_IFIH1_RIG1_MDA5_complex:#`{"id":"essentiality_IFIH1_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFIH1","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_IFNA1_IFNAR_complex_JAK1_TYK2_complex:#`{"id":"essentiality_IFNA1_IFNAR_complex_JAK1_TYK2_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNA1_IFNAR_complex","target":"JAK1_TYK2_complex","value":"True","context":null}`#
+#!static_property:essentiality_IFNA1_cell_sa31_IFNA1_extracellular_space:#`{"id":"essentiality_IFNA1_cell_sa31_IFNA1_extracellular_space","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNA1_cell","target":"sa31_IFNA1_extracellular_space","value":"True","context":null}`#
+#!static_property:essentiality_IFNA1_rna_IFNA1_cell:#`{"id":"essentiality_IFNA1_rna_IFNA1_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNA1_rna","target":"IFNA1_cell","value":"True","context":null}`#
+#!static_property:essentiality_IFNAR_complex_IFNA1_IFNAR_complex:#`{"id":"essentiality_IFNAR_complex_IFNA1_IFNAR_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNAR_complex","target":"IFNA1_IFNAR_complex","value":"True","context":null}`#
+#!static_property:essentiality_IFNAR_complex_IFNB1_IFNAR_complex:#`{"id":"essentiality_IFNAR_complex_IFNB1_IFNAR_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNAR_complex","target":"IFNB1_IFNAR_complex","value":"True","context":null}`#
+#!static_property:essentiality_IFNB1_IFNAR_complex_JAK1_TYK2_complex:#`{"id":"essentiality_IFNB1_IFNAR_complex_JAK1_TYK2_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNB1_IFNAR_complex","target":"JAK1_TYK2_complex","value":"True","context":null}`#
+#!static_property:essentiality_IFNB1_cell_sa27_IFNB1_extracellular_space:#`{"id":"essentiality_IFNB1_cell_sa27_IFNB1_extracellular_space","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNB1_cell","target":"sa27_IFNB1_extracellular_space","value":"True","context":null}`#
+#!static_property:essentiality_IFNB1_rna_IFNB1_cell:#`{"id":"essentiality_IFNB1_rna_IFNB1_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IFNB1_rna","target":"IFNB1_cell","value":"True","context":null}`#
+#!static_property:essentiality_IKBKE_TBK1:#`{"id":"essentiality_IKBKE_TBK1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IKBKE","target":"TBK1","value":"True","context":null}`#
+#!static_property:essentiality_IKBKE_TBK1_IKBKE_complex:#`{"id":"essentiality_IKBKE_TBK1_IKBKE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IKBKE","target":"TBK1_IKBKE_complex","value":"True","context":null}`#
+#!static_property:essentiality_IKKa_IKKa_IKKb_NEMO_complex:#`{"id":"essentiality_IKKa_IKKa_IKKb_NEMO_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IKKa","target":"IKKa_IKKb_NEMO_complex","value":"True","context":null}`#
+#!static_property:essentiality_IKKa_IKKb_NEMO_complex_csa42_IkB_p50_p65_complex_cell:#`{"id":"essentiality_IKKa_IKKb_NEMO_complex_csa42_IkB_p50_p65_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IKKa_IKKb_NEMO_complex","target":"csa42_IkB_p50_p65_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_IKKb_IKKa_IKKb_NEMO_complex:#`{"id":"essentiality_IKKb_IKKa_IKKb_NEMO_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IKKb","target":"IKKa_IKKb_NEMO_complex","value":"True","context":null}`#
+#!static_property:essentiality_IRAK1_4_MYD88_TRAM_complex:#`{"id":"essentiality_IRAK1_4_MYD88_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRAK1_4","target":"MYD88_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_IRAK1_4_TLR4_TRIF_TRAM_complex:#`{"id":"essentiality_IRAK1_4_TLR4_TRIF_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRAK1_4","target":"TLR4_TRIF_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_IRF3_homodimer_complex_cell:#`{"id":"essentiality_IRF3_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_homodimer_complex_cell_IRF3_homodimer_complex_nucleus:#`{"id":"essentiality_IRF3_homodimer_complex_cell_IRF3_homodimer_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3_homodimer_complex_cell","target":"IRF3_homodimer_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_homodimer_complex_nucleus_EIF2AK_rna:#`{"id":"essentiality_IRF3_homodimer_complex_nucleus_EIF2AK_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3_homodimer_complex_nucleus","target":"EIF2AK_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_homodimer_complex_nucleus_IFNB1_rna:#`{"id":"essentiality_IRF3_homodimer_complex_nucleus_IFNB1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3_homodimer_complex_nucleus","target":"IFNB1_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_homodimer_complex_nucleus_OAS1_rna:#`{"id":"essentiality_IRF3_homodimer_complex_nucleus_OAS1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3_homodimer_complex_nucleus","target":"OAS1_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_homodimer_complex_nucleus_OAS2_rna:#`{"id":"essentiality_IRF3_homodimer_complex_nucleus_OAS2_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3_homodimer_complex_nucleus","target":"OAS2_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF3_homodimer_complex_nucleus_OAS3_rna:#`{"id":"essentiality_IRF3_homodimer_complex_nucleus_OAS3_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF3_homodimer_complex_nucleus","target":"OAS3_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF7_IRF7_homodimer_complex:#`{"id":"essentiality_IRF7_IRF7_homodimer_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF7","target":"IRF7_homodimer_complex","value":"True","context":null}`#
+#!static_property:essentiality_IRF7_homodimer_complex_IFNA1_rna:#`{"id":"essentiality_IRF7_homodimer_complex_IFNA1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF7_homodimer_complex","target":"IFNA1_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF7_homodimer_complex_IFNB1_rna:#`{"id":"essentiality_IRF7_homodimer_complex_IFNB1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF7_homodimer_complex","target":"IFNB1_rna","value":"True","context":null}`#
+#!static_property:essentiality_IRF9_STAT1_2_IRF9_complex:#`{"id":"essentiality_IRF9_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IRF9","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_ISG15_ISG15_Nsp3_complex:#`{"id":"essentiality_ISG15_ISG15_Nsp3_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISG15","target":"ISG15_Nsp3_complex","value":"True","context":null}`#
+#!static_property:essentiality_ISG15_ISG_expression_antiviral_response_phenotype:#`{"id":"essentiality_ISG15_ISG_expression_antiviral_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISG15","target":"ISG_expression_antiviral_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_ISG15_rna_ISG15:#`{"id":"essentiality_ISG15_rna_ISG15","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISG15_rna","target":"ISG15","value":"True","context":null}`#
+#!static_property:essentiality_ISRE_complex_EIF2AK_rna:#`{"id":"essentiality_ISRE_complex_EIF2AK_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISRE_complex","target":"EIF2AK_rna","value":"True","context":null}`#
+#!static_property:essentiality_ISRE_complex_ISG15_rna:#`{"id":"essentiality_ISRE_complex_ISG15_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISRE_complex","target":"ISG15_rna","value":"True","context":null}`#
+#!static_property:essentiality_ISRE_complex_OAS1_rna:#`{"id":"essentiality_ISRE_complex_OAS1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISRE_complex","target":"OAS1_rna","value":"True","context":null}`#
+#!static_property:essentiality_ISRE_complex_OAS2_rna:#`{"id":"essentiality_ISRE_complex_OAS2_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISRE_complex","target":"OAS2_rna","value":"True","context":null}`#
+#!static_property:essentiality_ISRE_complex_OAS3_rna:#`{"id":"essentiality_ISRE_complex_OAS3_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ISRE_complex","target":"OAS3_rna","value":"True","context":null}`#
+#!static_property:essentiality_ITCH_MAVS:#`{"id":"essentiality_ITCH_MAVS","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ITCH","target":"MAVS","value":"True","context":null}`#
+#!static_property:essentiality_ITCH_TRAF6_ubiquitinated:#`{"id":"essentiality_ITCH_TRAF6_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"ITCH","target":"TRAF6_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_IkB_csa41_IkB_p50_p65_complex_cell:#`{"id":"essentiality_IkB_csa41_IkB_p50_p65_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IkB","target":"csa41_IkB_p50_p65_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_JAK1_JAK1_TYK2_complex:#`{"id":"essentiality_JAK1_JAK1_TYK2_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"JAK1","target":"JAK1_TYK2_complex","value":"True","context":null}`#
+#!static_property:essentiality_JAK1_TYK2_complex_STAT1_2_IRF9_complex:#`{"id":"essentiality_JAK1_TYK2_complex_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"JAK1_TYK2_complex","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_JUN_AP_1_complex_cell:#`{"id":"essentiality_JUN_AP_1_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"JUN","target":"AP_1_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_MAP3K7_MAPK8_14_complex:#`{"id":"essentiality_MAP3K7_MAPK8_14_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAP3K7","target":"MAPK8_14_complex","value":"True","context":null}`#
+#!static_property:essentiality_MAPK14_MAPK8_14_complex:#`{"id":"essentiality_MAPK14_MAPK8_14_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAPK14","target":"MAPK8_14_complex","value":"True","context":null}`#
+#!static_property:essentiality_MAPK8_14_complex_AP_1_complex_cell:#`{"id":"essentiality_MAPK8_14_complex_AP_1_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAPK8_14_complex","target":"AP_1_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_MAPK8_MAPK8_14_complex:#`{"id":"essentiality_MAPK8_MAPK8_14_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAPK8","target":"MAPK8_14_complex","value":"True","context":null}`#
+#!static_property:essentiality_MAVS_IRF3_homodimer_complex_cell:#`{"id":"essentiality_MAVS_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAVS","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_MAVS_STING1_ubiquitinated:#`{"id":"essentiality_MAVS_STING1_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAVS","target":"STING1_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_MAVS_TBK1:#`{"id":"essentiality_MAVS_TBK1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAVS","target":"TBK1","value":"True","context":null}`#
+#!static_property:essentiality_MAVS_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"essentiality_MAVS_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MAVS","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"True","context":null}`#
+#!static_property:essentiality_MNS_drug_NLRP3_inflammasome_complex:#`{"id":"essentiality_MNS_drug_NLRP3_inflammasome_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MNS_drug","target":"NLRP3_inflammasome_complex","value":"True","context":null}`#
+#!static_property:essentiality_MYD88_MYD88_TRAM_complex:#`{"id":"essentiality_MYD88_MYD88_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MYD88","target":"MYD88_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_MYD88_TRAM_complex_TRAF3:#`{"id":"essentiality_MYD88_TRAM_complex_TRAF3","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MYD88_TRAM_complex","target":"TRAF3","value":"True","context":null}`#
+#!static_property:essentiality_MYD88_TRAM_complex_TRAF6_ubiquitinated:#`{"id":"essentiality_MYD88_TRAM_complex_TRAF6_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"MYD88_TRAM_complex","target":"TRAF6_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_M_RIG1_MDA5_complex:#`{"id":"essentiality_M_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"M","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_M_STAT1_phosphorylated:#`{"id":"essentiality_M_STAT1_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"M","target":"STAT1_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_M_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"essentiality_M_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"M","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"True","context":null}`#
+#!static_property:essentiality_NAP1_TBK1_IKBKE_complex:#`{"id":"essentiality_NAP1_TBK1_IKBKE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NAP1","target":"TBK1_IKBKE_complex","value":"True","context":null}`#
+#!static_property:essentiality_NEMO_IKKa_IKKb_NEMO_complex:#`{"id":"essentiality_NEMO_IKKa_IKKb_NEMO_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NEMO","target":"IKKa_IKKb_NEMO_complex","value":"True","context":null}`#
+#!static_property:essentiality_NFKB1_csa41_IkB_p50_p65_complex_cell:#`{"id":"essentiality_NFKB1_csa41_IkB_p50_p65_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NFKB1","target":"csa41_IkB_p50_p65_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_NLRP3_inflammasome_complex_Proinflammatory_cytokine_expression_Inflammation_phenotype:#`{"id":"essentiality_NLRP3_inflammasome_complex_Proinflammatory_cytokine_expression_Inflammation_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"NLRP3_inflammasome_complex","target":"Proinflammatory_cytokine_expression_Inflammation_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_N_DDX58_ubiquitinated:#`{"id":"essentiality_N_DDX58_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"N","target":"DDX58_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_N_IRF3_homodimer_complex_cell:#`{"id":"essentiality_N_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"N","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_N_RIG1_MDA5_complex:#`{"id":"essentiality_N_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"N","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp10_RIG1_MDA5_complex:#`{"id":"essentiality_Nsp10_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp10","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp13_STAT1_phosphorylated:#`{"id":"essentiality_Nsp13_STAT1_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp13","target":"STAT1_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Nsp13_STAT2_phosphorylated:#`{"id":"essentiality_Nsp13_STAT2_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp13","target":"STAT2_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Nsp13_TBK1:#`{"id":"essentiality_Nsp13_TBK1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp13","target":"TBK1","value":"True","context":null}`#
+#!static_property:essentiality_Nsp14_RIG1_MDA5_complex:#`{"id":"essentiality_Nsp14_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp14","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_EIF2AK:#`{"id":"essentiality_Nsp15_EIF2AK","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"EIF2AK","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_IFIH1:#`{"id":"essentiality_Nsp15_IFIH1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"IFIH1","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_IRF3_homodimer_complex_cell:#`{"id":"essentiality_Nsp15_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_OAS1_cell_active:#`{"id":"essentiality_Nsp15_OAS1_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"OAS1_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_OAS2_cell_active:#`{"id":"essentiality_Nsp15_OAS2_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"OAS2_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_OAS3_cell_active:#`{"id":"essentiality_Nsp15_OAS3_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"OAS3_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_Nsp15_RIG1_MDA5_complex:#`{"id":"essentiality_Nsp15_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp15","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp16_RIG1_MDA5_complex:#`{"id":"essentiality_Nsp16_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp16","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp1_STAT1_phosphorylated:#`{"id":"essentiality_Nsp1_STAT1_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp1","target":"STAT1_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_IKBKE:#`{"id":"essentiality_Nsp3_IKBKE","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"IKBKE","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_IRF3_homodimer_complex_cell:#`{"id":"essentiality_Nsp3_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_ISG15_Nsp3_complex:#`{"id":"essentiality_Nsp3_ISG15_Nsp3_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"ISG15_Nsp3_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_ISG_expression_antiviral_response_phenotype:#`{"id":"essentiality_Nsp3_ISG_expression_antiviral_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"ISG_expression_antiviral_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_TBK1_IKBKE_complex:#`{"id":"essentiality_Nsp3_TBK1_IKBKE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"TBK1_IKBKE_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_TRAF3:#`{"id":"essentiality_Nsp3_TRAF3","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"TRAF3","value":"True","context":null}`#
+#!static_property:essentiality_Nsp3_TRAF6_ubiquitinated:#`{"id":"essentiality_Nsp3_TRAF6_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp3","target":"TRAF6_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_Nsp5_DDX58_ubiquitinated:#`{"id":"essentiality_Nsp5_DDX58_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp5","target":"DDX58_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_Nsp5_STAT1_2_IRF9_complex:#`{"id":"essentiality_Nsp5_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp5","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_IRF3_homodimer_complex_cell:#`{"id":"essentiality_Nsp6_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_STAT1_phosphorylated:#`{"id":"essentiality_Nsp6_STAT1_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"STAT1_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Nsp6_STAT2_phosphorylated:#`{"id":"essentiality_Nsp6_STAT2_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Nsp6","target":"STAT2_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_OAS1_EIF2AK_complex_ISG_expression_antiviral_response_phenotype:#`{"id":"essentiality_OAS1_EIF2AK_complex_ISG_expression_antiviral_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS1_EIF2AK_complex","target":"ISG_expression_antiviral_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_OAS1_cell_OAS1_cell_active:#`{"id":"essentiality_OAS1_cell_OAS1_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS1_cell","target":"OAS1_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_OAS1_cell_active_OAS1_EIF2AK_complex:#`{"id":"essentiality_OAS1_cell_active_OAS1_EIF2AK_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS1_cell_active","target":"OAS1_EIF2AK_complex","value":"True","context":null}`#
+#!static_property:essentiality_OAS1_rna_OAS1_cell:#`{"id":"essentiality_OAS1_rna_OAS1_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS1_rna","target":"OAS1_cell","value":"True","context":null}`#
+#!static_property:essentiality_OAS2_cell_OAS2_cell_active:#`{"id":"essentiality_OAS2_cell_OAS2_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS2_cell","target":"OAS2_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_OAS2_cell_active_OAS1_EIF2AK_complex:#`{"id":"essentiality_OAS2_cell_active_OAS1_EIF2AK_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS2_cell_active","target":"OAS1_EIF2AK_complex","value":"True","context":null}`#
+#!static_property:essentiality_OAS2_rna_OAS2_cell:#`{"id":"essentiality_OAS2_rna_OAS2_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS2_rna","target":"OAS2_cell","value":"True","context":null}`#
+#!static_property:essentiality_OAS3_cell_OAS3_cell_active:#`{"id":"essentiality_OAS3_cell_OAS3_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS3_cell","target":"OAS3_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_OAS3_cell_active_OAS1_EIF2AK_complex:#`{"id":"essentiality_OAS3_cell_active_OAS1_EIF2AK_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS3_cell_active","target":"OAS1_EIF2AK_complex","value":"True","context":null}`#
+#!static_property:essentiality_OAS3_rna_OAS3_cell:#`{"id":"essentiality_OAS3_rna_OAS3_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"OAS3_rna","target":"OAS3_cell","value":"True","context":null}`#
+#!static_property:essentiality_Orf3a_STAT1_phosphorylated:#`{"id":"essentiality_Orf3a_STAT1_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf3a","target":"STAT1_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Orf6_IRF3_homodimer_complex_cell:#`{"id":"essentiality_Orf6_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf6","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Orf6_IRF3_homodimer_complex_nucleus:#`{"id":"essentiality_Orf6_IRF3_homodimer_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf6","target":"IRF3_homodimer_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_Orf6_ISRE_complex:#`{"id":"essentiality_Orf6_ISRE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf6","target":"ISRE_complex","value":"True","context":null}`#
+#!static_property:essentiality_Orf6_STAT1_2_IRF9_complex:#`{"id":"essentiality_Orf6_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf6","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_Orf7a_STAT2_phosphorylated:#`{"id":"essentiality_Orf7a_STAT2_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf7a","target":"STAT2_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Orf7b_STAT1_phosphorylated:#`{"id":"essentiality_Orf7b_STAT1_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf7b","target":"STAT1_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Orf7b_STAT2_phosphorylated:#`{"id":"essentiality_Orf7b_STAT2_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf7b","target":"STAT2_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_Orf8_complex_IRF3_homodimer_complex_cell:#`{"id":"essentiality_Orf8_complex_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf8_complex","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_Orf9b_ITCH:#`{"id":"essentiality_Orf9b_ITCH","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf9b","target":"ITCH","value":"True","context":null}`#
+#!static_property:essentiality_Orf9b_MAVS:#`{"id":"essentiality_Orf9b_MAVS","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Orf9b","target":"MAVS","value":"True","context":null}`#
+#!static_property:essentiality_RELA_csa41_IkB_p50_p65_complex_cell:#`{"id":"essentiality_RELA_csa41_IkB_p50_p65_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"RELA","target":"csa41_IkB_p50_p65_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_RIG1_MDA5_complex_MAVS:#`{"id":"essentiality_RIG1_MDA5_complex_MAVS","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"RIG1_MDA5_complex","target":"MAVS","value":"True","context":null}`#
+#!static_property:essentiality_RIP1_TLR3_TRIF_RIPK1_complex:#`{"id":"essentiality_RIP1_TLR3_TRIF_RIPK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"RIP1","target":"TLR3_TRIF_RIPK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_RNF135_DDX58_ubiquitinated:#`{"id":"essentiality_RNF135_DDX58_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"RNF135","target":"DDX58_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_STAT1_2_IRF9_complex_ISRE_complex:#`{"id":"essentiality_STAT1_2_IRF9_complex_ISRE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STAT1_2_IRF9_complex","target":"ISRE_complex","value":"True","context":null}`#
+#!static_property:essentiality_STAT1_phosphorylated_STAT1_2_IRF9_complex:#`{"id":"essentiality_STAT1_phosphorylated_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STAT1_phosphorylated","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_STAT2_phosphorylated_STAT1_2_IRF9_complex:#`{"id":"essentiality_STAT2_phosphorylated_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STAT2_phosphorylated","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_STING1_ubiquitinated_TBK1:#`{"id":"essentiality_STING1_ubiquitinated_TBK1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STING1_ubiquitinated","target":"TBK1","value":"True","context":null}`#
+#!static_property:essentiality_STING1_ubiquitinated_TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"essentiality_STING1_ubiquitinated_TRAF3_TBK1_IKBKE_complex_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"STING1_ubiquitinated","target":"TRAF3_TBK1_IKBKE_complex_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_TAB1_2_TRAF6_TAK1_complex_IKKa_IKKb_NEMO_complex:#`{"id":"essentiality_TAB1_2_TRAF6_TAK1_complex_IKKa_IKKb_NEMO_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TAB1_2_TRAF6_TAK1_complex","target":"IKKa_IKKb_NEMO_complex","value":"True","context":null}`#
+#!static_property:essentiality_TAB1_TAB1_2_TRAF6_TAK1_complex:#`{"id":"essentiality_TAB1_TAB1_2_TRAF6_TAK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TAB1","target":"TAB1_2_TRAF6_TAK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_TAB2_TAB1_2_TRAF6_TAK1_complex:#`{"id":"essentiality_TAB2_TAB1_2_TRAF6_TAK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TAB2","target":"TAB1_2_TRAF6_TAK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_TAK1_TAB1_2_TRAF6_TAK1_complex:#`{"id":"essentiality_TAK1_TAB1_2_TRAF6_TAK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TAK1","target":"TAB1_2_TRAF6_TAK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_TANK_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"essentiality_TANK_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TANK","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"True","context":null}`#
+#!static_property:essentiality_TBK1_IKBKE:#`{"id":"essentiality_TBK1_IKBKE","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TBK1","target":"IKBKE","value":"True","context":null}`#
+#!static_property:essentiality_TBK1_IKBKE_complex_TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"essentiality_TBK1_IKBKE_complex_TRAF3_TBK1_IKBKE_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TBK1_IKBKE_complex","target":"TRAF3_TBK1_IKBKE_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_TBK1_MAPK8_14_complex:#`{"id":"essentiality_TBK1_MAPK8_14_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TBK1","target":"MAPK8_14_complex","value":"True","context":null}`#
+#!static_property:essentiality_TBK1_TBK1_IKBKE_complex:#`{"id":"essentiality_TBK1_TBK1_IKBKE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TBK1","target":"TBK1_IKBKE_complex","value":"True","context":null}`#
+#!static_property:essentiality_TLR3_TRIF_RIPK1_complex_TAB1_2_TRAF6_TAK1_complex:#`{"id":"essentiality_TLR3_TRIF_RIPK1_complex_TAB1_2_TRAF6_TAK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TLR3_TRIF_RIPK1_complex","target":"TAB1_2_TRAF6_TAK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_TLR3_TRIF_complex_TLR3_TRIF_RIPK1_complex:#`{"id":"essentiality_TLR3_TRIF_complex_TLR3_TRIF_RIPK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TLR3_TRIF_complex","target":"TLR3_TRIF_RIPK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_TLR3_TRIF_complex_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"essentiality_TLR3_TRIF_complex_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TLR3_TRIF_complex","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"True","context":null}`#
+#!static_property:essentiality_TLR4_TRIF_TRAM_complex_NAP1:#`{"id":"essentiality_TLR4_TRIF_TRAM_complex_NAP1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TLR4_TRIF_TRAM_complex","target":"NAP1","value":"True","context":null}`#
+#!static_property:essentiality_TLR7_MYD88_TRAM_complex:#`{"id":"essentiality_TLR7_MYD88_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TLR7","target":"MYD88_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_TLR9_MYD88_TRAM_complex:#`{"id":"essentiality_TLR9_MYD88_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TLR9","target":"MYD88_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF3_homodimer_complex_cell:#`{"id":"essentiality_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF3_TANK_TBK1_IKKepsilon_complex","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF7_homodimer_complex:#`{"id":"essentiality_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF7_homodimer_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF3_TANK_TBK1_IKKepsilon_complex","target":"IRF7_homodimer_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRAF3_TBK1_IKBKE_complex:#`{"id":"essentiality_TRAF3_TBK1_IKBKE_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF3","target":"TBK1_IKBKE_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRAF3_TBK1_IKBKE_complex_cell_TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"essentiality_TRAF3_TBK1_IKBKE_complex_cell_TRAF3_TBK1_IKBKE_complex_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF3_TBK1_IKBKE_complex_cell","target":"TRAF3_TBK1_IKBKE_complex_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_TRAF3_TBK1_IKBKE_complex_cell_active_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"essentiality_TRAF3_TBK1_IKBKE_complex_cell_active_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF3_TBK1_IKBKE_complex_cell_active","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRAF3_TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"essentiality_TRAF3_TRAF3_TBK1_IKBKE_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF3","target":"TRAF3_TBK1_IKBKE_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_TRAF6_ubiquitinated_MAP3K7:#`{"id":"essentiality_TRAF6_ubiquitinated_MAP3K7","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF6_ubiquitinated","target":"MAP3K7","value":"True","context":null}`#
+#!static_property:essentiality_TRAF6_ubiquitinated_TAB1_2_TRAF6_TAK1_complex:#`{"id":"essentiality_TRAF6_ubiquitinated_TAB1_2_TRAF6_TAK1_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRAF6_ubiquitinated","target":"TAB1_2_TRAF6_TAK1_complex","value":"True","context":null}`#
+#!static_property:essentiality_TREML4_MYD88_TRAM_complex:#`{"id":"essentiality_TREML4_MYD88_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TREML4","target":"MYD88_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_TREML4_STAT1_2_IRF9_complex:#`{"id":"essentiality_TREML4_STAT1_2_IRF9_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TREML4","target":"STAT1_2_IRF9_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRIF_TLR3_TRIF_complex:#`{"id":"essentiality_TRIF_TLR3_TRIF_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRIF","target":"TLR3_TRIF_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRIF_TLR4_TRIF_TRAM_complex:#`{"id":"essentiality_TRIF_TLR4_TRIF_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRIF","target":"TLR4_TRIF_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_TRIM25_DDX58_ubiquitinated:#`{"id":"essentiality_TRIM25_DDX58_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TRIM25","target":"DDX58_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_TYK2_JAK1_TYK2_complex:#`{"id":"essentiality_TYK2_JAK1_TYK2_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TYK2","target":"JAK1_TYK2_complex","value":"True","context":null}`#
+#!static_property:essentiality_Viral_dsRNA_rna_cell_RIG1_MDA5_complex:#`{"id":"essentiality_Viral_dsRNA_rna_cell_RIG1_MDA5_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Viral_dsRNA_rna_cell","target":"RIG1_MDA5_complex","value":"True","context":null}`#
+#!static_property:essentiality_Viral_dsRNA_rna_cell_Viral_dsRNA_rna_cell:#`{"id":"essentiality_Viral_dsRNA_rna_cell_Viral_dsRNA_rna_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Viral_dsRNA_rna_cell","target":"Viral_dsRNA_rna_cell","value":"True","context":null}`#
+#!static_property:essentiality_Viral_dsRNA_rna_endosome_MYD88_TRAM_complex:#`{"id":"essentiality_Viral_dsRNA_rna_endosome_MYD88_TRAM_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Viral_dsRNA_rna_endosome","target":"MYD88_TRAM_complex","value":"True","context":null}`#
+#!static_property:essentiality_Viral_dsRNA_rna_endosome_TLR3_TRIF_complex:#`{"id":"essentiality_Viral_dsRNA_rna_endosome_TLR3_TRIF_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Viral_dsRNA_rna_endosome","target":"TLR3_TRIF_complex","value":"True","context":null}`#
+#!static_property:essentiality_Viral_replication_phenotype_Viral_dsRNA_rna_cell:#`{"id":"essentiality_Viral_replication_phenotype_Viral_dsRNA_rna_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"Viral_replication_phenotype","target":"Viral_dsRNA_rna_cell","value":"True","context":null}`#
+#!static_property:essentiality_csa41_IkB_p50_p65_complex_cell_csa42_IkB_p50_p65_complex_cell:#`{"id":"essentiality_csa41_IkB_p50_p65_complex_cell_csa42_IkB_p50_p65_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa41_IkB_p50_p65_complex_cell","target":"csa42_IkB_p50_p65_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_csa42_IkB_p50_p65_complex_cell_IkB_phosphorylated:#`{"id":"essentiality_csa42_IkB_p50_p65_complex_cell_IkB_phosphorylated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa42_IkB_p50_p65_complex_cell","target":"IkB_phosphorylated","value":"True","context":null}`#
+#!static_property:essentiality_csa42_IkB_p50_p65_complex_cell_p50_p65_complex_cell:#`{"id":"essentiality_csa42_IkB_p50_p65_complex_cell_p50_p65_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"csa42_IkB_p50_p65_complex_cell","target":"p50_p65_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_p50_p65_complex_cell_p50_p65_complex_nucleus:#`{"id":"essentiality_p50_p65_complex_cell_p50_p65_complex_nucleus","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"p50_p65_complex_cell","target":"p50_p65_complex_nucleus","value":"True","context":null}`#
+#!static_property:essentiality_p50_p65_complex_nucleus_IFNA1_rna:#`{"id":"essentiality_p50_p65_complex_nucleus_IFNA1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"p50_p65_complex_nucleus","target":"IFNA1_rna","value":"True","context":null}`#
+#!static_property:essentiality_p50_p65_complex_nucleus_IFNB1_rna:#`{"id":"essentiality_p50_p65_complex_nucleus_IFNB1_rna","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"p50_p65_complex_nucleus","target":"IFNB1_rna","value":"True","context":null}`#
+#!static_property:essentiality_p50_p65_complex_nucleus_ISG_expression_antiviral_response_phenotype:#`{"id":"essentiality_p50_p65_complex_nucleus_ISG_expression_antiviral_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"p50_p65_complex_nucleus","target":"ISG_expression_antiviral_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_p50_p65_complex_nucleus_NLRP3_inflammasome_complex:#`{"id":"essentiality_p50_p65_complex_nucleus_NLRP3_inflammasome_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"p50_p65_complex_nucleus","target":"NLRP3_inflammasome_complex","value":"True","context":null}`#
+#!static_property:essentiality_p50_p65_complex_nucleus_Proinflammatory_cytokine_expression_Inflammation_phenotype:#`{"id":"essentiality_p50_p65_complex_nucleus_Proinflammatory_cytokine_expression_Inflammation_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"p50_p65_complex_nucleus","target":"Proinflammatory_cytokine_expression_Inflammation_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_pp1ab_IRF3_homodimer_complex_cell:#`{"id":"essentiality_pp1ab_IRF3_homodimer_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"pp1ab","target":"IRF3_homodimer_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_pp1ab_STING1_ubiquitinated:#`{"id":"essentiality_pp1ab_STING1_ubiquitinated","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"pp1ab","target":"STING1_ubiquitinated","value":"True","context":null}`#
+#!static_property:essentiality_pp1ab_TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"essentiality_pp1ab_TRAF3_TBK1_IKBKE_complex_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"pp1ab","target":"TRAF3_TBK1_IKBKE_complex_cell","value":"True","context":null}`#
+#!static_property:essentiality_pp1ab_TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"essentiality_pp1ab_TRAF3_TBK1_IKBKE_complex_cell_active","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"pp1ab","target":"TRAF3_TBK1_IKBKE_complex_cell_active","value":"True","context":null}`#
+#!static_property:essentiality_sa27_IFNB1_extracellular_space_IFNB1_IFNAR_complex:#`{"id":"essentiality_sa27_IFNB1_extracellular_space_IFNB1_IFNAR_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa27_IFNB1_extracellular_space","target":"IFNB1_IFNAR_complex","value":"True","context":null}`#
+#!static_property:essentiality_sa27_IFNB1_extracellular_space_Viral_dsRNA_rna_cell:#`{"id":"essentiality_sa27_IFNB1_extracellular_space_Viral_dsRNA_rna_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa27_IFNB1_extracellular_space","target":"Viral_dsRNA_rna_cell","value":"True","context":null}`#
+#!static_property:essentiality_sa27_IFNB1_extracellular_space_type_I_IFN_response_phenotype:#`{"id":"essentiality_sa27_IFNB1_extracellular_space_type_I_IFN_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa27_IFNB1_extracellular_space","target":"type_I_IFN_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_sa31_IFNA1_extracellular_space_IFNA1_IFNAR_complex:#`{"id":"essentiality_sa31_IFNA1_extracellular_space_IFNA1_IFNAR_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa31_IFNA1_extracellular_space","target":"IFNA1_IFNAR_complex","value":"True","context":null}`#
+#!static_property:essentiality_sa31_IFNA1_extracellular_space_Viral_dsRNA_rna_cell:#`{"id":"essentiality_sa31_IFNA1_extracellular_space_Viral_dsRNA_rna_cell","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa31_IFNA1_extracellular_space","target":"Viral_dsRNA_rna_cell","value":"True","context":null}`#
+#!static_property:essentiality_sa31_IFNA1_extracellular_space_type_I_IFN_response_phenotype:#`{"id":"essentiality_sa31_IFNA1_extracellular_space_type_I_IFN_response_phenotype","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa31_IFNA1_extracellular_space","target":"type_I_IFN_response_phenotype","value":"True","context":null}`#
+#!static_property:essentiality_sa3_IFNB1_extracellular_space_IFNB1_IFNAR_complex:#`{"id":"essentiality_sa3_IFNB1_extracellular_space_IFNB1_IFNAR_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa3_IFNB1_extracellular_space","target":"IFNB1_IFNAR_complex","value":"True","context":null}`#
+#!static_property:essentiality_sa5_IFNA1_extracellular_space_IFNA1_IFNAR_complex:#`{"id":"essentiality_sa5_IFNA1_extracellular_space_IFNA1_IFNAR_complex","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"sa5_IFNA1_extracellular_space","target":"IFNA1_IFNAR_complex","value":"True","context":null}`#
+#!static_property:monotonicity_AP_1_complex_cell_AP_1_complex_nucleus:#`{"id":"monotonicity_AP_1_complex_cell_AP_1_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AP_1_complex_cell","target":"AP_1_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_AP_1_complex_nucleus_IFNA1_rna:#`{"id":"monotonicity_AP_1_complex_nucleus_IFNA1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AP_1_complex_nucleus","target":"IFNA1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_AP_1_complex_nucleus_IFNB1_rna:#`{"id":"monotonicity_AP_1_complex_nucleus_IFNB1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AP_1_complex_nucleus","target":"IFNB1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_Azithromycin_drug_DDX58_ubiquitinated:#`{"id":"monotonicity_Azithromycin_drug_DDX58_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Azithromycin_drug","target":"DDX58_ubiquitinated","value":"Activation","context":null}`#
+#!static_property:monotonicity_Azithromycin_drug_IFIH1:#`{"id":"monotonicity_Azithromycin_drug_IFIH1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Azithromycin_drug","target":"IFIH1","value":"Activation","context":null}`#
+#!static_property:monotonicity_Azithromycin_drug_IFNB1_rna:#`{"id":"monotonicity_Azithromycin_drug_IFNB1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Azithromycin_drug","target":"IFNB1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_Azithromycin_drug_ISG_expression_antiviral_response_phenotype:#`{"id":"monotonicity_Azithromycin_drug_ISG_expression_antiviral_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Azithromycin_drug","target":"ISG_expression_antiviral_response_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_Azithromycin_drug_TBK1_IKBKE_complex:#`{"id":"monotonicity_Azithromycin_drug_TBK1_IKBKE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Azithromycin_drug","target":"TBK1_IKBKE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Azithromycin_drug_TLR3_TRIF_complex:#`{"id":"monotonicity_Azithromycin_drug_TLR3_TRIF_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Azithromycin_drug","target":"TLR3_TRIF_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_DDX58_ubiquitinated_RIG1_MDA5_complex:#`{"id":"monotonicity_DDX58_ubiquitinated_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"DDX58_ubiquitinated","target":"RIG1_MDA5_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_EIF2AK_OAS1_EIF2AK_complex:#`{"id":"monotonicity_EIF2AK_OAS1_EIF2AK_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"EIF2AK","target":"OAS1_EIF2AK_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_EIF2AK_rna_EIF2AK:#`{"id":"monotonicity_EIF2AK_rna_EIF2AK","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"EIF2AK_rna","target":"EIF2AK","value":"Activation","context":null}`#
+#!static_property:monotonicity_E_AP_1_complex_cell:#`{"id":"monotonicity_E_AP_1_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E","target":"AP_1_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_E_NLRP3_inflammasome_complex:#`{"id":"monotonicity_E_NLRP3_inflammasome_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"E","target":"NLRP3_inflammasome_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_FOS_AP_1_complex_cell:#`{"id":"monotonicity_FOS_AP_1_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"FOS","target":"AP_1_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_GRL0617_drug_ISG15_Nsp3_complex:#`{"id":"monotonicity_GRL0617_drug_ISG15_Nsp3_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"GRL0617_drug","target":"ISG15_Nsp3_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_IFIH1_RIG1_MDA5_complex:#`{"id":"monotonicity_IFIH1_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFIH1","target":"RIG1_MDA5_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNA1_IFNAR_complex_JAK1_TYK2_complex:#`{"id":"monotonicity_IFNA1_IFNAR_complex_JAK1_TYK2_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNA1_IFNAR_complex","target":"JAK1_TYK2_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNA1_cell_sa31_IFNA1_extracellular_space:#`{"id":"monotonicity_IFNA1_cell_sa31_IFNA1_extracellular_space","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNA1_cell","target":"sa31_IFNA1_extracellular_space","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNA1_rna_IFNA1_cell:#`{"id":"monotonicity_IFNA1_rna_IFNA1_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNA1_rna","target":"IFNA1_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNAR_complex_IFNA1_IFNAR_complex:#`{"id":"monotonicity_IFNAR_complex_IFNA1_IFNAR_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNAR_complex","target":"IFNA1_IFNAR_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNAR_complex_IFNB1_IFNAR_complex:#`{"id":"monotonicity_IFNAR_complex_IFNB1_IFNAR_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNAR_complex","target":"IFNB1_IFNAR_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNB1_IFNAR_complex_JAK1_TYK2_complex:#`{"id":"monotonicity_IFNB1_IFNAR_complex_JAK1_TYK2_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNB1_IFNAR_complex","target":"JAK1_TYK2_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNB1_cell_sa27_IFNB1_extracellular_space:#`{"id":"monotonicity_IFNB1_cell_sa27_IFNB1_extracellular_space","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNB1_cell","target":"sa27_IFNB1_extracellular_space","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNB1_rna_IFNB1_cell:#`{"id":"monotonicity_IFNB1_rna_IFNB1_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IFNB1_rna","target":"IFNB1_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_IKBKE_TBK1:#`{"id":"monotonicity_IKBKE_TBK1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IKBKE","target":"TBK1","value":"Activation","context":null}`#
+#!static_property:monotonicity_IKBKE_TBK1_IKBKE_complex:#`{"id":"monotonicity_IKBKE_TBK1_IKBKE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IKBKE","target":"TBK1_IKBKE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IKKa_IKKa_IKKb_NEMO_complex:#`{"id":"monotonicity_IKKa_IKKa_IKKb_NEMO_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IKKa","target":"IKKa_IKKb_NEMO_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IKKa_IKKb_NEMO_complex_csa42_IkB_p50_p65_complex_cell:#`{"id":"monotonicity_IKKa_IKKb_NEMO_complex_csa42_IkB_p50_p65_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IKKa_IKKb_NEMO_complex","target":"csa42_IkB_p50_p65_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_IKKb_IKKa_IKKb_NEMO_complex:#`{"id":"monotonicity_IKKb_IKKa_IKKb_NEMO_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IKKb","target":"IKKa_IKKb_NEMO_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRAK1_4_MYD88_TRAM_complex:#`{"id":"monotonicity_IRAK1_4_MYD88_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRAK1_4","target":"MYD88_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRAK1_4_TLR4_TRIF_TRAM_complex:#`{"id":"monotonicity_IRAK1_4_TLR4_TRIF_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRAK1_4","target":"TLR4_TRIF_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_IRF3_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3","target":"IRF3_homodimer_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_homodimer_complex_cell_IRF3_homodimer_complex_nucleus:#`{"id":"monotonicity_IRF3_homodimer_complex_cell_IRF3_homodimer_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3_homodimer_complex_cell","target":"IRF3_homodimer_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_homodimer_complex_nucleus_EIF2AK_rna:#`{"id":"monotonicity_IRF3_homodimer_complex_nucleus_EIF2AK_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3_homodimer_complex_nucleus","target":"EIF2AK_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_homodimer_complex_nucleus_IFNB1_rna:#`{"id":"monotonicity_IRF3_homodimer_complex_nucleus_IFNB1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3_homodimer_complex_nucleus","target":"IFNB1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_homodimer_complex_nucleus_OAS1_rna:#`{"id":"monotonicity_IRF3_homodimer_complex_nucleus_OAS1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3_homodimer_complex_nucleus","target":"OAS1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_homodimer_complex_nucleus_OAS2_rna:#`{"id":"monotonicity_IRF3_homodimer_complex_nucleus_OAS2_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3_homodimer_complex_nucleus","target":"OAS2_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF3_homodimer_complex_nucleus_OAS3_rna:#`{"id":"monotonicity_IRF3_homodimer_complex_nucleus_OAS3_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF3_homodimer_complex_nucleus","target":"OAS3_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF7_IRF7_homodimer_complex:#`{"id":"monotonicity_IRF7_IRF7_homodimer_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF7","target":"IRF7_homodimer_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF7_homodimer_complex_IFNA1_rna:#`{"id":"monotonicity_IRF7_homodimer_complex_IFNA1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF7_homodimer_complex","target":"IFNA1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF7_homodimer_complex_IFNB1_rna:#`{"id":"monotonicity_IRF7_homodimer_complex_IFNB1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF7_homodimer_complex","target":"IFNB1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_IRF9_STAT1_2_IRF9_complex:#`{"id":"monotonicity_IRF9_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IRF9","target":"STAT1_2_IRF9_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISG15_ISG15_Nsp3_complex:#`{"id":"monotonicity_ISG15_ISG15_Nsp3_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISG15","target":"ISG15_Nsp3_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISG15_ISG_expression_antiviral_response_phenotype:#`{"id":"monotonicity_ISG15_ISG_expression_antiviral_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISG15","target":"ISG_expression_antiviral_response_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISG15_rna_ISG15:#`{"id":"monotonicity_ISG15_rna_ISG15","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISG15_rna","target":"ISG15","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISRE_complex_EIF2AK_rna:#`{"id":"monotonicity_ISRE_complex_EIF2AK_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISRE_complex","target":"EIF2AK_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISRE_complex_ISG15_rna:#`{"id":"monotonicity_ISRE_complex_ISG15_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISRE_complex","target":"ISG15_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISRE_complex_OAS1_rna:#`{"id":"monotonicity_ISRE_complex_OAS1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISRE_complex","target":"OAS1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISRE_complex_OAS2_rna:#`{"id":"monotonicity_ISRE_complex_OAS2_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISRE_complex","target":"OAS2_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_ISRE_complex_OAS3_rna:#`{"id":"monotonicity_ISRE_complex_OAS3_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ISRE_complex","target":"OAS3_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_ITCH_MAVS:#`{"id":"monotonicity_ITCH_MAVS","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ITCH","target":"MAVS","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_ITCH_TRAF6_ubiquitinated:#`{"id":"monotonicity_ITCH_TRAF6_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ITCH","target":"TRAF6_ubiquitinated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_IkB_csa41_IkB_p50_p65_complex_cell:#`{"id":"monotonicity_IkB_csa41_IkB_p50_p65_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IkB","target":"csa41_IkB_p50_p65_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_JAK1_JAK1_TYK2_complex:#`{"id":"monotonicity_JAK1_JAK1_TYK2_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"JAK1","target":"JAK1_TYK2_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_JAK1_TYK2_complex_STAT1_2_IRF9_complex:#`{"id":"monotonicity_JAK1_TYK2_complex_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"JAK1_TYK2_complex","target":"STAT1_2_IRF9_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_JUN_AP_1_complex_cell:#`{"id":"monotonicity_JUN_AP_1_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"JUN","target":"AP_1_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAP3K7_MAPK8_14_complex:#`{"id":"monotonicity_MAP3K7_MAPK8_14_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAP3K7","target":"MAPK8_14_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAPK14_MAPK8_14_complex:#`{"id":"monotonicity_MAPK14_MAPK8_14_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAPK14","target":"MAPK8_14_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAPK8_14_complex_AP_1_complex_cell:#`{"id":"monotonicity_MAPK8_14_complex_AP_1_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAPK8_14_complex","target":"AP_1_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAPK8_MAPK8_14_complex:#`{"id":"monotonicity_MAPK8_MAPK8_14_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAPK8","target":"MAPK8_14_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAVS_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_MAVS_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAVS","target":"IRF3_homodimer_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAVS_STING1_ubiquitinated:#`{"id":"monotonicity_MAVS_STING1_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAVS","target":"STING1_ubiquitinated","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAVS_TBK1:#`{"id":"monotonicity_MAVS_TBK1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAVS","target":"TBK1","value":"Activation","context":null}`#
+#!static_property:monotonicity_MAVS_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"monotonicity_MAVS_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MAVS","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MNS_drug_NLRP3_inflammasome_complex:#`{"id":"monotonicity_MNS_drug_NLRP3_inflammasome_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MNS_drug","target":"NLRP3_inflammasome_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_MYD88_MYD88_TRAM_complex:#`{"id":"monotonicity_MYD88_MYD88_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MYD88","target":"MYD88_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_MYD88_TRAM_complex_TRAF3:#`{"id":"monotonicity_MYD88_TRAM_complex_TRAF3","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MYD88_TRAM_complex","target":"TRAF3","value":"Activation","context":null}`#
+#!static_property:monotonicity_MYD88_TRAM_complex_TRAF6_ubiquitinated:#`{"id":"monotonicity_MYD88_TRAM_complex_TRAF6_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"MYD88_TRAM_complex","target":"TRAF6_ubiquitinated","value":"Activation","context":null}`#
+#!static_property:monotonicity_M_RIG1_MDA5_complex:#`{"id":"monotonicity_M_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"M","target":"RIG1_MDA5_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_M_STAT1_phosphorylated:#`{"id":"monotonicity_M_STAT1_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"M","target":"STAT1_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_M_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"monotonicity_M_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"M","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_NAP1_TBK1_IKBKE_complex:#`{"id":"monotonicity_NAP1_TBK1_IKBKE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NAP1","target":"TBK1_IKBKE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_NEMO_IKKa_IKKb_NEMO_complex:#`{"id":"monotonicity_NEMO_IKKa_IKKb_NEMO_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NEMO","target":"IKKa_IKKb_NEMO_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_NFKB1_csa41_IkB_p50_p65_complex_cell:#`{"id":"monotonicity_NFKB1_csa41_IkB_p50_p65_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NFKB1","target":"csa41_IkB_p50_p65_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_NLRP3_inflammasome_complex_Proinflammatory_cytokine_expression_Inflammation_phenotype:#`{"id":"monotonicity_NLRP3_inflammasome_complex_Proinflammatory_cytokine_expression_Inflammation_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"NLRP3_inflammasome_complex","target":"Proinflammatory_cytokine_expression_Inflammation_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_N_DDX58_ubiquitinated:#`{"id":"monotonicity_N_DDX58_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"N","target":"DDX58_ubiquitinated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_N_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_N_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"N","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_N_RIG1_MDA5_complex:#`{"id":"monotonicity_N_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"N","target":"RIG1_MDA5_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp10_RIG1_MDA5_complex:#`{"id":"monotonicity_Nsp10_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp10","target":"RIG1_MDA5_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp13_STAT1_phosphorylated:#`{"id":"monotonicity_Nsp13_STAT1_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp13","target":"STAT1_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp13_STAT2_phosphorylated:#`{"id":"monotonicity_Nsp13_STAT2_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp13","target":"STAT2_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp13_TBK1:#`{"id":"monotonicity_Nsp13_TBK1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp13","target":"TBK1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp14_RIG1_MDA5_complex:#`{"id":"monotonicity_Nsp14_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp14","target":"RIG1_MDA5_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_EIF2AK:#`{"id":"monotonicity_Nsp15_EIF2AK","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"EIF2AK","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_IFIH1:#`{"id":"monotonicity_Nsp15_IFIH1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"IFIH1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_Nsp15_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_OAS1_cell_active:#`{"id":"monotonicity_Nsp15_OAS1_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"OAS1_cell_active","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_OAS2_cell_active:#`{"id":"monotonicity_Nsp15_OAS2_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"OAS2_cell_active","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_OAS3_cell_active:#`{"id":"monotonicity_Nsp15_OAS3_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"OAS3_cell_active","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp15_RIG1_MDA5_complex:#`{"id":"monotonicity_Nsp15_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp15","target":"RIG1_MDA5_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp16_RIG1_MDA5_complex:#`{"id":"monotonicity_Nsp16_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp16","target":"RIG1_MDA5_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp1_STAT1_phosphorylated:#`{"id":"monotonicity_Nsp1_STAT1_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp1","target":"STAT1_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp3_IKBKE:#`{"id":"monotonicity_Nsp3_IKBKE","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"IKBKE","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp3_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_Nsp3_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp3_ISG15_Nsp3_complex:#`{"id":"monotonicity_Nsp3_ISG15_Nsp3_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"ISG15_Nsp3_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Nsp3_ISG_expression_antiviral_response_phenotype:#`{"id":"monotonicity_Nsp3_ISG_expression_antiviral_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"ISG_expression_antiviral_response_phenotype","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp3_TBK1_IKBKE_complex:#`{"id":"monotonicity_Nsp3_TBK1_IKBKE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"TBK1_IKBKE_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp3_TRAF3:#`{"id":"monotonicity_Nsp3_TRAF3","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"TRAF3","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp3_TRAF6_ubiquitinated:#`{"id":"monotonicity_Nsp3_TRAF6_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp3","target":"TRAF6_ubiquitinated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp5_DDX58_ubiquitinated:#`{"id":"monotonicity_Nsp5_DDX58_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp5","target":"DDX58_ubiquitinated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp5_STAT1_2_IRF9_complex:#`{"id":"monotonicity_Nsp5_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp5","target":"STAT1_2_IRF9_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp6_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_Nsp6_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp6_STAT1_phosphorylated:#`{"id":"monotonicity_Nsp6_STAT1_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"STAT1_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Nsp6_STAT2_phosphorylated:#`{"id":"monotonicity_Nsp6_STAT2_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Nsp6","target":"STAT2_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_OAS1_EIF2AK_complex_ISG_expression_antiviral_response_phenotype:#`{"id":"monotonicity_OAS1_EIF2AK_complex_ISG_expression_antiviral_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS1_EIF2AK_complex","target":"ISG_expression_antiviral_response_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS1_cell_OAS1_cell_active:#`{"id":"monotonicity_OAS1_cell_OAS1_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS1_cell","target":"OAS1_cell_active","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS1_cell_active_OAS1_EIF2AK_complex:#`{"id":"monotonicity_OAS1_cell_active_OAS1_EIF2AK_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS1_cell_active","target":"OAS1_EIF2AK_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS1_rna_OAS1_cell:#`{"id":"monotonicity_OAS1_rna_OAS1_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS1_rna","target":"OAS1_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS2_cell_OAS2_cell_active:#`{"id":"monotonicity_OAS2_cell_OAS2_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS2_cell","target":"OAS2_cell_active","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS2_cell_active_OAS1_EIF2AK_complex:#`{"id":"monotonicity_OAS2_cell_active_OAS1_EIF2AK_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS2_cell_active","target":"OAS1_EIF2AK_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS2_rna_OAS2_cell:#`{"id":"monotonicity_OAS2_rna_OAS2_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS2_rna","target":"OAS2_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS3_cell_OAS3_cell_active:#`{"id":"monotonicity_OAS3_cell_OAS3_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS3_cell","target":"OAS3_cell_active","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS3_cell_active_OAS1_EIF2AK_complex:#`{"id":"monotonicity_OAS3_cell_active_OAS1_EIF2AK_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS3_cell_active","target":"OAS1_EIF2AK_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_OAS3_rna_OAS3_cell:#`{"id":"monotonicity_OAS3_rna_OAS3_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"OAS3_rna","target":"OAS3_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_Orf3a_STAT1_phosphorylated:#`{"id":"monotonicity_Orf3a_STAT1_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf3a","target":"STAT1_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf6_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_Orf6_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf6","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf6_IRF3_homodimer_complex_nucleus:#`{"id":"monotonicity_Orf6_IRF3_homodimer_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf6","target":"IRF3_homodimer_complex_nucleus","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf6_ISRE_complex:#`{"id":"monotonicity_Orf6_ISRE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf6","target":"ISRE_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf6_STAT1_2_IRF9_complex:#`{"id":"monotonicity_Orf6_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf6","target":"STAT1_2_IRF9_complex","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf7a_STAT2_phosphorylated:#`{"id":"monotonicity_Orf7a_STAT2_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf7a","target":"STAT2_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf7b_STAT1_phosphorylated:#`{"id":"monotonicity_Orf7b_STAT1_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf7b","target":"STAT1_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf7b_STAT2_phosphorylated:#`{"id":"monotonicity_Orf7b_STAT2_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf7b","target":"STAT2_phosphorylated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf8_complex_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_Orf8_complex_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf8_complex","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Orf9b_ITCH:#`{"id":"monotonicity_Orf9b_ITCH","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf9b","target":"ITCH","value":"Activation","context":null}`#
+#!static_property:monotonicity_Orf9b_MAVS:#`{"id":"monotonicity_Orf9b_MAVS","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Orf9b","target":"MAVS","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_RELA_csa41_IkB_p50_p65_complex_cell:#`{"id":"monotonicity_RELA_csa41_IkB_p50_p65_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"RELA","target":"csa41_IkB_p50_p65_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_RIG1_MDA5_complex_MAVS:#`{"id":"monotonicity_RIG1_MDA5_complex_MAVS","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"RIG1_MDA5_complex","target":"MAVS","value":"Activation","context":null}`#
+#!static_property:monotonicity_RIP1_TLR3_TRIF_RIPK1_complex:#`{"id":"monotonicity_RIP1_TLR3_TRIF_RIPK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"RIP1","target":"TLR3_TRIF_RIPK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_RNF135_DDX58_ubiquitinated:#`{"id":"monotonicity_RNF135_DDX58_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"RNF135","target":"DDX58_ubiquitinated","value":"Activation","context":null}`#
+#!static_property:monotonicity_STAT1_2_IRF9_complex_ISRE_complex:#`{"id":"monotonicity_STAT1_2_IRF9_complex_ISRE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STAT1_2_IRF9_complex","target":"ISRE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_STAT1_phosphorylated_STAT1_2_IRF9_complex:#`{"id":"monotonicity_STAT1_phosphorylated_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STAT1_phosphorylated","target":"STAT1_2_IRF9_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_STAT2_phosphorylated_STAT1_2_IRF9_complex:#`{"id":"monotonicity_STAT2_phosphorylated_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STAT2_phosphorylated","target":"STAT1_2_IRF9_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_STING1_ubiquitinated_TBK1:#`{"id":"monotonicity_STING1_ubiquitinated_TBK1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STING1_ubiquitinated","target":"TBK1","value":"Activation","context":null}`#
+#!static_property:monotonicity_STING1_ubiquitinated_TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"monotonicity_STING1_ubiquitinated_TRAF3_TBK1_IKBKE_complex_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"STING1_ubiquitinated","target":"TRAF3_TBK1_IKBKE_complex_cell_active","value":"Activation","context":null}`#
+#!static_property:monotonicity_TAB1_2_TRAF6_TAK1_complex_IKKa_IKKb_NEMO_complex:#`{"id":"monotonicity_TAB1_2_TRAF6_TAK1_complex_IKKa_IKKb_NEMO_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAB1_2_TRAF6_TAK1_complex","target":"IKKa_IKKb_NEMO_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TAB1_TAB1_2_TRAF6_TAK1_complex:#`{"id":"monotonicity_TAB1_TAB1_2_TRAF6_TAK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAB1","target":"TAB1_2_TRAF6_TAK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TAB2_TAB1_2_TRAF6_TAK1_complex:#`{"id":"monotonicity_TAB2_TAB1_2_TRAF6_TAK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAB2","target":"TAB1_2_TRAF6_TAK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TAK1_TAB1_2_TRAF6_TAK1_complex:#`{"id":"monotonicity_TAK1_TAB1_2_TRAF6_TAK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAK1","target":"TAB1_2_TRAF6_TAK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TANK_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"monotonicity_TANK_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TANK","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TBK1_IKBKE:#`{"id":"monotonicity_TBK1_IKBKE","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TBK1","target":"IKBKE","value":"Activation","context":null}`#
+#!static_property:monotonicity_TBK1_IKBKE_complex_TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"monotonicity_TBK1_IKBKE_complex_TRAF3_TBK1_IKBKE_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TBK1_IKBKE_complex","target":"TRAF3_TBK1_IKBKE_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_TBK1_MAPK8_14_complex:#`{"id":"monotonicity_TBK1_MAPK8_14_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TBK1","target":"MAPK8_14_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TBK1_TBK1_IKBKE_complex:#`{"id":"monotonicity_TBK1_TBK1_IKBKE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TBK1","target":"TBK1_IKBKE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TLR3_TRIF_RIPK1_complex_TAB1_2_TRAF6_TAK1_complex:#`{"id":"monotonicity_TLR3_TRIF_RIPK1_complex_TAB1_2_TRAF6_TAK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TLR3_TRIF_RIPK1_complex","target":"TAB1_2_TRAF6_TAK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TLR3_TRIF_complex_TLR3_TRIF_RIPK1_complex:#`{"id":"monotonicity_TLR3_TRIF_complex_TLR3_TRIF_RIPK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TLR3_TRIF_complex","target":"TLR3_TRIF_RIPK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TLR3_TRIF_complex_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"monotonicity_TLR3_TRIF_complex_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TLR3_TRIF_complex","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TLR4_TRIF_TRAM_complex_NAP1:#`{"id":"monotonicity_TLR4_TRIF_TRAM_complex_NAP1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TLR4_TRIF_TRAM_complex","target":"NAP1","value":"Activation","context":null}`#
+#!static_property:monotonicity_TLR7_MYD88_TRAM_complex:#`{"id":"monotonicity_TLR7_MYD88_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TLR7","target":"MYD88_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TLR9_MYD88_TRAM_complex:#`{"id":"monotonicity_TLR9_MYD88_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TLR9","target":"MYD88_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF3_TANK_TBK1_IKKepsilon_complex","target":"IRF3_homodimer_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF7_homodimer_complex:#`{"id":"monotonicity_TRAF3_TANK_TBK1_IKKepsilon_complex_IRF7_homodimer_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF3_TANK_TBK1_IKKepsilon_complex","target":"IRF7_homodimer_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF3_TBK1_IKBKE_complex:#`{"id":"monotonicity_TRAF3_TBK1_IKBKE_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF3","target":"TBK1_IKBKE_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF3_TBK1_IKBKE_complex_cell_TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"monotonicity_TRAF3_TBK1_IKBKE_complex_cell_TRAF3_TBK1_IKBKE_complex_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF3_TBK1_IKBKE_complex_cell","target":"TRAF3_TBK1_IKBKE_complex_cell_active","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF3_TBK1_IKBKE_complex_cell_active_TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"monotonicity_TRAF3_TBK1_IKBKE_complex_cell_active_TRAF3_TANK_TBK1_IKKepsilon_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF3_TBK1_IKBKE_complex_cell_active","target":"TRAF3_TANK_TBK1_IKKepsilon_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF3_TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"monotonicity_TRAF3_TRAF3_TBK1_IKBKE_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF3","target":"TRAF3_TBK1_IKBKE_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF6_ubiquitinated_MAP3K7:#`{"id":"monotonicity_TRAF6_ubiquitinated_MAP3K7","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF6_ubiquitinated","target":"MAP3K7","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRAF6_ubiquitinated_TAB1_2_TRAF6_TAK1_complex:#`{"id":"monotonicity_TRAF6_ubiquitinated_TAB1_2_TRAF6_TAK1_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRAF6_ubiquitinated","target":"TAB1_2_TRAF6_TAK1_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TREML4_MYD88_TRAM_complex:#`{"id":"monotonicity_TREML4_MYD88_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TREML4","target":"MYD88_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TREML4_STAT1_2_IRF9_complex:#`{"id":"monotonicity_TREML4_STAT1_2_IRF9_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TREML4","target":"STAT1_2_IRF9_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRIF_TLR3_TRIF_complex:#`{"id":"monotonicity_TRIF_TLR3_TRIF_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRIF","target":"TLR3_TRIF_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRIF_TLR4_TRIF_TRAM_complex:#`{"id":"monotonicity_TRIF_TLR4_TRIF_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRIF","target":"TLR4_TRIF_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_TRIM25_DDX58_ubiquitinated:#`{"id":"monotonicity_TRIM25_DDX58_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TRIM25","target":"DDX58_ubiquitinated","value":"Activation","context":null}`#
+#!static_property:monotonicity_TYK2_JAK1_TYK2_complex:#`{"id":"monotonicity_TYK2_JAK1_TYK2_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TYK2","target":"JAK1_TYK2_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Viral_dsRNA_rna_cell_RIG1_MDA5_complex:#`{"id":"monotonicity_Viral_dsRNA_rna_cell_RIG1_MDA5_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Viral_dsRNA_rna_cell","target":"RIG1_MDA5_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Viral_dsRNA_rna_cell_Viral_dsRNA_rna_cell:#`{"id":"monotonicity_Viral_dsRNA_rna_cell_Viral_dsRNA_rna_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Viral_dsRNA_rna_cell","target":"Viral_dsRNA_rna_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_Viral_dsRNA_rna_endosome_MYD88_TRAM_complex:#`{"id":"monotonicity_Viral_dsRNA_rna_endosome_MYD88_TRAM_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Viral_dsRNA_rna_endosome","target":"MYD88_TRAM_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Viral_dsRNA_rna_endosome_TLR3_TRIF_complex:#`{"id":"monotonicity_Viral_dsRNA_rna_endosome_TLR3_TRIF_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Viral_dsRNA_rna_endosome","target":"TLR3_TRIF_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_Viral_replication_phenotype_Viral_dsRNA_rna_cell:#`{"id":"monotonicity_Viral_replication_phenotype_Viral_dsRNA_rna_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"Viral_replication_phenotype","target":"Viral_dsRNA_rna_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa41_IkB_p50_p65_complex_cell_csa42_IkB_p50_p65_complex_cell:#`{"id":"monotonicity_csa41_IkB_p50_p65_complex_cell_csa42_IkB_p50_p65_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa41_IkB_p50_p65_complex_cell","target":"csa42_IkB_p50_p65_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa42_IkB_p50_p65_complex_cell_IkB_phosphorylated:#`{"id":"monotonicity_csa42_IkB_p50_p65_complex_cell_IkB_phosphorylated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa42_IkB_p50_p65_complex_cell","target":"IkB_phosphorylated","value":"Activation","context":null}`#
+#!static_property:monotonicity_csa42_IkB_p50_p65_complex_cell_p50_p65_complex_cell:#`{"id":"monotonicity_csa42_IkB_p50_p65_complex_cell_p50_p65_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"csa42_IkB_p50_p65_complex_cell","target":"p50_p65_complex_cell","value":"Activation","context":null}`#
+#!static_property:monotonicity_p50_p65_complex_cell_p50_p65_complex_nucleus:#`{"id":"monotonicity_p50_p65_complex_cell_p50_p65_complex_nucleus","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"p50_p65_complex_cell","target":"p50_p65_complex_nucleus","value":"Activation","context":null}`#
+#!static_property:monotonicity_p50_p65_complex_nucleus_IFNA1_rna:#`{"id":"monotonicity_p50_p65_complex_nucleus_IFNA1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"p50_p65_complex_nucleus","target":"IFNA1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_p50_p65_complex_nucleus_IFNB1_rna:#`{"id":"monotonicity_p50_p65_complex_nucleus_IFNB1_rna","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"p50_p65_complex_nucleus","target":"IFNB1_rna","value":"Activation","context":null}`#
+#!static_property:monotonicity_p50_p65_complex_nucleus_ISG_expression_antiviral_response_phenotype:#`{"id":"monotonicity_p50_p65_complex_nucleus_ISG_expression_antiviral_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"p50_p65_complex_nucleus","target":"ISG_expression_antiviral_response_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_p50_p65_complex_nucleus_NLRP3_inflammasome_complex:#`{"id":"monotonicity_p50_p65_complex_nucleus_NLRP3_inflammasome_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"p50_p65_complex_nucleus","target":"NLRP3_inflammasome_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_p50_p65_complex_nucleus_Proinflammatory_cytokine_expression_Inflammation_phenotype:#`{"id":"monotonicity_p50_p65_complex_nucleus_Proinflammatory_cytokine_expression_Inflammation_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"p50_p65_complex_nucleus","target":"Proinflammatory_cytokine_expression_Inflammation_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_pp1ab_IRF3_homodimer_complex_cell:#`{"id":"monotonicity_pp1ab_IRF3_homodimer_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"pp1ab","target":"IRF3_homodimer_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_pp1ab_STING1_ubiquitinated:#`{"id":"monotonicity_pp1ab_STING1_ubiquitinated","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"pp1ab","target":"STING1_ubiquitinated","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_pp1ab_TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"monotonicity_pp1ab_TRAF3_TBK1_IKBKE_complex_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"pp1ab","target":"TRAF3_TBK1_IKBKE_complex_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_pp1ab_TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"monotonicity_pp1ab_TRAF3_TBK1_IKBKE_complex_cell_active","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"pp1ab","target":"TRAF3_TBK1_IKBKE_complex_cell_active","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_sa27_IFNB1_extracellular_space_IFNB1_IFNAR_complex:#`{"id":"monotonicity_sa27_IFNB1_extracellular_space_IFNB1_IFNAR_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa27_IFNB1_extracellular_space","target":"IFNB1_IFNAR_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa27_IFNB1_extracellular_space_Viral_dsRNA_rna_cell:#`{"id":"monotonicity_sa27_IFNB1_extracellular_space_Viral_dsRNA_rna_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa27_IFNB1_extracellular_space","target":"Viral_dsRNA_rna_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_sa27_IFNB1_extracellular_space_type_I_IFN_response_phenotype:#`{"id":"monotonicity_sa27_IFNB1_extracellular_space_type_I_IFN_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa27_IFNB1_extracellular_space","target":"type_I_IFN_response_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa31_IFNA1_extracellular_space_IFNA1_IFNAR_complex:#`{"id":"monotonicity_sa31_IFNA1_extracellular_space_IFNA1_IFNAR_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa31_IFNA1_extracellular_space","target":"IFNA1_IFNAR_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa31_IFNA1_extracellular_space_Viral_dsRNA_rna_cell:#`{"id":"monotonicity_sa31_IFNA1_extracellular_space_Viral_dsRNA_rna_cell","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa31_IFNA1_extracellular_space","target":"Viral_dsRNA_rna_cell","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_sa31_IFNA1_extracellular_space_type_I_IFN_response_phenotype:#`{"id":"monotonicity_sa31_IFNA1_extracellular_space_type_I_IFN_response_phenotype","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa31_IFNA1_extracellular_space","target":"type_I_IFN_response_phenotype","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa3_IFNB1_extracellular_space_IFNB1_IFNAR_complex:#`{"id":"monotonicity_sa3_IFNB1_extracellular_space_IFNB1_IFNAR_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa3_IFNB1_extracellular_space","target":"IFNB1_IFNAR_complex","value":"Activation","context":null}`#
+#!static_property:monotonicity_sa5_IFNA1_extracellular_space_IFNA1_IFNAR_complex:#`{"id":"monotonicity_sa5_IFNA1_extracellular_space_IFNA1_IFNAR_complex","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"sa5_IFNA1_extracellular_space","target":"IFNA1_IFNAR_complex","value":"Activation","context":null}`#
+#!variable:AP_1_complex_cell:#`{"id":"AP_1_complex_cell","name":"AP_1_complex_cell","annotation":"","update_fn":""}`#
+#!variable:AP_1_complex_nucleus:#`{"id":"AP_1_complex_nucleus","name":"AP_1_complex_nucleus","annotation":"","update_fn":"AP_1_complex_cell"}`#
+#!variable:Azithromycin_drug:#`{"id":"Azithromycin_drug","name":"Azithromycin_drug","annotation":"","update_fn":""}`#
+#!variable:DDX58_ubiquitinated:#`{"id":"DDX58_ubiquitinated","name":"DDX58_ubiquitinated","annotation":"","update_fn":"(TRIM25 | RNF135 | Azithromycin_drug) & !N & !Nsp5"}`#
+#!variable:E:#`{"id":"E","name":"E","annotation":"","update_fn":""}`#
+#!variable:EIF2AK:#`{"id":"EIF2AK","name":"EIF2AK","annotation":"","update_fn":"EIF2AK_rna | !Nsp15"}`#
+#!variable:EIF2AK_rna:#`{"id":"EIF2AK_rna","name":"EIF2AK_rna","annotation":"","update_fn":"ISRE_complex & IRF3_homodimer_complex_nucleus"}`#
+#!variable:FOS:#`{"id":"FOS","name":"FOS","annotation":"","update_fn":""}`#
+#!variable:GRL0617_drug:#`{"id":"GRL0617_drug","name":"GRL0617_drug","annotation":"","update_fn":""}`#
+#!variable:IFIH1:#`{"id":"IFIH1","name":"IFIH1","annotation":"","update_fn":"Azithromycin_drug & !Nsp15"}`#
+#!variable:IFNA1_IFNAR_complex:#`{"id":"IFNA1_IFNAR_complex","name":"IFNA1_IFNAR_complex","annotation":"","update_fn":"IFNAR_complex & sa5_IFNA1_extracellular_space & sa31_IFNA1_extracellular_space"}`#
+#!variable:IFNA1_cell:#`{"id":"IFNA1_cell","name":"IFNA1_cell","annotation":"","update_fn":"IFNA1_rna"}`#
+#!variable:IFNA1_rna:#`{"id":"IFNA1_rna","name":"IFNA1_rna","annotation":"","update_fn":"AP_1_complex_nucleus & p50_p65_complex_nucleus & IRF7_homodimer_complex"}`#
+#!variable:IFNAR_complex:#`{"id":"IFNAR_complex","name":"IFNAR_complex","annotation":"","update_fn":""}`#
+#!variable:IFNB1_IFNAR_complex:#`{"id":"IFNB1_IFNAR_complex","name":"IFNB1_IFNAR_complex","annotation":"","update_fn":"IFNAR_complex & sa3_IFNB1_extracellular_space & sa27_IFNB1_extracellular_space"}`#
+#!variable:IFNB1_cell:#`{"id":"IFNB1_cell","name":"IFNB1_cell","annotation":"","update_fn":"IFNB1_rna"}`#
+#!variable:IFNB1_rna:#`{"id":"IFNB1_rna","name":"IFNB1_rna","annotation":"","update_fn":"AP_1_complex_nucleus & p50_p65_complex_nucleus & IRF3_homodimer_complex_nucleus & IRF7_homodimer_complex & Azithromycin_drug"}`#
+#!variable:IKBKE:#`{"id":"IKBKE","name":"IKBKE","annotation":"","update_fn":"TBK1 & !Nsp3"}`#
+#!variable:IKKa:#`{"id":"IKKa","name":"IKKa","annotation":"","update_fn":""}`#
+#!variable:IKKa_IKKb_NEMO_complex:#`{"id":"IKKa_IKKb_NEMO_complex","name":"IKKa_IKKb_NEMO_complex","annotation":"","update_fn":"NEMO & IKKa & IKKb & TAB1_2_TRAF6_TAK1_complex"}`#
+#!variable:IKKb:#`{"id":"IKKb","name":"IKKb","annotation":"","update_fn":""}`#
+#!variable:IRAK1_4:#`{"id":"IRAK1_4","name":"IRAK1_4","annotation":"","update_fn":""}`#
+#!variable:IRF3:#`{"id":"IRF3","name":"IRF3","annotation":"","update_fn":""}`#
+#!variable:IRF3_homodimer_complex_cell:#`{"id":"IRF3_homodimer_complex_cell","name":"IRF3_homodimer_complex_cell","annotation":"","update_fn":"(MAVS | TRAF3_TANK_TBK1_IKKepsilon_complex) & IRF3 & !Nsp3 & !N & !Orf8_complex & !Orf6 & !pp1ab & !Nsp6 & !Nsp15"}`#
+#!variable:IRF3_homodimer_complex_nucleus:#`{"id":"IRF3_homodimer_complex_nucleus","name":"IRF3_homodimer_complex_nucleus","annotation":"","update_fn":"IRF3_homodimer_complex_cell & !Orf6"}`#
+#!variable:IRF7:#`{"id":"IRF7","name":"IRF7","annotation":"","update_fn":""}`#
+#!variable:IRF7_homodimer_complex:#`{"id":"IRF7_homodimer_complex","name":"IRF7_homodimer_complex","annotation":"","update_fn":"IRF7 & TRAF3_TANK_TBK1_IKKepsilon_complex"}`#
+#!variable:IRF9:#`{"id":"IRF9","name":"IRF9","annotation":"","update_fn":""}`#
+#!variable:ISG15:#`{"id":"ISG15","name":"ISG15","annotation":"","update_fn":"ISG15_rna"}`#
+#!variable:ISG15_Nsp3_complex:#`{"id":"ISG15_Nsp3_complex","name":"ISG15_Nsp3_complex","annotation":"","update_fn":"ISG15 & Nsp3 & !GRL0617_drug"}`#
+#!variable:ISG15_rna:#`{"id":"ISG15_rna","name":"ISG15_rna","annotation":"","update_fn":"ISRE_complex"}`#
+#!variable:ISG_expression_antiviral_response_phenotype:#`{"id":"ISG_expression_antiviral_response_phenotype","name":"ISG_expression_antiviral_response_phenotype","annotation":"","update_fn":"p50_p65_complex_nucleus | OAS1_EIF2AK_complex | !Nsp3 | ISG15 | Azithromycin_drug"}`#
+#!variable:ISRE_complex:#`{"id":"ISRE_complex","name":"ISRE_complex","annotation":"","update_fn":"STAT1_2_IRF9_complex & !Orf6"}`#
+#!variable:ITCH:#`{"id":"ITCH","name":"ITCH","annotation":"","update_fn":"Orf9b"}`#
+#!variable:IkB:#`{"id":"IkB","name":"IkB","annotation":"","update_fn":""}`#
+#!variable:IkB_phosphorylated:#`{"id":"IkB_phosphorylated","name":"IkB_phosphorylated","annotation":"","update_fn":"csa42_IkB_p50_p65_complex_cell"}`#
+#!variable:JAK1:#`{"id":"JAK1","name":"JAK1","annotation":"","update_fn":""}`#
+#!variable:JAK1_TYK2_complex:#`{"id":"JAK1_TYK2_complex","name":"JAK1_TYK2_complex","annotation":"","update_fn":""}`#
+#!variable:JUN:#`{"id":"JUN","name":"JUN","annotation":"","update_fn":""}`#
+#!variable:M:#`{"id":"M","name":"M","annotation":"","update_fn":""}`#
+#!variable:MAP3K7:#`{"id":"MAP3K7","name":"MAP3K7","annotation":"","update_fn":"TRAF6_ubiquitinated"}`#
+#!variable:MAPK14:#`{"id":"MAPK14","name":"MAPK14","annotation":"","update_fn":""}`#
+#!variable:MAPK8:#`{"id":"MAPK8","name":"MAPK8","annotation":"","update_fn":""}`#
+#!variable:MAPK8_14_complex:#`{"id":"MAPK8_14_complex","name":"MAPK8_14_complex","annotation":"","update_fn":"(TBK1 | MAP3K7) & MAPK14 & MAPK8"}`#
+#!variable:MAVS:#`{"id":"MAVS","name":"MAVS","annotation":"","update_fn":"RIG1_MDA5_complex & !Orf9b & !ITCH"}`#
+#!variable:MNS_drug:#`{"id":"MNS_drug","name":"MNS_drug","annotation":"","update_fn":""}`#
+#!variable:MYD88:#`{"id":"MYD88","name":"MYD88","annotation":"","update_fn":""}`#
+#!variable:MYD88_TRAM_complex:#`{"id":"MYD88_TRAM_complex","name":"MYD88_TRAM_complex","annotation":"","update_fn":"(TREML4 | TLR7 | TLR9 | Viral_dsRNA_rna_endosome) & MYD88 & IRAK1_4"}`#
+#!variable:N:#`{"id":"N","name":"N","annotation":"","update_fn":""}`#
+#!variable:NAP1:#`{"id":"NAP1","name":"NAP1","annotation":"","update_fn":"TLR4_TRIF_TRAM_complex"}`#
+#!variable:NEMO:#`{"id":"NEMO","name":"NEMO","annotation":"","update_fn":""}`#
+#!variable:NFKB1:#`{"id":"NFKB1","name":"NFKB1","annotation":"","update_fn":""}`#
+#!variable:NLRP3_inflammasome_complex:#`{"id":"NLRP3_inflammasome_complex","name":"NLRP3_inflammasome_complex","annotation":"","update_fn":"(E | p50_p65_complex_nucleus) & !MNS_drug"}`#
+#!variable:Nsp1:#`{"id":"Nsp1","name":"Nsp1","annotation":"","update_fn":""}`#
+#!variable:Nsp10:#`{"id":"Nsp10","name":"Nsp10","annotation":"","update_fn":""}`#
+#!variable:Nsp13:#`{"id":"Nsp13","name":"Nsp13","annotation":"","update_fn":""}`#
+#!variable:Nsp14:#`{"id":"Nsp14","name":"Nsp14","annotation":"","update_fn":""}`#
+#!variable:Nsp15:#`{"id":"Nsp15","name":"Nsp15","annotation":"","update_fn":""}`#
+#!variable:Nsp16:#`{"id":"Nsp16","name":"Nsp16","annotation":"","update_fn":""}`#
+#!variable:Nsp3:#`{"id":"Nsp3","name":"Nsp3","annotation":"","update_fn":""}`#
+#!variable:Nsp5:#`{"id":"Nsp5","name":"Nsp5","annotation":"","update_fn":""}`#
+#!variable:Nsp6:#`{"id":"Nsp6","name":"Nsp6","annotation":"","update_fn":""}`#
+#!variable:OAS1_EIF2AK_complex:#`{"id":"OAS1_EIF2AK_complex","name":"OAS1_EIF2AK_complex","annotation":"","update_fn":"OAS1_cell_active & OAS3_cell_active & EIF2AK & OAS2_cell_active"}`#
+#!variable:OAS1_cell:#`{"id":"OAS1_cell","name":"OAS1_cell","annotation":"","update_fn":"OAS1_rna"}`#
+#!variable:OAS1_cell_active:#`{"id":"OAS1_cell_active","name":"OAS1_cell_active","annotation":"","update_fn":"OAS1_cell & !Nsp15"}`#
+#!variable:OAS1_rna:#`{"id":"OAS1_rna","name":"OAS1_rna","annotation":"","update_fn":"ISRE_complex & IRF3_homodimer_complex_nucleus"}`#
+#!variable:OAS2_cell:#`{"id":"OAS2_cell","name":"OAS2_cell","annotation":"","update_fn":"OAS2_rna"}`#
+#!variable:OAS2_cell_active:#`{"id":"OAS2_cell_active","name":"OAS2_cell_active","annotation":"","update_fn":"OAS2_cell & !Nsp15"}`#
+#!variable:OAS2_rna:#`{"id":"OAS2_rna","name":"OAS2_rna","annotation":"","update_fn":"ISRE_complex & IRF3_homodimer_complex_nucleus"}`#
+#!variable:OAS3_cell:#`{"id":"OAS3_cell","name":"OAS3_cell","annotation":"","update_fn":"OAS3_rna"}`#
+#!variable:OAS3_cell_active:#`{"id":"OAS3_cell_active","name":"OAS3_cell_active","annotation":"","update_fn":"OAS3_cell & !Nsp15"}`#
+#!variable:OAS3_rna:#`{"id":"OAS3_rna","name":"OAS3_rna","annotation":"","update_fn":"ISRE_complex & IRF3_homodimer_complex_nucleus"}`#
+#!variable:Orf3a:#`{"id":"Orf3a","name":"Orf3a","annotation":"","update_fn":""}`#
+#!variable:Orf6:#`{"id":"Orf6","name":"Orf6","annotation":"","update_fn":""}`#
+#!variable:Orf7a:#`{"id":"Orf7a","name":"Orf7a","annotation":"","update_fn":""}`#
+#!variable:Orf7b:#`{"id":"Orf7b","name":"Orf7b","annotation":"","update_fn":""}`#
+#!variable:Orf8_complex:#`{"id":"Orf8_complex","name":"Orf8_complex","annotation":"","update_fn":""}`#
+#!variable:Orf9b:#`{"id":"Orf9b","name":"Orf9b","annotation":"","update_fn":""}`#
+#!variable:Proinflammatory_cytokine_expression_Inflammation_phenotype:#`{"id":"Proinflammatory_cytokine_expression_Inflammation_phenotype","name":"Proinflammatory_cytokine_expression_Inflammation_phenotype","annotation":"","update_fn":"p50_p65_complex_nucleus | NLRP3_inflammasome_complex"}`#
+#!variable:RELA:#`{"id":"RELA","name":"RELA","annotation":"","update_fn":""}`#
+#!variable:RIG1_MDA5_complex:#`{"id":"RIG1_MDA5_complex","name":"RIG1_MDA5_complex","annotation":"","update_fn":"DDX58_ubiquitinated & IFIH1 & Viral_dsRNA_rna_cell & !N & !Nsp10 & !Nsp14 & !Nsp16 & !Nsp15 & !M & !Nsp15"}`#
+#!variable:RIP1:#`{"id":"RIP1","name":"RIP1","annotation":"","update_fn":""}`#
+#!variable:RNF135:#`{"id":"RNF135","name":"RNF135","annotation":"","update_fn":""}`#
+#!variable:STAT1_2_IRF9_complex:#`{"id":"STAT1_2_IRF9_complex","name":"STAT1_2_IRF9_complex","annotation":"","update_fn":"(TREML4 | JAK1_TYK2_complex) & STAT1_phosphorylated & IRF9 & STAT2_phosphorylated & !Orf6 & !Nsp5"}`#
+#!variable:STAT1_phosphorylated:#`{"id":"STAT1_phosphorylated","name":"STAT1_phosphorylated","annotation":"","update_fn":"!Nsp1 & !Orf7b & !Orf3a & !M & !Nsp6 & !Nsp13"}`#
+#!variable:STAT2_phosphorylated:#`{"id":"STAT2_phosphorylated","name":"STAT2_phosphorylated","annotation":"","update_fn":""}`#
+#!variable:STING1_ubiquitinated:#`{"id":"STING1_ubiquitinated","name":"STING1_ubiquitinated","annotation":"","update_fn":"MAVS & !pp1ab"}`#
+#!variable:TAB1:#`{"id":"TAB1","name":"TAB1","annotation":"","update_fn":""}`#
+#!variable:TAB1_2_TRAF6_TAK1_complex:#`{"id":"TAB1_2_TRAF6_TAK1_complex","name":"TAB1_2_TRAF6_TAK1_complex","annotation":"","update_fn":"TAB1 & TAB2 & TRAF6_ubiquitinated & TAK1 & TLR3_TRIF_RIPK1_complex"}`#
+#!variable:TAB2:#`{"id":"TAB2","name":"TAB2","annotation":"","update_fn":""}`#
+#!variable:TAK1:#`{"id":"TAK1","name":"TAK1","annotation":"","update_fn":""}`#
+#!variable:TANK:#`{"id":"TANK","name":"TANK","annotation":"","update_fn":""}`#
+#!variable:TBK1:#`{"id":"TBK1","name":"TBK1","annotation":"","update_fn":"(IKBKE | STING1_ubiquitinated | MAVS) & !Nsp13"}`#
+#!variable:TBK1_IKBKE_complex:#`{"id":"TBK1_IKBKE_complex","name":"TBK1_IKBKE_complex","annotation":"","update_fn":"(TRAF3 | NAP1 | Azithromycin_drug) & TBK1 & IKBKE & !Nsp3"}`#
+#!variable:TLR3_TRIF_RIPK1_complex:#`{"id":"TLR3_TRIF_RIPK1_complex","name":"TLR3_TRIF_RIPK1_complex","annotation":"","update_fn":"TLR3_TRIF_complex & RIP1"}`#
+#!variable:TLR3_TRIF_complex:#`{"id":"TLR3_TRIF_complex","name":"TLR3_TRIF_complex","annotation":"","update_fn":"(Viral_dsRNA_rna_endosome | Azithromycin_drug) & TRIF"}`#
+#!variable:TLR4_TRIF_TRAM_complex:#`{"id":"TLR4_TRIF_TRAM_complex","name":"TLR4_TRIF_TRAM_complex","annotation":"","update_fn":"IRAK1_4 & TRIF"}`#
+#!variable:TLR7:#`{"id":"TLR7","name":"TLR7","annotation":"","update_fn":""}`#
+#!variable:TLR9:#`{"id":"TLR9","name":"TLR9","annotation":"","update_fn":""}`#
+#!variable:TRAF3:#`{"id":"TRAF3","name":"TRAF3","annotation":"","update_fn":"MYD88_TRAM_complex & !Nsp3"}`#
+#!variable:TRAF3_TANK_TBK1_IKKepsilon_complex:#`{"id":"TRAF3_TANK_TBK1_IKKepsilon_complex","name":"TRAF3_TANK_TBK1_IKKepsilon_complex","annotation":"","update_fn":"(TLR3_TRIF_complex | MAVS) & TRAF3_TBK1_IKBKE_complex_cell_active & TANK & !M"}`#
+#!variable:TRAF3_TBK1_IKBKE_complex_cell:#`{"id":"TRAF3_TBK1_IKBKE_complex_cell","name":"TRAF3_TBK1_IKBKE_complex_cell","annotation":"","update_fn":"TBK1_IKBKE_complex & TRAF3 & !pp1ab"}`#
+#!variable:TRAF3_TBK1_IKBKE_complex_cell_active:#`{"id":"TRAF3_TBK1_IKBKE_complex_cell_active","name":"TRAF3_TBK1_IKBKE_complex_cell_active","annotation":"","update_fn":"TRAF3_TBK1_IKBKE_complex_cell & STING1_ubiquitinated & !pp1ab"}`#
+#!variable:TRAF6_ubiquitinated:#`{"id":"TRAF6_ubiquitinated","name":"TRAF6_ubiquitinated","annotation":"","update_fn":"MYD88_TRAM_complex & !Nsp3 & !ITCH"}`#
+#!variable:TREML4:#`{"id":"TREML4","name":"TREML4","annotation":"","update_fn":""}`#
+#!variable:TRIF:#`{"id":"TRIF","name":"TRIF","annotation":"","update_fn":""}`#
+#!variable:TRIM25:#`{"id":"TRIM25","name":"TRIM25","annotation":"","update_fn":""}`#
+#!variable:TYK2:#`{"id":"TYK2","name":"TYK2","annotation":"","update_fn":""}`#
+#!variable:Viral_dsRNA_rna_cell:#`{"id":"Viral_dsRNA_rna_cell","name":"Viral_dsRNA_rna_cell","annotation":"","update_fn":"Viral_dsRNA_rna_cell & Viral_replication_phenotype & !sa31_IFNA1_extracellular_space & !sa27_IFNB1_extracellular_space"}`#
+#!variable:Viral_dsRNA_rna_endosome:#`{"id":"Viral_dsRNA_rna_endosome","name":"Viral_dsRNA_rna_endosome","annotation":"","update_fn":""}`#
+#!variable:Viral_replication_phenotype:#`{"id":"Viral_replication_phenotype","name":"Viral_replication_phenotype","annotation":"","update_fn":""}`#
+#!variable:csa41_IkB_p50_p65_complex_cell:#`{"id":"csa41_IkB_p50_p65_complex_cell","name":"csa41_IkB_p50_p65_complex_cell","annotation":"","update_fn":"RELA & NFKB1 & IkB"}`#
+#!variable:csa42_IkB_p50_p65_complex_cell:#`{"id":"csa42_IkB_p50_p65_complex_cell","name":"csa42_IkB_p50_p65_complex_cell","annotation":"","update_fn":"csa41_IkB_p50_p65_complex_cell & IKKa_IKKb_NEMO_complex"}`#
+#!variable:p50_p65_complex_cell:#`{"id":"p50_p65_complex_cell","name":"p50_p65_complex_cell","annotation":"","update_fn":"csa42_IkB_p50_p65_complex_cell"}`#
+#!variable:p50_p65_complex_nucleus:#`{"id":"p50_p65_complex_nucleus","name":"p50_p65_complex_nucleus","annotation":"","update_fn":"p50_p65_complex_cell"}`#
+#!variable:pp1ab:#`{"id":"pp1ab","name":"pp1ab","annotation":"","update_fn":""}`#
+#!variable:sa27_IFNB1_extracellular_space:#`{"id":"sa27_IFNB1_extracellular_space","name":"sa27_IFNB1_extracellular_space","annotation":"","update_fn":"IFNB1_cell"}`#
+#!variable:sa31_IFNA1_extracellular_space:#`{"id":"sa31_IFNA1_extracellular_space","name":"sa31_IFNA1_extracellular_space","annotation":"","update_fn":"IFNA1_cell"}`#
+#!variable:sa3_IFNB1_extracellular_space:#`{"id":"sa3_IFNB1_extracellular_space","name":"sa3_IFNB1_extracellular_space","annotation":"","update_fn":""}`#
+#!variable:sa5_IFNA1_extracellular_space:#`{"id":"sa5_IFNA1_extracellular_space","name":"sa5_IFNA1_extracellular_space","annotation":"","update_fn":""}`#
+#!variable:type_I_IFN_response_phenotype:#`{"id":"type_I_IFN_response_phenotype","name":"type_I_IFN_response_phenotype","annotation":"","update_fn":"sa31_IFNA1_extracellular_space | sa27_IFNB1_extracellular_space"}`#
