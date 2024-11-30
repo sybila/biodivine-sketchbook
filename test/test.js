@@ -25,7 +25,7 @@ let driver;
 // Keep track of the Tauri driver process
 let tauriDriver;
 
-before(async function () {
+beforeEach(async function () {
   // Set timeout to 5 minutes to allow the program to build if needed
   this.timeout(300000);
 
@@ -37,7 +37,7 @@ before(async function () {
   tauriDriver = spawn(
     path.resolve(os.homedir(), '.cargo', 'bin', 'tauri-driver'),
     [],
-    { stdio: [null, process.stdout, process.stderr] }
+    { stdio: 'ignore' }
   );
 
   const capabilities = new Capabilities();
@@ -54,7 +54,7 @@ before(async function () {
     .build();
 });
 
-after(async function () {
+afterEach(async function () {
   // Stop the WebDriver session
   await driver.quit();
 
@@ -80,10 +80,23 @@ async function findInShadowRoot(element, selector, driver) {
   );
 }
 
+/** Utility to open the example model from the signpost page. This is a common start
+ * for multiple tests.
+ */
+async function openExampleModel(driver, rootComponent) {
+    // find and click on button to open example model
+    const initialScreenComponent = await findInShadowRoot(rootComponent, "initial-screen", driver);
+    const loadExamplebutton = await findInShadowRoot(initialScreenComponent, '#load-example-button', driver);
+    const loadButtonText = await loadExamplebutton.getText();
+    expect(loadButtonText).to.match(/OPEN EXAMPLE/);
+    await driver.executeScript("arguments[0].click();", loadExamplebutton);
+    await sleep(500);
+}
+
 describe('Basic walkthrough test', () => {
   it('welcome message test', async () => {
     // Waiting for the app to fully initialize...
-    await sleep(500);
+    await sleep(750);
 
     const rootComponent = await driver.findElement(By.css("root-component"));
     const initialScreenComponent = await findInShadowRoot(rootComponent, "initial-screen", driver);
@@ -94,21 +107,15 @@ describe('Basic walkthrough test', () => {
   });
   it('Example inference walkthrough', async () => {
     // Waiting for the app to fully initialize...
-    await sleep(500);
+    await sleep(750);
 
     // check we have one window opened
     const originalWindow = await driver.getWindowHandle();
     expect((await driver.getAllWindowHandles()).length).to.equal(1);
-
-    // find and click on button to open example model
     const rootComponent = await driver.findElement(By.css("root-component"));
-    const initialScreenComponent = await findInShadowRoot(rootComponent, "initial-screen", driver);
-    const loadExamplebutton = await findInShadowRoot(initialScreenComponent, '#load-example-button', driver);
-    const loadButtonText = await loadExamplebutton.getText();
-    expect(loadButtonText).to.match(/OPEN EXAMPLE/);
-    await driver.executeScript("arguments[0].click();", loadExamplebutton);
 
-    await sleep(500);
+    await openExampleModel(driver, rootComponent)
+
     // find and click on button to open analysis tab
     const navBarComponent = await findInShadowRoot(rootComponent, "nav-bar", driver);
     const tabBarComponent = await findInShadowRoot(navBarComponent, "tab-bar", driver);
@@ -151,5 +158,34 @@ describe('Basic walkthrough test', () => {
     const resultsMessageElem = await findInShadowRoot(analysisComponent, ".overview-message", driver);
     const resultsMessageText = await resultsMessageElem.getText();
     expect(resultsMessageText).to.include("Number of satisfying candidates: 1296");
+  });
+  it('Example consistency check', async () => {
+    // Waiting for the app to fully initialize...
+    await sleep(750);
+    const rootComponent = await driver.findElement(By.css("root-component"));
+    await openExampleModel(driver, rootComponent)
+
+    // find and click on button to open analysis tab
+    const navBarComponent = await findInShadowRoot(rootComponent, "nav-bar", driver);
+    const tabBarComponent = await findInShadowRoot(navBarComponent, "tab-bar", driver);
+    const analysisButton = await findInShadowRoot(tabBarComponent, 'button:last-of-type', driver);
+    const analysisButtonText = await analysisButton.getText();
+    expect(analysisButtonText).to.match(/ANALYSIS/);
+    await driver.executeScript("arguments[0].click();", analysisButton);
+
+    await sleep(500);
+    // find and  click on button to open inference window
+    const contentPaneComponent = await findInShadowRoot(rootComponent, "#analysis", driver);
+    const analysisTab = await findInShadowRoot(contentPaneComponent, "analysis-tab", driver);
+    const consistencyCheckButton = await findInShadowRoot(analysisTab, '#consistency-check-button', driver);
+    const consistencyCheckButtonText = await consistencyCheckButton.getText();
+    expect(consistencyCheckButtonText).to.match(/RUN CONSISTENCY CHECK/);
+    await driver.executeScript("arguments[0].click();", consistencyCheckButton);
+
+    await sleep(500);
+    // find the text area with the consistency check results
+    const consistencyCheckArea = await findInShadowRoot(analysisTab, 'textarea', driver);
+    const consistencyCheckAreaText = await consistencyCheckArea.getText();
+    expect(consistencyCheckAreaText).to.match(/No issues with the sketch were discovered!/);
   });
 });

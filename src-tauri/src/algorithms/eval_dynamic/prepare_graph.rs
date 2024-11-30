@@ -86,7 +86,7 @@ pub fn get_ts_extended_symbolic_graph(
     bn: &BooleanNetwork,
     unit: Option<(&Bdd, &SymbolicContext)>,
 ) -> Result<(SymbolicSpaceContext, SymbolicAsyncGraph), String> {
-    let context: SymbolicSpaceContext = SymbolicSpaceContext::new(bn);
+    let context = SymbolicSpaceContext::new(bn);
     let graph = SymbolicAsyncGraph::with_space_context(bn, &context)?;
 
     // if we have some previous unit set restriction, lets transfer it to new context and use it
@@ -101,4 +101,50 @@ pub fn get_ts_extended_symbolic_graph(
 
     let new_unit_set = GraphColoredVertices::new(new_unit_bdd, context.inner_context());
     Ok((context, graph.restrict(&new_unit_set)))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+    use std::vec;
+
+    use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
+    use biodivine_lib_param_bn::BooleanNetwork;
+
+    use crate::algorithms::eval_dynamic::prepare_graph::{
+        get_hctl_extended_symbolic_graph, prepare_graph_for_dynamic_hctl,
+    };
+    use crate::algorithms::eval_dynamic::processed_props::ProcessedDynProp;
+
+    #[test]
+    /// Test automatic generation of symbolic context for HCTL properties.
+    fn test_prepare_context_hctl() {
+        let bn = BooleanNetwork::try_from("a -> a").unwrap();
+        let canonical_context = SymbolicContext::new(&bn).unwrap();
+        let canonical_unit = canonical_context.mk_constant(true);
+
+        // we'll use 1 HCTL variable
+        let var_a = bn.as_graph().find_variable("a").unwrap();
+        let hctl_vars_map = HashMap::from([(var_a, 1)]);
+        let hctl_context =
+            SymbolicContext::with_extra_state_variables(&bn, &hctl_vars_map).unwrap();
+
+        // test manual HCTL graph creation
+        let hctl_unit = hctl_context.mk_constant(true);
+        let graph_hctl_expected =
+            SymbolicAsyncGraph::with_custom_context(&bn, hctl_context.clone(), hctl_unit).unwrap();
+        // a) from scratch
+        let graph_hctl = get_hctl_extended_symbolic_graph(&bn, 1, None).unwrap();
+        assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
+        // b) converting from canonical unit BDD
+        let graph_hctl =
+            get_hctl_extended_symbolic_graph(&bn, 1, Some((&canonical_unit, &canonical_context)))
+                .unwrap();
+        assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
+
+        // test deriving HCTL context automatically from property
+        let property_list = vec![ProcessedDynProp::mk_hctl("doesntmatter", "3{x}: AX {x}")];
+        let graph_hctl = prepare_graph_for_dynamic_hctl(&bn, &property_list, None).unwrap();
+        assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
+    }
 }

@@ -66,3 +66,53 @@ pub fn get_fol_extended_symbolic_graph(
 
     SymbolicAsyncGraph::with_custom_context(bn, context, new_unit)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+    use std::vec;
+
+    use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
+    use biodivine_lib_param_bn::BooleanNetwork;
+
+    use crate::algorithms::eval_static::prepare_graph::{
+        get_fol_extended_symbolic_graph, prepare_graph_for_static_fol,
+    };
+    use crate::algorithms::eval_static::processed_props::ProcessedStatProp;
+
+    #[test]
+    /// Test automatic generation of symbolic context for FOL properties.
+    fn test_prepare_context_fol() {
+        let bn = BooleanNetwork::try_from("a -> a").unwrap();
+        let canonical_context = SymbolicContext::new(&bn).unwrap();
+        let canonical_unit = canonical_context.mk_constant(true);
+
+        // we'll use 1 FOL variable
+        let var_a = bn.as_graph().find_variable("a").unwrap();
+        let fol_vars_map = HashMap::from([(var_a, 1)]);
+        let fol_context = SymbolicContext::with_extra_state_variables(&bn, &fol_vars_map).unwrap();
+
+        // test manual FOL graph creation
+        let fol_unit = fol_context.mk_constant(true);
+        let graph_fol_expected =
+            SymbolicAsyncGraph::with_custom_context(&bn, fol_context.clone(), fol_unit).unwrap();
+        // a) from scratch
+        let graph_fol = get_fol_extended_symbolic_graph(&bn, 1, "a", None).unwrap();
+        assert_eq!(graph_fol_expected.unit_colors(), graph_fol.unit_colors());
+        // b) converting from canonical unit BDD
+        let graph_fol = get_fol_extended_symbolic_graph(
+            &bn,
+            1,
+            "a",
+            Some((&canonical_unit, &canonical_context)),
+        )
+        .unwrap();
+        assert_eq!(graph_fol_expected.unit_colors(), graph_fol.unit_colors());
+
+        // test FOL graph creation automatically from property
+        let fol_prop = ProcessedStatProp::mk_fol("doesntmatter", "3 x: true");
+        let property_list = vec![fol_prop];
+        let graph_fol = prepare_graph_for_static_fol(&bn, &property_list, "a", None).unwrap();
+        assert_eq!(graph_fol_expected.unit_colors(), graph_fol.unit_colors());
+    }
+}

@@ -32,24 +32,6 @@ where
     true
 }
 
-/// Fully compute reachable states from `initial` inside `universe` using transitions under
-/// `variables`.
-#[allow(dead_code)]
-pub fn reach_fwd(
-    graph: &SymbolicAsyncGraph,
-    initial: &GraphColoredVertices,
-    universe: &GraphColoredVertices,
-    variables: &[VariableId],
-) -> GraphColoredVertices {
-    let mut set = initial.clone();
-    loop {
-        if reachability_step(&mut set, universe, variables, |v, s| graph.var_post(v, s)) {
-            break;
-        }
-    }
-    set
-}
-
 /// Fully compute back-reachable states from `initial` inside `universe` using transitions under
 /// `variables`.
 pub fn reach_bwd(

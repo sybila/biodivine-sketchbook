@@ -108,6 +108,14 @@ fn inference_template_trap_space() {
     let property = DynProperty::mk_trap_space(id, Some(data_id), Some(obs_id), false, false, "");
     assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 4);
 
+    // Has 111* essential trap space
+    let sketch = load_test_model();
+    let id = "has_111X_ets";
+    let data_id = sketch.observations.get_dataset_id("data_mts").unwrap();
+    let obs_id = sketch.observations.get_obs_id("data_mts", "abc").unwrap();
+    let property = DynProperty::mk_trap_space(id, Some(data_id), Some(obs_id), false, true, "");
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 4);
+
     // Has 111* minimal trap space
     let sketch = load_test_model();
     let id = "has_111X_mts";

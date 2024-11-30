@@ -1,6 +1,5 @@
-use crate::analysis::inference_results::InferenceResults;
 use crate::analysis::inference_solver::FinishedInferenceSolver;
-use crate::analysis::update_fn_details::{get_update_fn_variants, MAX_UPDATE_FN_COUNT};
+use crate::analysis::update_fn_details::get_update_fn_variants;
 use crate::sketchbook::Sketch;
 
 use std::fs::File;
@@ -45,7 +44,7 @@ pub fn export_results(
     write_to_zip("derived_model.aeon", &mut zip_writer, bn_model_aeon)?;
 
     // write the report
-    let formatted_report = format_inference_results(&finished_solver.results);
+    let formatted_report = finished_solver.results.format_to_report();
     write_to_zip("report.txt", &mut zip_writer, formatted_report)?;
 
     // create directory with update function variants per variable
@@ -81,49 +80,6 @@ fn write_to_zip(
         .map_err(|e| format!("{e:?}"))?;
     write!(zip_writer, "{file_content}").map_err(|e| format!("{e:?}"))?;
     Ok(())
-}
-
-/// Prepare a formated summary of inference results, basically a "report" on the
-/// computation progress and results.
-fn format_inference_results(results: &InferenceResults) -> String {
-    let mut output = String::new();
-
-    output.push_str(&format!(
-        "Number of satisfying candidates: {}\n",
-        results.num_sat_networks
-    ));
-    output.push_str(&format!(
-        "Computation time: {} milliseconds\n\n",
-        results.comp_time
-    ));
-    output.push_str("--------------\n");
-    output.push_str("Extended summary:\n");
-    output.push_str("--------------\n");
-    output.push_str(&format!("{}\n", results.summary_message));
-
-    output.push_str("--------------\n");
-    output.push_str("Number of admissible update functions per variable:\n");
-    output.push_str("--------------\n");
-    let mut sorted_vars: Vec<_> = results.num_update_fns_per_var.iter().collect();
-    sorted_vars.sort_by_key(|&(var, _)| var);
-    for (var, &count) in sorted_vars {
-        let count_display = if count >= MAX_UPDATE_FN_COUNT {
-            format!("more than {MAX_UPDATE_FN_COUNT}")
-        } else {
-            count.to_string()
-        };
-        output.push_str(&format!("{}: {}\n", var, count_display));
-    }
-
-    output.push_str("--------------\n");
-    output.push_str("Detailed progress report:\n");
-    output.push_str("--------------\n");
-    for report in &results.progress_statuses {
-        output.push_str(&report.message);
-        output.push('\n');
-    }
-
-    output
 }
 
 /// For a given variable, get all valid interpretations of its update function present in the

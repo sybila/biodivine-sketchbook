@@ -388,3 +388,38 @@ impl SessionState for AnalysisState {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::analysis::analysis_state::AnalysisState;
+    use crate::analysis::inference_type::InferenceType::*;
+    use crate::sketchbook::Sketch;
+
+    #[test]
+    /// Test basic manipulation with Analysis state.
+    ///
+    /// We only tests the basics, as the computation itself requires running async functions
+    /// which cant be tested easily. We use end-to-end tests for that.
+    fn test_analysis_state_basics() {
+        let sketch = Sketch::default();
+        let mut analysis_state = AnalysisState::new(sketch.clone());
+
+        let sketch_copy = analysis_state.get_sketch();
+        assert_eq!(&sketch, sketch_copy);
+
+        // check that there are no results at the start, and that we cant
+        assert!(analysis_state.get_results().is_err());
+        // check that we cant get any progress or fetch results as there is no computation
+        assert_eq!(analysis_state.try_fetch_results(), false);
+        assert!(analysis_state.try_get_solver_progress().is_err());
+
+        // check that analysis on empty sketch fails
+        let result = analysis_state.start_analysis(DynamicInference);
+        assert!(result.is_err());
+
+        // set new non-empty sketch data
+        let valid_sketch = Sketch::from_aeon("a -> a").unwrap();
+        analysis_state.set_sketch(valid_sketch);
+        assert_eq!(analysis_state.get_sketch().model.num_vars(), 1)
+    }
+}
