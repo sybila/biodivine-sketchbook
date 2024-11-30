@@ -7,6 +7,7 @@ license = "MIT"
 repository = "https://github.com/sybila/biodivine-sketchbook"
 edition = "2021"
 readme = "README.md"
+default-run = "biodivine-sketchbook"
 
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
@@ -14,6 +15,10 @@ tauri-build = { version = "1.5", features = [] }
 [[bin]]
 name = "run-inference"
 path = "src/bin/run_inference.rs"
+
+[[bin]]
+name = "biodivine-sketchbook"
+path = "src/main.rs"
 
 [dependencies]
 biodivine-lib-bdd = ">=0.5.22, <1.0.0"
