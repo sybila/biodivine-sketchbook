@@ -79,3 +79,9 @@ We also utilize an end-to-end Selenium-based testing framework. Note that these 
 You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. 
 To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 10000`). 
 The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.
+
+### Benchmarks
+
+The benchmark models, results, and more details are in `data/benchmarks`. 
+There is also a README with further instructions, you can follow it.
+Tldr, to run the performance benchmarks, you can use python and execute them all with `python3 run_performance_eval.py`.

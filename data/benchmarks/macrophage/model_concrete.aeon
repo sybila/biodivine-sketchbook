@@ -1,0 +1,854 @@
+$IPARP:(PARP & (CASP7nucleus | CASP3nucleus))
+CASP7nucleus -> IPARP
+CASP3nucleus -> IPARP
+PARP -> IPARP
+$Inactive_DNA_Repair:IPARP
+IPARP -> Inactive_DNA_Repair
+$TRADD:External_Activator
+External_Activator -> TRADD
+$TNF_TNFRSF1A_FADD_TRADD:(TNF_TNFRSF1A & (TRADD & FADD))
+TRADD -> TNF_TNFRSF1A_FADD_TRADD
+FADD -> TNF_TNFRSF1A_FADD_TRADD
+TNF_TNFRSF1A -> TNF_TNFRSF1A_FADD_TRADD
+$FADD:External_Activator
+External_Activator -> FADD
+$TNF_TNFRSF1A:TNF_BAG4_TNFRSF1A
+TNF_BAG4_TNFRSF1A -> TNF_TNFRSF1A
+$TNFRSF1B:External_Activator
+External_Activator -> TNFRSF1B
+$TNF_TNFRSF1B:(TNF & TNFRSF1B)
+TNFRSF1B -> TNF_TNFRSF1B
+TNF -> TNF_TNFRSF1B
+$TNF:true
+$External_Activator:true
+$PRKRA:External_Activator
+External_Activator -> PRKRA
+$TICAM1:External_Activator
+External_Activator -> TICAM1
+$TLR4_TICAM1_TICAM2:(TLR4 & (TICAM1 & TICAM2))
+TICAM1 -> TLR4_TICAM1_TICAM2
+TLR4 -> TLR4_TICAM1_TICAM2
+TICAM2 -> TLR4_TICAM1_TICAM2
+$TLR4:LPS
+LPS -> TLR4
+$TICAM2:External_Activator
+External_Activator -> TICAM2
+$BAK1:Mitochondrial_Activator
+Mitochondrial_Activator -> BAK1
+$DIABLOcytoplasm:(DIABLOmitochondria & ((BAK1 | tBID) | BAX))
+BAK1 -> DIABLOcytoplasm
+DIABLOmitochondria -> DIABLOcytoplasm
+tBID -> DIABLOcytoplasm
+BAX -> DIABLOcytoplasm
+$DIABLOmitochondria:Mitochondrial_Activator
+Mitochondrial_Activator -> DIABLOmitochondria
+$tBID:(BID & (CASP2 | CASP8))
+BID -> tBID
+CASP2 -> tBID
+CASP8 -> tBID
+$BAX:Mitochondrial_Activator
+Mitochondrial_Activator -> BAX
+$TLR3_TICAM1_TICAM2_RIPK1:(TLR3_TICAM1_TICAM2 & RIPK1)
+TLR3_TICAM1_TICAM2 -> TLR3_TICAM1_TICAM2_RIPK1
+RIPK1 -> TLR3_TICAM1_TICAM2_RIPK1
+$TLR3_TICAM1_TICAM2_RIPK1_RIPK3:(TLR3_TICAM1_TICAM2_RIPK1 & RIPK3)
+TLR3_TICAM1_TICAM2_RIPK1 -> TLR3_TICAM1_TICAM2_RIPK1_RIPK3
+RIPK3 -> TLR3_TICAM1_TICAM2_RIPK1_RIPK3
+$RIPK3:External_Activator
+External_Activator -> RIPK3
+$CASP3cytoplasm:(ProCASP3 & ((Apoptosome | CASP8) | CASP4))
+Apoptosome -> CASP3cytoplasm
+ProCASP3 -> CASP3cytoplasm
+BIRC4cytoplasm -|? CASP3cytoplasm
+BIRC2 -|? CASP3cytoplasm
+CASP8 -> CASP3cytoplasm
+CASP4 -> CASP3cytoplasm
+$CASP3nucleus:CASP3cytoplasm
+CASP3cytoplasm -> CASP3nucleus
+$CFLAR:External_Activator
+External_Activator -> CFLAR
+$EIF2AK2_PRKRA:(EIF2AK2cytoplasm & PRKRA)
+PRKRA -> EIF2AK2_PRKRA
+EIF2AK2cytoplasm -> EIF2AK2_PRKRA
+$TP53cytoplasm:EIF2AK2_PRKRA
+EIF2AK2_PRKRA -> TP53cytoplasm
+$ProCASP10:External_Activator
+External_Activator -> ProCASP10
+$APAF1:External_Activator
+External_Activator -> APAF1
+$TBK1:External_Activator
+External_Activator -> TBK1
+$TRAF5:External_Activator
+External_Activator -> TRAF5
+$TNFSF13B_TNFRSF17_TRAF5:(TNFSF13B_TNFRSF17 & TRAF5)
+TRAF5 -> TNFSF13B_TNFRSF17_TRAF5
+TNFSF13B_TNFRSF17 -> TNFSF13B_TNFRSF17_TRAF5
+$TNFSF13B_TNFRSF17:(TNFSF13B & TNFRSF17)
+TNFSF13B -> TNFSF13B_TNFRSF17
+TNFRSF17 -> TNFSF13B_TNFRSF17
+$RPS6KA5:External_Activator
+External_Activator -> RPS6KA5
+$RELAp65_NFKB1p50cytoplasm:(NFKBIA_RELAp65_NFKB1p50 & (((((RPS6KA5 | CHUK) | PRKCZ) | TBK1) | MAP3K7) | IKBKB))
+RPS6KA5 -> RELAp65_NFKB1p50cytoplasm
+CHUK -> RELAp65_NFKB1p50cytoplasm
+PRKCZ -> RELAp65_NFKB1p50cytoplasm
+TBK1 -> RELAp65_NFKB1p50cytoplasm
+NFKBIA_RELAp65_NFKB1p50 -> RELAp65_NFKB1p50cytoplasm
+MAP3K7 -> RELAp65_NFKB1p50cytoplasm
+IKBKB -> RELAp65_NFKB1p50cytoplasm
+$CHUK:External_Activator
+External_Activator -> CHUK
+$PRKCZ:External_Activator
+External_Activator -> PRKCZ
+$NFKBIA_RELAp65_NFKB1p50:((IKBKG_CHUK_IKBKB & ((RELA_p65 & NFKBIA) & NFKB1_p50)) | (TNF_IKBKG_Complex & ((RELA_p65 & NFKBIA) & NFKB1_p50)))
+RELA_p65 -> NFKBIA_RELAp65_NFKB1p50
+NFKBIA -> NFKBIA_RELAp65_NFKB1p50
+NFKB1_p50 -> NFKBIA_RELAp65_NFKB1p50
+TNF_IKBKG_Complex -> NFKBIA_RELAp65_NFKB1p50
+IKBKG_CHUK_IKBKB -> NFKBIA_RELAp65_NFKB1p50
+$MAP3K7:External_Activator
+External_Activator -> MAP3K7
+$IKBKB:External_Activator
+External_Activator -> IKBKB
+$TNFSF13B:true
+$TNFRSF17:External_Activator
+External_Activator -> TNFRSF17
+$TLR7:External_Activator
+External_Activator -> TLR7
+$TLR7_TLR7:(TLR7 & ssRNA)
+TLR7 -> TLR7_TLR7
+ssRNA -> TLR7_TLR7
+$ssRNA:Virus
+Virus -> ssRNA
+$IRF3_IRF3cytoplasm:IRF3
+IRF3 -> IRF3_IRF3cytoplasm
+$IRF3_IRF3nucleus:IRF3_IRF3cytoplasm
+IRF3_IRF3cytoplasm -> IRF3_IRF3nucleus
+$TP53nucleus:TP53cytoplasm
+TP53cytoplasm -> TP53nucleus
+$BBC3gene:TP53nucleus
+TP53nucleus -> BBC3gene
+$RELAp65_NFBK1p50nucleus:RELAp65_NFKB1p50cytoplasm
+RELAp65_NFKB1p50cytoplasm -> RELAp65_NFBK1p50nucleus
+$TRAF2gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> TRAF2gene
+$FASLG_FAS_FADD_FAF1_DAXX:(FASLG_FAS & ((FADD & FAF1) & DAXX))
+FADD -> FASLG_FAS_FADD_FAF1_DAXX
+FAF1 -> FASLG_FAS_FADD_FAF1_DAXX
+DAXX -> FASLG_FAS_FADD_FAF1_DAXX
+FASLG_FAS -> FASLG_FAS_FADD_FAF1_DAXX
+$FASLG_FAS_FADD_FAF1_DAXX_CFLAR:(FASLG_FAS_FADD_FAF1_DAXX & CFLAR)
+FASLG_FAS_FADD_FAF1_DAXX -> FASLG_FAS_FADD_FAF1_DAXX_CFLAR
+CFLAR -> FASLG_FAS_FADD_FAF1_DAXX_CFLAR
+$STAT1_STAT1nucleus_p2:STAT1_STAT1nucleus_p1
+PTP -|? STAT1_STAT1nucleus_p2
+STAT1_STAT1nucleus_p1 -> STAT1_STAT1nucleus_p2
+$IRF1gene:STAT1_STAT1nucleus_p2
+STAT1_STAT1nucleus_p2 -> IRF1gene
+$NFKB2p100_NFKB2p100_Ub:(NFKB2p100_NFKB2p100cytoplasm & Ub)
+Ub -> NFKB2p100_NFKB2p100_Ub
+NFKB2p100_NFKB2p100cytoplasm -> NFKB2p100_NFKB2p100_Ub
+$NFKB2p52_NFKB2p52cytoplasm:(NFKB2p100_NFKB2p100_Ub & Proteasome)
+NFKB2p100_NFKB2p100_Ub -> NFKB2p52_NFKB2p52cytoplasm
+Proteasome -> NFKB2p52_NFKB2p52cytoplasm
+$Proteasome:External_Activator
+External_Activator -> Proteasome
+$TRAF3:External_Activator
+External_Activator -> TRAF3
+$CD40_CD40LG_TRAF3:(CD40_CD40LG & TRAF3)
+TRAF3 -> CD40_CD40LG_TRAF3
+CD40_CD40LG -> CD40_CD40LG_TRAF3
+$CD40_CD40LG:(CD40 & CD40LG)
+CD40 -> CD40_CD40LG
+CD40LG -> CD40_CD40LG
+$Mitochondrial_Activator:true
+$BAD:Mitochondrial_Activator
+Mitochondrial_Activator -> BAD
+$IRF3_IRF7nucleus:IRF3_IRF7cytoplasm
+IRF3_IRF7cytoplasm -> IRF3_IRF7nucleus
+$CXCL10gene:((CBP & (IRF3_IRF7nucleus | IRF3_IRF3nucleus)) | ISGF3nucleus)
+IRF3_IRF7nucleus -> CXCL10gene
+ISGF3nucleus -> CXCL10gene
+CBP -> CXCL10gene
+IRF3_IRF3nucleus -> CXCL10gene
+$ISGF3nucleus:ISGF3cytoplasm
+ISGF3cytoplasm -> ISGF3nucleus
+$CBP:(EP300 & CREBBP)
+EP300 -> CBP
+CREBBP -> CBP
+$FASgene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> FASgene
+$IFIT2gene:((CBP & (IRF3_IRF7nucleus | IRF3_IRF3nucleus)) | ISGF3nucleus)
+IRF3_IRF7nucleus -> IFIT2gene
+ISGF3nucleus -> IFIT2gene
+CBP -> IFIT2gene
+IRF3_IRF3nucleus -> IFIT2gene
+$TLR9:External_Activator
+External_Activator -> TLR9
+$IRF1_IRF1nucleus:IRF1_IRF1cytoplasm
+IRF1_IRF1cytoplasm -> IRF1_IRF1nucleus
+$IRF2gene:IRF1_IRF1nucleus
+IRF1_IRF1nucleus -> IRF2gene
+$TRAF2cytoplasm:External_Activator
+External_Activator -> TRAF2cytoplasm
+$TNF_TNFRSF1B_TRAF2:(TNF_TNFRSF1B & TRAF2cytoplasm)
+TRAF2cytoplasm -> TNF_TNFRSF1B_TRAF2
+TNF_TNFRSF1B -> TNF_TNFRSF1B_TRAF2
+$dsRNA:Virus
+Virus -> dsRNA
+$TLR3_TLR3:(dsRNA & TLR3)
+dsRNA -> TLR3_TLR3
+TLR3 -> TLR3_TLR3
+$TLR3:External_Activator
+External_Activator -> TLR3
+$ISGF3cytoplasm:(STAT1_STAT2 & IRF9)
+STAT1_STAT2 -> ISGF3cytoplasm
+IRF9 -> ISGF3cytoplasm
+$APAF1_CYCS:(APAF1 & CYCScytoplasm)
+APAF1 -> APAF1_CYCS
+CYCScytoplasm -> APAF1_CYCS
+$CYCScytoplasm:(CYCSmytochondria & ((BAK1 | tBID) | BAX))
+BAK1 -> CYCScytoplasm
+tBID -> CYCScytoplasm
+CYCSmytochondria -> CYCScytoplasm
+BAX -> CYCScytoplasm
+$NFKB2p52_NFKB2p52nucleus:NFKB2p52_NFKB2p52cytoplasm
+NFKB2p52_NFKB2p52cytoplasm -> NFKB2p52_NFKB2p52nucleus
+$BIRC2:External_Activator
+External_Activator -> BIRC2
+$IRF3_IRF7cytoplasm:(IRF3 & IRF7)
+IRF7 -> IRF3_IRF7cytoplasm
+IRF3 -> IRF3_IRF7cytoplasm
+$IFNGR:(IFNG & ((IFNGR1 & IFNGR2) & JAK2))
+PTPN2 -|? IFNGR
+IFNGR1 -> IFNGR
+IFNGR2 -> IFNGR
+SOCS3 -|? IFNGR
+SOCS1 -|? IFNGR
+JAK2 -> IFNGR
+IFNG -> IFNGR
+$STAT1:IFNGR
+IFNGR -> STAT1
+$TLR6:External_Activator
+External_Activator -> TLR6
+$APAF1gene:TP53nucleus
+TP53nucleus -> APAF1gene
+$TLR7_MYD88_TRAF6_IRF5:((TLR7_TLR7 & (TRAF6 & MYD88)) & !IRF5)
+TLR7_TLR7 -> TLR7_MYD88_TRAF6_IRF5
+IRF5 -| TLR7_MYD88_TRAF6_IRF5
+TRAF6 -> TLR7_MYD88_TRAF6_IRF5
+MYD88 -> TLR7_MYD88_TRAF6_IRF5
+$IRF5:((Virus | TLR9_MYD88_TRAF6_IRF5) | TLR7_MYD88_TRAF6_IRF5)
+TLR9_MYD88_TRAF6_IRF5 -> IRF5
+Virus -> IRF5
+TLR7_MYD88_TRAF6_IRF5 -> IRF5
+$TRAF6:External_Activator
+External_Activator -> TRAF6
+$MYD88:External_Activator
+External_Activator -> MYD88
+$IFNAR1:External_Activator
+External_Activator -> IFNAR1
+$TLR5_MYD88_IRAK1_IRAK4_TRAF6:(TLR5_MYD88_IRAK1_IRAK4 & TRAF6)
+TRAF6 -> TLR5_MYD88_IRAK1_IRAK4_TRAF6
+TLR5_MYD88_IRAK1_IRAK4 -> TLR5_MYD88_IRAK1_IRAK4_TRAF6
+$TLR5_MYD88_IRAK1_IRAK4:(TLR5_TLR5 & ((IRAK1 & IRAK4) & MYD88))
+IRAK1 -> TLR5_MYD88_IRAK1_IRAK4
+IRAK4 -> TLR5_MYD88_IRAK1_IRAK4
+TLR5_TLR5 -> TLR5_MYD88_IRAK1_IRAK4
+MYD88 -> TLR5_MYD88_IRAK1_IRAK4
+$IRF1_IRF1_Activator:true
+$PKC:IRF1_IRF1_Activator
+IRF1_IRF1_Activator -> PKC
+$IRAK4:External_Activator
+External_Activator -> IRAK4
+$Ub:External_Activator
+External_Activator -> Ub
+$TLR5:External_Activator
+External_Activator -> TLR5
+$IRF2:IRF2_Activator
+IRF2_Activator -> IRF2
+$IRF8:(IRF2 | IRF1_IRF1nucleus)
+IRF2 -> IRF8
+IRF1_IRF1nucleus -> IRF8
+$ENDOGcytoplasm:(tBID & ENDOGmitochondria)
+tBID -> ENDOGcytoplasm
+ENDOGmitochondria -> ENDOGcytoplasm
+$ENDOGmitochondria:Mitochondrial_Activator
+Mitochondrial_Activator -> ENDOGmitochondria
+$TLR7_MYD88_IRAK1_IRAK4_TRAF6:(TLR7_MYD88_IRAK1_IRAK4 & TRAF6)
+TRAF6 -> TLR7_MYD88_IRAK1_IRAK4_TRAF6
+TLR7_MYD88_IRAK1_IRAK4 -> TLR7_MYD88_IRAK1_IRAK4_TRAF6
+$TLR7_MYD88_IRAK1_IRAK4:(TLR7_TLR7 & ((IRAK1 & IRAK4) & MYD88))
+IRAK1 -> TLR7_MYD88_IRAK1_IRAK4
+TLR7_TLR7 -> TLR7_MYD88_IRAK1_IRAK4
+IRAK4 -> TLR7_MYD88_IRAK1_IRAK4
+MYD88 -> TLR7_MYD88_IRAK1_IRAK4
+$TLR3_TICAM1_TICAM2:(TLR3_TLR3 & (TICAM1 & TICAM2))
+TLR3_TLR3 -> TLR3_TICAM1_TICAM2
+TICAM1 -> TLR3_TICAM1_TICAM2
+TICAM2 -> TLR3_TICAM1_TICAM2
+$EIF2S1:EIF2AK2gene
+EIF2AK2gene -> EIF2S1
+$Inactivation_of_Protein_Synthesis:EIF2S1
+EIF2S1 -> Inactivation_of_Protein_Synthesis
+$TLR9_MYD88_IRAK1_IRAK4_TRAF6:(TLR9_MYD88_IRAK1_IRAK4 & TRAF6)
+TLR9_MYD88_IRAK1_IRAK4 -> TLR9_MYD88_IRAK1_IRAK4_TRAF6
+TRAF6 -> TLR9_MYD88_IRAK1_IRAK4_TRAF6
+$TLR9_MYD88_TRAF6:TLR9_MYD88_IRAK1_IRAK4_TRAF6
+TLR9_MYD88_IRAK1_IRAK4_TRAF6 -> TLR9_MYD88_TRAF6
+$Apoptosis:(((DNA_Fragmentation | Inactive_DNA_Repair) | Inactivation_of_Protein_Synthesis) | Cell_Shrinkage)
+Inactivation_of_Protein_Synthesis -> Apoptosis
+Inactive_DNA_Repair -> Apoptosis
+Cell_Shrinkage -> Apoptosis
+DNA_Fragmentation -> Apoptosis
+$Cell_Shrinkage:(cLMNA | cGAS2)
+cLMNA -> Cell_Shrinkage
+cGAS2 -> Cell_Shrinkage
+$DNA_Fragmentation:(Fragmented_DNAnucleus | IDFFA)
+IDFFA -> DNA_Fragmentation
+Fragmented_DNAnucleus -> DNA_Fragmentation
+$IFNGR2:External_Activator
+External_Activator -> IFNGR2
+$TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4:(TLR2_TLR6 & (((IRAK1 & IRAK4) & TOLLIP) & MYD88))
+TLR2_TLR6 -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4
+IRAK1 -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4
+IRAK4 -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4
+TOLLIP -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4
+MYD88 -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4
+$TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4_TRAF6:(TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4 & TRAF6)
+TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4 -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4_TRAF6
+TRAF6 -> TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4_TRAF6
+$STAT1_STAT2:(STAT1 & STAT2)
+STAT1 -> STAT1_STAT2
+STAT2 -> STAT1_STAT2
+$STAT2:IFNAR
+IFNAR -> STAT2
+$ICAM1gene:STAT1_STAT1nucleus_p2
+STAT1_STAT1nucleus_p2 -> ICAM1gene
+$IRF5_IRF5nucleus:IRF5_IRF5cytoplasm
+IRF5_IRF5cytoplasm -> IRF5_IRF5nucleus
+$BAK1gene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> BAK1gene
+$ILIB:true
+$ILIB_IL1R1:(ILIB & IL1R1)
+ILIB -> ILIB_IL1R1
+IL1R1 -> ILIB_IL1R1
+$IL1R1:External_Activator
+External_Activator -> IL1R1
+$TNFRSF10B:External_Activator
+External_Activator -> TNFRSF10B
+$TNFSF10:true
+$TNFSF10_TNFRSF10A:(TNFSF10 & TNFRSF10A)
+TNFSF10 -> TNFSF10_TNFRSF10A
+TNFRSF10A -> TNFSF10_TNFRSF10A
+$TNFRSF10A:External_Activator
+External_Activator -> TNFRSF10A
+$IRAK1:External_Activator
+External_Activator -> IRAK1
+$BIRC3gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> BIRC3gene
+$IFNAR2:External_Activator
+External_Activator -> IFNAR2
+$TNFSF10_TNFSF10B:(TNFSF10 & TNFRSF10B)
+TNFSF10 -> TNFSF10_TNFSF10B
+TNFRSF10B -> TNFSF10_TNFSF10B
+$TYK2:External_Activator
+External_Activator -> TYK2
+$IL12Bgene:IRF1_IRF1nucleus
+IRF1_IRF1nucleus -> IL12Bgene
+$TNF_IKBKG_Complex:(TNF_TNFRSF1A_FADD_TRADD_TRAF2_RIPK1 & ((CHUK & IKBKG) & IKBKB))
+CHUK -> TNF_IKBKG_Complex
+IKBKG -> TNF_IKBKG_Complex
+TNF_TNFRSF1A_FADD_TRADD_TRAF2_RIPK1 -> TNF_IKBKG_Complex
+IKBKB -> TNF_IKBKG_Complex
+$IKBKG:External_Activator
+External_Activator -> IKBKG
+$TNF_TNFRSF1A_FADD_TRADD_TRAF2_RIPK1:(TNF_TNFRSF1A_FADD_TRADD & (RIPK1 & TRAF2cytoplasm))
+RIPK1 -> TNF_TNFRSF1A_FADD_TRADD_TRAF2_RIPK1
+TRAF2cytoplasm -> TNF_TNFRSF1A_FADD_TRADD_TRAF2_RIPK1
+TNF_TNFRSF1A_FADD_TRADD -> TNF_TNFRSF1A_FADD_TRADD_TRAF2_RIPK1
+$CASP3_Activator:true
+$ProCASP3:CASP3_Activator
+CASP3_Activator -> ProCASP3
+$ATF2:External_Activator
+External_Activator -> ATF2
+$IFNB1gene:((((((RELAp65_NFBK1p50nucleus & (((ATF2 & IRF3_IRF7nucleus) & CBP) & IRF3_IRF3nucleus)) | IRF5_IRF5nucleus) | STAT1_STAT1nucleus_p2) | IRF3_IRF3nucleus) | ISGF3nucleus) | IRF1_IRF1nucleus)
+ATF2 ->? IFNB1gene
+IRF5_IRF5nucleus -> IFNB1gene
+IRF2 -|? IFNB1gene
+IRF3_IRF7nucleus ->? IFNB1gene
+ISGF3nucleus -> IFNB1gene
+CBP ->? IFNB1gene
+RELAp65_NFBK1p50nucleus ->? IFNB1gene
+IRF3_IRF3nucleus -> IFNB1gene
+STAT1_STAT1nucleus_p2 -> IFNB1gene
+IRF1_IRF1nucleus -> IFNB1gene
+$STAT1_STAT1_IRF9nucleus:STAT1_STAT1_IRF9cytoplasm
+STAT1_STAT1_IRF9cytoplasm -> STAT1_STAT1_IRF9nucleus
+$IFR5gene:(STAT1_STAT1_IRF9nucleus | TP53nucleus)
+STAT1_STAT1_IRF9nucleus -> IFR5gene
+TP53nucleus -> IFR5gene
+$IRF5_IRF7cytoplasm:IRF5
+IRF5 -> IRF5_IRF7cytoplasm
+$IRF5_IRF7nucleus:IRF5_IRF7cytoplasm
+IRF5_IRF7cytoplasm -> IRF5_IRF7nucleus
+$TOLLIP:External_Activator
+External_Activator -> TOLLIP
+$TNFSF10_TNFSF10B_FADD:(TNFSF10_TNFSF10B & FADD)
+FADD -> TNFSF10_TNFSF10B_FADD
+TNFSF10_TNFSF10B -> TNFSF10_TNFSF10B_FADD
+$CASP8:(ProCASP8 & (((FASLG_FAS_FADD_FAF1_DAXX_CFLAR | FASLG_FAS_FADD_FAF1_DAXX) | TNFSF10_TNFRSF10A_FADD) | TNFSF10_TNFSF10B_FADD))
+FASLG_FAS_FADD_FAF1_DAXX_CFLAR -> CASP8
+FASLG_FAS_FADD_FAF1_DAXX -> CASP8
+TNFSF10_TNFRSF10A_FADD -> CASP8
+ProCASP8 -> CASP8
+TNFSF10_TNFSF10B_FADD -> CASP8
+$TNFSF10_TNFRSF10A_FADD:(TNFSF10_TNFRSF10A & FADD)
+TNFSF10_TNFRSF10A -> TNFSF10_TNFRSF10A_FADD
+FADD -> TNFSF10_TNFRSF10A_FADD
+$ProCASP8:External_Activator
+External_Activator -> ProCASP8
+$BAG4:(External_Activator | TNF_BAG4_TNFRSF1A)
+TNF_BAG4_TNFRSF1A -> BAG4
+External_Activator -> BAG4
+$BAG4_TNFRSF1A:(BAG4 & TNFRSF1A)
+BAG4 -> BAG4_TNFRSF1A
+TNFRSF1A -> BAG4_TNFRSF1A
+$TNFRSF1A:External_Activator
+External_Activator -> TNFRSF1A
+$RIPK1:External_Activator
+External_Activator -> RIPK1
+$RELB:External_Activator
+External_Activator -> RELB
+$CASP6cytoplasm:(ProCASP6 & CASP9)
+CASP9 -> CASP6cytoplasm
+ProCASP6 -> CASP6cytoplasm
+$CASP6nucleus:CASP6cytoplasm
+CASP6cytoplasm -> CASP6nucleus
+$TNF_BAG4_TNFRSF1A:(TNF & BAG4_TNFRSF1A)
+BAG4_TNFRSF1A -> TNF_BAG4_TNFRSF1A
+TNF -> TNF_BAG4_TNFRSF1A
+$LPS:Bacteria
+Bacteria -> LPS
+$IL15gene:IRF1_IRF1nucleus
+IRF1_IRF1nucleus -> IL15gene
+$CXCL9gene:STAT1_STAT1nucleus_p2
+STAT1_STAT1nucleus_p2 -> CXCL9gene
+$CASP9:CASP6_Activator
+CASP6_Activator -> CASP9
+$Apoptosome:(APAF1_CYCS & CASP9)
+CASP9 -> Apoptosome
+APAF1_CYCS -> Apoptosome
+$IFNAR:((IFNB1 & (((IFNAR2 & IFNAR1) & TYK2) & JAK1)) | (IFNA & (((IFNAR2 & IFNAR1) & TYK2) & JAK1)))
+IFNAR2 -> IFNAR
+IFNAR1 -> IFNAR
+IFNA -> IFNAR
+TYK2 -> IFNAR
+IFNB1 -> IFNAR
+JAK1 -> IFNAR
+$PSMB9gene:(IRF2 | IRF1_IRF1nucleus)
+IRF2 -> PSMB9gene
+IRF1_IRF1nucleus -> PSMB9gene
+$NFKB2p100_RELB_Ub:(NFKB2p100_RELBcytoplasm & Ub)
+NFKB2p100_RELBcytoplasm -> NFKB2p100_RELB_Ub
+Ub -> NFKB2p100_RELB_Ub
+$NFKB2p52_RELBcytoplasm:(NFKB2p100_RELB_Ub & Proteasome)
+NFKB2p100_RELB_Ub -> NFKB2p52_RELBcytoplasm
+Proteasome -> NFKB2p52_RELBcytoplasm
+$IKBKE_TBK1:(TLR4_TICAM1_TICAM2 & (TBK1 & IKBKE))
+TLR4_TICAM1_TICAM2 -> IKBKE_TBK1
+TBK1 -> IKBKE_TBK1
+IKBKE -> IKBKE_TBK1
+$IRF3:(IKBKE_TBK1 | TLR3_TICAM1_TICAM2_TBK1)
+IKBKE_TBK1 -> IRF3
+TLR3_TICAM1_TICAM2_TBK1 -> IRF3
+$TLR3_TICAM1_TICAM2_TBK1:(TLR3_TICAM1_TICAM2 & TBK1)
+TLR3_TICAM1_TICAM2 -> TLR3_TICAM1_TICAM2_TBK1
+TBK1 -> TLR3_TICAM1_TICAM2_TBK1
+$G1P2gene:((((IRF1_IRF1nucleus & ((SPI1 & IRF8) & IRF4)) | (CBP & (IRF3_IRF7nucleus | IRF3_IRF3nucleus))) | (IRF2 & ((SPI1 & IRF8) & IRF4))) | ISGF3nucleus)
+IRF2 -> G1P2gene
+IRF3_IRF7nucleus -> G1P2gene
+SPI1 -> G1P2gene
+ISGF3nucleus -> G1P2gene
+IRF8 -> G1P2gene
+CBP -> G1P2gene
+IRF3_IRF3nucleus -> G1P2gene
+IRF4 -> G1P2gene
+IRF1_IRF1nucleus -> G1P2gene
+$SPI1:External_Activator
+External_Activator -> SPI1
+$IRF4:External_Activator
+External_Activator -> IRF4
+$BID:External_Activator
+External_Activator -> BID
+$CASP2:(ProCASP2 & Fragmented_DNAcytoplasm)
+ProCASP2 -> CASP2
+Fragmented_DNAcytoplasm -> CASP2
+$TNFSF10gene:(IRF1_IRF1nucleus | IRF5_IRF5nucleus)
+IRF5_IRF5nucleus -> TNFSF10gene
+IRF1_IRF1nucleus -> TNFSF10gene
+$CIITAgene:(IRF2 | IRF1_IRF1nucleus)
+IRF2 -> CIITAgene
+IRF1_IRF1nucleus -> CIITAgene
+$EIF2AK2gene:(ISGF3nucleus | IRF1_IRF1nucleus)
+ISGF3nucleus -> EIF2AK2gene
+IRF1_IRF1nucleus -> EIF2AK2gene
+$CREBBP:External_Activator
+External_Activator -> CREBBP
+$SOCS1:External_Activator
+External_Activator -> SOCS1
+$JAK2:External_Activator
+External_Activator -> JAK2
+$IRF1_IRF1cytoplasm:IRF1cytoplasm
+IRF1cytoplasm -> IRF1_IRF1cytoplasm
+$RELA_NFKB1_Activator:true
+$RELA_p65:RELA_NFKB1_Activator
+RELA_NFKB1_Activator -> RELA_p65
+$ENDOGnucleus:ENDOGcytoplasm
+ENDOGcytoplasm -> ENDOGnucleus
+$Fragmented_DNAnucleus:(DNA & (ENDOGnucleus | PDCD8nucleus))
+ENDOGnucleus -> Fragmented_DNAnucleus
+PDCD8nucleus -> Fragmented_DNAnucleus
+DNA -> Fragmented_DNAnucleus
+$PDCD8nucleus:PDCD8cytoplasm
+PDCD8cytoplasm -> PDCD8nucleus
+$DNA:External_Activator
+External_Activator -> DNA
+$BIRC4gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> BIRC4gene
+$LMNA:External_Activator
+External_Activator -> LMNA
+$IRF3_IRF5cytoplasm:IRF5
+IRF5 -> IRF3_IRF5cytoplasm
+$IRF3_IRF5nucleus:IRF3_IRF5cytoplasm
+IRF3_IRF5cytoplasm -> IRF3_IRF5nucleus
+$PTP:External_Activator
+External_Activator -> PTP
+$MAP3K7IP2:External_Activator
+External_Activator -> MAP3K7IP2
+$Virus:true
+$Viral_Bacterial_CpG:(Bacteria | Virus)
+Virus -> Viral_Bacterial_CpG
+Bacteria -> Viral_Bacterial_CpG
+$Bacteria:true
+$HIST2H4gene:(IRF2 | IRF1_IRF1nucleus)
+IRF2 -> HIST2H4gene
+IRF1_IRF1nucleus -> HIST2H4gene
+$IRF5_IRF5cytoplasm:IRF5
+IRF5 -> IRF5_IRF5cytoplasm
+$TIRAP:External_Activator
+External_Activator -> TIRAP
+$TLR9_TLR9:(TLR9 & Viral_Bacterial_CpG)
+TLR9 -> TLR9_TLR9
+Viral_Bacterial_CpG -> TLR9_TLR9
+$IRF9:External_Activator
+External_Activator -> IRF9
+$RIPK1gene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> RIPK1gene
+$CYBBgene:(IRF8 & SPI1)
+SPI1 -> CYBBgene
+IRF8 -> CYBBgene
+$SP100gene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> SP100gene
+$IRAK2:External_Activator
+External_Activator -> IRAK2
+$Triacyl_Lipopeptides:Bacteria
+Bacteria -> Triacyl_Lipopeptides
+$TLR9_MYD88_TRAF6_IRF5:((TLR9_TLR9 & (TRAF6 & MYD88)) & !IRF5)
+IRF5 -| TLR9_MYD88_TRAF6_IRF5
+TRAF6 -> TLR9_MYD88_TRAF6_IRF5
+MYD88 -> TLR9_MYD88_TRAF6_IRF5
+TLR9_TLR9 -> TLR9_MYD88_TRAF6_IRF5
+$CASP7cytoplasm:(ProCASP7 & ((Apoptosome | CASP8) | CASP10))
+Apoptosome -> CASP7cytoplasm
+BIRC4cytoplasm -|? CASP7cytoplasm
+CASP8 -> CASP7cytoplasm
+ProCASP7 -> CASP7cytoplasm
+CASP10 -> CASP7cytoplasm
+$CASP7nucleus:CASP7cytoplasm
+CASP7cytoplasm -> CASP7nucleus
+$FAS:External_Activator
+External_Activator -> FAS
+$IKBKE:External_Activator
+External_Activator -> IKBKE
+$BCL3_NFKB2p52_NFKB2p52:(BCL3 & NFKB2p52_NFKB2p52nucleus)
+NFKB2p52_NFKB2p52nucleus -> BCL3_NFKB2p52_NFKB2p52
+BCL3 -> BCL3_NFKB2p52_NFKB2p52
+$BCL3:External_Activator
+External_Activator -> BCL3
+$EP300:External_Activator
+External_Activator -> EP300
+$OAS1gene:(((IRF1_IRF1nucleus | ISGF3nucleus) | IRF5_IRF5nucleus) | IRF8)
+IRF5_IRF5nucleus -> OAS1gene
+ISGF3nucleus -> OAS1gene
+IRF8 -> OAS1gene
+IRF1_IRF1nucleus -> OAS1gene
+$IFNA:true
+$IFNA_IFNA:IFNA
+IFNA -> IFNA_IFNA
+$NFKB2p52_RELBnucleus:NFKB2p52_RELBcytoplasm
+NFKB2p52_RELBcytoplasm -> NFKB2p52_RELBnucleus
+$NFKB2p100:External_Activator
+External_Activator -> NFKB2p100
+$IDFFA:(DFFA & CASP3nucleus)
+CASP3nucleus -> IDFFA
+DFFA -> IDFFA
+$DFFA:External_Activator
+External_Activator -> DFFA
+$BCL2A1:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> BCL2A1
+$TLR5_TLR5:(TLR5 & Flagellin)
+TLR5 -> TLR5_TLR5
+Flagellin -> TLR5_TLR5
+$BIRC4cytoplasm:!(DIABLOcytoplasm | HTRA2cytoplasm)
+DIABLOcytoplasm -| BIRC4cytoplasm
+HTRA2cytoplasm -| BIRC4cytoplasm
+$ProCASP7:CASP7_Activator
+CASP7_Activator -> ProCASP7
+$CASP10:(ProCASP10 & TNF_TNFRSF1A_FADD_TRADD)
+ProCASP10 -> CASP10
+TNF_TNFRSF1A_FADD_TRADD -> CASP10
+$STAT1_STAT1_IRF9cytoplasm:(STAT1 & IRF9)
+STAT1 -> STAT1_STAT1_IRF9cytoplasm
+IRF9 -> STAT1_STAT1_IRF9cytoplasm
+$PLSCR1gene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> PLSCR1gene
+$BCL2:Mitochondrial_Activator
+Mitochondrial_Activator -> BCL2
+$Flagellin:Bacteria
+Bacteria -> Flagellin
+$MDM2gene:TP53nucleus
+TP53nucleus -> MDM2gene
+$HTRA2mitochondria:Mitochondrial_Activator
+Mitochondrial_Activator -> HTRA2mitochondria
+$HTRA2cytoplasm:(tBID & HTRA2mitochondria)
+HTRA2mitochondria -> HTRA2cytoplasm
+tBID -> HTRA2cytoplasm
+$ProCASP6:CASP6_Activator
+CASP6_Activator -> ProCASP6
+$CYCSmytochondria:Mitochondrial_Activator
+Mitochondrial_Activator -> CYCSmytochondria
+$ProCASP4:External_Activator
+External_Activator -> ProCASP4
+$CASP4:ProCASP4
+ProCASP4 -> CASP4
+$HLA_Bgene:IRF8
+IRF2 -|? HLA_Bgene
+IRF8 -> HLA_Bgene
+$CASP3gene:(IRF5_IRF5nucleus | CASP3cytoplasm)
+IRF5_IRF5nucleus -> CASP3gene
+CASP3cytoplasm -> CASP3gene
+$GAS2:External_Activator
+External_Activator -> GAS2
+$MAP3K14:((TNFSF13B_TNFRSF17_TRAF5 | CD40_CD40LG_TRAF3) | TNF_TNFRSF1B_TRAF2)
+TNFSF13B_TNFRSF17_TRAF5 -> MAP3K14
+TNF_TNFRSF1B_TRAF2 -> MAP3K14
+CD40_CD40LG_TRAF3 -> MAP3K14
+$IRF1cytoplasm:((PKC | CKII) | PKA)
+CKII -> IRF1cytoplasm
+PKA -> IRF1cytoplasm
+PKC -> IRF1cytoplasm
+$NFKBIA:(RELA_NFKB1_Activator | NFKBIA_RELAp65_NFKB1p50)
+Ub -|? NFKBIA
+RELA_NFKB1_Activator -> NFKBIA
+NFKBIA_RELAp65_NFKB1p50 -> NFKBIA
+$NFKB1_p50:RELA_NFKB1_Activator
+RELA_NFKB1_Activator -> NFKB1_p50
+$IKBKG_CHUK_IKBKB:((IKBKG & ((CHUK & MAP3K7IP1_MAP3K7IP2_MAP3K7) & IKBKB)) | (TLR3_TICAM1_TICAM2_RIPK1_RIPK3 & ((CHUK & IKBKG) & IKBKB)))
+CHUK -> IKBKG_CHUK_IKBKB
+IKBKG -> IKBKG_CHUK_IKBKB
+TLR3_TICAM1_TICAM2_RIPK1_RIPK3 -> IKBKG_CHUK_IKBKB
+MAP3K7IP1_MAP3K7IP2_MAP3K7 -> IKBKG_CHUK_IKBKB
+IKBKB -> IKBKG_CHUK_IKBKB
+$cLMNA:(LMNA & CASP6nucleus)
+CASP6nucleus -> cLMNA
+LMNA -> cLMNA
+$NFKB2p100_RELBcytoplasm:(NFKB2p100 & (CHUK_CHUK & RELB))
+CHUK_CHUK -> NFKB2p100_RELBcytoplasm
+NFKB2p100 -> NFKB2p100_RELBcytoplasm
+RELB -> NFKB2p100_RELBcytoplasm
+$PRKRAgene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> PRKRAgene
+$JAK1:External_Activator
+External_Activator -> JAK1
+$ProCASP1:External_Activator
+External_Activator -> ProCASP1
+$Diacyl_Lipopeptides:Bacteria
+Bacteria -> Diacyl_Lipopeptides
+$FASLG_FAS:(FASLG & FAS)
+FAS -> FASLG_FAS
+FASLG -> FASLG_FAS
+$FASLG:true
+$ProCASP2:External_Activator
+External_Activator -> ProCASP2
+$Fragmented_DNAcytoplasm:DNA_Fragmentation
+DNA_Fragmentation -> Fragmented_DNAcytoplasm
+$BCL2L1_BAD:(BCL2L1mitochondria & BAD)
+BAD -> BCL2L1_BAD
+BCL2L1mitochondria -> BCL2L1_BAD
+$BCL2L1mitochondria:Mitochondrial_Activator
+Mitochondrial_Activator -> BCL2L1mitochondria
+$ILIB_IL1R1_MYD88_IRAK1_IRAK4:(ILIB_IL1R1 & ((IRAK1 & IRAK4) & MYD88))
+IRAK1 -> ILIB_IL1R1_MYD88_IRAK1_IRAK4
+ILIB_IL1R1 -> ILIB_IL1R1_MYD88_IRAK1_IRAK4
+IRAK4 -> ILIB_IL1R1_MYD88_IRAK1_IRAK4
+MYD88 -> ILIB_IL1R1_MYD88_IRAK1_IRAK4
+$CKII:IRF1_IRF1_Activator
+IRF1_IRF1_Activator -> CKII
+$FASLGgene:(TP53nucleus | IRF1_IRF1nucleus)
+TP53nucleus -> FASLGgene
+IRF1_IRF1nucleus -> FASLGgene
+$STAT1_STAT1cytoplasm:(STAT1 & PRKCD)
+STAT1 -> STAT1_STAT1cytoplasm
+PRKCD -> STAT1_STAT1cytoplasm
+$PRKCD:External_Activator
+External_Activator -> PRKCD
+$PKA:IRF1_IRF1_Activator
+IRF1_IRF1_Activator -> PKA
+$TRAF1gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> TRAF1gene
+$ILIB_IL1R1_MYD88_IRAK1_IRAK4_TRAF6:(ILIB_IL1R1_MYD88_IRAK1_IRAK4 & TRAF6)
+TRAF6 -> ILIB_IL1R1_MYD88_IRAK1_IRAK4_TRAF6
+ILIB_IL1R1_MYD88_IRAK1_IRAK4 -> ILIB_IL1R1_MYD88_IRAK1_IRAK4_TRAF6
+$SOCS3:External_Activator
+External_Activator -> SOCS3
+$MAP3K7IP1_MAP3K7IP2_MAP3K7:(((((((TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1)) | (TLR3_TICAM1_TICAM2_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1))) | (TLR7_MYD88_IRAK1_IRAK4_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1))) | (TLR5_MYD88_IRAK1_IRAK4_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1))) | (TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1))) | (TLR9_MYD88_IRAK1_IRAK4_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1))) | (ILIB_IL1R1_MYD88_IRAK1_IRAK4_TRAF6 & ((MAP3K7IP2 & MAP3K7) & MAP3K7IP1)))
+MAP3K7IP2 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+TLR9_MYD88_IRAK1_IRAK4_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+TLR3_TICAM1_TICAM2_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+TLR5_MYD88_IRAK1_IRAK4_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+TLR2_TLR6_TOLLIP_MYD88_IRAK1_IRAK4_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+TLR7_MYD88_IRAK1_IRAK4_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+MAP3K7 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+MAP3K7IP1 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+ILIB_IL1R1_MYD88_IRAK1_IRAK4_TRAF6 -> MAP3K7IP1_MAP3K7IP2_MAP3K7
+$PARP:External_Activator
+External_Activator -> PARP
+$PTPN2:External_Activator
+External_Activator -> PTPN2
+$PDCD8cytoplasm:(tBID & PDCD8mitochondria)
+tBID -> PDCD8cytoplasm
+PDCD8mitochondria -> PDCD8cytoplasm
+$PDCD8_HSPA1A:(PDCD8cytoplasm & HSPA1A)
+PDCD8cytoplasm -> PDCD8_HSPA1A
+HSPA1A -> PDCD8_HSPA1A
+$HSPA1A:External_Activator
+External_Activator -> HSPA1A
+$NFKB2p100_NFKB2p100cytoplasm:(NFKB2p100 & IKBKG_CHUK_IKBKB)
+NFKB2p100 -> NFKB2p100_NFKB2p100cytoplasm
+IKBKG_CHUK_IKBKB -> NFKB2p100_NFKB2p100cytoplasm
+$BCL2L1gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> BCL2L1gene
+$FAF1:External_Activator
+External_Activator -> FAF1
+$DAXX:External_Activator
+External_Activator -> DAXX
+$IRF7:IKBKE_TBK1
+IKBKE_TBK1 -> IRF7
+$cGAS2:(GAS2 & CASP3nucleus)
+CASP3nucleus -> cGAS2
+GAS2 -> cGAS2
+$EIF2AK2cytoplasm:dsRNA
+dsRNA -> EIF2AK2cytoplasm
+$TLR9_MYD88_IRAK1_IRAK4:(TLR9_TLR9 & ((IRAK1 & IRAK4) & MYD88))
+IRAK1 -> TLR9_MYD88_IRAK1_IRAK4
+IRAK4 -> TLR9_MYD88_IRAK1_IRAK4
+MYD88 -> TLR9_MYD88_IRAK1_IRAK4
+TLR9_TLR9 -> TLR9_MYD88_IRAK1_IRAK4
+$IFNB1:true
+$IFNB1_IFNB1:IFNB1
+IFNB1 -> IFNB1_IFNB1
+$IER3gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> IER3gene
+$PDCD8mitochondria:Mitochondrial_Activator
+Mitochondrial_Activator -> PDCD8mitochondria
+$TLR2:External_Activator
+External_Activator -> TLR2
+$TLR1_TLR2:Triacyl_Lipopeptides
+Triacyl_Lipopeptides -> TLR1_TLR2
+$TLR2_TLR6:(TLR2 & (Diacyl_Lipopeptides & TLR6))
+TLR2 -> TLR2_TLR6
+Diacyl_Lipopeptides -> TLR2_TLR6
+TLR6 -> TLR2_TLR6
+$IRF7_IRF7cytoplasm:IRF7
+IRF7 -> IRF7_IRF7cytoplasm
+$TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4_TRAF6:(TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4 & TRAF6)
+TRAF6 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4_TRAF6
+TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4_TRAF6
+$TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4:(TLR1_TLR2 & ((((IRAK1 & IRAK2) & IRAK4) & TIRAP) & MYD88))
+TLR1_TLR2 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4
+IRAK1 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4
+IRAK2 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4
+IRAK4 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4
+TIRAP -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4
+MYD88 -> TLR1_TLR2_TIRAP_MYD88_IRAK2_IRAK1_IRAK4
+$TLR3_TICAM1_TICAM2_TRAF6:(TLR3_TICAM1_TICAM2 & TRAF6)
+TLR3_TICAM1_TICAM2 -> TLR3_TICAM1_TICAM2_TRAF6
+TRAF6 -> TLR3_TICAM1_TICAM2_TRAF6
+$MAP3K7IP1:External_Activator
+External_Activator -> MAP3K7IP1
+$CXCL11gene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> CXCL11gene
+$CHUK_CHUK:(CHUK & MAP3K14)
+CHUK -> CHUK_CHUK
+MAP3K14 -> CHUK_CHUK
+$TAP1gene:(IRF1_IRF1nucleus | IRF2)
+IRF2 -> TAP1gene
+IRF1_IRF1nucleus -> TAP1gene
+$SOD2gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> SOD2gene
+$STAT1_STAT1nucleus_p1:STAT1_STAT1cytoplasm
+STAT1_STAT1cytoplasm -> STAT1_STAT1nucleus_p1
+$CASP6_Activator:true
+$CD40:External_Activator
+External_Activator -> CD40
+$CD40LG:true
+$GBP1gene:(IRF2 | IRF1_IRF1nucleus)
+IRF2 -> GBP1gene
+IRF1_IRF1nucleus -> GBP1gene
+$CCL5gene:IRF1_IRF1nucleus
+IRF1_IRF1nucleus -> CCL5gene
+$PMAIPgene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> PMAIPgene
+$IFNAgene:(((((((IRF3_IRF5nucleus | IRF5_IRF5nucleus) | IRF7_IRF7nucleus) | ISGF3nucleus) | IRF3_IRF3nucleus) | IRF1_IRF1nucleus) | IRF3_IRF7nucleus) | STAT1_STAT1_IRF9nucleus)
+IRF5_IRF5nucleus -> IFNAgene
+STAT1_STAT1_IRF9nucleus -> IFNAgene
+IRF2 -|? IFNAgene
+IRF3_IRF7nucleus -> IFNAgene
+ISGF3nucleus -> IFNAgene
+IRF3_IRF5nucleus -> IFNAgene
+IRF3_IRF3nucleus -> IFNAgene
+IRF7_IRF7nucleus -> IFNAgene
+IRF1_IRF1nucleus -> IFNAgene
+$IRF7_IRF7nucleus:IRF7_IRF7cytoplasm
+IRF7_IRF7cytoplasm -> IRF7_IRF7nucleus
+$IFNGR1:External_Activator
+External_Activator -> IFNGR1
+$G1P3gene:IRF8
+IRF8 -> G1P3gene
+$CFLARgene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> CFLARgene
+$NOS2Agene:External_Activator
+IRF2 -|? NOS2Agene
+External_Activator -> NOS2Agene
+$TNFRSF10Bgene:TP53nucleus
+TP53nucleus -> TNFRSF10Bgene
+$BCL2_BAX:(BCL2 & BAX)
+BAX -> BCL2_BAX
+BCL2 -> BCL2_BAX
+$CASP1:(ProCASP1 & CASP4)
+ProCASP1 -> CASP1
+CASP4 -> CASP1
+$IFIT1gene:IRF5_IRF5nucleus
+IRF5_IRF5nucleus -> IFIT1gene
+$BCL2A1gene:RELAp65_NFBK1p50nucleus
+RELAp65_NFBK1p50nucleus -> BCL2A1gene
+$IRF2_Activator:true
+$STAT1gene:IRF1_IRF1nucleus
+IRF1_IRF1nucleus -> STAT1gene
+$IFNG:true
+$CASP7_Activator:true
+$IL1Bgene:(IRF8 & SPI1)
+SPI1 -> IL1Bgene
+IRF8 -> IL1Bgene

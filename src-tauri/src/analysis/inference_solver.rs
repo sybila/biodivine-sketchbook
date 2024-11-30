@@ -480,9 +480,9 @@ impl InferenceSolver {
         Ok(())
     }
 
-    /// Internal modular variant of the inference. You can choose which parts to select.
+    /// A modular variant of the inference. You can choose which parts to select.
     /// For example, you can only consider static properties, only dynamic properties, or all.
-    pub(crate) fn run_inference_modular(
+    pub fn run_inference_modular(
         &mut self,
         analysis_type: InferenceType,
         sketch: Sketch,

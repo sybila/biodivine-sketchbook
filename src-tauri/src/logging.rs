@@ -1,3 +1,21 @@
+use lazy_static::lazy_static;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+// Logging enabled by default
+lazy_static! {
+    static ref LOGGING_ENABLED: AtomicBool = AtomicBool::new(true);
+}
+
+/// Check if logging is enabled.
+pub fn is_logging_enabled() -> bool {
+    LOGGING_ENABLED.load(Ordering::SeqCst)
+}
+
+/// Disable logging.
+pub fn disable_logging() {
+    LOGGING_ENABLED.store(false, Ordering::SeqCst);
+}
+
 pub const DEBUG: u8 = 0;
 pub const INFO: u8 = 8;
 pub const WARNING: u8 = 16;
@@ -23,9 +41,11 @@ pub const ERROR: u8 = 32;
 /// such log output.
 #[macro_export]
 macro_rules! log {
-    ($severity:tt,$($arg:tt)*) => {{
-        print!("[level:{}][{}:{}] ", $severity, file!(), line!());
-        println!($($arg)*);
+    ($severity:tt, $($arg:tt)*) => {{
+        if $crate::logging::is_logging_enabled() {
+            print!("[level:{}][{}:{}] ", $severity, file!(), line!());
+            println!($($arg)*);
+        }
     }};
 }
 

@@ -1,0 +1,122 @@
+$sa160_Nsp3_____rna:sa219_Nsp3_____rna
+sa219_Nsp3_____rna -> sa160_Nsp3_____rna
+$Nsp3:sa160_Nsp3_____rna
+sa160_Nsp3_____rna -> Nsp3
+$Nsp3_Nsp4_Nsp6_complex:(Nsp3 & (Nsp4 & Nsp6))
+Nsp3 -> Nsp3_Nsp4_Nsp6_complex
+Nsp6 -> Nsp3_Nsp4_Nsp6_complex
+Nsp4 -> Nsp3_Nsp4_Nsp6_complex
+$Nsp6:sa47_Nsp6_____rna
+sa47_Nsp6_____rna -> Nsp6
+$Nsp4:sa3_Nsp4_____rna
+sa3_Nsp4_____rna -> Nsp4
+$sa47_Nsp6_____rna:sa218_Nsp6_____rna
+sa218_Nsp6_____rna -> sa47_Nsp6_____rna
+$sa3_Nsp4_____rna:sa220_Nsp4_____rna
+sa220_Nsp4_____rna -> sa3_Nsp4_____rna
+$csa15_Nsp4_ALG11_complex_endoplasmic_reticulum:(Nsp4 & sa14_ALG11_endoplasmic_reticulum)
+Nsp4 -> csa15_Nsp4_ALG11_complex_endoplasmic_reticulum
+sa14_ALG11_endoplasmic_reticulum -> csa15_Nsp4_ALG11_complex_endoplasmic_reticulum
+$sa14_ALG11_endoplasmic_reticulum:false
+$csa2_Nsp4_IDE_complex_cell:(Nsp4 & sa8_IDE_cell)
+Nsp4 -> csa2_Nsp4_IDE_complex_cell
+sa8_IDE_cell -> csa2_Nsp4_IDE_complex_cell
+$sa8_IDE_cell:false
+$Nsp4_IDE_complex:csa2_Nsp4_IDE_complex_cell
+csa2_Nsp4_IDE_complex_cell -> Nsp4_IDE_complex
+$Nsp4_DNAJC11_complex:(DNAJC11 & Nsp4)
+Nsp4 -> Nsp4_DNAJC11_complex
+DNAJC11 -> Nsp4_DNAJC11_complex
+$DNAJC11:false
+$F_ATPase_Nsp6_complex:(F_ATPase_complex & Nsp6)
+Nsp6 -> F_ATPase_Nsp6_complex
+F_ATPase_complex -> F_ATPase_Nsp6_complex
+$F_ATPase_complex:false
+$Nsp4_NUP210_complex_endoplasmic_reticulum:(NUP210_endoplasmic_reticulum & Nsp4)
+Nsp4 -> Nsp4_NUP210_complex_endoplasmic_reticulum
+NUP210_endoplasmic_reticulum -> Nsp4_NUP210_complex_endoplasmic_reticulum
+$NUP210_endoplasmic_reticulum:false
+$Nsp4_NUP210_complex_nucleus:Nsp4_NUP210_complex_endoplasmic_reticulum
+Nsp4_NUP210_complex_endoplasmic_reticulum -> Nsp4_NUP210_complex_nucleus
+$Several_drugs_drug:false
+$SIGMAR1_Drugs_complex:(SIGMAR1_endoplasmic_reticulum & Several_drugs_drug)
+Several_drugs_drug -> SIGMAR1_Drugs_complex
+SIGMAR1_endoplasmic_reticulum -> SIGMAR1_Drugs_complex
+$SIGMAR1_endoplasmic_reticulum:false
+$Nsp6_SIGMAR1_complex_endoplasmic_reticulum:(Nsp6 & SIGMAR1_endoplasmic_reticulum)
+Nsp6 -> Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+SIGMAR1_endoplasmic_reticulum -> Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+$Nsp6_SIGMAR1_complex_nucleus:Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+Nsp6_SIGMAR1_complex_endoplasmic_reticulum -> Nsp6_SIGMAR1_complex_nucleus
+$V_ATPase_Nsp6_complex_endoplasmic_reticulum:(Nsp6 & V_ATPase_complex_endoplasmic_reticulum)
+Nsp6 -> V_ATPase_Nsp6_complex_endoplasmic_reticulum
+V_ATPase_complex_endoplasmic_reticulum -> V_ATPase_Nsp6_complex_endoplasmic_reticulum
+$V_ATPase_complex_endoplasmic_reticulum:(ATP6AP1 & V_type_space_proton_space_ATPase_complex)
+V_type_space_proton_space_ATPase_complex -> V_ATPase_complex_endoplasmic_reticulum
+ATP6AP1 -> V_ATPase_complex_endoplasmic_reticulum
+$V_ATPase_Nsp6_complex_endosome:V_ATPase_Nsp6_complex_endoplasmic_reticulum
+V_ATPase_Nsp6_complex_endoplasmic_reticulum -> V_ATPase_Nsp6_complex_endosome
+$TIM_complex_Nsp4_complex:(Nsp4 & TOM_complex_complex)
+Nsp4 -> TIM_complex_Nsp4_complex
+TOM_complex_complex -> TIM_complex_Nsp4_complex
+$TOM_complex_complex:false
+$V_type_space_proton_space_ATPase_complex:false
+$ATP6AP1:false
+$NUP210_Selinexor_complex:(NUP210_endoplasmic_reticulum & Selinexor_drug)
+NUP210_endoplasmic_reticulum -> NUP210_Selinexor_complex
+Selinexor_drug -> NUP210_Selinexor_complex
+$Selinexor_drug:false
+$P_ATPase_Nsp6_complex:(Nsp6 & P_ATPase_complex)
+Nsp6 -> P_ATPase_Nsp6_complex
+P_ATPase_complex -> P_ATPase_Nsp6_complex
+$P_ATPase_complex:false
+$csa4_Nsp4_IDE_complex_cell:csa2_Nsp4_IDE_complex_cell
+csa2_Nsp4_IDE_complex_cell -> csa4_Nsp4_IDE_complex_cell
+$SLC6A15_Nsp6_complex:(Nsp6 & SLC6A15)
+Nsp6 -> SLC6A15_Nsp6_complex
+SLC6A15 -> SLC6A15_Nsp6_complex
+$SLC6A15:false
+$SLC6A15_Orf9c_complex:(Orf9c & SLC6A15)
+SLC6A15 -> SLC6A15_Orf9c_complex
+Orf9c -> SLC6A15_Orf9c_complex
+$Orf9c:false
+$SLC6A15_M_complex:(M & SLC6A15)
+SLC6A15 -> SLC6A15_M_complex
+M -> SLC6A15_M_complex
+$M:false
+$SLC6A15_Loratadine_complex:(Loratadine_drug & SLC6A15)
+SLC6A15 -> SLC6A15_Loratadine_complex
+Loratadine_drug -> SLC6A15_Loratadine_complex
+$Loratadine_drug:false
+$V_ATPase_complex_endosome:V_ATPase_complex_endoplasmic_reticulum
+V_ATPase_complex_endoplasmic_reticulum -> V_ATPase_complex_endosome
+$ATP6AP1_Bafilomycin_A1_complex:(ATP6AP1 & Bafilomycin_A1_drug)
+ATP6AP1 -> ATP6AP1_Bafilomycin_A1_complex
+Bafilomycin_A1_drug -> ATP6AP1_Bafilomycin_A1_complex
+$Bafilomycin_A1_drug:false
+$Nsp6_SIGMAR1_complex_cell:Nsp6_SIGMAR1_complex_endoplasmic_reticulum
+Nsp6_SIGMAR1_complex_endoplasmic_reticulum -> Nsp6_SIGMAR1_complex_cell
+$csa93_Nsp4_ALG11_complex_endoplasmic_reticulum:csa15_Nsp4_ALG11_complex_endoplasmic_reticulum
+csa15_Nsp4_ALG11_complex_endoplasmic_reticulum -> csa93_Nsp4_ALG11_complex_endoplasmic_reticulum
+$sa220_Nsp4_____rna:sa3_Nsp4_____rna
+sa3_Nsp4_____rna -> sa220_Nsp4_____rna
+$sa218_Nsp6_____rna:sa47_Nsp6_____rna
+sa47_Nsp6_____rna -> sa218_Nsp6_____rna
+$IDE_human_host:sa8_IDE_cell
+sa8_IDE_cell -> IDE_human_host
+$sa219_Nsp3_____rna:sa160_Nsp3_____rna
+sa160_Nsp3_____rna -> sa219_Nsp3_____rna
+$Plasma_membrane_organization_phenotype:Nsp3_Nsp4_Nsp6_complex
+Nsp3_Nsp4_Nsp6_complex -> Plasma_membrane_organization_phenotype
+$NUP210_nucleus:NUP210_endoplasmic_reticulum
+NUP210_endoplasmic_reticulum -> NUP210_nucleus
+$sa225_IDE_cell:sa8_IDE_cell
+sa8_IDE_cell -> sa225_IDE_cell
+$SIGMAR1_nucleus:SIGMAR1_endoplasmic_reticulum
+SIGMAR1_endoplasmic_reticulum -> SIGMAR1_nucleus
+$SIGMAR1_cell:SIGMAR1_endoplasmic_reticulum
+SIGMAR1_endoplasmic_reticulum -> SIGMAR1_cell
+$sa230_ALG11_endoplasmic_reticulum:sa14_ALG11_endoplasmic_reticulum
+sa14_ALG11_endoplasmic_reticulum -> sa230_ALG11_endoplasmic_reticulum
+$H__ion:V_type_space_proton_space_ATPase_complex
+V_type_space_proton_space_ATPase_complex -> H__ion
