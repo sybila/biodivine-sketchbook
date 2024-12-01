@@ -5,7 +5,7 @@ from pathlib import Path
 # Directories and models
 SOURCE_DIR = Path("src-tauri")
 BENCH_DIR = Path("data/benchmarks/")
-MODELS = ["celldivb", "eprotein", "nsp4", "etc", "interferon", "macrophage"]
+MODELS = ["celldivb", "eprotein", "nsp4", "etc", "interferon", "nsp9", "macrophage"]
 
 # Step 1: Compile Rust binaries
 print(">>>>>>>>>> COMPILE RUST BINARIES", flush=True)

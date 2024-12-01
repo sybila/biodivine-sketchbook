@@ -17,6 +17,7 @@ Below, we briefly summarize the models and results (numbers of candidates after 
 | nsp4 | 60 | 1179648 | 128 |
 | etc | 84 | 242337096 | 3167262 |
 | interferon | 121 | 53378248050663950000000 | 682290 |
+| nsp9 | 252 | 3143273693184 | 55145152512 |
 | macrophage | 321 | 9973140848784  | 787353224904 |
 
 You can also run the individual benchmarks following these steps (but we recommend using the prepared Python script):
