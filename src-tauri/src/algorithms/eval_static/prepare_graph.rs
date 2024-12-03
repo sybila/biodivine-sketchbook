@@ -109,7 +109,7 @@ mod tests {
         .unwrap();
         assert_eq!(graph_fol_expected.unit_colors(), graph_fol.unit_colors());
 
-        // test FOL graph creation automatically from property
+        // test deriving FOL context automatically from property
         let fol_prop = ProcessedStatProp::mk_fol("doesntmatter", "3 x: true");
         let property_list = vec![fol_prop];
         let graph_fol = prepare_graph_for_static_fol(&bn, &property_list, "a", None).unwrap();

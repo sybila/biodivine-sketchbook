@@ -1,7 +1,8 @@
 # Biodivine Sketchbook
 
-SketchBook is a multi-platform application for the synthesis of Boolean network models.
+Sketchbook is a multi-platform application for the synthesis of Boolean network models.
 It provides a user-friendly interface for designing a Boolean network sketch and inferring admissible BNs.
+You can find the newest version of the Sketchbook at [this Github repository](https://github.com/sybila/biodivine-sketchbook).
 
 Boolean network sketches, introduced in [this paper](https://doi.org/10.1093/bioinformatics/btad158), serve as a method for integrating various kinds of prior knowledge and experimental data. The sketch consists of an influence graph, partially specified update functions, update function properties, and dynamic properties (including experimental data). 
 Sketchbook presents a way to design all these components and more.
@@ -21,7 +22,7 @@ Bioinformatics, 39(4), https://doi.org/10.1093/bioinformatics/btad158.
 ## Installation
 
 We provide pre-built binaries and installation files for the application in the [release section](https://github.com/sybila/biodivine-sketchbook/releases) (includes versions for Windows, Linux and macOS). 
-To start using Sketchbook, download binary for your operating system - you choose between `.app` and `.dmg` for macOS, `.AppImage`, `.deb` and `.rpm` for Linux, or `.exe` and `.msi` for Windows.
+To start using Sketchbook, choose the latest release, download binary for your operating system - you choose between `.app` and `.dmg` for macOS, `.AppImage`, `.deb` and `.rpm` for Linux, or `.exe` and `.msi` for Windows.
 If you need a different pre-built binary for a specific platform, let us know!
 
 > Note that the binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/biodivine-sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**

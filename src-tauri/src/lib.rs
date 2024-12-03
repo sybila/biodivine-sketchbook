@@ -2,13 +2,13 @@
 extern crate lazy_static;
 extern crate core;
 
-/// Algorithms for the inference process.
+/// All the internal algorithms for the inference process and low-level computation details.
 pub mod algorithms;
-/// State of the inference analysis tab and solvers.
+/// State of the inference analysis and solvers.
 pub mod analysis;
-/// General functionality for window mechanism, event stack, tab management, and more.
+/// General functionality for session management, windows, event stack, tab management, and more.
 pub mod app;
-/// Logging utilities.
+/// Custom logging utilities.
 pub mod logging;
-/// State of the sketchbook editor tab.
+/// State of the BN sketch, and management for most of the editor tab.
 pub mod sketchbook;
