@@ -78,8 +78,9 @@ cargo doc --no-deps --document-private-items
 We also utilize an end-to-end Selenium-based testing framework. Note that these tests require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). 
 
 You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. 
-To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 10000`). 
+To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 20000`). 
 The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.
+However, note that we found the testing framework a bit unstable when the testing machine is overloaded with other tasks. Sometimes, the tests do not go through due to internal WebDriver issues, and we are investigating this.
 
 ### Benchmarks
 

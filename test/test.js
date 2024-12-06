@@ -25,6 +25,21 @@ let driver;
 // Keep track of the Tauri driver process
 let tauriDriver;
 
+// Async wrapper to retry a certain async function multiple times with a small delay.
+// This for example makes the resetting/initialization of the driver more robust.
+async function retryAsync(fn, retries = 3, delay = 300) {
+  let attempts = 0;
+  while (attempts < retries) {
+    try {
+      return await fn();
+    } catch (error) {
+      attempts++;
+      if (attempts >= retries) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
 beforeEach(async function () {
   // Set timeout to 5 minutes to allow the program to build if needed
   this.timeout(300000);
@@ -47,20 +62,20 @@ beforeEach(async function () {
   });
   capabilities.setBrowserName('wry')
 
-  // Start the WebDriver client
-  driver = await new Builder()
+  // Start the WebDriver client (if initially fails to connect, try again a few times just in case)
+  driver = await retryAsync(() => new Builder()
     .withCapabilities(capabilities)
     .usingServer('http://localhost:4444/')
-    .build();
+    .build(), 4, 250);
 });
 
 afterEach(async function () {
   // Stop the WebDriver session
-  await driver.quit();
+  await driver.quit()
 
   // Kill the Tauri driver process
   if (tauriDriver) {
-    tauriDriver.kill();
+    tauriDriver.kill()
   }
 });
 
