@@ -464,6 +464,9 @@ interface AeonState {
       staticIdChanged: Observable<StatPropIdUpdateData>
       /** Set ID of static property with given original ID to a new id. */
       setStaticId: (originalId: string, newId: string) => void
+      /** List of all `StaticProperty` after variable's ID is changed.
+       * Since var ID change can affect any property, we "refresh" all data at once. */
+      allStaticUpdated: Observable<StaticProperty[]>
     }
   }
 
@@ -967,6 +970,7 @@ export const aeonState: AeonState = {
       staticContentChanged: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'set_content']),
       staticRemoved: new Observable<StaticProperty>(['sketch', 'properties', 'static', 'remove']),
       staticIdChanged: new Observable<StatPropIdUpdateData>(['sketch', 'properties', 'static', 'set_id']),
+      allStaticUpdated: new Observable<StaticProperty[]>(['sketch', 'properties', 'static', 'set_var_id_everywhere']),
 
       addDefaultDynamic (variant: DynamicPropertyType): void {
         aeonEvents.emitAction({

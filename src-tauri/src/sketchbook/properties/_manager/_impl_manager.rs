@@ -3,7 +3,7 @@ use crate::sketchbook::ids::{
 };
 use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::dynamic_props::are_same_dyn_variant;
-use crate::sketchbook::properties::static_props::are_same_stat_variant;
+use crate::sketchbook::properties::static_props::{are_same_stat_variant, StatPropertyType};
 use crate::sketchbook::properties::{
     DynPropIterator, DynProperty, PropertyManager, StatPropIterator, StatProperty,
 };
@@ -359,6 +359,44 @@ impl PropertyManager {
         self.assert_valid_static(id)?;
         self.stat_properties.remove(id).unwrap();
         Ok(())
+    }
+
+    /// Go through all static properties that are automatically generated from the regulation
+    /// graph and make their IDs consistent with the variables they reference.
+    ///
+    /// This is useful after we change the variable's ID, e.g., to ensure that monotonicity
+    /// properties still have IDs like `monotonicity_REGULATOR_TARGET`.
+    pub fn make_generated_reg_prop_ids_consistent(&mut self) {
+        // list of old-new IDs that must be changed
+        let mut id_change_list: Vec<(StatPropertyId, StatPropertyId)> = Vec::new();
+        for (prop_id, prop) in self.stat_properties.iter() {
+            match prop.get_prop_data() {
+                StatPropertyType::RegulationEssential(p) => {
+                    // this template always has both fields, we can unwrap
+                    let expected_id = StatProperty::get_essentiality_prop_id(
+                        p.input.as_ref().unwrap(),
+                        p.target.as_ref().unwrap(),
+                    );
+                    if prop_id != &expected_id {
+                        id_change_list.push((prop_id.clone(), expected_id.clone()));
+                    }
+                }
+                StatPropertyType::RegulationMonotonic(p) => {
+                    // this template always has both fields, we can unwrap
+                    let expected_id = StatProperty::get_monotonicity_prop_id(
+                        p.input.as_ref().unwrap(),
+                        p.target.as_ref().unwrap(),
+                    );
+                    if prop_id != &expected_id {
+                        id_change_list.push((prop_id.clone(), expected_id.clone()));
+                    }
+                }
+                _ => {}
+            }
+        }
+        for (current_id, new_id) in id_change_list {
+            self.set_stat_id(&current_id, new_id).unwrap();
+        }
     }
 }
 
