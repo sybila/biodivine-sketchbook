@@ -1,8 +1,8 @@
-use crate::analysis::inference_results::InferenceResults;
-use crate::analysis::inference_solver::InferenceSolver;
-use crate::analysis::inference_type::InferenceType;
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionState};
+use crate::inference::inference_results::InferenceResults;
+use crate::inference::inference_solver::InferenceSolver;
+use crate::inference::inference_type::InferenceType;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::Sketch;
 use std::fs::File;

@@ -5,10 +5,10 @@ use crate::algorithms::eval_static::eval::eval_static_prop;
 use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static_fol;
 use crate::algorithms::eval_static::processed_props::{process_static_props, ProcessedStatProp};
 use crate::algorithms::fo_logic::utils::get_implicit_function_name;
-use crate::analysis::inference_results::InferenceResults;
-use crate::analysis::inference_status::InferenceStatus;
-use crate::analysis::inference_type::InferenceType;
 use crate::debug;
+use crate::inference::inference_results::InferenceResults;
+use crate::inference::inference_status::InferenceStatus;
+use crate::inference::inference_type::InferenceType;
 use crate::sketchbook::{JsonSerde, Sketch};
 use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
@@ -172,10 +172,10 @@ impl InferenceSolver {
         }
     }
 
-    /// Update the status of the solver, and send a progress message to the AnalysisState
+    /// Update the status of the solver, and send a progress message to the InferenceState
     /// instance (that started this solver).
     ///
-    /// If the channel for progress updates no longer exists (because analysis is supposed to
+    /// If the channel for progress updates no longer exists (because inference is supposed to
     /// be reset, the window was closed, or some other reason), we instead forcibly stop the
     /// computation. Destroying the channel can thus actually be used as another way to stop the
     /// asynchronous computation, since one does not need to acquire lock over the whole solver.
@@ -339,11 +339,11 @@ impl InferenceSolver {
     /// Run the prototype version of the inference using the given solver.
     /// This wraps the [Self::run_inference_modular] to also log potential errors.
     ///
-    /// The argument `analysis_type` specifies which kind of inference should be used.
+    /// The argument `inference_type` specifies which kind of inference should be used.
     /// Currently, we support full inference with all properties, and partial inferences with only
     /// static or only dynamic properties.
     ///
-    /// The results are saved to sepcific fields of the provided solver and can be retrieved later.
+    /// The results are saved to specific fields of the provided solver and can be retrieved later.
     /// They are also returned, which is now used for logging later.
     pub async fn run_inference_async(
         solver: Arc<RwLock<InferenceSolver>>,
@@ -484,7 +484,7 @@ impl InferenceSolver {
     /// For example, you can only consider static properties, only dynamic properties, or all.
     pub fn run_inference_modular(
         &mut self,
-        analysis_type: InferenceType,
+        inference_type: InferenceType,
         sketch: Sketch,
         use_static: bool,
         use_dynamic: bool,
@@ -600,7 +600,7 @@ impl InferenceSolver {
             num_update_fn_variants_per_var(self.final_sat_colors()?, self.bn()?);
         let total_time = self.total_duration().unwrap();
         let results = InferenceResults::new(
-            analysis_type,
+            inference_type,
             num_sat_networks,
             total_time,
             &summary_msg,

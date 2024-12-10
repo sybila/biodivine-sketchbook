@@ -28,8 +28,8 @@ We first list the most important components of the project repository, mainly va
   - `main.ts` | The entry point for all JavaScript code. Later we'll probably want different entry points for different windows, but for now it's just a single file.
   - `aeon_events.ts` and `aeon_state.ts`| The front-end part of the event-based communication. The first one defines the event processing mechanisms in general, the second defines particular structure with event wrapper API.
   - `html/window.html` | The default HTML "wrapper" that is extended by individual windows. Later, we'll probably need to add other wrappers for things like dialog windows.
-  - `html/component-editor` | A directory with HTML files of self-contained components for sketch editor workflow. 
-  - `html/component-analysis` | A directory with HTML files of self-contained components for analysis workflow. 
+  - `html/component-editor` | A directory with HTML files of self-contained components for sketch editor workflows. 
+  - `html/component-analysis` | A directory with HTML files of self-contained components for analysis workflows. 
   - `html/util` | A directory with various (TypeScript) utilities, data interfaces, and so on. 
   - `html` | Other HTML content goes here. For now, this includes various windows.
   - `assets` | Any images/icons/whatever.
@@ -58,12 +58,12 @@ Note that unit tests are mostly defined within the same file as the tested funct
   - `eval_dynamic` | Algorithms and wrappers for evaluation of dynamic properties.
   - `eval_static` | Algorithms and wrappers for evaluation of static properties.
   - `fo_logic` | Parsing and evaluation for the FOL formulas.
-- `analysis` | Module to handle the state and high-level computation for the inference analysis session.
+- `inference` | Module to handle the state and high-level computation for the inference session.
   - `_test_inference` | Tests for the whole inference computation pipeline.
 - `app` | Module defining the core structures and traits behind the application's architecture (like sessions, events, undo-redo stack).
   - `state` | Structures for managing application state and event handling.
-    - `analysis` | Skeleton of the analysis session.
-    - `editor` | Skeleton of the editor session.
+    - `inference` | Skeleton of the top-level inference session structure.
+    - `editor` | Skeleton of the top-level editor session structure.
 - `bin` | Sources for additional binaries that can be run from CLI.
   - `run_inference.rs` | Program for running the inference on the given sketch from CLI.
 - `sketchbook` | Module to handle the state of the sketch and the editor session.

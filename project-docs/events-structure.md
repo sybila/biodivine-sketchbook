@@ -308,33 +308,33 @@ Events are structured in a hierarchical manner to simplify navigation and unders
 
 
 ---
-## Analysis Workflow Events
+## Inference Session Events
 
 #### State Related Events
-- **Path**: `['analysis', 'refresh_sketch']`
+- **Path**: `['inference', 'refresh_sketch']`
   - **Description**: Request the current sketch data from the backend.
   - **Payload**: None
 
 #### Inference Computation Events
-- **Path**: `['analysis', 'start_full_inference']`
+- **Path**: `['inference', 'start_full_inference']`
   - **Description**: Start a full inference analysis.
   - **Payload**: None
-- **Path**: `['analysis', 'start_static_inference']`
+- **Path**: `['inference', 'start_static_inference']`
   - **Description**: Start an inference analysis using static properties only.
   - **Payload**: None
-- **Path**: `['analysis', 'start_dynamic_inference']`
+- **Path**: `['inference', 'start_dynamic_inference']`
   - **Description**: Start an inference analysis using dynamic properties only.
   - **Payload**: None
-- **Path**: `['analysis', 'reset_analysis']`
-  - **Description**: Reset the current analysis and start again using the same sketch.
+- **Path**: `['inference', 'reset_inference']`
+  - **Description**: Reset the current inference and start again using the same sketch.
   - **Payload**: None
-- **Path**: `['analysis', 'ping_for_results']`
+- **Path**: `['inference', 'ping_for_results']`
   - **Description**: Check if inference results are ready.
   - **Payload**: None
 
 #### Inference Results Events
-- **Path**: `['analysis', 'sample_networks']`
-  - **Description**: Sample Boolean networks from the analysis results.
+- **Path**: `['inference', 'sample_networks']`
+  - **Description**: Sample Boolean networks from the inference results.
   - **Payload**:
     ```json
     {
@@ -343,14 +343,14 @@ Events are structured in a hierarchical manner to simplify navigation and unders
       "path": "string"
     }
     ```
-- **Path**: `['analysis', 'dump_results']`
-  - **Description**: Save the analysis results to a specified path, including the sketch and other related data.
+- **Path**: `['inference', 'dump_results']`
+  - **Description**: Save the inference results to a specified path, including the sketch and other related data.
   - **Payload**: `{ "path": "string" }`
 
 
 ---
 ## Error Events
-- **Path**: `['error', 'generic']`
+- **Path**: `['error']`
   - **Description**: Receive a generic error message from the backend.
   - **Payload**:
     ```json
@@ -362,8 +362,8 @@ Events are structured in a hierarchical manner to simplify navigation and unders
 
 ---
 ## New Session Events
-- **Path**: `['new_session', 'create']`
-  - **Description**: Create a new analysis session.
+- **Path**: `['new-inference-session']`
+  - **Description**: Create a new inference session.
   - **Payload**: None
 
 ---

@@ -3,8 +3,8 @@
 
 use biodivine_sketchbook::app::event::{Event, SessionMessage, StateChange, UserAction};
 use biodivine_sketchbook::app::event_wrappers::{AeonAction, AeonMessage, AeonRefresh};
-use biodivine_sketchbook::app::state::analysis::AnalysisSession;
 use biodivine_sketchbook::app::state::editor::EditorSession;
+use biodivine_sketchbook::app::state::inference::InferenceSession;
 use biodivine_sketchbook::app::state::{AppState, DynSession};
 use biodivine_sketchbook::app::{
     AeonApp, AEON_ACTION, AEON_MESSAGE, AEON_REFRESH, DEFAULT_SESSION_ID, DEFAULT_WINDOW_ID,
@@ -106,7 +106,7 @@ fn handle_new_inference_session(
         let timestamp = time_now.timestamp();
         let new_session_id = format!("inference-{timestamp}");
         let new_window_id = format!("inference-{timestamp}-window");
-        let new_session: DynSession = Box::new(AnalysisSession::new(&new_session_id));
+        let new_session: DynSession = Box::new(InferenceSession::new(&new_session_id));
         state.session_created(&new_session_id, new_session);
         state.window_created(&new_window_id, &new_session_id);
 
@@ -161,8 +161,8 @@ fn process_aeon_action_event(payload: &str, aeon: &AeonApp, handle: &AppHandle) 
     };
 
     // check for "new-session" events here
-    if action.events.len() == 1 && action.events[0].path == ["new-analysis-session"] {
-        // This `new-analysis-session` event comes from the Editor with the sketch that will be analyzed.
+    if action.events.len() == 1 && action.events[0].path == ["new-inference-session"] {
+        // This `new-inference-session` event comes from the Editor with the sketch that will be analyzed.
         handle_new_inference_session(handle, &state, aeon, &session_id);
     } else {
         let result = state.consume_event(aeon, &session_id, &action);

@@ -467,32 +467,32 @@ interface AeonState {
     }
   }
 
-  /** The events regarding the analysis workflow. */
+  /** The events regarding the inference analysis. */
   analysis: {
     /** State related events. */
 
     /** Sketch data transfered from backend (useful to initiate the state). */
     sketchRefreshed: Observable<SketchData>
-    /** Ask for a sketch data (might be useful to update analysis window, or if automatic sketch
-     * transfer from backend does not work). */
+    /** Ask for a sketch data (might be useful to update inference analysis window, or
+     * if automatic sketch transfer from backend does not work). */
     refreshSketch: () => void
 
     /** Inference computation related events. */
 
-    /** Start the full inference analysis. */
+    /** Start the full inference. */
     startFullInference: () => void
-    /** Start the inference analysis with static properties only. */
+    /** Start the inference with static properties only. */
     startStaticInference: () => void
-    /** Start the inference analysis with dynamic properties only. */
+    /** Start the inference with dynamic properties only. */
     startDynamicInference: () => void
-    /** Information that async inference analysis was successfully started. */
+    /** Information that async inference was successfully started. */
     inferenceStarted: Observable<boolean>
-    /** Fully reset the analysis and start again. The same sketch will be used. */
-    resetAnalysis: () => void
-    /** Information that analysis was reset. */
-    analysisReset: Observable<boolean>
+    /** Fully reset the inference and start again. The same sketch will be used. */
+    resetInference: () => void
+    /** Information that inference was reset. */
+    inferenceReset: Observable<boolean>
     /** Ping backend to see if the results are ready. Can be used regardless of
-     * what analysis is running. */
+     * what inference type is running. */
     pingForInferenceResults: () => void
     /** Update message from the inference solver. Can be multi-line. */
     computationUpdated: Observable<InferenceStatusReport[]>
@@ -501,12 +501,12 @@ interface AeonState {
 
     /** Inference results related events. */
 
-    /** Inference analysis results. */
+    /** Inference results. */
     inferenceResultsReceived: Observable<InferenceResults>
     /** Sample given number of Boolean networks from the results, either dereministically
      * or randomly. The networks are saved in a zip archive at given path. */
     sampleNetworks: (count: number, seed: number | null, path: string) => void
-    /** Dump archive with results (including the sketch, the converted aeon BN used for analysis, and
+    /** Dump archive with results (including the sketch, the converted aeon BN used for inference, and
      * a BDD with all satisfying colors) to the given path. */
     dumpFullResults: (path: string) => void
   }
@@ -519,8 +519,8 @@ interface AeonState {
 
   /** Events for creating new sessions. */
   new_session: {
-    /** Create a new analysis session. */
-    createNewAnalysisSession: () => void
+    /** Create a new inference session. */
+    createNewInferenceSession: () => void
   }
 }
 /**
@@ -567,9 +567,9 @@ export const aeonState: AeonState = {
     errorReceived: new Observable<string>(['error'])
   },
   new_session: {
-    createNewAnalysisSession (): void {
+    createNewInferenceSession (): void {
       aeonEvents.emitAction({
-        path: ['new-analysis-session'],
+        path: ['new-inference-session'],
         payload: null
       })
     }
@@ -1019,57 +1019,57 @@ export const aeonState: AeonState = {
     }
   },
   analysis: {
-    sketchRefreshed: new Observable<SketchData>(['analysis', 'get_sketch']),
-    analysisReset: new Observable<boolean>(['analysis', 'analysis_reset']),
+    sketchRefreshed: new Observable<SketchData>(['inference', 'get_sketch']),
+    inferenceReset: new Observable<boolean>(['inference', 'inference_reset']),
 
     refreshSketch (): void {
-      aeonEvents.refresh(['analysis', 'get_sketch'])
+      aeonEvents.refresh(['inference', 'get_sketch'])
     },
-    resetAnalysis () {
+    resetInference () {
       aeonEvents.emitAction({
-        path: ['analysis', 'reset_analysis'],
+        path: ['inference', 'reset_inference'],
         payload: null
       })
     },
     sampleNetworks (count: number, seed: number | null, path: string): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'sample_networks'],
+        path: ['inference', 'sample_networks'],
         payload: JSON.stringify({ count, seed, path })
       })
     },
     dumpFullResults (path: string): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'dump_full_results'],
+        path: ['inference', 'dump_full_results'],
         payload: path
       })
     },
 
-    inferenceResultsReceived: new Observable<InferenceResults>(['analysis', 'inference_results']),
-    inferenceStarted: new Observable<boolean>(['analysis', 'inference_running']),
-    computationUpdated: new Observable<InferenceStatusReport[]>(['analysis', 'computation_update']),
-    computationErrorReceived: new Observable<string>(['analysis', 'inference_error']),
+    inferenceResultsReceived: new Observable<InferenceResults>(['inference', 'inference_results']),
+    inferenceStarted: new Observable<boolean>(['inference', 'inference_running']),
+    computationUpdated: new Observable<InferenceStatusReport[]>(['inference', 'computation_update']),
+    computationErrorReceived: new Observable<string>(['inference', 'inference_error']),
 
     startFullInference (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_full_inference'],
+        path: ['inference', 'run_full_inference'],
         payload: null
       })
     },
     startStaticInference (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_static_inference'],
+        path: ['inference', 'run_static_inference'],
         payload: null
       })
     },
     startDynamicInference (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'run_dynamic_inference'],
+        path: ['inference', 'run_dynamic_inference'],
         payload: null
       })
     },
     pingForInferenceResults (): void {
       aeonEvents.emitAction({
-        path: ['analysis', 'get_inference_results'],
+        path: ['inference', 'get_inference_results'],
         payload: null
       })
     }

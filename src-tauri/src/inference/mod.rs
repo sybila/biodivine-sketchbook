@@ -1,14 +1,14 @@
-/// Structures and utilities to track the whole state of analysis.
-pub mod analysis_state;
 /// Structures and utilities to track final results of inference.
 pub mod inference_results;
 /// Structures and methods to run the whole inference process.
 /// This module covers the general async workflow, the details regarding the actual
 /// algorithms are in the module [crate::algorithms].
 pub mod inference_solver;
+/// Structures and utilities to track the whole state of inference.
+pub mod inference_state;
 /// Structures and utilities to track progress status of inference.
 pub mod inference_status;
-/// Enum with various supported analysis types.
+/// Enum with various supported inference types.
 pub mod inference_type;
 /// Struct with details regarding candidate sampling.
 pub mod sampling_data;

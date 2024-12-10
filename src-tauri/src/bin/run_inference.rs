@@ -1,6 +1,6 @@
-use biodivine_sketchbook::analysis::inference_results::InferenceResults;
-use biodivine_sketchbook::analysis::inference_solver::InferenceSolver;
-use biodivine_sketchbook::analysis::inference_type::InferenceType;
+use biodivine_sketchbook::inference::inference_results::InferenceResults;
+use biodivine_sketchbook::inference::inference_solver::InferenceSolver;
+use biodivine_sketchbook::inference::inference_type::InferenceType;
 use biodivine_sketchbook::logging;
 use biodivine_sketchbook::sketchbook::Sketch;
 

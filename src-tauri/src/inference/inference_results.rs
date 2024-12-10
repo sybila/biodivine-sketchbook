@@ -1,6 +1,6 @@
-use crate::analysis::inference_status::InferenceStatusReport;
-use crate::analysis::inference_type::InferenceType;
-use crate::analysis::update_fn_details::MAX_UPDATE_FN_COUNT;
+use crate::inference::inference_status::InferenceStatusReport;
+use crate::inference::inference_type::InferenceType;
+use crate::inference::update_fn_details::MAX_UPDATE_FN_COUNT;
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, time::Duration};
@@ -99,9 +99,9 @@ mod tests {
     use std::collections::HashMap;
     use std::time::Duration;
 
-    use crate::analysis::inference_results::InferenceResults;
-    use crate::analysis::inference_status::{InferenceStatus, InferenceStatusReport};
-    use crate::analysis::inference_type::InferenceType;
+    use crate::inference::inference_results::InferenceResults;
+    use crate::inference::inference_status::{InferenceStatus, InferenceStatusReport};
+    use crate::inference::inference_type::InferenceType;
 
     #[test]
     fn test_inference_results_summary_and_report() {

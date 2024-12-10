@@ -1,5 +1,5 @@
-use crate::analysis::inference_solver::FinishedInferenceSolver;
-use crate::analysis::update_fn_details::get_update_fn_variants;
+use crate::inference::inference_solver::FinishedInferenceSolver;
+use crate::inference::update_fn_details::get_update_fn_variants;
 use crate::sketchbook::Sketch;
 
 use std::fs::File;

@@ -29,7 +29,7 @@ export class AnalysisTab extends LitElement {
   }
 
   runInference (): void {
-    aeonState.new_session.createNewAnalysisSession()
+    aeonState.new_session.createNewInferenceSession()
   }
 
   checkConsistency (): void {

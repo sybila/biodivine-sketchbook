@@ -145,7 +145,7 @@ describe('Basic walkthrough test', () => {
     const analysisTab = await findInShadowRoot(contentPaneComponent, "analysis-tab", driver);
     const inferenceButton = await findInShadowRoot(analysisTab, '#open-inference-button', driver);
     const inferenceButtonText = await inferenceButton.getText();
-    expect(inferenceButtonText).to.match(/START INFERENCE WORKFLOW/);
+    expect(inferenceButtonText).to.match(/START INFERENCE SESSION/);
     await driver.executeScript("arguments[0].click();", inferenceButton);
 
     // now lets wait a bit for the new window and then access it
