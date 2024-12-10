@@ -1,4 +1,4 @@
-use crate::analysis::_test_inference::utils::apply_event_fully;
+use crate::inference::_test_inference::utils::apply_event_fully;
 use crate::sketchbook::event_utils::mk_model_event;
 use crate::sketchbook::model::Monotonicity;
 use crate::sketchbook::JsonSerde;

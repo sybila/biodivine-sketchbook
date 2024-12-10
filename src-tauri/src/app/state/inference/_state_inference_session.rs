@@ -1,32 +1,32 @@
-use crate::analysis::analysis_state::AnalysisState;
 use crate::app::event::{Event, SessionMessage, StateChange};
 use crate::app::state::_undo_stack::UndoStack;
 use crate::app::state::{Consumed, SessionHelper, SessionState, StackSession};
 use crate::app::{AeonError, DynError};
 use crate::debug;
+use crate::inference::inference_state::InferenceState;
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::{JsonSerde, Sketch};
 
 /// The state of one editor session.
 ///
-/// An analysis session is the session where the process of the inference is run on a given model.
-pub struct AnalysisSession {
+/// An inference session is the session where the process of the inference is run on a given model.
+pub struct InferenceSession {
     id: String,
     undo_stack: UndoStack,
-    analysis_state: AnalysisState,
+    inference_state: InferenceState,
 }
 
-impl AnalysisSession {
-    pub fn new(id: &str) -> AnalysisSession {
-        AnalysisSession {
+impl InferenceSession {
+    pub fn new(id: &str) -> InferenceSession {
+        InferenceSession {
             id: id.to_string(),
             undo_stack: UndoStack::default(),
-            analysis_state: AnalysisState::new_empty(),
+            inference_state: InferenceState::new_empty(),
         }
     }
 }
 
-impl StackSession for AnalysisSession {
+impl StackSession for InferenceSession {
     fn process_message(
         &mut self,
         message: &SessionMessage,
@@ -42,21 +42,21 @@ impl StackSession for AnalysisSession {
             if let Some(sketch_payload) = message.message.payload.clone() {
                 let sketch = Sketch::from_custom_json(&sketch_payload)?;
                 reset_stack = true;
-                self.analysis_state.set_sketch(sketch);
+                self.inference_state.set_sketch(sketch);
             } else {
                 panic!("Message `sketch_sent` must always carry a payload.")
             }
 
             // no backend response is expected, but we must send refresh event to inform frontend
             // about the state change
-            let sketch_data = SketchData::new_from_sketch(self.analysis_state.get_sketch());
+            let sketch_data = SketchData::new_from_sketch(self.inference_state.get_sketch());
             let payload = sketch_data.to_json_str();
             let state_change = StateChange {
-                events: vec![Event::build(&["analysis", "get_sketch"], Some(&payload))],
+                events: vec![Event::build(&["inference", "get_sketch"], Some(&payload))],
             };
             Ok((None, Some(state_change)))
         } else {
-            let error_msg = format!("`AnalysisSession` cannot process path {:?}.", path);
+            let error_msg = format!("`InferenceSession` cannot process path {:?}.", path);
             AeonError::throw(error_msg)
         };
 
@@ -83,14 +83,14 @@ impl StackSession for AnalysisSession {
     }
 }
 
-impl SessionHelper for AnalysisSession {}
+impl SessionHelper for InferenceSession {}
 
-impl SessionState for AnalysisSession {
+impl SessionState for InferenceSession {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         if let Some(at_path) = Self::starts_with("undo_stack", at_path) {
             self.undo_stack.perform_event(event, at_path)
-        } else if let Some(at_path) = Self::starts_with("analysis", at_path) {
-            self.analysis_state.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with("inference", at_path) {
+            self.inference_state.perform_event(event, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }
@@ -99,8 +99,8 @@ impl SessionState for AnalysisSession {
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         if let Some(at_path) = Self::starts_with("undo_stack", at_path) {
             self.undo_stack.refresh(full_path, at_path)
-        } else if let Some(at_path) = Self::starts_with("analysis", at_path) {
-            self.analysis_state.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with("inference", at_path) {
+            self.inference_state.refresh(full_path, at_path)
         } else {
             Self::invalid_path_error_generic(at_path)
         }

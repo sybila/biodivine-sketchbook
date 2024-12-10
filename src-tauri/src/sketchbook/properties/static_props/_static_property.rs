@@ -481,6 +481,25 @@ impl StatProperty {
             ))
         }
     }
+
+    /// If the property is referencing the given variable (as either regulator or target),
+    /// set that variable to the new value.
+    ///
+    /// If not applicable, return `Err`.
+    pub fn set_var_id_if_present(&mut self, old_id: VarId, new_id: VarId) -> Result<(), String> {
+        let (reg_var, target_var) = self.get_regulator_and_target()?;
+        if let Some(var_id) = reg_var {
+            if var_id == old_id {
+                self.set_input_var(new_id.clone())?;
+            }
+        }
+        if let Some(var_id) = target_var {
+            if var_id == old_id {
+                self.set_target_var(new_id)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 /// Observing static properties.
@@ -533,6 +552,28 @@ impl StatProperty {
             }
         }
         Ok(())
+    }
+
+    /// Get property's sub-fields for regulator variable and target variable, where applicable.
+    /// If not applicable, return `Err`.
+    pub fn get_regulator_and_target(&mut self) -> Result<(Option<VarId>, Option<VarId>), String> {
+        match &mut self.variant {
+            StatPropertyType::RegulationMonotonic(prop) => {
+                Ok((prop.input.clone(), prop.target.clone()))
+            }
+            StatPropertyType::RegulationMonotonicContext(prop) => {
+                Ok((prop.input.clone(), prop.target.clone()))
+            }
+            StatPropertyType::RegulationEssential(prop) => {
+                Ok((prop.input.clone(), prop.target.clone()))
+            }
+            StatPropertyType::RegulationEssentialContext(prop) => {
+                Ok((prop.input.clone(), prop.target.clone()))
+            }
+            other_variant => Err(format!(
+                "{other_variant:?} does not have fields for both regulator and target variable."
+            )),
+        }
     }
 }
 

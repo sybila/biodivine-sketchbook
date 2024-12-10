@@ -18,9 +18,9 @@ export default class AnalysisComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() sketchData: SketchData | null = null
 
-  // Type of the analysis we are running
-  @state() selected_analysis: InferenceType | null = null
-  // Results of analysis
+  // Type of the inference analysis we are running
+  @state() selected_inference: InferenceType | null = null
+  // Results of the inference
   @state() results: InferenceResults | null = null
   // Track the state of the "Randomize" checkbox for sampling
   @state() isRandomizeChecked: boolean = false
@@ -28,10 +28,10 @@ export default class AnalysisComponent extends LitElement {
   @state() pingIntervalId: ReturnType<typeof setInterval> | undefined = undefined
   // Number of times backend was pinged already (for current computation)
   @state() pingCounter: number = 0
-  // Main HTML text displayed when waiting for analysis results (can depend on analysis type
-  // and can be updated during computation)
+  // Main HTML text displayed when waiting for inference results (can depend on inference
+  // type and can be updated during computation)
   @state() waitingMainMessage: string = ''
-  // Intermediate progress report when waiting for analysis results (can be updated during computation)
+  // Intermediate progress report when waiting for inference results (can be updated during computation)
   @state() waitingProgressReport: string = ''
   // Number of already evaluated static properties
   @state() staticDone: number = 0
@@ -51,17 +51,17 @@ export default class AnalysisComponent extends LitElement {
       void this.#onSketchRefreshed(sketch)
     })
 
-    // updates regarding analysis start received
+    // updates regarding inference start received
     aeonState.analysis.inferenceStarted.addEventListener(
       this.#onInferenceStarted.bind(this)
     )
 
-    // updates regarding analysis results
+    // updates regarding inference results
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
     )
 
-    // updates regarding analysis progress or errors
+    // updates regarding inference progress or errors
     aeonState.analysis.computationUpdated.addEventListener(
       this.#onComputationUpdateReceived.bind(this)
     )
@@ -95,9 +95,9 @@ export default class AnalysisComponent extends LitElement {
 
   #onInferenceStarted (success: boolean): void {
     if (success) {
-      console.log('Inference analysis sucessfully started. Starting interval pinging backend.')
+      console.log('Inference computation sucessfully started. Starting pinging backend.')
     } else {
-      console.log('Error starting inference analysis.')
+      console.log('Error starting the inference computation.')
     }
 
     this.waitingProgressReport += '--------------\nDetailed progress report:\n--------------\n'
@@ -118,7 +118,7 @@ export default class AnalysisComponent extends LitElement {
 
     let message = 'Computation is running. Waiting for the results.<br>' +
       `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>`
-    if (this.selected_analysis === InferenceType.FullInference) {
+    if (this.selected_inference === InferenceType.FullInference) {
       message += `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
     }
     return message
@@ -171,15 +171,15 @@ export default class AnalysisComponent extends LitElement {
   }
 
   private runInference (): void {
-    console.log('Initiating inference analysis.')
+    console.log('Initiating full inference with all properties.')
     aeonState.analysis.startFullInference()
-    this.selected_analysis = InferenceType.FullInference
+    this.selected_inference = InferenceType.FullInference
   }
 
   private runStaticInference (): void {
     console.log('Initiating inference with static properties.')
     aeonState.analysis.startStaticInference()
-    this.selected_analysis = InferenceType.StaticInference
+    this.selected_inference = InferenceType.StaticInference
   }
 
   // Format computation time (given in milliseconds).
@@ -200,11 +200,11 @@ export default class AnalysisComponent extends LitElement {
 
     // different message if sketch is satisfiable/unsatisfiable
     if (results.num_sat_networks > 0) {
-      return 'Analysis finished!<br><br>' +
+      return 'Inference finished!<br><br>' +
         `Number of satisfying candidates: ${results.num_sat_networks}<br>` +
         `Computation time: ${compTimeStr}<br>`
     } else {
-      return 'Analysis finished!<br><br>' +
+      return 'Inference finished!<br><br>' +
         'There are no satisfying candidates.<br>' +
         `Computation time: ${compTimeStr}<br>`
     }
@@ -238,9 +238,9 @@ export default class AnalysisComponent extends LitElement {
     return resultsMessage
   }
 
-  private async resetAnalysis (): Promise<void> {
+  private async resetInference (): Promise<void> {
     if (!await this.confirmInferenceRestartDialog()) return
-    console.log('Resetting analysis.')
+    console.log('Resetting inference.')
 
     // stop pinging backend
     clearInterval(this.pingIntervalId)
@@ -248,10 +248,10 @@ export default class AnalysisComponent extends LitElement {
     this.pingCounter = 0
 
     // reset event to backend
-    aeonState.analysis.resetAnalysis()
+    aeonState.analysis.resetInference()
 
-    // clear analysis settings and results
-    this.selected_analysis = null
+    // clear inference settings and results
+    this.selected_inference = null
     this.waitingMainMessage = ''
     this.waitingProgressReport = ''
     this.results = null
@@ -329,9 +329,9 @@ export default class AnalysisComponent extends LitElement {
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
             </div>
   
-            <!-- Conditionally render analysis buttons only if no analysis is selected,
-                 Otherwise, render a button for resetting analysis. -->
-            ${this.selected_analysis === null
+            <!-- Conditionally render inference buttons only if no inference is selected yet,
+                 Otherwise, render a button for resetting inference. -->
+            ${this.selected_inference === null
 ? html`
               <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
                 <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
@@ -356,14 +356,14 @@ export default class AnalysisComponent extends LitElement {
               <div class="reset-buttons">
                 <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
-                          void this.resetAnalysis()
+                          void this.resetInference()
                         }}">Start again
                 </button>
               </div>
             `
 }
-            <!-- Conditionally render results window when analysis starts, centered on screen -->
-            ${this.selected_analysis !== null
+            <!-- Conditionally render results window when inference starts, centered on screen -->
+            ${this.selected_inference !== null
 ? html`
               <div class="results-window">
                 <div class="overview-message uk-text" 

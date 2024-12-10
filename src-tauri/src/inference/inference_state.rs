@@ -1,13 +1,13 @@
-use crate::analysis::candidate_sampling::download_witnesses;
-use crate::analysis::inference_results::InferenceResults;
-use crate::analysis::inference_solver::FinishedInferenceSolver;
-use crate::analysis::inference_solver::InferenceSolver;
-use crate::analysis::inference_type::InferenceType;
-use crate::analysis::sampling_data::SamplingData;
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
 use crate::app::{AeonError, DynError};
 use crate::debug;
+use crate::inference::candidate_sampling::download_witnesses;
+use crate::inference::inference_results::InferenceResults;
+use crate::inference::inference_solver::FinishedInferenceSolver;
+use crate::inference::inference_solver::InferenceSolver;
+use crate::inference::inference_type::InferenceType;
+use crate::inference::sampling_data::SamplingData;
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::{JsonSerde, Sketch};
 use std::sync::mpsc;
@@ -18,33 +18,33 @@ use tauri::async_runtime::RwLock;
 use super::inference_status::InferenceStatusReport;
 use super::results_export::export_results;
 
-/// Object encompassing all of the components of the Analysis tab.
+/// InferenceState manages the main functionalities and computations of inference session.
 /// That inludes boths the components that are exchanged with frontend,
 /// and raw low-level structures used during computation like symbolic graph
 /// and its colors.
-pub struct AnalysisState {
-    /// Boolean network sketch to run the analysis on. Can be a placeholder at the beginning.
+pub struct InferenceState {
+    /// Boolean network sketch to run the inference on. Can be a placeholder at the beginning.
     sketch: Sketch,
     /// Flag signalling that the actual sketch data were received from editor session.
     sketch_received: bool,
-    /// Potential analysis solver instance.
+    /// Potential inference solver instance.
     solver: Option<Arc<RwLock<InferenceSolver>>>,
     /// Potential channel to receive (text) updates from the solver instance.
     receiver_channel: Option<Receiver<String>>,
-    /// Copy of already finished analysis solver instance, used to work with full analysis results.
+    /// Copy of already finished inference solver instance, used to work with full inference results.
     /// If the inference ends with error, the error message is stored instead.
     finished_solver: Option<Result<FinishedInferenceSolver, String>>,
     /// Potential simplified processed results of the inference.
     results: Option<InferenceResults>,
 }
 
-impl AnalysisState {
-    /// Create new `AnalysisState` with an empty placeholder sketch.
+impl InferenceState {
+    /// Create new `InferenceState` with an empty placeholder sketch.
     ///
     /// This is used to create a placeholder instance before the actual sketch data are sent from
     /// the editor session.
-    pub fn new_empty() -> AnalysisState {
-        AnalysisState {
+    pub fn new_empty() -> InferenceState {
+        InferenceState {
             sketch: Sketch::default(),
             sketch_received: false,
             solver: None,
@@ -54,9 +54,9 @@ impl AnalysisState {
         }
     }
 
-    /// Create new `AnalysisState` with a full sketch data.
-    pub fn new(sketch: Sketch) -> AnalysisState {
-        AnalysisState {
+    /// Create new `InferenceState` with a full sketch data.
+    pub fn new(sketch: Sketch) -> InferenceState {
+        InferenceState {
             sketch,
             sketch_received: true,
             solver: None,
@@ -66,19 +66,19 @@ impl AnalysisState {
         }
     }
 
-    /// Update the sketch data of this `AnalysisState`.
+    /// Update the sketch data of this `InferenceState`.
     pub fn set_sketch(&mut self, sketch: Sketch) {
         self.sketch = sketch;
         self.sketch_received = true;
     }
 
-    /// Get reference to the sketch data of this `AnalysisState`.
+    /// Get reference to the sketch data of this `InferenceState`.
     pub fn get_sketch(&self) -> &Sketch {
         &self.sketch
     }
 
     /// Getter for pre-processed results from the internal solver.
-    /// If the results were not fetched yet (analysis still running), returns error.
+    /// If the results were not fetched yet (inference still running), returns error.
     ///
     /// This method is only a simple getter. See [Self::try_fetch_results] for actual result fetching.
     pub fn get_results(&self) -> Result<InferenceResults, String> {
@@ -94,11 +94,11 @@ impl AnalysisState {
 }
 
 /// More complex methods involving dealing with async solver.
-impl AnalysisState {
+impl InferenceState {
     /// If a computation solver is running, send cancellation flag to it. This is done
     /// asynchronously and might not happen immediately.
     ///
-    /// At the same time, all the inference-related fields of this `AnalysisState` are reset.
+    /// At the same time, all the inference-related fields of this `InferenceState` are reset.
     /// That is solver and results. The sketch stays the same.
     pub fn initiate_reset(&mut self) {
         if let Some(solver) = &self.solver {
@@ -199,12 +199,12 @@ impl AnalysisState {
     /// The computation solver has its own thread. Method [Self::try_fetch_results] can be used to
     /// test if the results are ready (and fetch them if so). Method [Self::try_get_solver_progress]
     /// can be used to collect progress messages sent from the solver.
-    pub fn start_analysis(&mut self, analysis_type: InferenceType) -> Result<(), DynError> {
+    pub fn start_inference(&mut self, inference_type: InferenceType) -> Result<(), DynError> {
         if !self.sketch_received || self.sketch.model.num_vars() == 0 {
-            return AeonError::throw("Cannot run analysis on empty sketch.");
+            return AeonError::throw("Cannot run inference on empty sketch.");
         }
 
-        self.initiate_reset(); // Reset the state before starting new analysis
+        self.initiate_reset(); // Reset the state before starting new inference
 
         let (progress_sender, progress_receiver): (Sender<String>, Receiver<String>) =
             mpsc::channel();
@@ -216,71 +216,71 @@ impl AnalysisState {
         // Capture only the necessary data for the async block
         let solver_clone = Arc::clone(&solver);
 
-        // Spawn the async task for the analysis
+        // Spawn the async task for the inference
         tokio::spawn(async move {
             // this saves the results internally to the solver instance
             let results =
-                InferenceSolver::run_inference_async(solver_clone, sketch, analysis_type).await;
+                InferenceSolver::run_inference_async(solver_clone, sketch, inference_type).await;
 
             // this is just for debugging purposes
             match results {
                 Ok(result) => debug!(
-                    "Async analysis thread finished. There are {} sat networks.",
+                    "Async inference thread finished. There are {} sat networks.",
                     result.num_sat_networks
                 ),
-                Err(e) => debug!("Async analysis thread finished with an error: {e}"),
+                Err(e) => debug!("Async inference thread finished with an error: {e}"),
             }
         });
         Ok(())
     }
 }
 
-impl SessionHelper for AnalysisState {}
+impl SessionHelper for InferenceState {}
 
-impl SessionState for AnalysisState {
+impl SessionState for InferenceState {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
-        let component = "analysis";
+        let component = "inference";
 
         match at_path.first() {
             Some(&"run_full_inference") => {
-                Self::assert_payload_empty(event, "analysis")?;
+                Self::assert_payload_empty(event, "inference")?;
                 debug!(
                     "Event `run_inference` received. Starting full inference with all properties."
                 );
 
-                self.start_analysis(InferenceType::FullInference)?; // Start analysis and handle asynchronously
-                let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
+                self.start_inference(InferenceType::FullInference)?; // Start inference and handle asynchronously
+                let state_change = Event::build(&["inference", "inference_running"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
                 })
             }
             Some(&"run_static_inference") => {
-                Self::assert_payload_empty(event, "analysis")?;
+                Self::assert_payload_empty(event, "inference")?;
                 debug!("Event `run_static_inference` received. Starting partial inference with static properties.");
 
-                self.start_analysis(InferenceType::StaticInference)?; // Start analysis and handle asynchronously
-                let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
+                self.start_inference(InferenceType::StaticInference)?; // Start inference and handle asynchronously
+                let state_change = Event::build(&["inference", "inference_running"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
                 })
             }
             Some(&"run_dynamic_inference") => {
-                Self::assert_payload_empty(event, "analysis")?;
+                Self::assert_payload_empty(event, "inference")?;
                 debug!("Event `run_dynamic_inference` received. Starting partial inference with dynamic properties.");
 
-                self.start_analysis(InferenceType::DynamicInference)?; // Start analysis and handle asynchronously
-                let state_change = Event::build(&["analysis", "inference_running"], Some("true"));
+                self.start_inference(InferenceType::DynamicInference)?; // Start inference and handle asynchronously
+                let state_change = Event::build(&["inference", "inference_running"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
                 })
             }
             Some(&"get_inference_results") => {
-                // Note that this event can be used to retrieve results of any running analysis, be it
+                // Note that this event can be used to retrieve results of any running inference, be it
                 // full inference, static check, or dynamic check.
-                // The type of state change event is decided based on what kind of analysis was running.
+                // The type of state change event is decided based on what kind of inference was running.
 
                 Self::assert_payload_empty(event, component)?;
                 //debug!("Event `get_inference_results` received. Trying to fetch inference results.");
@@ -300,11 +300,11 @@ impl SessionState for AnalysisState {
                     let state_change = match self.get_results() {
                         Ok(results) => {
                             let payload = results.to_json_str();
-                            Event::build(&["analysis", "inference_results"], Some(&payload))
+                            Event::build(&["inference", "inference_results"], Some(&payload))
                         }
                         Err(message) => {
                             let payload = serde_json::to_string(&message).unwrap();
-                            Event::build(&["analysis", "inference_error"], Some(&payload))
+                            Event::build(&["inference", "inference_error"], Some(&payload))
                         }
                     };
                     Ok(Consumed::Irreversible {
@@ -314,7 +314,7 @@ impl SessionState for AnalysisState {
                 } else if let Ok(progress_updates) = self.try_get_solver_progress() {
                     let payload = serde_json::to_string(&progress_updates).unwrap();
                     let state_change =
-                        Event::build(&["analysis", "computation_update"], Some(&payload));
+                        Event::build(&["inference", "computation_update"], Some(&payload));
                     Ok(Consumed::Irreversible {
                         state_change,
                         reset: true,
@@ -323,14 +323,14 @@ impl SessionState for AnalysisState {
                     Ok(Consumed::NoChange)
                 }
             }
-            Some(&"reset_analysis") => {
+            Some(&"reset_inference") => {
                 Self::assert_payload_empty(event, component)?;
 
                 // this sends cancellation flag to the potentially running inference solver, and resets
-                // attributes of this AnalysisState
+                // attributes of this InferenceState
                 self.initiate_reset();
 
-                let state_change = Event::build(&["analysis", "analysis_reset"], Some("true"));
+                let state_change = Event::build(&["inference", "inference_reset"], Some("true"));
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
@@ -372,7 +372,7 @@ impl SessionState for AnalysisState {
     }
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
-        let component_name = "analysis";
+        let component_name = "inference";
 
         // currently three options: get all datasets, a single dataset, a single observation
         match at_path.first() {
@@ -391,35 +391,35 @@ impl SessionState for AnalysisState {
 
 #[cfg(test)]
 mod tests {
-    use crate::analysis::analysis_state::AnalysisState;
-    use crate::analysis::inference_type::InferenceType::*;
+    use crate::inference::inference_state::InferenceState;
+    use crate::inference::inference_type::InferenceType::*;
     use crate::sketchbook::Sketch;
 
     #[test]
-    /// Test basic manipulation with Analysis state.
+    /// Test basic manipulation with Inference state.
     ///
     /// We only tests the basics, as the computation itself requires running async functions
     /// which cant be tested easily. We use end-to-end tests for that.
-    fn test_analysis_state_basics() {
+    fn test_inference_state_basics() {
         let sketch = Sketch::default();
-        let mut analysis_state = AnalysisState::new(sketch.clone());
+        let mut inference_state = InferenceState::new(sketch.clone());
 
-        let sketch_copy = analysis_state.get_sketch();
+        let sketch_copy = inference_state.get_sketch();
         assert_eq!(&sketch, sketch_copy);
 
         // check that there are no results at the start, and that we cant
-        assert!(analysis_state.get_results().is_err());
+        assert!(inference_state.get_results().is_err());
         // check that we cant get any progress or fetch results as there is no computation
-        assert_eq!(analysis_state.try_fetch_results(), false);
-        assert!(analysis_state.try_get_solver_progress().is_err());
+        assert_eq!(inference_state.try_fetch_results(), false);
+        assert!(inference_state.try_get_solver_progress().is_err());
 
-        // check that analysis on empty sketch fails
-        let result = analysis_state.start_analysis(DynamicInference);
+        // check that inference on empty sketch fails
+        let result = inference_state.start_inference(DynamicInference);
         assert!(result.is_err());
 
         // set new non-empty sketch data
         let valid_sketch = Sketch::from_aeon("a -> a").unwrap();
-        analysis_state.set_sketch(valid_sketch);
-        assert_eq!(analysis_state.get_sketch().model.num_vars(), 1)
+        inference_state.set_sketch(valid_sketch);
+        assert_eq!(inference_state.get_sketch().model.num_vars(), 1)
     }
 }

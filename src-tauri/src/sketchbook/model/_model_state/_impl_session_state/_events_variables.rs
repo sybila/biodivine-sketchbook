@@ -2,9 +2,12 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{
-    LayoutNodeData, LayoutNodeDataPrototype, ModelData, VariableData, VariableWithLayoutData,
+    ChangeIdData, LayoutNodeData, LayoutNodeDataPrototype, ModelData, VariableData,
+    VariableWithLayoutData,
 };
-use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
+use crate::sketchbook::event_utils::{
+    make_reversible, mk_model_event, mk_model_state_change, mk_stat_prop_event,
+};
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::{ModelState, UpdateFn, Variable};
@@ -12,18 +15,20 @@ use crate::sketchbook::JsonSerde;
 
 /* Constants for event path segments in `ModelState` related to variables. */
 
-// add new propared variable (and potentially change its position)
+// add new propared variable (+ and potentially change its position)
 const ADD_VAR_PATH: &str = "add";
 // add new default variable
 const ADD_DEFAULT_VAR_PATH: &str = "add_default";
 // add new variable (without any additional changes)
 const ADD_RAW_VAR_PATH: &str = "add_raw";
-// remove variable (removing all its regulations and so on)
+// remove variable (+ removing all its regulations and so on)
 const REMOVE_VAR_PATH: &str = "remove";
 // set variable's data (name and annotation)
 const SET_DATA_PATH: &str = "set_data";
-// set variable's id
+// set variable's id (+ update all static props)
 const SET_ID_PATH: &str = "set_id";
+// set variable's id
+const SET_ID_RAW_PATH: &str = "set_id_raw";
 // set variable's update fn
 const SET_UPDATE_FN_PATH: &str = "set_update_fn";
 
@@ -187,7 +192,7 @@ impl ModelState {
             // Note this check is performed also later by the manager, we just want to detect this ASAP.
             if self.is_var_contained_in_updates(&var_id) {
                 return AeonError::throw(format!(
-                    "Cannot remove variable `{var_id}`, it is still contained in an update function."
+                    "Cannot remove variable `{var_id}`, it is still contained in some update functions."
                 ));
             }
 
@@ -266,6 +271,27 @@ impl ModelState {
             reverse_event.payload = Some(original_data.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_ID_PATH, at_path).is_some() {
+            // get the payload - a string for the "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if var_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
+            // now we must handle the event itself, and all potential static property changes
+            let mut event_list = Vec::new();
+            // the raw event of changing the var id (payload stays the same)
+            let var_id_event_path = ["variable", var_id.as_str(), "set_id_raw"];
+            let var_id_event = mk_model_event(&var_id_event_path, Some(&new_id));
+            event_list.push(var_id_event);
+
+            // event for modifying all corresponding static property (we do it via single event)
+            // note we have checked that `var_id` and `new_id` are different
+            let id_change_data = ChangeIdData::new(var_id.as_str(), &new_id).to_json_str();
+            let prop_event = mk_stat_prop_event(&["set_var_id_everywhere"], Some(&id_change_data));
+            event_list.push(prop_event);
+            event_list.reverse(); // has to be reversed
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with(SET_ID_RAW_PATH, at_path).is_some() {
             // get the payload - string for "new_id"
             let new_id = Self::clone_payload_str(event, component_name)?;
             if var_id.as_str() == new_id.as_str() {
@@ -281,7 +307,7 @@ impl ModelState {
             let state_change = mk_model_state_change(&["variable", "set_id"], &model_data);
 
             // prepare the reverse event (the reverse event is as usual)
-            let reverse_at_path = ["variable", new_id.as_str(), "set_id"];
+            let reverse_at_path = ["variable", new_id.as_str(), "set_id_raw"];
             let reverse_event = mk_model_event(&reverse_at_path, Some(var_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_UPDATE_FN_PATH, at_path).is_some() {

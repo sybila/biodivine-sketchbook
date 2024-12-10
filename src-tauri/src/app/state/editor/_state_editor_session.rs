@@ -9,7 +9,7 @@ use crate::sketchbook::Sketch;
 /// The state of one editor session.
 ///
 /// An editor session is the "main" app session where a model is created/edited and from which
-/// different analysis sessions can be started.
+/// other sessions can be started.
 pub struct EditorSession {
     id: String,
     undo_stack: UndoStack,
@@ -41,7 +41,7 @@ impl StackSession for EditorSession {
         // todo: make this `mut` when we have some cases here that could mutate state
         let reset_stack = false;
 
-        // request from new Analysis session for sending a sketch
+        // request from new Inference session for sending a sketch
         let result = if path == vec!["send_sketch".to_string()] {
             let sketch_string = self.sketch.to_custom_json();
             let response_msg = SessionMessage {

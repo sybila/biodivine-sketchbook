@@ -1,5 +1,5 @@
 use super::utils::load_test_model;
-use crate::analysis::_test_inference::utils::add_stat_prop_and_infer;
+use crate::inference::_test_inference::utils::add_stat_prop_and_infer;
 use crate::sketchbook::model::{Essentiality, Monotonicity};
 use crate::sketchbook::properties::shortcuts::*;
 use crate::sketchbook::properties::StatProperty;

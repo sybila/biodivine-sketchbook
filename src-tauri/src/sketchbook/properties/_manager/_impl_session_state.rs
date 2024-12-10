@@ -6,7 +6,7 @@ use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
     mk_stat_prop_event, mk_stat_prop_state_change,
 };
-use crate::sketchbook::ids::{DynPropertyId, StatPropertyId};
+use crate::sketchbook::ids::{DynPropertyId, StatPropertyId, VarId};
 use crate::sketchbook::properties::dynamic_props::SimpleDynPropertyType;
 use crate::sketchbook::properties::static_props::SimpleStatPropertyType;
 use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
@@ -26,6 +26,8 @@ const ADD_DEFAULT_PATH: &str = "add_default";
 const REMOVE_PATH: &str = "remove";
 // set ID of a property
 const SET_ID_PATH: &str = "set_id";
+// change variable ID in all static properties referencing that variable
+const SET_VAR_ID_EVERYWHERE_PATH: &str = "set_var_id_everywhere";
 // set content of a property
 const SET_CONTENT_PATH: &str = "set_content";
 // refresh all dynamic properties
@@ -67,6 +69,46 @@ impl SessionState for PropertyManager {
                 } else if Self::starts_with(ADD_PATH, at_path).is_some() {
                     Self::assert_path_length(at_path, 1, component_name)?;
                     self.event_add_static(event)
+                } else if Self::starts_with(SET_VAR_ID_EVERYWHERE_PATH, at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    // get the payload - json string encoding the ID change data
+                    let payload = Self::clone_payload_str(event, component_name)?;
+                    let change_id_data = ChangeIdData::from_json_str(&payload)?;
+                    let old_var_id = VarId::new(&change_id_data.original_id)?;
+                    let new_var_id = VarId::new(&change_id_data.new_id)?;
+
+                    // change values of all properties that reference this variable (ignoring the rest)
+                    for (_, prop) in self.stat_properties.iter_mut() {
+                        let _ = prop.set_var_id_if_present(old_var_id.clone(), new_var_id.clone());
+                    }
+                    self.make_generated_reg_prop_ids_consistent();
+
+                    // the state change is just a list of all static properties
+                    let mut properties_list: Vec<StatPropertyData> = self
+                        .stat_properties
+                        .iter()
+                        .map(|(id, prop)| StatPropertyData::from_property(id, prop))
+                        .collect();
+                    properties_list.sort_by(|a, b| a.id.cmp(&b.id));
+                    let state_change = Event {
+                        path: vec![
+                            "sketch".to_string(),
+                            "properties".to_string(),
+                            "static".to_string(),
+                            "set_var_id_everywhere".to_string(),
+                        ],
+                        payload: Some(serde_json::to_string(&properties_list)?),
+                    };
+
+                    // the reverse change the opposite ID exchange
+                    let reverse_id_change_data =
+                        ChangeIdData::new(&change_id_data.new_id, &change_id_data.original_id);
+
+                    // prepare the reverse event (setting the original ID back)
+                    let payload = reverse_id_change_data.to_json_str();
+                    let reverse_event =
+                        mk_stat_prop_event(&[SET_VAR_ID_EVERYWHERE_PATH], Some(&payload));
+                    Ok(make_reversible(state_change, event, reverse_event))
                 } else {
                     Self::assert_path_length(at_path, 2, component_name)?;
                     let prop_id_str = at_path.first().unwrap();
