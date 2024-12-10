@@ -57,7 +57,7 @@ export class AnalysisTab extends LitElement {
               <button id="open-inference-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
                       @click="${() => {
                         this.runInference()
-                      }}">Start inference workflow
+                      }}">Start inference session
               </button>
             </div>
           </div>
