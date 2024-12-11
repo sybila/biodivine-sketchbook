@@ -457,7 +457,6 @@ impl InferenceSolver {
     /// Evaluate previously collected dynamic properties, and restrict the unit set of the
     /// graph to the set of valid colors.
     ///
-    ///
     /// If we discover that sketch is unsat early, skip the rest.
     fn eval_dynamic(&mut self) -> Result<(), String> {
         for dyn_property in self.dyn_props()?.clone() {

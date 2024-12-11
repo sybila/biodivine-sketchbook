@@ -35,6 +35,9 @@ The following instructions describe the local installation of the application an
 
 For a summary of all technologies and detailed project structure, see `project-docs/ARCHITECTURE.md`. The directory `project-docs` also contains other documents relevant to the design/development.
 
+We also provide web-based Rust documentation (including internal modules), currently hosted on [these GitHub pages](https://ondrej33.github.io/biodivine_sketchbook/). Instructions to generate Rust documentation locally are given below.
+
+
 ### Installation of dependencies
 
 First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
