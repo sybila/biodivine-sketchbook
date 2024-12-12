@@ -344,7 +344,7 @@ impl SessionState for InferenceState {
                     download_witnesses(
                         &sampling_data.path,
                         solver.sat_colors.clone(),
-                        &solver.graph,
+                        &solver.bn,
                         sampling_data.count,
                         sampling_data.seed,
                     )?;

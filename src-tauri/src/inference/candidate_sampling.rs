@@ -1,6 +1,7 @@
 use biodivine_lib_bdd::BddPartialValuation;
 use biodivine_lib_param_bn::biodivine_std::traits::Set;
 use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
+use biodivine_lib_param_bn::BooleanNetwork;
 
 use rand::prelude::StdRng;
 use rand::SeedableRng;
@@ -33,11 +34,13 @@ pub fn pick_random_color(
 pub fn download_witnesses(
     path: &str,
     mut color_set: GraphColors,
-    graph: &SymbolicAsyncGraph,
+    bn: &BooleanNetwork,
     witness_count: usize,
     seed: Option<u64>,
 ) -> Result<(), String> {
-    // Prepare the archive first
+    let graph = SymbolicAsyncGraph::new(bn).unwrap();
+
+    // Prepare the archive
     let archive_path = Path::new(path);
     // If there are some non existing dirs in path, create them.
     let prefix = archive_path.parent().unwrap();
@@ -55,9 +58,9 @@ pub fn download_witnesses(
         let witness_color = if let Some(std_rng) = random_state.as_mut() {
             // For random networks, we need to be a bit more creative... (although, support for
             // this in lib-param-bn would be nice).
-            pick_random_color(std_rng, graph, &color_set)
+            pick_random_color(std_rng, &graph, &color_set)
         } else {
-            // The `SymbolicAsyncGraph::pick_singleton` should be deterministic.
+            // The `GraphColors::pick_singleton` should be deterministic.
             color_set.pick_singleton()
         };
         assert!(witness_color.is_singleton());
@@ -69,7 +72,7 @@ pub fn download_witnesses(
         // Write the network into the zip.
         let file_content = graph.pick_witness(&witness_color).to_string();
         zip_writer
-            .start_file(format!("witness_{i}.aeon"), FileOptions::default())
+            .start_file(format!("candidate_{i}.aeon"), FileOptions::default())
             .map_err(|e| format!("{e:?}"))?;
         writeln!(zip_writer, "{file_content}").map_err(|e| format!("{e:?}"))?;
     }
