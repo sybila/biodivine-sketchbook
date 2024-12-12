@@ -7,6 +7,7 @@ import '../undo-redo/undo-redo'
 import '../search/search'
 import { type TabData } from '../../util/tab-data'
 
+/** Component responsible for the navigation bar. */
 @customElement('nav-bar')
 export default class NavBar extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`

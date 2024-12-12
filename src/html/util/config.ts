@@ -1,11 +1,14 @@
 import { TabData } from './tab-data'
 import { html } from 'lit'
 
+/** Debounce time set for updating certain text fields. */
 export const functionDebounceTimer = 1500
+/** Time specifying how often does the backend send updates during inference. */
 export const inferencePingTimer = 200
 
 let index = 0
 
+/** List with data for each tab of the editor window. */
 export const tabList: TabData[] = [
   TabData.create({
     id: index++,

@@ -12,6 +12,7 @@ import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import _ from 'lodash'
 
+/** Component responsible for the regulations editor of the editor session. */
 @customElement('regulations-editor')
 export class RegulationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
@@ -21,22 +22,30 @@ export class RegulationsEditor extends LitElement {
   edgeHandles: EdgeHandlesInstance | undefined
   lastTabCount = 1
   highlighted = ''
+  /** The main data structure, also containing variables and regulations. */
   @property() contentData = ContentData.create()
+  /** Flag whether help message should be displayed. */
   @state() showHelp = false
+  /** Details for potentially displayed context menu. */
   @state() menuType = ElementType.NONE
   @state() menuPosition = { x: 0, y: 0 }
   @state() menuZoom = 1.0
   @state() menuData: IRegulationData | IVariableData | undefined = undefined
+  /** Flag whether we are drawing regulation. */
   @state() drawMode = false
-  // The last visible width of the editor. Used to compensate
-  // the camera position if the width changes.
+  /** The last visible width of the editor. Used to compensate
+   * the camera position if the width changes. */
   @state() renderedWidth = 0
 
   constructor () {
     super()
+
+    // cytoscape settings
     cytoscape.use(dagre)
     cytoscape.use(edgeHandles)
     cytoscape.use(dblclick)
+
+    // setup listeners to UI events
     this.addEventListener('add-edge', this.addEdge)
     this.addEventListener('edit-variable', (e) => {
       void this.editVariableDialog(e)
@@ -44,6 +53,8 @@ export class RegulationsEditor extends LitElement {
     window.addEventListener('focus-function-field', () => {
       this.toggleMenu(ElementType.NONE)
     })
+
+    // further cytoscape setup
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'
 
@@ -85,14 +96,10 @@ export class RegulationsEditor extends LitElement {
     // triggered when data are updated
     // all elements are updated and menu is reopened if it was opened
 
-    /*
-    super.updated(_changedProperties)
-    if (_changedProperties.get('contentData') === undefined) return
-    */
-
     super.updated(_changedProperties)
 
-    // only re-render if variables or regulations were updated
+    // only re-render network if variables or regulations in particular were updated
+    // we dont care if properties or observations change
     if (_changedProperties.get('contentData') === undefined) return
     const newContentData = _changedProperties.get('contentData')
     if (_.isEqual(this.contentData.variables, newContentData.variables) &&
@@ -124,6 +131,7 @@ export class RegulationsEditor extends LitElement {
     }
   }
 
+  /** Process event for adding edge. */
   private addEdge (event: Event): void {
     if (this.cy === undefined) return
     this.cy.nodes().deselect()
@@ -135,6 +143,7 @@ export class RegulationsEditor extends LitElement {
     this.cy.renderer().hoverData.capture = true
   }
 
+  /** Process event for focusing variable. */
   private focusVariable (event: Event): void {
     const node = this.cy?.$id((event as CustomEvent).detail.id)
     // wait for the node to be rendered
@@ -154,12 +163,14 @@ export class RegulationsEditor extends LitElement {
     this.cy?.nodes().removeClass('highlight')
   }
 
+  /** On first update to the data, initiate all. */
   firstUpdated (): void {
     this.init()
     this.addNodes()
     this.addEdges()
   }
 
+  /** Initiate the cytoscape. */
   private init (): void {
     this.cy = cytoscape(initOptions(this.editorElement))
     this.edgeHandles = this.cy.edgehandles(edgeOptions)
@@ -179,6 +190,7 @@ export class RegulationsEditor extends LitElement {
       edge.remove()
     })
 
+    // Set up cytoscape objects behaviours on clicking, zooming and so on
     this.cy.on('zoom', () => {
       this.renderMenuForSelectedNode()
       this.renderMenuForSelectedEdge()
@@ -225,6 +237,7 @@ export class RegulationsEditor extends LitElement {
       e.target.removeClass('hover')
     })
 
+    // Once everything is ready, center and fit it
     this.cy.ready(() => {
       this.cy?.center()
       this.cy?.fit(undefined, 50)
@@ -232,17 +245,22 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
+  /** Open dialog to edit variable's name/id/annotation, and propagate changes to backend. */
   private async editVariableDialog (event: Event): Promise<void> {
     this.toggleMenu(ElementType.NONE)
+    // save previous values
     const variableId = (event as CustomEvent).detail.id
     const variableName = (event as CustomEvent).detail.name
     const variableAnnotation = (event as CustomEvent).detail.annotation
+    // prepare values for the dialog
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[variableId] !== undefined) {
       await this.dialogs[variableId]?.setFocus()
       return
     }
+
+    // open the dialog web view window
     const renameDialog = new WebviewWindow(`renameDialog${Math.floor(Math.random() * 1000000)}`, {
       url: 'src/html/component-editor/regulations-editor/rename-dialog/rename-dialog.html',
       title: `Edit node (${variableId} / ${variableName})`,
@@ -257,6 +275,8 @@ export class RegulationsEditor extends LitElement {
       y: pos.y + size.height / 4
     })
     this.dialogs[variableId] = renameDialog
+
+    // add events for communication with the dialog
     void renameDialog.once('loaded', () => {
       void renameDialog.emit('edit_node_update', {
         id: variableId,
@@ -275,6 +295,7 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
+  /** Propagate potential changes to variable (from edit dialog) to backend. */
   private changeVariable (id: string, newId: string, newName: string, newAnnot: string): void {
     // first send the event to change the name & annot (with the old ID)
     this.dispatchEvent(new CustomEvent('set-variable-data', {
@@ -308,6 +329,7 @@ export class RegulationsEditor extends LitElement {
     this.cy?.panBy({ x: (toLeft ? -1 : 1) * (this.cy?.width() / (tabCount * 2)), y: 0 })
   }
 
+  /** Render context menu for the selected node. */
   private renderMenuForSelectedNode (node: NodeSingular | undefined = undefined): void {
     if (node === undefined) {
       node = this.cy?.nodes(':selected').first()
@@ -318,6 +340,7 @@ export class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.NODE, position, zoom, node.data())
   }
 
+  /** Render context menu for the selected edge. */
   private renderMenuForSelectedEdge (edge: EdgeSingular | undefined = undefined): void {
     if (edge === undefined) {
       edge = this.cy?.edges(':selected').first()
@@ -332,6 +355,7 @@ export class RegulationsEditor extends LitElement {
     this.toggleMenu(ElementType.EDGE, position, zoom, edge.data())
   }
 
+  /** Add new variable node to a given position. */
   private addNode (id: string, name: string, annotation: string, position = { x: 0, y: 0 }): void {
     this.cy?.add({
       data: { id, name, annotation },
@@ -339,6 +363,7 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
+  /** Send event asking to add new variable node. */
   private createVariable (position = { x: 0, y: 0 }): void {
     this.dispatchEvent(new CustomEvent('add-variable', {
       detail: {
@@ -369,6 +394,7 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
+  /** Move variable node to new position. */
   private moveVariable (varId: string, position: Position): void {
     this.dispatchEvent(new CustomEvent('change-node-position', {
       detail: {
@@ -380,18 +406,22 @@ export class RegulationsEditor extends LitElement {
     }))
   }
 
+  /** Add multipe variable nodes. */
   private addNodes (): void {
     this.contentData.variables.forEach((node) => {
       this.addNode(node.id, node.name, node.annotation, this.contentData.layout.get(node.id))
     })
   }
 
+  /** Add multipe regulation edges. */
   private addEdges (): void {
     this.contentData.regulations.forEach((edge) => {
       this.ensureRegulation(edge)
     })
   }
 
+  /** Render the network editor's component.
+   * Conditionally show help message if `showHelp` is true. */
   render (): TemplateResult {
     return html`
       <div class="header uk-background-primary">

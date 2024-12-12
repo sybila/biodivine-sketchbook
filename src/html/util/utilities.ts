@@ -8,6 +8,7 @@ import {
   type DatasetData, type RegulationData, type LayoutNodeData
 } from '../../aeon_state'
 
+/** Toggling essentiality. */
 export function getNextEssentiality (essentiality: Essentiality): Essentiality {
   switch (essentiality) {
     case Essentiality.FALSE:
@@ -19,6 +20,7 @@ export function getNextEssentiality (essentiality: Essentiality): Essentiality {
   }
 }
 
+/** Get text describing each essentiality class. */
 export function getEssentialityText (essentiality: Essentiality): string {
   switch (essentiality) {
     case Essentiality.FALSE:
@@ -30,6 +32,7 @@ export function getEssentialityText (essentiality: Essentiality): string {
   }
 }
 
+/** Toggling monotonicity. */
 export function getNextMonotonicity (monotonicity: Monotonicity): Monotonicity {
   switch (monotonicity) {
     case Monotonicity.ACTIVATION:
@@ -43,6 +46,7 @@ export function getNextMonotonicity (monotonicity: Monotonicity): Monotonicity {
   }
 }
 
+/** Get text describing each monotonicity class. */
 export function getMonotonicityClass (monotonicity: Monotonicity): string {
   switch (monotonicity) {
     case Monotonicity.INHIBITION:
@@ -58,6 +62,7 @@ export function getMonotonicityClass (monotonicity: Monotonicity): string {
   }
 }
 
+/** Convert UninterpretedFnData instance into internally used IFunction. */
 export function convertToIFunction (fnData: UninterpretedFnData): IFunctionData {
   const variables = fnData.arguments.map(
     (arg, index) => {
@@ -78,6 +83,7 @@ export function convertToIFunction (fnData: UninterpretedFnData): IFunctionData 
   }
 }
 
+/** Convert internally used IFunctionData instance into UninterpretedFnData (used by backend). */
 export function convertFromIFunction (iFunction: IFunctionData): UninterpretedFnData {
   const fnArguments = iFunction.variables.map(varData => {
     return [varData.monotonicity, varData.essential] as [Monotonicity, Essentiality]
@@ -91,6 +97,7 @@ export function convertFromIFunction (iFunction: IFunctionData): UninterpretedFn
   }
 }
 
+/** Convert ObservationData instance into internally used IObservation. */
 export function convertToIObservation (observationData: ObservationData, variables: string[]): IObservation {
   const obs: IObservation = {
     id: observationData.id,
@@ -105,6 +112,7 @@ export function convertToIObservation (observationData: ObservationData, variabl
   return obs
 }
 
+/** Convert internally used IObservation instance into ObservationData (used by backend). */
 export function convertFromIObservation (
   observation: IObservation,
   datasetId: string,
@@ -122,6 +130,7 @@ export function convertFromIObservation (
   }
 }
 
+/** Convert DatasetData instance into internally used IObservationSet. */
 export function convertToIObservationSet (datasetData: DatasetData): IObservationSet {
   const observations = datasetData.observations.map(
     observationData => convertToIObservation(observationData, datasetData.variables)
@@ -135,6 +144,7 @@ export function convertToIObservationSet (datasetData: DatasetData): IObservatio
   }
 }
 
+/** Convert internally used IObservationSet instance into DatasetData (used by backend). */
 export function convertFromIObservationSet (dataset: IObservationSet): DatasetData {
   const observations = dataset.observations.map(
     obs => convertFromIObservation(obs, dataset.id, dataset.variables)
@@ -148,6 +158,7 @@ export function convertFromIObservationSet (dataset: IObservationSet): DatasetDa
   }
 }
 
+/** Convert VariableData instance into internally used IVariableData. */
 export function convertToIVariable (variable: VariableData): IVariableData {
   return {
     id: variable.id,
@@ -157,6 +168,7 @@ export function convertToIVariable (variable: VariableData): IVariableData {
   }
 }
 
+/** Convert LayoutNodeData instance into internally used ILayoutData. */
 export function convertToILayout (layoutNodes: LayoutNodeData[]): ILayoutData {
   const layout: ILayoutData = new Map()
   layoutNodes.forEach(layoutNode => {
@@ -165,6 +177,7 @@ export function convertToILayout (layoutNodes: LayoutNodeData[]): ILayoutData {
   return layout
 }
 
+/** Convert RegulationData instance into internally used IRegulationData. */
 export function convertToIRegulation (regulation: RegulationData): IRegulationData {
   return {
     id: regulation.regulator + regulation.target,

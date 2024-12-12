@@ -24,6 +24,7 @@ import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 
+/** Component responsible for the properties editor of the editor session. */
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`

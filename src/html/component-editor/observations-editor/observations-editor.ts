@@ -21,6 +21,7 @@ import {
 } from '../../util/utilities'
 import { when } from 'lit/directives/when.js'
 
+/** Component responsible for the observation editor of the editor session. */
 @customElement('observations-editor')
 export default class ObservationsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`

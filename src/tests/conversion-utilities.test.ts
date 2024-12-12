@@ -9,9 +9,22 @@ import {
   type IVariableData, type ILayoutData, type IRegulationData
 } from '../html/util/data-interfaces'
 import {
-  type UninterpretedFnData, type ObservationData, type DatasetData, type VariableData, type LayoutNodeData,
-  type RegulationData
+  type UninterpretedFnData, type ObservationData, type DatasetData, type VariableData,
+  type LayoutNodeData, type RegulationData
 } from '../aeon_state'
+
+/**
+ * Multiple tests for converting between internal structures and their variants used
+ * for communication with backend.
+ *
+ * There are the following matching pairs of structures:
+ * - UninterpretedFnData and IFunction
+ * - ObservationData to IObservation
+ * - DatasetData to IObservationSet
+ * - VariableData to IVariable
+ * - LayoutNodeData to ILayout
+ * - RegulationData to IRegulation
+ **/
 
 const mockUninterpretedFnData: UninterpretedFnData = {
   id: 'fn1',
@@ -47,11 +60,13 @@ const mockIFunctionData: IFunctionData = {
   ]
 }
 
+// Test converting UninterpretedFnData to IFunction.
 test('convertToIFunction', () => {
   const result = convertToIFunction(mockUninterpretedFnData)
   expect(result).toEqual(mockIFunctionData)
 })
 
+// Test converting IFunction to UninterpretedFnData.
 test('convertFromIFunction', () => {
   const result = convertFromIFunction(mockIFunctionData)
   expect(result).toEqual(mockUninterpretedFnData)
@@ -75,12 +90,14 @@ const mockIObservation: IObservation = {
   var2: ''
 }
 
+// Test converting ObservationData to IObservation.
 test('convertToIObservation', () => {
   const variables = ['var0', 'var1', 'var2']
   const result = convertToIObservation(mockObservationData, variables)
   expect(result).toEqual(mockIObservation)
 })
 
+// Test converting IObservation to ObservationData.
 test('convertFromIObservation', () => {
   const variables = ['var0', 'var1', 'var2']
   const result = convertFromIObservation(mockIObservation, 'dataset1', variables)
@@ -103,11 +120,13 @@ const mockIObservationSet: IObservationSet = {
   variables: ['var0', 'var1', 'var2']
 }
 
+// Test converting DatasetData to IObservationSet.
 test('convertToIObservationSet', () => {
   const result = convertToIObservationSet(mockDatasetData)
   expect(result).toEqual(mockIObservationSet)
 })
 
+// Test converting IObservationSet to DatasetData.
 test('convertFromIObservationSet', () => {
   const result = convertFromIObservationSet(mockIObservationSet)
   expect(result).toEqual(mockDatasetData)
@@ -127,6 +146,7 @@ const mockIVariableData: IVariableData = {
   function: 'var1 & var2'
 }
 
+// Test converting VariableData to IVariable.
 test('convertToIVariable', () => {
   const result = convertToIVariable(mockVariableData)
   expect(result).toEqual(mockIVariableData)
@@ -142,6 +162,7 @@ const mockILayoutData: ILayoutData = new Map([
   ['var2', { x: 30, y: 40 }]
 ])
 
+// Test converting LayoutData to ILayout.
 test('convertToILayout', () => {
   const result = convertToILayout(mockLayoutNodes)
   expect(result).toEqual(mockILayoutData)
@@ -162,6 +183,7 @@ const mockIRegulationData: IRegulationData = {
   essential: Essentiality.TRUE
 }
 
+// Test converting RegulationData to IRegulation.
 test('convertToIRegulation', () => {
   const result = convertToIRegulation(mockRegulationData)
   expect(result).toEqual(mockIRegulationData)
