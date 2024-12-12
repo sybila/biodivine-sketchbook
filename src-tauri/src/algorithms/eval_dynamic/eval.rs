@@ -34,7 +34,7 @@ pub fn eval_dyn_prop(
         }
         ProcessedDynProp::ProcessedAttrCount(prop) => {
             // custom implementation (can be made more efficient if needed)
-            // todo: optimize - first just compute fixed-points and get colors where N_fp <= MAX_ATTR
+            // TODO: could be optimized by first computing fixed-points and removing colors where N_fp > MAX_ATTR
 
             // compute full attractors (on remaining colors) and get colors with correct n. of attrs
             let colors_per_num_attrs: Vec<GraphColors> = sort_colors_by_attr_num(graph);

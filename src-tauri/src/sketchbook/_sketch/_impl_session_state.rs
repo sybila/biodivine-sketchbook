@@ -88,8 +88,7 @@ impl SessionState for Sketch {
             let mut contents = String::new();
             file.read_to_string(&mut contents)?;
 
-            // parse the AEON format
-            // TODO: aeon format currently does not support template properties and datasets
+            // parse AEON format (extended with custom annotations)
             let new_sketch = Sketch::from_aeon(&contents)?;
             self.modify_from_sketch(&new_sketch);
 

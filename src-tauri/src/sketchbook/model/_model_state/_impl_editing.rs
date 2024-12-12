@@ -642,7 +642,7 @@ impl ModelState {
         }
 
         // substitute id for this uninterpreted fn in all uninterpreted functions' expressions
-        // TODO: this is a bit inefficient
+        // TODO: there may be more efficient way to do this
         for fn_id in self.uninterpreted_fns.clone().keys() {
             let uninterpreted_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
             let new_uninterpreted_fn = UninterpretedFn::with_substituted_fn_symbol(

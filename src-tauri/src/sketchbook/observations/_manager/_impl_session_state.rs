@@ -289,7 +289,7 @@ impl ObservationManager {
                 let new_dataset_data = DatasetData::from_dataset(&dataset_id, new_dataset);
                 let state_change = mk_obs_state_change(&["remove_var"], &new_dataset_data);
 
-                // TODO: make this potentially reversible?
+                // TODO: we can make this potentially into reversible event
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,
@@ -307,7 +307,7 @@ impl ObservationManager {
                 let new_dataset_data = DatasetData::from_dataset(&dataset_id, new_dataset);
                 let state_change = mk_obs_state_change(&["add_var"], &new_dataset_data);
 
-                // TODO: make this potentially reversible?
+                // TODO: we can make this potentially into reversible event
                 Ok(Consumed::Irreversible {
                     state_change,
                     reset: true,

@@ -260,8 +260,6 @@ pub fn is_update_fn_symbol(fn_symbol: &str) -> bool {
 }
 
 /// Compute a valid name for an "anonymous update function" of the corresponding variable.
-///
-/// TODO: currently does not double check if there are collisions with existing params
 pub fn get_implicit_function_name(variable_name: &str) -> String {
     format!("f_{}", variable_name)
 }

@@ -84,7 +84,6 @@ impl Sketch {
                 let property = prop_data.to_property()?;
 
                 // ignore automatically generated static props as they were added before
-                // todo: this can loose some info as standard AEON format does not cover all regulation types
                 match prop_data.variant {
                     StatPropertyTypeData::RegulationEssential(..)
                     | StatPropertyTypeData::RegulationMonotonic(..) => {}

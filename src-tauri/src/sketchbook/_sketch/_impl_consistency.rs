@@ -64,7 +64,7 @@ impl Sketch {
             message += "> ISSUE: There must be at least one variable.\n";
         }
 
-        // TODO: in future, we can also add a check whether update fns match regulation monotonicity
+        // TODO: in future, we can also add a check if update fn expressions match regulation properties
 
         (consitent, message)
     }

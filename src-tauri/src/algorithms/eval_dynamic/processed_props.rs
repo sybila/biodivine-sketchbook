@@ -137,7 +137,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
             }
             // encode fixed-points HCTL formula
             DynPropertyType::ExistsFixedPoint(prop) => {
-                // TODO: maybe encode as multiple formulae if we have more than one observation (instead of a conjunction)?
+                // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
                 let dataset_id = prop.dataset.clone().unwrap();
                 let dataset = sketch.observations.get_dataset(&dataset_id)?;
                 let formula = encode_dataset_hctl_str(
@@ -149,7 +149,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
             }
             // encode attractors with HCTL formula
             DynPropertyType::HasAttractor(prop) => {
-                // TODO: maybe encode as multiple formulae if we have more than one observation (instead of a conjunction)?
+                // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
                 let dataset_id = prop.dataset.clone().unwrap();
                 let dataset = sketch.observations.get_dataset(&dataset_id)?;
                 let formula = encode_dataset_hctl_str(

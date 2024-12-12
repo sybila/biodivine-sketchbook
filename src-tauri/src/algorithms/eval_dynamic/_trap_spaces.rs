@@ -27,7 +27,7 @@ pub fn colors_where_essential_traps(
     graph: &SymbolicAsyncGraph,
     ctx: &SymbolicSpaceContext,
 ) -> GraphColors {
-    // TODO: before computing Essential traps, restrict the colors to only the ones where all observations are trap spaces
+    // TODO: could be optimized by restricting the colors to subset where all observations are trap spaces
 
     // compute essential spaces
     let essential_traps = compute_essential_trap_spaces(graph, ctx, None);
@@ -65,8 +65,7 @@ pub fn colors_where_minimal_traps(
     graph: &SymbolicAsyncGraph,
     ctx: &SymbolicSpaceContext,
 ) -> GraphColors {
-    // TODO: before computing Minimal traps, restrict the colors to only the ones where all observations are trap spaces
-    // TODO: maybe also restrict the colors to only the ones where the observations are essential trap spaces
+    // TODO: could be optimized by restricting the colors to subset where all observations are trap spaces
 
     // compute minimal spaces
     let minimal_traps = compute_minimal_trap_spaces(graph, ctx, None);
