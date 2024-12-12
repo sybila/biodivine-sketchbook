@@ -51,10 +51,9 @@ Then, after cloning the repository, run `npm install` to download all JS/TS depe
 
 ### Building the app
 
-To build a release version of the app, run `npm run build`. Note that the first build can take a few minutes as the application backend needs to be compiled. Subsequent builds should be a lot faster. 
-To properly build the full installation file for the app, you can also use `cargo tauri build`. It will create an installation bundle at `src-tauri/target/release/bundle`.
+To build a release version of the app, run `npm run tauri build`. It will create an installation bundle at `src-tauri/target/release/bundle/` (the exact path will be displayed at the end of the command's standard output). Note that the first build can take a few minutes as the application backend needs to be compiled. Subsequent builds should be a lot faster. 
 
-To start the application in debug mode, run `npm run tauri dev`. Note that upon startup, the application window can be unresponsive for a few seconds when using development mode. This is because the whole application is running in debug mode without any optimizations. This startup delay should be substantially reduced when using the release binaries produced by `npm run build`.
+To start the application in debug mode, run `npm run tauri dev`. Note that upon startup, the application window can be unresponsive for a few seconds when using development mode. This is because the whole application is running in debug mode without any optimizations. This startup delay should be substantially reduced when using the release binaries produced by `npm run tauri build`.
 
 ### Static analysis, tests, documentation
 
