@@ -9,7 +9,17 @@ Sketchbook presents a way to design all these components and more.
 
 Once you finish designing your sketch, you can run the state-of-the-art synthesis algorithms and symbolically compute all BNs consistent with your requirements. You can then sample individual BNs, or export the results for further analysis with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
-### Citation
+#### Manual
+
+In the provided `manual.pdf`, we discuss the details regarding
+- installation,
+- editing BN sketches in Sketchbook,
+- running BN inference in Sketchbook,
+- format and syntax used.
+
+The installation is also summarized below, with an additional development guide.
+
+#### Citation
 
 If you used Sketchbook for some academic work, we'd be very happy if you could cite it using the following publication:
 
@@ -33,7 +43,7 @@ Alternatively, if you want to build the tool locally, the instructions are provi
 
 The following instructions describe the local installation of the application and relevant frameworks. We recommend using the pre-built binaries described in the previous section.
 
-For a summary of all technologies and detailed project structure, see `project-docs/ARCHITECTURE.md`. The directory `project-docs` also contains other documents relevant to the design/development.
+For a summary of all technologies and detailed project structure, see `project-docs/architecture.md`. The directory `project-docs` also contains other documents relevant to the design/development.
 
 We also provide web-based Rust documentation (including internal modules), currently hosted on [these GitHub pages](https://ondrej33.github.io/biodivine_sketchbook/). Instructions to generate Rust documentation locally are given below.
 
@@ -77,10 +87,11 @@ cargo doc --no-deps --document-private-items
 ```
 
 #### End-to-end tests
-We also utilize an end-to-end Selenium-based testing framework. Note that these tests require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). 
+We also utilize an end-to-end Selenium-based testing framework. Note that these tests require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). You should also update the test configs based on your system.
 
-You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. 
-To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 20000`). 
+You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. You might need to update the configuration at the top of the testing script `test/test.js`, mainly the path to your Sketchbook binary and to your webdriver.
+
+To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 20000`).
 The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.
 However, note that we found the testing framework a bit unstable when the testing machine is overloaded with other tasks. Sometimes, the tests do not go through due to internal WebDriver issues, and we are investigating this.
 

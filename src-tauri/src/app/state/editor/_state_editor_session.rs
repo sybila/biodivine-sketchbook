@@ -38,7 +38,6 @@ impl StackSession for EditorSession {
         // If the state changed due to message processing, we'll have to reset the undo-redo stack
         // (but we do not use messages that make these changes often)
 
-        // todo: make this `mut` when we have some cases here that could mutate state
         let reset_stack = false;
 
         // request from new Inference session for sending a sketch

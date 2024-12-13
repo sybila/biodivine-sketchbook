@@ -29,7 +29,7 @@ fn get_payload_or_panic(event: tauri::Event, event_type: &str) -> String {
     let Some(payload) = event.payload() else {
         let message = format!("No payload in {event_type}.");
         error!("{message}");
-        // TODO: This could be an error.
+        // TODO: think about whether this could be a normal error
         panic!("{message}");
     };
     payload.to_string()

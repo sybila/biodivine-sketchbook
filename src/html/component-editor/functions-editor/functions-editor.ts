@@ -349,7 +349,7 @@ export class FunctionsEditor extends LitElement {
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Supplementary functions</h3>
               <div class="uk-text-center">
-                <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
+                <button id="add-fn-button" @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
               </div>
             </div>
             ${this.contentData?.functions.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No functions defined</span></div>` : ''}

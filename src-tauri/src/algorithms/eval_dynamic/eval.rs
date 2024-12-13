@@ -54,7 +54,7 @@ pub fn eval_dyn_prop(
                 encode_dataset_hctl_str(&prop.dataset, None, DataEncodingType::TrapSpace)?;
             let mut sat_colors = model_check_colors_universal(graph, &trap_space_formula)?;
 
-            // TODO: if needed, restrict colors to only a set where the TSs are minimal or non-percolable
+            // if needed, restrict colors to only a set where the TSs are minimal or non-percolable
             if prop.minimal || prop.nonpercolable {
                 // compute new trap-space context
                 let bn = graph.as_network().unwrap();
