@@ -52,6 +52,8 @@ We also provide web-based Rust documentation (including internal modules), curre
 
 First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
+On some Linux distributions, additional packages might be needed for developing with Tauri. We recommend checking the [setup instructions by Tauri](https://v1.tauri.app/v1/guides/getting-started/prerequisites/).
+
 We have tested the app using the following versions:
 - npm 10.9.0 
 - node 22.11.0
