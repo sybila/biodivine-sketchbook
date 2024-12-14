@@ -95,8 +95,12 @@ To run the tests, first build the app with `cargo tauri build` and then use `npx
 The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.
 However, note that we found the testing framework a bit unstable when the testing machine is overloaded with other tasks. Sometimes, the tests do not go through due to internal WebDriver issues, and we are investigating this.
 
-### Benchmarks
+## Benchmarks and data
 
 The benchmark models, results, and more details are in `data/benchmarks`. 
 There is also a README with further instructions, you can follow it.
 Tldr, to run the performance benchmarks, you can use python and execute them all with `python3 run_performance_eval.py`.
+
+Sketches and datasets relevant to cases studies on biological models and real datasets are in `data/real_cases`. There is also a README with further details.
+
+An example sketch used to introduce the framework is in `data/small_example`. Sketch is available in AEON and JSON format. We also provide results of the inference and the resulting sampled BN candidate.
