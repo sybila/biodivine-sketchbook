@@ -3,7 +3,7 @@ from pathlib import Path
 import zipfile
 
 # Path to the zip archive with results
-zip_file_path = Path("real_cases/results-tlgl.zip")
+zip_file_path = Path("real_cases/tlgl/results.zip")
 
 # Filenames inside the zip archive
 bn_filename = "derived_model.aeon"

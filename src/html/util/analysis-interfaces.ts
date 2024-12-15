@@ -1,9 +1,11 @@
+/** Enum with different variants of inference. */
 export enum InferenceType {
   FullInference = 'FullInference',
   StaticInference = 'StaticInference',
   DynamicInference = 'DynamicInference'
 }
 
+/** Typesafe representation of statuses of the inference computation. */
 export type InferenceStatus =
     | 'Started'
     | 'ProcessedInputs'
@@ -16,6 +18,7 @@ export type InferenceStatus =
     | 'DetectedUnsat'
     | 'FinishedSuccessfully'
 
+/** Report with a summary of the inference computaiton. */
 export interface InferenceStatusReport {
   status: InferenceStatus
   num_candidates: number | null
@@ -23,7 +26,7 @@ export interface InferenceStatusReport {
   message: string
 }
 
-/** An object representing all information regarding inference analysis results. */
+/** Structure representing all information regarding inference results. */
 export interface InferenceResults {
   analysis_type: InferenceType
   num_sat_networks: number

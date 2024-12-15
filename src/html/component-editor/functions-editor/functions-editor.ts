@@ -16,6 +16,7 @@ import { aeonState, type UninterpretedFnData } from '../../../aeon_state'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 
+/** Component responsible for the function editor tab of the editor session. */
 @customElement('functions-editor')
 export class FunctionsEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
@@ -74,6 +75,7 @@ export class FunctionsEditor extends LitElement {
     }])
   }
 
+  /** Dispatch event to root component to save functions. */
   private saveFunctions (functions: IFunctionData[]): void {
     // propagate the current version of functions via event that will be captured by root component
     this.dispatchEvent(new CustomEvent('save-functions', {
@@ -90,6 +92,7 @@ export class FunctionsEditor extends LitElement {
     this.shadowRoot?.getElementById(id)?.scrollIntoView()
   }
 
+  /** Process function data refreshed from backend. */
   #onUninterpretedFnsRefreshed (functions: UninterpretedFnData[]): void {
     const fns = functions.map((data): IFunctionData => {
       return convertToIFunction(data)
@@ -97,16 +100,19 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(fns)
   }
 
+  /** Invoke backend to add new function. */
   private addFunction (): void {
     aeonState.sketch.model.addDefaultUninterpretedFn()
   }
 
+  /** Process and save newly created fn data sent from backend. */
   #onFunctionCreated (data: UninterpretedFnData): void {
     const newFunction = convertToIFunction(data)
     this.contentData.functions.push(newFunction)
     this.saveFunctions([...this.contentData.functions])
   }
 
+  /** Process and save changed fn data sent from backend. */
   #onFunctionDataChanged (data: UninterpretedFnData): void {
     const functions = [...this.contentData.functions]
     const fnIndex = functions.findIndex(f => f.id === data.id)
@@ -121,6 +127,7 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Invoke backend to remove function. */
   private async removeFunction (event: Event): Promise<void> {
     const id = (event as CustomEvent).detail.id
     const message = `Do you want to proceed removing function '${id}'?`
@@ -128,6 +135,7 @@ export class FunctionsEditor extends LitElement {
     aeonState.sketch.model.removeUninterpretedFn(id)
   }
 
+  /** Process and remove fn data sent from backend. */
   #onFunctionRemoved (data: UninterpretedFnData): void {
     const id = data.id
     const index = this.contentData.functions.findIndex(fun => fun.id === id)
@@ -137,16 +145,19 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Invoke backend to set function id. */
   private setFunctionId (event: Event): void {
     const detail = (event as CustomEvent).detail
     aeonState.sketch.model.setUninterpretedFnId(detail.oldId, detail.newId)
   }
 
+  /** Invoke backend to add variable to a function (incrementing it). */
   private addFunctionVariable (event: Event): void {
     const detail = (event as CustomEvent).detail
     aeonState.sketch.model.incrementUninterpretedFnArity(detail.id)
   }
 
+  /** Process and update incremented fn arity sent from backend. */
   #onFunctionArityIncremented (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
@@ -158,12 +169,14 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Invoke backend to toggle function monotonicity. */
   private toggleFunctionVariableMonotonicity (event: Event): void {
     const detail = (event as CustomEvent).detail
     const newMonotonicity = getNextMonotonicity(detail.monotonicity)
     aeonState.sketch.model.setUninterpretedFnMonotonicity(detail.id, detail.index, newMonotonicity)
   }
 
+  /** Process and update changed fn monotonicity sent from backend. */
   #onFunctionMonotonicityChanged (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
@@ -175,12 +188,14 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Invoke backend to toggle function essentiality. */
   private toggleFunctionVariableEssentiality (event: Event): void {
     const detail = (event as CustomEvent).detail
     const newEssentiality = getNextEssentiality(detail.essentiality)
     aeonState.sketch.model.setUninterpretedFnEssentiality(detail.id, detail.index, newEssentiality)
   }
 
+  /** Process and update changed fn essentiality sent from backend. */
   #onFunctionEssentialityChanged (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
@@ -192,11 +207,13 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Invoke backend to set function expression. */
   private setFunctionExpression (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setUninterpretedFnExpression(details.id, details.function)
   }
 
+  /** Process and update changed fn expression sent from backend. */
   #onFunctionExpressionChanged (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
@@ -208,11 +225,13 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Invoke backend to remove function's variable (decrementing it). */
   private async removeFunctionVariable (event: Event): Promise<void> {
     const detail = (event as CustomEvent).detail
     aeonState.sketch.model.decrementUninterpretedFnArity(detail.id)
   }
 
+  /** Process and update decremented fn sent from backend. */
   #onFunctionArityDecremented (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
@@ -224,18 +243,22 @@ export class FunctionsEditor extends LitElement {
     this.saveFunctions(functions)
   }
 
+  /** Open dialog to edit function's name/id/annotation, and propagate changes to backend. */
   private async editFunction (event: Event): Promise<void> {
     const detail = (event as CustomEvent).detail
     const fnIndex = this.contentData.functions.findIndex(f => f.id === detail.id)
     if (fnIndex === -1) return
     const functionData = this.contentData.functions[fnIndex]
 
+    // prepare and save dialog info
     const pos = await appWindow.outerPosition()
     const size = await appWindow.outerSize()
     if (this.dialogs[functionData.id] !== undefined) {
       await this.dialogs[functionData.id]?.setFocus()
       return
     }
+
+    // open the dialog web view window
     const editFnDialog = new WebviewWindow(`editFunction${Math.floor(Math.random() * 1000000)}`, {
       url: 'src/html/component-editor/functions-editor/edit-fn-dialog/edit-fn-dialog.html',
       title: `Edit function (${functionData.id} / ${functionData.name})`,
@@ -249,6 +272,8 @@ export class FunctionsEditor extends LitElement {
       y: pos.y + size.height / 4
     })
     this.dialogs[functionData.id] = editFnDialog
+
+    // add events for communication with the dialog
     void editFnDialog.once('loaded', () => {
       void editFnDialog.emit('edit_fn_update', {
         ...functionData
@@ -272,6 +297,7 @@ export class FunctionsEditor extends LitElement {
     })
   }
 
+  /** Propagate potential changes to function (from edit dialog) to backend. */
   private changeFunction (id: string, updatedFn: IFunctionData): void {
     const origFn = this.contentData.functions.find(f => f.id === id)
     if (origFn === undefined) return
@@ -288,6 +314,7 @@ export class FunctionsEditor extends LitElement {
     }, 50)
   }
 
+  /** Show dialog to confirm deletion of fn, with custom message. */
   private async confirmDeleteDialog (message: string): Promise<boolean> {
     return await dialog.ask(message, {
       type: 'warning',
@@ -297,6 +324,7 @@ export class FunctionsEditor extends LitElement {
     })
   }
 
+  /** Render the function editor component. */
   protected render (): TemplateResult {
     return html`
       <div class="container">
@@ -321,7 +349,7 @@ export class FunctionsEditor extends LitElement {
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Supplementary functions</h3>
               <div class="uk-text-center">
-                <button @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
+                <button id="add-fn-button" @click="${this.addFunction}" class="uk-button uk-button-small uk-button-primary"> + add </button>
               </div>
             </div>
             ${this.contentData?.functions.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No functions defined</span></div>` : ''}

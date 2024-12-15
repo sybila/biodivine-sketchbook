@@ -9,7 +9,6 @@ use crate::sketchbook::JsonSerde;
 
 #[test]
 /// Test adding variable via events.
-/// TODO - add tests for more complex scenarios
 fn test_add_var() {
     let variables = vec![("a", "a")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
@@ -173,7 +172,6 @@ fn test_invalid_var_events() {
 
 #[test]
 /// Test adding regulation via (raw) event.
-/// TODO: add tests for more complex scenarios which requires changes in static properties
 fn test_add_reg_simple() {
     let variables = vec![("a", "a"), ("b", "b")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
@@ -193,7 +191,6 @@ fn test_add_reg_simple() {
 
 #[test]
 /// Test changing regulation's monotonicity and essentiality via event.
-/// TODO: add tests for more complex scenarios which requires changes in static properties
 fn test_change_reg_sign_essentiality() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
     let mut model = ModelState::new_from_vars(variables).unwrap();
@@ -226,7 +223,6 @@ fn test_change_reg_sign_essentiality() {
 
 #[test]
 /// Test removing regulation via (raw) event.
-/// TODO: add tests for more complex scenarios which requires changes in static properties
 fn test_remove_reg_simple() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
     let mut model = ModelState::new_from_vars(variables).unwrap();

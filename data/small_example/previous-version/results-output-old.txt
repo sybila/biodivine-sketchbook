@@ -1,0 +1,17 @@
+Loaded model with 3 vars.
+Model has 8 symbolic parameters.
+After applying update function properties, 16 candidates remain.
+After applying prior-knowledge-based dynamic constraints, 4 candidates remain.
+After applying all dynamic constraints, 1 candidates remain.
+Elapsed time from the start of this computation: 6ms
+-------
+RESULTING NETWORK:
+v_3 -| v_1
+v_1 -?? v_2
+v_2 -? v_3
+v_1 -> v_3
+v_3 -?? v_3
+$v_1: !v_3
+$v_2: v_1
+$v_3: ((v_1 & (!v_2 | v_3)) | (!v_1 & v_3))
+

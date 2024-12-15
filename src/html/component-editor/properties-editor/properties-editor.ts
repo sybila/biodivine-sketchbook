@@ -24,6 +24,7 @@ import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 
+/** Component responsible for the properties editor of the editor session. */
 @customElement('properties-editor')
 export default class PropertiesEditor extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
@@ -105,9 +106,10 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('dynamic-property-edited', (e) => { void this.editDynProperty(e) })
     this.addEventListener('static-property-edited', (e) => { void this.editStatProperty(e) })
 
-    // refresh-event listeners
+    // refresh-event listeners (or listeners to events that update the whole list of props)
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
     aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
+    aeonState.sketch.properties.allStaticUpdated.addEventListener(this.#onStaticRefreshed.bind(this))
 
     // note that the refresh events are automatically triggered or handled (after app refresh) directly
     // from the root component (due to some dependency issues between different components)

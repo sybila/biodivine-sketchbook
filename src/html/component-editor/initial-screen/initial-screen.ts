@@ -3,47 +3,53 @@ import { customElement } from 'lit/decorators.js'
 import style_less from './initial-screen.less?inline'
 import logoPath from '../../../assets/logo-placeholder.png'
 
+/** Component responsible for the initial screen of the application shown after the start. */
 @customElement('initial-screen')
 export class InitialScreen extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
 
+  /** Send the event for opening the editor with a new empty sketch. */
   startNewSketch (): void {
     this.dispatchEvent(new CustomEvent('start-new-sketch', {
       bubbles: true,
       composed: true,
-      detail: {} // maybe include some information later
+      detail: {}
     }))
   }
 
+  /** Send the event to load a JSON sketch. */
   importJsonProject (): void {
     this.dispatchEvent(new CustomEvent('start-import-json', {
       bubbles: true,
       composed: true,
-      detail: {} // maybe include some information later
+      detail: {}
     }))
   }
 
+  /** Send the event to load an AEON sketch. */
   importAeonModel (): void {
     this.dispatchEvent(new CustomEvent('start-import-aeon', {
       bubbles: true,
       composed: true,
-      detail: {} // maybe include some information later
+      detail: {}
     }))
   }
 
+  /** Send the event to load an SBML model. */
   importSbmlModel (): void {
     this.dispatchEvent(new CustomEvent('start-import-sbml', {
       bubbles: true,
       composed: true,
-      detail: {} // maybe include some information later
+      detail: {}
     }))
   }
 
+  /** Send the event for opening the editor with an example sketch. */
   openExampleSketch (): void {
     this.dispatchEvent(new CustomEvent('start-import-example', {
       bubbles: true,
       composed: true,
-      detail: {} // maybe include some information later
+      detail: {}
     }))
   }
 

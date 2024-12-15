@@ -29,11 +29,15 @@ const exampleModelPath = await resolveResource('resources/tlgl.json')
 
 const LAYOUT = 'default'
 
+/** The main root component responsible for the editor session handling on the frontend. */
 @customElement('root-component')
 export default class RootComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
+  /** Main data that are managed and distributed to sub-components. */
   @property() data: ContentData = ContentData.create()
+  /** Tabs of the editor session. */
   @state() tabs: TabData[] = tabList
+  /** Flag to distinguish wheter we should render initial screen on editor. */
   @state() editorStarted: boolean = false
 
   constructor () {
@@ -123,6 +127,7 @@ export default class RootComponent extends LitElement {
     }
   }
 
+  /** Process error message sent by backend, display error dialog. */
   async #onErrorMessage (errorMessage: string): Promise<void> {
     await dialog.message(errorMessage, {
       type: 'error',
@@ -130,6 +135,7 @@ export default class RootComponent extends LitElement {
     })
   }
 
+  /** Process event of tab being pinned. */
   #onPinned (pinned: number[]): void {
     this.tabs = this.tabs.map((tab) =>
       tab.copy({
@@ -139,6 +145,7 @@ export default class RootComponent extends LitElement {
     this.adjustRegEditor()
   }
 
+  /** Process event of tab being switched. */
   #onSwitched (tabId: number): void {
     this.tabs = this.tabs.map((tab) =>
       tab.copy({
@@ -148,16 +155,18 @@ export default class RootComponent extends LitElement {
     this.adjustRegEditor()
   }
 
-  // utility to set the flag for editor rendering (and save to session storage)
+  /** Utility to set the flag for editor rendering (and save to session storage). */
   private startEditor (): void {
     this.editorStarted = true
     sessionStorage.setItem('editorStarted', 'true')
   }
 
+  /** Start editor with a new empty sketch, one of the intial actions. */
   startNewSketch (_event: Event): void {
     this.startEditor()
   }
 
+  /** Start editor by loading a JSON sketch, one of the intial actions. */
   async startImportJson (_event: Event): Promise<void> {
     const success = await this.importJsonInternal()
     if (success) {
@@ -165,6 +174,7 @@ export default class RootComponent extends LitElement {
     }
   }
 
+  /** Start editor by loading an AEON sketch, one of the intial actions. */
   async startImportAeon (_event: Event): Promise<void> {
     const success = await this.importAeonInternal()
     if (success) {
@@ -172,6 +182,7 @@ export default class RootComponent extends LitElement {
     }
   }
 
+  /** Start editor by loading a SBML sketch, one of the intial actions. */
   async startImportSbml (_event: Event): Promise<void> {
     const success = await this.importSbmlInternal()
     if (success) {
@@ -179,24 +190,29 @@ export default class RootComponent extends LitElement {
     }
   }
 
+  /** Start editor by loading an example sketch, one of the intial actions. */
   startImportExample (_event: Event): void {
     console.log('importing example model')
     aeonState.sketch.importSketch(exampleModelPath)
     this.startEditor()
   }
 
+  /** Import new JSON sketch data to the current editor. */
   async importJson (_event: Event): Promise<void> {
     await this.importJsonInternal()
   }
 
+  /** Import new AEON sketch data to the current editor. */
   async importAeon (_event: Event): Promise<void> {
     await this.importAeonInternal()
   }
 
+  /** Import new SBML sketch data to the current editor. */
   async importSbml (_event: Event): Promise<void> {
     await this.importSbmlInternal()
   }
 
+  /** Open the dialog to select JSON sketch and invoke backend to load it. */
   private async importJsonInternal (): Promise<boolean> {
     const selected = await open({
       title: 'Import sketch...',
@@ -221,6 +237,7 @@ export default class RootComponent extends LitElement {
     return true
   }
 
+  /** Open the dialog to select AEON sketch and invoke backend to load it. */
   private async importAeonInternal (): Promise<boolean> {
     const selected = await open({
       title: 'Import aeon model...',
@@ -245,6 +262,7 @@ export default class RootComponent extends LitElement {
     return true
   }
 
+  /** Open the dialog to select SBML sketch and invoke backend to load it. */
   private async importSbmlInternal (): Promise<boolean> {
     const selected = await open({
       title: 'Import sbml model...',
@@ -269,76 +287,89 @@ export default class RootComponent extends LitElement {
     return true
   }
 
+  /** Save functions data sent from one of the sub-components. */
   saveFunctionData (event: Event): void {
     // update functions using modified data propagated from FunctionsEditor
     const functions: IFunctionData[] = (event as CustomEvent).detail.functions
     this.saveFunctions(functions)
   }
 
+  /** Save observations data sent from one of the sub-components. */
   saveObservationData (event: Event): void {
     // update observations using modified data propagated from ObservationsEditor
     const datasets: IObservationSet[] = (event as CustomEvent).detail.datasets
     this.saveObservations(datasets)
   }
 
+  /** Save static properties data sent from one of the sub-components. */
   saveStaticPropertyData (event: Event): void {
     // update properties using modified data propagated from PropertyEditor
     const properties: StaticProperty[] = (event as CustomEvent).detail.staticProperties
     this.saveStaticProperties(properties)
   }
 
+  /** Save dynamic properties data sent from one of the sub-components. */
   saveDynamicPropertyData (event: Event): void {
     // update properties using modified data propagated from PropertyEditor
     const properties: DynamicProperty[] = (event as CustomEvent).detail.dynamicProperties
     this.saveDynamicProperties(properties)
   }
 
+  /** Save annotations data sent from one of the sub-components. */
   saveAnnotationData (event: Event): void {
     // update annotation propagated from AnnotationTab
     const annotation: string = (event as CustomEvent).detail.annotation
     this.saveAnnotation(annotation)
   }
 
+  /** Save dynamic properties data sent from backend. */
   private saveDynamicProperties (dynamicProperties: DynamicProperty[]): void {
     dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ dynamicProperties })
   }
 
+  /** Save static properties data sent from backend. */
   private saveStaticProperties (staticProperties: StaticProperty[]): void {
     staticProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ staticProperties })
   }
 
+  /** Save observations data. */
   private saveObservations (observations: IObservationSet[]): void {
     observations.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ observations })
   }
 
+  /** Save functions data. */
   private saveFunctions (functions: IFunctionData[]): void {
     functions.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ functions })
   }
 
+  /** Save variables data. */
   private saveVariables (variables: IVariableData[]): void {
     variables.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ variables })
   }
 
+  /** Save regulations data. */
   private saveRegulations (regulations: IRegulationData[]): void {
     regulations.sort((a, b) => (a.source + a.target > b.source + b.target ? 1 : -1))
     this.data = this.data.copy({ regulations })
   }
 
+  /** Save layout data. */
   private saveLayout (layout: ILayoutData): void {
     this.data = this.data.copy({ layout })
   }
 
+  /** Save sketch annotation data. */
   private saveAnnotation (annotation: string): void {
     this.data = this.data.copy({ annotation })
   }
 
-  // Wrapper to save all components of the model at the same time.
-  // Saving everything at the same time can help dealing with inconsistencies.
+  /** Wrapper to save all components of the model at the same time.
+   * Saving everything at the same time is more efficient and avoids inconsistencies. */
   private saveWholeModel (
     functions: IFunctionData[],
     variables: IVariableData[],
@@ -351,8 +382,8 @@ export default class RootComponent extends LitElement {
     this.data = this.data.copy({ functions, variables, regulations, layout })
   }
 
-  // Wrapper to save all components of the model at the same time.
-  // Saving everything at the same time can help dealing with inconsistencies.
+  /** Wrapper to save all components of the whole sketch at the same time.
+   * Saving everything at the same time is more efficient and avoids inconsistencies. */
   private saveWholeSketch (
     functions: IFunctionData[],
     variables: IVariableData[],
@@ -381,9 +412,11 @@ export default class RootComponent extends LitElement {
     })
   }
 
-  // Set variable data (currently, sets a name and annotation).
-  // The event should have fields 'id' with the variables (unchanged) ID and then (modified)
-  // 'name' and 'annotation'.
+  /**
+   * Invoke backend to set variable data (currently, sets a name and annotation).
+   * The event should have fields 'id' with the variables (unchanged) ID and then (modified)
+   * 'name' and 'annotation'.
+   */
   setVariableData (event: Event): void {
     const details = (event as CustomEvent).detail
     const variableIndex = this.data.variables.findIndex(v => v.id === details.id)
@@ -398,6 +431,7 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.setVariableData(details.id, varData)
   }
 
+  /** Process updated variable data coming from the backend. */
   #onVariableDataChanged (data: VariableData): void {
     const variables = [...this.data.variables]
     const variableIndex = variables.findIndex(variable => variable.id === data.id)
@@ -412,6 +446,7 @@ export default class RootComponent extends LitElement {
     this.saveVariables(variables)
   }
 
+  /** Invoke backend to add new variable. */
   private addNewVariable (event: Event): void {
     const details = (event as CustomEvent).detail
     const position: LayoutNodeDataPrototype = {
@@ -422,6 +457,7 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.addDefaultVariable(position)
   }
 
+  /** Process new variable data coming from the backend. */
   #onVariableCreated (data: VariableData): void {
     const variables = [...this.data.variables]
     variables.push({
@@ -433,11 +469,13 @@ export default class RootComponent extends LitElement {
     this.saveVariables(variables)
   }
 
+  /** Invoke backend to add new regulation. */
   private addRegulation (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.addRegulation(details.source, details.target, details.monotonicity, details.essential)
   }
 
+  /** Process new regulation data coming from the backend. */
   #onRegulationCreated (data: RegulationData): void {
     const regulations = [...this.data.regulations]
     regulations.push({
@@ -450,6 +488,7 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(regulations)
   }
 
+  /** Invoke backend to remove variable (triggering warning before). */
   private async removeVariable (event: Event): Promise<void> {
     const variableId = (event as CustomEvent).detail.id
     const message = `Removing variable ${variableId} will also erase all its regulations. Do you want to proceed?`
@@ -457,6 +496,7 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.removeVariable(variableId)
   }
 
+  /** Process removal of regulation coming from the backend. */
   #onVariableRemoved (data: VariableData): void {
     this.saveVariables(
       this.data.variables.filter((variable) => variable.id !== data.id)
@@ -485,11 +525,13 @@ export default class RootComponent extends LitElement {
     return this.tabs.sort((a, b) => a.id - b.id).filter((tab) => tab.pinned || tab.active)
   }
 
+  /** Invoke backend to change a position of node in the network. */
   private changeNodePosition (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.changeNodePosition(LAYOUT, details.id, details.position.x, details.position.y)
   }
 
+  /** Process node position change coming from the backend. */
   #onNodePositionChanged (data: LayoutNodeData): void {
     const layout = new Map(this.data.layout)
     layout.set(data.variable, {
@@ -499,16 +541,19 @@ export default class RootComponent extends LitElement {
     this.saveLayout(layout)
   }
 
+  /** Invoke backend to change variable's ID. */
   private setVariableId (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setVariableId(details.oldId, details.newId)
   }
 
+  /** Invoke backend to change regulation's essentiality. */
   private toggleRegulationEssentiality (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setRegulationEssentiality(details.source, details.target, getNextEssentiality(details.essential))
   }
 
+  /** Process regulation essentiality change coming from the backend. */
   #regulationEssentialityChanged (data: RegulationData): void {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
@@ -520,11 +565,13 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(regulations)
   }
 
+  /** Invoke backend to change regulation's monotonicity. */
   private toggleRegulationMonotonicity (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setRegulationSign(details.source, details.target, getNextMonotonicity(details.monotonicity))
   }
 
+  /** Process regulation monotonicity change coming from the backend. */
   #onRegulationMonotonicityChanged (data: RegulationData): void {
     const index = this.data.regulations.findIndex((reg) => reg.source === data.regulator && reg.target === data.target)
     if (index === -1) return
@@ -536,11 +583,13 @@ export default class RootComponent extends LitElement {
     this.saveRegulations(regulations)
   }
 
+  /** Invoke backend to change variable's update fn. */
   private setVariableFunction (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setVariableUpdateFn(details.id, details.function)
   }
 
+  /** Process variable's update fn change coming from the backend. */
   #onUpdateFnChanged (data: VariableData): void {
     const variableIndex = this.data.variables.findIndex(variable => variable.id === data.id)
     if (variableIndex === -1) return
@@ -552,22 +601,25 @@ export default class RootComponent extends LitElement {
     this.saveVariables(variables)
   }
 
+  /** Invoke backend to remove regulation. */
   private async removeRegulation (event: Event): Promise<void> {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.removeRegulation(details.source, details.target)
   }
 
+  /** Process regulation removal coming from the backend. */
   #onRegulationRemoved (data: RegulationData): void {
     this.saveRegulations(
       this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
 
-    // todo: this is a hack for now, to avoid issues in static prop removing after the regulation is removed
+    // a hacky way to avoid issues in static properties after the regulation is removed
     setTimeout(() => {
       aeonState.sketch.properties.refreshStaticProps()
     }, 50)
   }
 
+  /** Process and save refreshed sketch data coming from the backend. */
   #onSketchRefreshed (sketch: SketchData): void {
     const datasets = sketch.datasets.map(d => convertToIObservationSet(d))
     const functions = sketch.model.uninterpreted_fns.map(f => convertToIFunction(f))
@@ -587,7 +639,7 @@ export default class RootComponent extends LitElement {
     )
   }
 
-  // refresh all components of the model, and save them at the same time
+  /** Process and save refreshed model data coming from the backend. */
   #onModelRefreshed (model: ModelData): void {
     const functions = model.uninterpreted_fns.map(f => convertToIFunction(f))
     const variables = model.variables.map(v => convertToIVariable(v))
@@ -597,18 +649,22 @@ export default class RootComponent extends LitElement {
     this.saveWholeModel(functions, variables, regulations, layout)
   }
 
+  /** Process and save refreshed variable data coming from the backend. */
   #onVariablesRefreshed (variables: VariableData[]): void {
     this.saveVariables(variables.map(v => convertToIVariable(v)))
   }
 
+  /** Process and save refreshed layout data coming from the backend. */
   #onLayoutNodesRefreshed (layoutNodes: LayoutNodeData[]): void {
     this.saveLayout(convertToILayout(layoutNodes))
   }
 
+  /** Process and save refreshed regulations data coming from the backend. */
   #onRegulationsRefreshed (regulations: RegulationData[]): void {
     this.saveRegulations(regulations.map(r => convertToIRegulation(r)))
   }
 
+  /** Display a dialog to confirm deletion of a certain component, with custom message. */
   private async confirmDeleteDialog (message: string): Promise<boolean> {
     return await dialog.ask(message, {
       type: 'warning',
@@ -618,6 +674,7 @@ export default class RootComponent extends LitElement {
     })
   }
 
+  /** Conditional rendering of the editor component. */
   render (): TemplateResult {
     const visibleTabs = this.visibleTabs()
     return html`

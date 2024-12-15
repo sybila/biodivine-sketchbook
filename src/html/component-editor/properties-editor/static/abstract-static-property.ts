@@ -38,8 +38,7 @@ export default class abstractStaticProperty extends AbstractProperty {
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
           <label class="uk-form-label" for="id-field">ID</label>
-          <input id="id-field" class="uk-input" .value="${this.property.id}"
-                 @input="${(e: InputEvent) => this.idUpdated((e.target as HTMLInputElement).value)}"/>
+          <input id="id-field" class="uk-input static-name-field" .value="${this.property.id}" readonly/>
         </div>
         <div class="uk-flex uk-flex-column name-section">
           <label class="uk-form-label" for="name-field">NAME</label>

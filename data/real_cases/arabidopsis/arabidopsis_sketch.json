@@ -1,0 +1,931 @@
+{
+  "annotation": "",
+  "model": {
+    "variables": [
+      {
+        "id": "AGO1",
+        "name": "AGO1",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AGO10",
+        "name": "AGO10",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AGO1_miR165",
+        "name": "AGO1_miR165",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AGO7",
+        "name": "AGO7",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AGO7_miR390",
+        "name": "AGO7_miR390",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "ANT",
+        "name": "ANT",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "ARF4",
+        "name": "ARF4",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AS1",
+        "name": "AS1",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AS1_AS2",
+        "name": "AS1_AS2",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AS2",
+        "name": "AS2",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "AUXINh",
+        "name": "AUXINh",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "CKh",
+        "name": "CKh",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "ETT",
+        "name": "ETT",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "FIL",
+        "name": "FIL",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "GTE6",
+        "name": "GTE6",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "IPT5",
+        "name": "IPT5",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "KAN1",
+        "name": "KAN1",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "REV",
+        "name": "REV",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "TAS3siRNA",
+        "name": "TAS3siRNA",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "miR165",
+        "name": "miR165",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "miR390",
+        "name": "miR390",
+        "annotation": "",
+        "update_fn": ""
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "AGO1",
+        "target": "AGO1_miR165",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "AGO10",
+        "target": "AGO1",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AGO1_miR165",
+        "target": "REV",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "AGO7",
+        "target": "AGO7_miR390",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "AGO7_miR390",
+        "target": "TAS3siRNA",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "ANT",
+        "target": "FIL",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "ARF4",
+        "target": "FIL",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AS1",
+        "target": "AS1_AS2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "AS1_AS2",
+        "target": "KAN1",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AS1_AS2",
+        "target": "miR165",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AS2",
+        "target": "AS1_AS2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "AUXINh",
+        "target": "ANT",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AUXINh",
+        "target": "ARF4",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AUXINh",
+        "target": "AUXINh",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AUXINh",
+        "target": "REV",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "AUXINh",
+        "target": "miR390",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "CKh",
+        "target": "GTE6",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "ETT",
+        "target": "FIL",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "FIL",
+        "target": "ARF4",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "FIL",
+        "target": "ETT",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "FIL",
+        "target": "KAN1",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "GTE6",
+        "target": "AS1",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "IPT5",
+        "target": "CKh",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "KAN1",
+        "target": "AS2",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "REV",
+        "target": "AGO10",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "REV",
+        "target": "AGO7",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "REV",
+        "target": "IPT5",
+        "sign": "Activation",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "TAS3siRNA",
+        "target": "ARF4",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "TAS3siRNA",
+        "target": "ETT",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "TAS3siRNA",
+        "target": "miR165",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "miR165",
+        "target": "AGO1_miR165",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "miR390",
+        "target": "AGO7_miR390",
+        "sign": "Activation",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "ARF4",
+            "px": -74.91142,
+            "py": -218.5323
+          },
+          {
+            "layout": "default",
+            "variable": "CKh",
+            "px": -235.80388,
+            "py": -65.14867
+          },
+          {
+            "layout": "default",
+            "variable": "ANT",
+            "px": -152.03842,
+            "py": -183.62268
+          },
+          {
+            "layout": "default",
+            "variable": "AGO7",
+            "px": 315.59872,
+            "py": 76.21962
+          },
+          {
+            "layout": "default",
+            "variable": "FIL",
+            "px": 27.96114,
+            "py": -238.2047
+          },
+          {
+            "layout": "default",
+            "variable": "AS1_AS2",
+            "px": 222.5151,
+            "py": 198.69817
+          },
+          {
+            "layout": "default",
+            "variable": "ETT",
+            "px": 116.12924,
+            "py": -226.75644
+          },
+          {
+            "layout": "default",
+            "variable": "miR390",
+            "px": 180.1229,
+            "py": -203.43517
+          },
+          {
+            "layout": "default",
+            "variable": "KAN1",
+            "px": -172.00859,
+            "py": 186.5409
+          },
+          {
+            "layout": "default",
+            "variable": "IPT5",
+            "px": -244.31677,
+            "py": 0.3059232
+          },
+          {
+            "layout": "default",
+            "variable": "AGO10",
+            "px": -211.38138,
+            "py": 125.12924
+          },
+          {
+            "layout": "default",
+            "variable": "AGO7_miR390",
+            "px": 279.33173,
+            "py": 146.2002
+          },
+          {
+            "layout": "default",
+            "variable": "GTE6",
+            "px": 313.60553,
+            "py": -56.795307
+          },
+          {
+            "layout": "default",
+            "variable": "AS2",
+            "px": 282.20248,
+            "py": -112.04745
+          },
+          {
+            "layout": "default",
+            "variable": "AS1",
+            "px": 239.0624,
+            "py": -165.63762
+          },
+          {
+            "layout": "default",
+            "variable": "REV",
+            "px": -246.3728,
+            "py": 49.55174
+          },
+          {
+            "layout": "default",
+            "variable": "TAS3siRNA",
+            "px": 319.6096,
+            "py": 5.985072
+          },
+          {
+            "layout": "default",
+            "variable": "AGO1_miR165",
+            "px": 33.103477,
+            "py": 250.55807
+          },
+          {
+            "layout": "default",
+            "variable": "miR165",
+            "px": 141.75871,
+            "py": 242.05377
+          },
+          {
+            "layout": "default",
+            "variable": "AUXINh",
+            "px": -197.56892,
+            "py": -128.57117
+          },
+          {
+            "layout": "default",
+            "variable": "AGO1",
+            "px": -87.963394,
+            "py": 234.34479
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [],
+  "dyn_properties": [
+    {
+      "id": "fp2",
+      "name": "fp2",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "(3{x}: (@{x}: (~AGO1 & AGO10 & AGO7 & ANT & ~ARF4 & AS1 & AS2 & ~ETT & ~FIL & ~KAN1 & ~miR165 & miR390 & REV & TAS3siRNA & ~AGO1_miR165 & AGO7_miR390 & AS1_AS2 & AUXINh & CKh & GTE6 & IPT5 & (AX (~AGO1 & AGO10 & AGO7 & ANT & ~ARF4 & AS1 & AS2 & ~ETT & ~FIL & ~KAN1 & ~miR165 & miR390 & REV & TAS3siRNA & ~AGO1_miR165 & AGO7_miR390 & AS1_AS2 & AUXINh & CKh & GTE6 & IPT5)))))"
+    },
+    {
+      "id": "fp1",
+      "name": "fp1",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "(3{x}: (@{x}: (AGO1 & ~AGO10 & ~AGO7 & ANT & ARF4 & ~AS1 & ~AS2 & ETT & FIL & KAN1 & miR165 & miR390 & ~REV & ~TAS3siRNA & AGO1_miR165 & ~AGO7_miR390 & ~AS1_AS2 & AUXINh & ~CKh & ~GTE6 & ~IPT5 & (AX (AGO1 & ~AGO10 & ~AGO7 & ANT & ARF4 & ~AS1 & ~AS2 & ETT & FIL & KAN1 & miR165 & miR390 & ~REV & ~TAS3siRNA & AGO1_miR165 & ~AGO7_miR390 & ~AS1_AS2 & AUXINh & ~CKh & ~GTE6 & ~IPT5)))))"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "essentiality_KAN1_AS2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "KAN1",
+      "target": "AS2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TAS3siRNA_ETT",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "TAS3siRNA",
+      "target": "ETT",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_AGO1_miR165_REV",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AGO1_miR165",
+      "target": "REV",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_miR165_AGO1_miR165",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "miR165",
+      "target": "AGO1_miR165",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_ARF4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "ARF4",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_REV_AGO10",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "REV",
+      "target": "AGO10",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_IPT5_CKh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "IPT5",
+      "target": "CKh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_AS1_AS1_AS2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AS1",
+      "target": "AS1_AS2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ANT_FIL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "ANT",
+      "target": "FIL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_miR390",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "miR390",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GTE6_AS1",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GTE6",
+      "target": "AS1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FIL_KAN1",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FIL",
+      "target": "KAN1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS1_AS2_miR165",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS1_AS2",
+      "target": "miR165",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_TAS3siRNA_ETT",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "TAS3siRNA",
+      "target": "ETT",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_miR390_AGO7_miR390",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "miR390",
+      "target": "AGO7_miR390",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_AGO1_AGO1_miR165",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AGO1",
+      "target": "AGO1_miR165",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_REV",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "REV",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO7_AGO7_miR390",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO7",
+      "target": "AGO7_miR390",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_miR165_AGO1_miR165",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "miR165",
+      "target": "AGO1_miR165",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO10_AGO1",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO10",
+      "target": "AGO1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_miR390_AGO7_miR390",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "miR390",
+      "target": "AGO7_miR390",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_REV_AGO7",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "REV",
+      "target": "AGO7",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_TAS3siRNA_ARF4",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "TAS3siRNA",
+      "target": "ARF4",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_AUXINh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "AUXINh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO1_miR165_REV",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO1_miR165",
+      "target": "REV",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO7_miR390_TAS3siRNA",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO7_miR390",
+      "target": "TAS3siRNA",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FIL_ETT",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FIL",
+      "target": "ETT",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ARF4_FIL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "ARF4",
+      "target": "FIL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS1_AS1_AS2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS1",
+      "target": "AS1_AS2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GTE6_AS1",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GTE6",
+      "target": "AS1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS1_AS2_KAN1",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS1_AS2",
+      "target": "KAN1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_IPT5_CKh",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "IPT5",
+      "target": "CKh",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TAS3siRNA_miR165",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "TAS3siRNA",
+      "target": "miR165",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO1_AGO1_miR165",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO1",
+      "target": "AGO1_miR165",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_ANT",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "ANT",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CKh_GTE6",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CKh",
+      "target": "GTE6",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_AGO7_miR390_TAS3siRNA",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AGO7_miR390",
+      "target": "TAS3siRNA",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_AGO7_AGO7_miR390",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AGO7",
+      "target": "AGO7_miR390",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FIL_ARF4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FIL",
+      "target": "ARF4",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_REV_IPT5",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "REV",
+      "target": "IPT5",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS2_AS1_AS2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS2",
+      "target": "AS1_AS2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ETT_FIL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "ETT",
+      "target": "FIL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TAS3siRNA_ARF4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "TAS3siRNA",
+      "target": "ARF4",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_KAN1_AS2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "KAN1",
+      "target": "AS2",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_AS2_AS1_AS2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AS2",
+      "target": "AS1_AS2",
+      "value": "True",
+      "context": null
+    }
+  ]
+}

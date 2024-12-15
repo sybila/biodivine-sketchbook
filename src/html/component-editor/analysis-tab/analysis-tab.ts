@@ -4,6 +4,7 @@ import style_less from './analysis-tab.less?inline'
 import { ContentData } from '../../util/data-interfaces'
 import { aeonState } from '../../../aeon_state'
 
+/** Component responsible for the analysis tab of the editor session. */
 @customElement('analysis-tab')
 export class AnalysisTab extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
@@ -13,6 +14,7 @@ export class AnalysisTab extends LitElement {
   constructor () {
     super()
 
+    // listen for the consistency check results event
     aeonState.sketch.consistencyResults.addEventListener(
       this.#onConsistencyResults.bind(this)
     )
@@ -28,14 +30,17 @@ export class AnalysisTab extends LitElement {
     }
   }
 
+  /** Initiate the inference window by calling the backend. */
   runInference (): void {
-    aeonState.new_session.createNewAnalysisSession()
+    aeonState.new_session.createNewInferenceSession()
   }
 
+  /** Run the consistency check by calling the backend. */
   checkConsistency (): void {
     aeonState.sketch.checkConsistency()
   }
 
+  /** Process and save the consistency check results. */
   #onConsistencyResults (results: string): void {
     this.consistency_results = results
     console.log('Received consistency check results.')
@@ -57,7 +62,7 @@ export class AnalysisTab extends LitElement {
               <button id="open-inference-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
                       @click="${() => {
                         this.runInference()
-                      }}">Start inference workflow
+                      }}">Start inference session
               </button>
             </div>
           </div>

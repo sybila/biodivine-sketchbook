@@ -9,7 +9,21 @@ Sketchbook presents a way to design all these components and more.
 
 Once you finish designing your sketch, you can run the state-of-the-art synthesis algorithms and symbolically compute all BNs consistent with your requirements. You can then sample individual BNs, or export the results for further analysis with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
-### Citation
+#### Manual and tutorial
+
+In the provided `manual.pdf`, we discuss the details regarding
+- installation,
+- editing BN sketches in Sketchbook,
+- running BN inference in Sketchbook,
+- format and syntax used.
+
+We also provide an introduction to Sketchbook using a short video tutorial that you can find as `tutorial.mp4`.
+This tutorial covers basics on how to edit an sketch and run the inference.
+For more details and explanations, see the manual.
+
+The installation is also summarized below, with an additional development guide.
+
+#### Citation
 
 If you used Sketchbook for some academic work, we'd be very happy if you could cite it using the following publication:
 
@@ -33,11 +47,16 @@ Alternatively, if you want to build the tool locally, the instructions are provi
 
 The following instructions describe the local installation of the application and relevant frameworks. We recommend using the pre-built binaries described in the previous section.
 
-For a summary of all technologies and detailed project structure, see `project-docs/ARCHITECTURE.md`. The directory `project-docs` also contains other documents relevant to the design/development.
+For a summary of all technologies and detailed project structure, see `project-docs/architecture.md`. The directory `project-docs` also contains other documents relevant to the design/development.
+
+We also provide web-based Rust documentation (including internal modules), currently hosted on [these GitHub pages](https://ondrej33.github.io/biodivine_sketchbook/). Instructions to generate Rust documentation locally are given below.
+
 
 ### Installation of dependencies
 
 First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+
+On some Linux distributions, additional packages might be needed for developing with Tauri. We recommend checking the [setup instructions by Tauri](https://v1.tauri.app/v1/guides/getting-started/prerequisites/).
 
 We have tested the app using the following versions:
 - npm 10.9.0 
@@ -48,10 +67,9 @@ Then, after cloning the repository, run `npm install` to download all JS/TS depe
 
 ### Building the app
 
-To build a release version of the app, run `npm run build`. Note that the first build can take a few minutes as the application backend needs to be compiled. Subsequent builds should be a lot faster. 
-To properly build the full installation file for the app, you can also use `cargo tauri build`. It will create an installation bundle at `src-tauri/target/release/bundle`.
+To build a release version of the app, run `npm run tauri build`. It will create an installation bundle at `src-tauri/target/release/bundle/` (the exact path will be displayed at the end of the command's standard output). Note that the first build can take a few minutes as the application backend needs to be compiled. Subsequent builds should be a lot faster. 
 
-To start the application in debug mode, run `npm run tauri dev`. Note that upon startup, the application window can be unresponsive for a few seconds when using development mode. This is because the whole application is running in debug mode without any optimizations. This startup delay should be substantially reduced when using the release binaries produced by `npm run build`.
+To start the application in debug mode, run `npm run tauri dev`. Note that upon startup, the application window can be unresponsive for a few seconds when using development mode. This is because the whole application is running in debug mode without any optimizations. This startup delay should be substantially reduced when using the release binaries produced by `npm run tauri build`.
 
 ### Static analysis, tests, documentation
 
@@ -75,15 +93,20 @@ cargo doc --no-deps --document-private-items
 ```
 
 #### End-to-end tests
-We also utilize an end-to-end Selenium-based testing framework. Note that these tests require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). 
+We also utilize an end-to-end Selenium-based testing framework. Note that these tests require additional dependencies, and they are limited for Linux and Windows (due to MacOS issues with WebDriver). You should also update the test configs based on your system.
 
-You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. 
-To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 20000`). 
+You can follow this [detailed tutorial](https://jonaskruckenberg.github.io/tauri-docs-wip/development/testing.html) for setup. In short, you should install `tauri-driver` (with `cargo install tauri-driver`), and then you will need either `WebKitWebDriver` on Linux or `Microsoft Edge Driver` on Windows (make sure that you have updated Microsoft Edge too). The mocha test runner can be installed with `npm install mocha chai selenium-webdriver`. You might need to update the configuration at the top of the testing script `test/test.js`, mainly the path to your Sketchbook binary and to your webdriver.
+
+To run the tests, first build the app with `cargo tauri build` and then use `npx mocha` (you might need a longer timeout, like `npx mocha --timeout 20000`).
 The framework was tested on Windows with `Microsoft Edge WebDriver` version `130.0.2849.89`.
 However, note that we found the testing framework a bit unstable when the testing machine is overloaded with other tasks. Sometimes, the tests do not go through due to internal WebDriver issues, and we are investigating this.
 
-### Benchmarks
+## Benchmarks and data
 
 The benchmark models, results, and more details are in `data/benchmarks`. 
 There is also a README with further instructions, you can follow it.
 Tldr, to run the performance benchmarks, you can use python and execute them all with `python3 run_performance_eval.py`.
+
+Sketches and datasets relevant to cases studies on biological models and real datasets are in `data/real_cases`. There is also a README with further details.
+
+An example sketch used to introduce the framework is in `data/small_example`. Sketch is available in AEON and JSON format. We also provide results of the inference and the resulting sampled BN candidate.

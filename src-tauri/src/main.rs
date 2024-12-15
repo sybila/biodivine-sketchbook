@@ -3,8 +3,8 @@
 
 use biodivine_sketchbook::app::event::{Event, SessionMessage, StateChange, UserAction};
 use biodivine_sketchbook::app::event_wrappers::{AeonAction, AeonMessage, AeonRefresh};
-use biodivine_sketchbook::app::state::analysis::AnalysisSession;
 use biodivine_sketchbook::app::state::editor::EditorSession;
+use biodivine_sketchbook::app::state::inference::InferenceSession;
 use biodivine_sketchbook::app::state::{AppState, DynSession};
 use biodivine_sketchbook::app::{
     AeonApp, AEON_ACTION, AEON_MESSAGE, AEON_REFRESH, DEFAULT_SESSION_ID, DEFAULT_WINDOW_ID,
@@ -29,7 +29,7 @@ fn get_payload_or_panic(event: tauri::Event, event_type: &str) -> String {
     let Some(payload) = event.payload() else {
         let message = format!("No payload in {event_type}.");
         error!("{message}");
-        // TODO: This could be an error.
+        // TODO: think about whether this could be a normal error
         panic!("{message}");
     };
     payload.to_string()
@@ -64,12 +64,12 @@ fn emit_error(state: &AppState, session_id: &str, aeon: &AeonApp, error_message:
     handle_result(res_emit, &context_msg, true);
 }
 
-/// Handle the set up of a new analysis session (initiated at the editor session `editor_session_id`).
+/// Handle the set up of a new inference session (initiated at the editor session `editor_session_id`).
 ///
-/// Before starting the new analysis session, run a consistency check on the sketch data.
+/// Before starting the new inference session, run a consistency check on the sketch data.
 /// If the check is successful, continue creating the session. If not, user should be
 /// notified about the consistency issues, and we do not create the new session.
-fn handle_new_analysis_session(
+fn handle_new_inference_session(
     handle: &AppHandle,
     state: &State<'_, AppState>,
     aeon: &AeonApp,
@@ -93,7 +93,7 @@ fn handle_new_analysis_session(
 
         // Now that user has all the details, lets just log the problem and send a proper error event to FE
         debug!(
-            "Could not start analysis workflow due to: `{}`.",
+            "Could not start inference session due to: `{}`.",
             e.to_string()
         );
         let message =
@@ -104,23 +104,23 @@ fn handle_new_analysis_session(
         // 1) prepare session and window IDs, and save them to AppState
         let time_now = Utc::now();
         let timestamp = time_now.timestamp();
-        let new_session_id = format!("analysis-{timestamp}");
-        let new_window_id = format!("analysis-{timestamp}-window");
-        let new_session: DynSession = Box::new(AnalysisSession::new(&new_session_id));
+        let new_session_id = format!("inference-{timestamp}");
+        let new_window_id = format!("inference-{timestamp}-window");
+        let new_session: DynSession = Box::new(InferenceSession::new(&new_session_id));
         state.session_created(&new_session_id, new_session);
         state.window_created(&new_window_id, &new_session_id);
 
-        // 2) send a request message "from" the new analysis session to the editor session
+        // 2) send a request message "from" the new inference session to the editor session
         //    asking to transfer Sketch data
         let message = SessionMessage {
             message: Event::build(&["send_sketch"], None),
         };
         let res = state.consume_message(aeon, DEFAULT_SESSION_ID, &new_session_id, &message);
-        let error_msg = "Failed transferring sketch data from editor to analysis";
+        let error_msg = "Failed transferring sketch data from editor to inference session.";
         handle_result(res, error_msg, true);
 
-        // 3) create a new frontend window for the analysis session in tauri
-        let title = format!("Inference Workflow (started on {})", time_now.to_rfc2822());
+        // 3) create a new frontend window for the inference session in tauri
+        let title = format!("Inference session (started on {})", time_now.to_rfc2822());
         let new_window = tauri::WindowBuilder::new(
             handle,
             &new_window_id,
@@ -161,9 +161,9 @@ fn process_aeon_action_event(payload: &str, aeon: &AeonApp, handle: &AppHandle) 
     };
 
     // check for "new-session" events here
-    if action.events.len() == 1 && action.events[0].path == ["new-analysis-session"] {
-        // This `new-analysis-session` event comes from the Editor with the sketch that will be analyzed.
-        handle_new_analysis_session(handle, &state, aeon, &session_id);
+    if action.events.len() == 1 && action.events[0].path == ["new-inference-session"] {
+        // This `new-inference-session` event comes from the Editor with the sketch that will be analyzed.
+        handle_new_inference_session(handle, &state, aeon, &session_id);
     } else {
         let result = state.consume_event(aeon, &session_id, &action);
         if let Err(e) = result {

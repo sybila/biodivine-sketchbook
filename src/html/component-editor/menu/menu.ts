@@ -11,6 +11,7 @@ import { dialog } from '@tauri-apps/api'
 import { when } from 'lit/directives/when.js'
 import { computePosition } from '@floating-ui/dom'
 
+/** Component responsible for the main menu of the editor session. */
 @customElement('hamburger-menu')
 export default class Menu extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`

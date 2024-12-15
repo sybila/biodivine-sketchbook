@@ -7,10 +7,10 @@ mod _state_atomic;
 mod _state_map;
 pub mod _undo_stack;
 
-/// Declares state objects that are unique to the sketchbook analysis window.
-pub mod analysis;
-/// Declares state objects that are unique to the sketchbook editor window.
+/// Declares top-level state objects that are unique to the sketchbook editor session.
 pub mod editor;
+/// Declares top-level state objects that are unique to the sketchbook inference session.
+pub mod inference;
 
 use crate::app::state::_undo_stack::UndoStack;
 use crate::debug;

@@ -13,29 +13,30 @@ import {
 import { dialog } from '@tauri-apps/api'
 import { inferencePingTimer } from '../../util/config'
 
+/** The main component responsible for the inference anylis window. */
 @customElement('analysis-component')
 export default class AnalysisComponent extends LitElement {
   static styles = css`${unsafeCSS(style_less)}`
   @property() sketchData: SketchData | null = null
 
-  // Type of the analysis we are running
-  @state() selected_analysis: InferenceType | null = null
-  // Results of analysis
+  /** Type of the inference analysis we are running */
+  @state() selected_inference: InferenceType | null = null
+  /** Results of the inference */
   @state() results: InferenceResults | null = null
-  // Track the state of the "Randomize" checkbox for sampling
+  /** Track the state of the "Randomize" checkbox for sampling */
   @state() isRandomizeChecked: boolean = false
-  // ID of the `setInterval` we use for pinging backend to get results
+  /** ID of the `setInterval` we use for pinging backend to get results */
   @state() pingIntervalId: ReturnType<typeof setInterval> | undefined = undefined
-  // Number of times backend was pinged already (for current computation)
+  /** Number of times backend was pinged already (for current computation) */
   @state() pingCounter: number = 0
-  // Main HTML text displayed when waiting for analysis results (can depend on analysis type
-  // and can be updated during computation)
+  /** Main HTML text displayed when waiting for inference results (can depend on inference
+  /** type and can be updated during computation) */
   @state() waitingMainMessage: string = ''
-  // Intermediate progress report when waiting for analysis results (can be updated during computation)
+  /** Intermediate progress report when waiting for inference results (updated during computation) */
   @state() waitingProgressReport: string = ''
-  // Number of already evaluated static properties
+  /** Number of already evaluated static properties */
   @state() staticDone: number = 0
-  // Number of already evaluated dynamic properties
+  /** Number of already evaluated dynamic properties */
   @state() dynamicDone: number = 0
 
   constructor () {
@@ -51,17 +52,17 @@ export default class AnalysisComponent extends LitElement {
       void this.#onSketchRefreshed(sketch)
     })
 
-    // updates regarding analysis start received
+    // updates regarding inference start received
     aeonState.analysis.inferenceStarted.addEventListener(
       this.#onInferenceStarted.bind(this)
     )
 
-    // updates regarding analysis results
+    // updates regarding inference results
     aeonState.analysis.inferenceResultsReceived.addEventListener(
       this.#onInferenceResultsReceived.bind(this)
     )
 
-    // updates regarding analysis progress or errors
+    // updates regarding inference progress or errors
     aeonState.analysis.computationUpdated.addEventListener(
       this.#onComputationUpdateReceived.bind(this)
     )
@@ -73,6 +74,7 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.refreshSketch()
   }
 
+  /** Process sketch data sent by backend. */
   async #onSketchRefreshed (sketchData: SketchData): Promise<void> {
     // currently we only accept the sketch data once, and it is frozen later
     // if this changes and we want to allow re-writing sketch data, update this function
@@ -86,6 +88,7 @@ export default class AnalysisComponent extends LitElement {
     }
   }
 
+  /** Process error message sent by backend, display error dialog. */
   async #onErrorMessage (errorMessage: string): Promise<void> {
     await dialog.message(errorMessage, {
       type: 'error',
@@ -93,11 +96,12 @@ export default class AnalysisComponent extends LitElement {
     })
   }
 
+  /** Process confirmation that inference started on the backend, start displaying progress. */
   #onInferenceStarted (success: boolean): void {
     if (success) {
-      console.log('Inference analysis sucessfully started. Starting interval pinging backend.')
+      console.log('Inference computation sucessfully started. Starting pinging backend.')
     } else {
-      console.log('Error starting inference analysis.')
+      console.log('Error starting the inference computation.')
     }
 
     this.waitingProgressReport += '--------------\nDetailed progress report:\n--------------\n'
@@ -110,20 +114,21 @@ export default class AnalysisComponent extends LitElement {
     }, inferencePingTimer)
   }
 
-  // Format the message shown during computation, with an overview of progress (into string with
-  // HTML tag newlines).
+  /** Format the message shown during computation, with an overview of the computation
+   * progress (into HTML string with HTML newline tags). */
   private formatWaitingOverview (): string {
     const staticTotal = this.sketchData?.stat_properties.length
     const dynamicTotal = this.sketchData?.dyn_properties.length
 
     let message = 'Computation is running. Waiting for the results.<br>' +
       `- processed ${this.staticDone} static properties (out of ${staticTotal})<br>`
-    if (this.selected_analysis === InferenceType.FullInference) {
+    if (this.selected_inference === InferenceType.FullInference) {
       message += `- processed ${this.dynamicDone} dynamic properties (out of ${dynamicTotal})<br>`
     }
     return message
   }
 
+  /** Process computation update sent from the backend, updating progress message. */
   #onComputationUpdateReceived (progressReports: InferenceStatusReport[]): void {
     progressReports.forEach((progressUpdate) => {
       console.log(progressUpdate)
@@ -139,6 +144,7 @@ export default class AnalysisComponent extends LitElement {
     })
   }
 
+  /** Process computation error message sent from the backend, logging it and finishing computation. */
   #onComputationErrorMessageReceived (message: string): void {
     console.log(message)
     this.waitingMainMessage = 'Inference computation ended with an error.<br>'
@@ -150,6 +156,7 @@ export default class AnalysisComponent extends LitElement {
     this.pingCounter = 0
   }
 
+  /** Process inference results sent from the backend, stop pinging the backend. */
   #onInferenceResultsReceived (results: InferenceResults): void {
     // stop pinging backend
     clearInterval(this.pingIntervalId)
@@ -160,7 +167,7 @@ export default class AnalysisComponent extends LitElement {
     console.log('Received inference results.')
   }
 
-  // TODO: use this dialog when restarting inference that did not finish yet
+  /** Show the dialog to confirm restarting the inference. */
   private async confirmInferenceRestartDialog (): Promise<boolean> {
     return await dialog.ask('Restarting the inference will erase the current progress and results. Do you want to proceed?', {
       type: 'warning',
@@ -170,19 +177,21 @@ export default class AnalysisComponent extends LitElement {
     })
   }
 
+  /** Invoke the backend to start the inference. */
   private runInference (): void {
-    console.log('Initiating inference analysis.')
+    console.log('Initiating full inference with all properties.')
     aeonState.analysis.startFullInference()
-    this.selected_analysis = InferenceType.FullInference
+    this.selected_inference = InferenceType.FullInference
   }
 
+  /** Invoke the backend to start the inference with static properties. */
   private runStaticInference (): void {
     console.log('Initiating inference with static properties.')
     aeonState.analysis.startStaticInference()
-    this.selected_analysis = InferenceType.StaticInference
+    this.selected_inference = InferenceType.StaticInference
   }
 
-  // Format computation time (given in milliseconds).
+  /** Helper function to format computation time (given in milliseconds). */
   private formatCompTime (ms: number): string {
     if (ms >= 1000) {
       const seconds = Math.floor(ms / 1000)
@@ -193,24 +202,24 @@ export default class AnalysisComponent extends LitElement {
     }
   }
 
-  // Format the results overview (into string with HTML tag newlines).
+  /** Format the results overview (into string with HTML tag newlines). */
   private formatResultsOverview (results: InferenceResults): string {
     /// format time (from pure milliseconds)
     const compTimeStr = this.formatCompTime(results.comp_time)
 
     // different message if sketch is satisfiable/unsatisfiable
     if (results.num_sat_networks > 0) {
-      return 'Analysis finished!<br><br>' +
+      return 'Inference finished!<br><br>' +
         `Number of satisfying candidates: ${results.num_sat_networks}<br>` +
         `Computation time: ${compTimeStr}<br>`
     } else {
-      return 'Analysis finished!<br><br>' +
+      return 'Inference finished!<br><br>' +
         'There are no satisfying candidates.<br>' +
         `Computation time: ${compTimeStr}<br>`
     }
   }
 
-  // Method to format the results for display
+  /** Format the results messages and summary for display. */
   private formatResultsMetadata (results: InferenceResults): string {
     const progressSummary = results
       .progress_statuses
@@ -238,9 +247,10 @@ export default class AnalysisComponent extends LitElement {
     return resultsMessage
   }
 
-  private async resetAnalysis (): Promise<void> {
+  /** Initiate the inference reset. First, user is asked to confirm, the we invoke backend. */
+  private async resetInference (): Promise<void> {
     if (!await this.confirmInferenceRestartDialog()) return
-    console.log('Resetting analysis.')
+    console.log('Resetting inference.')
 
     // stop pinging backend
     clearInterval(this.pingIntervalId)
@@ -248,10 +258,10 @@ export default class AnalysisComponent extends LitElement {
     this.pingCounter = 0
 
     // reset event to backend
-    aeonState.analysis.resetAnalysis()
+    aeonState.analysis.resetInference()
 
-    // clear analysis settings and results
-    this.selected_analysis = null
+    // clear inference settings and results
+    this.selected_inference = null
     this.waitingMainMessage = ''
     this.waitingProgressReport = ''
     this.results = null
@@ -259,6 +269,7 @@ export default class AnalysisComponent extends LitElement {
     this.dynamicDone = 0
   }
 
+  /** Invoke the backend to sample and export BNs according to user selected parameters and paths. */
   private async sampleNetworks (): Promise<void> {
     const witnessCountInput = this.shadowRoot?.getElementById('witness-count') as HTMLInputElement
     if (witnessCountInput === null) {
@@ -293,6 +304,7 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.sampleNetworks(witnessCount, randomSeed, fileName)
   }
 
+  /** Invoke the backend to export results, and let the user select the path. */
   private async dumpFullResults (): Promise<void> {
     const handle = await dialog.save({
       defaultPath: 'results.zip',
@@ -314,12 +326,13 @@ export default class AnalysisComponent extends LitElement {
     aeonState.analysis.dumpFullResults(fileName)
   }
 
-  // Add a handler to update the checkbox state
+  /** Handle changes to the checkbox state for randomized sampling. */
   private handleRandomizeChange (event: Event): void {
     const checkbox = event.target as HTMLInputElement
     this.isRandomizeChecked = checkbox.checked
   }
 
+  /** Render the page for inference, using conditional rendering where possible. */
   render (): TemplateResult {
     return html`
       <div class="container">
@@ -329,9 +342,9 @@ export default class AnalysisComponent extends LitElement {
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
             </div>
   
-            <!-- Conditionally render analysis buttons only if no analysis is selected,
-                 Otherwise, render a button for resetting analysis. -->
-            ${this.selected_analysis === null
+            <!-- Conditionally render inference buttons only if no inference is selected yet,
+                 Otherwise, render a button for resetting inference. -->
+            ${this.selected_inference === null
 ? html`
               <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
                 <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
@@ -356,14 +369,14 @@ export default class AnalysisComponent extends LitElement {
               <div class="reset-buttons">
                 <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary"
                         @click="${() => {
-                          void this.resetAnalysis()
+                          void this.resetInference()
                         }}">Start again
                 </button>
               </div>
             `
 }
-            <!-- Conditionally render results window when analysis starts, centered on screen -->
-            ${this.selected_analysis !== null
+            <!-- Conditionally render results window when inference starts, centered on screen -->
+            ${this.selected_inference !== null
 ? html`
               <div class="results-window">
                 <div class="overview-message uk-text" 

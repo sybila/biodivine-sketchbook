@@ -20,7 +20,8 @@ impl Sketch {
     ///
     /// Note that most of the general consistency (syntax of formulas, check validity and
     /// uniqueness of IDs, ..) is enforced automatically when editing the sketch. However,
-    /// some more complex details are left to be checked (explicitely or before analysis).
+    /// some more complex details are left to be checked (either explicitely or automatically
+    /// before the inference is started).
     ///
     /// This should include:
     /// - check that model is not empty
@@ -63,7 +64,7 @@ impl Sketch {
             message += "> ISSUE: There must be at least one variable.\n";
         }
 
-        // TODO: in future, we can also add a check whether update fns match regulation monotonicity
+        // TODO: in future, we can also add a check if update fn expressions match regulation properties
 
         (consitent, message)
     }
