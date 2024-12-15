@@ -9,13 +9,17 @@ Sketchbook presents a way to design all these components and more.
 
 Once you finish designing your sketch, you can run the state-of-the-art synthesis algorithms and symbolically compute all BNs consistent with your requirements. You can then sample individual BNs, or export the results for further analysis with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
-#### Manual
+#### Manual and tutorial
 
 In the provided `manual.pdf`, we discuss the details regarding
 - installation,
 - editing BN sketches in Sketchbook,
 - running BN inference in Sketchbook,
 - format and syntax used.
+
+We also provide an introduction to Sketchbook using a short video tutorial that you can find as `tutorial.mp4`.
+This tutorial covers basics on how to edit an sketch and run the inference.
+For more details and explanations, see the manual.
 
 The installation is also summarized below, with an additional development guide.
 
