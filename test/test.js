@@ -159,6 +159,7 @@ async function openEmptyModel(driver, rootComponent) {
 }
 
 describe('Basic walkthrough test', () => {
+  /** Very simple test to check if initial window renders correctly. */
   it('should display the welcome message', async () => {
     await sleep(CONFIG.TIMEOUTS.INITIALIZATION);
 
@@ -170,6 +171,11 @@ describe('Basic walkthrough test', () => {
     expect(headingText).to.match(/Welcome to SketchBook/);
   });
 
+  /** 
+   * Test that user can open example and execute the whole inference.
+   * This is the most critical test that ensures the inference session is 
+   * created correctly, and that the main workflow is executable.
+   */
   it('should complete the example inference walkthrough', async () => {
     await sleep(CONFIG.TIMEOUTS.INITIALIZATION);
 
@@ -217,6 +223,7 @@ describe('Basic walkthrough test', () => {
     expect(resultsMessageText).to.include("Number of satisfying candidates: 1296");
   });
 
+  /** Test that user can successfully execute the consistency check. */
   it('should perform an example consistency check', async () => {
     await sleep(CONFIG.TIMEOUTS.INITIALIZATION);
 
@@ -241,6 +248,7 @@ describe('Basic walkthrough test', () => {
     expect(consistencyCheckAreaText).to.match(/No issues with the sketch were discovered!/);
   });
 
+  /** Test that user can successfully create new datasets. */
   it('should create a dataset', async () => {
     await sleep(CONFIG.TIMEOUTS.INITIALIZATION);
 
@@ -265,6 +273,7 @@ describe('Basic walkthrough test', () => {
     expect(datasetContainerText).to.include("dataset_1");
   });
 
+  /** Test that user can successfully create new functions. */
   it('should create a function', async () => {
     await sleep(CONFIG.TIMEOUTS.INITIALIZATION);
 
@@ -289,5 +298,4 @@ describe('Basic walkthrough test', () => {
     const nameFieldText = await nameField.getAttribute('value');
     expect(nameFieldText).to.include("fn_1");
   });
-
 });
