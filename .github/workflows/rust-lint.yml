@@ -18,7 +18,7 @@ env:
 jobs:
     fmt:
         name: rustfmt
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
         env:
             RUSTFLAGS: "-D warnings"
         steps:
@@ -33,7 +33,7 @@ jobs:
     check:
         needs: fmt
         name: check
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
         env:
             RUSTFLAGS: "-D warnings"
         steps:
@@ -51,7 +51,7 @@ jobs:
     test:
         needs: check
         name: test
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
         env:
             RUSTFLAGS: "-D warnings"
         steps:
@@ -70,7 +70,7 @@ jobs:
     clippy:
         needs: check
         name: clippy
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
         env:
             RUSTFLAGS: "-D warnings"
         steps:
