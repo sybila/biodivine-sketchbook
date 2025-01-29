@@ -189,8 +189,8 @@ impl InferenceSolver {
         let candidates_num = self
             .current_candidate_colors()
             .ok()
-            .map(|x| x.exact_cardinality().to_u128().unwrap());
-        let message = self.format_status_message(&status, duration_millis, candidates_num);
+            .map(|x| x.exact_cardinality().to_string());
+        let message = self.format_status_message(&status, duration_millis, candidates_num.clone());
         debug!("{message}");
 
         let status_report =
@@ -210,16 +210,11 @@ impl InferenceSolver {
         &self,
         status: &InferenceStatus,
         comp_time: u128,
-        num_candidates: Option<u128>,
+        num_candidates: Option<String>,
     ) -> String {
         let candidates_str = if num_candidates.is_some() & requires_candidate_num(status) {
             let num = num_candidates.unwrap();
-            if num >= 1_000_000 {
-                // use scientific notation with 3 decimal places for large numbers
-                format!(" ({:.3e} candidates)", num as f64)
-            } else {
-                format!(" ({} candidates)", num)
-            }
+            format!(" ({} candidates)", num)
         } else {
             String::new()
         };

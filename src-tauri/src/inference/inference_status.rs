@@ -37,7 +37,7 @@ pub struct InferenceStatusReport {
     pub status: InferenceStatus,
     /// Optional number of remaining candidates (not needed for some status updates,
     /// like when computation starts or when it finishes with an error).
-    pub num_candidates: Option<u128>,
+    pub num_candidates: Option<String>,
     /// Computation time (from the start) as a number of milliseconds.
     pub comp_time: u128,
     /// Message to be shown at the frontend.
@@ -50,7 +50,7 @@ impl InferenceStatusReport {
     /// Create new `InferenceStatusReport` given all the details.
     pub fn new(
         status: InferenceStatus,
-        num_candidates: Option<u128>,
+        num_candidates: Option<String>,
         comp_time: u128,
         message: &str,
     ) -> InferenceStatusReport {

@@ -115,7 +115,7 @@ mod tests {
                 InferenceStatusReport::new(InferenceStatus::Created, None, 0, "Started"),
                 InferenceStatusReport::new(
                     InferenceStatus::FinishedSuccessfully,
-                    Some(5),
+                    Some("5".to_string()),
                     1500,
                     "Finished",
                 ),

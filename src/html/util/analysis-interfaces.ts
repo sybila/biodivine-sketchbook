@@ -21,7 +21,8 @@ export type InferenceStatus =
 /** Report with a summary of the inference computaiton. */
 export interface InferenceStatusReport {
   status: InferenceStatus
-  num_candidates: number | null
+  // This value is represented as string, since it can exceed the maximum number size in JavaScript
+  num_candidates: string | null
   comp_time: number
   message: string
 }
