@@ -11,6 +11,9 @@ use biodivine_sketchbook::app::{
 };
 use biodivine_sketchbook::{debug, error};
 use chrono::prelude::*;
+use std::panic;
+use std::process;
+use tauri::api::dialog::blocking::MessageDialogBuilder;
 use tauri::{command, AppHandle, Manager, State, Window};
 
 #[command]
@@ -218,6 +221,17 @@ fn main() {
     tauri::Builder::default()
         .manage(state)
         .setup(|app| {
+            let orig_hook = panic::take_hook();
+            panic::set_hook(Box::new(move |panic_info| {
+                // Show backtrace to the user (this does not include line numbers, but
+                // should at least be somewhat informative).
+                let backtrace = std::backtrace::Backtrace::force_capture();
+                MessageDialogBuilder::new("Unexpected error", format!("{}", backtrace)).show();
+                // invoke the default handler and exit the process
+                orig_hook(panic_info);
+                process::exit(1);
+            }));
+
             let handle = app.handle();
             let aeon_original = AeonApp {
                 tauri: handle.clone(),
