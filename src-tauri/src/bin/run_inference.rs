@@ -16,7 +16,6 @@ use std::sync::mpsc::{Receiver, Sender};
     author = "Ondřej Huvar",
     about = "Run the inference of BNs from predefined sketch."
 )]
-
 struct Arguments {
     /// Path to a file with a model in aeon sketch format.
     model_path: String,

@@ -12,7 +12,7 @@ use crate::sketchbook::properties::static_props::SimpleStatPropertyType;
 use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
 use crate::sketchbook::JsonSerde;
 
-/** Constants for event path segments for various events. */
+/* Constants for event path segments for various events. */
 
 // events regarding dynamic properties
 const DYNAMIC_PATH: &str = "dynamic";

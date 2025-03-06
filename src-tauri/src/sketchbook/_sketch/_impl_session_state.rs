@@ -7,7 +7,7 @@ use crate::sketchbook::{JsonSerde, Sketch};
 use std::fs::File;
 use std::io::Read;
 
-/** Constants for event path segments for various events. */
+/* Constants for event path segments for various events. */
 
 // events being delegated to `model` subcomponent
 const MODEL_PATH: &str = "model";

@@ -200,26 +200,32 @@ mod tests {
 
     #[test]
     fn regulation_conversion() {
-        let regulation_strings = ["a -?? b", "b -? c", "c ->? d", "d -> e", "e -|? f", "f -| g", "g -*? h", "h -* i"];
+        let regulation_strings = [
+            "a -?? b", "b -? c", "c ->? d", "d -> e", "e -|? f", "f -| g", "g -*? h", "h -* i",
+        ];
 
         let regulators = ["a", "b", "c", "d", "e", "f", "g", "h"];
         let targets = ["b", "c", "d", "e", "f", "g", "h", "i"];
-        let essentiality = [Essentiality::Unknown,
-            Essentiality::True,
+        let essentiality = [
             Essentiality::Unknown,
             Essentiality::True,
             Essentiality::Unknown,
             Essentiality::True,
             Essentiality::Unknown,
-            Essentiality::True];
-        let regulation_sign = [Monotonicity::Unknown,
+            Essentiality::True,
+            Essentiality::Unknown,
+            Essentiality::True,
+        ];
+        let regulation_sign = [
+            Monotonicity::Unknown,
             Monotonicity::Unknown,
             Monotonicity::Activation,
             Monotonicity::Activation,
             Monotonicity::Inhibition,
             Monotonicity::Inhibition,
             Monotonicity::Dual,
-            Monotonicity::Dual];
+            Monotonicity::Dual,
+        ];
 
         for i in 0..regulation_strings.len() {
             let regulation = Regulation::try_from_string(regulation_strings[i]).unwrap();
