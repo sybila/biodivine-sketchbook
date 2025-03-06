@@ -17,7 +17,7 @@ pub struct ChangeIdData {
     pub metadata: String,
 }
 
-impl<'de> JsonSerde<'de> for ChangeIdData {}
+impl JsonSerde<'_> for ChangeIdData {}
 
 impl ChangeIdData {
     /// Create new `ChangeIdData` object given the two id slices and metadata.

@@ -74,7 +74,7 @@ generate_property_enums!(
     }
 );
 
-impl<'de> JsonSerde<'de> for SimpleDynPropertyType {}
+impl JsonSerde<'_> for SimpleDynPropertyType {}
 
 /// Check if two DynPropertyType instances are of the same variant.
 pub fn are_same_dyn_variant(a: &DynPropertyType, b: &DynPropertyType) -> bool {

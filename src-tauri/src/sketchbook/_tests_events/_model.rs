@@ -83,7 +83,7 @@ fn test_remove_var_complex() {
                 let reg_event = sub_events.first().unwrap();
                 let reg_at_path: Vec<&str> =
                     reg_event.path[2..].iter().map(|s| s.as_str()).collect();
-                model.perform_event(&reg_event, &reg_at_path).unwrap();
+                model.perform_event(reg_event, &reg_at_path).unwrap();
             }
         }
         assert_eq!(model, model_expected);
@@ -302,7 +302,7 @@ fn test_change_fn_expression() {
     // test event for changing uninterpreted fn's expression
     let expression = "var0 | var1";
     let at_path = ["uninterpreted_fn", f.as_str(), "set_expression"];
-    let event = mk_model_event(&at_path, Some(&expression));
+    let event = mk_model_event(&at_path, Some(expression));
     let result = model.perform_event(&event, &at_path).unwrap();
 
     // check if the expression changed correctly, and test reverse event
@@ -319,7 +319,7 @@ fn test_refresh() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
     let regulations = vec!["a -> a", "b -| a", "b -| b"];
     let functions = vec![("f", "f", 2), ("g", "g", 3)];
-    let expressions = vec!["a & !b", "!b"];
+    let expressions = ["a & !b", "!b"];
     let mut model = ModelState::new_from_vars(variables).unwrap();
     model.add_multiple_uninterpreted_fns(functions).unwrap();
     model.add_multiple_regulations(regulations).unwrap();

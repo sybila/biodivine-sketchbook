@@ -310,7 +310,7 @@ mod tests {
 
         // hctl referencing non-existing variable B
         let hctl_formula = "B";
-        let dyn_prop = DynProperty::try_mk_generic("", &hctl_formula, "").unwrap();
+        let dyn_prop = DynProperty::try_mk_generic("", hctl_formula, "").unwrap();
         let mut sketch_copy = sketch.clone();
         sketch_copy
             .properties
@@ -320,7 +320,7 @@ mod tests {
 
         // fol referencing non-existing function g
         let fol_formula = "g(1)";
-        let stat_prop = StatProperty::try_mk_generic("", &fol_formula, "").unwrap();
+        let stat_prop = StatProperty::try_mk_generic("", fol_formula, "").unwrap();
         let mut sketch_copy = sketch.clone();
         sketch_copy
             .properties

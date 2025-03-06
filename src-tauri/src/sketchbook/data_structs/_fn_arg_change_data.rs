@@ -16,8 +16,8 @@ pub struct ChangeArgEssentialData {
     pub essentiality: Essentiality,
 }
 
-impl<'de> JsonSerde<'de> for ChangeArgMonotoneData {}
-impl<'de> JsonSerde<'de> for ChangeArgEssentialData {}
+impl JsonSerde<'_> for ChangeArgMonotoneData {}
+impl JsonSerde<'_> for ChangeArgEssentialData {}
 
 impl ChangeArgMonotoneData {
     /// Create new `ChangeArgMonotoneData` object given the arguments index and its new monotonicity.

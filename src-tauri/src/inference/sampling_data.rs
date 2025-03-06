@@ -9,7 +9,7 @@ pub struct SamplingData {
     pub path: String,
 }
 
-impl<'de> JsonSerde<'de> for SamplingData {}
+impl JsonSerde<'_> for SamplingData {}
 
 impl SamplingData {
     /// Create new `SamplingData` object given all its fields.

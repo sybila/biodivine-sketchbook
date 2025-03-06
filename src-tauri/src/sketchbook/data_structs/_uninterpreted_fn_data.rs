@@ -19,7 +19,7 @@ pub struct UninterpretedFnData {
     pub expression: String,
 }
 
-impl<'de> JsonSerde<'de> for UninterpretedFnData {}
+impl JsonSerde<'_> for UninterpretedFnData {}
 
 impl UninterpretedFnData {
     /// Create new `UninterpretedFnData` object given an uninterpreted fn's `name`, `arity`, and `id`.

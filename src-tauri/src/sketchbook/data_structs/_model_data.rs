@@ -14,7 +14,7 @@ pub struct ModelData {
     pub layouts: Vec<LayoutData>,
 }
 
-impl<'de> JsonSerde<'de> for ModelData {}
+impl JsonSerde<'_> for ModelData {}
 
 impl ModelData {
     /// Create new `SketchData` instance given a reference to a model manager instance.

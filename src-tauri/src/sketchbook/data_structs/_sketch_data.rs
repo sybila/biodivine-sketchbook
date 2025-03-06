@@ -15,7 +15,7 @@ pub struct SketchData {
     pub annotation: String,
 }
 
-impl<'de> JsonSerde<'de> for SketchData {}
+impl JsonSerde<'_> for SketchData {}
 
 impl SketchData {
     /// Create new `SketchData` instance given a reference to all necessary manager classes.

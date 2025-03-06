@@ -16,7 +16,7 @@ pub enum Monotonicity {
     Unknown,
 }
 
-impl<'de> JsonSerde<'de> for Monotonicity {}
+impl JsonSerde<'_> for Monotonicity {}
 
 impl Display for Monotonicity {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {

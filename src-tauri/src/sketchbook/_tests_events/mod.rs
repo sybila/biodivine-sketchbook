@@ -24,7 +24,7 @@ fn check_reverse<T: SessionState + std::fmt::Debug + PartialEq>(
             perform_reverse: (_, reverse),
             ..
         } => {
-            state_after_event.perform_event(&reverse, &at_path).unwrap();
+            state_after_event.perform_event(&reverse, at_path).unwrap();
             assert_eq!(state_after_event, orig_state);
         }
         _ => panic!(),

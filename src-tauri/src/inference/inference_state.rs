@@ -410,7 +410,7 @@ mod tests {
         // check that there are no results at the start, and that we cant
         assert!(inference_state.get_results().is_err());
         // check that we cant get any progress or fetch results as there is no computation
-        assert_eq!(inference_state.try_fetch_results(), false);
+        assert!(!inference_state.try_fetch_results());
         assert!(inference_state.try_get_solver_progress().is_err());
 
         // check that inference on empty sketch fails

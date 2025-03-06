@@ -30,8 +30,8 @@ pub struct DatasetMetaData {
     pub variables: Vec<String>,
 }
 
-impl<'de> JsonSerde<'de> for DatasetData {}
-impl<'de> JsonSerde<'de> for DatasetMetaData {}
+impl JsonSerde<'_> for DatasetData {}
+impl JsonSerde<'_> for DatasetMetaData {}
 
 impl DatasetData {
     /// Create new `DatasetData` object given a reference to a dataset and its ID.

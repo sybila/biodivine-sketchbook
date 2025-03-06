@@ -200,41 +200,35 @@ mod tests {
 
     #[test]
     fn regulation_conversion() {
-        let regulation_strings = vec![
-            "a -?? b", "b -? c", "c ->? d", "d -> e", "e -|? f", "f -| g", "g -*? h", "h -* i",
-        ];
+        let regulation_strings = ["a -?? b", "b -? c", "c ->? d", "d -> e", "e -|? f", "f -| g", "g -*? h", "h -* i"];
 
-        let regulators = vec!["a", "b", "c", "d", "e", "f", "g", "h"];
-        let targets = vec!["b", "c", "d", "e", "f", "g", "h", "i"];
-        let essentiality = vec![
-            Essentiality::Unknown,
+        let regulators = ["a", "b", "c", "d", "e", "f", "g", "h"];
+        let targets = ["b", "c", "d", "e", "f", "g", "h", "i"];
+        let essentiality = [Essentiality::Unknown,
             Essentiality::True,
             Essentiality::Unknown,
             Essentiality::True,
             Essentiality::Unknown,
             Essentiality::True,
             Essentiality::Unknown,
-            Essentiality::True,
-        ];
-        let regulation_sign = vec![
-            Monotonicity::Unknown,
+            Essentiality::True];
+        let regulation_sign = [Monotonicity::Unknown,
             Monotonicity::Unknown,
             Monotonicity::Activation,
             Monotonicity::Activation,
             Monotonicity::Inhibition,
             Monotonicity::Inhibition,
             Monotonicity::Dual,
-            Monotonicity::Dual,
-        ];
+            Monotonicity::Dual];
 
         for i in 0..regulation_strings.len() {
-            let regulation = Regulation::try_from_string(regulation_strings[i.clone()]).unwrap();
+            let regulation = Regulation::try_from_string(regulation_strings[i]).unwrap();
             assert_eq!(regulation.to_string().as_str(), regulation_strings[i]);
 
-            assert_eq!(regulation.regulator.as_str(), regulators[i.clone()]);
-            assert_eq!(regulation.target.as_str(), targets[i.clone()]);
-            assert_eq!(regulation.regulation_sign, regulation_sign[i.clone()]);
-            assert_eq!(regulation.essential, essentiality[i.clone()]);
+            assert_eq!(regulation.regulator.as_str(), regulators[i]);
+            assert_eq!(regulation.target.as_str(), targets[i]);
+            assert_eq!(regulation.regulation_sign, regulation_sign[i]);
+            assert_eq!(regulation.essential, essentiality[i]);
         }
 
         assert!(Regulation::try_from_string("a --> b").is_err());

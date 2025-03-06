@@ -15,7 +15,7 @@ pub struct RegulationData {
     pub essential: Essentiality,
 }
 
-impl<'de> JsonSerde<'de> for RegulationData {}
+impl JsonSerde<'_> for RegulationData {}
 
 impl RegulationData {
     /// Create new `RegulationData` object given references to individual components.

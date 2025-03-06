@@ -29,8 +29,8 @@ pub struct LayoutMetaData {
     pub name: String,
 }
 
-impl<'de> JsonSerde<'de> for LayoutData {}
-impl<'de> JsonSerde<'de> for LayoutMetaData {}
+impl JsonSerde<'_> for LayoutData {}
+impl JsonSerde<'_> for LayoutMetaData {}
 
 impl LayoutData {
     /// Create new `LayoutData` instance given a `layout` and its id.

@@ -28,8 +28,8 @@ pub struct LayoutNodeDataPrototype {
     pub py: f32,
 }
 
-impl<'de> JsonSerde<'de> for LayoutNodeData {}
-impl<'de> JsonSerde<'de> for LayoutNodeDataPrototype {}
+impl JsonSerde<'_> for LayoutNodeData {}
+impl JsonSerde<'_> for LayoutNodeDataPrototype {}
 
 impl LayoutNodeData {
     /// Create new `LayoutNodeData` instance given a node's layout ID, variable ID, and coordinates.

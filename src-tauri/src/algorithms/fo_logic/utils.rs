@@ -137,7 +137,7 @@ fn validate_and_rename_recursive(
     // If we find quantifier, we add new var-name to rename_dict and increment index.
     // After we leave the quantifier's sub-formula, we remove its variable from rename_dict.
     // When we find terminal node with free variable, we rename it using the rename mapping.
-    return match orig_tree.node_type {
+    match orig_tree.node_type {
         // rename vars in terminal state-var nodes
         NodeType::Terminal(ref atom) => match atom {
             Atom::Var(name) => {
@@ -149,7 +149,7 @@ fn validate_and_rename_recursive(
                 Ok(FolTreeNode::mk_variable(renamed_var))
             }
             // constants are always automatically fine
-            _ => return Ok(orig_tree),
+            _ => Ok(orig_tree),
         },
         // just dive one level deeper for unary nodes, and rename string
         NodeType::Unary(op, child) => {
@@ -205,7 +205,7 @@ fn validate_and_rename_recursive(
             }
             Ok(FolTreeNode::mk_function(&name, new_children, is_update))
         }
-    };
+    }
 }
 
 /// For a given FOL variable name, get a base variable of the BN and offset that was used to add

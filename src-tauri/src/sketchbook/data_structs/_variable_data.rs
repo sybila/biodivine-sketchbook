@@ -24,8 +24,8 @@ pub struct VariableWithLayoutData {
     pub layouts: Vec<LayoutNodeDataPrototype>,
 }
 
-impl<'de> JsonSerde<'de> for VariableData {}
-impl<'de> JsonSerde<'de> for VariableWithLayoutData {}
+impl JsonSerde<'_> for VariableData {}
+impl JsonSerde<'_> for VariableWithLayoutData {}
 
 impl VariableData {
     /// Create new `VariableData` object given a variable's `name` and `id` string slices.

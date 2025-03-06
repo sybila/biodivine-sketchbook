@@ -47,17 +47,17 @@ fn is_unary(token: &FolToken) -> bool {
 
 /// Utility method to find the first occurrence of a specific token in the token tree.
 fn index_of_first(tokens: &[FolToken], token: FolToken) -> Option<usize> {
-    return tokens.iter().position(|t| *t == token);
+    tokens.iter().position(|t| *t == token)
 }
 
 /// Utility method to find the first occurrence of a quantifier operator in the token tree.
 fn index_of_first_quantifier(tokens: &[FolToken]) -> Option<usize> {
-    return tokens.iter().position(is_quantifier);
+    tokens.iter().position(is_quantifier)
 }
 
 /// Utility method to find the first occurrence of an unary operator in the token tree.
 fn index_of_first_unary(tokens: &[FolToken]) -> Option<usize> {
-    return tokens.iter().position(is_unary);
+    tokens.iter().position(is_unary)
 }
 
 /// Parse `tokens` of FOL formula into an abstract syntax tree using recursive steps.

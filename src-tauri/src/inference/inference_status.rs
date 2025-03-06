@@ -44,7 +44,7 @@ pub struct InferenceStatusReport {
     pub message: String,
 }
 
-impl<'de> JsonSerde<'de> for InferenceStatusReport {}
+impl JsonSerde<'_> for InferenceStatusReport {}
 
 impl InferenceStatusReport {
     /// Create new `InferenceStatusReport` given all the details.

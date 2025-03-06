@@ -92,7 +92,7 @@ pub struct StatPropertyData {
     pub variant: StatPropertyTypeData,
 }
 
-impl<'de> JsonSerde<'de> for StatPropertyData {}
+impl JsonSerde<'_> for StatPropertyData {}
 
 impl StatPropertyData {
     /// Shorthand to create new generic `StatPropertyData` instance given a properties

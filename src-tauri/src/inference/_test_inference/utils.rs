@@ -39,7 +39,7 @@ pub fn run_inference_check_statuses(
     // test cases are always valid sketches, so we just unwrap
     if let Some(expected_num) = num_statuses {
         let mut real_num = 0;
-        while let Ok(_) = rec_channel.try_recv() {
+        while rec_channel.try_recv().is_ok() {
             real_num += 1;
         }
         assert_eq!(real_num, expected_num);
@@ -71,7 +71,7 @@ pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str:
         .add_dynamic_by_str(id_str, property)
         .unwrap();
     let results = run_inference(sketch);
-    return results.num_sat_networks;
+    results.num_sat_networks
 }
 
 /// Wrapper to add a given static property to the model, run the inference, and return the number  
@@ -82,5 +82,5 @@ pub fn add_stat_prop_and_infer(mut sketch: Sketch, property: StatProperty, id_st
         .add_static_by_str(id_str, property)
         .unwrap();
     let results = run_inference(sketch);
-    return results.num_sat_networks;
+    results.num_sat_networks
 }

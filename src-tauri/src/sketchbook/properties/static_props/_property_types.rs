@@ -74,7 +74,7 @@ generate_property_enums!(
     }
 );
 
-impl<'de> JsonSerde<'de> for SimpleStatPropertyType {}
+impl JsonSerde<'_> for SimpleStatPropertyType {}
 
 /// Check if two StatPropertyType instances are of the same variant.
 pub fn are_same_stat_variant(a: &StatPropertyType, b: &StatPropertyType) -> bool {

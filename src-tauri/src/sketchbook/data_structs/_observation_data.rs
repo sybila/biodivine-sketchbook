@@ -17,7 +17,7 @@ pub struct ObservationData {
     pub values: String,
 }
 
-impl<'de> JsonSerde<'de> for ObservationData {}
+impl JsonSerde<'_> for ObservationData {}
 
 impl ObservationData {
     /// Create new `ObservationData` instance given all its components.

@@ -23,7 +23,7 @@ pub struct InferenceResults {
     pub num_update_fns_per_var: HashMap<String, usize>,
 }
 
-impl<'de> JsonSerde<'de> for InferenceResults {}
+impl JsonSerde<'_> for InferenceResults {}
 
 impl InferenceResults {
     /// Create new `InferenceResults` given all the details.

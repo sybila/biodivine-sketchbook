@@ -71,7 +71,7 @@ pub struct DynPropertyData {
     pub variant: DynPropertyTypeData,
 }
 
-impl<'de> JsonSerde<'de> for DynPropertyData {}
+impl JsonSerde<'_> for DynPropertyData {}
 
 impl DynPropertyData {
     /// Shorthand to create new generic `DynPropertyData` instance given a properties

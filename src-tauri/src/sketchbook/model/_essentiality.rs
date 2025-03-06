@@ -13,4 +13,4 @@ pub enum Essentiality {
     Unknown,
 }
 
-impl<'de> JsonSerde<'de> for Essentiality {}
+impl JsonSerde<'_> for Essentiality {}
