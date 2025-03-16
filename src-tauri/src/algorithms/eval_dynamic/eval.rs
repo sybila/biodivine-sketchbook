@@ -5,17 +5,20 @@ use crate::algorithms::eval_dynamic::_trap_spaces::{
 use crate::algorithms::eval_dynamic::encode::encode_dataset_hctl_str;
 use crate::algorithms::eval_dynamic::prepare_graph::get_ts_extended_symbolic_graph;
 use crate::algorithms::eval_dynamic::processed_props::{DataEncodingType, ProcessedDynProp};
-use biodivine_hctl_model_checker::model_checking::model_check_formula_dirty;
+use biodivine_hctl_model_checker::model_checking::_model_check_formula_dirty;
 use biodivine_lib_param_bn::biodivine_std::traits::Set;
-use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGraph};
+use biodivine_lib_param_bn::symbolic_async_graph::{
+    GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
+};
 
 /// Model check a property and get colors for which the property holds universally (in every state).
-fn model_check_colors_universal(
+fn model_check_colors_universal<F: Fn(&GraphColoredVertices, &str)>(
     stg: &SymbolicAsyncGraph,
     formula: &str,
+    progress_callback: &F,
 ) -> Result<GraphColors, String> {
     // run model checking to compute all valid stat-color pairs
-    let mc_results = model_check_formula_dirty(formula, stg)?;
+    let mc_results = _model_check_formula_dirty(formula, stg, progress_callback)?;
     // do universal projection on the colors of the given `colored_vertices`.
     let complement = stg.unit_colored_vertices().minus(&mc_results);
     let universal_colors = stg.unit_colors().minus(&complement.colors());
@@ -23,14 +26,15 @@ fn model_check_colors_universal(
 }
 
 /// Evaluate given dynamic property given the symbolic transition graph.
-pub fn eval_dyn_prop(
+pub fn eval_dyn_prop<F: Fn(&GraphColoredVertices, &str)>(
     dyn_prop: ProcessedDynProp,
     graph: &SymbolicAsyncGraph,
+    progress_callback: &F,
 ) -> Result<GraphColors, String> {
     match &dyn_prop {
         ProcessedDynProp::ProcessedHctlFormula(prop) => {
             // use HCTL model checking
-            model_check_colors_universal(graph, &prop.formula)
+            model_check_colors_universal(graph, &prop.formula, progress_callback)
         }
         ProcessedDynProp::ProcessedAttrCount(prop) => {
             // custom implementation (can be made more efficient if needed)
@@ -52,7 +56,8 @@ pub fn eval_dyn_prop(
             // get colors where all the observations are (general) trap spaces
             let trap_space_formula =
                 encode_dataset_hctl_str(&prop.dataset, None, DataEncodingType::TrapSpace)?;
-            let mut sat_colors = model_check_colors_universal(graph, &trap_space_formula)?;
+            let mut sat_colors =
+                model_check_colors_universal(graph, &trap_space_formula, progress_callback)?;
 
             // if needed, restrict colors to only a set where the TSs are minimal or non-percolable
             if prop.minimal || prop.nonpercolable {

@@ -458,7 +458,7 @@ impl InferenceSolver {
             self.check_cancellation()?; // check if cancellation flag was set during computation
 
             let prop_id = dyn_property.id().to_string();
-            let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?)?;
+            let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?, &track_progress)?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
                 self.graph()?.symbolic_context(),
@@ -619,4 +619,11 @@ fn requires_candidate_num(status: &InferenceStatus) -> bool {
             | InferenceStatus::DetectedUnsat
             | InferenceStatus::Error
     )
+}
+
+pub(crate) fn track_progress(intermediate_result: &GraphColoredVertices, msg: &str) {
+    println!(
+        "Current BDD size: {};\tMessage: \"{msg}\"",
+        intermediate_result.symbolic_size()
+    );
 }
