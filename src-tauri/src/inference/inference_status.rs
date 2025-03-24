@@ -14,14 +14,20 @@ pub enum InferenceStatus {
     GeneratedContextStatic,
     /// Symbolic context and graph for dynamic props is created.
     GeneratedContextDynamic,
-    /// Static property is evaluated (can happen multiple times).
+    /// Evaluation of a particular static property started.
+    StartedStatic(String),
+    /// Evaluation of a particular static property finished.
     EvaluatedStatic(String),
     /// All static properties are evaluated.
     EvaluatedAllStatic,
-    /// Static property is evaluated (can happen multiple times).
+    /// Evaluation of a particular dynamic property started.
+    StartedDynamic(String),
+    /// Evaluation of a particular dynamic property finished.
     EvaluatedDynamic(String),
     /// All dynamic properties are evaluated.
     EvaluatedAllDynamic,
+    /// Internal progress message (such as progress data from the model checker).
+    InternalProgress(String),
     /// Detected that sketch is unsatisfiable (can happen at the end or during computation).
     DetectedUnsat,
     /// Computation is successfully finished.

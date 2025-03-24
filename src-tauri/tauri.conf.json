@@ -63,7 +63,7 @@
         "width": 1100,
         "height": 666,
         "minWidth": 1000,
-        "minHeight": 600,
+        "minHeight": 666,
         "url": "src/html/sketch-editor.html"
       }
     ]

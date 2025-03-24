@@ -132,7 +132,6 @@ export default class AnalysisComponent extends LitElement {
   #onComputationUpdateReceived (progressReports: InferenceStatusReport[]): void {
     progressReports.forEach((progressUpdate) => {
       console.log(progressUpdate)
-      console.log(progressUpdate.status)
       if (typeof progressUpdate.status === 'object' && 'EvaluatedStatic' in progressUpdate.status) {
         this.staticDone += 1
       }
@@ -383,7 +382,7 @@ export default class AnalysisComponent extends LitElement {
                   .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4) + '<br>'}">
                 </div>
 
-                <textarea rows="12" cols="100" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
+                <textarea rows="12" cols="120" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
 
                 <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
                 ${this.results !== null && this.results.num_sat_networks > 0

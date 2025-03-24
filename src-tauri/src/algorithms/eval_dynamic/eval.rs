@@ -12,10 +12,10 @@ use biodivine_lib_param_bn::symbolic_async_graph::{
 };
 
 /// Model check a property and get colors for which the property holds universally (in every state).
-fn model_check_colors_universal<F: Fn(&GraphColoredVertices, &str)>(
+fn model_check_colors_universal<F: FnMut(&GraphColoredVertices, &str)>(
     stg: &SymbolicAsyncGraph,
     formula: &str,
-    progress_callback: &F,
+    progress_callback: &mut F,
 ) -> Result<GraphColors, String> {
     // run model checking to compute all valid stat-color pairs
     let mc_results = _model_check_formula_dirty(formula, stg, progress_callback)?;
@@ -26,10 +26,10 @@ fn model_check_colors_universal<F: Fn(&GraphColoredVertices, &str)>(
 }
 
 /// Evaluate given dynamic property given the symbolic transition graph.
-pub fn eval_dyn_prop<F: Fn(&GraphColoredVertices, &str)>(
+pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
     dyn_prop: ProcessedDynProp,
     graph: &SymbolicAsyncGraph,
-    progress_callback: &F,
+    progress_callback: &mut F,
 ) -> Result<GraphColors, String> {
     match &dyn_prop {
         ProcessedDynProp::ProcessedHctlFormula(prop) => {
