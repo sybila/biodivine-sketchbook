@@ -4,5 +4,3 @@ pub mod eval_dynamic;
 pub mod eval_static;
 /// Parsing and evaluation of first-order formulas.
 pub mod fo_logic;
-/// Useful utilities for manipulating symbolic contexts and other things.
-pub mod utils;

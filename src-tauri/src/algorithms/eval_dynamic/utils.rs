@@ -5,6 +5,9 @@ use biodivine_lib_param_bn::trap_spaces::{NetworkColoredSpaces, SymbolicSpaceCon
 use biodivine_lib_param_bn::ExtendedBoolean;
 use biodivine_lib_param_bn::Space;
 
+/// A default progress callback that does nothing.
+pub(crate) fn dont_track_progress(_progress: &GraphColoredVertices, _msg: &str) {}
+
 /// Transform an `observation` into a singleton "NetworkColoredSpaces" instance,
 /// i.e., a singleton space with all the valid colors of the `graph`.
 ///

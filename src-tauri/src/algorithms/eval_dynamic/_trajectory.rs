@@ -1,4 +1,4 @@
-use crate::algorithms::eval_dynamic::_attractors::{reach_bwd, reachability_step};
+use crate::algorithms::eval_dynamic::saturated_reachability::{reach_bwd, reachability_step};
 use crate::algorithms::eval_dynamic::utils::transform_obs_to_singleton_vertex;
 use crate::sketchbook::observations::Dataset;
 use biodivine_lib_param_bn::biodivine_std::traits::Set;
@@ -71,7 +71,7 @@ pub fn colors_with_trajectory<F: FnMut(&GraphColoredVertices, &str)>(
     let msg = "Pre-computing backward reachability from the last observation state.";
     progress_callback(universe, msg);
 
-    let bwd_reach_last = reach_bwd(graph, &last_state, universe, &variables);
+    let bwd_reach_last = reach_bwd(graph, &last_state, universe, &variables, progress_callback);
     let mut sat_colors = graph.mk_unit_colors();
     for trajectory_state in &trajectory_states {
         // restrict a subset of colours where this state lays in bwd_reach_last

@@ -3,8 +3,6 @@
 
 /// Interleaved transition guided reduction quickly eliminates most non-attractor states.
 mod itgr;
-/// Reachability algorithms that use saturation for improved efficiency.
-mod saturated_reachability;
 /// Xie-Beerel TSCC algorithm
 mod xie_beerel;
 
@@ -15,22 +13,32 @@ use biodivine_lib_param_bn::{
     symbolic_async_graph::{GraphColoredVertices, GraphColors, SymbolicAsyncGraph},
 };
 
-pub use saturated_reachability::{reach_bwd, reachability_step};
-
 /// Compute terminal SCCs, and sort all the colors according to how many attractors they have.
 /// Returns the vector, where on index i are all colors with i attractors.
-pub fn sort_colors_by_attr_num(graph: &SymbolicAsyncGraph) -> Vec<GraphColors> {
+pub fn sort_colors_by_attr_num<F: FnMut(&GraphColoredVertices, &str)>(
+    graph: &SymbolicAsyncGraph,
+    progress_callback: &mut F,
+) -> Vec<GraphColors> {
     // First, perform ITGR reduction.
-    let (universe, active_variables) =
-        interleaved_transition_guided_reduction(graph, graph.mk_unit_colored_vertices());
+    // TODO: Add internal progress callback into ITGR
+    let initial = graph.mk_unit_colored_vertices();
+    progress_callback(&initial, "Starting state space pre-pruning using the ITGR.");
+    let (universe, active_variables) = interleaved_transition_guided_reduction(graph, initial);
 
     let mut colors_by_num_attrs = Vec::new();
     colors_by_num_attrs.push(graph.mk_unit_colors());
 
-    // Then run Xie-Beerel to actually detect the components, write the states to file
-    xie_beerel_attractors(graph, &universe, &active_variables, |component| {
-        process_component(&mut colors_by_num_attrs, &component);
-    });
+    // Then run Xie-Beerel to actually detect the SCCs
+    progress_callback(&universe, "Starting attractor computation with Xie-Beerel.");
+    xie_beerel_attractors(
+        graph,
+        &universe,
+        &active_variables,
+        |component| {
+            process_component(&mut colors_by_num_attrs, &component);
+        },
+        progress_callback,
+    );
 
     colors_by_num_attrs
 }

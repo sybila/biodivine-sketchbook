@@ -33,13 +33,12 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
     graph: &SymbolicAsyncGraph,
     progress_callback: &mut F,
 ) -> Result<GraphColors, String> {
+    // use this set for initial progress callbacks before the computation starts
+    let initial = graph.empty_colored_vertices();
     match &dyn_prop {
         ProcessedDynProp::ProcessedHctlFormula(prop) => {
             // use HCTL model checking
-            progress_callback(
-                graph.empty_colored_vertices(),
-                "Starting computation with HCTL model checker.",
-            );
+            progress_callback(initial, "Starting computation using HCTL model checker.");
             model_check_colors_universal(graph, &prop.formula, progress_callback)
         }
         ProcessedDynProp::ProcessedAttrCount(prop) => {
@@ -47,11 +46,10 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
             // TODO: could be optimized by first computing fixed-points and removing colors where N_fp > MAX_ATTR
 
             // compute full attractors (on remaining colors) and get colors with correct n. of attrs
-            progress_callback(
-                graph.empty_colored_vertices(),
-                "Starting attractor computation using AEON-based algorithms.",
-            );
-            let colors_per_num_attrs: Vec<GraphColors> = sort_colors_by_attr_num(graph);
+            let initial = graph.empty_colored_vertices();
+            progress_callback(initial, "Starting attractor computation.");
+            let colors_per_num_attrs: Vec<GraphColors> =
+                sort_colors_by_attr_num(graph, progress_callback);
             let mut sat_colors = graph.mk_empty_colors();
             for (num_attrs, color_set) in colors_per_num_attrs.iter().enumerate() {
                 if num_attrs >= prop.minimal && num_attrs <= prop.maximal {
@@ -65,8 +63,8 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
 
             // get colors where all the observations are (general) trap spaces
             progress_callback(
-                graph.empty_colored_vertices(),
-                "Starting trap space computation with HCTL model checker.",
+                initial,
+                "Starting computing trap spaces using model checker.",
             );
             let trap_space_formula =
                 encode_dataset_hctl_str(&prop.dataset, None, DataEncodingType::TrapSpace)?;
@@ -87,26 +85,19 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
 
                 // note that all minimal TSs are non-percolable
                 sat_colors = if prop.minimal {
-                    progress_callback(
-                        graph.empty_colored_vertices(),
-                        "Starting minimal trap spaces computation.",
-                    );
+                    progress_callback(initial, "Starting minimal trap spaces computation.");
                     colors_where_minimal_traps(observations, &var_names, &space_graph, &space_ctx)
                 } else {
-                    progress_callback(
-                        graph.empty_colored_vertices(),
-                        "Starting essential trap spaces computation.",
-                    );
+                    progress_callback(initial, "Starting essential trap spaces computation.");
                     colors_where_essential_traps(observations, &var_names, &space_graph, &space_ctx)
                 };
 
                 // switch color BDDs back to correct context
+                let error_msg =
+                    "Internal error during BDD transfer from one context to another.".to_string();
                 let sat_colors_bdd = original_context
                     .transfer_from(sat_colors.as_bdd(), space_ctx.inner_context())
-                    .ok_or(
-                        "Internal error during BDD transfer from one context to another."
-                            .to_string(),
-                    )?;
+                    .ok_or(error_msg)?;
                 sat_colors = GraphColors::new(sat_colors_bdd, original_context)
             }
 
@@ -114,7 +105,7 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
         }
         ProcessedDynProp::ProcessedSimpleTrajectory(prop) => {
             progress_callback(
-                graph.empty_colored_vertices(),
+                initial,
                 "Starting to compute trajectory using reachability-based algorithm.",
             );
             colors_with_trajectory(&prop.dataset, graph, progress_callback)

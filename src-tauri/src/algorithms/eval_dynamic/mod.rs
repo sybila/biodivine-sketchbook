@@ -6,7 +6,9 @@ pub mod eval;
 pub mod prepare_graph;
 /// Processed variants of dynamic properties for evaluation.
 pub mod processed_props;
-/// Utilities used throughout various algorithms (for example, to convert
+/// Reachability algorithms that use saturation for improved efficiency.
+pub mod saturated_reachability;
+/// Utilities used throughout various algorithms (e.g., different ways to convert
 /// observations into STG spaces or vertices).
 pub mod utils;
 

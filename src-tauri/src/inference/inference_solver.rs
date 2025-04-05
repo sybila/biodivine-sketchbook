@@ -278,7 +278,7 @@ impl InferenceSolver {
             InferenceStatus::Error => "Encountered error during computation.".to_string(),
         };
         if matches!(status, InferenceStatus::InternalProgress(..)) {
-            format!(">>> {comp_time}ms: {msg}{candidates_str}")
+            format!("---> {comp_time}ms: {msg}{candidates_str}")
         } else {
             format!("> {comp_time}ms: {msg}{candidates_str}")
         }
