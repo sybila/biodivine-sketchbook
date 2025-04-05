@@ -15,6 +15,8 @@ use biodivine_lib_param_bn::{
     symbolic_async_graph::{GraphColoredVertices, GraphColors, SymbolicAsyncGraph},
 };
 
+pub use saturated_reachability::{reach_bwd, reachability_step};
+
 /// Compute terminal SCCs, and sort all the colors according to how many attractors they have.
 /// Returns the vector, where on index i are all colors with i attractors.
 pub fn sort_colors_by_attr_num(graph: &SymbolicAsyncGraph) -> Vec<GraphColors> {

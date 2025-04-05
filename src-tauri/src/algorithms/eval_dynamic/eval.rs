@@ -11,6 +11,8 @@ use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
 };
 
+use super::_trajectory::colors_with_trajectory;
+
 /// Model check a property and get colors for which the property holds universally (in every state).
 fn model_check_colors_universal<F: FnMut(&GraphColoredVertices, &str)>(
     stg: &SymbolicAsyncGraph,
@@ -34,6 +36,10 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
     match &dyn_prop {
         ProcessedDynProp::ProcessedHctlFormula(prop) => {
             // use HCTL model checking
+            progress_callback(
+                graph.empty_colored_vertices(),
+                "Starting computation with HCTL model checker.",
+            );
             model_check_colors_universal(graph, &prop.formula, progress_callback)
         }
         ProcessedDynProp::ProcessedAttrCount(prop) => {
@@ -41,6 +47,10 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
             // TODO: could be optimized by first computing fixed-points and removing colors where N_fp > MAX_ATTR
 
             // compute full attractors (on remaining colors) and get colors with correct n. of attrs
+            progress_callback(
+                graph.empty_colored_vertices(),
+                "Starting attractor computation using AEON-based algorithms.",
+            );
             let colors_per_num_attrs: Vec<GraphColors> = sort_colors_by_attr_num(graph);
             let mut sat_colors = graph.mk_empty_colors();
             for (num_attrs, color_set) in colors_per_num_attrs.iter().enumerate() {
@@ -54,6 +64,10 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
             // custom implementation (can definitely be made more efficient if needed)
 
             // get colors where all the observations are (general) trap spaces
+            progress_callback(
+                graph.empty_colored_vertices(),
+                "Starting trap space computation with HCTL model checker.",
+            );
             let trap_space_formula =
                 encode_dataset_hctl_str(&prop.dataset, None, DataEncodingType::TrapSpace)?;
             let mut sat_colors =
@@ -73,8 +87,16 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
 
                 // note that all minimal TSs are non-percolable
                 sat_colors = if prop.minimal {
+                    progress_callback(
+                        graph.empty_colored_vertices(),
+                        "Starting minimal trap spaces computation.",
+                    );
                     colors_where_minimal_traps(observations, &var_names, &space_graph, &space_ctx)
                 } else {
+                    progress_callback(
+                        graph.empty_colored_vertices(),
+                        "Starting essential trap spaces computation.",
+                    );
                     colors_where_essential_traps(observations, &var_names, &space_graph, &space_ctx)
                 };
 
@@ -89,6 +111,13 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
             }
 
             Ok(sat_colors)
+        }
+        ProcessedDynProp::ProcessedSimpleTrajectory(prop) => {
+            progress_callback(
+                graph.empty_colored_vertices(),
+                "Starting to compute trajectory using reachability-based algorithm.",
+            );
+            colors_with_trajectory(&prop.dataset, graph, progress_callback)
         }
     }
 }

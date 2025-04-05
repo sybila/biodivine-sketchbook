@@ -548,9 +548,11 @@ impl InferenceSolver {
         let mut finished_early = false;
 
         /* >> STEP 1: process basic components of the sketch to be used */
-        // this also does few input simplifications, like filtering out unused function symbols from the BN
+        // extract the BN (including input simplifications, like filtering out unused function symbols)
         let bn = Self::extract_bn(&sketch)?;
+        // pre-process static properties into a version more suitable for the computation
         let static_props = process_static_props(&sketch, &bn)?;
+        // pre-process dynamic properties into a version more suitable for the computation
         let dynamic_props = process_dynamic_props(&sketch)?;
 
         self.bn = Some(bn);

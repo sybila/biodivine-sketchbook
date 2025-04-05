@@ -127,10 +127,10 @@ fn inference_template_trap_space() {
 
 #[test]
 /// Test inference using the test model with added trajectory template properties.
-fn inference_template_time_series() {
+fn inference_template_trajectory() {
     // There is a trajectory 1000 -> 1100 -> 1110 -> 1111
     let sketch = load_test_model();
-    let id = "time_serie";
+    let id = "trajectory";
     let data_id = sketch
         .observations
         .get_dataset_id("data_time_series")

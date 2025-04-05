@@ -37,12 +37,24 @@ pub struct ProcessedAttrCount {
     pub maximal: usize,
 }
 
+/// Property requiring existence of trajectory between fully specified observations (each observation
+/// corresponds to a single state of the STG).
+///
+/// This is a special case of the trajectory property, and it can be evaluated more efficiently than
+/// by using the HCTL model checker.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProcessedSimpleTrajectory {
+    pub id: String,
+    pub dataset: Dataset,
+}
+
 /// Enum for processed variants of dynamic properties.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ProcessedDynProp {
     ProcessedAttrCount(ProcessedAttrCount),
     ProcessedTrapSpace(ProcessedTrapSpace),
     ProcessedHctlFormula(ProcessedHctlFormula),
+    ProcessedSimpleTrajectory(ProcessedSimpleTrajectory),
 }
 
 /// Simplified constructors for processed dynamic properties.
@@ -83,12 +95,30 @@ impl ProcessedDynProp {
         ProcessedDynProp::ProcessedAttrCount(property)
     }
 
+    /// Create simple trajectory `ProcessedDynProp` instance.
+    ///
+    /// The given dataset must contain fully specified observations only, otherwise this type of
+    /// property cant be used.
+    pub fn mk_simple_trajectory(id: &str, dataset: Dataset) -> Result<ProcessedDynProp, String> {
+        for obs in dataset.observations() {
+            if obs.num_unspecified_values() > 0 {
+                return Err(format!("Property {id} cant be transformed into simple trajectory, the dataset contains some missing values."));
+            }
+        }
+        let property = ProcessedSimpleTrajectory {
+            id: id.to_string(),
+            dataset,
+        };
+        Ok(ProcessedDynProp::ProcessedSimpleTrajectory(property))
+    }
+
     /// Get ID of the underlying processed property.
     pub fn id(&self) -> &str {
         match &self {
             ProcessedDynProp::ProcessedHctlFormula(prop) => &prop.id,
             ProcessedDynProp::ProcessedAttrCount(prop) => &prop.id,
             ProcessedDynProp::ProcessedTrapSpace(prop) => &prop.id,
+            ProcessedDynProp::ProcessedSimpleTrajectory(prop) => &prop.id,
         }
     }
 }
@@ -163,8 +193,23 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
             DynPropertyType::ExistsTrajectory(prop) => {
                 let dataset_id = prop.dataset.clone().unwrap();
                 let dataset = sketch.observations.get_dataset(&dataset_id)?;
-                let formula = encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
-                ProcessedDynProp::mk_hctl(id.as_str(), &formula)
+
+                // if the dataset does not have any missing values, we use a different optimized method
+                // otherwise, a standard HCTL formula is created and later evaluated with model checker
+
+                let no_missing_values = dataset
+                    .observations()
+                    .iter()
+                    .all(|obs| (obs.num_unspecified_values() == 0));
+                if no_missing_values {
+                    // we can unwrap, since we checked no values are missing
+                    ProcessedDynProp::mk_simple_trajectory(id.as_str(), dataset.clone()).unwrap()
+                } else {
+                    // TODO: optimize the computation for the base case to avoid pure model checking
+                    let formula =
+                        encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
+                    ProcessedDynProp::mk_hctl(id.as_str(), &formula)
+                }
             }
         };
         processed_props.push(dyn_prop_processed);

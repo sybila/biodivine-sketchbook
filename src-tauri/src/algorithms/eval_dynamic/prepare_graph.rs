@@ -39,8 +39,10 @@ pub fn prepare_graph_for_dynamic_hctl(
                 let num_tree_vars = collect_unique_hctl_vars(tree.clone()).len();
                 num_hctl_vars = max(num_hctl_vars, num_tree_vars);
             }
-            // no need for any additional variables for attractor count property
+            // no need for any additional variables for an attractor count property
             ProcessedDynProp::ProcessedAttrCount(..) => {}
+            // no need for any additional variables for a simple trajectory property
+            ProcessedDynProp::ProcessedSimpleTrajectory(..) => {}
             // this one is handled entirely later during evaluation
             ProcessedDynProp::ProcessedTrapSpace(..) => {}
         }
