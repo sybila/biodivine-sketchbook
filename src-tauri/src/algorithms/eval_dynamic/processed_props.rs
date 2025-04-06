@@ -194,18 +194,19 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                 let dataset_id = prop.dataset.clone().unwrap();
                 let dataset = sketch.observations.get_dataset(&dataset_id)?;
 
-                // if the dataset does not have any missing values, we use a different optimized method
+                // if the dataset does not have any missing values and has at least 3 observations, we
+                // use an optimized reachability-based method
                 // otherwise, a standard HCTL formula is created and later evaluated with model checker
 
                 let no_missing_values = dataset
                     .observations()
                     .iter()
                     .all(|obs| (obs.num_unspecified_values() == 0));
-                if no_missing_values {
+                if no_missing_values && dataset.num_observations() > 2 {
                     // we can unwrap, since we checked no values are missing
                     ProcessedDynProp::mk_simple_trajectory(id.as_str(), dataset.clone()).unwrap()
                 } else {
-                    // TODO: optimize the computation for the base case to avoid pure model checking
+                    // TODO: also optimize the computation for the base case to avoid pure model checking
                     let formula =
                         encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
                     ProcessedDynProp::mk_hctl(id.as_str(), &formula)
