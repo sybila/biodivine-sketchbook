@@ -15,15 +15,17 @@ with zipfile.ZipFile(zip_file_path, 'r') as archive:
     with archive.open(bdd_filename) as bdd_file:
         bdd_content = bdd_file.read().decode('utf-8')
 
-# generate the ColorSet instance using model's context
+# Generate the ColorSet instance using model's context
 context = SymbolicContext(bn_model)
 loaded_bdd = Bdd(context.bdd_variable_set(), bdd_content)
 color_set = ColorSet(context, loaded_bdd)
 
-# check the color set (prints also the number of sat interpretations)
-print("Loaded ColorSet instance:", color_set, "\n")
+# Check the color set (prints also the number of sat interpretations)
+print("Successfully loaded ColorSet instance:", color_set, "\n")
 
-# print summary of admissible variants for each update function
+# Now, we can analyze the candidates in any way
+
+# Here, we just print a summary of admissible variants for each update function
 for var in bn_model.variables():
     var_name = bn_model.get_variable_name(var)
     update_fn = bn_model.get_update_function(var)

@@ -25,7 +25,7 @@ impl Sketch {
     ///
     /// This should include:
     /// - check that model is not empty
-    /// - check that dataset variables are valid network variables
+    /// - check that dataset variables are valid network variables and vice versa
     /// - check that various template properties reference valid variables and data
     /// - check that HCTL formulas only use valid variables as atomic propositions
     /// - check that FOL formulas only use valid function symbols
@@ -54,6 +54,8 @@ impl Sketch {
 
     /// Part of the consistency check responsible for the 'model' component.
     /// Returns bool (whether a model is consistent) and formated message with issues.
+    ///
+    /// Essentially, we currently only ensure that the network is not empty.
     fn check_model(&self) -> (bool, String) {
         let mut consitent = true;
         let mut message = String::new();
@@ -64,13 +66,16 @@ impl Sketch {
             message += "> ISSUE: There must be at least one variable.\n";
         }
 
-        // TODO: in future, we can also add a check if update fn expressions match regulation properties
+        // TODO: in future, we can also add a check if update fn expressions match regulation properties,
+        // TODO: which would help users to discover unsatisfiable models earlier
 
         (consitent, message)
     }
 
     /// Part of the consistency check responsible for the 'observations' (datasets) component.
-    /// Returns bool (whether a datasets are consistent) and formated message with issues.
+    /// Returns bool (whether datasets are consistent) and a formated message with issues.
+    ///
+    /// Essentially, we currently check that variables in datasets and in the network exactly match.
     fn check_datasets(&self) -> (bool, String) {
         let mut message = String::new();
         message += "DATASETS:\n";
@@ -86,6 +91,17 @@ impl Sketch {
                         "> ISSUE with dataset `{}`: {issue_var}\n",
                         dataset_id.as_str()
                     );
+                    message += &issue;
+                    dataset_err_found = true;
+                }
+            }
+            // check that all network variables are part of the dataset
+            // TODO: in future, maybe automatically add missing variables before inference instead?
+            for (var_id, _) in self.model.variables() {
+                if !dataset.is_valid_variable(var_id) {
+                    let issue_var =
+                        format!("Variable {var_id} is not present in the dataset {dataset_id}.");
+                    let issue = format!("> ISSUE with dataset `{dataset_id}`: {issue_var}\n");
                     message += &issue;
                     dataset_err_found = true;
                 }
@@ -139,26 +155,26 @@ impl Sketch {
             }
             StatPropertyType::FnInputEssential(p)
             | StatPropertyType::FnInputEssentialContext(p) => {
-                self.assert_fn_valid(p.target.as_ref().unwrap())?;
-                self.assert_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
+                self.assert_fn_valid_in_model(p.target.as_ref().unwrap())?;
+                self.assert_fn_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
                 self.assert_context_valid_or_none(p.context.as_ref())?;
             }
             StatPropertyType::FnInputMonotonic(p)
             | StatPropertyType::FnInputMonotonicContext(p) => {
-                self.assert_fn_valid(p.target.as_ref().unwrap())?;
-                self.assert_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
+                self.assert_fn_valid_in_model(p.target.as_ref().unwrap())?;
+                self.assert_fn_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
                 self.assert_context_valid_or_none(p.context.as_ref())?;
             }
             StatPropertyType::RegulationEssential(p)
             | StatPropertyType::RegulationEssentialContext(p) => {
-                self.assert_var_valid(p.target.as_ref().unwrap())?;
-                self.assert_var_valid(p.input.as_ref().unwrap())?;
+                self.assert_var_valid_in_model(p.target.as_ref().unwrap())?;
+                self.assert_var_valid_in_model(p.input.as_ref().unwrap())?;
                 self.assert_context_valid_or_none(p.context.as_ref())?;
             }
             StatPropertyType::RegulationMonotonic(p)
             | StatPropertyType::RegulationMonotonicContext(p) => {
-                self.assert_var_valid(p.target.as_ref().unwrap())?;
-                self.assert_var_valid(p.input.as_ref().unwrap())?;
+                self.assert_var_valid_in_model(p.target.as_ref().unwrap())?;
+                self.assert_var_valid_in_model(p.input.as_ref().unwrap())?;
                 self.assert_context_valid_or_none(p.context.as_ref())?;
             }
         }
@@ -197,7 +213,7 @@ impl Sketch {
     }
 
     /// Check that variable is valid in a model. If not, return error with a proper message.
-    fn assert_var_valid(&self, var_id: &VarId) -> Result<(), String> {
+    fn assert_var_valid_in_model(&self, var_id: &VarId) -> Result<(), String> {
         if self.model.is_valid_var_id(var_id) {
             Ok(())
         } else {
@@ -207,7 +223,7 @@ impl Sketch {
     }
 
     /// Check that function is valid in a model. If not, return error with a proper message.
-    fn assert_fn_valid(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
+    fn assert_fn_valid_in_model(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
         if self.model.is_valid_uninterpreted_fn_id(fn_id) {
             Ok(())
         } else {
@@ -218,7 +234,7 @@ impl Sketch {
 
     /// Check that input index of uninterpreted function is in range (smaller than the arity).
     /// If not, return error with a proper message.
-    fn assert_index_valid(&self, index: usize, fn_id: &UninterpretedFnId) -> Result<(), String> {
+    fn assert_fn_index_valid(&self, index: usize, fn_id: &UninterpretedFnId) -> Result<(), String> {
         let arity = self.model.get_uninterpreted_fn_arity(fn_id)?;
         if arity <= index {
             let msg =
@@ -333,16 +349,35 @@ mod tests {
     /// Test that consistency check fails if a dataset contains variable not
     /// present in the model.
     fn consistency_dataset() {
-        // build a simple sketch with one variable A and function symbol f
-        let mut sketch = Sketch::from_aeon("A -> A\n$A:f(A)").unwrap();
+        // build a simple sketch with one variables A, B and a function symbol f
+        let sketch = Sketch::from_aeon("A -> A\nB -> B\n$A:f(A)\n$B:f(B)").unwrap();
         assert!(sketch.assert_consistency().is_ok());
 
-        // hctl referencing non-existing variable B
-        let dataset = Dataset::new_empty("d", vec!["A", "B"]).unwrap();
-        sketch
+        // dataset referencing additional non-existing variable C
+        let dataset = Dataset::new_empty("d1", vec!["A", "B", "C"]).unwrap();
+        let mut sketch_copy = sketch.clone();
+        sketch_copy
             .observations
-            .add_dataset_by_str("d", dataset)
+            .add_dataset_by_str("d1", dataset)
             .unwrap();
-        assert!(sketch.assert_consistency().is_err());
+        assert!(sketch_copy.assert_consistency().is_err());
+
+        // dataset missing variable B
+        let dataset = Dataset::new_empty("d2", vec!["A"]).unwrap();
+        let mut sketch_copy = sketch.clone();
+        sketch_copy
+            .observations
+            .add_dataset_by_str("d2", dataset)
+            .unwrap();
+        assert!(sketch_copy.assert_consistency().is_err());
+
+        // dataset that is consistent with the model
+        let dataset = Dataset::new_empty("d3", vec!["A", "B"]).unwrap();
+        let mut sketch_copy = sketch.clone();
+        sketch_copy
+            .observations
+            .add_dataset_by_str("d3", dataset)
+            .unwrap();
+        assert!(sketch_copy.assert_consistency().is_ok());
     }
 }

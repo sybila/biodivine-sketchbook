@@ -5,7 +5,8 @@ use biodivine_lib_param_bn::VariableId;
 use crate::algorithms::eval_dynamic::_attractors::itgr::{
     BwdProcess, ExtendedComponentProcess, Process, Scheduler,
 };
-use crate::algorithms::eval_dynamic::_attractors::saturated_reachability::reach_bwd;
+use crate::algorithms::eval_dynamic::saturated_reachability::reach_bwd;
+use crate::algorithms::eval_dynamic::utils::dont_track_progress;
 
 impl ExtendedComponentProcess {
     pub fn new(
@@ -35,6 +36,7 @@ impl Process for ExtendedComponentProcess {
                     &bottom,
                     scheduler.get_universe(),
                     scheduler.get_active_variables(),
+                    &mut dont_track_progress,
                 )
                 .minus(&bottom);
 

@@ -34,17 +34,19 @@ where
 
 /// Fully compute back-reachable states from `initial` inside `universe` using transitions under
 /// `variables`.
-pub fn reach_bwd(
+pub fn reach_bwd<F: FnMut(&GraphColoredVertices, &str)>(
     graph: &SymbolicAsyncGraph,
     initial: &GraphColoredVertices,
     universe: &GraphColoredVertices,
     variables: &[VariableId],
+    progress_callback: &mut F,
 ) -> GraphColoredVertices {
     let mut set = initial.clone();
     loop {
         if reachability_step(&mut set, universe, variables, |v, s| graph.var_pre(v, s)) {
             break;
         }
+        progress_callback(&set, "Computing backward reachability using saturation.");
     }
     set
 }

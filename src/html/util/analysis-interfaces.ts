@@ -15,6 +15,7 @@ export type InferenceStatus =
     | 'EvaluatedAllStatic'
     | { EvaluatedDynamic: string } // EvaluatedDynamic(String)
     | 'EvaluatedAllDynamic'
+    | { InternalProgress: string } // InternalProgress(String)
     | 'DetectedUnsat'
     | 'FinishedSuccessfully'
 

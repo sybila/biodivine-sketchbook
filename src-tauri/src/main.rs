@@ -130,7 +130,7 @@ fn handle_new_inference_session(
             tauri::WindowUrl::App("src/html/analysis.html".into()),
         )
         .title(title)
-        .min_inner_size(800., 600.)
+        .min_inner_size(1000., 666.)
         .inner_size(1000., 666.)
         .build();
 

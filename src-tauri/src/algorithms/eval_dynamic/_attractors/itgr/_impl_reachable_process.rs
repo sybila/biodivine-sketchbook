@@ -1,11 +1,12 @@
-use biodivine_lib_param_bn::biodivine_std::traits::Set;
-use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
-use biodivine_lib_param_bn::VariableId;
-
 use crate::algorithms::eval_dynamic::_attractors::itgr::{
     ExtendedComponentProcess, FwdProcess, Process, ReachableProcess, Scheduler,
 };
-use crate::algorithms::eval_dynamic::_attractors::saturated_reachability::reach_bwd;
+use crate::algorithms::eval_dynamic::saturated_reachability::reach_bwd;
+use crate::algorithms::eval_dynamic::utils::dont_track_progress;
+
+use biodivine_lib_param_bn::biodivine_std::traits::Set;
+use biodivine_lib_param_bn::symbolic_async_graph::{GraphColoredVertices, SymbolicAsyncGraph};
+use biodivine_lib_param_bn::VariableId;
 
 impl ReachableProcess {
     pub fn new(
@@ -33,6 +34,7 @@ impl Process for ReachableProcess {
                     fwd_set,
                     scheduler.get_universe(),
                     scheduler.get_active_variables(),
+                    &mut dont_track_progress,
                 )
                 .minus(fwd_set);
 

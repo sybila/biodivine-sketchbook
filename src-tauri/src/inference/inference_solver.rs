@@ -205,6 +205,33 @@ impl InferenceSolver {
         }
     }
 
+    /// Version of [Self::update_status] for sending internal update to frontend. The status
+    /// is not pushed to the status updates stack on backend.
+    fn update_internal_status(&self, status: InferenceStatus) {
+        // starting time must be saved before any statuses are added
+        let start_time = self.start_time().unwrap();
+        let now = SystemTime::now();
+        let duration_since_start = now.duration_since(start_time).unwrap();
+        let duration_millis = duration_since_start.as_millis();
+
+        let candidates_num = self
+            .current_candidate_colors()
+            .ok()
+            .map(|x| x.exact_cardinality().to_string());
+        let message = self.format_status_message(&status, duration_millis, candidates_num.clone());
+        debug!("{message}");
+
+        let status_report =
+            InferenceStatusReport::new(status.clone(), candidates_num, duration_millis, &message);
+        let status_json = status_report.to_json_str();
+
+        // send JSON string to the channel so it can be send to the frontend later
+        // if the channel for progress updates does not exist anymore, stop computation
+        if self.sender_channel.send(status_json).is_err() {
+            self.cancel();
+        }
+    }
+
     /// Format a computation status message.
     fn format_status_message(
         &self,
@@ -220,26 +247,41 @@ impl InferenceSolver {
         };
 
         let msg = match &status {
-            InferenceStatus::Created => "Created solver instance".to_string(),
-            InferenceStatus::Started => "Started inference computation".to_string(),
-            InferenceStatus::ProcessedInputs => "Pre-processed all inputs".to_string(),
+            InferenceStatus::Created => "Created solver instance.".to_string(),
+            InferenceStatus::Started => "Started inference computation...".to_string(),
+            InferenceStatus::ProcessedInputs => "Pre-processed all inputs.".to_string(),
             InferenceStatus::GeneratedContextStatic => {
-                "Starting to evaluate static properties".to_string()
+                "Started evaluating static properties...".to_string()
             }
             InferenceStatus::GeneratedContextDynamic => {
-                "Starting to evaluate dynamic properties".to_string()
+                "Started evaluating dynamic properties...".to_string()
             }
-            InferenceStatus::EvaluatedStatic(id) => format!("Evaluated static property `{id}`"),
-            InferenceStatus::EvaluatedDynamic(id) => format!("Evaluated dynamic property `{id}`"),
-            InferenceStatus::EvaluatedAllStatic => "Evaluated all static properties".to_string(),
-            InferenceStatus::EvaluatedAllDynamic => "Evaluated all dynamic properties".to_string(),
-            InferenceStatus::DetectedUnsat => "Found that sketch is unsatisfiable".to_string(),
+            InferenceStatus::StartedStatic(id) => {
+                format!("Started evaluating static property `{id}`...")
+            }
+            InferenceStatus::StartedDynamic(id) => {
+                format!("Started evaluating dynamic property `{id}`...")
+            }
+            InferenceStatus::EvaluatedStatic(id) => {
+                format!("Finished evaluating static property `{id}`.")
+            }
+            InferenceStatus::EvaluatedDynamic(id) => {
+                format!("Finished evaluating dynamic property `{id}`.")
+            }
+            InferenceStatus::EvaluatedAllStatic => "Evaluated all static properties.".to_string(),
+            InferenceStatus::EvaluatedAllDynamic => "Evaluated all dynamic properties.".to_string(),
+            InferenceStatus::InternalProgress(msg) => format!("Internal solver status: {msg}"),
+            InferenceStatus::DetectedUnsat => "Found that sketch is unsatisfiable.".to_string(),
             InferenceStatus::FinishedSuccessfully => {
-                "Successfully finished computation".to_string()
+                "Successfully finished computation.".to_string()
             }
-            InferenceStatus::Error => "Encountered error during computation".to_string(),
+            InferenceStatus::Error => "Encountered error during computation.".to_string(),
         };
-        format!("> {comp_time}ms: {msg}{candidates_str}")
+        if matches!(status, InferenceStatus::InternalProgress(..)) {
+            format!("---> {comp_time}ms: {msg}{candidates_str}")
+        } else {
+            format!("> {comp_time}ms: {msg}{candidates_str}")
+        }
     }
 
     /// Utility to check whether the cancellation flag was set. If it is set, the function
@@ -433,6 +475,7 @@ impl InferenceSolver {
             self.check_cancellation()?; // check if cancellation flag was set during computation
 
             let prop_id = stat_property.id().to_string();
+            self.update_status(InferenceStatus::StartedStatic(prop_id.clone()));
             let inferred_colors = eval_static_prop(stat_property, self.graph()?, base_var_name)?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
@@ -456,9 +499,23 @@ impl InferenceSolver {
     fn eval_dynamic(&mut self) -> Result<(), String> {
         for dyn_property in self.dyn_props()?.clone() {
             self.check_cancellation()?; // check if cancellation flag was set during computation
-
             let prop_id = dyn_property.id().to_string();
-            let inferred_colors = eval_dyn_prop(dyn_property, self.graph()?)?;
+            self.update_status(InferenceStatus::StartedDynamic(prop_id.clone()));
+
+            // prepare a callback that will be used to report progress of the underlying model-checking computation
+            let mut progress_callback = |colored_set: &GraphColoredVertices, msg: &str| {
+                // the progress message should contain BDD size info only when relevant
+                let msg = if colored_set.exact_cardinality() > BigInt::ZERO {
+                    format!("{msg} Current BDD size: {}", colored_set.symbolic_size(),)
+                } else {
+                    msg.to_string()
+                };
+                let new_status = InferenceStatus::InternalProgress(msg);
+                self.update_internal_status(new_status);
+            };
+
+            let inferred_colors: GraphColors =
+                eval_dyn_prop(dyn_property, self.graph()?, &mut progress_callback)?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
                 self.graph()?.symbolic_context(),
@@ -491,9 +548,11 @@ impl InferenceSolver {
         let mut finished_early = false;
 
         /* >> STEP 1: process basic components of the sketch to be used */
-        // this also does few input simplifications, like filtering out unused function symbols from the BN
+        // extract the BN (including input simplifications, like filtering out unused function symbols)
         let bn = Self::extract_bn(&sketch)?;
+        // pre-process static properties into a version more suitable for the computation
         let static_props = process_static_props(&sketch, &bn)?;
+        // pre-process dynamic properties into a version more suitable for the computation
         let dynamic_props = process_dynamic_props(&sketch)?;
 
         self.bn = Some(bn);
@@ -618,5 +677,6 @@ fn requires_candidate_num(status: &InferenceStatus) -> bool {
             | InferenceStatus::EvaluatedAllDynamic
             | InferenceStatus::DetectedUnsat
             | InferenceStatus::Error
+            | InferenceStatus::InternalProgress(..)
     )
 }

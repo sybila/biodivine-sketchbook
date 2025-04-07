@@ -6,8 +6,15 @@ pub mod eval;
 pub mod prepare_graph;
 /// Processed variants of dynamic properties for evaluation.
 pub mod processed_props;
+/// Reachability algorithms that use saturation for improved efficiency.
+pub mod saturated_reachability;
+/// Utilities used throughout various algorithms (e.g., different ways to convert
+/// observations into STG spaces or vertices).
+pub mod utils;
 
 /// Internal algorithms for attractor computation (adapted from AEON).
 mod _attractors;
+/// Internal algorithms for some cases of reachability computation.
+mod _trajectory;
 /// Internal algorithms for trap space computation (adapted from lib-param-bn).
-pub mod _trap_spaces;
+mod _trap_spaces;
