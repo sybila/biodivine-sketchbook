@@ -339,7 +339,8 @@ export class RegulationsEditor extends LitElement {
     const pngBase64 = this.cy?.png({
       full: true,
       bg: '#ffffff',
-      output: 'base64'
+      output: 'base64',
+      scale: 2 // Increase the scale for highest resolution
     })
     if (pngBase64 === undefined) return
     console.log('exporting network png to', path)
