@@ -390,6 +390,8 @@ interface AeonState {
       datasetVariableAdded: Observable<DatasetData>
       /** Add (placeholder) variable to a specified dataset (adding an empty column to a dataset's table). */
       addDatasetVariable: (datasetId: string) => void
+      /** Export dataset with given ID to a given file. */
+      exportDataset: (id: string, path: string) => void
 
       /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
       observationPushed: Observable<ObservationData>
@@ -912,6 +914,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, 'add_var'],
           payload: null
+        })
+      },
+      exportDataset (id: string, path: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'export'],
+          payload: path
         })
       },
       pushObservation (datasetId: string, observation?: ObservationData): void {

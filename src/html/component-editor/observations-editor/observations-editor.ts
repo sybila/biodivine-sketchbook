@@ -4,6 +4,7 @@ import style_less from './observations-editor.less?inline'
 import './observations-set/observations-set'
 import { ContentData, type IObservation, type IObservationSet } from '../../util/data-interfaces'
 import { map } from 'lit/directives/map.js'
+import { save } from '@tauri-apps/api/dialog'
 import { dialog } from '@tauri-apps/api'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
@@ -40,6 +41,7 @@ export default class ObservationsEditor extends LitElement {
     this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
     this.addEventListener('add-dataset-variable', this.addVariable)
     this.addEventListener('edit-dataset', (e) => { void this.editDataset(e) })
+    this.addEventListener('export-dataset', (e) => { void this.exportDataset(e) })
 
     // changes to observations triggered by table edits
     this.addEventListener('change-observation', this.changeObservation)
@@ -414,6 +416,23 @@ export default class ObservationsEditor extends LitElement {
     const shownDatasets = [...this.shownDatasets]
     shownDatasets.splice(dsIndex, 1)
     this.shownDatasets = shownDatasets
+  }
+
+  async exportDataset (event: Event): Promise<void> {
+    const detail = (event as CustomEvent).detail
+
+    const filePath = await save({
+      title: 'Export dataset in CSV format...',
+      filters: [{
+        name: '*.csv',
+        extensions: ['csv']
+      }],
+      defaultPath: 'dataset_name_here'
+    })
+    if (filePath === null) return
+
+    console.log('exporting csv dataset to', filePath)
+    aeonState.sketch.observations.exportDataset(detail.id, filePath)
   }
 
   render (): TemplateResult {

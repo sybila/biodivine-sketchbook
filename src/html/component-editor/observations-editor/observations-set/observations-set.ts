@@ -8,7 +8,7 @@ import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
 import { checkboxColumn, dataCell, loadTabulatorPlugins, idColumn, nameColumn, tabulatorOptions, indexColumn } from '../tabulator-utility'
 import { icon } from '@fortawesome/fontawesome-svg-core'
-import { faAdd, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faAdd, faEdit, faTrash, faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 
 @customElement('observations-set')
 export default class ObservationsSet extends LitElement {
@@ -249,9 +249,26 @@ export default class ObservationsSet extends LitElement {
     }))
   }
 
+  exportDataset (): void {
+    this.dispatchEvent(new CustomEvent('export-dataset', {
+      detail: {
+        id: this.data.id
+      },
+      bubbles: true,
+      composed: true
+    }))
+  }
+
   render (): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-right uk-margin-small-bottom">
+        <button class="uk-button uk-button-small uk-button-secondary"
+                @click=${this.exportDataset}>
+          <div class="button-label">
+            ${icon(faFileArrowDown).node}
+            Export dataset
+          </div>
+        </button>
         <button class="uk-button uk-button-small uk-button-secondary"
                 @click=${this.editDataset}>
           <div class="button-label">

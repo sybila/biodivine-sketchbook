@@ -3,9 +3,11 @@ use crate::sketchbook::observations::Dataset;
 use crate::sketchbook::Manager;
 use std::collections::HashMap;
 
+/// **(internal)** Functionality for exporting datasets to files.
+mod _impl_export_dataset;
 /// **(internal)** Implementation of the safe identifier generating.
 mod _impl_id_generating;
-/// **(internal)** Functionality for loading datasets from file.
+/// **(internal)** Functionality for loading datasets from files.
 mod _impl_load_dataset;
 /// **(internal)** Basic utility methods for `ObservationManager`.
 mod _impl_manager;
