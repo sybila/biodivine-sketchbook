@@ -179,6 +179,8 @@ interface AeonState {
     exportSketch: (path: string) => void
     /** Export the sketch data to a file in the extended AEON format. */
     exportAeon: (path: string) => void
+    /** Export the network PNG to a file. */
+    exportNetworkPng: (path: string, pngBase64: string) => void
     /** Import the sketch data from a special sketch JSON file. */
     importSketch: (path: string) => void
     /** Import the sketch data from a AEON file. */
@@ -390,6 +392,8 @@ interface AeonState {
       datasetVariableAdded: Observable<DatasetData>
       /** Add (placeholder) variable to a specified dataset (adding an empty column to a dataset's table). */
       addDatasetVariable: (datasetId: string) => void
+      /** Export dataset with given ID to a given file. */
+      exportDataset: (id: string, path: string) => void
 
       /** ObservationData for a newly pushed observation (also contains corresponding dataset ID). */
       observationPushed: Observable<ObservationData>
@@ -596,6 +600,12 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['sketch', 'export_aeon'],
         payload: path
+      })
+    },
+    exportNetworkPng (path: string, pngBase64: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'export_png'],
+        payload: JSON.stringify({ path, png: pngBase64 })
       })
     },
     importSketch (path: string): void {
@@ -912,6 +922,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', datasetId, 'add_var'],
           payload: null
+        })
+      },
+      exportDataset (id: string, path: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'observations', id, 'export'],
+          payload: path
         })
       },
       pushObservation (datasetId: string, observation?: ObservationData): void {

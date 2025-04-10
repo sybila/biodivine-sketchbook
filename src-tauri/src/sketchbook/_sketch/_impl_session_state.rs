@@ -4,6 +4,7 @@ use crate::app::DynError;
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
 use crate::sketchbook::{JsonSerde, Sketch};
+use base64::prelude::*;
 use std::fs::File;
 use std::io::Read;
 
@@ -21,6 +22,8 @@ const NEW_SKETCH_PATH: &str = "new_sketch";
 const EXPORT_SKETCH_PATH: &str = "export_sketch";
 // export the current sketch to extended aeon format
 const EXPORT_AEON_PATH: &str = "export_aeon";
+// export the provided network data into PNG
+const EXPORT_PNG_PATH: &str = "export_png";
 // import sketch from custom format and replace the current data
 const IMPORT_SKETCH_PATH: &str = "import_sketch";
 // import sketch from aeon format and replace the current data
@@ -63,6 +66,20 @@ impl SessionState for Sketch {
         } else if Self::starts_with(EXPORT_AEON_PATH, at_path).is_some() {
             let path = Self::clone_payload_str(event, "sketch")?;
             self.export_to_aeon(&path)?;
+            Ok(Consumed::NoChange)
+        } else if Self::starts_with(EXPORT_PNG_PATH, at_path).is_some() {
+            // get payload and parse the path and png data (base64 encoded)
+            let payload = Self::clone_payload_str(event, "sketch")?;
+            let payload_json: serde_json::Value = serde_json::from_str(&payload)?;
+            let path = payload_json["path"]
+                .as_str()
+                .ok_or("Missing 'path' in payload")?;
+            let png_base64 = payload_json["png"]
+                .as_str()
+                .ok_or("Missing 'png' in payload")?;
+            // decode the base64 data and write it to the file
+            let png_data = BASE64_STANDARD.decode(png_base64)?;
+            std::fs::write(path, png_data)?;
             Ok(Consumed::NoChange)
         } else if Self::starts_with(IMPORT_SKETCH_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;

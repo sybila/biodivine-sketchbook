@@ -11,6 +11,7 @@ import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import _ from 'lodash'
+import { aeonState } from '../../../aeon_state'
 
 /** Component responsible for the regulations editor of the editor session. */
 @customElement('regulations-editor')
@@ -53,6 +54,8 @@ export class RegulationsEditor extends LitElement {
     window.addEventListener('focus-function-field', () => {
       this.toggleMenu(ElementType.NONE)
     })
+    // listener to export png event from editor menu
+    window.addEventListener('export-png', this.exportNetworkToPng.bind(this))
 
     // further cytoscape setup
     this.editorElement = document.createElement('div')
@@ -327,6 +330,21 @@ export class RegulationsEditor extends LitElement {
     const toLeft = this.lastTabCount < tabCount
     this.lastTabCount = tabCount
     this.cy?.panBy({ x: (toLeft ? -1 : 1) * (this.cy?.width() / (tabCount * 2)), y: 0 })
+  }
+
+  /** Export the network to PNG and return it in base64. */
+  private exportNetworkToPng (event: Event): void {
+    const path = (event as CustomEvent).detail.path
+
+    const pngBase64 = this.cy?.png({
+      full: true,
+      bg: '#ffffff',
+      output: 'base64',
+      scale: 2 // Increase the scale for highest resolution
+    })
+    if (pngBase64 === undefined) return
+    console.log('exporting network png to', path)
+    aeonState.sketch.exportNetworkPng(path, pngBase64)
   }
 
   /** Render context menu for the selected node. */

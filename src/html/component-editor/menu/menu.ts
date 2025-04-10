@@ -44,6 +44,10 @@ export default class Menu extends LitElement {
       action: () => { void this.exportAeon() }
     },
     {
+      label: 'Export network PNG',
+      action: () => { void this.exportNetworkPng() }
+    },
+    {
       label: 'Quit',
       action: () => { void this.quit() }
     }
@@ -130,6 +134,25 @@ export default class Menu extends LitElement {
 
     console.log('exporting aeon to', filePath)
     aeonState.sketch.exportAeon(filePath)
+  }
+
+  async exportNetworkPng (): Promise<void> {
+    const filePath = await save({
+      title: 'Export network into PNG...',
+      filters: [{
+        name: '*.png',
+        extensions: ['png']
+      }],
+      defaultPath: 'image_name_here'
+    })
+    if (filePath === null) return
+
+    // this sends an event processed in RegulationsEditor component
+    this.dispatchEvent(new CustomEvent('export-png', {
+      bubbles: true,
+      composed: true,
+      detail: { path: filePath }
+    }))
   }
 
   async newSketch (): Promise<void> {

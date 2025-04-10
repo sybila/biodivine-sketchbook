@@ -21,6 +21,8 @@ const ADD_DEFAULT_DATASET_PATH: &str = "add_default";
 const LOAD_DATASET_PATH: &str = "load";
 // remove particular dataset
 const REMOVE_DATASET_PATH: &str = "remove";
+// add a new prepared dataset
+const EXPORT_PATH: &str = "export";
 // set ID of a particular dataset
 const SET_DATASET_ID_PATH: &str = "set_id";
 // set whole content of a particular dataset
@@ -185,6 +187,8 @@ impl ObservationManager {
 
     /// Perform event of modifying or removing existing `dataset` component of this
     /// `ObservationManager`.
+    ///
+    /// Dataset export event is performed here as well.
     pub(super) fn event_modify_dataset(
         &mut self,
         event: &Event,
@@ -214,6 +218,11 @@ impl ObservationManager {
                 let payload = dataset_data.to_json_str();
                 let reverse_event = mk_obs_event(&["add"], Some(&payload));
                 Ok(make_reversible(state_change, event, reverse_event))
+            }
+            Some(&EXPORT_PATH) => {
+                let path = Self::clone_payload_str(event, component_name)?;
+                self.export_dataset_to_csv(&dataset_id, &path)?;
+                Ok(Consumed::NoChange)
             }
             Some(&SET_DATASET_ID_PATH) => {
                 // get the payload - string for "new_id"
