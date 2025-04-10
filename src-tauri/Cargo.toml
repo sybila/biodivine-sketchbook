@@ -21,6 +21,7 @@ name = "biodivine-sketchbook"
 path = "src/main.rs"
 
 [dependencies]
+base64 = "0.22.1"
 biodivine-lib-bdd = ">=0.5.22, <1.0.0"
 biodivine-lib-param-bn = ">=0.5.13, <1.0.0"
 biodivine-hctl-model-checker = ">=0.3.2, <1.0.0"

@@ -179,6 +179,8 @@ interface AeonState {
     exportSketch: (path: string) => void
     /** Export the sketch data to a file in the extended AEON format. */
     exportAeon: (path: string) => void
+    /** Export the network PNG to a file. */
+    exportNetworkPng: (path: string, pngBase64: string) => void
     /** Import the sketch data from a special sketch JSON file. */
     importSketch: (path: string) => void
     /** Import the sketch data from a AEON file. */
@@ -598,6 +600,12 @@ export const aeonState: AeonState = {
       aeonEvents.emitAction({
         path: ['sketch', 'export_aeon'],
         payload: path
+      })
+    },
+    exportNetworkPng (path: string, pngBase64: string): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'export_png'],
+        payload: JSON.stringify({ path, png: pngBase64 })
       })
     },
     importSketch (path: string): void {
