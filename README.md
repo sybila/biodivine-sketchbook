@@ -54,14 +54,14 @@ We also provide web-based Rust documentation (including internal modules), curre
 
 ### Installation of dependencies
 
-First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). On Windows, we recommend [this tutorial](https://learn.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
 
 On some Linux distributions, additional packages might be needed for developing with Tauri. We recommend checking the [setup instructions by Tauri](https://v1.tauri.app/v1/guides/getting-started/prerequisites/).
 
-We have tested the app using the following versions:
-- npm 10.9.0 
+The latest version of Sketchbook is developed and tested using the following versions:
+- npm 11.3.0 
 - node 22.11.0
-- rust 1.82.0
+- rust 1.86.0
 
 Then, after cloning the repository, run `npm install` to download all JS/TS dependencies. Rust dependencies are downloaded automatically during the build (next step).
 
