@@ -57,6 +57,11 @@ export class RegulationsEditor extends LitElement {
     // listener to export png event from editor menu
     window.addEventListener('export-png', this.exportNetworkToPng.bind(this))
 
+    // listener to deselect any element (and quit its menu) when we switch tabs
+    window.addEventListener('unselect-cytoscape-nodes', () => {
+      this.toggleMenu(ElementType.NONE)
+    })
+
     // further cytoscape setup
     this.editorElement = document.createElement('div')
     this.editorElement.id = 'cytoscape-editor'

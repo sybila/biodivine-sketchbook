@@ -16,6 +16,15 @@ export default class TabBar extends LitElement {
 
   switchTab (tabId: number) {
     return () => {
+      // Some nodes in the Cytoscape editor may be selected during tab switch,
+      // so we just send an event to deselect all elements before any switching
+      // this sends an event processed in RegulationsEditor component
+      this.dispatchEvent(new CustomEvent('unselect-cytoscape-nodes', {
+        bubbles: true,
+        composed: true,
+        detail: {} // maybe include some information later
+      }))
+
       aeonState.tabBar.active.emitValue(tabId)
     }
   }
