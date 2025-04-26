@@ -5,6 +5,7 @@ import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { html, type TemplateResult } from 'lit'
 import { functionDebounceTimer } from '../../../util/config'
+import { formatTemplateName } from '../../../util/utilities'
 
 const EVENT_PROPERTY_CHANGED = 'dynamic-property-changed'
 const EVENT_PROPERTY_ID_CHANGED = 'dynamic-property-id-changed'
@@ -34,6 +35,9 @@ export default class AbstractDynamicProperty extends AbstractProperty {
 
   renderNameplate (): TemplateResult {
     return html`
+      <div class="uk-margin-bottom uk-margin-remove-bottom" style="font-size:large;">
+        ${formatTemplateName(this.property.variant)}
+      </div>
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
           <label class="uk-form-label" for="id-field">ID</label>

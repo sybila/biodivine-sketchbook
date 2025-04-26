@@ -30,7 +30,6 @@ export default class DynamicGeneric extends AbstractDynamicProperty {
         <input id="value-editor" class="uk-input" .value="${this.property.formula}"
                @focusout="${this.handleFocusOut}">
       </div>
-      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

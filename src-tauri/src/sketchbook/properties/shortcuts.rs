@@ -19,7 +19,7 @@ pub fn mk_essentiality_prop(
     target: &VarId,
     essentiality: Essentiality,
 ) -> StatProperty {
-    let name_str = "Regulation essentiality property";
+    let name_str = "Regulation essential (generated)";
     StatProperty::mk_regulation_essential(
         name_str,
         Some(regulator.clone()),
@@ -37,7 +37,7 @@ pub fn mk_monotonicity_prop(
     target: &VarId,
     monotonicity: Monotonicity,
 ) -> StatProperty {
-    let name_str = "Regulation monotonicity property";
+    let name_str = "Regulation monotonic (generated)";
     StatProperty::mk_regulation_monotonic(
         name_str,
         Some(regulator.clone()),

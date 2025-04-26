@@ -63,17 +63,14 @@ export default class StaticInputMonotonicCondition extends StaticSelectorsProper
           <div class="value-symbol" @click="${() => {
             this.toggleMonotonicity()
           }}">
-            <span>(</span>
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
               ${this.property.value.toLowerCase()}
             </span>
-            <span>)</span>
           </div>
         </div>
         ${this.renderConditionField()}
       </div>
       </div>
-      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

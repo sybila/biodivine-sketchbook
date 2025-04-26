@@ -35,7 +35,6 @@ export default class StaticGeneric extends abstractStaticProperty {
           </div>
         </div>
       </div>
-      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

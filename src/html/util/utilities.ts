@@ -1,7 +1,10 @@
 import {
   Essentiality, Monotonicity, type IFunctionData,
   type IObservationSet, type IObservation, type ILayoutData,
-  type IRegulationData, type IVariableData
+  type IRegulationData, type IVariableData,
+  type PropertyType,
+  StaticPropertyType,
+  DynamicPropertyType
 } from './data-interfaces'
 import {
   type UninterpretedFnData, type VariableData, type ObservationData,
@@ -185,5 +188,39 @@ export function convertToIRegulation (regulation: RegulationData): IRegulationDa
     target: regulation.target,
     essential: regulation.essential,
     monotonicity: regulation.sign
+  }
+}
+
+/** Make a readable name string for each property template. These will be displayed
+ * on the UI side.
+ */
+export function formatTemplateName (propertyType: PropertyType): string {
+  switch (propertyType) {
+    case StaticPropertyType.FunctionInputEssential:
+    case StaticPropertyType.FunctionInputEssentialWithCondition:
+      return 'Function input essential'
+    case StaticPropertyType.FunctionInputMonotonic:
+    case StaticPropertyType.FunctionInputMonotonicWithCondition:
+      return 'Function input monotonic'
+    case StaticPropertyType.VariableRegulationEssential:
+    case StaticPropertyType.VariableRegulationEssentialWithCondition:
+      return 'Regulation essential'
+    case StaticPropertyType.VariableRegulationMonotonic:
+    case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+      return 'Regulation monotonic'
+    case StaticPropertyType.Generic:
+      return 'Generic static property'
+    case DynamicPropertyType.AttractorCount:
+      return 'Attractor count'
+    case DynamicPropertyType.ExistsTrajectory:
+      return 'Exists trajectory'
+    case DynamicPropertyType.FixedPoint:
+      return 'Exist fixed points'
+    case DynamicPropertyType.TrapSpace:
+      return 'Exist trap spaces'
+    case DynamicPropertyType.HasAttractor:
+      return 'Exist attractors'
+    case DynamicPropertyType.Generic:
+      return 'Generic dynamic property'
   }
 }

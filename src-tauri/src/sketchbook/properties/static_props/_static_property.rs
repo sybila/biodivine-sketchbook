@@ -231,7 +231,7 @@ impl StatProperty {
     /// `target` fields and `Unknown` essentiality).
     pub fn default_regulation_essential() -> StatProperty {
         Self::mk_regulation_essential(
-            "Regulation essential",
+            "Regulation essential (generated)",
             None,
             None,
             Essentiality::Unknown,
@@ -256,7 +256,7 @@ impl StatProperty {
     /// `target` fields and `Unknown` monotonicity).
     pub fn default_regulation_monotonic() -> StatProperty {
         Self::mk_regulation_monotonic(
-            "Regulation monotonic",
+            "Regulation monotonic (generated)",
             None,
             None,
             Monotonicity::Unknown,
@@ -281,7 +281,7 @@ impl StatProperty {
     /// and `target` fields and `Unknown` essentiality).
     pub fn default_fn_input_essential() -> StatProperty {
         Self::mk_fn_input_essential(
-            "Function input essential",
+            "Function input essential (generated)",
             None,
             None,
             Essentiality::Unknown,
@@ -306,7 +306,7 @@ impl StatProperty {
     /// and `target` fields and `Unknown` monotonicity).
     pub fn default_fn_input_monotonic() -> StatProperty {
         Self::mk_fn_input_monotonic(
-            "Function input monotonic",
+            "Function input monotonic (generated)",
             None,
             None,
             Monotonicity::Unknown,

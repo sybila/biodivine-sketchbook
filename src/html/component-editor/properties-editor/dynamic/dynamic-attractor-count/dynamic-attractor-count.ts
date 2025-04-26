@@ -99,7 +99,6 @@ export default class DynamicAttractorCount extends AbstractDynamicProperty {
               </div>`)}
 
       </div>
-      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

@@ -79,7 +79,7 @@
   border-radius: 3px;
 
   position: absolute;
-  right: 115%;
+  right: 112%;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
@@ -120,6 +120,11 @@
     // make tooltip for dark mode lighter color
     border-color: transparent transparent transparent @background-light;
   }
+
+  hr {
+    // make hr for dark mode lighter color
+    background-color: @background-light;
+  }  
 }
 
 @media (prefers-color-scheme: light) {
@@ -141,6 +146,11 @@
     // make tooltip for light mode darker color
     border-color: transparent transparent transparent @background-dark;
   }
+
+  hr {
+    // make hr for light mode darker color
+    background-color: @background-dark;
+  }  
 }
 
 @container property-list (max-width: 64em) {
@@ -154,4 +164,9 @@
     justify-content: unset;
     align-items: center;
   }
+}
+
+hr {
+  height: 1px;
+  border:none
 }
