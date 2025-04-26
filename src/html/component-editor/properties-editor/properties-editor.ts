@@ -45,21 +45,27 @@ export default class PropertiesEditor extends LitElement {
   addDynamicPropertyMenu: IAddPropertyItem[] = [
     {
       label: 'Exists trap space',
+      help: 'Each selected observation exists in a trap space.',
       action: () => { this.addDynamicProperty(DynamicPropertyType.TrapSpace) }
     }, {
       label: 'Exists fixed point',
+      help: 'Each selected observation exists in a fixed point.',
       action: () => { this.addDynamicProperty(DynamicPropertyType.FixedPoint) }
     }, {
       label: 'Exists trajectory',
+      help: 'Observations of selected dataset lay on a trajectory.',
       action: () => { this.addDynamicProperty(DynamicPropertyType.ExistsTrajectory) }
     }, {
       label: 'Attractor count',
+      help: 'Attractor count falls into a given range.',
       action: () => { this.addDynamicProperty(DynamicPropertyType.AttractorCount) }
     }, {
       label: 'Exists attractor',
+      help: 'Each selected observation exists in an attractor.',
       action: () => { this.addDynamicProperty(DynamicPropertyType.HasAttractor) }
     }, {
       label: 'Generic',
+      help: 'Generic HCTL property defined by the user.',
       action: () => { this.addDynamicProperty(DynamicPropertyType.Generic) }
     }
   ]
@@ -67,18 +73,23 @@ export default class PropertiesEditor extends LitElement {
   addStaticPropertyMenu: IAddPropertyItem[] = [
     {
       label: 'Function input essential',
+      help: 'Selected function input has given essentiality.',
       action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
     }, {
       label: 'Regulation essential',
+      help: 'Selected regulation has given essentiality.',
       action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationEssentialWithCondition) }
     }, {
       label: 'Function input monotonic',
+      help: 'Selected function input has given monotonicity.',
       action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
     }, {
       label: 'Regulation monotonic',
+      help: 'Selected regulation has given monotonicity.',
       action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition) }
     }, {
       label: 'Generic',
+      help: 'Generic FOL property defined by the user.',
       action: () => { this.addStaticProperty(StaticPropertyType.Generic) }
     }
   ]
@@ -421,8 +432,9 @@ export default class PropertiesEditor extends LitElement {
                   <li class="menu-item" @click="${() => {
                     this.itemClick(item.action)
                   }}">
-                    <a>
+                    <a class="tooltip">
                       ${item.label}
+                      <span class="tooltiptext">${item.help}</span>
                     </a>
                   </li>
                 `)}
@@ -436,8 +448,9 @@ export default class PropertiesEditor extends LitElement {
                   <li class="menu-item" @click="${() => {
                     this.itemClick(item.action)
                   }}">
-                    <a>
+                    <a class="tooltip">
                       ${item.label}
+                      <span class="tooltiptext">${item.help}</span>
                     </a>
                   </li>
                 `)}
@@ -561,7 +574,12 @@ export default class PropertiesEditor extends LitElement {
   }
 }
 
+/**
+ * Template for options in the 'Add property' menu.
+ * Each entry has a displayed name, a hoverable tooltip help, and action.
+ */
 interface IAddPropertyItem {
   label: string
+  help: string
   action: () => void
 }
