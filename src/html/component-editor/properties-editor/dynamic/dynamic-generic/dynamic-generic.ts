@@ -27,8 +27,13 @@ export default class DynamicGeneric extends AbstractDynamicProperty {
     return html`
       <div class="property-body">
         ${this.renderNameplate()}
-        <input id="value-editor" class="uk-input" .value="${this.property.formula}"
+        <div class="uk-flex uk-flex-column uk-flex-left">
+          <label class="value-label">HCTL formula:</label>
+          <div class="uk-flex uk-flex-row">
+            <input id="value-editor" class="uk-input" .value="${this.property.formula}"
                @focusout="${this.handleFocusOut}">
+          </div>
+        </div>
       </div>
     `
   }

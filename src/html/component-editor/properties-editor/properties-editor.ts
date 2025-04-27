@@ -15,7 +15,6 @@ import {
   ContentData,
   type DynamicProperty,
   DynamicPropertyType,
-  type PropertyType,
   type StaticProperty,
   StaticPropertyType
 } from '../../util/data-interfaces'
@@ -24,7 +23,7 @@ import { computePosition, flip } from '@floating-ui/dom'
 import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_state'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { formatTemplateName } from '../../util/utilities'
+import { formatTemplateName, getTemplateHelpText } from '../../util/utilities'
 
 /** Component responsible for the properties editor of the editor session. */
 @customElement('properties-editor')
@@ -44,45 +43,21 @@ export default class PropertiesEditor extends LitElement {
   // dynamic prop edit dialogs
   dialogsDynamic: Record<string, WebviewWindow | undefined> = {}
 
-  addDynamicPropertyMenu: IAddPropertyItem[] = [
-    {
-      type: DynamicPropertyType.TrapSpace,
-      help: 'Each selected observation exists in a trap space.'
-    }, {
-      type: DynamicPropertyType.FixedPoint,
-      help: 'Each selected observation exists in a fixed point.'
-    }, {
-      type: DynamicPropertyType.ExistsTrajectory,
-      help: 'Observations of selected dataset lay on a trajectory.'
-    }, {
-      type: DynamicPropertyType.AttractorCount,
-      help: 'Attractor count falls into a given range.'
-    }, {
-      type: DynamicPropertyType.HasAttractor,
-      help: 'Each selected observation exists in an attractor.'
-    }, {
-      type: DynamicPropertyType.Generic,
-      help: 'Generic HCTL property defined by the user.'
-    }
+  addDynamicPropertyMenu: DynamicPropertyType[] = [
+    DynamicPropertyType.TrapSpace,
+    DynamicPropertyType.FixedPoint,
+    DynamicPropertyType.ExistsTrajectory,
+    DynamicPropertyType.AttractorCount,
+    DynamicPropertyType.HasAttractor,
+    DynamicPropertyType.Generic
   ]
 
-  addStaticPropertyMenu: IAddPropertyItem[] = [
-    {
-      type: StaticPropertyType.FunctionInputEssentialWithCondition,
-      help: 'Selected function input has given essentiality.'
-    }, {
-      type: StaticPropertyType.VariableRegulationEssentialWithCondition,
-      help: 'Selected regulation has given essentiality.'
-    }, {
-      type: StaticPropertyType.FunctionInputMonotonicWithCondition,
-      help: 'Selected function input has given monotonicity.'
-    }, {
-      type: StaticPropertyType.VariableRegulationMonotonicWithCondition,
-      help: 'Selected regulation has given monotonicity.'
-    }, {
-      type: StaticPropertyType.Generic,
-      help: 'Generic FOL property defined by the user.'
-    }
+  addStaticPropertyMenu: StaticPropertyType[] = [
+    StaticPropertyType.FunctionInputEssentialWithCondition,
+    StaticPropertyType.VariableRegulationEssentialWithCondition,
+    StaticPropertyType.FunctionInputMonotonicWithCondition,
+    StaticPropertyType.VariableRegulationMonotonicWithCondition,
+    StaticPropertyType.Generic
   ]
 
   constructor () {
@@ -421,11 +396,11 @@ export default class PropertiesEditor extends LitElement {
               <ul class="uk-nav">
                 ${map(this.addDynamicPropertyMenu, (item) => html`
                   <li class="menu-item" @click="${() => {
-                    this.itemClick(() => { this.addDynamicProperty(item.type as DynamicPropertyType) })
+                    this.itemClick(() => { this.addDynamicProperty(item) })
                   }}">
-                    <a class="tooltip">
-                      ${formatTemplateName(item.type)}
-                      <span class="tooltiptext">${item.help}</span>
+                    <a class="menu-tooltip">
+                      ${formatTemplateName(item)}
+                      <span class="menu-tooltiptext">${getTemplateHelpText(item)}</span>
                     </a>
                   </li>
                 `)}
@@ -437,11 +412,11 @@ export default class PropertiesEditor extends LitElement {
               <ul class="uk-nav">
                 ${map(this.addStaticPropertyMenu, (item) => html`
                   <li class="menu-item" @click="${() => {
-                    this.itemClick(() => { this.addStaticProperty(item.type as StaticPropertyType) })
+                    this.itemClick(() => { this.addStaticProperty(item) })
                   }}">
-                    <a class="tooltip">
-                      ${formatTemplateName(item.type)}
-                      <span class="tooltiptext">${item.help}</span>
+                    <a class="menu-tooltip">
+                      ${formatTemplateName(item)}
+                      <span class="menu-tooltiptext">${getTemplateHelpText(item)}</span>
                     </a>
                   </li>
                 `)}
@@ -476,7 +451,8 @@ export default class PropertiesEditor extends LitElement {
                   case StaticPropertyType.Generic:
                     result = html`
                       <static-generic .index=${index}
-                                      .property=${prop}>
+                                      .property=${prop}
+                                      .help=${prop}>
                       </static-generic>`
                     break
                   case StaticPropertyType.FunctionInputEssential:
@@ -577,13 +553,4 @@ export default class PropertiesEditor extends LitElement {
         </div>
       </div>`
   }
-}
-
-/**
- * Template for options in the 'Add property' menu.
- * Each entry has a displayed name, a hoverable tooltip help, and action.
- */
-interface IAddPropertyItem {
-  type: PropertyType
-  help: string
 }

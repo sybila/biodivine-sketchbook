@@ -28,7 +28,7 @@ export default class StaticGeneric extends abstractStaticProperty {
       <div class="property-body">
         ${this.renderNameplate()}
         <div class="uk-flex uk-flex-column uk-flex-left">
-          <label class="value-label">Context formula:</label>
+          <label class="value-label">FOL formula:</label>
           <div class="uk-flex uk-flex-row">
             <input id="value-editor" class="uk-input" .value="${this.property.formula}"
                    @focusout="${this.handleFocusOut}"/>

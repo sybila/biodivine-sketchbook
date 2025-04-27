@@ -65,13 +65,12 @@
   background: @secondary-light;
 }
 
-.tooltip {
+.menu-tooltip {
   position: relative;
   display: inline-block;
 }
 
-/* Tooltip text */
-.tooltip .tooltiptext {
+.menu-tooltip .menu-tooltiptext {
   visibility: hidden;
   font-size: smaller;
   text-align: center;
@@ -83,11 +82,11 @@
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
+.menu-tooltip:hover .menu-tooltiptext {
   visibility: visible;
 }
 
-.tooltip .tooltiptext::after {
+.menu-tooltip .menu-tooltiptext::after {
   content: " ";
   position: absolute;
   top: 50%;
@@ -110,13 +109,13 @@
     background: @secondary-dark;
   }
 
-  .tooltip .tooltiptext {
+  .menu-tooltip .menu-tooltiptext {
     // make tooltip for dark mode lighter color
     background-color: @background-light;
     color: @text-light;
   }
 
-  .tooltip .tooltiptext::after {
+  .menu-tooltip .menu-tooltiptext::after {
     // make tooltip for dark mode lighter color
     border-color: transparent transparent transparent @background-light;
   }
@@ -136,13 +135,13 @@
     color: @text-light;
   }
 
-  .tooltip .tooltiptext {
+  .menu-tooltip .menu-tooltiptext {
     // make tooltip for light mode darker color
     background-color: @background-dark;
     color: @text-dark;
   }
 
-  .tooltip .tooltiptext::after {
+  .menu-tooltip .menu-tooltiptext::after {
     // make tooltip for light mode darker color
     border-color: transparent transparent transparent @background-dark;
   }

@@ -224,3 +224,37 @@ export function formatTemplateName (propertyType: PropertyType): string {
       return 'Generic dynamic property'
   }
 }
+
+/** Provide help text for each property template. These can be displayed
+ * as tooltips or help messages on the UI side.
+ */
+export function getTemplateHelpText (propertyType: PropertyType): string {
+  switch (propertyType) {
+    case StaticPropertyType.FunctionInputEssential:
+    case StaticPropertyType.FunctionInputEssentialWithCondition:
+      return 'Specifies whether input is essential.'
+    case StaticPropertyType.FunctionInputMonotonic:
+    case StaticPropertyType.FunctionInputMonotonicWithCondition:
+      return 'Specifies whether input has monotonic effect.'
+    case StaticPropertyType.VariableRegulationEssential:
+    case StaticPropertyType.VariableRegulationEssentialWithCondition:
+      return 'Specifies whether regulation is essential.'
+    case StaticPropertyType.VariableRegulationMonotonic:
+    case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+      return 'Specifies whether regulation has monotonic effect.'
+    case StaticPropertyType.Generic:
+      return 'A generic static property defined by the user.'
+    case DynamicPropertyType.AttractorCount:
+      return 'Attractor count falls into given range.'
+    case DynamicPropertyType.ExistsTrajectory:
+      return 'Observations of selected dataset lay on trajectory.'
+    case DynamicPropertyType.FixedPoint:
+      return 'Each selected observation exists in a fixed point.'
+    case DynamicPropertyType.TrapSpace:
+      return 'Each selected observation exists in a trap space.'
+    case DynamicPropertyType.HasAttractor:
+      return 'Each selected observation exists in an attractor.'
+    case DynamicPropertyType.Generic:
+      return 'A generic HCTL property defined by the user.'
+  }
+}

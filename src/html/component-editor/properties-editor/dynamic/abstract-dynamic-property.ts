@@ -1,11 +1,11 @@
 import { type DynamicProperty, type StaticProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
-import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faEdit, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { html, type TemplateResult } from 'lit'
 import { functionDebounceTimer } from '../../../util/config'
-import { formatTemplateName } from '../../../util/utilities'
+import { formatTemplateName, getTemplateHelpText } from '../../../util/utilities'
 
 const EVENT_PROPERTY_CHANGED = 'dynamic-property-changed'
 const EVENT_PROPERTY_ID_CHANGED = 'dynamic-property-id-changed'
@@ -37,6 +37,10 @@ export default class AbstractDynamicProperty extends AbstractProperty {
     return html`
       <div class="uk-margin-bottom uk-margin-remove-bottom" style="font-size:large;">
         ${formatTemplateName(this.property.variant)}
+        <span class="tooltip" style="font-size:medium;">
+          ${icon(faCircleInfo).node}
+          <span class="tooltiptext">${getTemplateHelpText(this.property.variant)}</span>
+        </span>
       </div>
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
