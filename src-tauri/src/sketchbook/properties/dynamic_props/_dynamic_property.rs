@@ -136,37 +136,44 @@ impl DynProperty {
 
     /// Create default "generic" `DynProperty` instance, representing "true" formula.
     pub fn default_generic() -> DynProperty {
-        Self::try_mk_generic("Generic dynamic property", "true", "").unwrap()
+        Self::try_mk_generic("New generic dynamic property", "true", "").unwrap()
     }
 
     /// Create default `DynProperty` instance for the existence of a fixed point, with empty
     /// `dataset` and `observation` fields.
     pub fn default_fixed_point() -> DynProperty {
-        Self::mk_fixed_point("Fixed point existence", None, None, "")
+        Self::mk_fixed_point("New exist fixed points property", None, None, "")
     }
 
     /// Create default `DynProperty` instance for the existence of a trap space, with empty
     /// `dataset` and `observation` fields, and all flags set to false.
     pub fn default_trap_space() -> DynProperty {
-        Self::mk_trap_space("Trap space existence", None, None, false, false, "")
+        Self::mk_trap_space(
+            "New exist trap spaces property",
+            None,
+            None,
+            false,
+            false,
+            "",
+        )
     }
 
     /// Create default `DynProperty` instance for the existence of a trajectory, with an empty
     /// `dataset`field.
     pub fn default_trajectory() -> DynProperty {
-        Self::mk_trajectory("Trajectory existence", None, "")
+        Self::mk_trajectory("New exist trajectory property", None, "")
     }
 
     /// Create default `DynProperty` instance for the number of existing attractors, with default
     /// count being 1.
     pub fn default_attractor_count() -> DynProperty {
-        Self::try_mk_attractor_count("Attractor count", 1, 1, "").unwrap()
+        Self::try_mk_attractor_count("New attractor count property", 1, 1, "").unwrap()
     }
 
     /// Create default `DynProperty` instance for the existence of an attractor with empty
     /// `dataset` and `observation` fields.
     pub fn default_has_attractor() -> DynProperty {
-        Self::mk_has_attractor("Attractor existence", None, None, "")
+        Self::mk_has_attractor("New exist attractors property", None, None, "")
     }
 }
 

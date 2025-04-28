@@ -25,10 +25,6 @@
   width: 100%;
 }
 
-.uk-form-label {
-  color: @text-light;
-}
-
 .nameplate {
   width: 100%;
 }
@@ -47,11 +43,44 @@
   font-family: monospace;
 }
 
-.static-name-field {
-  color: @text-light;
+.tooltip {
+  position: relative;
+  display: inline-block;
 }
 
-@media (prefers-color-scheme: dark) {  
+.tooltip .tooltiptext {
+  visibility: hidden;
+  font-size: smaller;
+  text-align: center;
+  padding: 3px 5px;
+  border-radius: 3px;
+
+  position: absolute;
+  left: 30px;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+@media (prefers-color-scheme: light) {
+  .tooltip .tooltiptext {
+    // make tooltip for light mode darker color
+    background-color: @background-dark;
+    color: @text-dark;
+  }
+
+  .static-name-field {
+    color: @text-light;
+  }
+
+  .uk-form-label {
+    color: @text-light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
   .static-name-field {
     color: @text-dark;
   }
@@ -59,5 +88,10 @@
   .uk-form-label {
     color: @text-dark;
   }
-}
 
+  .tooltip .tooltiptext {
+    // make tooltip for dark mode lighter color
+    background-color: @background-light;
+    color: @text-light;
+  }
+}

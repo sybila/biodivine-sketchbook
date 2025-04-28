@@ -23,6 +23,7 @@ import { computePosition, flip } from '@floating-ui/dom'
 import { aeonState, type DynPropIdUpdateData, type StatPropIdUpdateData } from '../../../aeon_state'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
+import { formatTemplateName, getTemplateHelpText } from '../../util/utilities'
 
 /** Component responsible for the properties editor of the editor session. */
 @customElement('properties-editor')
@@ -42,45 +43,21 @@ export default class PropertiesEditor extends LitElement {
   // dynamic prop edit dialogs
   dialogsDynamic: Record<string, WebviewWindow | undefined> = {}
 
-  addDynamicPropertyMenu: IAddPropertyItem[] = [
-    {
-      label: 'Exists trap space',
-      action: () => { this.addDynamicProperty(DynamicPropertyType.TrapSpace) }
-    }, {
-      label: 'Exists fixed point',
-      action: () => { this.addDynamicProperty(DynamicPropertyType.FixedPoint) }
-    }, {
-      label: 'Exists trajectory',
-      action: () => { this.addDynamicProperty(DynamicPropertyType.ExistsTrajectory) }
-    }, {
-      label: 'Attractor count',
-      action: () => { this.addDynamicProperty(DynamicPropertyType.AttractorCount) }
-    }, {
-      label: 'Exists attractor',
-      action: () => { this.addDynamicProperty(DynamicPropertyType.HasAttractor) }
-    }, {
-      label: 'Generic',
-      action: () => { this.addDynamicProperty(DynamicPropertyType.Generic) }
-    }
+  addDynamicPropertyMenu: DynamicPropertyType[] = [
+    DynamicPropertyType.TrapSpace,
+    DynamicPropertyType.FixedPoint,
+    DynamicPropertyType.ExistsTrajectory,
+    DynamicPropertyType.AttractorCount,
+    DynamicPropertyType.HasAttractor,
+    DynamicPropertyType.Generic
   ]
 
-  addStaticPropertyMenu: IAddPropertyItem[] = [
-    {
-      label: 'Function input essential',
-      action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputEssentialWithCondition) }
-    }, {
-      label: 'Regulation essential',
-      action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationEssentialWithCondition) }
-    }, {
-      label: 'Function input monotonic',
-      action: () => { this.addStaticProperty(StaticPropertyType.FunctionInputMonotonicWithCondition) }
-    }, {
-      label: 'Regulation monotonic',
-      action: () => { this.addStaticProperty(StaticPropertyType.VariableRegulationMonotonicWithCondition) }
-    }, {
-      label: 'Generic',
-      action: () => { this.addStaticProperty(StaticPropertyType.Generic) }
-    }
+  addStaticPropertyMenu: StaticPropertyType[] = [
+    StaticPropertyType.FunctionInputEssentialWithCondition,
+    StaticPropertyType.VariableRegulationEssentialWithCondition,
+    StaticPropertyType.FunctionInputMonotonicWithCondition,
+    StaticPropertyType.VariableRegulationMonotonicWithCondition,
+    StaticPropertyType.Generic
   ]
 
   constructor () {
@@ -419,10 +396,11 @@ export default class PropertiesEditor extends LitElement {
               <ul class="uk-nav">
                 ${map(this.addDynamicPropertyMenu, (item) => html`
                   <li class="menu-item" @click="${() => {
-                    this.itemClick(item.action)
+                    this.itemClick(() => { this.addDynamicProperty(item) })
                   }}">
-                    <a>
-                      ${item.label}
+                    <a class="menu-tooltip">
+                      ${formatTemplateName(item)}
+                      <span class="menu-tooltiptext">${getTemplateHelpText(item)}</span>
                     </a>
                   </li>
                 `)}
@@ -434,10 +412,11 @@ export default class PropertiesEditor extends LitElement {
               <ul class="uk-nav">
                 ${map(this.addStaticPropertyMenu, (item) => html`
                   <li class="menu-item" @click="${() => {
-                    this.itemClick(item.action)
+                    this.itemClick(() => { this.addStaticProperty(item) })
                   }}">
-                    <a>
-                      ${item.label}
+                    <a class="menu-tooltip">
+                      ${formatTemplateName(item)}
+                      <span class="menu-tooltiptext">${getTemplateHelpText(item)}</span>
                     </a>
                   </li>
                 `)}
@@ -467,55 +446,67 @@ export default class PropertiesEditor extends LitElement {
               </div>`}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
+                let result = html``
                 switch (prop.variant) {
                   case StaticPropertyType.Generic:
-                    return html`
+                    result = html`
                       <static-generic .index=${index}
-                                      .property=${prop}>
+                                      .property=${prop}
+                                      .help=${prop}>
                       </static-generic>`
+                    break
                   case StaticPropertyType.FunctionInputEssential:
-                    return html`
+                    result = html`
                       <static-input-essential .index=${index}
                                               .property=${prop}>
                       </static-input-essential>`
+                    break
                   case StaticPropertyType.VariableRegulationEssential:
-                    // Only render if showRegulationProperties is true
-                    return this.showRegulationProperties
-? html`
-                      <static-input-essential .index=${index}
-                                              .property=${prop}>
-                      </static-input-essential>`
-: ''
+                    // Only render this if showRegulationProperties is true
+                    if (this.showRegulationProperties) {
+                      result = html`
+                        <static-input-essential .index=${index}
+                                                .property=${prop}>
+                        </static-input-essential>`
+                        break
+                    } else {
+                      return html``
+                    }
                   case StaticPropertyType.FunctionInputEssentialWithCondition:
                   case StaticPropertyType.VariableRegulationEssentialWithCondition:
-                    return html`
+                    result = html`
                       <static-input-essential-condition .index=${index}
                                                         .contentData=${this.contentData}
                                                         .property=${prop}>
                       </static-input-essential-condition>`
+                    break
                   case StaticPropertyType.FunctionInputMonotonic:
-                    return html`
+                    result = html`
                       <static-input-monotonic .index=${index}
                                               .property=${prop}>
                       </static-input-monotonic>`
+                    break
                   case StaticPropertyType.VariableRegulationMonotonic:
-                    // Only render if showRegulationProperties is true
-                    return this.showRegulationProperties
-? html`
-                      <static-input-monotonic .index=${index}
-                                              .property=${prop}>
-                      </static-input-monotonic>`
-: ''
+                    // Only render this if showRegulationProperties is true
+                    if (this.showRegulationProperties) {
+                      result = html`
+                        <static-input-monotonic .index=${index}
+                                                .property=${prop}>
+                        </static-input-monotonic>`
+                        break
+                    } else {
+                      return html``
+                    }
                   case StaticPropertyType.FunctionInputMonotonicWithCondition:
                   case StaticPropertyType.VariableRegulationMonotonicWithCondition:
-                    return html`
+                    result = html`
                       <static-input-monotonic-condition .index=${index}
                                                         .contentData=${this.contentData}
                                                         .property=${prop}>
                       </static-input-monotonic-condition>`
-                  default:
-                    return ''
+                    break
                 }
+                return html`${result}<hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">`
               })}
             </div>
           </div>
@@ -530,38 +521,36 @@ export default class PropertiesEditor extends LitElement {
             ${this.contentData?.dynamicProperties.length === 0 ? html`<div class="uk-text-center uk-margin-bottom"><span class="uk-label">No dynamic properties defined</span></div>` : ''}
             <div class="section-list">
               ${map(this.contentData.dynamicProperties, (prop, index) => {
+                let result = html``
                 switch (prop.variant) {
                   case DynamicPropertyType.FixedPoint:
                   case DynamicPropertyType.HasAttractor:
                   case DynamicPropertyType.TrapSpace:
                   case DynamicPropertyType.ExistsTrajectory:
-                    return html`
+                    result = html`
                       <dynamic-obs-selection .index=${index}
                                            .property=${prop}
                                            .observations=${this.contentData.observations}>
                       </dynamic-obs-selection>`
+                      break
                   case DynamicPropertyType.AttractorCount:
-                    return html`
+                    result = html`
                       <dynamic-attractor-count .index=${index}
                                                .property=${prop}>
                       </dynamic-attractor-count>`
+                      break
                   case DynamicPropertyType.Generic:
-                    return html`
+                    result = html`
                       <dynamic-generic .index=${index}
                                        .property=${prop}>
                       </dynamic-generic>`
-                  default:
-                    return ''
+                      break
                 }
+                return html`${result}<hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">`
               })}
             </div>
           </div>
         </div>
       </div>`
   }
-}
-
-interface IAddPropertyItem {
-  label: string
-  action: () => void
 }

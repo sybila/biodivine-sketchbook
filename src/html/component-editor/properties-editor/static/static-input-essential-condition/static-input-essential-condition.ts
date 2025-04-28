@@ -61,17 +61,14 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
           <div class="value-symbol" @click="${() => {
             this.toggleEssentiality()
           }}">
-            <span>(</span>
             <span class="essentiality">
               ${getEssentialityText(this.property.value)}
             </span>
-            <span>)</span>
           </div>
         </div>
         ${this.renderConditionField()}
       </div>
       </div>
-      <hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
     `
   }
 }

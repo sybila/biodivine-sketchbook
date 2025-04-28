@@ -1,7 +1,10 @@
 import {
   Essentiality, Monotonicity, type IFunctionData,
   type IObservationSet, type IObservation, type ILayoutData,
-  type IRegulationData, type IVariableData
+  type IRegulationData, type IVariableData,
+  type PropertyType,
+  StaticPropertyType,
+  DynamicPropertyType
 } from './data-interfaces'
 import {
   type UninterpretedFnData, type VariableData, type ObservationData,
@@ -185,5 +188,73 @@ export function convertToIRegulation (regulation: RegulationData): IRegulationDa
     target: regulation.target,
     essential: regulation.essential,
     monotonicity: regulation.sign
+  }
+}
+
+/** Make a readable name string for each property template. These will be displayed
+ * on the UI side.
+ */
+export function formatTemplateName (propertyType: PropertyType): string {
+  switch (propertyType) {
+    case StaticPropertyType.FunctionInputEssential:
+    case StaticPropertyType.FunctionInputEssentialWithCondition:
+      return 'Function input essential'
+    case StaticPropertyType.FunctionInputMonotonic:
+    case StaticPropertyType.FunctionInputMonotonicWithCondition:
+      return 'Function input monotonic'
+    case StaticPropertyType.VariableRegulationEssential:
+    case StaticPropertyType.VariableRegulationEssentialWithCondition:
+      return 'Regulation essential'
+    case StaticPropertyType.VariableRegulationMonotonic:
+    case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+      return 'Regulation monotonic'
+    case StaticPropertyType.Generic:
+      return 'Generic static property'
+    case DynamicPropertyType.AttractorCount:
+      return 'Attractor count'
+    case DynamicPropertyType.ExistsTrajectory:
+      return 'Exists trajectory'
+    case DynamicPropertyType.FixedPoint:
+      return 'Exist fixed points'
+    case DynamicPropertyType.TrapSpace:
+      return 'Exist trap spaces'
+    case DynamicPropertyType.HasAttractor:
+      return 'Exist attractors'
+    case DynamicPropertyType.Generic:
+      return 'Generic dynamic property'
+  }
+}
+
+/** Provide help text for each property template. These can be displayed
+ * as tooltips or help messages on the UI side.
+ */
+export function getTemplateHelpText (propertyType: PropertyType): string {
+  switch (propertyType) {
+    case StaticPropertyType.FunctionInputEssential:
+    case StaticPropertyType.FunctionInputEssentialWithCondition:
+      return 'Specifies whether input is essential.'
+    case StaticPropertyType.FunctionInputMonotonic:
+    case StaticPropertyType.FunctionInputMonotonicWithCondition:
+      return 'Specifies whether input has monotonic effect.'
+    case StaticPropertyType.VariableRegulationEssential:
+    case StaticPropertyType.VariableRegulationEssentialWithCondition:
+      return 'Specifies whether regulation is essential.'
+    case StaticPropertyType.VariableRegulationMonotonic:
+    case StaticPropertyType.VariableRegulationMonotonicWithCondition:
+      return 'Specifies whether regulation has monotonic effect.'
+    case StaticPropertyType.Generic:
+      return 'A generic static property defined by the user.'
+    case DynamicPropertyType.AttractorCount:
+      return 'Attractor count falls into given range.'
+    case DynamicPropertyType.ExistsTrajectory:
+      return 'Observations of selected dataset lay on trajectory.'
+    case DynamicPropertyType.FixedPoint:
+      return 'Each selected observation exists in a fixed point.'
+    case DynamicPropertyType.TrapSpace:
+      return 'Each selected observation exists in a trap space.'
+    case DynamicPropertyType.HasAttractor:
+      return 'Each selected observation exists in an attractor.'
+    case DynamicPropertyType.Generic:
+      return 'A generic HCTL property defined by the user.'
   }
 }

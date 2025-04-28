@@ -65,6 +65,37 @@
   background: @secondary-light;
 }
 
+.menu-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.menu-tooltip .menu-tooltiptext {
+  visibility: hidden;
+  font-size: smaller;
+  text-align: center;
+  padding: 3px 5px;
+  border-radius: 3px;
+
+  position: absolute;
+  right: 112%;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.menu-tooltip:hover .menu-tooltiptext {
+  visibility: visible;
+}
+
+.menu-tooltip .menu-tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  left: 100%; /* To the right of the tooltip */
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+}
+
 @media (prefers-color-scheme: dark) {
   .menu-content {
     background-color: @background-dark;
@@ -77,6 +108,22 @@
   .menu-item:hover {
     background: @secondary-dark;
   }
+
+  .menu-tooltip .menu-tooltiptext {
+    // make tooltip for dark mode lighter color
+    background-color: @background-light;
+    color: @text-light;
+  }
+
+  .menu-tooltip .menu-tooltiptext::after {
+    // make tooltip for dark mode lighter color
+    border-color: transparent transparent transparent @background-light;
+  }
+
+  hr {
+    // make hr for dark mode lighter color
+    background-color: @background-light;
+  }  
 }
 
 @media (prefers-color-scheme: light) {
@@ -87,6 +134,22 @@
   .menu-item > a {
     color: @text-light;
   }
+
+  .menu-tooltip .menu-tooltiptext {
+    // make tooltip for light mode darker color
+    background-color: @background-dark;
+    color: @text-dark;
+  }
+
+  .menu-tooltip .menu-tooltiptext::after {
+    // make tooltip for light mode darker color
+    border-color: transparent transparent transparent @background-dark;
+  }
+
+  hr {
+    // make hr for light mode darker color
+    background-color: @background-dark;
+  }  
 }
 
 @container property-list (max-width: 64em) {
@@ -100,4 +163,9 @@
     justify-content: unset;
     align-items: center;
   }
+}
+
+hr {
+  height: 1px;
+  border:none
 }

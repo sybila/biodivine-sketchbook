@@ -1,6 +1,16 @@
 @import "../../abstract-property/abstract-property";
 
-
 .remove-property {
-    height: 40px;
+  height: 40px;
+}
+
+.value-label {
+  .uk-form-label;
+  .uk-text-left;
+}
+
+@media (prefers-color-scheme: dark) {
+  .value-label {
+    color: @text-dark;
   }
+}
