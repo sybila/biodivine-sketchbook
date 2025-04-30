@@ -2,7 +2,7 @@ use crate::sketchbook::ids::{UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, FnArgument, FnTree, ModelState, Monotonicity};
 use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Formatter};
 
 /// An uninterpreted function of a partially specified model.
@@ -11,8 +11,9 @@ use std::fmt::{Display, Formatter};
 /// with respect to each of its arguments (in order). It also tracks the arity.
 ///
 /// You can leave the function completely unspecified, or you can add an
-/// "partial expression". Field `tree` holds the parsed version of that formula,
-/// while `expression` tracks the original formula.
+/// "partial expression" (partially defined formula). Field `tree` holds the
+/// parsed version of that formula, while `expression` tracks the original
+/// formula.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UninterpretedFn {
     name: String,
@@ -73,13 +74,13 @@ impl UninterpretedFn {
 
     /// Create uninterpreted function from another one, substituting all occurrences of a given
     /// function symbol in the syntactic tree. The provided original function object is consumed.
-    pub fn with_substituted_fn_symbol(
+    pub fn with_changed_fn_id(
         mut original_fn: UninterpretedFn,
         old_id: &UninterpretedFnId,
         new_id: &UninterpretedFnId,
         context: &ModelState,
     ) -> UninterpretedFn {
-        original_fn.substitute_fn_symbol(old_id, new_id, context);
+        original_fn.change_fn_id(old_id, new_id, context);
         original_fn
     }
 }
@@ -212,18 +213,31 @@ impl UninterpretedFn {
         }
     }
 
-    /// Substitute all occurrences of a given function symbol in the syntactic tree.
-    pub fn substitute_fn_symbol(
+    /// Rename all occurrences of a given function symbol in the syntactic tree.
+    pub fn change_fn_id(
         &mut self,
         old_id: &UninterpretedFnId,
         new_id: &UninterpretedFnId,
         context: &ModelState,
     ) {
         if let Some(tree) = &self.tree {
-            let new_tree = tree.substitute_fn_symbol(old_id, new_id);
+            let new_tree = tree.change_fn_id(old_id, new_id);
             self.expression = new_tree.to_string(context, Some(self.get_arity()));
             self.tree = Some(new_tree);
         }
+    }
+
+    pub fn substitute_all_placeholders(
+        &mut self,
+        substitution_mapping: &HashMap<VarId, FnTree>,
+        context: &ModelState,
+    ) -> Result<(), String> {
+        if let Some(tree) = &self.tree {
+            let new_tree = tree.substitute_all_placeholders(substitution_mapping)?;
+            self.expression = new_tree.to_string(context, Some(self.get_arity()));
+            self.tree = Some(new_tree);
+        }
+        Ok(())
     }
 }
 
@@ -264,6 +278,17 @@ impl UninterpretedFn {
     /// Get function's expression.
     pub fn get_fn_expression(&self) -> &str {
         &self.expression
+    }
+
+    /// Get function's syntax tree (or None if expression is empty).
+    pub fn get_fn_tree(&self) -> &Option<FnTree> {
+        &self.tree
+    }
+
+    /// Check if the update function's expression is empty (i.e., if the function
+    /// is fully unspecified).
+    pub fn has_empty_expression(&self) -> bool {
+        self.tree.is_none()
     }
 
     /// Get function's argument (`FnArgument` object) on given `index` (starting from 0).

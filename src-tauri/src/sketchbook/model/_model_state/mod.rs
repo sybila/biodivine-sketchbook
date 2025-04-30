@@ -17,11 +17,24 @@ mod _impl_observing;
 /// **(internal)** Implementation of event-based API for the [crate::app::state::SessionState] trait.
 mod _impl_session_state;
 
-/// Object representing the state of the model in the Boolean network editor. The model encompasses
-/// variables, regulations, uninterpreted functions, update functions, and layout information.
+/// Structure representing the state of the "model" part of the sketch. `ModelState`
+/// encompasses information about the regulatory network and the PSBN. Specifically, it
+/// covers:
+/// - set of Boolean variables
+/// - set of regulations between the variables
+/// - set of function symbols (or uninterpreted functions)
+/// - Boolean update functions for each variable
+/// - layout information regarding the regulatory network
 ///
-/// `ModelState` can be observed/edited using its classical Rust API, as well as through the
-/// external events (as it implements the `SessionState` event).
+/// `ModelState` can be observed/edited using its classical Rust API, as well as through
+/// the external events (as it implements the `SessionState` event).
+///
+/// Internally, `ModelState` also tracks so called "placeholder" variables. These are
+/// used to deal with formal arguments of uninterpreted functions. For example, if you
+/// define a function with 5 arguments, five placeholder variables `var0`, `var1`, ... are
+/// tracked. Placeholder variables are shared across functions, so we only keep K of them
+/// where K is the max arity across uninterpreted functions used.
+/// It is just an implementation detail to distinguish them from BN variables.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelState {
     variables: HashMap<VarId, Variable>,

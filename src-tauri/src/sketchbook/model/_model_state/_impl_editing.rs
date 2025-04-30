@@ -174,6 +174,8 @@ impl ModelState {
         let arity = arguments.len();
         let f = UninterpretedFn::new(name, annot, expression, arguments, self, &fn_id)?;
         self.uninterpreted_fns.insert(fn_id, f);
+        // if the new function has higher arity than all existing fns, we need to add more
+        // placeholder variables
         self.add_placeholder_vars_if_needed(arity);
         Ok(())
     }
@@ -194,6 +196,8 @@ impl ModelState {
             fn_id,
             UninterpretedFn::new_without_constraints(name, arity)?,
         );
+        // if the new function has higher arity than all existing fns, we need to add more
+        // placeholder variables
         self.add_placeholder_vars_if_needed(arity);
         Ok(())
     }
@@ -391,7 +395,7 @@ impl ModelState {
         for var_id in self.variables.keys() {
             let update_fn = self.update_fns.remove(var_id).unwrap();
             let new_update_fn =
-                UpdateFn::with_substituted_var(update_fn, original_id, &new_id, self);
+                UpdateFn::with_changed_var_id(update_fn, original_id, &new_id, self);
             self.update_fns.insert(var_id.clone(), new_update_fn);
         }
 
@@ -645,12 +649,8 @@ impl ModelState {
         // TODO: there may be more efficient way to do this
         for fn_id in self.uninterpreted_fns.clone().keys() {
             let uninterpreted_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
-            let new_uninterpreted_fn = UninterpretedFn::with_substituted_fn_symbol(
-                uninterpreted_fn,
-                original_id,
-                &new_id,
-                self,
-            );
+            let new_uninterpreted_fn =
+                UninterpretedFn::with_changed_fn_id(uninterpreted_fn, original_id, &new_id, self);
             self.uninterpreted_fns
                 .insert(fn_id.clone(), new_uninterpreted_fn);
         }
@@ -658,8 +658,7 @@ impl ModelState {
         // substitute id for this uninterpreted fn in all update functions
         for var_id in self.variables.keys() {
             let update_fn = self.update_fns.remove(var_id).unwrap();
-            let new_update_fn =
-                UpdateFn::with_substituted_fn_symbol(update_fn, original_id, &new_id, self);
+            let new_update_fn = UpdateFn::with_changed_fn_id(update_fn, original_id, &new_id, self);
             self.update_fns.insert(var_id.clone(), new_update_fn);
         }
 
@@ -691,6 +690,8 @@ impl ModelState {
         if self.uninterpreted_fns.remove(fn_id).is_none() {
             panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")
         }
+        // if the removed function had the highest arity of all functions, we can safely remove
+        // some of the placeholder variables
         self.remove_placeholder_vars_if_needed();
         Ok(())
     }

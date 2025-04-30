@@ -54,8 +54,14 @@ impl UpdateFn {
         &self.expression
     }
 
-    /// Check if the update function is empty (fully unspecified).
-    pub fn is_unspecified(&self) -> bool {
+    /// Get function's syntax tree (or None if expression is empty).
+    pub fn get_fn_tree(&self) -> &Option<FnTree> {
+        &self.tree
+    }
+
+    /// Check if the update function's expression is empty (i.e., if the function
+    /// is fully unspecified).
+    pub fn has_empty_expression(&self) -> bool {
         self.tree.is_none()
     }
 
@@ -101,24 +107,24 @@ impl UpdateFn {
         }
     }
 
-    /// Substitute all occurrences of a given function symbol in the syntactic tree.
-    pub fn substitute_var(&mut self, old_id: &VarId, new_id: &VarId, context: &ModelState) {
+    /// Rename all occurrences of a given variable in the syntactic tree.
+    pub fn change_var_id(&mut self, old_id: &VarId, new_id: &VarId, context: &ModelState) {
         if let Some(tree) = &self.tree {
-            let new_tree = tree.substitute_var(old_id, new_id);
+            let new_tree = tree.change_var_id(old_id, new_id);
             self.expression = new_tree.to_string(context, None);
             self.tree = Some(new_tree);
         }
     }
 
-    /// Substitute all occurrences of a given function symbol in the syntactic tree.
-    pub fn substitute_fn_symbol(
+    /// Rename all occurrences of a given function symbol in the syntactic tree.
+    pub fn change_fn_id(
         &mut self,
         old_id: &UninterpretedFnId,
         new_id: &UninterpretedFnId,
         context: &ModelState,
     ) {
         if let Some(tree) = &self.tree {
-            let new_tree = tree.substitute_fn_symbol(old_id, new_id);
+            let new_tree = tree.change_fn_id(old_id, new_id);
             self.expression = new_tree.to_string(context, None);
             self.tree = Some(new_tree);
         }
@@ -126,25 +132,25 @@ impl UpdateFn {
 
     /// Create update function from another one, substituting all occurrences of a given
     /// function symbol in the syntactic tree. The provided original function object is consumed.
-    pub fn with_substituted_fn_symbol(
+    pub fn with_changed_fn_id(
         mut original_fn: UpdateFn,
         old_id: &UninterpretedFnId,
         new_id: &UninterpretedFnId,
         context: &ModelState,
     ) -> UpdateFn {
-        original_fn.substitute_fn_symbol(old_id, new_id, context);
+        original_fn.change_fn_id(old_id, new_id, context);
         original_fn
     }
 
     /// Create update function from another one, substituting all occurrences of a given
     /// variable in the syntactic tree. The provided original function object is consumed.
-    pub fn with_substituted_var(
+    pub fn with_changed_var_id(
         mut original_fn: UpdateFn,
         old_id: &VarId,
         new_id: &VarId,
         context: &ModelState,
     ) -> UpdateFn {
-        original_fn.substitute_var(old_id, new_id, context);
+        original_fn.change_var_id(old_id, new_id, context);
         original_fn
     }
 }

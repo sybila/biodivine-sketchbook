@@ -315,7 +315,7 @@ impl ModelState {
     /// Returned list contains string ID of each such variable
     pub fn get_vars_with_empty_update(&self) -> Vec<&str> {
         self.update_fns()
-            .filter(|(_, update_fn)| update_fn.is_unspecified())
+            .filter(|(_, update_fn)| update_fn.has_empty_expression())
             .map(|(var_id, _)| var_id.as_str())
             .collect()
     }
