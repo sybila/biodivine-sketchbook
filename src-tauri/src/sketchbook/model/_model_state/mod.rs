@@ -28,13 +28,6 @@ mod _impl_session_state;
 ///
 /// `ModelState` can be observed/edited using its classical Rust API, as well as through
 /// the external events (as it implements the `SessionState` event).
-///
-/// Internally, `ModelState` also tracks so called "placeholder" variables. These are
-/// used to deal with formal arguments of uninterpreted functions. For example, if you
-/// define a function with 5 arguments, five placeholder variables `var0`, `var1`, ... are
-/// tracked. Placeholder variables are shared across functions, so we only keep K of them
-/// where K is the max arity across uninterpreted functions used.
-/// It is just an implementation detail to distinguish them from BN variables.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelState {
     variables: HashMap<VarId, Variable>,
@@ -42,7 +35,6 @@ pub struct ModelState {
     update_fns: HashMap<VarId, UpdateFn>,
     uninterpreted_fns: HashMap<UninterpretedFnId, UninterpretedFn>,
     layouts: HashMap<LayoutId, Layout>,
-    placeholder_variables: HashSet<VarId>,
 }
 
 impl Manager for ModelState {}

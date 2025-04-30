@@ -1,5 +1,5 @@
 use crate::sketchbook::ids::{UninterpretedFnId, VarId};
-use crate::sketchbook::model::{BinaryOp, ModelState, UninterpretedFn};
+use crate::sketchbook::model::{BinaryOp, ModelState};
 use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -48,10 +48,11 @@ impl FnTree {
     pub fn try_from_str(
         expression: &str,
         model: &ModelState,
-        is_uninterpreted: Option<(&UninterpretedFnId, &UninterpretedFn)>,
+        is_uninterpreted: Option<&UninterpretedFnId>,
     ) -> Result<FnTree, String> {
-        let bn_context = if let Some((_, f)) = is_uninterpreted {
-            model.to_fake_bn_with_params(f.get_arity())
+        let bn_context = if let Some(fn_id) = is_uninterpreted {
+            let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
+            model.to_fake_bn_with_params(uninterpreted_fn.get_arity())
         } else {
             model.to_empty_bn_with_params()
         };
@@ -79,10 +80,11 @@ impl FnTree {
     fn from_fn_update(
         fn_update: FnUpdate,
         model: &ModelState,
-        is_uninterpreted: Option<(&UninterpretedFnId, &UninterpretedFn)>,
+        is_uninterpreted: Option<&UninterpretedFnId>,
     ) -> Result<FnTree, String> {
-        if let Some((fn_id, f)) = is_uninterpreted {
-            let bn_context = model.to_fake_bn_with_params(f.get_arity());
+        if let Some(fn_id) = is_uninterpreted {
+            let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
+            let bn_context = model.to_fake_bn_with_params(uninterpreted_fn.get_arity());
             Self::from_fn_update_recursive(fn_update, model, &bn_context, Some(fn_id))
         } else {
             let bn_context = model.to_empty_bn_with_params();
@@ -113,9 +115,17 @@ impl FnTree {
                 // More important is a variable's string name which is used in update functions
                 // We thus use the BN variable name as its ID in Sketchbook
                 let var_id_str = bn_context.get_variable_name(id);
-                if is_uninterpreted.is_some() {
-                    let var_id = model.get_placeholder_var_id(var_id_str)?;
-                    Ok(FnTree::PlaceholderVar(var_id))
+
+                // There is a slight difference between variables in update and uninterpreted
+                // functions. Update function expressions contain network variables, while uninterpreted
+                // functions only contain formal arguments ("placeholder" variables).
+                if let Some(fn_id) = is_uninterpreted {
+                    if model.is_valid_formal_fn_argument(var_id_str, fn_id)? {
+                        let var_id = VarId::new(var_id_str).unwrap(); // safe to unwrap now
+                        Ok(FnTree::PlaceholderVar(var_id))
+                    } else {
+                        Err(format!("Variable {var_id_str} is invalid in expression of function {fn_id}. Use only function's arguments."))
+                    }
                 } else {
                     let var_id = model.get_var_id(var_id_str)?;
                     Ok(FnTree::Var(var_id))
@@ -275,9 +285,6 @@ impl FnTree {
     ///
     /// This method only considers `network variables` (the variables that appear in update
     /// functions). It ignores `placeholder variables` (that appear in uninterpreted functions).
-    ///
-    /// See also similar method [FnTree::substitute_var] that substitutes placeholder
-    /// variables with network variables.
     pub fn change_var_id(&self, old_id: &VarId, new_id: &VarId) -> FnTree {
         match self {
             FnTree::Const(_) => self.clone(),
@@ -473,9 +480,7 @@ mod tests {
         // this is a valid expression for function `g` (not for `f` though)
         let expression = "var0 & (var1 | f(var0, var0))";
         let fn_id = model.get_uninterpreted_fn_id("g").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree =
-            FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn))).unwrap();
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id)).unwrap();
         let processed_expression = fn_tree.to_string(&model, Some(arity));
         assert_eq!(processed_expression.as_str(), expression,);
     }
@@ -518,22 +523,19 @@ mod tests {
         // this would be a valid `update fn`, but not an uninterpreted fn (contains network variables)
         let expression = "a & (b | f(a))";
         let fn_id = model.get_uninterpreted_fn_id("g").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id));
         assert!(fn_tree.is_err());
 
         // this is an invalid expression for the uninterpreted fn `f`, as it is recursive
         let expression = "f(var0)";
         let fn_id = model.get_uninterpreted_fn_id("f").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id));
         assert!(fn_tree.is_err());
 
         // this has higher arity (f has arity 1)
         let expression = "var0 | var1";
         let fn_id = model.get_uninterpreted_fn_id("f").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id));
         assert!(fn_tree.is_err());
     }
 

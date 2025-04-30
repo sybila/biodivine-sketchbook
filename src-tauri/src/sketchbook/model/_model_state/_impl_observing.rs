@@ -34,19 +34,17 @@ impl ModelState {
         self.regulations.len()
     }
 
-    /// The number of placeholder variables in this `ModelState`.
-    pub(crate) fn num_placeholder_vars(&self) -> usize {
-        self.placeholder_variables.len()
+    /// Get arity of the uninterpreted function with the most arguments.
+    pub fn highest_uninterpreted_fn_arity(&self) -> usize {
+        self.uninterpreted_fns()
+            .map(|(_, x)| x.get_arity())
+            .max()
+            .unwrap_or(0)
     }
 
     /// Check if there is a variable with given Id.
     pub fn is_valid_var_id(&self, var_id: &VarId) -> bool {
         self.variables.contains_key(var_id)
-    }
-
-    /// Check if there is a placeholder variable with given Id.
-    pub(crate) fn is_valid_placeholder_var_id(&self, var_id: &VarId) -> bool {
-        self.placeholder_variables.contains(var_id)
     }
 
     /// Check if the given `id` corresponds to some variable's valid Id.
@@ -70,6 +68,27 @@ impl ModelState {
         } else {
             false
         }
+    }
+
+    /// Check if the given `id` corresponds to a valid uninterpreted fn formal argument.
+    /// Formal arguments are used when specifying uninterpreted fn expressions, and
+    /// they are always in the format `var0`, `var1`, ...
+    ///
+    /// The formal arguments are different from the actual arguments (to which function
+    /// symbols are applied within update function expressions).
+    ///
+    /// This method fails if the uninterpreted fn provided is invalid.
+    pub fn is_valid_formal_fn_argument(
+        &self,
+        argument: &str,
+        fn_id: &UninterpretedFnId,
+    ) -> Result<bool, String> {
+        if let Some(stripped) = argument.strip_prefix("var") {
+            if let Ok(index) = stripped.parse::<usize>() {
+                return Ok(index < self.get_uninterpreted_fn_arity(fn_id)?);
+            }
+        }
+        Ok(false)
     }
 
     /// Check if there is a layout with given Id.
@@ -96,19 +115,6 @@ impl ModelState {
         }
         Err(format!(
             "Variable with ID {id} does not exist in this model."
-        ))
-    }
-
-    /// Return a valid placeholder variable's `VarId` corresponding to the given str `id`.
-    ///
-    /// Return `Err` if such variable does not exist (and the ID is invalid).
-    pub(crate) fn get_placeholder_var_id(&self, id: &str) -> Result<VarId, String> {
-        let var_id = VarId::from_str(id)?;
-        if self.is_valid_placeholder_var_id(&var_id) {
-            return Ok(var_id);
-        }
-        Err(format!(
-            "Placeholder variable with ID {id} does not exist in this model."
         ))
     }
 

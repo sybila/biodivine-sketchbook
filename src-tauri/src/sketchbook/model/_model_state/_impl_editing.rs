@@ -7,7 +7,6 @@ use crate::sketchbook::model::{
 };
 use crate::sketchbook::utils::assert_ids_unique;
 use crate::sketchbook::Manager;
-use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
@@ -27,7 +26,6 @@ impl ModelState {
             update_fns: HashMap::new(),
             uninterpreted_fns: HashMap::new(),
             layouts: HashMap::from([(default_layout_id, default_layout)]),
-            placeholder_variables: HashSet::new(),
         }
     }
 
@@ -171,12 +169,8 @@ impl ModelState {
         annot: &str,
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
-        let arity = arguments.len();
         let f = UninterpretedFn::new(name, annot, expression, arguments, self, &fn_id)?;
         self.uninterpreted_fns.insert(fn_id, f);
-        // if the new function has higher arity than all existing fns, we need to add more
-        // placeholder variables
-        self.add_placeholder_vars_if_needed(arity);
         Ok(())
     }
 
@@ -196,9 +190,6 @@ impl ModelState {
             fn_id,
             UninterpretedFn::new_without_constraints(name, arity)?,
         );
-        // if the new function has higher arity than all existing fns, we need to add more
-        // placeholder variables
-        self.add_placeholder_vars_if_needed(arity);
         Ok(())
     }
 
@@ -497,10 +488,6 @@ impl ModelState {
 
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
         uninterpreted_fn.set_arity(arity)?;
-
-        // add or remove placeholder variables according to the needs
-        self.add_placeholder_vars_if_needed(arity);
-        self.remove_placeholder_vars_if_needed();
         Ok(())
     }
 
@@ -690,9 +677,6 @@ impl ModelState {
         if self.uninterpreted_fns.remove(fn_id).is_none() {
             panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")
         }
-        // if the removed function had the highest arity of all functions, we can safely remove
-        // some of the placeholder variables
-        self.remove_placeholder_vars_if_needed();
         Ok(())
     }
 
@@ -802,30 +786,6 @@ impl ModelState {
             self.update_fns.insert(VarId::new(var_ids[i])?, parsed_fn);
         }
         Ok(())
-    }
-
-    /// **(internal)** Utility method to add as many placeholder variables as is required by
-    /// an addition (or update) of an uninterpreted fn of given arity.
-    fn add_placeholder_vars_if_needed(&mut self, arity: usize) {
-        while arity > self.num_placeholder_vars() {
-            let placeholder_id = format!("var{}", self.num_placeholder_vars());
-            let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
-            self.placeholder_variables.insert(placeholder);
-        }
-    }
-
-    /// **(internal)** Utility method to remove as many placeholder variables as is required after
-    /// a removal (or update) of an uninterpreted fn.
-    fn remove_placeholder_vars_if_needed(&mut self) {
-        let highest_arity = self
-            .uninterpreted_fns
-            .values()
-            .fold(0, |acc, f| max(acc, f.get_arity()));
-        while self.num_placeholder_vars() > highest_arity {
-            let placeholder_id = format!("var{}", self.num_placeholder_vars() - 1);
-            let placeholder = VarId::new(placeholder_id.as_str()).unwrap();
-            self.placeholder_variables.remove(&placeholder);
-        }
     }
 
     /// **(internal)** Utility method to add a default update fn for a given variable.
@@ -1076,7 +1036,7 @@ mod tests {
         let model = ModelState::new_empty();
         assert_eq!(model.num_vars(), 0);
         assert_eq!(model.num_uninterpreted_fns(), 0);
-        assert_eq!(model.num_placeholder_vars(), 0);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 0);
         assert_eq!(model.num_regulations(), 0);
         assert_eq!(model.num_layouts(), 1);
 
@@ -1134,7 +1094,7 @@ mod tests {
         let f_id = model.get_uninterpreted_fn_id("f").unwrap();
         let f = model.get_uninterpreted_fn(&f_id).unwrap();
         assert_eq!(model.num_uninterpreted_fns(), 2);
-        assert_eq!(model.num_placeholder_vars(), 1);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 1);
         assert!(model.is_valid_uninterpreted_fn_id_str("f"));
         assert!(model.is_valid_uninterpreted_fn_id_str("g"));
         assert_eq!(f.get_arity(), 1);
@@ -1144,7 +1104,7 @@ mod tests {
         model
             .add_multiple_uninterpreted_fns(uninterpreted_fns)
             .unwrap();
-        assert_eq!(model.num_placeholder_vars(), 4);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 4);
         assert!(model.is_valid_uninterpreted_fn_id_str("ff"));
         assert!(model.is_valid_uninterpreted_fn_id_str("gg"));
     }
@@ -1221,7 +1181,7 @@ mod tests {
         assert_eq!(f.get_fn_expression(), "");
         assert_eq!(f.get_essential(0), &Essentiality::Unknown);
         assert_eq!(f.get_monotonic(2), &Monotonicity::Unknown);
-        assert_eq!(model.num_placeholder_vars(), 4);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 4);
 
         // test setting all the various fields of an uninterpreted fn (including decreasing arity)
         model.set_uninterpreted_fn_name(&f_id, "ff").unwrap();
@@ -1240,7 +1200,7 @@ mod tests {
         assert_eq!(f.get_fn_expression(), "g(var0) | var2");
         assert_eq!(f.get_essential(0), &Essentiality::True);
         assert_eq!(f.get_monotonic(2), &Monotonicity::Activation);
-        assert_eq!(model.num_placeholder_vars(), 3);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 3);
 
         // function `g` cannot be removed, and its arity cannot be changed, since it is used inside the
         // expression for function `f`
@@ -1261,17 +1221,19 @@ mod tests {
 
         // test increasing arity (the function symbol is no longer used in any expression)
         model.set_uninterpreted_fn_arity_by_str("h", 5).unwrap();
-        assert_eq!(model.num_placeholder_vars(), 5);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 5);
 
-        // test removing function with NOT the most arguments (should not influence number of placeholder vars)
+        // test removing function with NOT the most arguments (should not influence the
+        // highest uninterpreted fn arity
         model.remove_uninterpreted_fn(&f_id).unwrap();
         assert_eq!(model.num_uninterpreted_fns(), 1);
-        assert_eq!(model.num_placeholder_vars(), 5);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 5);
 
-        // test removing function with the most arguments (should lower the number of placeholder vars)
+        // test removing function with the most arguments (should lower the highest
+        // uninterpreted fn arity
         model.remove_uninterpreted_fn_by_str("h").unwrap();
         assert_eq!(model.num_uninterpreted_fns(), 0);
-        assert_eq!(model.num_placeholder_vars(), 0);
+        assert_eq!(model.highest_uninterpreted_fn_arity(), 0);
     }
 
     /// Test manually adding and modifying update functions.

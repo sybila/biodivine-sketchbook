@@ -2,7 +2,7 @@ use crate::sketchbook::ids::{UninterpretedFnId, VarId};
 use crate::sketchbook::model::{Essentiality, FnArgument, FnTree, ModelState, Monotonicity};
 use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 /// An uninterpreted function of a partially specified model.
@@ -165,7 +165,7 @@ impl UninterpretedFn {
             self.tree = None;
             self.expression = String::new()
         } else {
-            let syntactic_tree = FnTree::try_from_str(new_expression, model, Some((own_id, self)))?;
+            let syntactic_tree = FnTree::try_from_str(new_expression, model, Some(own_id))?;
             self.expression = syntactic_tree.to_string(model, Some(self.get_arity()));
             self.tree = Some(syntactic_tree);
         }
@@ -225,19 +225,6 @@ impl UninterpretedFn {
             self.expression = new_tree.to_string(context, Some(self.get_arity()));
             self.tree = Some(new_tree);
         }
-    }
-
-    pub fn substitute_all_placeholders(
-        &mut self,
-        substitution_mapping: &HashMap<VarId, FnTree>,
-        context: &ModelState,
-    ) -> Result<(), String> {
-        if let Some(tree) = &self.tree {
-            let new_tree = tree.substitute_all_placeholders(substitution_mapping)?;
-            self.expression = new_tree.to_string(context, Some(self.get_arity()));
-            self.tree = Some(new_tree);
-        }
-        Ok(())
     }
 }
 
