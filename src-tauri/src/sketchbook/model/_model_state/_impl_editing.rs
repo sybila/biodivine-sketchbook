@@ -478,6 +478,10 @@ impl ModelState {
     /// In order to change arity of a function symbol, it must not currently be used in any
     /// update/uninterpreted function's expression (because in expressions, it is applied on a
     /// fixed number of arguments).
+    ///
+    /// If arity is made larger, new arguments (without any monotonicity/essentiality constraints
+    /// are added. If arity is made smaller, then appropriate number of existing arguments is
+    /// dropped, starting from the last. These arguments must not be used in function's expression.
     pub fn set_uninterpreted_fn_arity(
         &mut self,
         fn_id: &UninterpretedFnId,

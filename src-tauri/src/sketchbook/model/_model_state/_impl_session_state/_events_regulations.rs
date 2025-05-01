@@ -78,15 +78,15 @@ impl ModelState {
         // events of adding the corresponding properties for monotonicity/essentiality in case it
         // is not unknown variant
         if reg_data.essential != Essentiality::Unknown {
-            let prop_id = StatProperty::get_essentiality_prop_id(&input_var, &target_var);
-            let prop = mk_essentiality_prop(&input_var, &target_var, reg_data.essential);
+            let prop_id = StatProperty::get_reg_essentiality_prop_id(&input_var, &target_var);
+            let prop = mk_reg_essentiality_prop(&input_var, &target_var, reg_data.essential);
             let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
             let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
             event_list.push(prop_event);
         }
         if reg_data.sign != Monotonicity::Unknown {
-            let prop_id = StatProperty::get_monotonicity_prop_id(&input_var, &target_var);
-            let prop = mk_monotonicity_prop(&input_var, &target_var, reg_data.sign);
+            let prop_id = StatProperty::get_reg_monotonicity_prop_id(&input_var, &target_var);
+            let prop = mk_reg_monotonicity_prop(&input_var, &target_var, reg_data.sign);
             let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
             let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
             event_list.push(prop_event);
@@ -159,13 +159,13 @@ impl ModelState {
             // case it is not unknown variant
             if *original_reg.get_essentiality() != Essentiality::Unknown {
                 // there is at max one essentiality property for a regulation
-                let prop_id = StatProperty::get_essentiality_prop_id(&regulator_id, &target_id);
+                let prop_id = StatProperty::get_reg_essentiality_prop_id(&regulator_id, &target_id);
                 let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
                 event_list.push(prop_event);
             }
             if *original_reg.get_sign() != Monotonicity::Unknown {
                 // there is at max one monotonicity property for a regulation
-                let prop_id = StatProperty::get_monotonicity_prop_id(&regulator_id, &target_id);
+                let prop_id = StatProperty::get_reg_monotonicity_prop_id(&regulator_id, &target_id);
                 let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
                 event_list.push(prop_event);
             }
@@ -212,10 +212,10 @@ impl ModelState {
 
             // events of modifying/adding/removing corresponding static property
             // note we have checked that `orig_sign` and `new_sign` are different
-            let prop_id = StatProperty::get_monotonicity_prop_id(&regulator_id, &target_id);
+            let prop_id = StatProperty::get_reg_monotonicity_prop_id(&regulator_id, &target_id);
             if orig_sign == Monotonicity::Unknown {
                 // before there was no static prop, now we have to add it
-                let prop = mk_monotonicity_prop(&regulator_id, &target_id, new_sign);
+                let prop = mk_reg_monotonicity_prop(&regulator_id, &target_id, new_sign);
                 let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
                 let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
                 event_list.push(prop_event);
@@ -225,7 +225,7 @@ impl ModelState {
                 event_list.push(prop_event);
             } else {
                 // there is a static prop, and we just change its sign
-                let prop = mk_monotonicity_prop(&regulator_id, &target_id, new_sign);
+                let prop = mk_reg_monotonicity_prop(&regulator_id, &target_id, new_sign);
                 let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
                 let prop_event =
                     mk_stat_prop_event(&[prop_id.as_str(), "set_content"], Some(&prop_payload));
@@ -281,10 +281,10 @@ impl ModelState {
 
             // events of modifying/adding/removing corresponding static property
             // note we have checked that `orig_essentiality` and `new_essentiality` are different
-            let prop_id = StatProperty::get_essentiality_prop_id(&regulator_id, &target_id);
+            let prop_id = StatProperty::get_reg_essentiality_prop_id(&regulator_id, &target_id);
             if orig_essentiality == Essentiality::Unknown {
                 // before there was no static prop, now we have to add it
-                let prop = mk_essentiality_prop(&regulator_id, &target_id, new_essentiality);
+                let prop = mk_reg_essentiality_prop(&regulator_id, &target_id, new_essentiality);
                 let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
                 let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
                 event_list.push(prop_event);
@@ -294,7 +294,7 @@ impl ModelState {
                 event_list.push(prop_event);
             } else {
                 // there is a static prop, and we just change its essentiality
-                let prop = mk_essentiality_prop(&regulator_id, &target_id, new_essentiality);
+                let prop = mk_reg_essentiality_prop(&regulator_id, &target_id, new_essentiality);
                 let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
                 let prop_event =
                     mk_stat_prop_event(&[prop_id.as_str(), "set_content"], Some(&prop_payload));

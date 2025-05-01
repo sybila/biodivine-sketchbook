@@ -145,14 +145,14 @@ impl Sketch {
             let target_var = reg.get_target();
 
             if reg.get_essentiality() != &Essentiality::Unknown {
-                let prop_id = StatProperty::get_essentiality_prop_id(input_var, target_var);
-                let prop = mk_essentiality_prop(input_var, target_var, *reg.get_essentiality());
+                let prop_id = StatProperty::get_reg_essentiality_prop_id(input_var, target_var);
+                let prop = mk_reg_essentiality_prop(input_var, target_var, *reg.get_essentiality());
                 sketch.properties.add_static(prop_id, prop)?;
             }
 
             if reg.get_sign() != &Monotonicity::Unknown {
-                let prop_id = StatProperty::get_monotonicity_prop_id(input_var, target_var);
-                let prop = mk_monotonicity_prop(input_var, target_var, *reg.get_sign());
+                let prop_id = StatProperty::get_reg_monotonicity_prop_id(input_var, target_var);
+                let prop = mk_reg_monotonicity_prop(input_var, target_var, *reg.get_sign());
                 sketch.properties.add_static(prop_id, prop)?;
             }
         }

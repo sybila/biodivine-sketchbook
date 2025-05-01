@@ -577,11 +577,11 @@ impl StatProperty {
     }
 }
 
-/// Static methods to automatically generate IDs to encode regulation properties.
+/// Static methods to create standard IDs for automatically generated static properties.
 impl StatProperty {
     /// Get ID of a static property that describes monotonicity of a regulation
     /// between `regulator` and `target`.
-    pub fn get_monotonicity_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
+    pub fn get_reg_monotonicity_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
         let id_str = format!("monotonicity_{}_{}", regulator, target);
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
@@ -589,8 +589,30 @@ impl StatProperty {
 
     /// Get ID of a static property that describes essentiality of a regulation
     /// between `regulator` and `target`.
-    pub fn get_essentiality_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
+    pub fn get_reg_essentiality_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
         let id_str = format!("essentiality_{}_{}", regulator, target);
+        // this will always be a valid ID string, we can unwrap
+        StatPropertyId::new(&id_str).unwrap()
+    }
+
+    /// Get ID of a static property that describes monotonicity of input on given `index`
+    /// for function `fn_id`.
+    pub fn get_fn_input_monotonicity_prop_id(
+        fn_id: &UninterpretedFnId,
+        index: usize,
+    ) -> StatPropertyId {
+        let id_str = format!("fn_monotonicity_{}_{}", fn_id, index);
+        // this will always be a valid ID string, we can unwrap
+        StatPropertyId::new(&id_str).unwrap()
+    }
+
+    /// Get ID of a static property that describes essentiality of input on given `index`
+    /// for function `fn_id`.
+    pub fn get_fn_input_essentiality_prop_id(
+        fn_id: &UninterpretedFnId,
+        index: usize,
+    ) -> StatPropertyId {
+        let id_str = format!("fn_essentiality_{}_{}", fn_id, index);
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }

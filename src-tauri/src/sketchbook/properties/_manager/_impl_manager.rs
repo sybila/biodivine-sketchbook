@@ -366,6 +366,11 @@ impl PropertyManager {
     ///
     /// This is useful after we change the variable's ID, e.g., to ensure that monotonicity
     /// properties still have IDs like `monotonicity_REGULATOR_TARGET`.
+    ///
+    /// This can be also helpful if we are loading model with potentially invalid IDs (changed by
+    /// the user outside of sketchbook) to fix potential issues.
+    ///
+    /// TODO: extend this with properties for uninterpreted functions
     pub fn make_generated_reg_prop_ids_consistent(&mut self) {
         // list of old-new IDs that must be changed
         let mut id_change_list: Vec<(StatPropertyId, StatPropertyId)> = Vec::new();
@@ -373,7 +378,7 @@ impl PropertyManager {
             match prop.get_prop_data() {
                 StatPropertyType::RegulationEssential(p) => {
                     // this template always has both fields, we can unwrap
-                    let expected_id = StatProperty::get_essentiality_prop_id(
+                    let expected_id = StatProperty::get_reg_essentiality_prop_id(
                         p.input.as_ref().unwrap(),
                         p.target.as_ref().unwrap(),
                     );
@@ -383,7 +388,7 @@ impl PropertyManager {
                 }
                 StatPropertyType::RegulationMonotonic(p) => {
                     // this template always has both fields, we can unwrap
-                    let expected_id = StatProperty::get_monotonicity_prop_id(
+                    let expected_id = StatProperty::get_reg_monotonicity_prop_id(
                         p.input.as_ref().unwrap(),
                         p.target.as_ref().unwrap(),
                     );
