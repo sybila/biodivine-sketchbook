@@ -18,7 +18,6 @@ library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp, faClose, faMinus
 @customElement('function-tile')
 export class FunctionTile extends EditorTile {
   @state() bodyVisible = false
-  varIndex = 0
 
   constructor () {
     super()
@@ -51,7 +50,7 @@ export class FunctionTile extends EditorTile {
   }
 
   nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('rename-function-definition', {
+    this.dispatchEvent(new CustomEvent('change-function-id', {
       detail: {
         oldId: this.functions[this.index].id,
         newId: name
@@ -95,30 +94,28 @@ export class FunctionTile extends EditorTile {
   }
 
   private addVariable (): void {
-    this.dispatchEvent(new CustomEvent('add-function-variable', {
+    this.dispatchEvent(new CustomEvent('change-fn-arity', {
       detail: {
         id: this.functions[this.index].id,
-        variable: 'var' + this.varIndex
+        arity: this.functions[this.index].variables.length + 1
       },
       bubbles: true,
       composed: true
     }))
-    this.varIndex++
     this.bodyVisible = true
   }
 
   private async removeVariable (): Promise<void> {
-    if (this.varIndex <= 0) {
+    if (this.functions[this.index].variables.length <= 0) {
       await dialog.message("You can't decrement function arity below zero.", {
         type: 'error',
         title: 'Error'
       })
     } else {
-      this.varIndex--
-      this.dispatchEvent(new CustomEvent('remove-function-variable', {
+      this.dispatchEvent(new CustomEvent('change-fn-arity', {
         detail: {
           id: this.functions[this.index].id,
-          variable: 'var' + this.varIndex
+          arity: this.functions[this.index].variables.length - 1
         },
         bubbles: true,
         composed: true

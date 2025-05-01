@@ -242,7 +242,7 @@ interface AeonState {
       removeVariable: (varId: string) => void
       /** VariableData (with updated name or annotation) for a modified variable. */
       variableDataChanged: Observable<VariableData>
-      /** Set a variable data for a var with given ID. */
+      /** Set a variable data (name and annotation) for a var with given ID. */
       setVariableData: (varId: string, variableData: VariableData) => void
       /** ModelData after variable's ID is changed.
        * Since variable ID change can affect many parts of the model (update fns, regulations, ...), we
@@ -268,20 +268,12 @@ interface AeonState {
       removeUninterpretedFn: (uninterpretedFnId: string) => void
       /** UninterpretedFnData (with updated name or annotation) for a modified uninterpreted function. */
       uninterpretedFnDataChanged: Observable<UninterpretedFnData>
-      /** Set data of uninterpreted function with given ID. */
+      /** Set data (name, annotation) of uninterpreted function with given ID. */
       setUninterpretedFnData: (uninterpretedFnId: string, fnData: UninterpretedFnData) => void
       /** UninterpretedFnData (with updated `arity`) for a modified uninterpreted function. */
       uninterpretedFnArityChanged: Observable<UninterpretedFnData>
       /** Set arity of uninterpreted function with given ID. */
       setUninterpretedFnArity: (uninterpretedFnId: string, newArity: number) => void
-      /** UninterpretedFnData (with incremented `arity`) for a modified uninterpreted function. */
-      uninterpretedFnArityIncremented: Observable<UninterpretedFnData>
-      /** Increment arity of uninterpreted function with given ID. */
-      incrementUninterpretedFnArity: (uninterpretedFnId: string) => void
-      /** UninterpretedFnData (with decremented `arity`) for a modified uninterpreted function. */
-      uninterpretedFnArityDecremented: Observable<UninterpretedFnData>
-      /** Decrement arity of uninterpreted function with given ID. */
-      decrementUninterpretedFnArity: (uninterpretedFnId: string) => void
       /** ModelData after function's ID is changed.
        * Since function ID change can affect many parts of the model (update fns, other uninterpreted fns, ...), we
        * get the whole model data at once. */
@@ -681,8 +673,6 @@ export const aeonState: AeonState = {
       uninterpretedFnRemoved: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'remove']),
       uninterpretedFnDataChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_data']),
       uninterpretedFnArityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_arity']),
-      uninterpretedFnArityIncremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'increment_arity']),
-      uninterpretedFnArityDecremented: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'decrement_arity']),
       uninterpretedFnIdChanged: new Observable<ModelData>(['sketch', 'model', 'uninterpreted_fn', 'set_id']),
       uninterpretedFnExpressionChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_expression']),
       uninterpretedFnMonotonicityChanged: new Observable<UninterpretedFnData>(['sketch', 'model', 'uninterpreted_fn', 'set_monotonicity']),
@@ -754,18 +744,6 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'set_arity'],
           payload: newArity.toString()
-        })
-      },
-      incrementUninterpretedFnArity (uninterpretedFnId: string): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'increment_arity'],
-          payload: null
-        })
-      },
-      decrementUninterpretedFnArity (uninterpretedFnId: string): void {
-        aeonEvents.emitAction({
-          path: ['sketch', 'model', 'uninterpreted_fn', uninterpretedFnId, 'decrement_arity'],
-          payload: null
         })
       },
       setUninterpretedFnId (originalId: string, newId: string): void {

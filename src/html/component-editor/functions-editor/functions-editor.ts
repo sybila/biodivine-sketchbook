@@ -32,16 +32,14 @@ export class FunctionsEditor extends LitElement {
     aeonState.sketch.model.uninterpretedFnDataChanged.addEventListener(this.#onFunctionDataChanged.bind(this))
     this.addEventListener('edit-function-definition', (e) => { void this.editFunction(e) })
     aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
-    this.addEventListener('rename-function-definition', this.setFunctionId)
+    this.addEventListener('change-function-id', this.setFunctionId)
     // listener 'aeonState.sketch.model.uninterpretedFnIdChanged' is handled by Root component (more complex update)
-    this.addEventListener('add-function-variable', this.addFunctionVariable)
-    aeonState.sketch.model.uninterpretedFnArityIncremented.addEventListener(this.#onFunctionArityIncremented.bind(this))
+    this.addEventListener('change-fn-arity', this.changeFunctionArity)
+    aeonState.sketch.model.uninterpretedFnArityChanged.addEventListener(this.#onFunctionArityChanged.bind(this))
     this.addEventListener('toggle-function-variable-monotonicity', this.toggleFunctionVariableMonotonicity)
     aeonState.sketch.model.uninterpretedFnMonotonicityChanged.addEventListener(this.#onFunctionMonotonicityChanged.bind(this))
     this.addEventListener('toggle-function-variable-essentiality', this.toggleFunctionVariableEssentiality)
     aeonState.sketch.model.uninterpretedFnEssentialityChanged.addEventListener(this.#onFunctionEssentialityChanged.bind(this))
-    this.addEventListener('remove-function-variable', (e) => { void this.removeFunctionVariable(e) })
-    aeonState.sketch.model.uninterpretedFnArityDecremented.addEventListener(this.#onFunctionArityDecremented.bind(this))
     this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
     aeonState.sketch.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
 
@@ -151,18 +149,17 @@ export class FunctionsEditor extends LitElement {
     aeonState.sketch.model.setUninterpretedFnId(detail.oldId, detail.newId)
   }
 
-  /** Invoke backend to add variable to a function (incrementing it). */
-  private addFunctionVariable (event: Event): void {
+  /** Invoke backend to change function's arity. */
+  private changeFunctionArity (event: Event): void {
     const detail = (event as CustomEvent).detail
-    aeonState.sketch.model.incrementUninterpretedFnArity(detail.id)
+    aeonState.sketch.model.setUninterpretedFnArity(detail.id, detail.arity)
   }
 
-  /** Process and update incremented fn arity sent from backend. */
-  #onFunctionArityIncremented (data: UninterpretedFnData): void {
+  /** Process and propagate data for a function with updated arity that was sent from backend. */
+  #onFunctionArityChanged (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 
-    // not most efficient, but probably sufficient and clear
     const modifiedFunction = convertToIFunction(data)
     const functions = [...this.contentData.functions]
     functions[index] = modifiedFunction
@@ -215,24 +212,6 @@ export class FunctionsEditor extends LitElement {
 
   /** Process and update changed fn expression sent from backend. */
   #onFunctionExpressionChanged (data: UninterpretedFnData): void {
-    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
-    if (index === -1) return
-
-    // not most efficient, but probably sufficient and clear
-    const modifiedFunction = convertToIFunction(data)
-    const functions = [...this.contentData.functions]
-    functions[index] = modifiedFunction
-    this.saveFunctions(functions)
-  }
-
-  /** Invoke backend to remove function's variable (decrementing it). */
-  private async removeFunctionVariable (event: Event): Promise<void> {
-    const detail = (event as CustomEvent).detail
-    aeonState.sketch.model.decrementUninterpretedFnArity(detail.id)
-  }
-
-  /** Process and update decremented fn sent from backend. */
-  #onFunctionArityDecremented (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 

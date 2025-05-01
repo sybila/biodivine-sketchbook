@@ -476,7 +476,7 @@ impl ModelState {
     /// Set arity of an uninterpreted fn given by id `fn_id`.
     ///
     /// In order to change arity of a function symbol, it must not currently be used in any
-    /// update/uninterpreted function's expression (because in expressions, it is used on a
+    /// update/uninterpreted function's expression (because in expressions, it is applied on a
     /// fixed number of arguments).
     pub fn set_uninterpreted_fn_arity(
         &mut self,
@@ -499,22 +499,6 @@ impl ModelState {
     ) -> Result<(), String> {
         let fn_id = UninterpretedFnId::new(id)?;
         self.set_uninterpreted_fn_arity(&fn_id, arity)
-    }
-
-    /// Increment the arity of an uninterpreted fn given by id `fn_id`. Basically adds a defualt
-    /// argument (with unknown monotonicity/essentiality) at the end of the function's arg list.
-    pub fn increment_fn_arity(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
-        self.assert_valid_uninterpreted_fn(fn_id)?;
-        let uninterpreted_fn = self.uninterpreted_fns.get(fn_id).unwrap();
-        self.set_uninterpreted_fn_arity(fn_id, uninterpreted_fn.get_arity() + 1)
-    }
-
-    /// Decrement the arity of an uninterpreted fn given by id `fn_id`. Basically drops the last
-    /// argument of the function. The last argument must not be used in function's expression.
-    pub fn decrement_fn_arity(&mut self, fn_id: &UninterpretedFnId) -> Result<(), String> {
-        self.assert_valid_uninterpreted_fn(fn_id)?;
-        let uninterpreted_fn = self.uninterpreted_fns.get(fn_id).unwrap();
-        self.set_uninterpreted_fn_arity(fn_id, uninterpreted_fn.get_arity() - 1)
     }
 
     /// Set expression of an uninterpreted fn given by id `fn_id`.
