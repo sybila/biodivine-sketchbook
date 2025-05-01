@@ -1018,7 +1018,7 @@ impl ModelState {
             fn_symbols.extend(tmp_fn_symbols);
         }
         if fn_symbols.contains(fn_id) {
-            Err(format!("Cannot remove fn symbol `{fn_id}`, it is still contained in an update/uninterpreted function."))
+            Err(format!("Cannot alter fn symbol `{fn_id}`, it is currently used in some update/uninterpreted function."))
         } else {
             Ok(())
         }

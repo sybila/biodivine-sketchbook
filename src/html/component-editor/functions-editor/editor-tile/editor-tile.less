@@ -33,18 +33,6 @@
   width: 99%;
 }
 
-.remove-reg {
-  height: 24px;
-  line-height: 24px;
-  padding: 0;
-  width: 24px;  
-  align-self: start;
-}
-
-.remove-reg .fa-trash {
-  height: 10px;
-}
-
 .functions-body {
   flex-direction: column;
 }
@@ -77,10 +65,26 @@
   .regulation:hover {
     background: rgba(0, 0, 0, 0.37);
   }
+
+  .function-id-field {
+    color: @text-dark;
+  }
+
+  .uk-form-label {
+    color: @text-dark;
+  }
 }
 
 @media (prefers-color-scheme: light) {
   .regulation:hover {
     background: rgba(0, 0, 0, 0.05);
+  }
+  
+  .function-id-field {
+    color: @text-light;
+  }
+
+  .uk-form-label {
+    color: @text-light;
   }
 }

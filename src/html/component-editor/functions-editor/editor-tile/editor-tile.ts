@@ -106,5 +106,5 @@ export abstract class EditorTile extends LitElement {
 
   abstract toggleEssentiality (regulation: IRegulationData): void
   abstract toggleMonotonicity (regulation: IRegulationData): void
-  abstract removeVariable (): void
+  abstract removeElement (): void
 }
