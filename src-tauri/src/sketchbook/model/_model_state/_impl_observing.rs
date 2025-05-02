@@ -5,7 +5,6 @@ use crate::sketchbook::model::{
     LayoutIterator, ModelState, Regulation, RegulationIterator, UninterpretedFn,
     UninterpretedFnIterator, UpdateFn, UpdateFnIterator, Variable, VariableIterator,
 };
-use std::collections::HashSet;
 
 use std::str::FromStr;
 
@@ -330,14 +329,34 @@ impl ModelState {
     /// This is important in case we want to safely delete it.
     ///
     /// We expect valid var id here.
-    pub fn is_var_contained_in_updates(&self, var_id: &VarId) -> bool {
-        // check that variable can be safely deleted (not contained in any update fn)
-        let mut vars_in_update_fns = HashSet::new();
+    pub fn is_var_contained_in_expressions(&self, var_id: &VarId) -> bool {
         for update_fn in self.update_fns.values() {
-            let tmp_var_set = update_fn.collect_variables();
-            vars_in_update_fns.extend(tmp_var_set);
+            let variables_used = update_fn.collect_variables();
+            if variables_used.contains(var_id) {
+                return true;
+            }
         }
-        vars_in_update_fns.contains(var_id)
+        false
+    }
+
+    /// Check whether an uninterpreted function is used in any expressions (corresponding to
+    /// any update or uninterpreted function).
+    ///
+    /// This is important in case we want to safely delete it or change its arity.
+    pub fn is_fn_contained_in_expressions(&self, fn_id: &UninterpretedFnId) -> bool {
+        for update_fn in self.update_fns.values() {
+            let fn_symbols_used = update_fn.collect_fn_symbols();
+            if fn_symbols_used.contains(fn_id) {
+                return true;
+            }
+        }
+        for uninterpreted_fn in self.uninterpreted_fns.values() {
+            let fn_symbols_used = uninterpreted_fn.collect_fn_symbols();
+            if fn_symbols_used.contains(fn_id) {
+                return true;
+            }
+        }
+        false
     }
 
     /// Return an iterator over all variables (with IDs) of this model.

@@ -70,7 +70,7 @@ impl ModelState {
     }
 
     /// Perform event of adding a new `variable` component to this `ModelState`.
-    /// This expects that the variable was already defined elsewhere (i.e., its ID and other
+    /// This expects that the variable was already prepared elsewhere (i.e., its ID and other
     /// fields are already known).
     ///
     /// This event will be broken into sub-events (raw addition of the variable, and re-positioning).
@@ -190,16 +190,16 @@ impl ModelState {
             // First step - check that variable can be safely deleted, i.e., it is not contained in
             // any update function's expression.
             // Note this check is performed also later by the manager, we just want to detect this ASAP.
-            if self.is_var_contained_in_updates(&var_id) {
+            if self.is_var_contained_in_expressions(&var_id) {
                 return AeonError::throw(format!(
                     "Cannot remove variable `{var_id}`, it is still contained in some update functions."
                 ));
             }
 
             // To remove a variable, all its regulations must be already removed, and it must be at default position
-            // in each layout. If it is not the case, to ensure that we can undo this operation, we precede the var
-            // removal with a set of events to remove all its regulations, and move its nodes to default positions
-            // (as separate undo-able events).
+            // in each layout. If it is not the case, we must break this event down into smaller ones to ensure that we can
+            // undo this operation later. We prepare a set of events to remove all its regulations, and move the node to
+            // default position, and then remove the variable atomically (all as separate undo-able events).
 
             let targets = self.targets(&var_id)?;
             let regulators = self.regulators(&var_id)?;

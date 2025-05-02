@@ -174,8 +174,24 @@ impl ModelState {
         Ok(())
     }
 
-    /// Add a new uninterpreted fn with given `id`, `name` and `arity` to this `ModelState`.
-    /// Note that constraints regarding monotonicity or essentiality must be added separately.
+    /// Add a new uninterpreted fn given by its components, giving ID and name as strings.
+    ///
+    /// The ID must be valid identifier that is not used by any other uninterpreted fn.
+    /// Returns `Err` in case the `id` is already being used.
+    pub fn add_uninterpreted_fn_by_str(
+        &mut self,
+        id: &str,
+        name: &str,
+        arguments: Vec<FnArgument>,
+        expression: &str,
+        annot: &str,
+    ) -> Result<(), String> {
+        let fn_id = UninterpretedFnId::new(id)?;
+        self.add_uninterpreted_fn(fn_id, name, arguments, expression, annot)
+    }
+
+    /// Shortcut to add an uninterpreted fn with given `id`, `name` and `arity` to this `ModelState`.
+    /// Function has an empty expression and no constraints regarding monotonicity or essentiality.
     ///
     /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
@@ -193,7 +209,9 @@ impl ModelState {
         Ok(())
     }
 
-    /// Add a new uninterpreted fn with given string `id`, `name`, and `arity` to this `ModelState`.
+    /// Shortcut to add an uninterpreted fn with given string `id`, `name`, and `arity` to this
+    /// `ModelState`. Function has an empty expression and no constraints regarding monotonicity
+    /// or essentiality.
     ///
     /// The ID must be valid identifier that is not already used by some other uninterpreted fn.
     /// Returns `Err` in case the `id` is already being used.
@@ -412,7 +430,7 @@ impl ModelState {
         self.assert_valid_variable(var_id)?;
 
         // check that variable can be safely deleted (not contained in any update fn)
-        if self.is_var_contained_in_updates(var_id) {
+        if self.is_var_contained_in_expressions(var_id) {
             return Err(format!(
                 "Cannot remove variable `{var_id}`, it is still contained in an update function."
             ));
@@ -488,7 +506,12 @@ impl ModelState {
         arity: usize,
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
-        self.assert_fn_not_used_in_expressions(fn_id)?;
+        // check that this function symbol can be safely modified (not contained in any update/uninterpreted fn)
+        if self.is_fn_contained_in_expressions(fn_id) {
+            return Err(format!(
+                "Cannot modify function `{fn_id}`, it is currently applied in some update/uninterpreted function."
+            ));
+        }
 
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
         uninterpreted_fn.set_arity(arity)?;
@@ -660,7 +683,11 @@ impl ModelState {
         self.assert_valid_uninterpreted_fn(fn_id)?;
 
         // check that this function symbol can be safely deleted (not contained in any update/uninterpreted fn)
-        self.assert_fn_not_used_in_expressions(fn_id)?;
+        if self.is_fn_contained_in_expressions(fn_id) {
+            return Err(format!(
+                "Cannot remove function `{fn_id}`, it is still contained in some update/uninterpreted function."
+            ));
+        }
 
         if self.uninterpreted_fns.remove(fn_id).is_none() {
             panic!("Error when removing uninterpreted fn {fn_id} from the uninterpreted_fn map.")
@@ -989,26 +1016,6 @@ impl ModelState {
             Ok(())
         } else {
             Err(format!("Layout with id {layout_id} does not exist."))
-        }
-    }
-
-    /// **(internal)** Utility method to ensure that an uninterpreted function is not used in any
-    /// expressions (corresponding to any update function or any uninterpreted function).
-    fn assert_fn_not_used_in_expressions(&self, fn_id: &UninterpretedFnId) -> Result<(), String> {
-        // check that this function symbol can be safely deleted (not contained in any update/uninterpreted fn)
-        let mut fn_symbols = HashSet::new();
-        for update_fn in self.update_fns.values() {
-            let tmp_fn_symbols = update_fn.collect_fn_symbols();
-            fn_symbols.extend(tmp_fn_symbols);
-        }
-        for uninterpreted_fn in self.uninterpreted_fns.values() {
-            let tmp_fn_symbols = uninterpreted_fn.collect_fn_symbols();
-            fn_symbols.extend(tmp_fn_symbols);
-        }
-        if fn_symbols.contains(fn_id) {
-            Err(format!("Cannot alter fn symbol `{fn_id}`, it is currently used in some update/uninterpreted function."))
-        } else {
-            Ok(())
         }
     }
 }

@@ -2,21 +2,31 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{
-    ChangeArgEssentialData, ChangeArgMonotoneData, ModelData, UninterpretedFnData,
+    ChangeArgEssentialData, ChangeArgMonotoneData, ModelData, StatPropertyData, UninterpretedFnData,
 };
-use crate::sketchbook::event_utils::{make_reversible, mk_model_event, mk_model_state_change};
+use crate::sketchbook::event_utils::{
+    make_reversible, mk_model_event, mk_model_state_change, mk_stat_prop_event,
+};
 use crate::sketchbook::ids::UninterpretedFnId;
-use crate::sketchbook::model::{ModelState, UninterpretedFn};
+use crate::sketchbook::model::{
+    Essentiality, FnArgument, ModelState, Monotonicity, UninterpretedFn,
+};
+use crate::sketchbook::properties::shortcuts::*;
+use crate::sketchbook::properties::StatProperty;
 use crate::sketchbook::JsonSerde;
 
 /* Constants for event path segments in `ModelState` related to uninterpreted functions. */
 
-// add new prepared function
+// add function, including changes in static properties
 const ADD_FN_PATH: &str = "add";
-// add new default function
+// add function (without additional changes)
+const ADD_RAW_FN_PATH: &str = "add_raw";
+// add new default function (does not need any static properties)
 const ADD_DEFAULT_FN_PATH: &str = "add_default";
-// remove particular function
+// remove particular function, including changes in static properties
 const REMOVE_FN_PATH: &str = "remove";
+// remove particular function (without additional changes)
+const REMOVE_RAW_FN_PATH: &str = "remove_raw";
 // set function's (meta)data (name, annotation)
 const SET_DATA_PATH: &str = "set_data";
 // set function's ID
@@ -50,6 +60,9 @@ impl ModelState {
         } else if Self::starts_with(ADD_FN_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_uninterpreted_fn(event)
+        } else if Self::starts_with(ADD_RAW_FN_PATH, at_path).is_some() {
+            Self::assert_path_length(at_path, 1, component_name)?;
+            self.event_add_uninterpreted_fn_raw(event)
         } else {
             Self::assert_path_length(at_path, 2, component_name)?;
             let fn_id_str = at_path.first().unwrap();
@@ -59,29 +72,82 @@ impl ModelState {
         }
     }
 
-    /// Perform event of adding a new `uninterpreted fn` component to this `ModelState`.
-    /// This variant assumes that ID, arity (and so on) were already given.
+    /// Perform event of adding a new `uninterpreted function`` to this `ModelState`, and
+    /// also add corresponding static properties.
     ///
-    /// For now, it is assumed that new functions have no constraints (monotonicity, essentiality,
-    /// or expression).
+    /// This breaks the event down into atomic events - first to create corresponding static
+    /// properties, and then to make the function itself.
     pub(super) fn event_add_uninterpreted_fn(
         &mut self,
         event: &Event,
     ) -> Result<Consumed, DynError> {
         let component_name = "model/uninterpreted_fn";
-
-        // parse the payload
         let payload = Self::clone_payload_str(event, component_name)?;
         let fn_data = UninterpretedFnData::from_json_str(payload.as_str())?;
-        let arity = fn_data.arguments.len();
-        // add funtion in two steps (to also include annotation)
-        self.add_empty_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
-        self.set_fn_annot_by_str(&fn_data.id, &fn_data.annotation)?;
+        let fn_id = UninterpretedFnId::new(&fn_data.id)?;
+
+        let mut event_list = Vec::new();
+
+        // create events to add corresponding properties for monotonicity/essentiality in case they
+        // are not unknown variants
+        for (index, (monotonicity, essentiality)) in fn_data.arguments.iter().enumerate() {
+            if *essentiality != Essentiality::Unknown {
+                let prop_id = StatProperty::get_fn_input_essentiality_prop_id(&fn_id, index);
+                let prop = mk_fn_input_essentiality_prop(&fn_id, index, *essentiality);
+                let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+                let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
+                event_list.push(prop_event);
+            }
+            if *monotonicity != Monotonicity::Unknown {
+                let prop_id = StatProperty::get_fn_input_monotonicity_prop_id(&fn_id, index);
+                let prop = mk_fn_input_monotonicity_prop(&fn_id, index, *monotonicity);
+                let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+                let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
+                event_list.push(prop_event);
+            }
+        }
+
+        // and finally, the event of adding the raw function itself (the event list will be
+        // reversed, this being the first of the events with all the checks)
+        let reg_event = mk_model_event(&["uninterpreted_fn", "add_raw"], Some(&payload));
+        event_list.push(reg_event);
+
+        Ok(Consumed::Restart(event_list))
+    }
+
+    /// Perform event of adding an `uninterpreted fn` component to this `ModelState`.
+    ///
+    /// This version is only adding the function, and not the corresponding static properties.
+    /// It is expected that `event_add_uninterpreted_fn` is called first, handling the actual
+    /// division into this event + event for adding the properties.
+    pub(super) fn event_add_uninterpreted_fn_raw(
+        &mut self,
+        event: &Event,
+    ) -> Result<Consumed, DynError> {
+        let component_name = "model/uninterpreted_fn";
+
+        // parse the payload and perform the event
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let fn_data = UninterpretedFnData::from_json_str(payload.as_str())?;
+        let fn_arguments = fn_data
+            .arguments
+            .clone()
+            .into_iter()
+            .map(|(m, e)| FnArgument::new(e, m))
+            .collect();
+        self.add_uninterpreted_fn_by_str(
+            &fn_data.id,
+            &fn_data.name,
+            fn_arguments,
+            &fn_data.expression,
+            &fn_data.annotation,
+        )?;
 
         // prepare the state-change and reverse event (which is a remove event)
-        let reverse_at_path = ["uninterpreted_fn", &fn_data.id, "remove"];
+        let state_change = mk_model_state_change(&["uninterpreted_fn", "add"], &fn_data);
+        let reverse_at_path = ["uninterpreted_fn", &fn_data.id, "remove_raw"];
         let reverse_event = mk_model_event(&reverse_at_path, None);
-        Ok(make_reversible(event.clone(), event, reverse_event))
+        Ok(make_reversible(state_change, event, reverse_event))
     }
 
     /// Perform event of adding a new "default" `uninterpreted fn` component to this `ModelState`.
@@ -121,11 +187,47 @@ impl ModelState {
         let component_name = "model/uninterpreted_fn";
 
         if Self::starts_with(REMOVE_FN_PATH, at_path).is_some() {
-            // check that payload is really empty
-            if event.payload.is_some() {
-                let message = "Payload must be empty for uninterpreted fn removing.".to_string();
-                return AeonError::throw(message);
+            Self::assert_payload_empty(event, component_name)?;
+
+            // First step - check that function can be safely deleted, i.e., it is not contained in
+            // any update/uninterpreted function's expression.
+            // Note this check is also performed also later by the manager, we just want to detect this ASAP.
+            if self.is_fn_contained_in_expressions(&fn_id) {
+                return AeonError::throw(format!(
+                    "Cannot remove function `{fn_id}`, it is still contained in some update/uninterpreted function."
+                ));
             }
+
+            // To remove a function, all its essentiality/monotonicity properties must also be removed.
+            // We break this event down into atomic ones to ensure that we can undo this operation later.
+            // We prepare  a set of events to remove all the properties, and then remove the
+            // function atomically (all as separate undo-able events).
+            let mut event_list = Vec::new();
+
+            // create the event of removing the raw function itself
+            // the event list will be reversed, and this will become the last of the sub-events processed
+            let fn_event_path = ["uninterpreted_fn", fn_id.as_str(), "remove_raw"];
+            let fn_event = mk_model_event(&fn_event_path, None);
+            event_list.push(fn_event);
+
+            // events of removing the corresponding properties for monotonicity/essentiality in
+            // case it is not unknown variant
+            let orig_fn = self.get_uninterpreted_fn(&fn_id)?;
+            for (index, argument) in orig_fn.get_all_arguments().iter().enumerate() {
+                if argument.essential != Essentiality::Unknown {
+                    let prop_id = StatProperty::get_fn_input_essentiality_prop_id(&fn_id, index);
+                    let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                    event_list.push(prop_event);
+                }
+                if argument.monotonicity != Monotonicity::Unknown {
+                    let prop_id = StatProperty::get_fn_input_monotonicity_prop_id(&fn_id, index);
+                    let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                    event_list.push(prop_event);
+                }
+            }
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with(REMOVE_RAW_FN_PATH, at_path).is_some() {
+            Self::assert_payload_empty(event, component_name)?;
 
             // perform the event, prepare the state-change variant (move id from path to payload)
             // note that to remove an uninterpreted_fn, it must not be used in any update fn (checked during the call)
@@ -134,7 +236,7 @@ impl ModelState {
             let state_change = mk_model_state_change(&["uninterpreted_fn", "remove"], &fn_data);
 
             // prepare the reverse event
-            let reverse_at_path = ["uninterpreted_fn", "add"];
+            let reverse_at_path = ["uninterpreted_fn", "add_raw"];
             let payload = fn_data.to_json_str();
             let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
