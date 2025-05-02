@@ -13,19 +13,19 @@ use crate::sketchbook::JsonSerde;
 
 /* Constants for event path segments in `ModelState` related to regulations. */
 
-// add new regulation, including changes in static properties
+// add new regulation, and also propagate changes into static properties
 const ADD_REGULATION_PATH: &str = "add";
 // add new regulation (without additional changes)
 const ADD_RAW_REGULATION_PATH: &str = "add_raw";
-// remove regulation, including changes in static properties
+// remove regulation, and also propagate changes into static properties
 const REMOVE_REGULATION_PATH: &str = "remove";
 // remove regulation (without additional changes)
 const REMOVE_RAW_REGULATION_PATH: &str = "remove_raw";
-// set regulation's sign, including changes in static properties
+// set regulation's sign, and also propagate changes into static properties
 const SET_SIGN_PATH: &str = "set_sign";
 // set regulation's sign (without additional changes)
 const SET_SIGN_RAW_PATH: &str = "set_sign_raw";
-// set regulation's essentiality, including changes in static properties
+// set regulation's essentiality, and also propagate changes into static properties
 const SET_ESSENTIALITY_PATH: &str = "set_essentiality";
 // set regulation's essentiality (without additional changes)
 const SET_ESSENTIALITY_RAW_PATH: &str = "set_essentiality_raw";
@@ -194,6 +194,9 @@ impl ModelState {
             let reverse_event = mk_model_event(&reverse_at_path, Some(&payload));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_SIGN_PATH, at_path).is_some() {
+            // This event is broken down into atomic events - first to potentially create corresponding
+            // static property, and then to modify the regulation itself.
+
             // get the payload - a string for the "new_sign"
             let sign_str = Self::clone_payload_str(event, component_name)?;
             let new_sign = Monotonicity::from_json_str(&sign_str)?;
@@ -217,8 +220,8 @@ impl ModelState {
             let reg_event = mk_model_event(&reg_event_path, Some(&sign_str));
             event_list.push(reg_event);
 
-            // events of modifying/adding/removing corresponding static property
-            // note we have checked that `orig_sign` and `new_sign` are different
+            // now the events of modifying/adding/removing corresponding static property
+            // note we have already checked that `orig_sign` and `new_sign` are different
             let prop_id = StatProperty::get_reg_monotonicity_prop_id(&regulator_id, &target_id);
             if orig_sign == Monotonicity::Unknown {
                 // before there was no static prop, now we have to add it
@@ -231,7 +234,7 @@ impl ModelState {
                 let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
                 event_list.push(prop_event);
             } else {
-                // there is a static prop, and we just change its sign
+                // there is a static prop, and we must change its sign
                 let prop = mk_reg_monotonicity_prop(&regulator_id, &target_id, new_sign);
                 let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
                 let prop_event =
@@ -263,13 +266,14 @@ impl ModelState {
             reverse_event.payload = Some(orig_sign.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_ESSENTIALITY_PATH, at_path).is_some() {
+            // This event is broken down into atomic events - first to potentially create corresponding
+            // static property, and then to modify the regulation itself.
+
             // get the payload - a string for the "new_essentiality"
             let essentiality_str = Self::clone_payload_str(event, component_name)?;
             let new_essentiality = Essentiality::from_json_str(&essentiality_str)?;
-
             let original_reg = self.get_regulation(&regulator_id, &target_id)?;
             let orig_essentiality = *original_reg.get_essentiality();
-
             if orig_essentiality == new_essentiality {
                 return Ok(Consumed::NoChange);
             }
@@ -286,8 +290,8 @@ impl ModelState {
             let reg_event = mk_model_event(&reg_event_path, Some(&essentiality_str));
             event_list.push(reg_event);
 
-            // events of modifying/adding/removing corresponding static property
-            // note we have checked that `orig_essentiality` and `new_essentiality` are different
+            // now the events of modifying/adding/removing corresponding static property
+            // note we have already checked that `orig_essentiality` and `new_essentiality` are different
             let prop_id = StatProperty::get_reg_essentiality_prop_id(&regulator_id, &target_id);
             if orig_essentiality == Essentiality::Unknown {
                 // before there was no static prop, now we have to add it
@@ -300,7 +304,7 @@ impl ModelState {
                 let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
                 event_list.push(prop_event);
             } else {
-                // there is a static prop, and we just change its essentiality
+                // there is a static prop, and we must change its essentiality
                 let prop = mk_reg_essentiality_prop(&regulator_id, &target_id, new_essentiality);
                 let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
                 let prop_event =

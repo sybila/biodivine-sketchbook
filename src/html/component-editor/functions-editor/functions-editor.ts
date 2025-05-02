@@ -29,9 +29,9 @@ export class FunctionsEditor extends LitElement {
     // functions-related event listeners
     aeonState.sketch.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
     this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
-    aeonState.sketch.model.uninterpretedFnDataChanged.addEventListener(this.#onFunctionDataChanged.bind(this))
+    // listener 'aeonState.sketch.model.uninterpretedFnRemoved' is handled by Root component (more complex update)
     this.addEventListener('edit-function-definition', (e) => { void this.editFunction(e) })
-    aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
+    aeonState.sketch.model.uninterpretedFnDataChanged.addEventListener(this.#onFunctionDataChanged.bind(this))
     this.addEventListener('change-function-id', this.setFunctionId)
     // listener 'aeonState.sketch.model.uninterpretedFnIdChanged' is handled by Root component (more complex update)
     this.addEventListener('change-fn-arity', this.changeFunctionArity)
@@ -131,16 +131,6 @@ export class FunctionsEditor extends LitElement {
     const message = `Do you want to proceed removing function '${id}'?`
     if (!await this.confirmDeleteDialog(message)) return
     aeonState.sketch.model.removeUninterpretedFn(id)
-  }
-
-  /** Process and remove fn data sent from backend. */
-  #onFunctionRemoved (data: UninterpretedFnData): void {
-    const id = data.id
-    const index = this.contentData.functions.findIndex(fun => fun.id === id)
-    if (index === -1) return
-    const functions = [...this.contentData.functions]
-    functions.splice(index, 1)
-    this.saveFunctions(functions)
   }
 
   /** Invoke backend to set function id. */

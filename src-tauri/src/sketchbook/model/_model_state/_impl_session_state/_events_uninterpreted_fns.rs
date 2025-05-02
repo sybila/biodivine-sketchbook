@@ -17,13 +17,13 @@ use crate::sketchbook::JsonSerde;
 
 /* Constants for event path segments in `ModelState` related to uninterpreted functions. */
 
-// add function, including changes in static properties
+// add function, and also propagate changes into static properties
 const ADD_FN_PATH: &str = "add";
 // add function (without additional changes)
 const ADD_RAW_FN_PATH: &str = "add_raw";
-// add new default function (does not need any static properties)
+// add a new default function (does not require changes in static properties)
 const ADD_DEFAULT_FN_PATH: &str = "add_default";
-// remove particular function, including changes in static properties
+// remove particular function, and also propagate changes into static properties
 const REMOVE_FN_PATH: &str = "remove";
 // remove particular function (without additional changes)
 const REMOVE_RAW_FN_PATH: &str = "remove_raw";
@@ -35,9 +35,13 @@ const SET_ID_PATH: &str = "set_id";
 const SET_ARITY_PATH: &str = "set_arity";
 // set function's expression
 const SET_EXPRESSION_PATH: &str = "set_expression";
-// set monotonicity of function with respect to its argument
+// set function's monotonicity, and also propagate changes into static properties
+const SET_MONOTONICITY_RAW_PATH: &str = "set_monotonicity_raw";
+// set function's monotonicity (without additional changes)
 const SET_MONOTONICITY_PATH: &str = "set_monotonicity";
-// set essentiality of function with respect to its argument
+// set function's essentiality, and also propagate changes into static properties
+const SET_ESSENTIALITY_RAW_PATH: &str = "set_essentiality_raw";
+// set function's essentiality (without additional changes)
 const SET_ESSENTIALITY_PATH: &str = "set_essentiality";
 
 /// Implementation for events related to `uninterpreted functions` of the model.
@@ -324,6 +328,50 @@ impl ModelState {
             reverse_event.payload = Some(original_expression);
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_MONOTONICITY_PATH, at_path).is_some() {
+            // This event is broken down into atomic events - first to potentially create corresponding
+            // static property, and then to modify the function itself.
+
+            // get the payload and parse it
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let change_data = ChangeArgMonotoneData::from_json_str(payload.as_str())?;
+            let orig_monotonicity = *self
+                .get_uninterpreted_fn(&fn_id)?
+                .get_monotonic(change_data.idx);
+            let new_monotonicity = change_data.monotonicity;
+            if orig_monotonicity == new_monotonicity {
+                return Ok(Consumed::NoChange);
+            }
+
+            let mut event_list = Vec::new();
+
+            // prepare the event of changing the function monotonicity (payload stays the same)
+            let fn_event_path = ["uninterpreted_fn", fn_id.as_str(), "set_monotonicity_raw"];
+            let fn_event = mk_model_event(&fn_event_path, Some(&payload));
+            event_list.push(fn_event);
+
+            // now the event of modifying/adding/removing corresponding static property
+            // note we have checked that orig monotonicity and new monotonicity are different
+            let prop_id = StatProperty::get_fn_input_monotonicity_prop_id(&fn_id, change_data.idx);
+            if orig_monotonicity == Monotonicity::Unknown {
+                // before there was no static prop, now we have to add it
+                let prop = mk_fn_input_monotonicity_prop(&fn_id, change_data.idx, new_monotonicity);
+                let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+                let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
+                event_list.push(prop_event);
+            } else if new_monotonicity == Monotonicity::Unknown {
+                // before there was a static prop, now we have to remove it
+                let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                event_list.push(prop_event);
+            } else {
+                // there is a static prop, and we must change its monotonicity
+                let prop = mk_fn_input_monotonicity_prop(&fn_id, change_data.idx, new_monotonicity);
+                let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+                let prop_event =
+                    mk_stat_prop_event(&[prop_id.as_str(), "set_content"], Some(&prop_payload));
+                event_list.push(prop_event);
+            }
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with(SET_MONOTONICITY_RAW_PATH, at_path).is_some() {
             // get the payload and parse it
             let payload = Self::clone_payload_str(event, component_name)?;
             let change_data = ChangeArgMonotoneData::from_json_str(payload.as_str())?;
@@ -350,6 +398,50 @@ impl ModelState {
             reverse_event.payload = Some(reverse_change.to_json_str());
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_ESSENTIALITY_PATH, at_path).is_some() {
+            // This event is broken down into atomic events - first to potentially create corresponding
+            // static property, and then to modify the function itself.
+
+            // get the payload and parse it
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let change_data = ChangeArgEssentialData::from_json_str(payload.as_str())?;
+            let orig_essentiality = *self
+                .get_uninterpreted_fn(&fn_id)?
+                .get_essential(change_data.idx);
+            let new_essentiality = change_data.essentiality;
+            if orig_essentiality == new_essentiality {
+                return Ok(Consumed::NoChange);
+            }
+
+            let mut event_list = Vec::new();
+
+            // prepare the event of changing the function essentiality (payload stays the same)
+            let fn_event_path = ["uninterpreted_fn", fn_id.as_str(), "set_essentiality_raw"];
+            let fn_event = mk_model_event(&fn_event_path, Some(&payload));
+            event_list.push(fn_event);
+
+            // now the event of modifying/adding/removing corresponding static property
+            // note we have checked that orig essentiality and new essentiality are different
+            let prop_id = StatProperty::get_fn_input_essentiality_prop_id(&fn_id, change_data.idx);
+            if orig_essentiality == Essentiality::Unknown {
+                // before there was no static prop, now we have to add it
+                let prop = mk_fn_input_essentiality_prop(&fn_id, change_data.idx, new_essentiality);
+                let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+                let prop_event = mk_stat_prop_event(&["add"], Some(&prop_payload));
+                event_list.push(prop_event);
+            } else if new_essentiality == Essentiality::Unknown {
+                // before there was a static prop, now we have to remove it
+                let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                event_list.push(prop_event);
+            } else {
+                // there is a static prop, and we must change its essentiality
+                let prop = mk_fn_input_essentiality_prop(&fn_id, change_data.idx, new_essentiality);
+                let prop_payload = StatPropertyData::from_property(&prop_id, &prop).to_json_str();
+                let prop_event =
+                    mk_stat_prop_event(&[prop_id.as_str(), "set_content"], Some(&prop_payload));
+                event_list.push(prop_event);
+            }
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with(SET_ESSENTIALITY_RAW_PATH, at_path).is_some() {
             // get the payload and parse it
             let payload = Self::clone_payload_str(event, component_name)?;
             let change_data = ChangeArgEssentialData::from_json_str(payload.as_str())?;
