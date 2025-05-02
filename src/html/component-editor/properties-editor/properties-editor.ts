@@ -394,6 +394,20 @@ export default class PropertiesEditor extends LitElement {
     this.showFunctionProperties = !this.showFunctionProperties
   }
 
+  numGeneratedFnProperties (): number {
+    const generatedFnProps = this.contentData.staticProperties.filter(
+      prop => prop.variant === StaticPropertyType.FunctionInputEssential || prop.variant === StaticPropertyType.FunctionInputMonotonic
+    )
+    return generatedFnProps.length
+  }
+
+  numGeneratedRegProperties (): number {
+    const generatedRegProps = this.contentData.staticProperties.filter(
+      prop => prop.variant === StaticPropertyType.VariableRegulationEssential || prop.variant === StaticPropertyType.VariableRegulationMonotonic
+    )
+    return generatedRegProps.length
+  }
+
   render (): TemplateResult {
     return html`
       <div id="dynamic-property-menu" class="menu-content">
@@ -445,16 +459,21 @@ export default class PropertiesEditor extends LitElement {
                   <span class="uk-label">No static properties defined</span>
               </div>`
 : html`
-              <div class="uk-margin-small">
+              ${this.numGeneratedRegProperties() > 0
+? html`<div class="uk-margin-small">
                 <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleRegulationPropertiesVisibility}">
                   ${this.showRegulationProperties ? 'Hide' : 'Show'} Generated Regulation Properties
                 </button>
-              </div>
-              <div class="uk-margin-small">
+              </div>`
+: html``}
+
+              ${this.numGeneratedFnProperties() > 0
+? html`<div class="uk-margin-small">
                 <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleFunctionPropertiesVisibility}">
                   ${this.showFunctionProperties ? 'Hide' : 'Show'} Generated Function Properties
                 </button>
-              </div>`}
+              </div>`
+: html``}`}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
                 let result = html``

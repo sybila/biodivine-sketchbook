@@ -369,7 +369,7 @@ impl PropertyManager {
     ///
     /// This can be also helpful if we are loading model with potentially invalid IDs (changed by
     /// the user outside of Sketchbook) to fix potential issues.
-    pub fn make_generated_reg_prop_ids_consistent(&mut self) {
+    pub fn make_generated_reg_prop_ids_consistent(&mut self) -> Result<(), String> {
         // first, collect a list of old-new ID pairs that must be changed
         let mut id_change_list: Vec<(StatPropertyId, StatPropertyId)> = Vec::new();
         for (prop_id, prop) in self.stat_properties.iter() {
@@ -399,8 +399,10 @@ impl PropertyManager {
         }
         // and finally, set the IDs
         for (current_id, new_id) in id_change_list {
-            self.set_stat_id(&current_id, new_id).unwrap();
+            self.set_stat_id(&current_id, new_id)
+                .map_err(|e| format!("Can't standardize ID for property `{current_id}`: {e}"))?;
         }
+        Ok(())
     }
 
     /// Go through all static properties that are automatically generated from the uninterpreted
@@ -411,7 +413,7 @@ impl PropertyManager {
     ///
     /// This can be also helpful if we are loading model with potentially invalid IDs (changed by
     /// the user outside of Sketchbook) to fix potential issues.
-    pub fn make_generated_fn_prop_ids_consistent(&mut self) {
+    pub fn make_generated_fn_prop_ids_consistent(&mut self) -> Result<(), String> {
         // first, collect a list of old-new ID pairs that must be changed
         let mut id_change_list: Vec<(StatPropertyId, StatPropertyId)> = Vec::new();
         for (prop_id, prop) in self.stat_properties.iter() {
@@ -441,8 +443,10 @@ impl PropertyManager {
         }
         // and finally, set the IDs
         for (current_id, new_id) in id_change_list {
-            self.set_stat_id(&current_id, new_id).unwrap();
+            self.set_stat_id(&current_id, new_id)
+                .map_err(|e| format!("Can't standardize ID for property `{current_id}`: {e}"))?;
         }
+        Ok(())
     }
 }
 

@@ -10,6 +10,18 @@ use biodivine_lib_param_bn::{BooleanNetwork, ModelAnnotation};
 use regex::Regex;
 
 impl Sketch {
+    /// Create sketch instance from a custom JSON model format.
+    ///
+    /// See [SketchData::from_json_str] for details on the actual parsing.
+    pub fn from_custom_json(json_str: &str) -> Result<Sketch, String> {
+        // parse the JSON to intermediate SketchData first
+        let sketch_data = SketchData::from_json_str(json_str)?;
+        let mut sketch = Sketch::new_from_sketch_data(&sketch_data)?;
+        sketch.standardize_generated_static_ids()?;
+        println!("IMPORTING");
+        Ok(sketch)
+    }
+
     /// Create sketch instance from a customized version of AEON model format.
     /// The original part of the AEON format (compatible with other biodivine tools) includes:
     /// - variable IDs
@@ -84,6 +96,7 @@ impl Sketch {
                 let property = prop_data.to_property()?;
 
                 // ignore automatically generated static props as they were added before
+                // TODO: decide how to handle this
                 match prop_data.variant {
                     StatPropertyTypeData::RegulationEssential(..)
                     | StatPropertyTypeData::RegulationMonotonic(..) => {}
@@ -105,6 +118,8 @@ impl Sketch {
             }
         }
 
+        // lastly, make sure that automatically generated static properties have standardized IDs
+        sketch.standardize_generated_static_ids()?;
         Ok(sketch)
     }
 
@@ -125,6 +140,10 @@ impl Sketch {
                 .model
                 .update_position(&default_layout, &node_id, px as f32, py as f32)?;
         }
+
+        // lastly, make sure that automatically generated static properties have standardized IDs
+        // this is not needed for SBML at the moment, but we may need it later
+        sketch.standardize_generated_static_ids()?;
 
         Ok(sketch)
     }
@@ -241,17 +260,20 @@ impl Sketch {
         entities.sort_by(|(x, _), (y, _)| x.cmp(y));
         Ok(entities)
     }
-}
 
-impl Sketch {
-    /// Create sketch instance from a custom JSON model format.
+    /// Standardize IDs of all types of automatically generated static properties.
+    /// That is:
+    /// - automatically generated regulation properties get ID `monotonicity_REGULATOR_TARGET`
+    ///   or `essentiality_REGULATOR_TARGET`
+    /// - automatically generated function properties get ID `fn_monotonicity_FUNCTION_INDEX`
+    ///   or `fn_essentiality_FUNCTION_INDEX`
     ///
-    /// See [SketchData::from_json_str] for details on the actual parsing.
-    pub fn from_custom_json(json_str: &str) -> Result<Sketch, String> {
-        // parse the JSON to intermediate SketchData first
-        let sketch_data = SketchData::from_json_str(json_str)?;
-        let sketch = Sketch::new_from_sketch_data(&sketch_data)?;
-        Ok(sketch)
+    /// This is important during import, as these IDs could have been "corrupted" by the user
+    /// outside of Sketchbook. That could create some issues down the line.
+    fn standardize_generated_static_ids(&mut self) -> Result<(), String> {
+        self.properties.make_generated_reg_prop_ids_consistent().map_err(|e| format!("Some IDs of generated regulation properties are corrupted and we cant standardize them: {e}"))?;
+        self.properties.make_generated_fn_prop_ids_consistent().map_err(|e| format!("Some IDs of generated function properties are corrupted and we cant standardize them: {e}"))?;
+        Ok(())
     }
 }
 

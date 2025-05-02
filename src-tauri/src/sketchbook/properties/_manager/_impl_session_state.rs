@@ -83,7 +83,7 @@ impl SessionState for PropertyManager {
                     for (_, prop) in self.stat_properties.iter_mut() {
                         let _ = prop.set_var_id_if_present(old_var_id.clone(), new_var_id.clone());
                     }
-                    self.make_generated_reg_prop_ids_consistent();
+                    self.make_generated_reg_prop_ids_consistent().unwrap(); // this is okay to unwrap here
 
                     // the state change is just a list of all static properties
                     let mut properties_list: Vec<StatPropertyData> = self
@@ -122,7 +122,7 @@ impl SessionState for PropertyManager {
                     for (_, prop) in self.stat_properties.iter_mut() {
                         let _ = prop.set_fn_id_if_present(old_fn_id.clone(), new_fn_id.clone());
                     }
-                    self.make_generated_fn_prop_ids_consistent();
+                    self.make_generated_fn_prop_ids_consistent().unwrap(); // this is okay to unwrap here
 
                     // the state change is just a list of all static properties
                     let mut properties_list: Vec<StatPropertyData> = self
