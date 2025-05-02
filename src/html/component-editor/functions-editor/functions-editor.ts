@@ -35,7 +35,7 @@ export class FunctionsEditor extends LitElement {
     this.addEventListener('change-function-id', this.setFunctionId)
     // listener 'aeonState.sketch.model.uninterpretedFnIdChanged' is handled by Root component (more complex update)
     this.addEventListener('change-fn-arity', this.changeFunctionArity)
-    aeonState.sketch.model.uninterpretedFnArityChanged.addEventListener(this.#onFunctionArityChanged.bind(this))
+    // listener 'aeonState.sketch.model.uninterpretedFnArityChanged' is handled by Root component (more complex update)
     this.addEventListener('toggle-function-variable-monotonicity', this.toggleFunctionVariableMonotonicity)
     aeonState.sketch.model.uninterpretedFnMonotonicityChanged.addEventListener(this.#onFunctionMonotonicityChanged.bind(this))
     this.addEventListener('toggle-function-variable-essentiality', this.toggleFunctionVariableEssentiality)
@@ -143,17 +143,6 @@ export class FunctionsEditor extends LitElement {
   private changeFunctionArity (event: Event): void {
     const detail = (event as CustomEvent).detail
     aeonState.sketch.model.setUninterpretedFnArity(detail.id, detail.arity)
-  }
-
-  /** Process and propagate data for a function with updated arity that was sent from backend. */
-  #onFunctionArityChanged (data: UninterpretedFnData): void {
-    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
-    if (index === -1) return
-
-    const modifiedFunction = convertToIFunction(data)
-    const functions = [...this.contentData.functions]
-    functions[index] = modifiedFunction
-    this.saveFunctions(functions)
   }
 
   /** Invoke backend to toggle function monotonicity. */

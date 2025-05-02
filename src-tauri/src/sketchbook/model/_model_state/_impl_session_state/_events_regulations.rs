@@ -15,19 +15,19 @@ use crate::sketchbook::JsonSerde;
 
 // add new regulation, and also propagate changes into static properties
 const ADD_REGULATION_PATH: &str = "add";
-// add new regulation (without additional changes)
+// add new regulation (without additional changes to static properties)
 const ADD_RAW_REGULATION_PATH: &str = "add_raw";
 // remove regulation, and also propagate changes into static properties
 const REMOVE_REGULATION_PATH: &str = "remove";
-// remove regulation (without additional changes)
+// remove regulation (without additional changes to static properties)
 const REMOVE_RAW_REGULATION_PATH: &str = "remove_raw";
 // set regulation's sign, and also propagate changes into static properties
 const SET_SIGN_PATH: &str = "set_sign";
-// set regulation's sign (without additional changes)
+// set regulation's sign (without additional changes to static properties)
 const SET_SIGN_RAW_PATH: &str = "set_sign_raw";
 // set regulation's essentiality, and also propagate changes into static properties
 const SET_ESSENTIALITY_PATH: &str = "set_essentiality";
-// set regulation's essentiality (without additional changes)
+// set regulation's essentiality (without additional changes to static properties)
 const SET_ESSENTIALITY_RAW_PATH: &str = "set_essentiality_raw";
 
 /// Implementation for events related to `regulations` of the model.

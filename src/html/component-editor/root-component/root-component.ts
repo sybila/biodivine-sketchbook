@@ -103,6 +103,8 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
     // 2) After fn removal, we refresh the static properties.
     aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
+    // 3) After changing fn arity, we refresh the static properties.
+    aeonState.sketch.model.uninterpretedFnArityChanged.addEventListener(this.#onFunctionArityChanged.bind(this))
 
     // listeners for refresh events from backend
     aeonState.sketch.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
@@ -632,6 +634,24 @@ export default class RootComponent extends LitElement {
     )
 
     // Removing a function can cause multiple static properties to be removed as well.
+    // Sometimes, only a subset of these events is correctly displayed on the UI side.
+    // A hacky way to avoid these inconsistency issues is to wait and refresh backend state atomically.
+    setTimeout(() => {
+      aeonState.sketch.properties.refreshStaticProps()
+    }, 75)
+  }
+
+  /** Process and save function with updated arity coming from the backend. */
+  #onFunctionArityChanged (data: UninterpretedFnData): void {
+    const index = this.data.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    const modifiedFunction = convertToIFunction(data)
+    const functions = [...this.data.functions]
+    functions[index] = modifiedFunction
+    this.saveFunctions(functions)
+
+    // Changing function arity can cause multiple static properties to be removed.
     // Sometimes, only a subset of these events is correctly displayed on the UI side.
     // A hacky way to avoid these inconsistency issues is to wait and refresh backend state atomically.
     setTimeout(() => {

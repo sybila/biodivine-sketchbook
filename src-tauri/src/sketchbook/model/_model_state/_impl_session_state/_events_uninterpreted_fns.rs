@@ -19,29 +19,31 @@ use crate::sketchbook::JsonSerde;
 
 // add function, and also propagate changes into static properties
 const ADD_FN_PATH: &str = "add";
-// add function (without additional changes)
+// add function (without additional changes to static properties)
 const ADD_RAW_FN_PATH: &str = "add_raw";
 // add a new default function (does not require changes in static properties)
 const ADD_DEFAULT_FN_PATH: &str = "add_default";
 // remove particular function, and also propagate changes into static properties
 const REMOVE_FN_PATH: &str = "remove";
-// remove particular function (without additional changes)
+// remove particular function (without additional changes to static properties)
 const REMOVE_RAW_FN_PATH: &str = "remove_raw";
 // set function's (meta)data (name, annotation)
 const SET_DATA_PATH: &str = "set_data";
 // set function's ID
 const SET_ID_PATH: &str = "set_id";
-// set function's arity
+// set function's arity (without additional changes to static properties)
+const SET_ARITY_RAW_PATH: &str = "set_arity_raw";
+// set function's arity, and also propagate changes into static properties
 const SET_ARITY_PATH: &str = "set_arity";
 // set function's expression
 const SET_EXPRESSION_PATH: &str = "set_expression";
 // set function's monotonicity, and also propagate changes into static properties
 const SET_MONOTONICITY_RAW_PATH: &str = "set_monotonicity_raw";
-// set function's monotonicity (without additional changes)
+// set function's monotonicity (without additional changes to static properties)
 const SET_MONOTONICITY_PATH: &str = "set_monotonicity";
 // set function's essentiality, and also propagate changes into static properties
 const SET_ESSENTIALITY_RAW_PATH: &str = "set_essentiality_raw";
-// set function's essentiality (without additional changes)
+// set function's essentiality (without additional changes to static properties)
 const SET_ESSENTIALITY_PATH: &str = "set_essentiality";
 
 /// Implementation for events related to `uninterpreted functions` of the model.
@@ -54,8 +56,8 @@ impl ModelState {
     ) -> Result<Consumed, DynError> {
         let component_name = "model/uninterpreted_fn";
 
-        // there is either adding of a new uninterpreted_fn, or editing/removing of an existing one
-        // when adding new uninterpreted fn, the `at_path` is just ["add"] or ["add_default"]
+        // there is either adding additional uninterpreted_fn, or editing/removing some existing one
+        // adding new uninterpreted fn can be done using `at_path` ["add"], ["add_raw"] or ["add_default"]
         // when editing existing uninterpreted fn, the `at_path` is ["fn_id", "<action>"]
 
         if Self::starts_with(ADD_DEFAULT_FN_PATH, at_path).is_some() {
@@ -285,6 +287,67 @@ impl ModelState {
             let reverse_event = mk_model_event(&reverse_at_path, Some(fn_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_ARITY_PATH, at_path).is_some() {
+            // get the payload - string for "new_arity"
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_arity: usize = payload.parse()?;
+            let original_arity = self.get_uninterpreted_fn(&fn_id)?.get_arity();
+            if new_arity == original_arity {
+                return Ok(Consumed::NoChange);
+            }
+
+            // If the arity is lowered (removing some function arguments), we may also need to remove
+            // their monotonicity/essentiality and corresponding static properties.
+            // Therefore, we break this event down into atomic sub-events in that case.
+            // If the arity is raised, we dont need to alter any static properties.
+            let mut event_list = Vec::new();
+
+            // start with the event of raw arity setting of then function
+            // the event list will be reversed, and this will become the last of the sub-events processed
+            let fn_event_path = ["uninterpreted_fn", fn_id.as_str(), "set_arity_raw"];
+            let fn_event = mk_model_event(&fn_event_path, Some(&payload));
+            event_list.push(fn_event);
+
+            // for arguments that will be removed by arity change, we must remove also the corresponding
+            // static properties for monotonicity/essentiality (in case it is not unknown variant)
+            let orig_fn = self.get_uninterpreted_fn(&fn_id)?;
+            for (index, argument) in orig_fn.get_all_arguments().iter().enumerate() {
+                if index < new_arity {
+                    // all arguments with index up to `arity` stay unchanged
+                    continue;
+                }
+                if argument.essential != Essentiality::Unknown {
+                    // First prepare event to set the essentiality of the argument to unknown
+                    // (so that it can be reversed later)
+                    let essent_event_path =
+                        ["uninterpreted_fn", fn_id.as_str(), "set_essentiality_raw"];
+                    let essent_payload =
+                        ChangeArgEssentialData::new(index, Essentiality::Unknown).to_json_str();
+                    let essent_event = mk_model_event(&essent_event_path, Some(&essent_payload));
+                    event_list.push(essent_event);
+
+                    // and also remove the static property
+                    let prop_id = StatProperty::get_fn_input_essentiality_prop_id(&fn_id, index);
+                    let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                    event_list.push(prop_event);
+                }
+                if argument.monotonicity != Monotonicity::Unknown {
+                    // First prepare event to set the monotonicity of the argument to unknown
+                    // (so that it can be reversed later)
+                    let monot_event_path =
+                        ["uninterpreted_fn", fn_id.as_str(), "set_monotonicity_raw"];
+                    let monot_payload =
+                        ChangeArgMonotoneData::new(index, Monotonicity::Unknown).to_json_str();
+                    let monot_event = mk_model_event(&monot_event_path, Some(&monot_payload));
+                    event_list.push(monot_event);
+
+                    // and also remove the static property
+                    let prop_id = StatProperty::get_fn_input_monotonicity_prop_id(&fn_id, index);
+                    let prop_event = mk_stat_prop_event(&[prop_id.as_str(), "remove"], None);
+                    event_list.push(prop_event);
+                }
+            }
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with(SET_ARITY_RAW_PATH, at_path).is_some() {
             // get the payload - string for "new_arity"
             let new_arity: usize = Self::clone_payload_str(event, component_name)?.parse()?;
             let original_arity = self.get_uninterpreted_fn(&fn_id)?.get_arity();
