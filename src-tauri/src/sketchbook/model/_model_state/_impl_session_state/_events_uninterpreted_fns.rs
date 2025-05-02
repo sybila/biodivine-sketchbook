@@ -2,7 +2,8 @@ use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::{
-    ChangeArgEssentialData, ChangeArgMonotoneData, ModelData, StatPropertyData, UninterpretedFnData,
+    ChangeArgEssentialData, ChangeArgMonotoneData, ChangeIdData, ModelData, StatPropertyData,
+    UninterpretedFnData,
 };
 use crate::sketchbook::event_utils::{
     make_reversible, mk_model_event, mk_model_state_change, mk_stat_prop_event,
@@ -29,7 +30,9 @@ const REMOVE_FN_PATH: &str = "remove";
 const REMOVE_RAW_FN_PATH: &str = "remove_raw";
 // set function's (meta)data (name, annotation)
 const SET_DATA_PATH: &str = "set_data";
-// set function's ID
+// set function's ID, and also propagate changes into static properties
+const SET_ID_RAW_PATH: &str = "set_id_raw";
+// set function's ID (without additional changes to static properties)
 const SET_ID_PATH: &str = "set_id";
 // set function's arity (without additional changes to static properties)
 const SET_ARITY_RAW_PATH: &str = "set_arity_raw";
@@ -274,6 +277,27 @@ impl ModelState {
                 return Ok(Consumed::NoChange);
             }
 
+            // now we must handle the event itself, and all potential static property changes
+            let mut event_list = Vec::new();
+            // the raw event of changing the function id (payload stays the same)
+            let fn_id_event_path = ["uninterpreted_fn", fn_id.as_str(), "set_id_raw"];
+            let fn_id_event = mk_model_event(&fn_id_event_path, Some(&new_id));
+            event_list.push(fn_id_event);
+
+            // event for modifying all affected static properties (we do it via a single special event)
+            // note we have checked that `fn_id` and `new_id` are different
+            let id_change_data = ChangeIdData::new(fn_id.as_str(), &new_id).to_json_str();
+            let prop_event = mk_stat_prop_event(&["set_fn_id_everywhere"], Some(&id_change_data));
+            event_list.push(prop_event);
+            event_list.reverse(); // has to be reversed
+            Ok(Consumed::Restart(event_list))
+        } else if Self::starts_with(SET_ID_RAW_PATH, at_path).is_some() {
+            // get the payload - string for "new_id"
+            let new_id = Self::clone_payload_str(event, component_name)?;
+            if fn_id.as_str() == new_id.as_str() {
+                return Ok(Consumed::NoChange);
+            }
+
             // perform the ID change (which can modify many parts of the model)
             self.set_uninterpreted_fn_id_by_str(fn_id.as_str(), new_id.as_str())?;
 
@@ -283,7 +307,7 @@ impl ModelState {
             let state_change = mk_model_state_change(&["uninterpreted_fn", "set_id"], &model_data);
 
             // prepare the reverse event
-            let reverse_at_path = ["uninterpreted_fn", new_id.as_str(), "set_id"];
+            let reverse_at_path = ["uninterpreted_fn", new_id.as_str(), "set_id_raw"];
             let reverse_event = mk_model_event(&reverse_at_path, Some(fn_id.as_str()));
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(SET_ARITY_PATH, at_path).is_some() {

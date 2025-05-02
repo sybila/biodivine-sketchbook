@@ -485,6 +485,7 @@ impl StatProperty {
     /// If the property is referencing the given variable (as either regulator or target),
     /// set that variable to the new value.
     ///
+    /// This is applicable to all kinds of regulation properties.
     /// If not applicable, return `Err`.
     pub fn set_var_id_if_present(&mut self, old_id: VarId, new_id: VarId) -> Result<(), String> {
         let (reg_var, target_var) = self.get_regulator_and_target()?;
@@ -496,6 +497,24 @@ impl StatProperty {
         if let Some(var_id) = target_var {
             if var_id == old_id {
                 self.set_target_var(new_id)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// If the property is referencing the given function, set its ID to the new value.
+    ///
+    /// This is applicable to all kinds of unintepreted fn properties.
+    /// If not applicable, return `Err`.
+    pub fn set_fn_id_if_present(
+        &mut self,
+        old_id: UninterpretedFnId,
+        new_id: UninterpretedFnId,
+    ) -> Result<(), String> {
+        let (function, _) = self.get_function_and_index()?;
+        if let Some(fn_id) = function {
+            if fn_id == old_id {
+                self.set_target_fn(new_id)?;
             }
         }
         Ok(())
@@ -554,8 +573,10 @@ impl StatProperty {
         Ok(())
     }
 
-    /// Get property's sub-fields for regulator variable and target variable, where applicable.
-    /// If not applicable, return `Err`.
+    /// If this is some kind of regulation property, get property's sub-fields for regulator
+    /// variable and target variable. If not applicable (not a regulation property), return `Err`.
+    ///
+    /// This may be useful if we need to update all kinds of regulation properties.
     pub fn get_regulator_and_target(&mut self) -> Result<(Option<VarId>, Option<VarId>), String> {
         match &mut self.variant {
             StatPropertyType::RegulationMonotonic(prop) => {
@@ -572,6 +593,28 @@ impl StatProperty {
             }
             other_variant => Err(format!(
                 "{other_variant:?} does not have fields for both regulator and target variable."
+            )),
+        }
+    }
+
+    /// If this is some kind of function property, get property's sub-fields for function ID
+    /// and argument index. If not applicable (not a function property), return `Err`.
+    ///
+    /// This may be useful if we need to update all kinds of uninterpreted function properties.
+    pub fn get_function_and_index(
+        &mut self,
+    ) -> Result<(Option<UninterpretedFnId>, Option<usize>), String> {
+        match &mut self.variant {
+            StatPropertyType::FnInputEssential(prop) => Ok((prop.target.clone(), prop.input_index)),
+            StatPropertyType::FnInputEssentialContext(prop) => {
+                Ok((prop.target.clone(), prop.input_index))
+            }
+            StatPropertyType::FnInputMonotonic(prop) => Ok((prop.target.clone(), prop.input_index)),
+            StatPropertyType::FnInputMonotonicContext(prop) => {
+                Ok((prop.target.clone(), prop.input_index))
+            }
+            other_variant => Err(format!(
+                "{other_variant:?} does not have fields for function and argument index."
             )),
         }
     }

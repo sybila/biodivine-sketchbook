@@ -284,7 +284,7 @@ impl ModelState {
             let var_id_event = mk_model_event(&var_id_event_path, Some(&new_id));
             event_list.push(var_id_event);
 
-            // event for modifying all corresponding static property (we do it via single event)
+            // event for modifying all affected static properties (we do it via a single special event)
             // note we have checked that `var_id` and `new_id` are different
             let id_change_data = ChangeIdData::new(var_id.as_str(), &new_id).to_json_str();
             let prop_event = mk_stat_prop_event(&["set_var_id_everywhere"], Some(&id_change_data));

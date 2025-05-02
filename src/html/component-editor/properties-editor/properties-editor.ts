@@ -83,13 +83,13 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('dynamic-property-edited', (e) => { void this.editDynProperty(e) })
     this.addEventListener('static-property-edited', (e) => { void this.editStatProperty(e) })
 
-    // refresh-event listeners (or listeners to events that update the whole list of props)
+    // refresh-event listeners (or listeners to events that update whole property sets)
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
     aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
     aeonState.sketch.properties.allStaticUpdated.addEventListener(this.#onStaticRefreshed.bind(this))
 
     // note that the refresh events are automatically triggered or handled (after app refresh) directly
-    // from the root component (due to some dependency issues between different components)
+    // from the root component (due to some dependency issues between different components of the sketch)
   }
 
   protected updated (_changedProperties: PropertyValues): void {

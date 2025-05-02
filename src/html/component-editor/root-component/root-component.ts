@@ -99,11 +99,11 @@ export default class RootComponent extends LitElement {
     // Some changes to uninterpreted functions can affect many parts of the sketch (update fns, other
     // uninterpreted fns, properties,...). Therefore, we process them here, instead of doing it in
     // the function editor, because here we have access to the whole sketch.
-    // 1) After fn ID change, we refresh the whole model data.
+    // 1) After fn ID change, we receive the whole model data.
     aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
-    // 2) After fn removal, we refresh the static properties.
+    // 2) After fn removal, we we call backend to refresh the static properties.
     aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
-    // 3) After changing fn arity, we refresh the static properties.
+    // 3) After changing fn arity, we call backend to refresh the static properties.
     aeonState.sketch.model.uninterpretedFnArityChanged.addEventListener(this.#onFunctionArityChanged.bind(this))
 
     // listeners for refresh events from backend

@@ -6,7 +6,7 @@ use crate::sketchbook::event_utils::{
     make_refresh_event, make_reversible, mk_dyn_prop_event, mk_dyn_prop_state_change,
     mk_stat_prop_event, mk_stat_prop_state_change,
 };
-use crate::sketchbook::ids::{DynPropertyId, StatPropertyId, VarId};
+use crate::sketchbook::ids::{DynPropertyId, StatPropertyId, UninterpretedFnId, VarId};
 use crate::sketchbook::properties::dynamic_props::SimpleDynPropertyType;
 use crate::sketchbook::properties::static_props::SimpleStatPropertyType;
 use crate::sketchbook::properties::{DynProperty, PropertyManager, StatProperty};
@@ -28,6 +28,8 @@ const REMOVE_PATH: &str = "remove";
 const SET_ID_PATH: &str = "set_id";
 // change variable ID in all static properties referencing that variable
 const SET_VAR_ID_EVERYWHERE_PATH: &str = "set_var_id_everywhere";
+// change function ID in all static properties referencing that function
+const SET_FN_ID_EVERYWHERE_PATH: &str = "set_fn_id_everywhere";
 // set content of a property
 const SET_CONTENT_PATH: &str = "set_content";
 // refresh all dynamic properties
@@ -95,19 +97,57 @@ impl SessionState for PropertyManager {
                             "sketch".to_string(),
                             "properties".to_string(),
                             "static".to_string(),
-                            "set_var_id_everywhere".to_string(),
+                            "all_static_updated".to_string(),
                         ],
                         payload: Some(serde_json::to_string(&properties_list)?),
                     };
 
-                    // the reverse change the opposite ID exchange
+                    // prepare the reverse event (setting the original ID back)
                     let reverse_id_change_data =
                         ChangeIdData::new(&change_id_data.new_id, &change_id_data.original_id);
-
-                    // prepare the reverse event (setting the original ID back)
                     let payload = reverse_id_change_data.to_json_str();
                     let reverse_event =
                         mk_stat_prop_event(&[SET_VAR_ID_EVERYWHERE_PATH], Some(&payload));
+
+                    Ok(make_reversible(state_change, event, reverse_event))
+                } else if Self::starts_with(SET_FN_ID_EVERYWHERE_PATH, at_path).is_some() {
+                    Self::assert_path_length(at_path, 1, component_name)?;
+                    // get the payload - json string encoding the ID change data
+                    let payload = Self::clone_payload_str(event, component_name)?;
+                    let change_id_data = ChangeIdData::from_json_str(&payload)?;
+                    let old_fn_id = UninterpretedFnId::new(&change_id_data.original_id)?;
+                    let new_fn_id = UninterpretedFnId::new(&change_id_data.new_id)?;
+
+                    // change values of all properties that reference this function (ignoring the rest)
+                    for (_, prop) in self.stat_properties.iter_mut() {
+                        let _ = prop.set_fn_id_if_present(old_fn_id.clone(), new_fn_id.clone());
+                    }
+                    self.make_generated_fn_prop_ids_consistent();
+
+                    // the state change is just a list of all static properties
+                    let mut properties_list: Vec<StatPropertyData> = self
+                        .stat_properties
+                        .iter()
+                        .map(|(id, prop)| StatPropertyData::from_property(id, prop))
+                        .collect();
+                    properties_list.sort_by(|a, b| a.id.cmp(&b.id));
+                    let state_change = Event {
+                        path: vec![
+                            "sketch".to_string(),
+                            "properties".to_string(),
+                            "static".to_string(),
+                            "all_static_updated".to_string(),
+                        ],
+                        payload: Some(serde_json::to_string(&properties_list)?),
+                    };
+
+                    // prepare the reverse event (setting the original ID back)
+                    let reverse_id_change_data =
+                        ChangeIdData::new(&change_id_data.new_id, &change_id_data.original_id);
+                    let payload = reverse_id_change_data.to_json_str();
+                    let reverse_event =
+                        mk_stat_prop_event(&[SET_FN_ID_EVERYWHERE_PATH], Some(&payload));
+
                     Ok(make_reversible(state_change, event, reverse_event))
                 } else {
                     Self::assert_path_length(at_path, 2, component_name)?;
