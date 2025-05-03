@@ -37,6 +37,8 @@ impl ProcessedStatProp {
 /// Since some function symbols of the sketch were unused (in any update functions) and
 /// filtered out when creating the BN, we must also get rid of any static properties referencing
 /// these symbols. Note that removing properties of unused functions has no effect on the results.
+///
+/// TODO: Not sure how to handle generic FOL properties referencing pruned symbols.
 pub fn process_static_props(
     sketch: &Sketch,
     bn: &BooleanNetwork,

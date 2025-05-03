@@ -60,7 +60,7 @@ pub fn encode_monotonicity(
             encode_monotonicity(number_inputs, index, fn_name, Monotonicity::Activation);
         let inhibition =
             encode_monotonicity(number_inputs, index, fn_name, Monotonicity::Inhibition);
-        return format!("!({activation}) & !({inhibition})");
+        return format!("(!({activation}) & !({inhibition}))");
     }
 
     let mut quantifier_args = String::new();
@@ -91,11 +91,11 @@ pub fn encode_monotonicity(
     if number_inputs > 1 {
         quantifier_args = quantifier_args.strip_suffix(", ").unwrap().to_string();
         format!(
-            "\\forall {quantifier_args}: {fn_name}({left_fn_args}) => {fn_name}({right_fn_args})"
+            "(\\forall {quantifier_args}: {fn_name}({left_fn_args}) => {fn_name}({right_fn_args}))"
         )
     } else {
         // no quantified variables
-        format!("{fn_name}({left_fn_args}) => {fn_name}({right_fn_args})")
+        format!("({fn_name}({left_fn_args}) => {fn_name}({right_fn_args}))")
     }
 }
 
@@ -132,23 +132,23 @@ pub fn encode_essentiality(
     let formula = if number_inputs > 1 {
         quantifier_args = quantifier_args.strip_suffix(", ").unwrap().to_string();
         format!(
-            "\\exists {quantifier_args}: {fn_name}({left_fn_args}) ^ {fn_name}({right_fn_args})"
+            "(\\exists {quantifier_args}: {fn_name}({left_fn_args}) ^ {fn_name}({right_fn_args}))"
         )
     } else {
         // no quantified variables
-        format!("{fn_name}({left_fn_args}) ^ {fn_name}({right_fn_args})")
+        format!("({fn_name}({left_fn_args}) ^ {fn_name}({right_fn_args}))")
     };
 
     match essentiality {
         Essentiality::True => formula,
-        Essentiality::False => format!("!({formula})"),
+        Essentiality::False => format!("!{formula}"),
         Essentiality::Unknown => unreachable!(), // handled before
     }
 }
 
 /// Create a FOL formula encoding that particular formula must hold if "context" formula holds.
 pub fn encode_property_in_context(context_formula: &str, property_formula: &str) -> String {
-    format!("{context_formula} => {property_formula}")
+    format!("(({context_formula}) => ({property_formula}))")
 }
 
 #[cfg(test)]
@@ -169,12 +169,12 @@ mod tests {
 
         // encode that regulation B -> C is positive
         let fol_formula = encode_regulation_monotonicity("B", "C", Monotonicity::Activation, &bn);
-        let expected = "\\forall x_0, x_2: f_C(x_0, 0, x_2) => f_C(x_0, 1, x_2)";
+        let expected = "(\\forall x_0, x_2: f_C(x_0, 0, x_2) => f_C(x_0, 1, x_2))";
         assert_eq!(&fol_formula, expected);
 
         // encode that regulation C -| C is negative
         let fol_formula = encode_regulation_monotonicity("C", "C", Monotonicity::Inhibition, &bn);
-        let expected = "\\forall x_0, x_1: f_C(x_0, x_1, 1) => f_C(x_0, x_1, 0)";
+        let expected = "(\\forall x_0, x_1: f_C(x_0, x_1, 1) => f_C(x_0, x_1, 0))";
         assert_eq!(&fol_formula, expected);
 
         // encode that regulation A -| B is unknown
@@ -184,7 +184,7 @@ mod tests {
 
         // encode that regulation A -* C is dual
         let fol_formula = encode_regulation_monotonicity("A", "C", Monotonicity::Dual, &bn);
-        let expected = "!(\\forall x_1, x_2: f_C(0, x_1, x_2) => f_C(1, x_1, x_2)) & !(\\forall x_1, x_2: f_C(1, x_1, x_2) => f_C(0, x_1, x_2))";
+        let expected = "(!((\\forall x_1, x_2: f_C(0, x_1, x_2) => f_C(1, x_1, x_2))) & !((\\forall x_1, x_2: f_C(1, x_1, x_2) => f_C(0, x_1, x_2))))";
         assert_eq!(&fol_formula, expected);
     }
 
@@ -202,7 +202,7 @@ mod tests {
 
         // encode that regulation B -> C is essential
         let fol_formula = encode_regulation_essentiality("B", "C", Essentiality::True, &bn);
-        let expected = "\\exists x_0, x_2: f_C(x_0, 0, x_2) ^ f_C(x_0, 1, x_2)";
+        let expected = "(\\exists x_0, x_2: f_C(x_0, 0, x_2) ^ f_C(x_0, 1, x_2))";
         assert_eq!(&fol_formula, expected);
 
         // encode that regulation C -| C has no effect (hypothetical)
@@ -221,18 +221,18 @@ mod tests {
     fn test_encoding_fn_monotonicity() {
         // encode that fn "f" is positively monotonic in second of three inputs
         let fol_formula = encode_monotonicity(3, 1, "f", Monotonicity::Activation);
-        let expected = "\\forall x_0, x_2: f(x_0, 0, x_2) => f(x_0, 1, x_2)";
+        let expected = "(\\forall x_0, x_2: f(x_0, 0, x_2) => f(x_0, 1, x_2))";
         assert_eq!(&fol_formula, expected);
 
         // encode that fn "g" is negatively monotonic in its only input
         let fol_formula = encode_monotonicity(1, 0, "g", Monotonicity::Activation);
-        let expected = "g(0) => g(1)";
+        let expected = "(g(0) => g(1))";
         assert_eq!(&fol_formula, expected);
 
         // encode that fn "h" is dual in second of two inputs
         let fol_formula = encode_monotonicity(2, 1, "h", Monotonicity::Dual);
         let expected =
-            "!(\\forall x_0: h(x_0, 0) => h(x_0, 1)) & !(\\forall x_0: h(x_0, 1) => h(x_0, 0))";
+            "(!((\\forall x_0: h(x_0, 0) => h(x_0, 1))) & !((\\forall x_0: h(x_0, 1) => h(x_0, 0))))";
         assert_eq!(&fol_formula, expected);
 
         // encode unknown monotonicity
@@ -246,12 +246,12 @@ mod tests {
     fn test_encoding_fn_essentiality() {
         // encode that fn "f" is positively monotonic in second of three inputs
         let fol_formula = encode_essentiality(3, 1, "f", Essentiality::True);
-        let expected = "\\exists x_0, x_2: f(x_0, 0, x_2) ^ f(x_0, 1, x_2)";
+        let expected = "(\\exists x_0, x_2: f(x_0, 0, x_2) ^ f(x_0, 1, x_2))";
         assert_eq!(&fol_formula, expected);
 
         // encode that fn "g" is negatively monotonic in its only input
         let fol_formula = encode_essentiality(1, 0, "g", Essentiality::True);
-        let expected = "g(0) ^ g(1)";
+        let expected = "(g(0) ^ g(1))";
         assert_eq!(&fol_formula, expected);
 
         // encode that input has no effect (hypothetical)
@@ -262,6 +262,17 @@ mod tests {
         // encode unknown monotonicity
         let fol_formula = encode_essentiality(3, 1, "f", Essentiality::Unknown);
         let expected = "true";
+        assert_eq!(&fol_formula, expected);
+    }
+
+    #[test]
+    /// Test encoding a property formula that must be true in a context given by another formula.
+    fn test_encode_in_context() {
+        let context_formula = "true";
+        let property_formula = "!(g(0) ^ g(1))";
+
+        let fol_formula = encode_property_in_context(context_formula, property_formula);
+        let expected = "((true) => (!(g(0) ^ g(1))))";
         assert_eq!(&fol_formula, expected);
     }
 }
