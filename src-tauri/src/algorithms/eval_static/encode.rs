@@ -99,8 +99,8 @@ pub fn encode_monotonicity(
     }
 }
 
-/// Create a FOL formula encoding that uninterpreted function's argument (given by the index)
-/// has given essentiality.
+/// Create a FOL formula encoding that uninterpreted function's argument
+/// (given by its index) has given essentiality.
 pub fn encode_essentiality(
     number_inputs: usize,
     index: usize,
