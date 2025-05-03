@@ -61,9 +61,20 @@ impl Sketch {
         let mut message = String::new();
         message += "MODEL:\n";
 
+        // check model is not empty
         if self.model.num_vars() == 0 {
             consitent = false;
             message += "> ISSUE: There must be at least one variable.\n";
+        }
+
+        // Check there are no function symbols that would be completely unused in any expression.
+        // Note that we automatically prune the unused symbols before the inference anyway, so this
+        // is just to inform the user. Unused symbols can cause issues only if used in properties.
+        let unused_fn_symbols = self.model.find_unused_uninterpreted_fns();
+        for fn_symbol in unused_fn_symbols {
+            consitent = false;
+            let issue = format!("> ISSUE: Function `{fn_symbol}` is unused (not referenced in any function expression). Remove it.\n");
+            message += &issue;
         }
 
         // TODO: in future, we can also add a check if update fn expressions match regulation properties,

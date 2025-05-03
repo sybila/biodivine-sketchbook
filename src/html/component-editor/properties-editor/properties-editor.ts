@@ -38,6 +38,8 @@ export default class PropertiesEditor extends LitElement {
   @state() addStaticMenuVisible = false
   // visibility of automatically generated regulation properties
   @state() showRegulationProperties = true
+  // visibility of automatically generated function properties
+  @state() showFunctionProperties = true
   // static prop edit dialogs
   dialogsStatic: Record<string, WebviewWindow | undefined> = {}
   // dynamic prop edit dialogs
@@ -83,13 +85,13 @@ export default class PropertiesEditor extends LitElement {
     this.addEventListener('dynamic-property-edited', (e) => { void this.editDynProperty(e) })
     this.addEventListener('static-property-edited', (e) => { void this.editStatProperty(e) })
 
-    // refresh-event listeners (or listeners to events that update the whole list of props)
+    // refresh-event listeners (or listeners to events that update whole property sets)
     aeonState.sketch.properties.staticPropsRefreshed.addEventListener(this.#onStaticRefreshed.bind(this))
     aeonState.sketch.properties.dynamicPropsRefreshed.addEventListener(this.#onDynamicRefreshed.bind(this))
     aeonState.sketch.properties.allStaticUpdated.addEventListener(this.#onStaticRefreshed.bind(this))
 
     // note that the refresh events are automatically triggered or handled (after app refresh) directly
-    // from the root component (due to some dependency issues between different components)
+    // from the root component (due to some dependency issues between different components of the sketch)
   }
 
   protected updated (_changedProperties: PropertyValues): void {
@@ -388,6 +390,24 @@ export default class PropertiesEditor extends LitElement {
     this.showRegulationProperties = !this.showRegulationProperties
   }
 
+  toggleFunctionPropertiesVisibility (): void {
+    this.showFunctionProperties = !this.showFunctionProperties
+  }
+
+  numGeneratedFnProperties (): number {
+    const generatedFnProps = this.contentData.staticProperties.filter(
+      prop => prop.variant === StaticPropertyType.FunctionInputEssential || prop.variant === StaticPropertyType.FunctionInputMonotonic
+    )
+    return generatedFnProps.length
+  }
+
+  numGeneratedRegProperties (): number {
+    const generatedRegProps = this.contentData.staticProperties.filter(
+      prop => prop.variant === StaticPropertyType.VariableRegulationEssential || prop.variant === StaticPropertyType.VariableRegulationMonotonic
+    )
+    return generatedRegProps.length
+  }
+
   render (): TemplateResult {
     return html`
       <div id="dynamic-property-menu" class="menu-content">
@@ -439,11 +459,21 @@ export default class PropertiesEditor extends LitElement {
                   <span class="uk-label">No static properties defined</span>
               </div>`
 : html`
-              <div class="uk-margin-small">
+              ${this.numGeneratedRegProperties() > 0
+? html`<div class="uk-margin-small">
                 <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleRegulationPropertiesVisibility}">
                   ${this.showRegulationProperties ? 'Hide' : 'Show'} Generated Regulation Properties
                 </button>
-              </div>`}
+              </div>`
+: html``}
+
+              ${this.numGeneratedFnProperties() > 0
+? html`<div class="uk-margin-small">
+                <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleFunctionPropertiesVisibility}">
+                  ${this.showFunctionProperties ? 'Hide' : 'Show'} Generated Function Properties
+                </button>
+              </div>`
+: html``}`}
             <div class="section-list">
               ${map(this.contentData.staticProperties, (prop, index) => {
                 let result = html``
@@ -456,11 +486,16 @@ export default class PropertiesEditor extends LitElement {
                       </static-generic>`
                     break
                   case StaticPropertyType.FunctionInputEssential:
-                    result = html`
-                      <static-input-essential .index=${index}
-                                              .property=${prop}>
-                      </static-input-essential>`
-                    break
+                    // Only render this if showFunctionProperties is true
+                    if (this.showFunctionProperties) {
+                      result = html`
+                        <static-input-essential .index=${index}
+                                                .property=${prop}>
+                        </static-input-essential>`
+                        break
+                    } else {
+                      return html``
+                    }
                   case StaticPropertyType.VariableRegulationEssential:
                     // Only render this if showRegulationProperties is true
                     if (this.showRegulationProperties) {
@@ -481,11 +516,16 @@ export default class PropertiesEditor extends LitElement {
                       </static-input-essential-condition>`
                     break
                   case StaticPropertyType.FunctionInputMonotonic:
-                    result = html`
-                      <static-input-monotonic .index=${index}
-                                              .property=${prop}>
-                      </static-input-monotonic>`
-                    break
+                    // Only render this if showFunctionProperties is true
+                    if (this.showFunctionProperties) {
+                      result = html`
+                        <static-input-monotonic .index=${index}
+                                                .property=${prop}>
+                        </static-input-monotonic>`
+                        break
+                    } else {
+                      return html``
+                    }
                   case StaticPropertyType.VariableRegulationMonotonic:
                     // Only render this if showRegulationProperties is true
                     if (this.showRegulationProperties) {

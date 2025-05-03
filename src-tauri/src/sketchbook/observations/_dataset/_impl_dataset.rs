@@ -168,7 +168,7 @@ impl Dataset {
     }
 
     /// Add variable to a specific index, and fill its values in all observations with "*"
-    /// placeholders.
+    /// wildcards.
     pub fn add_var_default(&mut self, var_id: VarId, index: usize) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
         if index > self.num_variables() {
@@ -183,7 +183,7 @@ impl Dataset {
     }
 
     /// Add variable to a specific index, and fill its values in all observations with "*"
-    /// placeholders.
+    /// wildcards.
     pub fn add_var_default_by_str(&mut self, id: &str, index: usize) -> Result<(), String> {
         let var_id = VarId::new(id)?;
         self.add_var_default(var_id, index)

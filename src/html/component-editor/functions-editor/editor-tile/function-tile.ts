@@ -4,20 +4,20 @@ import { map } from 'lit/directives/map.js'
 import { type IRegulationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import { icon, library } from '@fortawesome/fontawesome-svg-core'
-import { faMagnifyingGlass, faTrash, faPlus, faAngleDown, faAngleUp, faClose, faPen } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faTrash, faPlus, faMinus, faAngleDown, faAngleUp, faClose, faEdit } from '@fortawesome/free-solid-svg-icons'
 import ace, { type Ace } from 'ace-builds'
 import langTools from 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/esm-resolver'
 import { EditorTile } from './editor-tile'
 import { functionDebounceTimer } from '../../../util/config'
 import { getEssentialityText, getMonotonicityClass } from '../../../util/utilities'
+import { dialog } from '@tauri-apps/api'
 
-library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp, faClose)
+library.add(faTrash, faMagnifyingGlass, faAngleDown, faAngleUp, faClose, faMinus)
 
 @customElement('function-tile')
 export class FunctionTile extends EditorTile {
   @state() bodyVisible = false
-  varIndex = 0
 
   constructor () {
     super()
@@ -50,7 +50,7 @@ export class FunctionTile extends EditorTile {
   }
 
   nameUpdated = debounce((name: string) => {
-    this.dispatchEvent(new CustomEvent('rename-function-definition', {
+    this.dispatchEvent(new CustomEvent('change-function-id', {
       detail: {
         oldId: this.functions[this.index].id,
         newId: name
@@ -83,7 +83,7 @@ export class FunctionTile extends EditorTile {
     }))
   }
 
-  async removeVariable (): Promise<void> {
+  async removeElement (): Promise<void> {
     this.dispatchEvent(new CustomEvent('remove-function-definition', {
       detail: {
         id: this.functions[this.index].id
@@ -94,16 +94,34 @@ export class FunctionTile extends EditorTile {
   }
 
   private addVariable (): void {
-    this.dispatchEvent(new CustomEvent('add-function-variable', {
+    this.dispatchEvent(new CustomEvent('change-fn-arity', {
       detail: {
         id: this.functions[this.index].id,
-        variable: 'var' + this.varIndex
+        arity: this.functions[this.index].variables.length + 1
       },
       bubbles: true,
       composed: true
     }))
-    this.varIndex++
     this.bodyVisible = true
+  }
+
+  private async removeVariable (): Promise<void> {
+    if (this.functions[this.index].variables.length <= 0) {
+      await dialog.message("You can't decrement function arity below zero.", {
+        type: 'error',
+        title: 'Error'
+      })
+    } else {
+      this.dispatchEvent(new CustomEvent('change-fn-arity', {
+        detail: {
+          id: this.functions[this.index].id,
+          arity: this.functions[this.index].variables.length - 1
+        },
+        bubbles: true,
+        composed: true
+      }))
+      this.bodyVisible = true
+    }
   }
 
   toggleEssentiality (regulation: IRegulationData): void {
@@ -154,7 +172,7 @@ export class FunctionTile extends EditorTile {
   protected render (): TemplateResult {
     return html`
       <div class="container uk-flex uk-flex-column uk-margin-small-bottom">
-        <div class="uk-flex uk-flex-row">
+        <div class="uk-flex uk-flex-row uk-margin-small-bottom">
           <input id="name-field" class="uk-input uk-text-center" .value="${this.functions[this.index].id}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
           
@@ -162,11 +180,15 @@ export class FunctionTile extends EditorTile {
             ${icon(faPlus).node}
           </button>
           
-          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.editFunction}">
-            ${icon(faPen).node}
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+            ${icon(faMinus).node}
           </button>
 
-          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.editFunction}">
+            ${icon(faEdit).node}
+          </button>
+
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeElement}">
             ${icon(faTrash).node}
           </button>
           
@@ -177,16 +199,11 @@ export class FunctionTile extends EditorTile {
             </div>
           </button>
         </div>
+
         <div class="functions-body" style="display: ${this.bodyVisible ? 'flex' : 'none'}">
-        ${this.functions[this.index].variables.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Regulators:</span>` : ''} 
+        ${this.functions[this.index].variables.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Formal arguments and their effects:</span>` : ''} 
           ${map(this.functions[this.index].variables, (variable) => html`
-            <div
-                class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
-              <button class="remove-reg uk-width-1-6 uk-button uk-button-small uk-button-secondary" @click="${() => {
-                void this.removeRegulation(variable)
-              }}">
-                ${icon(faClose).node}
-              </button>
+            <div class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap">
               <div class="uk-width-1-6">${variable.source}</div>
               <div class="uk-width-1-6">${this.getRegulationSymbol(variable.essential, variable.monotonicity)}</div>
               <div class="regulation-property"

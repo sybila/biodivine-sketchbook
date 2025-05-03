@@ -33,6 +33,12 @@ impl ProcessedStatProp {
 /// Process static properties from a sketch, converting them into one of the supported
 /// `ProcessedStatProp` variants. Currently, all properties are encoded into FOL, but we
 /// might support some other preprocessing in future.
+///
+/// Since some function symbols of the sketch were unused (in any update functions) and
+/// filtered out when creating the BN, we must also get rid of any static properties referencing
+/// these symbols. Note that removing properties of unused functions has no effect on the results.
+///
+/// TODO: Not sure how to handle generic FOL properties referencing pruned symbols.
 pub fn process_static_props(
     sketch: &Sketch,
     bn: &BooleanNetwork,
@@ -43,10 +49,16 @@ pub fn process_static_props(
 
     let mut processed_props = Vec::new();
     for (id, stat_prop) in static_props {
-        // currently, everything is encoded into first-order logic (into a "generic" property)
-        let stat_prop_processed = match stat_prop.get_prop_data() {
+        // We want to remove all properties of function symbols (parameters) not present in the BN.
+        // These parameters were pruned beforehand because they are unused (redundant), and
+        // we must do the same with their properties.
+
+        // Everything else is currently encoded into first-order logic (into a "generic" property)
+        match stat_prop.get_prop_data() {
             StatPropertyType::GenericStatProp(prop) => {
-                ProcessedStatProp::mk_fol(id.as_str(), prop.processed_formula.as_str())
+                let new_prop =
+                    ProcessedStatProp::mk_fol(id.as_str(), prop.processed_formula.as_str());
+                processed_props.push(new_prop);
             }
             StatPropertyType::RegulationEssential(prop)
             | StatPropertyType::RegulationEssentialContext(prop) => {
@@ -61,7 +73,8 @@ pub fn process_static_props(
                 if let Some(context_formula) = &prop.context {
                     formula = encode_property_in_context(context_formula, &formula);
                 }
-                ProcessedStatProp::mk_fol(id.as_str(), &formula)
+                let new_prop = ProcessedStatProp::mk_fol(id.as_str(), &formula);
+                processed_props.push(new_prop);
             }
             StatPropertyType::RegulationMonotonic(prop)
             | StatPropertyType::RegulationMonotonicContext(prop) => {
@@ -76,42 +89,52 @@ pub fn process_static_props(
                 if let Some(context_formula) = &prop.context {
                     formula = encode_property_in_context(context_formula, &formula);
                 }
-                ProcessedStatProp::mk_fol(id.as_str(), &formula)
+                let new_prop = ProcessedStatProp::mk_fol(id.as_str(), &formula);
+                processed_props.push(new_prop);
             }
             StatPropertyType::FnInputEssential(prop)
             | StatPropertyType::FnInputEssentialContext(prop) => {
                 let fn_id = prop.target.clone().unwrap();
-                let input_idx = prop.input_index.unwrap();
-                let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
-                let mut formula = encode_essentiality(
-                    number_inputs,
-                    input_idx,
-                    fn_id.as_str(),
-                    prop.clone().value,
-                );
-                if let Some(context_formula) = &prop.context {
-                    formula = encode_property_in_context(context_formula, &formula);
+                // Only process this property if the BN contains this function symbol as its valid
+                // parameter (otherwise it was pruned out for being unused).
+                if bn.find_parameter(fn_id.as_str()).is_some() {
+                    let input_idx = prop.input_index.unwrap();
+                    let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
+                    let mut formula = encode_essentiality(
+                        number_inputs,
+                        input_idx,
+                        fn_id.as_str(),
+                        prop.clone().value,
+                    );
+                    if let Some(context_formula) = &prop.context {
+                        formula = encode_property_in_context(context_formula, &formula);
+                    }
+                    let new_prop = ProcessedStatProp::mk_fol(id.as_str(), &formula);
+                    processed_props.push(new_prop);
                 }
-                ProcessedStatProp::mk_fol(id.as_str(), &formula)
             }
             StatPropertyType::FnInputMonotonic(prop)
             | StatPropertyType::FnInputMonotonicContext(prop) => {
                 let fn_id = prop.target.clone().unwrap();
-                let input_idx = prop.input_index.unwrap();
-                let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
-                let mut formula = encode_monotonicity(
-                    number_inputs,
-                    input_idx,
-                    fn_id.as_str(),
-                    prop.clone().value,
-                );
-                if let Some(context_formula) = &prop.context {
-                    formula = encode_property_in_context(context_formula, &formula);
+                // Only process this property if the BN contains this function symbol as its valid
+                // parameter (otherwise it was pruned out for being unused).
+                if bn.find_parameter(fn_id.as_str()).is_some() {
+                    let input_idx = prop.input_index.unwrap();
+                    let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
+                    let mut formula = encode_monotonicity(
+                        number_inputs,
+                        input_idx,
+                        fn_id.as_str(),
+                        prop.clone().value,
+                    );
+                    if let Some(context_formula) = &prop.context {
+                        formula = encode_property_in_context(context_formula, &formula);
+                    }
+                    let new_prop = ProcessedStatProp::mk_fol(id.as_str(), &formula);
+                    processed_props.push(new_prop);
                 }
-                ProcessedStatProp::mk_fol(id.as_str(), &formula)
             }
-        };
-        processed_props.push(stat_prop_processed)
+        }
     }
 
     Ok(processed_props)

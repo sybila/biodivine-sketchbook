@@ -269,25 +269,25 @@ fn test_change_fn_arg_monotonicity_essentiality() {
     let model_orig = model.clone();
 
     // test event for changing uninterpreted fn's monotonicity
-    let at_path = ["uninterpreted_fn", f.as_str(), "set_monotonicity"];
+    let at_path = ["uninterpreted_fn", f.as_str(), "set_monotonicity_raw"];
     let change_data = ChangeArgMonotoneData::new(1, Monotonicity::Dual).to_json_str();
     let event = mk_model_event(&at_path, Some(&change_data));
     let result = model.perform_event(&event, &at_path).unwrap();
     // check if the argument's monotonicity changed correctly, and test reverse event
     let uninterpreted_fn = model.get_uninterpreted_fn(&f).unwrap();
     assert_eq!(uninterpreted_fn.get_monotonic(1), &Monotonicity::Dual);
-    let reverse_at_path = ["uninterpreted_fn", f.as_str(), "set_monotonicity"];
+    let reverse_at_path = ["uninterpreted_fn", f.as_str(), "set_monotonicity_raw"];
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 
     // test event for changing uninterpreted fn's expression
-    let at_path = ["uninterpreted_fn", f.as_str(), "set_essentiality"];
+    let at_path = ["uninterpreted_fn", f.as_str(), "set_essentiality_raw"];
     let change_data = ChangeArgEssentialData::new(1, Essentiality::True).to_json_str();
     let event = mk_model_event(&at_path, Some(&change_data));
     let result = model.perform_event(&event, &at_path).unwrap();
     // check if the argument's essentiality changed correctly, and test reverse event
     let uninterpreted_fn = model.get_uninterpreted_fn(&f).unwrap();
     assert_eq!(uninterpreted_fn.get_essential(1), &Essentiality::True);
-    let reverse_at_path = ["uninterpreted_fn", f.as_str(), "set_essentiality"];
+    let reverse_at_path = ["uninterpreted_fn", f.as_str(), "set_essentiality_raw"];
     check_reverse(&mut model, &model_orig, result, &reverse_at_path);
 }
 

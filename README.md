@@ -71,6 +71,8 @@ To build a release version of the app, run `npm run tauri build`. It will create
 
 To start the application in debug mode, run `npm run tauri dev`. Note that upon startup, the application window can be unresponsive for a few seconds when using development mode. This is because the whole application is running in debug mode without any optimizations. This startup delay should be substantially reduced when using the release binaries produced by `npm run tauri build`.
 
+Also note that the debug mode is substantially slower in general. This may sometimes cause issues in complex event processing, where some actions with multiple events can exceptionally "overload" the UI (it won't show all the changes caused by the action immediately). Refreshing the UI usually helps to reload latest state from the backend. This should not happen for the release mode, as event processing is substantially faster, and processing delays are optimized for release.
+
 ### Static analysis, tests, documentation
 
 This section describes the setup and instructions for static analysis tools, testing frameworks, and documentation generation. You don't need any of these to run the application, but they are useful for development. For all the following, run the cargo commands inside `src-tauri` folder, and npm/npx commands in the main project directory.

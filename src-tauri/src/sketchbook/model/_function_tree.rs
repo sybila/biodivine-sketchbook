@@ -1,8 +1,8 @@
 use crate::sketchbook::ids::{UninterpretedFnId, VarId};
-use crate::sketchbook::model::{BinaryOp, ModelState, UninterpretedFn};
+use crate::sketchbook::model::{BinaryOp, ModelState};
 use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 /// Syntactic tree of a partially defined Boolean function.
 /// This might specify an update function, or a partially defined uninterpreted fn.
@@ -10,14 +10,18 @@ use std::collections::HashSet;
 pub enum FnTree {
     /// A true/false constant.
     Const(bool),
-    /// References a network variable.
+    /// A network variable. The ID corresponds to some variable in the BN.
     Var(VarId),
-    /// References a "placeholder network variable" that corresponds to an argument of an uninterpreted fn.
+    /// A "placeholder variable" that corresponds to a formal argument of an
+    /// uninterpreted fn. This way we can build expressions for uninterpreted functions
+    /// using formal arguments, independent from the actual arguments they are applied
+    /// to within update functions.
     PlaceholderVar(VarId),
-    /// References a network parameter (uninterpreted function).
-    /// The variable list are the arguments of the function invocation.
+    /// A function symbol (also called uninterpreted function or BN parameter) applied
+    /// to a list of arguments. The ID corresponds to some uninterpreted fn in the BN.
+    /// The list are the arguments (parsed expressions) the function is called with.
     UninterpretedFn(UninterpretedFnId, Vec<FnTree>),
-    /// Negation.
+    /// Negation operation.
     Not(Box<FnTree>),
     /// Binary Boolean operation.
     Binary(BinaryOp, Box<FnTree>, Box<FnTree>),
@@ -35,18 +39,20 @@ fn parse_update_fn_wrapper(
 }
 
 impl FnTree {
-    /// Try to parse an update function from a string, taking IDs from the provided `ModelState`.
+    /// Try to parse a function expression, using the IDs from the provided `ModelState`.
     ///
-    /// `is_uninterpreted` specifies whether the expression represents an uninterpreted function,
-    /// or an update function. This must be distinguished as update functions can contain network
-    /// variables, but uninterpreted functions only utilize "unnamed" variables `var0`, `var1`, ...
+    /// Arg `is_uninterpreted` specifies whether the expression represents an uninterpreted
+    /// function, or an update function. This must be distinguished as update functions  
+    /// expressions reference network variables directly, but uninterpreted functions only
+    /// utilize "unnamed" placeholder variables `var0`, `var1`, ... as their formal arguments.
     pub fn try_from_str(
         expression: &str,
         model: &ModelState,
-        is_uninterpreted: Option<(&UninterpretedFnId, &UninterpretedFn)>,
+        is_uninterpreted: Option<&UninterpretedFnId>,
     ) -> Result<FnTree, String> {
-        let bn_context = if let Some((_, f)) = is_uninterpreted {
-            model.to_fake_bn_with_params(f.get_arity())
+        let bn_context = if let Some(fn_id) = is_uninterpreted {
+            let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
+            model.to_fake_bn_with_params(uninterpreted_fn.get_arity())
         } else {
             model.to_empty_bn_with_params()
         };
@@ -69,15 +75,16 @@ impl FnTree {
         fn_update.to_string(&bn_context)
     }
 
-    /// Obtain the `FnTree` from a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
-    /// The provided model gives context for variable and parameter IDs.
+    /// Obtain the `FnTree` from a similar `FnUpdate` object of the [biodivine_lib_param_bn]
+    /// library. The provided model gives context for variable and parameter IDs.
     fn from_fn_update(
         fn_update: FnUpdate,
         model: &ModelState,
-        is_uninterpreted: Option<(&UninterpretedFnId, &UninterpretedFn)>,
+        is_uninterpreted: Option<&UninterpretedFnId>,
     ) -> Result<FnTree, String> {
-        if let Some((fn_id, f)) = is_uninterpreted {
-            let bn_context = model.to_fake_bn_with_params(f.get_arity());
+        if let Some(fn_id) = is_uninterpreted {
+            let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
+            let bn_context = model.to_fake_bn_with_params(uninterpreted_fn.get_arity());
             Self::from_fn_update_recursive(fn_update, model, &bn_context, Some(fn_id))
         } else {
             let bn_context = model.to_empty_bn_with_params();
@@ -85,8 +92,16 @@ impl FnTree {
         }
     }
 
-    /// Recursively obtain the `FnTree` from a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
-    /// The provided model and BN give context for variable and parameter IDs.
+    /// Recursively obtain the `FnTree` from a similar `FnUpdate` object of the [biodivine_lib_param_bn]
+    /// library. The provided model and BN are used to get context for variable and parameter IDs.
+    ///
+    /// Argument `is_uninterpreted` is used to determine whether the result should be an uninterpreted
+    /// or an update function's expression. This determines whether the variables should be translated
+    /// as standard BN variables (for update fn) or placeholder variables (for uninterpreted fn).
+    /// Moreover, if this should be an uninterpreted function, it must not reference its own ID
+    /// to avoid recursive definitions.
+    ///
+    /// BN parameters are translated into uninterpreted functions.
     fn from_fn_update_recursive(
         fn_update: FnUpdate,
         model: &ModelState,
@@ -96,11 +111,21 @@ impl FnTree {
         match fn_update {
             FnUpdate::Const(value) => Ok(FnTree::Const(value)),
             FnUpdate::Var(id) => {
-                // in BN, the var's ID is a number and its name is a string (corresponding to variable ID here)
+                // In the BooleanNetwork, variable IDs are (internal) number indices
+                // More important is a variable's string name which is used in update functions
+                // We thus use the BN variable name as its ID in Sketchbook
                 let var_id_str = bn_context.get_variable_name(id);
-                if is_uninterpreted.is_some() {
-                    let var_id = model.get_placeholder_var_id(var_id_str)?;
-                    Ok(FnTree::PlaceholderVar(var_id))
+
+                // There is a slight difference between variables in update and uninterpreted
+                // functions. Update function expressions contain network variables, while uninterpreted
+                // functions only contain formal arguments ("placeholder" variables).
+                if let Some(fn_id) = is_uninterpreted {
+                    if model.is_valid_formal_fn_argument(var_id_str, fn_id)? {
+                        let var_id = VarId::new(var_id_str).unwrap(); // safe to unwrap now
+                        Ok(FnTree::PlaceholderVar(var_id))
+                    } else {
+                        Err(format!("Variable {var_id_str} is invalid in expression of function {fn_id}. Use only function's arguments."))
+                    }
                 } else {
                     let var_id = model.get_var_id(var_id_str)?;
                     Ok(FnTree::Var(var_id))
@@ -127,7 +152,8 @@ impl FnTree {
                 let fn_id_str = bn_context[id].get_name();
                 let fn_id = model.get_uninterpreted_fn_id(fn_id_str)?;
 
-                // disallow recursive definition for uninterpreted fns (using a function symbol in its own expression)
+                // disallow recursive definition for uninterpreted fns (using a function symbol in
+                // its own expression)
                 if let Some(fn_id_def) = is_uninterpreted {
                     if fn_id == *fn_id_def {
                         let msg = format!(
@@ -146,13 +172,19 @@ impl FnTree {
         }
     }
 
-    /// Recursively transform the `FnTree` to a similar `FnUpdate` object of the [biodivine_lib_param_bn] library.
-    /// The provided BN gives context for variable and parameter IDs.
+    /// Recursively transform the `FnTree` to a similar `FnUpdate` object of the
+    /// [biodivine_lib_param_bn] library. The provided BN gives context for variable and
+    /// parameter IDs.
+    ///
+    /// Variables are simply translated into BN variables, and uninterpreted functions into
+    /// PSBN parameters.
     pub(crate) fn to_fn_update_recursive(&self, bn_context: &BooleanNetwork) -> FnUpdate {
         match self {
             FnTree::Const(value) => FnUpdate::Const(*value),
             FnTree::Var(var_id) => {
-                // in BN, the var's ID is a number and its name is a string (corresponding to variable ID here)
+                // In the BooleanNetwork, variable IDs are arbitrary (internal) number indices
+                // More important is a variable's string name which is used in update functions
+                // Sketchbook's variable ID is thus used as BN variable name
                 let bn_var_id = bn_context
                     .as_graph()
                     .find_variable(var_id.as_str())
@@ -193,8 +225,9 @@ impl FnTree {
 
     /// Return a set of all variables that are actually used in this function as arguments.
     ///
-    /// Both valid `network variables` and `placeholder variables` are collected (note that
-    /// these two variants can never happen to be in the same tree at the same time).
+    /// Both valid `network variables` and `placeholder variables` are collected. Note that
+    /// these two variants can never appear in the same tree, since one is used within update
+    /// functions, and the other within uninterpreted functions.
     pub fn collect_variables(&self) -> HashSet<VarId> {
         fn r_arguments(function: &FnTree, args: &mut HashSet<VarId>) {
             match function {
@@ -247,13 +280,12 @@ impl FnTree {
         params
     }
 
-    /// Use this function as a template to create a new one, but substitute a given network
-    /// variable's ID with a new one.
+    /// Create a new copy of this function tree, but substitute all occurances of a given
+    /// network variable's ID with a new one (essentially "renaming" the variable).
     ///
-    /// This can only be used to substitute `network variables` (that appear in update functions),
-    /// not placeholder variables (that appear in uninterpreted functions), since modifying the
-    /// latter does not make that much sense.
-    pub fn substitute_var(&self, old_id: &VarId, new_id: &VarId) -> FnTree {
+    /// This method only considers `network variables` (the variables that appear in update
+    /// functions). It ignores `placeholder variables` (that appear in uninterpreted functions).
+    pub fn change_var_id(&self, old_id: &VarId, new_id: &VarId) -> FnTree {
         match self {
             FnTree::Const(_) => self.clone(),
             FnTree::Var(id) => {
@@ -267,46 +299,148 @@ impl FnTree {
             FnTree::UninterpretedFn(id, args) => {
                 let new_args = args
                     .iter()
-                    .map(|it| it.substitute_var(old_id, new_id))
+                    .map(|it| it.change_var_id(old_id, new_id))
                     .collect::<Vec<_>>();
                 FnTree::UninterpretedFn(id.clone(), new_args)
             }
-            FnTree::Not(inner) => (*inner).substitute_var(old_id, new_id),
+            FnTree::Not(inner) => FnTree::Not(Box::new((*inner).change_var_id(old_id, new_id))),
             FnTree::Binary(op, l, r) => FnTree::Binary(
                 *op,
-                Box::new((*l).substitute_var(old_id, new_id)),
-                Box::new((*r).substitute_var(old_id, new_id)),
+                Box::new((*l).change_var_id(old_id, new_id)),
+                Box::new((*r).change_var_id(old_id, new_id)),
             ),
         }
     }
 
-    /// Use this function as a template to create a new one, but substitute a given uninterpreted
-    /// function's ID with a new one.
-    pub fn substitute_fn_symbol(
-        &self,
-        old_id: &UninterpretedFnId,
-        new_id: &UninterpretedFnId,
-    ) -> FnTree {
+    /// Create a new copy of this function tree, but substitute all occurances of given
+    /// uninterpreted function's ID with a new one (essentially "renaming" the function).
+    ///
+    /// You must ensure the functions should have the same amount of arguments and this
+    /// change will be consistent with the rest of the sketch. This is just a syntactic
+    /// substitution.
+    pub fn change_fn_id(&self, old_id: &UninterpretedFnId, new_id: &UninterpretedFnId) -> FnTree {
         match self {
             FnTree::Const(_) => self.clone(),
             FnTree::Var(_) => self.clone(),
             FnTree::PlaceholderVar(_) => self.clone(),
             FnTree::UninterpretedFn(id, args) => {
-                let new_args = args
+                let transformed_args = args
                     .iter()
-                    .map(|it| it.substitute_fn_symbol(old_id, new_id))
+                    .map(|it| it.change_fn_id(old_id, new_id))
                     .collect::<Vec<_>>();
                 if old_id == id {
-                    FnTree::UninterpretedFn(new_id.clone(), new_args)
+                    FnTree::UninterpretedFn(new_id.clone(), transformed_args)
                 } else {
-                    FnTree::UninterpretedFn(id.clone(), new_args)
+                    FnTree::UninterpretedFn(id.clone(), transformed_args)
                 }
             }
-            FnTree::Not(inner) => (*inner).substitute_fn_symbol(old_id, new_id),
+            FnTree::Not(inner) => FnTree::Not(Box::new((*inner).change_fn_id(old_id, new_id))),
             FnTree::Binary(op, l, r) => FnTree::Binary(
                 *op,
-                Box::new((*l).substitute_fn_symbol(old_id, new_id)),
-                Box::new((*r).substitute_fn_symbol(old_id, new_id)),
+                Box::new((*l).change_fn_id(old_id, new_id)),
+                Box::new((*r).change_fn_id(old_id, new_id)),
+            ),
+        }
+    }
+
+    /// Create a new copy of this function tree, but substitute all placeholder variables
+    /// nodes with `FnTree` subtrees, according to a provided mapping.
+    ///
+    /// You must make sure the mapping covers all placeholder variables present in the expression.
+    pub fn substitute_all_placeholders(
+        &self,
+        subst_mapping: &HashMap<VarId, FnTree>,
+    ) -> Result<FnTree, String> {
+        let res = match self {
+            FnTree::Const(_) => self.clone(),
+            FnTree::Var(_) => self.clone(),
+            FnTree::PlaceholderVar(id) => {
+                if let Some(new_sub_expression) = subst_mapping.get(id) {
+                    new_sub_expression.clone()
+                } else {
+                    return Err(format!(
+                        "Variable {id} is not present in the substitution mapping."
+                    ));
+                }
+            }
+            FnTree::UninterpretedFn(id, args) => {
+                let new_args = args
+                    .iter()
+                    .map(|it| it.substitute_all_placeholders(subst_mapping))
+                    .collect::<Result<Vec<_>, String>>()?;
+                FnTree::UninterpretedFn(id.clone(), new_args)
+            }
+            FnTree::Not(inner) => FnTree::Not(Box::new(
+                (*inner).substitute_all_placeholders(subst_mapping)?,
+            )),
+            FnTree::Binary(op, l, r) => FnTree::Binary(
+                *op,
+                Box::new((*l).substitute_all_placeholders(subst_mapping)?),
+                Box::new((*r).substitute_all_placeholders(subst_mapping)?),
+            ),
+        };
+        Ok(res)
+    }
+
+    /// Create a new copy of this function tree, but substitute all occurances of given
+    /// uninterpreted function with its (transformed) expression.
+    ///
+    /// Before replacing the function symbol with its expression, the expression will be
+    /// tranformed. The formal parameters of the function will be substituted with the actual
+    /// parameters to which the function is applied.
+    ///
+    /// For example, if this is tree for function `A & fn_1(B, C)`, and we have the following
+    /// expression for fn_1: `fn_1(var1, var2) = var1 | var2`, then this will result in a tree
+    /// for `A & (B | C)`.
+    pub fn substitute_fn_symbol_with_expression(
+        &self,
+        fn_id: &UninterpretedFnId,
+        fn_expression: &FnTree,
+    ) -> FnTree {
+        // TODO: we must substitute the symbol (in update fn tree) with the expression
+
+        match self {
+            FnTree::Const(_) => self.clone(),
+            FnTree::Var(_) => self.clone(),
+            FnTree::PlaceholderVar(_) => self.clone(),
+            FnTree::UninterpretedFn(id, args) => {
+                let transformed_args = args
+                    .iter()
+                    .map(|it| it.substitute_fn_symbol_with_expression(fn_id, fn_expression))
+                    .collect::<Vec<_>>();
+
+                if fn_id == id {
+                    let mut transformed_fn_expression = fn_expression.clone();
+
+                    // TODO: 1) compute the mapping of formal -> actual function arguments (placeholder_var -> fn_tree)
+                    let formal_to_actual_arg_map = transformed_args
+                        .into_iter()
+                        .enumerate()
+                        .map(|(i, arg_expression)| {
+                            (
+                                VarId::new(format!("var{i}").as_str()).unwrap(),
+                                arg_expression,
+                            )
+                        })
+                        .collect::<HashMap<VarId, FnTree>>();
+
+                    // TODO: 2) substitute placeholder variables in uninterpreted fn expression using the mapping
+                    transformed_fn_expression = transformed_fn_expression
+                        .substitute_all_placeholders(&formal_to_actual_arg_map)
+                        .unwrap();
+                    // TODO: 3) substitute the function symbol here with its transformed expression
+                    transformed_fn_expression
+                } else {
+                    FnTree::UninterpretedFn(id.clone(), transformed_args)
+                }
+            }
+            FnTree::Not(inner) => FnTree::Not(Box::new(
+                (*inner).substitute_fn_symbol_with_expression(fn_id, fn_expression),
+            )),
+            FnTree::Binary(op, l, r) => FnTree::Binary(
+                *op,
+                Box::new((*l).substitute_fn_symbol_with_expression(fn_id, fn_expression)),
+                Box::new((*r).substitute_fn_symbol_with_expression(fn_id, fn_expression)),
             ),
         }
     }
@@ -346,9 +480,7 @@ mod tests {
         // this is a valid expression for function `g` (not for `f` though)
         let expression = "var0 & (var1 | f(var0, var0))";
         let fn_id = model.get_uninterpreted_fn_id("g").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree =
-            FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn))).unwrap();
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id)).unwrap();
         let processed_expression = fn_tree.to_string(&model, Some(arity));
         assert_eq!(processed_expression.as_str(), expression,);
     }
@@ -391,22 +523,19 @@ mod tests {
         // this would be a valid `update fn`, but not an uninterpreted fn (contains network variables)
         let expression = "a & (b | f(a))";
         let fn_id = model.get_uninterpreted_fn_id("g").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id));
         assert!(fn_tree.is_err());
 
         // this is an invalid expression for the uninterpreted fn `f`, as it is recursive
         let expression = "f(var0)";
         let fn_id = model.get_uninterpreted_fn_id("f").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id));
         assert!(fn_tree.is_err());
 
         // this has higher arity (f has arity 1)
         let expression = "var0 | var1";
         let fn_id = model.get_uninterpreted_fn_id("f").unwrap();
-        let uninterpreted_fn = model.get_uninterpreted_fn(&fn_id).unwrap();
-        let fn_tree = FnTree::try_from_str(expression, &model, Some((&fn_id, uninterpreted_fn)));
+        let fn_tree = FnTree::try_from_str(expression, &model, Some(&fn_id));
         assert!(fn_tree.is_err());
     }
 
@@ -428,11 +557,11 @@ mod tests {
         let fn_tree = FnTree::try_from_str("a & f(a)", &model, None).unwrap();
 
         // variable substitution
-        let modified_tree = fn_tree.substitute_var(&a, &b);
+        let modified_tree = fn_tree.change_var_id(&a, &b);
         assert_eq!(modified_tree.to_string(&model, None), "b & f(b)");
 
         // function symbol substitution
-        let modified_tree = fn_tree.substitute_fn_symbol(&f, &g);
+        let modified_tree = fn_tree.change_fn_id(&f, &g);
         assert_eq!(modified_tree.to_string(&model, None), "a & g(a)");
     }
 

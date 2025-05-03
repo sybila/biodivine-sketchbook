@@ -364,16 +364,19 @@ impl PropertyManager {
     /// Go through all static properties that are automatically generated from the regulation
     /// graph and make their IDs consistent with the variables they reference.
     ///
-    /// This is useful after we change the variable's ID, e.g., to ensure that monotonicity
-    /// properties still have IDs like `monotonicity_REGULATOR_TARGET`.
-    pub fn make_generated_reg_prop_ids_consistent(&mut self) {
-        // list of old-new IDs that must be changed
+    /// This is useful after we change some variable's ID, and need to ensure that all
+    /// monotonicity/essentiality properties still have IDs in format `monotonicity_REGULATOR_TARGET`.
+    ///
+    /// This can be also helpful if we are loading model with potentially invalid IDs (changed by
+    /// the user outside of Sketchbook) to fix potential issues.
+    pub fn make_generated_reg_prop_ids_consistent(&mut self) -> Result<(), String> {
+        // first, collect a list of old-new ID pairs that must be changed
         let mut id_change_list: Vec<(StatPropertyId, StatPropertyId)> = Vec::new();
         for (prop_id, prop) in self.stat_properties.iter() {
             match prop.get_prop_data() {
                 StatPropertyType::RegulationEssential(p) => {
-                    // this template always has both fields, we can unwrap
-                    let expected_id = StatProperty::get_essentiality_prop_id(
+                    // this template always has both fields filled, we can unwrap
+                    let expected_id = StatProperty::get_reg_essentiality_prop_id(
                         p.input.as_ref().unwrap(),
                         p.target.as_ref().unwrap(),
                     );
@@ -382,8 +385,8 @@ impl PropertyManager {
                     }
                 }
                 StatPropertyType::RegulationMonotonic(p) => {
-                    // this template always has both fields, we can unwrap
-                    let expected_id = StatProperty::get_monotonicity_prop_id(
+                    // this template always has both fields filled, we can unwrap
+                    let expected_id = StatProperty::get_reg_monotonicity_prop_id(
                         p.input.as_ref().unwrap(),
                         p.target.as_ref().unwrap(),
                     );
@@ -394,9 +397,56 @@ impl PropertyManager {
                 _ => {}
             }
         }
+        // and finally, set the IDs
         for (current_id, new_id) in id_change_list {
-            self.set_stat_id(&current_id, new_id).unwrap();
+            self.set_stat_id(&current_id, new_id)
+                .map_err(|e| format!("Can't standardize ID for property `{current_id}`: {e}"))?;
         }
+        Ok(())
+    }
+
+    /// Go through all static properties that are automatically generated from the uninterpreted
+    /// function properties and make their IDs consistent with the function and argument they reference.
+    ///
+    /// This is useful after we change some function's ID, and need to ensure that all monotonicity/essentiality
+    /// properties still have IDs in format `fn_monotonicity_FUNCTION_INDEX`.
+    ///
+    /// This can be also helpful if we are loading model with potentially invalid IDs (changed by
+    /// the user outside of Sketchbook) to fix potential issues.
+    pub fn make_generated_fn_prop_ids_consistent(&mut self) -> Result<(), String> {
+        // first, collect a list of old-new ID pairs that must be changed
+        let mut id_change_list: Vec<(StatPropertyId, StatPropertyId)> = Vec::new();
+        for (prop_id, prop) in self.stat_properties.iter() {
+            match prop.get_prop_data() {
+                StatPropertyType::FnInputEssential(p) => {
+                    // this template always has both fields filled, we can unwrap
+                    let expected_id = StatProperty::get_fn_input_essentiality_prop_id(
+                        p.target.as_ref().unwrap(),
+                        p.input_index.unwrap(),
+                    );
+                    if prop_id != &expected_id {
+                        id_change_list.push((prop_id.clone(), expected_id.clone()));
+                    }
+                }
+                StatPropertyType::FnInputMonotonic(p) => {
+                    // this template always has both fields filled, we can unwrap
+                    let expected_id = StatProperty::get_fn_input_monotonicity_prop_id(
+                        p.target.as_ref().unwrap(),
+                        p.input_index.unwrap(),
+                    );
+                    if prop_id != &expected_id {
+                        id_change_list.push((prop_id.clone(), expected_id.clone()));
+                    }
+                }
+                _ => {}
+            }
+        }
+        // and finally, set the IDs
+        for (current_id, new_id) in id_change_list {
+            self.set_stat_id(&current_id, new_id)
+                .map_err(|e| format!("Can't standardize ID for property `{current_id}`: {e}"))?;
+        }
+        Ok(())
     }
 }
 

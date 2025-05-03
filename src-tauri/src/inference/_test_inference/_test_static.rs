@@ -35,19 +35,19 @@ fn inference_template_monotonicity() {
     let sketch = load_test_model();
     let var_d = sketch.model.get_var_id("D").unwrap();
     let id = "d_d_is_activation";
-    let property = mk_monotonicity_prop(&var_d, &var_d, Monotonicity::Activation);
+    let property = mk_reg_monotonicity_prop(&var_d, &var_d, Monotonicity::Activation);
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 16);
 
     let sketch = load_test_model();
     let var_d = sketch.model.get_var_id("D").unwrap();
     let id = "d_d_is_inhibition";
-    let property = mk_monotonicity_prop(&var_d, &var_d, Monotonicity::Inhibition);
+    let property = mk_reg_monotonicity_prop(&var_d, &var_d, Monotonicity::Inhibition);
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 16);
 
     let sketch = load_test_model();
     let var_d = sketch.model.get_var_id("D").unwrap();
     let id = "d_d_is_dual";
-    let property = mk_monotonicity_prop(&var_d, &var_d, Monotonicity::Dual);
+    let property = mk_reg_monotonicity_prop(&var_d, &var_d, Monotonicity::Dual);
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 0);
 }
 
@@ -74,13 +74,13 @@ fn inference_template_essentiality() {
     let var_c = sketch.model.get_var_id("C").unwrap();
     let var_a = sketch.model.get_var_id("A").unwrap();
     let id = "c_a_is_essential";
-    let property = mk_essentiality_prop(&var_c, &var_a, Essentiality::True);
+    let property = mk_reg_essentiality_prop(&var_c, &var_a, Essentiality::True);
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 16);
 
     let sketch = load_test_model();
     let var_c = sketch.model.get_var_id("C").unwrap();
     let var_a = sketch.model.get_var_id("A").unwrap();
     let id = "c_a_not_essential";
-    let property = mk_essentiality_prop(&var_c, &var_a, Essentiality::False);
+    let property = mk_reg_essentiality_prop(&var_c, &var_a, Essentiality::False);
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 16);
 }

@@ -147,7 +147,7 @@ export default class AnalysisComponent extends LitElement {
   #onComputationErrorMessageReceived (message: string): void {
     console.log(message)
     this.waitingMainMessage = 'Inference computation ended with an error.<br>'
-    this.waitingProgressReport = 'Error running inference:\n\n' + message
+    this.waitingProgressReport = 'Internal solver error during inference:\n\n' + message
 
     // stop pinging backend
     clearInterval(this.pingIntervalId)

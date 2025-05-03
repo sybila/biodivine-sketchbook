@@ -40,11 +40,12 @@ export default class abstractStaticProperty extends AbstractProperty {
           <label class="uk-form-label" for="id-field">ID</label>
           <input id="id-field" class="uk-input static-name-field" .value="${this.property.id}" readonly/>
         </div>
+
         <div class="uk-flex uk-flex-column name-section">
           <label class="uk-form-label" for="name-field">NAME</label>
           <input id="name-field" class="name-field static-name-field" .value="${this.property.name}" readonly/>
-
         </div>
+        
         ${when(removeButton, () => html`
           <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.editStatProperty}">
             ${icon(faEdit).node}

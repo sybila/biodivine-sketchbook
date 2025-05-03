@@ -89,9 +89,10 @@ impl SessionState for Sketch {
             file.read_to_string(&mut contents)?;
 
             // parse the SketchData, modify the sketch
-            let sketch_data = SketchData::from_json_str(&contents)?;
-            self.modify_from_sketch_data(&sketch_data)?;
+            let new_sketch = Sketch::from_custom_json(&contents)?;
+            self.modify_from_sketch(&new_sketch);
 
+            let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
             // this is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {

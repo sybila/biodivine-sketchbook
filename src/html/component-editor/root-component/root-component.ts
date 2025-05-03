@@ -7,7 +7,7 @@ import '../nav-bar/nav-bar'
 import '../initial-screen/initial-screen'
 import { type TabData } from '../../util/tab-data'
 import {
-  aeonState, type LayoutNodeData, type LayoutNodeDataPrototype,
+  aeonState, type UninterpretedFnData, type LayoutNodeData, type LayoutNodeDataPrototype,
   type ModelData, type RegulationData, type SketchData, type VariableData
 } from '../../../aeon_state'
 import { tabList } from '../../util/config'
@@ -96,6 +96,16 @@ export default class RootComponent extends LitElement {
     this.addEventListener('remove-regulation', (e) => { void this.removeRegulation(e) })
     aeonState.sketch.model.regulationRemoved.addEventListener(this.#onRegulationRemoved.bind(this))
 
+    // Some changes to uninterpreted functions can affect many parts of the sketch (update fns, other
+    // uninterpreted fns, properties,...). Therefore, we process them here, instead of doing it in
+    // the function editor, because here we have access to the whole sketch.
+    // 1) After fn ID change, we receive the whole model data.
+    aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
+    // 2) After fn removal, we we call backend to refresh the static properties.
+    aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
+    // 3) After changing fn arity, we call backend to refresh the static properties.
+    aeonState.sketch.model.uninterpretedFnArityChanged.addEventListener(this.#onFunctionArityChanged.bind(this))
+
     // listeners for refresh events from backend
     aeonState.sketch.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
     aeonState.sketch.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
@@ -113,10 +123,6 @@ export default class RootComponent extends LitElement {
     this.addEventListener('save-dynamic-properties', this.saveDynamicPropertyData.bind(this))
     this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
     this.addEventListener('save-annotation', this.saveAnnotationData.bind(this))
-
-    // Since function ID change can affect many parts of the model (update fns, other uninterpreted fns, ...),
-    // the event fetches the whole updated model data, and we make the change here in the root component.
-    aeonState.sketch.model.uninterpretedFnIdChanged.addEventListener(this.#onModelRefreshed.bind(this))
 
     // load variable editorStarted from session storage (so it survives refresh)
     const storedEditorStarted = sessionStorage.getItem('editorStarted')
@@ -613,10 +619,44 @@ export default class RootComponent extends LitElement {
       this.data.regulations.filter((regulation) => regulation.source !== data.regulator || regulation.target !== data.target)
     )
 
-    // a hacky way to avoid issues in static properties after the regulation is removed
+    // Removing a regulation can cause multiple static properties to be removed as well.
+    // Sometimes, only a subset of these events is correctly displayed on the UI side.
+    // A hacky way to avoid these inconsistency issues is to wait and refresh backend state atomically.
     setTimeout(() => {
       aeonState.sketch.properties.refreshStaticProps()
-    }, 50)
+    }, 75)
+  }
+
+  /** Process function removal coming from the backend. */
+  #onFunctionRemoved (data: UninterpretedFnData): void {
+    this.saveFunctions(
+      this.data.functions.filter((uninterpretedFn) => uninterpretedFn.id !== data.id)
+    )
+
+    // Removing a function can cause multiple static properties to be removed as well.
+    // Sometimes, only a subset of these events is correctly displayed on the UI side.
+    // A hacky way to avoid these inconsistency issues is to wait and refresh backend state atomically.
+    setTimeout(() => {
+      aeonState.sketch.properties.refreshStaticProps()
+    }, 75)
+  }
+
+  /** Process and save function with updated arity coming from the backend. */
+  #onFunctionArityChanged (data: UninterpretedFnData): void {
+    const index = this.data.functions.findIndex(fun => fun.id === data.id)
+    if (index === -1) return
+
+    const modifiedFunction = convertToIFunction(data)
+    const functions = [...this.data.functions]
+    functions[index] = modifiedFunction
+    this.saveFunctions(functions)
+
+    // Changing function arity can cause multiple static properties to be removed.
+    // Sometimes, only a subset of these events is correctly displayed on the UI side.
+    // A hacky way to avoid these inconsistency issues is to wait and refresh backend state atomically.
+    setTimeout(() => {
+      aeonState.sketch.properties.refreshStaticProps()
+    }, 75)
   }
 
   /** Process and save refreshed sketch data coming from the backend. */

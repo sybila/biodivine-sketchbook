@@ -104,7 +104,7 @@ export class VariableTile extends EditorTile {
     }))
   }
 
-  removeVariable (): void {
+  removeElement (): void {
     this.shadowRoot?.dispatchEvent(new CustomEvent('remove-variable', {
       detail: {
         id: this.variables[this.index].id
@@ -152,11 +152,11 @@ export class VariableTile extends EditorTile {
           <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.focusVariable}">
             ${icon(faMagnifyingGlass).node}
           </button>
-          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeVariable}">
+          <button class="icon-button uk-button uk-button-small uk-button-secondary" @click="${this.removeElement}">
             ${icon(faTrash).node}
           </button>
         </div>
-        ${this.regulations.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Regulators:</span>` : ''}        
+        ${this.regulations.length > 0 ? html`<span class="uk-text-left uk-margin-remove">Regulators and their effects:</span>` : ''}        
         ${map(this.regulations, (regulation) => html`
           <div
               class="regulation uk-grid uk-grid-column-small uk-grid-row-large uk-child-width-1-4 uk-margin-remove uk-text-center uk-flex-around uk-text-nowrap"

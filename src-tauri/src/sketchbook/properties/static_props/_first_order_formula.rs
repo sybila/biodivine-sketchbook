@@ -86,6 +86,8 @@ impl FirstOrderFormula {
     /// so on).
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
         let bn = model.to_bn();
+        // before creating symbolic context, we must prune unused parameters or it will fail with an error
+        let bn = bn.prune_unused_parameters();
         let ctx = SymbolicContext::new(&bn)?;
 
         // we have to provide some placeholder name (for minimization), but it does not matter here

@@ -307,7 +307,7 @@ impl ObservationManager {
             Some(&ADD_VARIABLE_PATH) => {
                 Self::assert_payload_empty(event, component_name)?;
 
-                // prepare the placeholder var and add it
+                // prepare a placeholder variable name and add it
                 let var_id = self.generate_var_id(&dataset_id, "var", Some(1));
                 self.add_var(&dataset_id, var_id)?;
 

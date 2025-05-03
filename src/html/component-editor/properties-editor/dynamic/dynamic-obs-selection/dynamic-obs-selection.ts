@@ -85,11 +85,7 @@ export default class DynamicObsSelection extends AbstractDynamicProperty {
                 <select class="uk-select uk-margin-small-left" name="observation" id="observation"
                         @change=${this.observationChanged}
                         ?disabled="${this.property.dataset === null}">
-                  ${when(this.property.variant === DynamicPropertyType.HasAttractor,
-                      () => html`
-                        <option value=${'*'}>all</option>`,
-                      () => html`
-                        <option value=${null}>---</option>`)}
+                        <option value=${'*'}>all</option>
                   ${map(this.observations[this.observations.findIndex(dataset => dataset.id === this.property.dataset)]?.observations,
                       (observation) => html`
                         <option value="${observation.id}">${observation.id}</option>

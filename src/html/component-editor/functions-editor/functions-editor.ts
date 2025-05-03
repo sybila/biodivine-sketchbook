@@ -29,19 +29,17 @@ export class FunctionsEditor extends LitElement {
     // functions-related event listeners
     aeonState.sketch.model.uninterpretedFnCreated.addEventListener(this.#onFunctionCreated.bind(this))
     this.addEventListener('remove-function-definition', (e) => { void this.removeFunction(e) })
-    aeonState.sketch.model.uninterpretedFnDataChanged.addEventListener(this.#onFunctionDataChanged.bind(this))
+    // listener 'aeonState.sketch.model.uninterpretedFnRemoved' is handled by Root component (more complex update)
     this.addEventListener('edit-function-definition', (e) => { void this.editFunction(e) })
-    aeonState.sketch.model.uninterpretedFnRemoved.addEventListener(this.#onFunctionRemoved.bind(this))
-    this.addEventListener('rename-function-definition', this.setFunctionId)
+    aeonState.sketch.model.uninterpretedFnDataChanged.addEventListener(this.#onFunctionDataChanged.bind(this))
+    this.addEventListener('change-function-id', this.setFunctionId)
     // listener 'aeonState.sketch.model.uninterpretedFnIdChanged' is handled by Root component (more complex update)
-    this.addEventListener('add-function-variable', this.addFunctionVariable)
-    aeonState.sketch.model.uninterpretedFnArityIncremented.addEventListener(this.#onFunctionArityIncremented.bind(this))
+    this.addEventListener('change-fn-arity', this.changeFunctionArity)
+    // listener 'aeonState.sketch.model.uninterpretedFnArityChanged' is handled by Root component (more complex update)
     this.addEventListener('toggle-function-variable-monotonicity', this.toggleFunctionVariableMonotonicity)
     aeonState.sketch.model.uninterpretedFnMonotonicityChanged.addEventListener(this.#onFunctionMonotonicityChanged.bind(this))
     this.addEventListener('toggle-function-variable-essentiality', this.toggleFunctionVariableEssentiality)
     aeonState.sketch.model.uninterpretedFnEssentialityChanged.addEventListener(this.#onFunctionEssentialityChanged.bind(this))
-    this.addEventListener('remove-function-variable', (e) => { void this.removeFunctionVariable(e) })
-    aeonState.sketch.model.uninterpretedFnArityDecremented.addEventListener(this.#onFunctionArityDecremented.bind(this))
     this.addEventListener('set-uninterpreted-function-expression', this.setFunctionExpression)
     aeonState.sketch.model.uninterpretedFnExpressionChanged.addEventListener(this.#onFunctionExpressionChanged.bind(this))
 
@@ -135,38 +133,16 @@ export class FunctionsEditor extends LitElement {
     aeonState.sketch.model.removeUninterpretedFn(id)
   }
 
-  /** Process and remove fn data sent from backend. */
-  #onFunctionRemoved (data: UninterpretedFnData): void {
-    const id = data.id
-    const index = this.contentData.functions.findIndex(fun => fun.id === id)
-    if (index === -1) return
-    const functions = [...this.contentData.functions]
-    functions.splice(index, 1)
-    this.saveFunctions(functions)
-  }
-
   /** Invoke backend to set function id. */
   private setFunctionId (event: Event): void {
     const detail = (event as CustomEvent).detail
     aeonState.sketch.model.setUninterpretedFnId(detail.oldId, detail.newId)
   }
 
-  /** Invoke backend to add variable to a function (incrementing it). */
-  private addFunctionVariable (event: Event): void {
+  /** Invoke backend to change function's arity. */
+  private changeFunctionArity (event: Event): void {
     const detail = (event as CustomEvent).detail
-    aeonState.sketch.model.incrementUninterpretedFnArity(detail.id)
-  }
-
-  /** Process and update incremented fn arity sent from backend. */
-  #onFunctionArityIncremented (data: UninterpretedFnData): void {
-    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
-    if (index === -1) return
-
-    // not most efficient, but probably sufficient and clear
-    const modifiedFunction = convertToIFunction(data)
-    const functions = [...this.contentData.functions]
-    functions[index] = modifiedFunction
-    this.saveFunctions(functions)
+    aeonState.sketch.model.setUninterpretedFnArity(detail.id, detail.arity)
   }
 
   /** Invoke backend to toggle function monotonicity. */
@@ -215,24 +191,6 @@ export class FunctionsEditor extends LitElement {
 
   /** Process and update changed fn expression sent from backend. */
   #onFunctionExpressionChanged (data: UninterpretedFnData): void {
-    const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
-    if (index === -1) return
-
-    // not most efficient, but probably sufficient and clear
-    const modifiedFunction = convertToIFunction(data)
-    const functions = [...this.contentData.functions]
-    functions[index] = modifiedFunction
-    this.saveFunctions(functions)
-  }
-
-  /** Invoke backend to remove function's variable (decrementing it). */
-  private async removeFunctionVariable (event: Event): Promise<void> {
-    const detail = (event as CustomEvent).detail
-    aeonState.sketch.model.decrementUninterpretedFnArity(detail.id)
-  }
-
-  /** Process and update decremented fn sent from backend. */
-  #onFunctionArityDecremented (data: UninterpretedFnData): void {
     const index = this.contentData.functions.findIndex(fun => fun.id === data.id)
     if (index === -1) return
 

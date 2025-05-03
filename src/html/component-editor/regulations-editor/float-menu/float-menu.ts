@@ -10,7 +10,7 @@ import {
   faEye,
   faEyeLowVision,
   faEyeSlash,
-  faPen,
+  faEdit,
   faPlus,
   faRightLeft,
   faTrash,
@@ -27,7 +27,7 @@ import {
 } from '../../../util/data-interfaces'
 import { when } from 'lit/directives/when.js'
 
-library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faPen, faTrash, faPlus)
+library.add(faRightLeft, faArrowTrendUp, faArrowTrendDown, faCalculator, faEye, faEyeSlash, faEdit, faTrash, faPlus)
 
 @customElement('float-menu')
 export default class FloatMenu extends LitElement {
@@ -85,7 +85,7 @@ export default class FloatMenu extends LitElement {
 
   nodeButtons: IButton[] = [
     {
-      icon: () => icon(faPen).node[0],
+      icon: () => icon(faEdit).node[0],
       label: () => 'Edit variable (E)',
       click: this.editVariable
     },
