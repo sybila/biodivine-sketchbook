@@ -476,7 +476,8 @@ impl InferenceSolver {
 
             let prop_id = stat_property.id().to_string();
             self.update_status(InferenceStatus::StartedStatic(prop_id.clone()));
-            let inferred_colors = eval_static_prop(stat_property, self.graph()?, base_var_name)?;
+            let inferred_colors = eval_static_prop(stat_property, self.graph()?, base_var_name)
+                .map_err(|e| format!("Failed evaluating static property {prop_id}: {e}."))?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
                 self.graph()?.symbolic_context(),
@@ -515,7 +516,8 @@ impl InferenceSolver {
             };
 
             let inferred_colors: GraphColors =
-                eval_dyn_prop(dyn_property, self.graph()?, &mut progress_callback)?;
+                eval_dyn_prop(dyn_property, self.graph()?, &mut progress_callback)
+                    .map_err(|e| format!("Failed evaluating dynamic property {prop_id}: {e}."))?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
                 self.graph()?.symbolic_context(),
@@ -533,6 +535,10 @@ impl InferenceSolver {
 
     /// A modular variant of the inference. You can choose which parts to select.
     /// For example, you can only consider static properties, only dynamic properties, or all.
+    ///
+    /// If some internal error happens, the message should contain the internal error message,
+    /// and some additional details on at which part of the computation failed.
+    /// This message is then displayed on the frontend.
     pub fn run_inference_modular(
         &mut self,
         inference_type: InferenceType,
@@ -549,12 +555,16 @@ impl InferenceSolver {
 
         /* >> STEP 1: process basic components of the sketch to be used */
         // Extract the BN (including input simplifications, like filtering out unused function symbols)
-        let bn = Self::extract_bn(&sketch)?;
+        let bn = Self::extract_bn(&sketch).map_err(|e| {
+            format!("Failed extracting BooleanNetwork instance from the sketch: {e}.")
+        })?;
         // Pre-process static properties into a version more suitable for the computation
         // We also have to remove all properties for unused function symbols pruned in previous line
-        let static_props = process_static_props(&sketch, &bn)?;
+        let static_props = process_static_props(&sketch, &bn)
+            .map_err(|e| format!("Failed pre-processing static properties: {e}."))?;
         // Pre-process dynamic properties into a version more suitable for the computation
-        let dynamic_props = process_dynamic_props(&sketch)?;
+        let dynamic_props = process_dynamic_props(&sketch)
+            .map_err(|e| format!("Failed pre-processing dynamic properties: {e}."))?;
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);
@@ -571,12 +581,12 @@ impl InferenceSolver {
             let base_var = self.bn()?.variables().collect::<Vec<_>>()[0];
             let base_var_name = self.bn()?.as_graph().get_variable_name(base_var).clone();
 
-            self.graph = Some(prepare_graph_for_static_fol(
-                self.bn()?,
-                self.stat_props()?,
-                &base_var_name,
-                None,
-            )?);
+            self.graph = Some(
+                prepare_graph_for_static_fol(self.bn()?, self.stat_props()?, &base_var_name, None)
+                    .map_err(|e| {
+                        format!("Failed preparing symbolic encoding for static properties: {e}.")
+                    })?,
+            );
             self.update_status(InferenceStatus::GeneratedContextStatic);
             let msg = format!(
                 "N. of candidates before evaluating any properties: {}\n",
@@ -585,7 +595,7 @@ impl InferenceSolver {
             summary_msg.push_str(&msg);
 
             /* >> STEP 2B: actually evaluate static properties */
-            self.eval_static(&base_var_name)?;
+            self.eval_static(&base_var_name)?; // proper error messages inside
             let msg = format!(
                 "N. of candidates after evaluating static props: {}\n",
                 self.current_candidate_colors()?.exact_cardinality()
@@ -599,15 +609,20 @@ impl InferenceSolver {
             /* >> STEP 3A: make symbolic transition graph for HCTL evaluation with restricted unit BDD */
             let old_unit_bdd = self.current_candidate_colors()?.into_bdd();
             let old_context = self.graph()?.symbolic_context();
-            self.graph = Some(prepare_graph_for_dynamic_hctl(
-                self.bn()?,
-                self.dyn_props()?,
-                Some((&old_unit_bdd, old_context)),
-            )?);
+            self.graph = Some(
+                prepare_graph_for_dynamic_hctl(
+                    self.bn()?,
+                    self.dyn_props()?,
+                    Some((&old_unit_bdd, old_context)),
+                )
+                .map_err(|e| {
+                    format!("Failed preparing symbolic encoding for dynamic properties: {e}.")
+                })?,
+            );
             self.update_status(InferenceStatus::GeneratedContextDynamic);
 
             /* >> STEP 3B: actually evaluate dynamic properties */
-            self.eval_dynamic()?;
+            self.eval_dynamic()?; // proper error messages inside
             let msg = format!(
                 "N. of candidates after evaluating dynamic props: {}\n",
                 self.current_candidate_colors()?.approx_cardinality()

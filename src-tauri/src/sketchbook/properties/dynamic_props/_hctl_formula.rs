@@ -107,6 +107,7 @@ impl HctlFormula {
     /// whether the propositions correspond to valid network variables used in the `model`.
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
         // create simplest bn possible, we just need to cover all the variables
+        // this BN instance does not need any parameters, as these cant appear in HCTL formulas
         let bn = model.to_empty_bn();
         let ctx = SymbolicContext::new(&bn)?;
 

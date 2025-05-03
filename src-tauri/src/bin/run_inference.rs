@@ -14,7 +14,7 @@ use std::sync::mpsc::{Receiver, Sender};
 #[derive(Parser)]
 #[clap(
     author = "Ondřej Huvar",
-    about = "Run the inference of BNs from predefined sketch."
+    about = "Run Boolean network inference using provided BN sketch as input."
 )]
 struct Arguments {
     /// Path to a file with a model in aeon sketch format.
