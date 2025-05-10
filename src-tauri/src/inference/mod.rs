@@ -1,3 +1,6 @@
+/// Utilities to sample and download networks.
+/// Some functionality is taken from our repository [biodivine-bn-classifier].
+pub mod candidate_sampling;
 /// Structures and utilities to track final results of inference.
 pub mod inference_results;
 /// Structures and methods to run the whole inference process.
@@ -10,14 +13,11 @@ pub mod inference_state;
 pub mod inference_status;
 /// Enum with various supported inference types.
 pub mod inference_type;
+/// Utilities to download results.
+pub mod results_export;
 /// Struct with details regarding candidate sampling.
 pub mod sampling_data;
 
-/// Utilities to sample and download networks.
-/// Some functionality is taken from our repository [biodivine-bn-classifier].
-mod candidate_sampling;
-/// Utilities to download results.
-mod results_export;
 /// Utilities to explore canditate update functions.
 mod update_fn_details;
 

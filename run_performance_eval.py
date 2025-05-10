@@ -34,7 +34,7 @@ for model in MODELS:
         continue
     
     try:
-        subprocess.run([str(SOURCE_DIR / "target/release/run-inference"), str(aeon_file)], check=True)
+        subprocess.run([str(SOURCE_DIR / "target/release/run-inference"), str(aeon_file), "--input-format", "aeon"], check=True)
     except FileNotFoundError:
         print(f"Executable not found: {SOURCE_DIR / 'target/release/run-inference'}", file=sys.stderr, flush=True)
     except subprocess.CalledProcessError as e:

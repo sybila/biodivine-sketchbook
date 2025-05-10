@@ -18,7 +18,6 @@ impl Sketch {
         let sketch_data = SketchData::from_json_str(json_str)?;
         let mut sketch = Sketch::new_from_sketch_data(&sketch_data)?;
         sketch.standardize_generated_static_ids()?;
-        println!("IMPORTING");
         Ok(sketch)
     }
 

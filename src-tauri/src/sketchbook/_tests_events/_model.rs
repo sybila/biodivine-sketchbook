@@ -74,7 +74,6 @@ fn test_remove_var_complex() {
         sub_events.reverse();
         for e in sub_events {
             let at_path_str: Vec<&str> = e.path[2..].iter().map(|s| s.as_str()).collect();
-            println!("{:?}", e);
             let res_inner = model.perform_event(&e, &at_path_str).unwrap();
             if let Consumed::Restart(sub_events) = res_inner {
                 // reg removal can be composed of up to three sub-events (static props)

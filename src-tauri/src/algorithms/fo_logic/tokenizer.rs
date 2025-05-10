@@ -300,40 +300,6 @@ impl fmt::Display for FolToken {
     }
 }
 
-/// Recursively display tokens.
-fn print_tokens_recursively(tokens: &Vec<FolToken>) {
-    for token in tokens {
-        match token {
-            FolToken::Unary(UnaryOp::Not) => print!("!"),
-            FolToken::Binary(BinaryOp::And) => print!("&"),
-            FolToken::Binary(BinaryOp::Or) => print!("|"),
-            FolToken::Binary(BinaryOp::Xor) => print!("^"),
-            FolToken::Binary(BinaryOp::Imp) => print!("=>"),
-            FolToken::Binary(BinaryOp::Iff) => print!("<=>"),
-            FolToken::Quantifier(op, var) => print!("{op:?} {var}:"),
-            FolToken::Atomic(Atom::Var(name)) => print!("{name}"),
-            FolToken::Atomic(constant) => print!("{constant:?}"),
-            FolToken::TokenList(token_vec) => print_tokens_recursively(token_vec),
-            FolToken::Function(name, args) => {
-                print!("{name}(");
-                for (idx, arg) in args.iter().enumerate() {
-                    print_tokens_recursively(&vec![arg.clone()]);
-                    if idx < args.len() {
-                        print!(",")
-                    }
-                }
-                print!(")")
-            }
-        }
-    }
-}
-
-/// Print the vector of tokens (for debug purposes).
-pub fn print_tokens(tokens: &Vec<FolToken>) {
-    print_tokens_recursively(tokens);
-    println!();
-}
-
 #[cfg(test)]
 mod tests {
     use crate::algorithms::fo_logic::operator_enums::*;

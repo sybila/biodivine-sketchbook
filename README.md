@@ -58,6 +58,8 @@ First, make sure you have Rust and NPM installed. For Rust, we recommend followi
 
 On some Linux distributions, additional packages might be needed for developing with Tauri. We recommend checking the [setup instructions by Tauri](https://v1.tauri.app/v1/guides/getting-started/prerequisites/).
 
+> On newer Linux distributions (Ubuntu 24 or Debian 13), you may experience issues installing some of the Tauri dependencies. Check this [GitHub issue](https://github.com/tauri-apps/tauri/issues/9662) on how to solve potential problems. This will be resolved once we switch to Tauri 2.
+
 The latest version of Sketchbook is developed and tested using the following versions:
 - npm 11.3.0 
 - node 22.11.0
@@ -112,3 +114,14 @@ Tldr, to run the performance benchmarks, you can use python and execute them all
 Sketches and datasets relevant to cases studies on biological models and real datasets are in `data/real_cases`. There is also a README with further details.
 
 An example sketch used to introduce the framework is in `data/small_example`. Sketch is available in AEON and JSON format. We also provide results of the inference and the resulting sampled BN candidate.
+
+## Using Sketchbook from the command line
+
+Although the main interface of the tool is its GUI, we provide the most important functionality through a library and CLI as well. If you want to use the CLI variant, you must prepare the sketch first. Once you have the sketch file, you can run the inference from the command line as follows.
+
+First, compile the code in `src-tauri` with: `cargo build --release`.
+Then, you should find the binary `run-inference` (with an extension according to your system) in `src-tauri/target/release`. The binary has multiple options regarding results export, sampling or logging. See all the details and instructions by running `run-inference --help`. The example of use on Linux would be:
+
+```
+./src-tauri/target/release/run-inference data/real_cases/tlgl/tlgl.json --results-path "results-tlgl.zip"
+```
