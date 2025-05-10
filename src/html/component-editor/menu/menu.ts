@@ -185,7 +185,15 @@ export default class Menu extends LitElement {
     action()
   }
 
-  openMenu (): void {
+  /** If the menu is not visible, compute its position and show it.
+   * If the menu is currently visible, just toggle off the visibility.
+   */
+  openOrCloseMenu (): void {
+    if (this.menuVisible) {
+      this.menuVisible = false
+      return
+    }
+
     this.menuVisible = true
     // console.log(this.menuButtonElement, this.menuContentElement)
     void computePosition(this.menuButtonElement, this.menuContentElement,
@@ -220,7 +228,7 @@ export default class Menu extends LitElement {
             </ul>
           `)}
       </div>
-      <button id="menu-button" class="uk-button uk-button-small uk-button-secondary menu-button" @click="${this.openMenu}">☰</button>      
+      <button id="menu-button" class="uk-button uk-button-small uk-button-secondary menu-button" @click="${this.openOrCloseMenu}">☰</button>
     `
   }
 }
