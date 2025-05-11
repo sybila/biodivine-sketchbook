@@ -16,10 +16,10 @@ export default class StaticInputMonotonicCondition extends StaticSelectorsProper
   @property() declare property: IFunctionInputMonotonicStaticProperty | IVariableRegulatorMonotonicStaticProperty
 
   toggleMonotonicity (): void {
-    let value = getNextMonotonicity(this.property.value)
-    if (value === Monotonicity.UNSPECIFIED) {
-      value = getNextMonotonicity(value)
-    }
+    const value = getNextMonotonicity(this.property.value)
+    // if (value === Monotonicity.UNSPECIFIED) {
+    //  value = getNextMonotonicity(value)
+    // }
     this.updateProperty({
       ...this.property,
       value
@@ -35,7 +35,7 @@ export default class StaticInputMonotonicCondition extends StaticSelectorsProper
       case Monotonicity.INHIBITION:
         return '|-'
       default:
-        return '??'
+        return '?-'
     }
   }
 

@@ -22,15 +22,15 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
       case Essentiality.FALSE:
         return '</-'
       default:
-        return '??'
+        return '<?-'
     }
   }
 
   toggleEssentiality (): void {
-    let value = getNextEssentiality(this.property.value)
-    if (value === Essentiality.UNKNOWN) {
-      value = getNextEssentiality(value)
-    }
+    const value = getNextEssentiality(this.property.value)
+    // if (value === Essentiality.UNKNOWN) {
+    //  value = getNextEssentiality(value)
+    // }
     this.updateProperty({
       ...this.property,
       value

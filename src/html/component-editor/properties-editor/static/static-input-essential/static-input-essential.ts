@@ -2,7 +2,7 @@ import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-essential.less?inline'
 import { Essentiality, type IFunctionInputEssentialStaticProperty } from '../../../../util/data-interfaces'
-import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
+import { getEssentialityText } from '../../../../util/utilities'
 import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-essential')
@@ -17,19 +17,8 @@ export default class StaticInputEssential extends abstractStaticProperty {
       case Essentiality.FALSE:
         return '-/>'
       default:
-        return '??'
+        return '-?>'
     }
-  }
-
-  toggleEssentiality (): void {
-    let value = getNextEssentiality((this.property).value)
-    if (value === Essentiality.UNKNOWN) {
-      value = getNextEssentiality(value)
-    }
-    this.updateProperty({
-      ...this.property,
-      value
-    })
   }
 
   render (): TemplateResult {

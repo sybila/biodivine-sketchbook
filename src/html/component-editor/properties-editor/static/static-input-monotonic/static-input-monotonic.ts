@@ -3,28 +3,15 @@ import { customElement, property } from 'lit/decorators.js'
 import style_less from './static-input-monotonic.less?inline'
 import {
   type IFunctionInputMonotonicStaticProperty,
-  Monotonicity,
-  StaticPropertyType
+  Monotonicity
 } from '../../../../util/data-interfaces'
-import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
+import { getMonotonicityClass } from '../../../../util/utilities'
 import abstractStaticProperty from '../abstract-static-property'
 
 @customElement('static-input-monotonic')
 export default class StaticInputMonotonic extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputMonotonicStaticProperty
-
-  toggleMonotonicity (): void {
-    if (this.property.variant === StaticPropertyType.FunctionInputEssential) return
-    let value = getNextMonotonicity((this.property).value)
-    if (value === Monotonicity.UNSPECIFIED) {
-      value = getNextMonotonicity(value)
-    }
-    this.updateProperty({
-      ...this.property,
-      value
-    })
-  }
 
   private getMonotonicitySymbol (): string {
     switch (this.property.value) {
@@ -35,7 +22,7 @@ export default class StaticInputMonotonic extends abstractStaticProperty {
       case Monotonicity.INHIBITION:
         return '-|'
       default:
-        return '??'
+        return '-?'
     }
   }
 
