@@ -89,6 +89,8 @@ impl DynPropertyData {
         let annot = property.get_annotation();
         let variant = match property.get_prop_data() {
             DynPropertyType::GenericDynProp(p) => {
+                // only need to save the raw formula (the input written by the user)
+                // the processed syntactic tree and wild-cards can be ignored (and reconstructed later)
                 DynPropertyTypeData::GenericDynProp(GenericDynPropData {
                     formula: p.raw_formula.to_string(),
                 })

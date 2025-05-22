@@ -1,3 +1,4 @@
+use super::_wild_card_props::process_wild_card_props;
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::properties::dynamic_props::*;
 use crate::sketchbook::utils::assert_name_valid;
@@ -29,15 +30,19 @@ impl DynProperty {
     }
 
     /// Create "generic" `DynProperty` instance directly from a formula, which must be in a
-    /// correct format (which is verified).
+    /// correct format (the syntax is checked).
     pub fn try_mk_generic(
         name: &str,
         raw_formula: &str,
         annotation: &str,
     ) -> Result<DynProperty, String> {
+        // first process potential wild card propositions
+        // this collects all the wild cards, and modifies them to adhere to internal syntax rules
+        let (modified_formula, wild_cards) = process_wild_card_props(raw_formula)?;
         let property = GenericDynProp {
             raw_formula: raw_formula.to_string(),
-            processed_formula: HctlFormula::try_from_str(raw_formula)?,
+            processed_formula: HctlFormula::try_from_str(&modified_formula)?,
+            wild_cards,
         };
         let variant = DynPropertyType::GenericDynProp(property);
         Ok(Self::new_raw(name, variant, annotation))
@@ -229,9 +234,11 @@ impl DynProperty {
     /// Update generic property's formula. If not applicable (different variant), return `Err`.
     pub fn set_formula(&mut self, new_formula: &str) -> Result<(), String> {
         if let DynPropertyType::GenericDynProp(prop) = &mut self.variant {
-            // first check everything is valid, then update fields
-            let parsed_formula = HctlFormula::try_from_str(new_formula)?;
+            // first check everything is valid (including potential wild-card props), then update fields
+            let (modified_formula, wild_cards) = process_wild_card_props(new_formula)?;
+            let parsed_formula = HctlFormula::try_from_str(&modified_formula)?;
             prop.processed_formula = parsed_formula;
+            prop.wild_cards = wild_cards;
             prop.raw_formula = new_formula.to_string();
             Ok(())
         } else {

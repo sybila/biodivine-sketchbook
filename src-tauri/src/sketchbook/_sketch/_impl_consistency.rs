@@ -201,7 +201,11 @@ impl Sketch {
         // now, let's validate the fields (we know the required ones are filled in)
         match prop.get_prop_data() {
             DynPropertyType::GenericDynProp(generic_prop) => {
-                HctlFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)?;
+                // TODO: we will need to check wild cards as well
+                HctlFormula::check_syntax_with_model(
+                    generic_prop.processed_formula.as_str(),
+                    &self.model,
+                )?;
             }
             DynPropertyType::HasAttractor(p) => {
                 self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;

@@ -4,7 +4,7 @@ use std::fmt::{Display, Error, Formatter};
 use std::str::FromStr;
 
 /// **(internal)** A regex string of an identifier which we currently allow to appear.
-const ID_REGEX_STR: &str = r"^[a-zA-Z_][a-zA-Z0-9_]*$";
+pub const ID_REGEX_STR: &str = r"^[a-zA-Z_][a-zA-Z0-9_]*$";
 
 lazy_static! {
     /// A regular expression that matches the identifiers allowed.
