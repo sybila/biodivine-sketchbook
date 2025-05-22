@@ -8,7 +8,7 @@ use biodivine_lib_param_bn::symbolic_async_graph::{GraphColors, SymbolicAsyncGra
 /// Currently, we assume that all types of template properties must be already translated
 /// to FOL generic properties.
 pub fn eval_static_prop(
-    static_prop: ProcessedStatProp,
+    static_prop: &ProcessedStatProp,
     graph: &SymbolicAsyncGraph,
     base_var_name: &str,
 ) -> Result<GraphColors, String> {

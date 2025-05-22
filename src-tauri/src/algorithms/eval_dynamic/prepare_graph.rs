@@ -1,7 +1,7 @@
 use crate::algorithms::eval_dynamic::processed_props::ProcessedDynProp;
 
 use biodivine_hctl_model_checker::mc_utils::collect_unique_hctl_vars;
-use biodivine_hctl_model_checker::preprocessing::parser::parse_and_minimize_hctl_formula;
+use biodivine_hctl_model_checker::preprocessing::parser::parse_and_minimize_extended_formula;
 use biodivine_lib_bdd::Bdd;
 use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColoredVertices, SymbolicAsyncGraph, SymbolicContext,
@@ -16,8 +16,10 @@ use std::collections::HashMap;
 /// evaluation of the dynamic properties.
 ///
 /// Most of the properties are encoded as HCTL formulas. Therefore we just prepare symbolic
-/// variables to handle all variables in HCTL formulas. We always have at least one set
-/// of symbolic variables, as they can be used when computing trap spaces.
+/// variables to handle all variables in HCTL formulas. Essentially, we need to count the
+/// maximal num of HCTL vars per formula (as the variables are normalized and same vars are
+/// reused throughout all formulas). We always have at least one set of symbolic variables,
+/// as they can be used when computing trap spaces.
 ///
 /// Note that some cases like trap spaces need different kind of symbolic context and
 /// graph, but this context is always the same and is easily handled during evaluation.
@@ -30,28 +32,49 @@ pub fn prepare_graph_for_dynamic_hctl(
     unit: Option<(&Bdd, &SymbolicContext)>,
 ) -> Result<SymbolicAsyncGraph, String> {
     let mut num_hctl_vars = 0;
+    // context needed to process formulas
     let plain_context = SymbolicContext::new(bn).unwrap();
 
     for prop in dyn_props {
-        match &prop {
-            ProcessedDynProp::ProcessedHctlFormula(p) => {
-                let tree = parse_and_minimize_hctl_formula(&plain_context, &p.formula)?;
-                let num_tree_vars = collect_unique_hctl_vars(tree.clone()).len();
-                num_hctl_vars = max(num_hctl_vars, num_tree_vars);
-            }
-            // no need for any additional variables for an attractor count property
-            ProcessedDynProp::ProcessedAttrCount(..) => {}
-            // no need for any additional variables for a simple trajectory property
-            ProcessedDynProp::ProcessedSimpleTrajectory(..) => {}
-            // this one is handled entirely later during evaluation
-            ProcessedDynProp::ProcessedTrapSpace(..) => {}
-        }
+        let num_vars_prop = count_num_hctl_vars_single(prop, &plain_context)?;
+        num_hctl_vars = max(num_hctl_vars, num_vars_prop)
     }
 
     // always add at least one set of symbolic variables, as they can be used when computing trap spaces
     num_hctl_vars = max(1, num_hctl_vars);
 
     get_hctl_extended_symbolic_graph(bn, num_hctl_vars as u16, unit)
+}
+
+/// Count the number of HCTL variables needed for evaluation of a single property.
+/// If the property contains some sub-properties, compute recursively as maximum.
+pub fn count_num_hctl_vars_single(
+    prop: &ProcessedDynProp,
+    context: &SymbolicContext,
+) -> Result<usize, String> {
+    let num_hctl_vars = match &prop {
+        ProcessedDynProp::ProcessedHctlFormula(p) => {
+            // process the main formula
+            let tree = parse_and_minimize_extended_formula(context, &p.formula)?;
+            let mut num_vars = collect_unique_hctl_vars(tree.clone()).len();
+
+            // and also process all potential sub-properties (these will be handled individually too)
+            for sub_prop in p.sub_properties.iter() {
+                let num_sub_prop_vars = count_num_hctl_vars_single(sub_prop, context)?;
+                num_vars = max(num_vars, num_sub_prop_vars);
+            }
+            num_vars
+        }
+        // no need for any additional variables for an attractor count property
+        ProcessedDynProp::ProcessedAttrCount(..) => 0,
+        // no need for any additional variables for a simple trajectory property
+        ProcessedDynProp::ProcessedSimpleTrajectory(..) => 0,
+        // this one is handled entirely later during evaluation
+        ProcessedDynProp::ProcessedTrapSpace(..) => 0,
+        // no need for any additional variables for an observation sub-property
+        ProcessedDynProp::ProcessedObservation(..) => 0,
+    };
+    Ok(num_hctl_vars)
 }
 
 /// Prepare the symbolic context and generate the symbolic transition graph for
@@ -145,7 +168,11 @@ mod tests {
         assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
 
         // test deriving HCTL context automatically from property
-        let property_list = vec![ProcessedDynProp::mk_hctl("doesntmatter", "3{x}: AX {x}")];
+        let property_list = vec![ProcessedDynProp::mk_hctl(
+            "doesntmatter",
+            "3{x}: AX {x}",
+            Vec::new(),
+        )];
         let graph_hctl = prepare_graph_for_dynamic_hctl(&bn, &property_list, None).unwrap();
         assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
     }

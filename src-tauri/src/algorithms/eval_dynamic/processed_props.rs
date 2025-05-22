@@ -1,9 +1,12 @@
 use crate::algorithms::eval_dynamic::encode::encode_dataset_hctl_str;
-use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::properties::dynamic_props::DynPropertyType;
+use crate::sketchbook::observations::{Dataset, Observation};
+use crate::sketchbook::properties::dynamic_props::{
+    DynPropertyType, WildCardProposition, WildCardType,
+};
 use crate::sketchbook::Sketch;
 
 /// Enum of possible variants of data encodings via HCTL.
+/// This is used as arguments for HCTL encoding functions.
 #[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub enum DataEncodingType {
     Attractor,
@@ -12,11 +15,28 @@ pub enum DataEncodingType {
     TimeSeries,
 }
 
-/// Property requiring that a particular HCTL formula is satisfied.
+/// Property requiring that a particular extended HCTL formula is satisfied.
+///
+/// The language of dynamic properties allows to write template sub-properties
+/// using wild-card propositions. These wild card propositions are turned into
+/// `sub_properties` field.
+///
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ProcessedHctlFormula {
     pub id: String,
     pub formula: String,
+    pub sub_properties: Vec<ProcessedDynProp>,
+}
+
+/// A special case - this is not a full property, but just a template that
+/// can be used as a sub-property in HCTL props. It should be taken as just
+/// a simple shortcut, nothing more.
+///
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProcessedObservation {
+    pub id: String,
+    pub obs: Observation,
+    pub var_names: Vec<String>,
 }
 
 /// Property requiring that observations in a particular dataset are trap spaces.
@@ -55,15 +75,25 @@ pub enum ProcessedDynProp {
     ProcessedTrapSpace(ProcessedTrapSpace),
     ProcessedHctlFormula(ProcessedHctlFormula),
     ProcessedSimpleTrajectory(ProcessedSimpleTrajectory),
+    /// This one is just for sub-properties.
+    ProcessedObservation(ProcessedObservation),
 }
 
 /// Simplified constructors for processed dynamic properties.
 impl ProcessedDynProp {
     /// Create HCTL `ProcessedDynProp` instance.
-    pub fn mk_hctl(id: &str, formula: &str) -> ProcessedDynProp {
+    ///
+    /// Arg `processed_wild_cards` represents template sub-properties that were
+    /// extracted from wild-card propositions in the formula.
+    pub fn mk_hctl(
+        id: &str,
+        formula: &str,
+        processed_wild_cards: Vec<ProcessedDynProp>,
+    ) -> ProcessedDynProp {
         let property = ProcessedHctlFormula {
             id: id.to_string(),
             formula: formula.to_string(),
+            sub_properties: processed_wild_cards,
         };
         ProcessedDynProp::ProcessedHctlFormula(property)
     }
@@ -112,6 +142,16 @@ impl ProcessedDynProp {
         Ok(ProcessedDynProp::ProcessedSimpleTrajectory(property))
     }
 
+    /// Create observation `ProcessedDynProp` instance.
+    pub fn mk_obs(id: &str, obs: Observation, var_names: Vec<String>) -> ProcessedDynProp {
+        let property = ProcessedObservation {
+            id: id.to_string(),
+            obs,
+            var_names,
+        };
+        ProcessedDynProp::ProcessedObservation(property)
+    }
+
     /// Get ID of the underlying processed property.
     pub fn id(&self) -> &str {
         match &self {
@@ -119,6 +159,7 @@ impl ProcessedDynProp {
             ProcessedDynProp::ProcessedAttrCount(prop) => &prop.id,
             ProcessedDynProp::ProcessedTrapSpace(prop) => &prop.id,
             ProcessedDynProp::ProcessedSimpleTrajectory(prop) => &prop.id,
+            ProcessedDynProp::ProcessedObservation(prop) => &prop.id,
         }
     }
 }
@@ -163,7 +204,12 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
             }
             // default generic HCTL
             DynPropertyType::GenericDynProp(prop) => {
-                ProcessedDynProp::mk_hctl(id.as_str(), prop.processed_formula.as_str())
+                let sub_properties = process_wild_cards(&prop.wild_cards, sketch)?;
+                ProcessedDynProp::mk_hctl(
+                    id.as_str(),
+                    prop.processed_formula.as_str(),
+                    sub_properties,
+                )
             }
             // encode fixed-points HCTL formula
             DynPropertyType::ExistsFixedPoint(prop) => {
@@ -175,7 +221,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                     prop.observation.clone(),
                     DataEncodingType::FixedPoint,
                 )?;
-                ProcessedDynProp::mk_hctl(id.as_str(), &formula)
+                ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new()) // no wild-cards
             }
             // encode attractors with HCTL formula
             DynPropertyType::HasAttractor(prop) => {
@@ -187,7 +233,7 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                     prop.observation.clone(),
                     DataEncodingType::Attractor,
                 )?;
-                ProcessedDynProp::mk_hctl(id.as_str(), &formula)
+                ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new()) // no wild-cards
             }
             // encode time series with HCTL formula
             DynPropertyType::ExistsTrajectory(prop) => {
@@ -209,8 +255,34 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
                     // TODO: also optimize the computation for the base case to avoid pure model checking
                     let formula =
                         encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
-                    ProcessedDynProp::mk_hctl(id.as_str(), &formula)
+                    ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new())
+                    // no wild-cards
                 }
+            }
+        };
+        processed_props.push(dyn_prop_processed);
+    }
+
+    Ok(processed_props)
+}
+
+/// Process special template wild-card propositions (from a single HCTL formula), turning them into
+/// type-safe sub-properties. Each sub-property is encoded as `ProcessedDynProp` variant.
+pub fn process_wild_cards(
+    wild_cards: &Vec<WildCardProposition>,
+    sketch: &Sketch,
+) -> Result<Vec<ProcessedDynProp>, String> {
+    let mut processed_props = Vec::new();
+    for wild_card_prop in wild_cards {
+        // the ID always corresponds to the "processed string" that appears in the formula
+        let id = wild_card_prop.processed_string();
+
+        let dyn_prop_processed = match wild_card_prop.get_prop_data() {
+            WildCardType::Observation(data_id, obs_id) => {
+                let dataset = sketch.observations.get_dataset(data_id)?;
+                let observation = dataset.get_obs(obs_id)?;
+                let var_names = dataset.variable_names();
+                ProcessedDynProp::mk_obs(&id, observation.clone(), var_names)
             }
         };
         processed_props.push(dyn_prop_processed);

@@ -476,7 +476,7 @@ impl InferenceSolver {
 
             let prop_id = stat_property.id().to_string();
             self.update_status(InferenceStatus::StartedStatic(prop_id.clone()));
-            let inferred_colors = eval_static_prop(stat_property, self.graph()?, base_var_name)
+            let inferred_colors = eval_static_prop(&stat_property, self.graph()?, base_var_name)
                 .map_err(|e| format!("Failed evaluating static property {prop_id}: {e}."))?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
@@ -516,7 +516,7 @@ impl InferenceSolver {
             };
 
             let inferred_colors: GraphColors =
-                eval_dyn_prop(dyn_property, self.graph()?, &mut progress_callback)
+                eval_dyn_prop(&dyn_property, self.graph()?, &mut progress_callback)
                     .map_err(|e| format!("Failed evaluating dynamic property {prop_id}: {e}."))?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),
