@@ -241,6 +241,9 @@ impl Sketch {
                 self.assert_dataset_valid(data_id)?;
                 self.assert_obs_valid_or_none(data_id, Some(obs_id))?;
             }
+            WildCardType::ExistsTrajectory(data_id) => {
+                self.assert_dataset_valid(data_id)?;
+            }
         }
         Ok(())
     }

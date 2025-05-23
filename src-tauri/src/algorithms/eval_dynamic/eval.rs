@@ -72,7 +72,7 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
                     )?;
                     context_sets.insert(sub_prop.id().to_string(), obs_context_set);
                 } else {
-                    // Otherwise it is a normal kind of proeprty and we can handle it in a standard way
+                    // Otherwise it is a normal kind of property and we can handle it in a standard way
                     // Evaluation with [eval_dyn_prop] gives universal sat colors, we just convert the types
                     let sat_colors = eval_dyn_prop(sub_prop, graph, progress_callback)?;
                     let colored_vertices =

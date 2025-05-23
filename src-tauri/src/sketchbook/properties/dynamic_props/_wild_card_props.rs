@@ -5,8 +5,10 @@ use regex::Regex;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum WildCardType {
-    /// Wild-card proposition to represent an observation in a dataset.
+    /// An observation in a dataset.
     Observation(DatasetId, ObservationId),
+    /// A trajectory given by a dataset.
+    ExistsTrajectory(DatasetId),
 }
 
 /// A typesafe representation of a HCTL formula used in dynamic properties.
@@ -25,14 +27,21 @@ impl WildCardProposition {
     /// - observation in a dataset given as `datasetId/observationId`
     pub fn try_from_str(formula: &str) -> Result<WildCardProposition, String> {
         let id_re: &str = r"[a-zA-Z_][a-zA-Z0-9_]*";
-        let obs_re = Regex::new(&format!(r"^({id_re})/({id_re})$")).unwrap();
+        let observation_re = Regex::new(&format!(r"^({id_re})/({id_re})$")).unwrap();
+        let trajectory_re = Regex::new(&format!(r"^exists_trajectory\(({id_re})\)$")).unwrap();
 
-        if let Some(captures) = obs_re.captures(formula) {
+        if let Some(captures) = observation_re.captures(formula) {
             let dataset_id = DatasetId::new(&captures[1])?;
             let observation_id = ObservationId::new(&captures[2])?;
             Ok(WildCardProposition {
                 orig_str: formula.to_string(),
                 wild_card_type: WildCardType::Observation(dataset_id, observation_id),
+            })
+        } else if let Some(captures) = trajectory_re.captures(formula) {
+            let dataset_id = DatasetId::new(&captures[1])?;
+            Ok(WildCardProposition {
+                orig_str: formula.to_string(),
+                wild_card_type: WildCardType::ExistsTrajectory(dataset_id),
             })
         } else {
             Err(format!(
@@ -49,6 +58,7 @@ impl WildCardProposition {
     pub fn processed_string(&self) -> String {
         match &self.wild_card_type {
             WildCardType::Observation(dat_id, obs_id) => format!("observation_{dat_id}_{obs_id}"),
+            WildCardType::ExistsTrajectory(dat_id) => format!("exists_trajectory_{dat_id}"),
         }
     }
 
@@ -96,7 +106,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_wild_card() {
+    fn test_parse_obs() {
         let prop = WildCardProposition::try_from_str("ds1/obs1").unwrap();
         assert_eq!(prop.orig_string(), "ds1/obs1");
         assert_eq!(prop.processed_string(), "observation_ds1_obs1");
@@ -105,12 +115,24 @@ mod tests {
                 assert_eq!(ds.as_str(), "ds1");
                 assert_eq!(obs.as_str(), "obs1");
             }
+            _ => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_parse_trajectory() {
+        let prop = WildCardProposition::try_from_str("exists_trajectory(d1)").unwrap();
+        assert_eq!(prop.orig_string(), "exists_trajectory(d1)");
+        assert_eq!(prop.processed_string(), "exists_trajectory_d1");
+        match prop.get_prop_data() {
+            WildCardType::ExistsTrajectory(ds) => assert_eq!(ds.as_str(), "d1"),
+            _ => assert!(false),
         }
     }
 
     #[test]
     fn test_parse_wild_card_invalid() {
-        let result = WildCardProposition::try_from_str("ds1-obs1");
+        let result = WildCardProposition::try_from_str("idk_idk");
         assert!(result.is_err());
 
         let result = WildCardProposition::try_from_str("");
@@ -129,14 +151,14 @@ mod tests {
     #[test]
     fn test_process_wild_cards_multiple() {
         let (processed, wild_cards) =
-            process_wild_card_props("AG EF (%ds1/obs1% & %ds2/obs2%)").unwrap();
+            process_wild_card_props("AG EF (%ds1/obs1% & %exists_trajectory(ds1)%)").unwrap();
         assert_eq!(
             processed,
-            "AG EF (%observation_ds1_obs1% & %observation_ds2_obs2%)"
+            "AG EF (%observation_ds1_obs1% & %exists_trajectory_ds1%)"
         );
         assert_eq!(wild_cards.len(), 2);
         assert_eq!(wild_cards[0].orig_string(), "ds1/obs1");
-        assert_eq!(wild_cards[1].orig_string(), "ds2/obs2");
+        assert_eq!(wild_cards[1].orig_string(), "exists_trajectory(ds1)");
     }
 
     #[test]
