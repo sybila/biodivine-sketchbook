@@ -43,19 +43,20 @@ impl ModelState {
             for (var_id, update_fn) in self.update_fns.iter() {
                 if !update_fn.has_empty_expression() {
                     let mut transformed_update_fn_tree = update_fn.get_fn_tree().clone().unwrap();
-                    // TODO: check if this fn contains any function symbols that have their expressions specified
+                    // check if this update fn contains any fn symbols that have their expressions specified
                     let fn_symbols_used = update_fn.collect_fn_symbols();
                     for fn_id in fn_symbols_used {
                         let uninterpreted_fn = self.get_uninterpreted_fn(&fn_id)?;
                         if let Some(fn_expression_tree) = uninterpreted_fn.get_fn_tree() {
-                            // TODO: if there is an expression, we must substitute the symbol (in update fn tree) with the expression
-                            // all the magical transformations happen inside this method
+                            // If there is an expression, we must substitute the function symbol (inside of the
+                            // update fn tree) with that expression
+                            // All the magical transformations happen inside this method
                             transformed_update_fn_tree = transformed_update_fn_tree
                                 .substitute_fn_symbol_with_expression(&fn_id, fn_expression_tree);
                         }
                     }
 
-                    // TODO: add (potentionally transformed) update function
+                    // Add the (potentionally transformed) update function
                     let transformed_expression = transformed_update_fn_tree.to_string(self, None);
                     bn.add_string_update_function(var_id.as_str(), &transformed_expression)?;
                 }

@@ -90,3 +90,70 @@ pub fn process_wild_card_props(
 
     Ok((result, wild_cards))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_wild_card() {
+        let prop = WildCardProposition::try_from_str("ds1/obs1").unwrap();
+        assert_eq!(prop.orig_string(), "ds1/obs1");
+        assert_eq!(prop.processed_string(), "observation_ds1_obs1");
+        match prop.get_prop_data() {
+            WildCardType::Observation(ds, obs) => {
+                assert_eq!(ds.as_str(), "ds1");
+                assert_eq!(obs.as_str(), "obs1");
+            }
+        }
+    }
+
+    #[test]
+    fn test_parse_wild_card_invalid() {
+        let result = WildCardProposition::try_from_str("ds1-obs1");
+        assert!(result.is_err());
+
+        let result = WildCardProposition::try_from_str("");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_process_wild_cards_single() {
+        let (processed, wild_cards) = process_wild_card_props("AG EF %ds1/obs1%").unwrap();
+        assert_eq!(processed, "AG EF %observation_ds1_obs1%");
+        assert_eq!(wild_cards.len(), 1);
+        assert_eq!(wild_cards[0].orig_string(), "ds1/obs1");
+        assert_eq!(wild_cards[0].processed_string(), "observation_ds1_obs1");
+    }
+
+    #[test]
+    fn test_process_wild_cards_multiple() {
+        let (processed, wild_cards) =
+            process_wild_card_props("AG EF (%ds1/obs1% & %ds2/obs2%)").unwrap();
+        assert_eq!(
+            processed,
+            "AG EF (%observation_ds1_obs1% & %observation_ds2_obs2%)"
+        );
+        assert_eq!(wild_cards.len(), 2);
+        assert_eq!(wild_cards[0].orig_string(), "ds1/obs1");
+        assert_eq!(wild_cards[1].orig_string(), "ds2/obs2");
+    }
+
+    #[test]
+    fn test_process_wild_cards_no_wildcards() {
+        let (processed, wild_cards) = process_wild_card_props("!{x}: AG EF {x}").unwrap();
+        assert_eq!(processed, "!{x}: AG EF {x}");
+        assert!(wild_cards.is_empty());
+    }
+
+    #[test]
+    fn test_process_wild_cards_invalid() {
+        // unmatched percent sign
+        let result = process_wild_card_props("AG %ds1/obs1");
+        assert!(result.is_err());
+
+        // invalid string inside
+        let result = process_wild_card_props("AG %ds1-obs1%");
+        assert!(result.is_err());
+    }
+}

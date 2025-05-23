@@ -93,7 +93,10 @@ impl HctlFormula {
 
 /// Static methods (to check validity of formula strings).
 impl HctlFormula {
-    /// Assert that formula is correctly formed based on HCTL syntactic rules.
+    /// Assert that formula is correctly formed based on basic HCTL syntactic rules.
+    ///
+    /// If you want to also check the validity of propositions in context of the
+    /// sketch, use [Self::check_syntax_with_model].
     pub fn check_syntax(formula: &str) -> Result<(), String> {
         let res = parse_hctl_formula_wrapper(formula);
         if res.is_ok() {
@@ -106,7 +109,11 @@ impl HctlFormula {
     /// Assert that formula is correctly formed based on HCTL syntactic rules, and also
     /// whether the propositions correspond to valid network variables used in the `model`.
     ///
-    /// TODO: we will need to check wild cards as well (will need list of datasets as context?)
+    /// Note that potential wild-card propositions and their validity is not checked as
+    /// that is done elsewhere.
+    ///
+    /// If you only want to also check the basic syntactic rules (ignoring potentially
+    /// invalid propositions, check [Self::check_syntax].
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
         // create simplest bn possible, we just need to cover all the variables
         // this BN instance does not need any parameters, as these cant appear in HCTL formulas
