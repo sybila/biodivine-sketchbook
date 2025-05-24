@@ -241,9 +241,22 @@ impl Sketch {
                 self.assert_dataset_valid(data_id)?;
                 self.assert_obs_valid_or_none(data_id, Some(obs_id))?;
             }
-            WildCardType::ExistsTrajectory(data_id) => {
+            WildCardType::Trajectory(data_id) => {
                 self.assert_dataset_valid(data_id)?;
             }
+            WildCardType::Attractors(data_id, obs_id) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
+            }
+            WildCardType::FixedPoints(data_id, obs_id) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
+            }
+            WildCardType::TrapSpaces(data_id, obs_id) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
+            }
+            WildCardType::AttractorCount(..) => {} // no fields that can be invalid
         }
         Ok(())
     }
