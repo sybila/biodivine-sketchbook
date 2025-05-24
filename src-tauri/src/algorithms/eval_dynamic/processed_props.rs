@@ -288,9 +288,39 @@ pub fn process_wild_cards(
                 let var_names = dataset.variable_names();
                 ProcessedDynProp::mk_obs(&id, observation.clone(), var_names)
             }
-            WildCardType::ExistsTrajectory(data_id) => {
+            WildCardType::Trajectory(data_id) => {
                 // lets create `DynProperty` instance with the same meaning as this wild-card
                 let temp_prop = DynProperty::mk_trajectory(&id, Some(data_id.clone()), "");
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::Attractors(data_id, obs_id) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop =
+                    DynProperty::mk_has_attractor(&id, Some(data_id.clone()), obs_id.clone(), "");
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::FixedPoints(data_id, obs_id) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop =
+                    DynProperty::mk_fixed_point(&id, Some(data_id.clone()), obs_id.clone(), "");
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::TrapSpaces(data_id, obs_id) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                // TODO: if we add more fields to WildCardType::TrapSpaces, pass them here
+                let temp_prop = DynProperty::mk_trap_space(
+                    &id,
+                    Some(data_id.clone()),
+                    obs_id.clone(),
+                    false,
+                    false,
+                    "",
+                );
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::AttractorCount(minimal, maximal) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop = DynProperty::try_mk_attractor_count(&id, *minimal, *maximal, "")?;
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
         };
