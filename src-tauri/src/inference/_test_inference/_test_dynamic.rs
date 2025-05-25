@@ -4,7 +4,7 @@ use crate::sketchbook::properties::shortcuts::*;
 use crate::sketchbook::properties::DynProperty;
 
 #[test]
-/// Test inference using the test model with added properties in HCTL.
+/// Test inference using the test model with generic properties in HCTL.
 fn inference_hctl() {
     // Multiple attractors
     let sketch = load_test_model();
@@ -50,7 +50,7 @@ fn inference_hctl() {
 }
 
 #[test]
-/// Test inference using the test model with added attr count template properties.
+/// Test inference using the test model with attr count template properties.
 fn inference_template_attr_count() {
     let sketch = load_test_model();
     let id = "exactly_1_attr";
@@ -74,7 +74,20 @@ fn inference_template_attr_count() {
 }
 
 #[test]
-/// Test inference using the test model with added fixed-point template properties.
+/// Test inference using the test model with attractor count properties.
+/// Similar to [inference_template_attr_count], but with properties encoded
+/// using a language of dynamic properties (and not a template property).
+fn inference_template_attr_count_wildcard() {
+    // Attractor count in [3, 4] interval, written using wild-card proposition in generic property
+    let sketch = load_test_model();
+    let id = "range_3_4_attr";
+    let formula = format!("%attractor_count(3, 4)%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 2);
+}
+
+#[test]
+/// Test inference using the test model with fixed-point template properties.
 fn inference_template_fixed_point() {
     // Has 1111 fixed point
     let sketch = load_test_model();
@@ -86,7 +99,21 @@ fn inference_template_fixed_point() {
 }
 
 #[test]
-/// Test inference using the test model with added attractor template properties.
+/// Test inference using the test model with fixed-point properties.
+/// Similar to [inference_template_fixed_point], but with properties encoded
+/// using a language of dynamic properties (and not a template property).
+fn inference_template_fixed_point_wildcard() {
+    let sketch = load_test_model();
+    let id = "has_1111_fixed_point";
+    let data_id = sketch.observations.get_dataset_id("data_fp").unwrap();
+    let obs_id = sketch.observations.get_obs_id("data_fp", "ones").unwrap();
+    let formula = format!("%fixed_points({data_id}, {obs_id})%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 4);
+}
+
+#[test]
+/// Test inference using the test model with attractor template properties.
 fn inference_template_attractor() {
     // State 1111 is part of an attractor
     let sketch = load_test_model();
@@ -98,7 +125,21 @@ fn inference_template_attractor() {
 }
 
 #[test]
-/// Test inference using the test model with added trap-space template properties.
+/// Test inference using the test model with attractor properties.
+/// Similar to [inference_template_attractor], but with properties encoded
+/// using a language of dynamic properties (and not a template property).
+fn inference_template_attractor_wildcard() {
+    let sketch = load_test_model();
+    let id = "has_1111_in_attractor";
+    let data_id = sketch.observations.get_dataset_id("data_fp").unwrap();
+    let obs_id = sketch.observations.get_obs_id("data_fp", "ones").unwrap();
+    let formula = format!("%attractors({data_id}, {obs_id})%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 19);
+}
+
+#[test]
+/// Test inference using the test model with trap-space template properties.
 fn inference_template_trap_space() {
     // Has 111* (general) trap space
     let sketch = load_test_model();
@@ -126,7 +167,21 @@ fn inference_template_trap_space() {
 }
 
 #[test]
-/// Test inference using the test model with added trajectory template properties.
+/// Test inference using the test model with trap-space properties.
+/// Similar to [inference_template_trap_space], but with properties encoded
+/// using a language of dynamic properties (and not a template property).
+fn inference_template_trap_space_wildcard() {
+    let sketch = load_test_model();
+    let id = "has_111X_ts";
+    let data_id = sketch.observations.get_dataset_id("data_mts").unwrap();
+    let obs_id = sketch.observations.get_obs_id("data_mts", "abc").unwrap();
+    let formula = format!("%trap_spaces({data_id}, {obs_id})%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 4);
+}
+
+#[test]
+/// Test inference using the test model with trajectory template properties.
 fn inference_template_trajectory() {
     // There is a trajectory 1000 -> 1100 -> 1110 -> 1111
     let sketch = load_test_model();
@@ -136,5 +191,21 @@ fn inference_template_trajectory() {
         .get_dataset_id("data_time_series")
         .unwrap();
     let property = DynProperty::mk_trajectory(id, Some(data_id), "");
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 16);
+}
+
+#[test]
+/// Test inference using the test model with trajectory properties.
+/// Similar to [inference_template_trajectory], but with properties encoded
+/// using a language of dynamic properties (and not a template property).
+fn inference_template_trajectory_wildcard() {
+    let sketch = load_test_model();
+    let id = "trajectory";
+    let data_id = sketch
+        .observations
+        .get_dataset_id("data_time_series")
+        .unwrap();
+    let formula = format!("%trajectory({data_id})%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
     assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 16);
 }
