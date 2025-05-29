@@ -1,12 +1,28 @@
 @import "../../abstract-property/abstract-property";
 
-//.essentiality:hover {
-//  cursor: pointer;
+//.monotonicity:hover {
 //  font-weight: bold;
+//  cursor: pointer;
 //}
 
-.essentiality {
+.monotonicity {
   user-select: none;
+}
+
+.monotonicity-inhibition {
+  color: @monotonicity-inhibition;
+}
+
+.monotonicity-activation {
+  color: @monotonicity-activation;
+}
+
+.monotonicity-dual {
+  color: @monotonicity-dual;
+}
+
+.monotonicity-unspecified {
+  color: @monotonicity-unspecified;
 }
 
 .value-section {
@@ -36,4 +52,8 @@
 
 .condition-field {
   .uk-input;
+}
+
+.gap {
+  gap: 1em;
 }

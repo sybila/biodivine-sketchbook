@@ -1,35 +1,22 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import style_less from './static-input-essential-condition.less?inline'
+import style_less from './static-monotonic-condition.less?inline'
 import {
-  Essentiality,
-  type IFunctionInputEssentialStaticProperty,
-  type IVariableRegulatorEssentialStaticProperty
+  type IFunctionInputMonotonicStaticProperty
 } from '../../../../util/data-interfaces'
-import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
+import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
 import StaticSelectorsProperty from '../static-selectors-property'
 
-@customElement('static-input-essential-condition')
-export default class StaticInputEssentialCondition extends StaticSelectorsProperty {
+@customElement('static-fn-monotonic-condition')
+export default class StaticFnMonotonicCondition extends StaticSelectorsProperty {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
+  @property() declare property: IFunctionInputMonotonicStaticProperty
 
-  private getEssentialitySymbol (): string {
-    switch (this.property.value) {
-      case Essentiality.TRUE:
-        return '<-'
-      case Essentiality.FALSE:
-        return '</-'
-      default:
-        return '<?-'
-    }
-  }
-
-  toggleEssentiality (): void {
-    const value = getNextEssentiality(this.property.value)
-    // if (value === Essentiality.UNKNOWN) {
-    //  value = getNextEssentiality(value)
+  toggleMonotonicity (): void {
+    const value = getNextMonotonicity(this.property.value)
+    // if (value === Monotonicity.UNSPECIFIED) {
+    //  value = getNextMonotonicity(value)
     // }
     this.updateProperty({
       ...this.property,
@@ -43,13 +30,14 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
         ${this.renderNameplate()}
         <div class="value-section">
           <div class="value-symbol gap">
+            <label for="target-selector">Fn:</label>
             <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
               <option value="${null}">---</option>
               ${map(this.getTargetSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
-            <span>${this.getEssentialitySymbol()}</span>
+            <label for="input-selector">Input:</label>
             <select id="input-selector" class="uk-select" @change="${this.inputChanged}"
                     ?disabled="${this.property.target === null}">
               <option value="${null}">---</option>
@@ -59,10 +47,10 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
             </select>
           </div>
           <div class="value-symbol" @click="${() => {
-            this.toggleEssentiality()
+            this.toggleMonotonicity()
           }}">
-            <span class="essentiality">
-              ${getEssentialityText(this.property.value)}
+            <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
+              ${this.property.value.toLowerCase()}
             </span>
           </div>
         </div>
