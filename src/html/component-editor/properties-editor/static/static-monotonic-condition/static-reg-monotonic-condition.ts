@@ -7,10 +7,10 @@ import {
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
-import StaticSelectorsProperty from '../static-selectors-property'
+import StaticRegSelectorsProperty from '../static-reg-selectors-property'
 
 @customElement('static-reg-monotonic-condition')
-export default class StaticRegMonotonicCondition extends StaticSelectorsProperty {
+export default class StaticRegMonotonicCondition extends StaticRegSelectorsProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IVariableRegulatorMonotonicStaticProperty
 
@@ -43,23 +43,23 @@ export default class StaticRegMonotonicCondition extends StaticSelectorsProperty
       <div class="property-body">
         ${this.renderNameplate()}
         <div class="value-section">
-          <div class="value-symbol gap">
-            <select id="input-selector" class="uk-select" @change="${this.inputChanged}"
-                    ?disabled="${this.property.target === null}">
+          <div class="value-symbol uk-width-3-5 gap">
+            <select id="input-selector" class="uk-select" @change="${this.inputChanged}">
               <option value="${null}">---</option>
               ${map(this.getInputSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
             <span>${this.getMonotonicitySymbol()}</span>
-            <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
+            <select id="target-selector" class="uk-select" @change="${this.targetChanged}"
+                    ?disabled="${this.property.input === null}">
               <option value="${null}">---</option>
               ${map(this.getTargetSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
           </div>
-          <div class="value-symbol" @click="${() => {
+          <div class="value-symbol uk-width-2-5" @click="${() => {
             this.toggleMonotonicity()
           }}">
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">

@@ -17,13 +17,13 @@ export default class StaticFnMonotonic extends abstractStaticProperty {
       <div class="property-body">
         ${this.renderNameplate(false)}
         <div class="value-section">
-          <div class="value-symbol gap">
+          <div class="value-symbol uk-width-3-5 gap">
             <label for="target">Fn: </label>
             <div id="target" class="uk-margin-small-right uk-text-bold">${this.property.target}</div>
             <label for="input">Input: </label>
             <div id="input" class="uk-margin-small-right uk-text-bold">${this.property.input}</div>
           </div>
-          <div class="value-symbol">
+          <div class="value-symbol uk-width-2-5">
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
               ${this.property.value.toLowerCase()}
             </span>

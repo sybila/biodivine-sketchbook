@@ -31,12 +31,12 @@ export default class StaticRegMonotonic extends abstractStaticProperty {
       <div class="property-body">
         ${this.renderNameplate(false)}
         <div class="value-section">
-          <div class="value-symbol">
+          <div class="value-symbol uk-width-3-5">
             <div class="uk-margin-small-right uk-text-bold">${this.property.input}</div>
             <div class="uk-margin-small-right">${this.getMonotonicitySymbol()}</div>
             <div class="uk-margin-small-right uk-text-bold">${this.property.target}</div>
           </div>
-          <div class="value-symbol">
+          <div class="value-symbol uk-width-2-5">
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
               ${this.property.value.toLowerCase()}
             </span>

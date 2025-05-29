@@ -6,10 +6,10 @@ import {
 } from '../../../../util/data-interfaces'
 import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
-import StaticSelectorsProperty from '../static-selectors-property'
+import StaticFnSelectorsProperty from '../static-fn-selectors-property'
 
 @customElement('static-fn-monotonic-condition')
-export default class StaticFnMonotonicCondition extends StaticSelectorsProperty {
+export default class StaticFnMonotonicCondition extends StaticFnSelectorsProperty {
   static styles = css`${unsafeCSS(style_less)}`
   @property() declare property: IFunctionInputMonotonicStaticProperty
 
@@ -29,7 +29,7 @@ export default class StaticFnMonotonicCondition extends StaticSelectorsProperty 
       <div class="property-body">
         ${this.renderNameplate()}
         <div class="value-section">
-          <div class="value-symbol gap">
+          <div class="value-symbol uk-width-3-5 gap">
             <label for="target-selector">Fn:</label>
             <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
               <option value="${null}">---</option>
@@ -46,7 +46,7 @@ export default class StaticFnMonotonicCondition extends StaticSelectorsProperty 
               `)}
             </select>
           </div>
-          <div class="value-symbol" @click="${() => {
+          <div class="value-symbol uk-width-2-5" @click="${() => {
             this.toggleMonotonicity()
           }}">
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
