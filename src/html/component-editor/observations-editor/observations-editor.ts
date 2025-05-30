@@ -249,7 +249,7 @@ export default class ObservationsEditor extends LitElement {
   private pushNewObservation (event: Event): void {
     // push new observation (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
-    aeonState.sketch.observations.pushObservation(detail.id)
+    aeonState.sketch.observations.pushDefaultObservation(detail.id)
   }
 
   #onObservationPushed (data: ObservationData): void {
