@@ -158,6 +158,9 @@ export default class ObservationsEditor extends LitElement {
     })
   }
 
+  /** Dataset's content is fully replaced by the data sent from the backend.
+   * This is triggered, for instance, when a whole column is added/removed.
+   */
   #onDatasetContentChanged (data: DatasetData): void {
     const observationSet = convertToIObservationSet(data)
     const index = this.contentData.observations.findIndex(item => item.id === data.id)
@@ -166,6 +169,11 @@ export default class ObservationsEditor extends LitElement {
 
     datasets[index] = observationSet
     this.updateObservations(datasets)
+
+    // refresh the datasets to re-render the modified table
+    setTimeout(() => {
+      aeonState.sketch.observations.refreshDatasets()
+    }, 50)
   }
 
   private createDataset (): void {
@@ -262,22 +270,12 @@ export default class ObservationsEditor extends LitElement {
     // add new variable (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
     aeonState.sketch.observations.addDatasetVariable(detail.id)
-
-    // refresh the datasets to re-render the modified table
-    setTimeout(() => {
-      aeonState.sketch.observations.refreshDatasets()
-    }, 50)
   }
 
   private removeVariable (event: Event): void {
     // add new variable (placeholder) that is fully generated on backend
     const detail = (event as CustomEvent).detail
     aeonState.sketch.observations.removeDatasetVariable(detail.id, detail.varId)
-
-    // refresh the datasets to re-render the modified table
-    setTimeout(() => {
-      aeonState.sketch.observations.refreshDatasets()
-    }, 50)
   }
 
   #onObservationRemoved (data: ObservationData): void {
@@ -297,11 +295,12 @@ export default class ObservationsEditor extends LitElement {
 
     const newObsData = convertFromIObservation(detail.observation, dataset.id, dataset.variables)
 
-    // id might have changed
+    // ID might have changed
     if (origObservation.id !== newObsData.id) {
       aeonState.sketch.observations.setObservationId(dataset.id, origObservation.id, newObsData.id)
     }
-    // name, annotation, or one of the values might have changed
+    // Name or annotation might have changed as well, but we have to wait a bit
+    // till the ID change event is processed
     setTimeout(() => {
       aeonState.sketch.observations.setObservationData(dataset.id, newObsData)
     }, 50)
@@ -349,11 +348,12 @@ export default class ObservationsEditor extends LitElement {
       variables: datasetData.variables
     }
 
-    // id might have changed
+    // ID might have changed
     if (origDataset.id !== datasetData.id) {
       aeonState.sketch.observations.setDatasetId(origDataset.id, datasetData.id)
     }
-    // name or annotation might have changed
+    // Name or annotation might have changed as well, but we have to wait a bit
+    // till the ID change event is processed
     setTimeout(() => {
       aeonState.sketch.observations.setDatasetMetadata(datasetData.id, datasetMetaData)
     }, 50)
