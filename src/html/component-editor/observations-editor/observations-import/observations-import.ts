@@ -7,7 +7,7 @@ import { appWindow } from '@tauri-apps/api/window'
 import { type IObservation } from '../../../util/data-interfaces'
 import style_tab from '../tabulator-style.less?inline'
 import { type ColumnDefinition, Tabulator } from 'tabulator-tables'
-import { checkboxColumn, dataCell, loadTabulatorPlugins, nameColumn, idColumn, tabulatorOptions } from '../tabulator-utility'
+import { checkboxColumn, variableImportColumn, loadTabulatorPlugins, nameColumn, idColumn, tabulatorOptions } from '../tabulator-utility'
 
 @customElement('observations-import')
 export default class ObservationsImport extends LitElement {
@@ -51,7 +51,7 @@ export default class ObservationsImport extends LitElement {
       idColumn(true)
     ]
     this.variables.forEach(v => {
-      columns.push(dataCell(v))
+      columns.push(variableImportColumn(v))
     })
     return columns
   }

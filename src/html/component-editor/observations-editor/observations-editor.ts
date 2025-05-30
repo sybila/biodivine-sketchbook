@@ -40,6 +40,7 @@ export default class ObservationsEditor extends LitElement {
     this.addEventListener('remove-observation', this.removeObservation)
     this.addEventListener('remove-dataset', (e) => { void this.removeDataset(e) })
     this.addEventListener('add-dataset-variable', this.addVariable)
+    this.addEventListener('remove-dataset-variable', this.removeVariable)
     this.addEventListener('edit-dataset', (e) => { void this.editDataset(e) })
     this.addEventListener('export-dataset', (e) => { void this.exportDataset(e) })
 
@@ -262,6 +263,18 @@ export default class ObservationsEditor extends LitElement {
     const detail = (event as CustomEvent).detail
     aeonState.sketch.observations.addDatasetVariable(detail.id)
 
+    // refresh the datasets to re-render the modified table
+    setTimeout(() => {
+      aeonState.sketch.observations.refreshDatasets()
+    }, 50)
+  }
+
+  private removeVariable (event: Event): void {
+    // add new variable (placeholder) that is fully generated on backend
+    const detail = (event as CustomEvent).detail
+    aeonState.sketch.observations.removeDatasetVariable(detail.id, detail.varId)
+
+    // refresh the datasets to re-render the modified table
     setTimeout(() => {
       aeonState.sketch.observations.refreshDatasets()
     }, 50)
