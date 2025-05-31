@@ -368,7 +368,8 @@ interface AeonState {
       datasetMetadataChanged: Observable<DatasetMetaData>
       /** Set metadata (could be name or annotation) of a dataset with given ID. */
       setDatasetMetadata: (id: string, metadata: DatasetMetaData) => void
-      /** DatasetData of a fully modified dataset. */
+      /** DatasetData of a fully modified dataset (used when a column is added/removed
+       * on the backend). */
       datasetContentChanged: Observable<DatasetData>
       /** Set content (variables, observations - everything) of dataset with given ID. */
       setDatasetContent: (id: string, newContent: DatasetData) => void
@@ -376,12 +377,8 @@ interface AeonState {
       datasetVariableChanged: Observable<DatasetMetaData>
       /** Set variable's ID within a specified dataset. */
       setDatasetVariable: (datasetId: string, originalId: string, newId: string) => void
-      /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
-      datasetVariableRemoved: Observable<DatasetData>
       /** Remove variable from a specified dataset (removing "a column" of a dataset's table). */
       removeDatasetVariable: (datasetId: string, varId: string) => void
-      /** DatasetData (with updated both `variables` and `observations`) of a modified dataset. */
-      datasetVariableAdded: Observable<DatasetData>
       /** Add (placeholder) variable to a specified dataset (adding an empty column to a dataset's table). */
       addDatasetVariable: (datasetId: string) => void
       /** Export dataset with given ID to a given file. */
@@ -391,11 +388,7 @@ interface AeonState {
       observationPushed: Observable<ObservationData>
       /** Push a new observation into a specified dataset. If observation data are not provided,
        * the observation is newly generated on backend (with unspecified values). */
-      pushObservation: (datasetId: string, observation?: ObservationData) => void
-      /** ObservationData for a popped (removed from the end) observation (also contains corresponding dataset ID). */
-      observationPopped: Observable<ObservationData>
-      /** Pop (remove) observation from the end of a specified dataset. */
-      popObservation: (datasetId: string) => void
+      pushDefaultObservation: (datasetId: string) => void
       /** ObservationData for a removed observation (also contains corresponding dataset ID). */
       observationRemoved: Observable<ObservationData>
       /** Remove any observation from a specified dataset. */
@@ -839,11 +832,8 @@ export const aeonState: AeonState = {
       datasetContentChanged: new Observable<DatasetData>(['sketch', 'observations', 'set_content']),
       datasetMetadataChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_metadata']),
       datasetVariableChanged: new Observable<DatasetMetaData>(['sketch', 'observations', 'set_var_id']),
-      datasetVariableRemoved: new Observable<DatasetData>(['sketch', 'observations', 'remove_var']),
-      datasetVariableAdded: new Observable<DatasetData>(['sketch', 'observations', 'add_var']),
 
       observationPushed: new Observable<ObservationData>(['sketch', 'observations', 'push_obs']),
-      observationPopped: new Observable<ObservationData>(['sketch', 'observations', 'pop_obs']),
       observationRemoved: new Observable<ObservationData>(['sketch', 'observations', 'remove_obs']),
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationDataChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_data']),
@@ -898,7 +888,7 @@ export const aeonState: AeonState = {
       },
       addDatasetVariable (datasetId: string): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, 'add_var'],
+          path: ['sketch', 'observations', datasetId, 'add_default_var'],
           payload: null
         })
       },
@@ -908,22 +898,9 @@ export const aeonState: AeonState = {
           payload: path
         })
       },
-      pushObservation (datasetId: string, observation?: ObservationData): void {
-        if (observation === undefined) {
-          aeonEvents.emitAction({
-            path: ['sketch', 'observations', datasetId, 'push_empty_obs'],
-            payload: null
-          })
-        } else {
-          aeonEvents.emitAction({
-            path: ['sketch', 'observations', datasetId, 'push_obs'],
-            payload: JSON.stringify(observation)
-          })
-        }
-      },
-      popObservation (datasetId: string): void {
+      pushDefaultObservation (datasetId: string): void {
         aeonEvents.emitAction({
-          path: ['sketch', 'observations', datasetId, 'pop_obs'],
+          path: ['sketch', 'observations', datasetId, 'push_empty_obs'],
           payload: null
         })
       },

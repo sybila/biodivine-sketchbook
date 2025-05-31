@@ -90,32 +90,18 @@ fn test_set_dataset_fields() {
 }
 
 #[test]
-/// Test pushing/popping observations via events.
-fn test_push_pop_observations() {
+/// Test pushing observations via event.
+fn test_push_new_observation() {
     let d1 = prepare_dataset_3v_2o();
     let mut manager = ObservationManager::from_datasets(vec![("d1", d1)]).unwrap();
     let d1_id = manager.get_dataset_id("d1").unwrap();
-    let manager_orig = manager.clone();
     let orig_dataset = manager.get_dataset_by_str("d1").unwrap();
     assert_eq!(orig_dataset.num_observations(), 2);
-
-    // perform observation push event
-    let new_obs = Observation::try_from_str("111", "new_obs").unwrap();
-    let payload = ObservationData::from_obs(&new_obs, &d1_id).to_json_str();
-    let full_path = ["observations", "d1", "push_obs"];
-    let event = Event::build(&full_path, Some(payload.as_str()));
-    let result = manager.perform_event(&event, &full_path[1..]).unwrap();
-    // check observation was added, test reverse action
-    let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
-    let pushed_obs = manager.get_obs(&d1_id, new_obs.get_id()).unwrap();
-    assert_eq!(modified_dataset.num_observations(), 3);
-    assert_eq!(pushed_obs, &new_obs);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
 
     // push empty observation
     let full_path = ["observations", "d1", "push_empty_obs"];
     let event = Event::build(&full_path, None);
-    let result = manager.perform_event(&event, &full_path[1..]).unwrap();
+    manager.perform_event(&event, &full_path[1..]).unwrap();
     // check observation was added, test reverse action
     let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
     let obs_id = modified_dataset.get_obs_id(2);
@@ -125,16 +111,6 @@ fn test_push_pop_observations() {
     let pushed_obs = manager.get_obs(&d1_id, obs_id).unwrap();
     assert_eq!(modified_dataset.num_observations(), 3);
     assert_eq!(pushed_obs, &expected_obs);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "pop_obs"]);
-
-    // perform observation pop event
-    let full_path = ["observations", "d1", "pop_obs"];
-    let event = Event::build(&full_path, None);
-    let result = manager.perform_event(&event, &full_path[1..]).unwrap();
-    // check observation was removed, test reverse action
-    let modified_dataset = manager.get_dataset_by_str("d1").unwrap();
-    assert_eq!(modified_dataset.num_observations(), 1);
-    check_reverse(&mut manager, &manager_orig, result, &["d1", "push_obs"]);
 }
 
 #[test]

@@ -1,30 +1,17 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import style_less from './static-input-monotonic.less?inline'
+import style_less from './static-monotonic.less?inline'
 import {
-  type IFunctionInputMonotonicStaticProperty,
-  Monotonicity,
-  StaticPropertyType
+  type IVariableRegulatorMonotonicStaticProperty,
+  Monotonicity
 } from '../../../../util/data-interfaces'
-import { getMonotonicityClass, getNextMonotonicity } from '../../../../util/utilities'
+import { getMonotonicityClass } from '../../../../util/utilities'
 import abstractStaticProperty from '../abstract-static-property'
 
-@customElement('static-input-monotonic')
-export default class StaticInputMonotonic extends abstractStaticProperty {
+@customElement('static-reg-monotonic')
+export default class StaticRegMonotonic extends abstractStaticProperty {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() declare property: IFunctionInputMonotonicStaticProperty
-
-  toggleMonotonicity (): void {
-    if (this.property.variant === StaticPropertyType.FunctionInputEssential) return
-    let value = getNextMonotonicity((this.property).value)
-    if (value === Monotonicity.UNSPECIFIED) {
-      value = getNextMonotonicity(value)
-    }
-    this.updateProperty({
-      ...this.property,
-      value
-    })
-  }
+  @property() declare property: IVariableRegulatorMonotonicStaticProperty
 
   private getMonotonicitySymbol (): string {
     switch (this.property.value) {
@@ -35,7 +22,7 @@ export default class StaticInputMonotonic extends abstractStaticProperty {
       case Monotonicity.INHIBITION:
         return '-|'
       default:
-        return '??'
+        return '-?'
     }
   }
 
@@ -44,12 +31,12 @@ export default class StaticInputMonotonic extends abstractStaticProperty {
       <div class="property-body">
         ${this.renderNameplate(false)}
         <div class="value-section">
-          <div class="value-symbol">
-            <div class="uk-margin-small-right">${this.property.input}</div>
+          <div class="value-symbol uk-width-3-5">
+            <div class="uk-margin-small-right uk-text-bold">${this.property.input}</div>
             <div class="uk-margin-small-right">${this.getMonotonicitySymbol()}</div>
-            <div class="uk-margin-small-right">${this.property.target}</div>
+            <div class="uk-margin-small-right uk-text-bold">${this.property.target}</div>
           </div>
-          <div class="value-symbol">
+          <div class="value-symbol uk-width-2-5">
             <span class="monotonicity ${getMonotonicityClass(this.property.value)}">
               ${this.property.value.toLowerCase()}
             </span>

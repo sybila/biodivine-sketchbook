@@ -7,10 +7,14 @@ import './dynamic/dynamic-attractor-count/dynamic-attractor-count'
 import './dynamic/dynamic-generic/dynamic-generic'
 import './dynamic/dynamic-obs-selection/dynamic-obs-selection'
 import './static/static-generic/static-generic'
-import './static/static-input-essential/static-input-essential'
-import './static/static-input-essential-condition/static-input-essential-condition'
-import './static/static-input-monotonic/static-input-monotonic'
-import './static/static-input-monotonic-condition/static-input-monotonic-condition'
+import './static/static-essential/static-reg-essential'
+import './static/static-essential/static-fn-essential'
+import './static/static-essential-condition/static-reg-essential-condition'
+import './static/static-essential-condition/static-fn-essential-condition'
+import './static/static-monotonic/static-fn-monotonic'
+import './static/static-monotonic/static-reg-monotonic'
+import './static/static-monotonic-condition/static-fn-monotonic-condition'
+import './static/static-monotonic-condition/static-reg-monotonic-condition'
 import {
   ContentData,
   type DynamicProperty,
@@ -489,9 +493,9 @@ export default class PropertiesEditor extends LitElement {
                     // Only render this if showFunctionProperties is true
                     if (this.showFunctionProperties) {
                       result = html`
-                        <static-input-essential .index=${index}
-                                                .property=${prop}>
-                        </static-input-essential>`
+                        <static-fn-essential .index=${index}
+                                             .property=${prop}>
+                        </static-fn-essential>`
                         break
                     } else {
                       return html``
@@ -500,28 +504,34 @@ export default class PropertiesEditor extends LitElement {
                     // Only render this if showRegulationProperties is true
                     if (this.showRegulationProperties) {
                       result = html`
-                        <static-input-essential .index=${index}
-                                                .property=${prop}>
-                        </static-input-essential>`
+                        <static-reg-essential .index=${index}
+                                              .property=${prop}>
+                        </static-reg-essential>`
                         break
                     } else {
                       return html``
                     }
                   case StaticPropertyType.FunctionInputEssentialWithCondition:
+                    result = html`
+                      <static-fn-essential-condition .index=${index}
+                                                     .contentData=${this.contentData}
+                                                     .property=${prop}>
+                      </static-fn-essential-condition>`
+                    break
                   case StaticPropertyType.VariableRegulationEssentialWithCondition:
                     result = html`
-                      <static-input-essential-condition .index=${index}
-                                                        .contentData=${this.contentData}
-                                                        .property=${prop}>
-                      </static-input-essential-condition>`
+                      <static-reg-essential-condition .index=${index}
+                                                      .contentData=${this.contentData}
+                                                      .property=${prop}>
+                      </static-reg-essential-condition>`
                     break
                   case StaticPropertyType.FunctionInputMonotonic:
                     // Only render this if showFunctionProperties is true
                     if (this.showFunctionProperties) {
                       result = html`
-                        <static-input-monotonic .index=${index}
-                                                .property=${prop}>
-                        </static-input-monotonic>`
+                        <static-fn-monotonic .index=${index}
+                                             .property=${prop}>
+                        </static-fn-monotonic>`
                         break
                     } else {
                       return html``
@@ -530,20 +540,26 @@ export default class PropertiesEditor extends LitElement {
                     // Only render this if showRegulationProperties is true
                     if (this.showRegulationProperties) {
                       result = html`
-                        <static-input-monotonic .index=${index}
-                                                .property=${prop}>
-                        </static-input-monotonic>`
+                        <static-reg-monotonic .index=${index}
+                                              .property=${prop}>
+                        </static-reg-monotonic>`
                         break
                     } else {
                       return html``
                     }
                   case StaticPropertyType.FunctionInputMonotonicWithCondition:
+                    result = html`
+                      <static-fn-monotonic-condition .index=${index}
+                                                     .contentData=${this.contentData}
+                                                     .property=${prop}>
+                      </static-fn-monotonic-condition>`
+                    break
                   case StaticPropertyType.VariableRegulationMonotonicWithCondition:
                     result = html`
-                      <static-input-monotonic-condition .index=${index}
-                                                        .contentData=${this.contentData}
-                                                        .property=${prop}>
-                      </static-input-monotonic-condition>`
+                      <static-reg-monotonic-condition .index=${index}
+                                                      .contentData=${this.contentData}
+                                                      .property=${prop}>
+                      </static-reg-monotonic-condition>`
                     break
                 }
                 return html`${result}<hr class="uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">`

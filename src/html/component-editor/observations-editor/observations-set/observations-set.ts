@@ -6,7 +6,7 @@ import { Tabulator, type ColumnDefinition, type CellComponent } from 'tabulator-
 import { type IObservation, type IObservationSet } from '../../../util/data-interfaces'
 import { appWindow, WebviewWindow } from '@tauri-apps/api/window'
 import { type Event as TauriEvent } from '@tauri-apps/api/helpers/event'
-import { checkboxColumn, dataCell, loadTabulatorPlugins, idColumn, nameColumn, tabulatorOptions, indexColumn } from '../tabulator-utility'
+import { checkboxColumn, loadTabulatorPlugins, idColumn, nameColumn, tabulatorOptions, indexColumn } from '../tabulator-utility'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { faAdd, faEdit, faTrash, faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 
@@ -63,7 +63,7 @@ export default class ObservationsSet extends LitElement {
       idColumn(false)
     ]
     this.data.variables.forEach(v => {
-      columns.push(dataCell(v))
+      columns.push(this.variableDataColumn(v))
     })
     // edit button
     columns.push({
@@ -127,6 +127,38 @@ export default class ObservationsSet extends LitElement {
           this.changeObservation(data.id, data)
         })
       })
+    }
+  }
+
+  /** Base column template to track data for a single variable. */
+  private variableDataColumn (variableId: string): ColumnDefinition {
+    // Prepare a simple header context menu (opened on right click) with option
+    // to remove the column
+    const headerMenu = []
+    headerMenu.push({
+      label: `Remove column ${variableId}`,
+      action: () => {
+        this.dispatchEvent(new CustomEvent('remove-dataset-variable', {
+          detail: {
+            id: this.data.id,
+            varId: variableId
+          },
+          bubbles: true,
+          composed: true
+        }))
+      }
+    })
+
+    return {
+      title: variableId,
+      field: variableId,
+      editor: 'number',
+      sorter: 'number',
+      hozAlign: 'center',
+      editable: true,
+      headerFilter: 'tickCross',
+      headerFilterParams: { tristate: true },
+      headerContextMenu: headerMenu
     }
   }
 
