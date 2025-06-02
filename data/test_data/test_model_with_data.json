@@ -250,7 +250,7 @@
   "stat_properties": [
     {
       "id": "essentiality_A_B",
-      "name": "Regulation essential (generated)",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "A",
@@ -260,7 +260,7 @@
     },
     {
       "id": "essentiality_D_D",
-      "name": "Regulation essential (generated)",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "D",
@@ -270,7 +270,7 @@
     },
     {
       "id": "essentiality_D_B",
-      "name": "Regulation essential (generated)",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "D",
@@ -280,7 +280,7 @@
     },
     {
       "id": "monotonicity_B_C",
-      "name": "Regulation monotonic (generated)",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "B",
@@ -290,7 +290,7 @@
     },
     {
       "id": "essentiality_C_C",
-      "name": "Regulation essential (generated)",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "C",
@@ -300,7 +300,7 @@
     },
     {
       "id": "essentiality_B_C",
-      "name": "Regulation essential (generated)",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "B",
@@ -310,7 +310,7 @@
     },
     {
       "id": "monotonicity_C_C",
-      "name": "Regulation monotonic (generated)",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "C",
@@ -320,7 +320,7 @@
     },
     {
       "id": "monotonicity_A_B",
-      "name": "Regulation monotonic (generated)",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "A",
@@ -330,7 +330,7 @@
     },
     {
       "id": "essentiality_A_C",
-      "name": "Regulation essential (generated)",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "A",
@@ -340,7 +340,7 @@
     },
     {
       "id": "monotonicity_D_B",
-      "name": "Regulation monotonic (generated)",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "D",
@@ -350,7 +350,7 @@
     },
     {
       "id": "monotonicity_A_C",
-      "name": "Regulation monotonic (generated)",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "A",

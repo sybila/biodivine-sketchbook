@@ -18,17 +18,17 @@ $C: A & g(C, B)
 #!function:f:#`{"id":"f","name":"f","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
 #!function:g:#`{"id":"g","name":"g","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
 #!function:h:#`{"id":"h","name":"h","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
-#!static_property:essentiality_A_B:#`{"id":"essentiality_A_B","name":"Regulation essential (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"B","value":"True","context":null}`#
-#!static_property:essentiality_A_C:#`{"id":"essentiality_A_C","name":"Regulation essential (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"C","value":"True","context":null}`#
-#!static_property:essentiality_B_C:#`{"id":"essentiality_B_C","name":"Regulation essential (generated)","annotation":"","variant":"RegulationEssential","input":"B","target":"C","value":"True","context":null}`#
-#!static_property:essentiality_C_C:#`{"id":"essentiality_C_C","name":"Regulation essential (generated)","annotation":"","variant":"RegulationEssential","input":"C","target":"C","value":"True","context":null}`#
-#!static_property:essentiality_D_B:#`{"id":"essentiality_D_B","name":"Regulation essential (generated)","annotation":"","variant":"RegulationEssential","input":"D","target":"B","value":"True","context":null}`#
-#!static_property:essentiality_D_D:#`{"id":"essentiality_D_D","name":"Regulation essential (generated)","annotation":"","variant":"RegulationEssential","input":"D","target":"D","value":"True","context":null}`#
-#!static_property:monotonicity_A_B:#`{"id":"monotonicity_A_B","name":"Regulation monotonic (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"B","value":"Activation","context":null}`#
-#!static_property:monotonicity_A_C:#`{"id":"monotonicity_A_C","name":"Regulation monotonic (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"C","value":"Activation","context":null}`#
-#!static_property:monotonicity_B_C:#`{"id":"monotonicity_B_C","name":"Regulation monotonic (generated)","annotation":"","variant":"RegulationMonotonic","input":"B","target":"C","value":"Activation","context":null}`#
-#!static_property:monotonicity_C_C:#`{"id":"monotonicity_C_C","name":"Regulation monotonic (generated)","annotation":"","variant":"RegulationMonotonic","input":"C","target":"C","value":"Inhibition","context":null}`#
-#!static_property:monotonicity_D_B:#`{"id":"monotonicity_D_B","name":"Regulation monotonic (generated)","annotation":"","variant":"RegulationMonotonic","input":"D","target":"B","value":"Activation","context":null}`#
+#!static_property:essentiality_A_B:#`{"id":"essentiality_A_B","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"B","value":"True","context":null}`#
+#!static_property:essentiality_A_C:#`{"id":"essentiality_A_C","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_B_C:#`{"id":"essentiality_B_C","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"B","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_C_C:#`{"id":"essentiality_C_C","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"C","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_D_B:#`{"id":"essentiality_D_B","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"D","target":"B","value":"True","context":null}`#
+#!static_property:essentiality_D_D:#`{"id":"essentiality_D_D","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"D","target":"D","value":"True","context":null}`#
+#!static_property:monotonicity_A_B:#`{"id":"monotonicity_A_B","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"B","value":"Activation","context":null}`#
+#!static_property:monotonicity_A_C:#`{"id":"monotonicity_A_C","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"C","value":"Activation","context":null}`#
+#!static_property:monotonicity_B_C:#`{"id":"monotonicity_B_C","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"B","target":"C","value":"Activation","context":null}`#
+#!static_property:monotonicity_C_C:#`{"id":"monotonicity_C_C","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"C","target":"C","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_D_B:#`{"id":"monotonicity_D_B","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"D","target":"B","value":"Activation","context":null}`#
 #!variable:A:#`{"id":"A","name":"A","annotation":"","update_fn":"h(C)"}`#
 #!variable:B:#`{"id":"B","name":"B","annotation":"","update_fn":"f(A, D)"}`#
 #!variable:C:#`{"id":"C","name":"C","annotation":"","update_fn":"A & g(C, B)"}`#

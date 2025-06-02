@@ -19,7 +19,7 @@ pub fn mk_reg_essentiality_prop(
     target: &VarId,
     essentiality: Essentiality,
 ) -> StatProperty {
-    let name_str = "Regulation essential (generated)";
+    let name_str = "Regulation essentiality (generated)";
     StatProperty::mk_regulation_essential(
         name_str,
         Some(regulator.clone()),
@@ -37,7 +37,7 @@ pub fn mk_reg_monotonicity_prop(
     target: &VarId,
     monotonicity: Monotonicity,
 ) -> StatProperty {
-    let name_str = "Regulation monotonic (generated)";
+    let name_str = "Regulation monotonicity (generated)";
     StatProperty::mk_regulation_monotonic(
         name_str,
         Some(regulator.clone()),
@@ -55,7 +55,7 @@ pub fn mk_fn_input_essentiality_prop(
     index: usize,
     essentiality: Essentiality,
 ) -> StatProperty {
-    let name_str = "Fn input essential (generated)";
+    let name_str = "Fn input essentiality (generated)";
     StatProperty::mk_fn_input_essential(
         name_str,
         Some(index),
@@ -73,7 +73,7 @@ pub fn mk_fn_input_monotonicity_prop(
     index: usize,
     monotonicity: Monotonicity,
 ) -> StatProperty {
-    let name_str = "Fn input monotonic (generated)";
+    let name_str = "Fn input monotonicity (generated)";
     StatProperty::mk_fn_input_monotonic(
         name_str,
         Some(index),
