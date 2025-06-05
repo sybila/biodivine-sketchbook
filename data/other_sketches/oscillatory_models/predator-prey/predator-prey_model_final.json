@@ -1,0 +1,325 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "Hares",
+        "name": "Hares",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "Lynxes",
+        "name": "Lynxes",
+        "annotation": "",
+        "update_fn": ""
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "Hares",
+        "target": "Hares",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "Hares",
+        "target": "Lynxes",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "Lynxes",
+        "target": "Hares",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "Lynxes",
+        "target": "Lynxes",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      }
+    ],
+    "uninterpreted_fns": [],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "Lynxes",
+            "px": 524.0,
+            "py": 328.6
+          },
+          {
+            "layout": "default",
+            "variable": "Hares",
+            "px": 357.0,
+            "py": 321.6
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "name": "dataset_2",
+      "id": "dataset_2",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "Ob_01",
+          "name": "Ob_01",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "01"
+        },
+        {
+          "id": "Ob_02",
+          "name": "Ob_02",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_03",
+          "name": "Ob_03",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_04",
+          "name": "Ob_04",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "11"
+        },
+        {
+          "id": "Ob_05",
+          "name": "Ob_05",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_06",
+          "name": "Ob_06",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_07",
+          "name": "Ob_07",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "11"
+        },
+        {
+          "id": "Ob_08",
+          "name": "Ob_08",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "01"
+        },
+        {
+          "id": "Ob_09",
+          "name": "Ob_09",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_10",
+          "name": "Ob_10",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_11",
+          "name": "Ob_11",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_12",
+          "name": "Ob_12",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_13",
+          "name": "Ob_13",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "11"
+        },
+        {
+          "id": "Ob_14",
+          "name": "Ob_14",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_15",
+          "name": "Ob_15",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_16",
+          "name": "Ob_16",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "01"
+        },
+        {
+          "id": "Ob_17",
+          "name": "Ob_17",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "11"
+        },
+        {
+          "id": "Ob_18",
+          "name": "Ob_18",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_19",
+          "name": "Ob_19",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_20",
+          "name": "Ob_20",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "10"
+        },
+        {
+          "id": "Ob_21",
+          "name": "Ob_21",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "11"
+        },
+        {
+          "id": "Ob_22",
+          "name": "Ob_22",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "00"
+        },
+        {
+          "id": "Ob_23",
+          "name": "Ob_23",
+          "annotation": "",
+          "dataset": "dataset_2",
+          "values": "01"
+        }
+      ],
+      "variables": [
+        "Hares",
+        "Lynxes"
+      ]
+    },
+    {
+      "name": "dataset_1",
+      "id": "dataset_1",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "obs_1",
+          "name": "obs_1",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "00"
+        },
+        {
+          "id": "obs_2",
+          "name": "obs_2",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "10"
+        },
+        {
+          "id": "obs_3",
+          "name": "obs_3",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "11"
+        },
+        {
+          "id": "obs_4",
+          "name": "obs_4",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "01"
+        }
+      ],
+      "variables": [
+        "Hares",
+        "Lynxes"
+      ]
+    }
+  ],
+  "dyn_properties": [
+    {
+      "id": "down_to_hares",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (~Hares & ~Lynxes & AX (Hares & ~Lynxes))"
+    },
+    {
+      "id": "hares_to_both",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (Hares & ~Lynxes & AX (Hares & Lynxes))"
+    },
+    {
+      "id": "attractor",
+      "name": "Attractor existence",
+      "annotation": "",
+      "variant": "HasAttractor",
+      "dataset": "dataset_1",
+      "observation": null
+    },
+    {
+      "id": "trajectory",
+      "name": "Trajectory existence",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "dataset_2"
+    },
+    {
+      "id": "lynxes_to_down",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (~Hares & Lynxes & AX (~Hares & ~Lynxes))"
+    },
+    {
+      "id": "both_to_lynxes",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (Hares & Lynxes & AX (~Hares & Lynxes))"
+    }
+  ],
+  "stat_properties": [],
+  "annotation": ""
+}

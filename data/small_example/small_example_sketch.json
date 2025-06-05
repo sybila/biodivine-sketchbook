@@ -89,15 +89,15 @@
         "nodes": [
           {
             "layout": "default",
-            "variable": "A",
-            "px": 24.815603,
-            "py": 225.86087
-          },
-          {
-            "layout": "default",
             "variable": "C",
             "px": 196.22264,
             "py": 222.17586
+          },
+          {
+            "layout": "default",
+            "variable": "A",
+            "px": 24.815603,
+            "py": 225.86087
           },
           {
             "layout": "default",
@@ -156,18 +156,8 @@
   ],
   "stat_properties": [
     {
-      "id": "essentiality_B_C",
-      "name": "Regulation essentiality property",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "B",
-      "target": "C",
-      "value": "True",
-      "context": null
-    },
-    {
       "id": "monotonicity_B_C",
-      "name": "Regulation monotonicity property",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "B",
@@ -176,28 +166,18 @@
       "context": null
     },
     {
-      "id": "essentiality_A_B",
-      "name": "Regulation essentiality property",
+      "id": "essentiality_B_C",
+      "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
-      "input": "A",
-      "target": "B",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_A_C",
-      "name": "Regulation essentiality property",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "A",
+      "input": "B",
       "target": "C",
       "value": "True",
       "context": null
     },
     {
       "id": "monotonicity_A_B",
-      "name": "Regulation monotonicity property",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "A",
@@ -206,8 +186,18 @@
       "context": null
     },
     {
+      "id": "essentiality_A_C",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
       "id": "monotonicity_A_C",
-      "name": "Regulation monotonicity property",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "A",
@@ -217,14 +207,24 @@
     },
     {
       "id": "monotonicity_C_C",
-      "name": "Regulation monotonicity property",
+      "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "C",
       "target": "C",
       "value": "Activation",
       "context": null
+    },
+    {
+      "id": "essentiality_A_B",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "B",
+      "value": "True",
+      "context": null
     }
   ],
-  "annotation": ""
+  "annotation": "A small sketch used to illustrate the tool in the master's thesis."
 }

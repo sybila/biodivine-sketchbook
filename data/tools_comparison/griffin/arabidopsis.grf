@@ -1,0 +1,17 @@
+#Name and order of nodes
+genes= {AGO1, AGO10, AGO7, ANT, ARF4, AS1, AS2, ETT, FIL, KAN1, miR165, miR390, REV, TAS3siRNA, AGO1_miR165, AGO7_miR390, AS1_AS2, AUXINh, CKh, GTE6, IPT5}
+#All known regulations
+known= {AGO1->AGO1_miR165,AGO7->AGO7_miR390,AS1->AS1_AS2,AS2->AS1_AS2,KAN1-|AS2,miR165->AGO1_miR165,miR390->AGO7_miR390,TAS3siRNA-|ARF4,TAS3siRNA-|ETT,AGO1_miR165-|REV,AGO7_miR390->TAS3siRNA,GTE6->AS1,IPT5->CKh}
+#Hypothetical regulations
+hypothetical= {AGO10-|AGO1,ANT->FIL,ARF4->FIL,ETT->FIL,FIL->ARF4,FIL->ETT,FIL->KAN1,REV->AGO7,REV->AGO10,REV->IPT5,TAS3siRNA-|miR165,AS1_AS2-|miR165,AS1_AS2-|KAN1,AUXINh->AUXINh,AUXINh->miR390,AUXINh->ANT,AUXINh->ARF4,AUXINh->REV,CKh->GTE6}
+#Stable states for wild type following the provided order
+fixed-points()= {100110011111001001000,011101100001110111111}
+#options
+allow.ambiguity = false
+allow.additional.states = true
+allow.additional.cycles = true
+allow.hypotheses = true
+block.steady.a.posteriori = false
+divide.query.by.topology = true
+topology.iterator.type = radial
+topological.distance.radius = 19

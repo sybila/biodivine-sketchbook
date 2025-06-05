@@ -1,0 +1,194 @@
+AF1 -| AF1
+FSH_R -> AF1
+$AF1: FSH_R & !AF1
+
+AF2 -? AF2
+R_Foll -| AF2
+LH_R -| AF2
+FSH_R -> AF2
+AF1 -> AF2
+$AF2: (AF2 & !R_Foll) | (AF2 & !LH_R) | (FSH_R & AF1 & !AF2)
+
+AF2 -> AF3
+AF3 -? AF3
+R_Foll -| AF3
+LH_R -| AF3
+FSH_R ->AF3
+$AF3: (AF3 & !R_Foll) | (AF3 & !LH_R) | (FSH_R & AF2 & !AF3)
+
+AF3 -> AF4
+AF4 -| AF4
+R_Foll -| AF4
+LH_R -| AF4
+$AF4: (AF4 & !R_Foll) | (AF4 & !LH_R) | (R_Foll & LH_R & AF3 & !AF4)
+
+AF4 -> PrF
+PrF -| PrF
+R_Foll -| PrF
+LH_R -| PrF
+$PrF: (PrF & !R_Foll) | (PrF & !LH_R) | (R_Foll & LH_R & AF4 & !PrF)
+
+OvF -> Sc1
+Sc1 -| Sc1
+$Sc1: OvF & !Sc1
+Sc1 -> Sc2
+$Sc2: Sc1
+
+Sc2 -> Lut1
+GnRH_R_a -| Lut1
+Lut1 -| Lut1
+$Lut1: (Sc2 & !GnRH_R_a & !Lut1)
+
+Lut1 -> Lut2
+$Lut2: Lut1
+
+Lut2 -> Lut3
+$Lut3: Lut2
+
+Lut3 -> Lut4
+$Lut4: Lut3
+
+Lut1 -> InhA
+Lut4 -> InhA
+Lut2 -> InhA
+Lut3 -> InhA
+Sc1 -> InhA
+PrF -> InhA
+InhA -| InhA
+$InhA: Lut1 | Lut4 | Lut2 | Lut3 | Sc1 | (PrF & !InhA)
+
+InhA -> InhA_delay
+$InhA_delay: InhA
+
+AF2 -> InhB
+Sc2 -> InhB
+$InhB: AF2 | Sc2
+
+AF2 -> E2
+AF3 -> E2
+AF4 -> E2
+LH_bld -> E2
+Lut1 -> E2
+Lut4 -> E2
+LH_R -> OvF
+OvF -| OvF
+R_Foll -> OvF
+Lut4 -> P4
+P4 -| P4
+FSH_bld -> R_Foll
+P4 -| R_Foll
+E2 -> freq
+P4 -| freq
+E2 -> mass
+$E2: Lut1 | Lut4 | (AF2 & LH_bld) | (AF3 & LH_bld) | (AF4 & LH_bld)
+$OvF: !OvF | (LH_R & OvF & R_Foll)
+$P4: !P4 | Lut4
+$R_Foll: !P4 | FSH_bld
+$freq: !P4 | E2
+$mass: E2
+
+GnRH -| GnRH
+GnRH_R_a -> GnRH
+R_GnRH_a -| GnRH
+freq -> GnRH
+mass -> GnRH
+GnRH -> GnRH_R_a
+GnRH_R_a -| GnRH_R_a
+GnRH_R_i -> GnRH_R_a
+R_GnRH_a -> GnRH_R_a
+GnRH_R_a -> GnRH_R_i
+GnRH_R_i -| GnRH_R_i
+GnRH -| R_GnRH_a
+GnRH_R_a -> R_GnRH_a
+R_GnRH_a -| R_GnRH_a
+R_GnRH_i -> R_GnRH_a
+GnRH_R_i -> R_GnRH_i
+R_GnRH_a -> R_GnRH_i
+R_GnRH_i -| R_GnRH_i
+$GnRH: mass | freq | !R_GnRH_a | GnRH_R_a | !GnRH
+$GnRH_R_a: GnRH_R_i | !GnRH_R_a | (GnRH & GnRH_R_a & !GnRH_R_i & R_GnRH_a)
+$GnRH_R_i: GnRH_R_a & !GnRH_R_i
+$R_GnRH_a: R_GnRH_i | !R_GnRH_a | (!GnRH & GnRH_R_a)
+$R_GnRH_i: !R_GnRH_i | (GnRH_R_i & R_GnRH_a)
+
+E2 -> LH_Pit
+GnRH_R_a -| LH_Pit
+LH_Pit -| LH_Pit
+P4 -| LH_Pit
+LH_R -| LH_R
+LH_bld -> LH_R
+R_LH -> LH_R
+GnRH_R_a -> LH_bld
+LH_Pit -> LH_bld
+LH_bld -| LH_bld
+R_LH -| LH_bld
+LH_bld -| R_LH
+R_LH -| R_LH
+R_LH_des -> R_LH
+LH_R -> R_LH_des
+R_LH_des -| R_LH_des
+$LH_Pit: !P4 | !LH_Pit | !GnRH_R_a | E2
+$LH_R: R_LH | LH_bld | !LH_R
+$LH_bld: !R_LH | !LH_bld | LH_Pit | GnRH_R_a
+$R_LH: !R_LH | (!LH_bld & R_LH & R_LH_des)
+$R_LH_des: LH_R & !R_LH_des
+
+
+FSH_R -| FSH_R
+FSH_bld -> FSH_R
+R_FSH -> FSH_R
+FSH_bld -| FSH_bld
+FSH_pit -> FSH_bld
+GnRH_R_a -> FSH_bld
+R_FSH -| FSH_bld
+FSH_pit -| FSH_pit
+GnRH_R_a -| FSH_pit
+InhA_delay -| FSH_pit
+InhB -| FSH_pit
+freq -| FSH_pit
+FSH_bld -| R_FSH
+R_FSH -| R_FSH
+R_FSH_des -> R_FSH
+FSH_R -> R_FSH_des
+R_FSH_des -| R_FSH_des
+$FSH_R: R_FSH | FSH_bld | !FSH_R
+$FSH_bld: !R_FSH | GnRH_R_a | FSH_pit | !FSH_bld
+$FSH_pit: !freq | (!InhA_delay & !InhB) | !GnRH_R_a | !FSH_pit
+$R_FSH: !R_FSH | (!FSH_bld & R_FSH & R_FSH_des)
+$R_FSH_des: FSH_R & !R_FSH_des
+
+#position:Lut4:1127.6285,771.8189
+#position:InhA:-29.367277,679.25354
+#position:R_LH:464.96597,342.60873
+#position:Lut2:979.0245,767.69714
+#position:R_LH_des:609.5741,431.1625
+#position:OvF:654.7745,751.7399
+#position:FSH_pit:175.49834,501.38818
+#position:Sc1:745.86926,750.93677
+#position:AF4:439.94485,750.38116
+#position:LH_R:469.2464,430.2884
+#position:Sc2:824.6502,752.8354
+#position:LH_bld:323.13907,356.0073
+#position:LH_Pit:178.90915,355.34097
+#position:R_GnRH_a:451.23535,173.3957
+#position:mass:-0.8705384,182.83783
+#position:GnRH:313.51556,114.9073
+#position:InhB:-29.28136,497.3267
+#position:E2:0.9778252,299.76193
+#position:InhA_delay:-30.209969,575.3272
+#position:Lut1:908.1684,715.1885
+#position:PrF:555.05194,752.6379
+#position:R_GnRH_i:480.44254,269.5192
+#position:freq:71.39278,107.6342
+#position:FSH_R:664.0926,609.5478
+#position:GnRH_R_a:219.01576,188.84483
+#position:AF1:100.91293,746.58044
+#position:AF3:330.77264,749.6124
+#position:AF2:220.98062,746.8926
+#position:FSH_bld:603.0527,512.80756
+#position:GnRH_R_i:175.93451,275.34015
+#position:Lut3:1054.7642,724.7887
+#position:P4:5.087794,397.26462
+#position:R_FSH:740.52026,511.90125
+#position:R_FSH_des:819.7951,605.6473
+#position:R_Foll:386.92545,581.6111

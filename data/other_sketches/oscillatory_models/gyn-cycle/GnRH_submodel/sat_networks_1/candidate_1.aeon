@@ -1,0 +1,28 @@
+GnRH -| GnRH
+GnRH_R_a -> GnRH
+R_GnRH_a -| GnRH
+freq -> GnRH
+mass -> GnRH
+GnRH -> GnRH_R_a
+GnRH_R_a -| GnRH_R_a
+GnRH_R_i -> GnRH_R_a
+R_GnRH_a -> GnRH_R_a
+GnRH_R_a -> GnRH_R_i
+GnRH_R_i -| GnRH_R_i
+GnRH -| R_GnRH_a
+GnRH_R_a -> R_GnRH_a
+R_GnRH_a -| R_GnRH_a
+R_GnRH_i -> R_GnRH_a
+GnRH_R_i -> R_GnRH_i
+R_GnRH_a -> R_GnRH_i
+R_GnRH_i -| R_GnRH_i
+freq -| freq
+mass -| mass
+$GnRH: mass | freq | !R_GnRH_a | GnRH_R_a | !GnRH
+$GnRH_R_a: GnRH_R_i | !GnRH_R_a | (GnRH & GnRH_R_a & !GnRH_R_i & R_GnRH_a)
+$GnRH_R_i: GnRH_R_a & !GnRH_R_i
+$R_GnRH_a: R_GnRH_i | !R_GnRH_a | (!GnRH & GnRH_R_a)
+$R_GnRH_i: !R_GnRH_i | (GnRH_R_i & R_GnRH_a)
+$freq: !freq
+$mass: !mass
+

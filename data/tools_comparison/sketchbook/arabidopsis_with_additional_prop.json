@@ -507,11 +507,19 @@
   "dyn_properties": [
     {
       "id": "dynamic_1",
-      "name": "Expected fixed points",
+      "name": "Fixed point existence",
       "annotation": "",
       "variant": "ExistsFixedPoint",
       "dataset": "dataset_1",
       "observation": null
+    },
+    {
+      "id": "dynamic_2",
+      "name": "New attractor count property",
+      "annotation": "",
+      "variant": "AttractorCount",
+      "minimal": 2,
+      "maximal": 2
     }
   ],
   "stat_properties": [

@@ -1,0 +1,1611 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "AF_red",
+        "name": "AF_red",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "E2",
+        "name": "E2",
+        "annotation": "",
+        "update_fn": "Lut | (LH_red & AF_red)"
+      },
+      {
+        "id": "FSH_red",
+        "name": "FSH_red",
+        "annotation": "",
+        "update_fn": "!GnRH & !Inh & !freq"
+      },
+      {
+        "id": "GnRH",
+        "name": "GnRH",
+        "annotation": "",
+        "update_fn": "freq & mass"
+      },
+      {
+        "id": "Inh",
+        "name": "Inh",
+        "annotation": "",
+        "update_fn": "AF_red | Lut | OvF"
+      },
+      {
+        "id": "LH_red",
+        "name": "LH_red",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "Lut",
+        "name": "Lut",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "OvF",
+        "name": "OvF",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "P4",
+        "name": "P4",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "R_Foll",
+        "name": "R_Foll",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "Sc",
+        "name": "Sc",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "freq",
+        "name": "freq",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "mass",
+        "name": "mass",
+        "annotation": "",
+        "update_fn": ""
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "AF_red",
+        "target": "E2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "AF_red",
+        "target": "Inh",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "E2",
+        "target": "LH_red",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "E2",
+        "target": "freq",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "E2",
+        "target": "mass",
+        "sign": "Unknown",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_red",
+        "target": "AF_red",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_red",
+        "target": "R_Foll",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "FSH_red",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "LH_red",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "Lut",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Inh",
+        "target": "FSH_red",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "LH_red",
+        "target": "AF_red",
+        "sign": "Dual",
+        "essential": "True"
+      },
+      {
+        "regulator": "LH_red",
+        "target": "E2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "LH_red",
+        "target": "OvF",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Lut",
+        "target": "E2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Lut",
+        "target": "Inh",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Lut",
+        "target": "P4",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "OvF",
+        "target": "Inh",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "OvF",
+        "target": "Lut",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "OvF",
+        "target": "OvF",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "LH_red",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "P4",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "R_Foll",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "freq",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_Foll",
+        "target": "AF_red",
+        "sign": "Dual",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_Foll",
+        "target": "OvF",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Sc",
+        "target": "Sc",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "freq",
+        "target": "FSH_red",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "freq",
+        "target": "GnRH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "mass",
+        "target": "GnRH",
+        "sign": "Activation",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "AF_red",
+            "px": 317.08044,
+            "py": 835.36237
+          },
+          {
+            "layout": "default",
+            "variable": "OvF",
+            "px": 654.7745,
+            "py": 751.7399
+          },
+          {
+            "layout": "default",
+            "variable": "Sc",
+            "px": 658.8151,
+            "py": 374.67776
+          },
+          {
+            "layout": "default",
+            "variable": "FSH_red",
+            "px": 138.63902,
+            "py": 537.2236
+          },
+          {
+            "layout": "default",
+            "variable": "P4",
+            "px": -3.4084,
+            "py": 412.13297
+          },
+          {
+            "layout": "default",
+            "variable": "Inh",
+            "px": -35.510494,
+            "py": 680.2774
+          },
+          {
+            "layout": "default",
+            "variable": "E2",
+            "px": 0.9778252,
+            "py": 299.76193
+          },
+          {
+            "layout": "default",
+            "variable": "Lut",
+            "px": 610.5021,
+            "py": 536.17584
+          },
+          {
+            "layout": "default",
+            "variable": "freq",
+            "px": 2.1975944,
+            "py": 118.73154
+          },
+          {
+            "layout": "default",
+            "variable": "mass",
+            "px": -0.8705384,
+            "py": 182.83783
+          },
+          {
+            "layout": "default",
+            "variable": "LH_red",
+            "px": 323.13907,
+            "py": 356.0073
+          },
+          {
+            "layout": "default",
+            "variable": "R_Foll",
+            "px": 386.92545,
+            "py": 581.6111
+          },
+          {
+            "layout": "default",
+            "variable": "GnRH",
+            "px": 313.51556,
+            "py": 114.9073
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "name": "dataset_1",
+      "id": "dataset_1",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "Ob_01",
+          "name": "Ob_01",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_02",
+          "name": "Ob_02",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000100000"
+        },
+        {
+          "id": "Ob_03",
+          "name": "Ob_03",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000100000"
+        },
+        {
+          "id": "Ob_04",
+          "name": "Ob_04",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100100000"
+        },
+        {
+          "id": "Ob_05",
+          "name": "Ob_05",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100100100"
+        },
+        {
+          "id": "Ob_06",
+          "name": "Ob_06",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_07",
+          "name": "Ob_07",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_08",
+          "name": "Ob_08",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_09",
+          "name": "Ob_09",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_10",
+          "name": "Ob_10",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_11",
+          "name": "Ob_11",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101010100"
+        },
+        {
+          "id": "Ob_12",
+          "name": "Ob_12",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011111010100"
+        },
+        {
+          "id": "Ob_13",
+          "name": "Ob_13",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1011111110101"
+        },
+        {
+          "id": "Ob_14",
+          "name": "Ob_14",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101111011"
+        },
+        {
+          "id": "Ob_15",
+          "name": "Ob_15",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010001011011"
+        },
+        {
+          "id": "Ob_16",
+          "name": "Ob_16",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101000011011"
+        },
+        {
+          "id": "Ob_17",
+          "name": "Ob_17",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001011"
+        },
+        {
+          "id": "Ob_18",
+          "name": "Ob_18",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_19",
+          "name": "Ob_19",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_20",
+          "name": "Ob_20",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_21",
+          "name": "Ob_21",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_22",
+          "name": "Ob_22",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101000000010"
+        },
+        {
+          "id": "Ob_23",
+          "name": "Ob_23",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0100000000000"
+        },
+        {
+          "id": "Ob_24",
+          "name": "Ob_24",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_25",
+          "name": "Ob_25",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_26",
+          "name": "Ob_26",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000100000"
+        },
+        {
+          "id": "Ob_27",
+          "name": "Ob_27",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000100000"
+        },
+        {
+          "id": "Ob_28",
+          "name": "Ob_28",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100100000"
+        },
+        {
+          "id": "Ob_29",
+          "name": "Ob_29",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_30",
+          "name": "Ob_30",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_31",
+          "name": "Ob_31",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_32",
+          "name": "Ob_32",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_33",
+          "name": "Ob_33",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_34",
+          "name": "Ob_34",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_35",
+          "name": "Ob_35",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_36",
+          "name": "Ob_36",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101010100"
+        },
+        {
+          "id": "Ob_37",
+          "name": "Ob_37",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011101010100"
+        },
+        {
+          "id": "Ob_38",
+          "name": "Ob_38",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1011111110100"
+        },
+        {
+          "id": "Ob_39",
+          "name": "Ob_39",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101111011"
+        },
+        {
+          "id": "Ob_40",
+          "name": "Ob_40",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010001011011"
+        },
+        {
+          "id": "Ob_41",
+          "name": "Ob_41",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101000011011"
+        },
+        {
+          "id": "Ob_42",
+          "name": "Ob_42",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001011"
+        },
+        {
+          "id": "Ob_43",
+          "name": "Ob_43",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_44",
+          "name": "Ob_44",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_45",
+          "name": "Ob_45",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_46",
+          "name": "Ob_46",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_47",
+          "name": "Ob_47",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101000000010"
+        },
+        {
+          "id": "Ob_48",
+          "name": "Ob_48",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0100000000000"
+        },
+        {
+          "id": "Ob_49",
+          "name": "Ob_49",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0100000000000"
+        },
+        {
+          "id": "Ob_50",
+          "name": "Ob_50",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_51",
+          "name": "Ob_51",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_52",
+          "name": "Ob_52",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000100000"
+        },
+        {
+          "id": "Ob_53",
+          "name": "Ob_53",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100100000"
+        },
+        {
+          "id": "Ob_54",
+          "name": "Ob_54",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_55",
+          "name": "Ob_55",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_56",
+          "name": "Ob_56",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_57",
+          "name": "Ob_57",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_58",
+          "name": "Ob_58",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_59",
+          "name": "Ob_59",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_60",
+          "name": "Ob_60",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_61",
+          "name": "Ob_61",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101010100"
+        },
+        {
+          "id": "Ob_62",
+          "name": "Ob_62",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011101010100"
+        },
+        {
+          "id": "Ob_63",
+          "name": "Ob_63",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011111010100"
+        },
+        {
+          "id": "Ob_64",
+          "name": "Ob_64",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011111110011"
+        },
+        {
+          "id": "Ob_65",
+          "name": "Ob_65",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010001011011"
+        },
+        {
+          "id": "Ob_66",
+          "name": "Ob_66",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111001011011"
+        },
+        {
+          "id": "Ob_67",
+          "name": "Ob_67",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010011011"
+        },
+        {
+          "id": "Ob_68",
+          "name": "Ob_68",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_69",
+          "name": "Ob_69",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_70",
+          "name": "Ob_70",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_71",
+          "name": "Ob_71",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101010001010"
+        },
+        {
+          "id": "Ob_72",
+          "name": "Ob_72",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0101000001010"
+        },
+        {
+          "id": "Ob_73",
+          "name": "Ob_73",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0100000000000"
+        },
+        {
+          "id": "Ob_74",
+          "name": "Ob_74",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_75",
+          "name": "Ob_75",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000000000"
+        },
+        {
+          "id": "Ob_76",
+          "name": "Ob_76",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000000100000"
+        },
+        {
+          "id": "Ob_77",
+          "name": "Ob_77",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100100000"
+        },
+        {
+          "id": "Ob_78",
+          "name": "Ob_78",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_79",
+          "name": "Ob_79",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000100110100"
+        },
+        {
+          "id": "Ob_80",
+          "name": "Ob_80",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_81",
+          "name": "Ob_81",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_82",
+          "name": "Ob_82",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010100110100"
+        },
+        {
+          "id": "Ob_83",
+          "name": "Ob_83",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_84",
+          "name": "Ob_84",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101110100"
+        },
+        {
+          "id": "Ob_85",
+          "name": "Ob_85",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011101010100"
+        },
+        {
+          "id": "Ob_86",
+          "name": "Ob_86",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011111010100"
+        },
+        {
+          "id": "Ob_87",
+          "name": "Ob_87",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0011111110011"
+        },
+        {
+          "id": "Ob_88",
+          "name": "Ob_88",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0010101011011"
+        }
+      ],
+      "variables": [
+        "OvF",
+        "P4",
+        "R_Foll",
+        "E2",
+        "freq",
+        "mass",
+        "LH_red",
+        "FSH_red",
+        "GnRH",
+        "Lut",
+        "AF_red",
+        "Inh",
+        "Sc"
+      ]
+    }
+  ],
+  "dyn_properties": [
+    {
+      "id": "aee_011",
+      "name": "Attractor count",
+      "annotation": "",
+      "variant": "AttractorCount",
+      "minimal": 1,
+      "maximal": 1
+    },
+    {
+      "id": "dynamicx_3",
+      "name": "Attractor existence",
+      "annotation": "",
+      "variant": "HasAttractor",
+      "dataset": "dataset_1",
+      "observation": null
+    },
+    {
+      "id": "adynamicx_4",
+      "name": "Trajectory existence",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "dataset_1"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "monotonicity_mass_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "mass",
+      "target": "GnRH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AF_red_E2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AF_red",
+      "target": "E2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Inh_FSH_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Inh",
+      "target": "FSH_red",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_red_AF_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_red",
+      "target": "AF_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_freq_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "freq",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_Foll_AF_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_Foll",
+      "target": "AF_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_E2_LH_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "E2",
+      "target": "LH_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_Lut",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "Lut",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_OvF_Inh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "OvF",
+      "target": "Inh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_LH_red_AF_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "LH_red",
+      "target": "AF_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_LH_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "LH_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_E2_freq",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "E2",
+      "target": "freq",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_LH_red_OvF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "LH_red",
+      "target": "OvF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Lut_P4",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Lut",
+      "target": "P4",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_OvF_OvF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "OvF",
+      "target": "OvF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_LH_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "LH_red",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_R_Foll",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "R_Foll",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_Foll_OvF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_Foll",
+      "target": "OvF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_OvF_Lut",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "OvF",
+      "target": "Lut",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_OvF_OvF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "OvF",
+      "target": "OvF",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Inh_FSH_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Inh",
+      "target": "FSH_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_LH_red_E2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "LH_red",
+      "target": "E2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_freq",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "freq",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_Lut",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "Lut",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Lut_Inh",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Lut",
+      "target": "Inh",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_FSH_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "FSH_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_LH_red_OvF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "LH_red",
+      "target": "OvF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Lut_Inh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Lut",
+      "target": "Inh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_freq",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "freq",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_Foll_OvF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_Foll",
+      "target": "OvF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_LH_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "LH_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_freq_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "freq",
+      "target": "GnRH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_E2_freq",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "E2",
+      "target": "freq",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_LH_red_E2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "LH_red",
+      "target": "E2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_red_R_Foll",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_red",
+      "target": "R_Foll",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Sc_Sc",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Sc",
+      "target": "Sc",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Lut_E2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Lut",
+      "target": "E2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_red_R_Foll",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_red",
+      "target": "R_Foll",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_P4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "P4",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Lut_P4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Lut",
+      "target": "P4",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_red_AF_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_red",
+      "target": "AF_red",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Lut_E2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Lut",
+      "target": "E2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_Foll_AF_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_Foll",
+      "target": "AF_red",
+      "value": "Dual",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Sc_Sc",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Sc",
+      "target": "Sc",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_E2_LH_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "E2",
+      "target": "LH_red",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_P4",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "P4",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_LH_red_AF_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "LH_red",
+      "target": "AF_red",
+      "value": "Dual",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AF_red_Inh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AF_red",
+      "target": "Inh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_E2_mass",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "E2",
+      "target": "mass",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_freq_FSH_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "freq",
+      "target": "FSH_red",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_mass_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "mass",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_AF_red_Inh",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AF_red",
+      "target": "Inh",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_AF_red_E2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AF_red",
+      "target": "E2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_LH_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "LH_red",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_freq_FSH_red",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "freq",
+      "target": "FSH_red",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_OvF_Lut",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "OvF",
+      "target": "Lut",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_R_Foll",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "R_Foll",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_FSH_red",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "FSH_red",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_OvF_Inh",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "OvF",
+      "target": "Inh",
+      "value": "True",
+      "context": null
+    }
+  ],
+  "annotation": ""
+}

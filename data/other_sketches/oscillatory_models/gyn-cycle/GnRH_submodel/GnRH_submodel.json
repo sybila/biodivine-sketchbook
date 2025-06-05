@@ -1,0 +1,884 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "GnRH",
+        "name": "GnRH",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "GnRH_R_a",
+        "name": "GnRH_R_a",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "GnRH_R_i",
+        "name": "GnRH_R_i",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "R_GnRH_a",
+        "name": "R_GnRH_a",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "R_GnRH_i",
+        "name": "R_GnRH_i",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "freq",
+        "name": "freq",
+        "annotation": "",
+        "update_fn": "!freq"
+      },
+      {
+        "id": "mass",
+        "name": "mass",
+        "annotation": "",
+        "update_fn": "!mass"
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "GnRH",
+        "target": "GnRH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "GnRH_R_a",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "R_GnRH_a",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "GnRH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "GnRH_R_a",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "GnRH_R_i",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "R_GnRH_a",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_i",
+        "target": "GnRH_R_a",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_i",
+        "target": "GnRH_R_i",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_i",
+        "target": "R_GnRH_i",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_GnRH_a",
+        "target": "GnRH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_GnRH_a",
+        "target": "GnRH_R_a",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_GnRH_a",
+        "target": "R_GnRH_a",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_GnRH_a",
+        "target": "R_GnRH_i",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_GnRH_i",
+        "target": "R_GnRH_a",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_GnRH_i",
+        "target": "R_GnRH_i",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "freq",
+        "target": "GnRH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "freq",
+        "target": "freq",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "mass",
+        "target": "GnRH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "mass",
+        "target": "mass",
+        "sign": "Inhibition",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "R_GnRH_a",
+            "px": 451.23535,
+            "py": 173.3957
+          },
+          {
+            "layout": "default",
+            "variable": "GnRH_R_i",
+            "px": 175.93451,
+            "py": 275.34015
+          },
+          {
+            "layout": "default",
+            "variable": "R_GnRH_i",
+            "px": 480.44254,
+            "py": 269.5192
+          },
+          {
+            "layout": "default",
+            "variable": "GnRH",
+            "px": 313.51556,
+            "py": 114.9073
+          },
+          {
+            "layout": "default",
+            "variable": "freq",
+            "px": 2.1975944,
+            "py": 118.73154
+          },
+          {
+            "layout": "default",
+            "variable": "GnRH_R_a",
+            "px": 219.01576,
+            "py": 188.84483
+          },
+          {
+            "layout": "default",
+            "variable": "mass",
+            "px": -2.1350079,
+            "py": 223.30086
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "name": "dataset_1",
+      "id": "dataset_1",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "Ob_01",
+          "name": "Ob_01",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000000"
+        },
+        {
+          "id": "Ob_02",
+          "name": "Ob_02",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000010"
+        },
+        {
+          "id": "Ob_03",
+          "name": "Ob_03",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        },
+        {
+          "id": "Ob_04",
+          "name": "Ob_04",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111111"
+        },
+        {
+          "id": "Ob_05",
+          "name": "Ob_05",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        },
+        {
+          "id": "Ob_06",
+          "name": "Ob_06",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111100"
+        },
+        {
+          "id": "Ob_07",
+          "name": "Ob_07",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000001"
+        },
+        {
+          "id": "Ob_08",
+          "name": "Ob_08",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000000"
+        },
+        {
+          "id": "Ob_09",
+          "name": "Ob_09",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000010"
+        },
+        {
+          "id": "Ob_10",
+          "name": "Ob_10",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1111110"
+        },
+        {
+          "id": "Ob_11",
+          "name": "Ob_11",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        },
+        {
+          "id": "Ob_12",
+          "name": "Ob_12",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111111"
+        },
+        {
+          "id": "Ob_13",
+          "name": "Ob_13",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        },
+        {
+          "id": "Ob_14",
+          "name": "Ob_14",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111100"
+        },
+        {
+          "id": "Ob_15",
+          "name": "Ob_15",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0000001"
+        },
+        {
+          "id": "Ob_16",
+          "name": "Ob_16",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000001"
+        },
+        {
+          "id": "Ob_17",
+          "name": "Ob_17",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000000"
+        },
+        {
+          "id": "Ob_18",
+          "name": "Ob_18",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000010"
+        },
+        {
+          "id": "Ob_19",
+          "name": "Ob_19",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1111110"
+        },
+        {
+          "id": "Ob_20",
+          "name": "Ob_20",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        },
+        {
+          "id": "Ob_21",
+          "name": "Ob_21",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111111"
+        },
+        {
+          "id": "Ob_22",
+          "name": "Ob_22",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111100"
+        },
+        {
+          "id": "Ob_23",
+          "name": "Ob_23",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111101"
+        },
+        {
+          "id": "Ob_24",
+          "name": "Ob_24",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000001"
+        },
+        {
+          "id": "Ob_25",
+          "name": "Ob_25",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000000"
+        },
+        {
+          "id": "Ob_26",
+          "name": "Ob_26",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1000010"
+        },
+        {
+          "id": "Ob_27",
+          "name": "Ob_27",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "1110110"
+        },
+        {
+          "id": "Ob_28",
+          "name": "Ob_28",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        },
+        {
+          "id": "Ob_29",
+          "name": "Ob_29",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111111"
+        },
+        {
+          "id": "Ob_30",
+          "name": "Ob_30",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "0111110"
+        }
+      ],
+      "variables": [
+        "R_GnRH_a",
+        "R_GnRH_i",
+        "GnRH_R_i",
+        "GnRH",
+        "GnRH_R_a",
+        "freq",
+        "mass"
+      ]
+    }
+  ],
+  "dyn_properties": [
+    {
+      "id": "dynamic_01",
+      "name": "Trajectory existence",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "dataset_1"
+    },
+    {
+      "id": "dynamic_03",
+      "name": "Attractor existence",
+      "annotation": "",
+      "variant": "HasAttractor",
+      "dataset": "dataset_1",
+      "observation": null
+    },
+    {
+      "id": "dynamic_00",
+      "name": "Attractor count",
+      "annotation": "",
+      "variant": "AttractorCount",
+      "minimal": 1,
+      "maximal": 1
+    },
+    {
+      "id": "dynamic_02",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (~R_GnRH_a & R_GnRH_i & GnRH_R_i & GnRH & GnRH_R_a & freq & ~mass & EF (~R_GnRH_a & R_GnRH_i & GnRH_R_i & GnRH & GnRH_R_a & freq & ~mass))"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "essentiality_freq_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "freq",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_GnRH_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "R_GnRH_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_GnRH_i_R_GnRH_i",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_GnRH_i",
+      "target": "R_GnRH_i",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_R_GnRH_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "R_GnRH_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_GnRH_i_R_GnRH_i",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_GnRH_i",
+      "target": "R_GnRH_i",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_i_GnRH_R_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_i",
+      "target": "GnRH_R_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "GnRH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_GnRH_R_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "GnRH_R_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_GnRH_i_R_GnRH_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_GnRH_i",
+      "target": "R_GnRH_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_i_GnRH_R_i",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_i",
+      "target": "GnRH_R_i",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_GnRH_R_i",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "GnRH_R_i",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_freq_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "freq",
+      "target": "GnRH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_GnRH_a_GnRH_R_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_GnRH_a",
+      "target": "GnRH_R_a",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_GnRH_a_R_GnRH_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_GnRH_a",
+      "target": "R_GnRH_a",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_i_GnRH_R_i",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_i",
+      "target": "GnRH_R_i",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_i_R_GnRH_i",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_i",
+      "target": "R_GnRH_i",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_i_GnRH_R_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_i",
+      "target": "GnRH_R_a",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_GnRH_R_i",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "GnRH_R_i",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_GnRH_R_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "GnRH_R_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_GnRH_a_GnRH_R_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_GnRH_a",
+      "target": "GnRH_R_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_freq_freq",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "freq",
+      "target": "freq",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_GnRH_R_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "GnRH_R_a",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_GnRH_i_R_GnRH_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_GnRH_i",
+      "target": "R_GnRH_a",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_mass_mass",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "mass",
+      "target": "mass",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_GnRH_R_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "GnRH_R_a",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_GnRH_a_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_GnRH_a",
+      "target": "GnRH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "GnRH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_GnRH_a_R_GnRH_i",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_GnRH_a",
+      "target": "R_GnRH_i",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_mass_mass",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "mass",
+      "target": "mass",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_i_R_GnRH_i",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_i",
+      "target": "R_GnRH_i",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_mass_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "mass",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_R_GnRH_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "R_GnRH_a",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_freq_freq",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "freq",
+      "target": "freq",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_mass_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "mass",
+      "target": "GnRH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_GnRH_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "R_GnRH_a",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_GnRH_a_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_GnRH_a",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_GnRH_a_R_GnRH_i",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_GnRH_a",
+      "target": "R_GnRH_i",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_GnRH_a_R_GnRH_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_GnRH_a",
+      "target": "R_GnRH_a",
+      "value": "True",
+      "context": null
+    }
+  ],
+  "annotation": ""
+}

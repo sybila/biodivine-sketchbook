@@ -1,0 +1,204 @@
+IAP_ -| Caspase
+MCL1 -| BID_
+TCR -> CTLA4_
+Apoptosis_ -| Caspase
+P2 -| IFNG_
+Apoptosis_ -| P2
+sFas -| Fas
+Apoptosis_ -| IAP_
+Apoptosis_ -| Ceramide_
+Apoptosis_ -| DISC_
+Ceramide_ -> DISC_
+BID_ -| IAP_
+FLIP_ -| DISC_
+Fas -> Ceramide_
+Fas -> DISC_
+Apoptosis_ -| FLIP_
+Caspase -> Apoptosis_
+DISC_ -> Caspase
+P2 -> P2
+S1P -| Ceramide_
+Apoptosis_ -| S1P
+Ceramide_ -| S1P
+Apoptosis_ -| CREB
+S1P -> GPCR_
+SMAD_ -| IFNG_
+Apoptosis_ -| GPCR_
+IFNG_ -> P2
+CTLA4_ -| TCR
+Apoptosis_ -| SMAD_
+Apoptosis_ -| BID_
+DISC_ -| FLIP_
+Apoptosis_ -| sFas
+Apoptosis_ -| CTLA4_
+GPCR_ -> SMAD_
+S1P -> sFas
+Apoptosis_ -| TCR
+BID_ -> Caspase
+Apoptosis_ -> Apoptosis_
+Apoptosis_ -| MCL1
+Apoptosis_ -| Fas
+IFNG_ -> CREB
+Apoptosis_ -| IFNG_
+DISC_ -| MCL1
+$Apoptosis_: r(Caspase, Apoptosis_)
+$BID_: !Apoptosis_ & k(MCL1)
+$CREB: !Apoptosis_ & e(IFNG_)
+$CTLA4_: !Apoptosis_ & h(TCR)
+$Caspase: !Apoptosis_ & m(BID_, DISC_, IAP_)
+$Ceramide_: !Apoptosis_ & n(Fas, S1P)
+$DISC_: !Apoptosis_ & j(Fas, Ceramide_, FLIP_)
+$FLIP_: !Apoptosis_ & i(DISC_)
+$Fas: !Apoptosis_ & o(sFas)
+$GPCR_: !Apoptosis_ & b(S1P)
+$IAP_: !Apoptosis_ & a(BID_)
+$IFNG_: !Apoptosis_ & f(P2, SMAD_)
+$MCL1: !Apoptosis_ & l(DISC_)
+$P2: !Apoptosis_ & d(P2, IFNG_)
+$S1P: !Apoptosis_ & q(Ceramide_)
+$SMAD_: !Apoptosis_ & c(GPCR_)
+$TCR: !Apoptosis_ & g(CTLA4_)
+$sFas: !Apoptosis_ & p(S1P)
+#position:IFNG_:-102,-191
+#position:Fas:-246,32
+#position:Ceramide_:-244,-45
+#position:P2:-5,-208
+#position:Caspase:70,-191
+#position:SMAD_:-33,232
+#position:GPCR_:248,-49
+#position:Apoptosis_:-5,9
+#position:IAP_:161,168
+#position:S1P:-226,-115
+#position:CTLA4_:141,-152
+#position:DISC_:-217,120
+#position:TCR:209,-104
+#position:MCL1:240,18
+#position:CREB:-181,-161
+#position:sFas:87,215
+#position:FLIP_:-120,188
+#position:BID_:215,96
+#!dataset:dataset_1:#`{"name":"Expected phenotypes","id":"dataset_1","annotation":"","observations":[{"id":"Observation1","name":"Observation1","annotation":"","dataset":"dataset_1","values":"100000000000000000"},{"id":"Observation2","name":"Observation2","annotation":"","dataset":"dataset_1","values":"0110001001**0***1*"}],"variables":["Apoptosis_","S1P","sFas","Fas","Ceramide_","Caspase","MCL1","BID_","DISC_","FLIP_","CTLA4_","TCR","IFNG_","CREB","P2","SMAD_","GPCR_","IAP_"]}`#
+#!dynamic_property:a_diseased_attr:#`{"id":"a_diseased_attr","name":"Attractor where cell lives (diseased behavior)","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":"Observation2"}`#
+#!dynamic_property:b_healthy_fixed_point:#`{"id":"b_healthy_fixed_point","name":"Cell death fixed point (healthy behavior)","annotation":"","variant":"ExistsFixedPoint","dataset":"dataset_1","observation":"Observation1"}`#
+#!function:a:#`{"id":"a","name":"a","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:b:#`{"id":"b","name":"b","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:c:#`{"id":"c","name":"c","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:d:#`{"id":"d","name":"d","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:e:#`{"id":"e","name":"e","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:f:#`{"id":"f","name":"f","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:g:#`{"id":"g","name":"g","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:h:#`{"id":"h","name":"h","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:i:#`{"id":"i","name":"i","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:j:#`{"id":"j","name":"j","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:k:#`{"id":"k","name":"k","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:l:#`{"id":"l","name":"l","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:m:#`{"id":"m","name":"m","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:n:#`{"id":"n","name":"n","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:o:#`{"id":"o","name":"o","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:p:#`{"id":"p","name":"p","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:q:#`{"id":"q","name":"q","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:r:#`{"id":"r","name":"function","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!static_property:essentiality_Apoptosis__Apoptosis_:#`{"id":"essentiality_Apoptosis__Apoptosis_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"Apoptosis_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__BID_:#`{"id":"essentiality_Apoptosis__BID_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"BID_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__CREB:#`{"id":"essentiality_Apoptosis__CREB","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"CREB","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__CTLA4_:#`{"id":"essentiality_Apoptosis__CTLA4_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"CTLA4_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__Caspase:#`{"id":"essentiality_Apoptosis__Caspase","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"Caspase","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__Ceramide_:#`{"id":"essentiality_Apoptosis__Ceramide_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"Ceramide_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__DISC_:#`{"id":"essentiality_Apoptosis__DISC_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"DISC_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__FLIP_:#`{"id":"essentiality_Apoptosis__FLIP_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"FLIP_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__Fas:#`{"id":"essentiality_Apoptosis__Fas","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"Fas","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__GPCR_:#`{"id":"essentiality_Apoptosis__GPCR_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"GPCR_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__IAP_:#`{"id":"essentiality_Apoptosis__IAP_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"IAP_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__IFNG_:#`{"id":"essentiality_Apoptosis__IFNG_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"IFNG_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__MCL1:#`{"id":"essentiality_Apoptosis__MCL1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"MCL1","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__P2:#`{"id":"essentiality_Apoptosis__P2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"P2","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__S1P:#`{"id":"essentiality_Apoptosis__S1P","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"S1P","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__SMAD_:#`{"id":"essentiality_Apoptosis__SMAD_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"SMAD_","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__TCR:#`{"id":"essentiality_Apoptosis__TCR","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"TCR","value":"True","context":null}`#
+#!static_property:essentiality_Apoptosis__sFas:#`{"id":"essentiality_Apoptosis__sFas","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Apoptosis_","target":"sFas","value":"True","context":null}`#
+#!static_property:essentiality_BID__Caspase:#`{"id":"essentiality_BID__Caspase","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"BID_","target":"Caspase","value":"True","context":null}`#
+#!static_property:essentiality_BID__IAP_:#`{"id":"essentiality_BID__IAP_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"BID_","target":"IAP_","value":"True","context":null}`#
+#!static_property:essentiality_CTLA4__TCR:#`{"id":"essentiality_CTLA4__TCR","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CTLA4_","target":"TCR","value":"True","context":null}`#
+#!static_property:essentiality_Caspase_Apoptosis_:#`{"id":"essentiality_Caspase_Apoptosis_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Caspase","target":"Apoptosis_","value":"True","context":null}`#
+#!static_property:essentiality_Ceramide__DISC_:#`{"id":"essentiality_Ceramide__DISC_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Ceramide_","target":"DISC_","value":"True","context":null}`#
+#!static_property:essentiality_Ceramide__S1P:#`{"id":"essentiality_Ceramide__S1P","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Ceramide_","target":"S1P","value":"True","context":null}`#
+#!static_property:essentiality_DISC__Caspase:#`{"id":"essentiality_DISC__Caspase","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"DISC_","target":"Caspase","value":"True","context":null}`#
+#!static_property:essentiality_DISC__FLIP_:#`{"id":"essentiality_DISC__FLIP_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"DISC_","target":"FLIP_","value":"True","context":null}`#
+#!static_property:essentiality_DISC__MCL1:#`{"id":"essentiality_DISC__MCL1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"DISC_","target":"MCL1","value":"True","context":null}`#
+#!static_property:essentiality_FLIP__DISC_:#`{"id":"essentiality_FLIP__DISC_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FLIP_","target":"DISC_","value":"True","context":null}`#
+#!static_property:essentiality_Fas_Ceramide_:#`{"id":"essentiality_Fas_Ceramide_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Fas","target":"Ceramide_","value":"True","context":null}`#
+#!static_property:essentiality_Fas_DISC_:#`{"id":"essentiality_Fas_DISC_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Fas","target":"DISC_","value":"True","context":null}`#
+#!static_property:essentiality_GPCR__SMAD_:#`{"id":"essentiality_GPCR__SMAD_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GPCR_","target":"SMAD_","value":"True","context":null}`#
+#!static_property:essentiality_IAP__Caspase:#`{"id":"essentiality_IAP__Caspase","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"IAP_","target":"Caspase","value":"True","context":null}`#
+#!static_property:essentiality_IFNG__CREB:#`{"id":"essentiality_IFNG__CREB","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"IFNG_","target":"CREB","value":"True","context":null}`#
+#!static_property:essentiality_IFNG__P2:#`{"id":"essentiality_IFNG__P2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"IFNG_","target":"P2","value":"True","context":null}`#
+#!static_property:essentiality_MCL1_BID_:#`{"id":"essentiality_MCL1_BID_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"MCL1","target":"BID_","value":"True","context":null}`#
+#!static_property:essentiality_P2_IFNG_:#`{"id":"essentiality_P2_IFNG_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"P2","target":"IFNG_","value":"True","context":null}`#
+#!static_property:essentiality_P2_P2:#`{"id":"essentiality_P2_P2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"P2","target":"P2","value":"True","context":null}`#
+#!static_property:essentiality_S1P_Ceramide_:#`{"id":"essentiality_S1P_Ceramide_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"S1P","target":"Ceramide_","value":"True","context":null}`#
+#!static_property:essentiality_S1P_GPCR_:#`{"id":"essentiality_S1P_GPCR_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"S1P","target":"GPCR_","value":"True","context":null}`#
+#!static_property:essentiality_S1P_sFas:#`{"id":"essentiality_S1P_sFas","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"S1P","target":"sFas","value":"True","context":null}`#
+#!static_property:essentiality_SMAD__IFNG_:#`{"id":"essentiality_SMAD__IFNG_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"SMAD_","target":"IFNG_","value":"True","context":null}`#
+#!static_property:essentiality_TCR_CTLA4_:#`{"id":"essentiality_TCR_CTLA4_","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"TCR","target":"CTLA4_","value":"True","context":null}`#
+#!static_property:essentiality_sFas_Fas:#`{"id":"essentiality_sFas_Fas","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"sFas","target":"Fas","value":"True","context":null}`#
+#!static_property:monotonicity_Apoptosis__Apoptosis_:#`{"id":"monotonicity_Apoptosis__Apoptosis_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"Apoptosis_","value":"Activation","context":null}`#
+#!static_property:monotonicity_Apoptosis__BID_:#`{"id":"monotonicity_Apoptosis__BID_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"BID_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__CREB:#`{"id":"monotonicity_Apoptosis__CREB","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"CREB","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__CTLA4_:#`{"id":"monotonicity_Apoptosis__CTLA4_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"CTLA4_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__Caspase:#`{"id":"monotonicity_Apoptosis__Caspase","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"Caspase","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__Ceramide_:#`{"id":"monotonicity_Apoptosis__Ceramide_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"Ceramide_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__DISC_:#`{"id":"monotonicity_Apoptosis__DISC_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"DISC_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__FLIP_:#`{"id":"monotonicity_Apoptosis__FLIP_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"FLIP_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__Fas:#`{"id":"monotonicity_Apoptosis__Fas","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"Fas","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__GPCR_:#`{"id":"monotonicity_Apoptosis__GPCR_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"GPCR_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__IAP_:#`{"id":"monotonicity_Apoptosis__IAP_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"IAP_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__IFNG_:#`{"id":"monotonicity_Apoptosis__IFNG_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"IFNG_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__MCL1:#`{"id":"monotonicity_Apoptosis__MCL1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"MCL1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__P2:#`{"id":"monotonicity_Apoptosis__P2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"P2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__S1P:#`{"id":"monotonicity_Apoptosis__S1P","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"S1P","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__SMAD_:#`{"id":"monotonicity_Apoptosis__SMAD_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"SMAD_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__TCR:#`{"id":"monotonicity_Apoptosis__TCR","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"TCR","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Apoptosis__sFas:#`{"id":"monotonicity_Apoptosis__sFas","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Apoptosis_","target":"sFas","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_BID__Caspase:#`{"id":"monotonicity_BID__Caspase","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"BID_","target":"Caspase","value":"Activation","context":null}`#
+#!static_property:monotonicity_BID__IAP_:#`{"id":"monotonicity_BID__IAP_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"BID_","target":"IAP_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_CTLA4__TCR:#`{"id":"monotonicity_CTLA4__TCR","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"CTLA4_","target":"TCR","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Caspase_Apoptosis_:#`{"id":"monotonicity_Caspase_Apoptosis_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Caspase","target":"Apoptosis_","value":"Activation","context":null}`#
+#!static_property:monotonicity_Ceramide__DISC_:#`{"id":"monotonicity_Ceramide__DISC_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Ceramide_","target":"DISC_","value":"Activation","context":null}`#
+#!static_property:monotonicity_Ceramide__S1P:#`{"id":"monotonicity_Ceramide__S1P","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Ceramide_","target":"S1P","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_DISC__Caspase:#`{"id":"monotonicity_DISC__Caspase","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"DISC_","target":"Caspase","value":"Activation","context":null}`#
+#!static_property:monotonicity_DISC__FLIP_:#`{"id":"monotonicity_DISC__FLIP_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"DISC_","target":"FLIP_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_DISC__MCL1:#`{"id":"monotonicity_DISC__MCL1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"DISC_","target":"MCL1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_FLIP__DISC_:#`{"id":"monotonicity_FLIP__DISC_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FLIP_","target":"DISC_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Fas_Ceramide_:#`{"id":"monotonicity_Fas_Ceramide_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Fas","target":"Ceramide_","value":"Activation","context":null}`#
+#!static_property:monotonicity_Fas_DISC_:#`{"id":"monotonicity_Fas_DISC_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Fas","target":"DISC_","value":"Activation","context":null}`#
+#!static_property:monotonicity_GPCR__SMAD_:#`{"id":"monotonicity_GPCR__SMAD_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GPCR_","target":"SMAD_","value":"Activation","context":null}`#
+#!static_property:monotonicity_IAP__Caspase:#`{"id":"monotonicity_IAP__Caspase","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"IAP_","target":"Caspase","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_IFNG__CREB:#`{"id":"monotonicity_IFNG__CREB","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"IFNG_","target":"CREB","value":"Activation","context":null}`#
+#!static_property:monotonicity_IFNG__P2:#`{"id":"monotonicity_IFNG__P2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"IFNG_","target":"P2","value":"Activation","context":null}`#
+#!static_property:monotonicity_MCL1_BID_:#`{"id":"monotonicity_MCL1_BID_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"MCL1","target":"BID_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_P2_IFNG_:#`{"id":"monotonicity_P2_IFNG_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"P2","target":"IFNG_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_P2_P2:#`{"id":"monotonicity_P2_P2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"P2","target":"P2","value":"Activation","context":null}`#
+#!static_property:monotonicity_S1P_Ceramide_:#`{"id":"monotonicity_S1P_Ceramide_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"S1P","target":"Ceramide_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_S1P_GPCR_:#`{"id":"monotonicity_S1P_GPCR_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"S1P","target":"GPCR_","value":"Activation","context":null}`#
+#!static_property:monotonicity_S1P_sFas:#`{"id":"monotonicity_S1P_sFas","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"S1P","target":"sFas","value":"Activation","context":null}`#
+#!static_property:monotonicity_SMAD__IFNG_:#`{"id":"monotonicity_SMAD__IFNG_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"SMAD_","target":"IFNG_","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_TCR_CTLA4_:#`{"id":"monotonicity_TCR_CTLA4_","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"TCR","target":"CTLA4_","value":"Activation","context":null}`#
+#!static_property:monotonicity_sFas_Fas:#`{"id":"monotonicity_sFas_Fas","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"sFas","target":"Fas","value":"Inhibition","context":null}`#
+#!variable:Apoptosis_:#`{"id":"Apoptosis_","name":"Apoptosis_","annotation":"","update_fn":"r(Caspase, Apoptosis_)"}`#
+#!variable:BID_:#`{"id":"BID_","name":"BID_","annotation":"","update_fn":"!Apoptosis_ & k(MCL1)"}`#
+#!variable:CREB:#`{"id":"CREB","name":"CREB","annotation":"","update_fn":"!Apoptosis_ & e(IFNG_)"}`#
+#!variable:CTLA4_:#`{"id":"CTLA4_","name":"CTLA4_","annotation":"","update_fn":"!Apoptosis_ & h(TCR)"}`#
+#!variable:Caspase:#`{"id":"Caspase","name":"Caspase","annotation":"","update_fn":"!Apoptosis_ & m(BID_, DISC_, IAP_)"}`#
+#!variable:Ceramide_:#`{"id":"Ceramide_","name":"Ceramide_","annotation":"","update_fn":"!Apoptosis_ & n(Fas, S1P)"}`#
+#!variable:DISC_:#`{"id":"DISC_","name":"DISC_","annotation":"","update_fn":"!Apoptosis_ & j(Fas, Ceramide_, FLIP_)"}`#
+#!variable:FLIP_:#`{"id":"FLIP_","name":"FLIP_","annotation":"","update_fn":"!Apoptosis_ & i(DISC_)"}`#
+#!variable:Fas:#`{"id":"Fas","name":"Fas","annotation":"","update_fn":"!Apoptosis_ & o(sFas)"}`#
+#!variable:GPCR_:#`{"id":"GPCR_","name":"GPCR_","annotation":"","update_fn":"!Apoptosis_ & b(S1P)"}`#
+#!variable:IAP_:#`{"id":"IAP_","name":"IAP_","annotation":"","update_fn":"!Apoptosis_ & a(BID_)"}`#
+#!variable:IFNG_:#`{"id":"IFNG_","name":"IFNG_","annotation":"","update_fn":"!Apoptosis_ & f(P2, SMAD_)"}`#
+#!variable:MCL1:#`{"id":"MCL1","name":"MCL1","annotation":"","update_fn":"!Apoptosis_ & l(DISC_)"}`#
+#!variable:P2:#`{"id":"P2","name":"P2","annotation":"","update_fn":"!Apoptosis_ & d(P2, IFNG_)"}`#
+#!variable:S1P:#`{"id":"S1P","name":"S1P","annotation":"","update_fn":"!Apoptosis_ & q(Ceramide_)"}`#
+#!variable:SMAD_:#`{"id":"SMAD_","name":"SMAD_","annotation":"","update_fn":"!Apoptosis_ & c(GPCR_)"}`#
+#!variable:TCR:#`{"id":"TCR","name":"TCR","annotation":"","update_fn":"!Apoptosis_ & g(CTLA4_)"}`#
+#!variable:sFas:#`{"id":"sFas","name":"sFas","annotation":"","update_fn":"!Apoptosis_ & p(S1P)"}`#

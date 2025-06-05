@@ -1,0 +1,31 @@
+FSH_R -| FSH_R
+FSH_bld -> FSH_R
+R_FSH -> FSH_R
+FSH_bld -| FSH_bld
+FSH_pit -> FSH_bld
+GnRH_R_a -> FSH_bld
+R_FSH -| FSH_bld
+FSH_pit -| FSH_pit
+GnRH_R_a -| FSH_pit
+InhA_delay -| FSH_pit
+InhB -| FSH_pit
+freq -| FSH_pit
+GnRH_R_a -| GnRH_R_a
+InhA_delay -| InhA_delay
+InhB -| InhB
+FSH_bld -| R_FSH
+R_FSH -| R_FSH
+R_FSH_des -> R_FSH
+FSH_R -> R_FSH_des
+R_FSH_des -| R_FSH_des
+freq -| freq
+$FSH_R: R_FSH | FSH_bld | !FSH_R
+$FSH_bld: !R_FSH | GnRH_R_a | FSH_pit | !FSH_bld
+$FSH_pit: !freq | !InhB | !InhA_delay | !GnRH_R_a | !FSH_pit
+$GnRH_R_a: !GnRH_R_a
+$InhA_delay: !InhA_delay
+$InhB: !InhB
+$R_FSH: !R_FSH | (!FSH_bld & R_FSH & R_FSH_des)
+$R_FSH_des: FSH_R & !R_FSH_des
+$freq: !freq
+

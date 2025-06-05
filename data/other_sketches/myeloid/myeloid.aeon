@@ -1,0 +1,122 @@
+CEBPa -> Gfi1
+FOG1 -| GATA2
+GATA2 -> GATA1
+PU1 -> PU1
+Fli1 -| EKLF
+GATA1 -> SCL
+GATA1 -| CEBPa
+SCL -| CEBPa
+GATA1 -> EKLF
+PU1 -| GATA2
+PU1 -| SCL
+Fli1 -> GATA1
+GATA1 -> Fli1
+PU1 -> EgrNab
+cjun -> EgrNab
+Gfi1 -| EgrNab
+Gfi1 -| cjun
+CEBPa -> CEBPa
+GATA2 -| PU1
+GATA1 -> FOG1
+GATA1 -> GATA1
+EKLF -| Fli1
+PU1 -| GATA1
+PU1 -> cjun
+GATA1 -| GATA2
+GATA1 -| PU1
+EgrNab -| Gfi1
+FOG1 -| CEBPa
+GATA2 -> GATA2
+CEBPa -> PU1
+#position:EKLF:325.92612,-226.8565
+#position:CEBPa:27.443956,-216.9239
+#position:Fli1:331.15344,-67.76327
+#position:GATA2:152.53964,-12.283747
+#position:GATA1:232.30206,-149.9392
+#position:FOG1:150.46284,-259.55215
+#position:EgrNab:-81.09596,-40.79018
+#position:PU1:31.361515,-79.4219
+#position:cjun:-169.24475,-149.82033
+#position:Gfi1:-81.611046,-281.53668
+#position:SCL:80.84242,-151.98013
+#!dataset:dataset_1:#`{"name":"attractors","id":"dataset_1","annotation":"","observations":[{"id":"Erythrocyte","name":"Erythrocyte","annotation":"","dataset":"dataset_1","values":"01110100000"},{"id":"Megakaryocyte","name":"Megakaryocyte","annotation":"","dataset":"dataset_1","values":"11101100000"},{"id":"Monocyte","name":"Monocyte","annotation":"","dataset":"dataset_1","values":"00000011110"},{"id":"Granulocyte","name":"Granulocyte","annotation":"","dataset":"dataset_1","values":"00000011001"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
+#!dataset:dataset_2:#`{"name":"erythro","id":"dataset_2","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_2","values":"10000011000"},{"id":"Erythrocyte","name":"Erythrocyte","annotation":"","dataset":"dataset_2","values":"01110100000"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
+#!dataset:dataset_3:#`{"name":"megakaryo","id":"dataset_3","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_3","values":"10000011000"},{"id":"Megakaryocyte","name":"Megakaryocyte","annotation":"","dataset":"dataset_3","values":"11101100000"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
+#!dataset:dataset_4:#`{"name":"mono","id":"dataset_4","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_4","values":"10000011000"},{"id":"Monocyte","name":"Monocyte","annotation":"","dataset":"dataset_4","values":"00000011110"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
+#!dataset:dataset_5:#`{"name":"granulo","id":"dataset_5","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_5","values":"10000011000"},{"id":"Granulocyte","name":"Granulocyte","annotation":"","dataset":"dataset_5","values":"00000011001"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
+#!dynamic_property:dynamic_2:#`{"id":"dynamic_2","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_2"}`#
+#!dynamic_property:dynamic_3:#`{"id":"dynamic_3","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_3"}`#
+#!dynamic_property:dynamic_4:#`{"id":"dynamic_4","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_4"}`#
+#!dynamic_property:dynamic_5:#`{"id":"dynamic_5","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_5"}`#
+#!dynamic_property:dynamic_8:#`{"id":"dynamic_8","name":"Attractor existence","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!static_property:essentiality_CEBPa_CEBPa:#`{"id":"essentiality_CEBPa_CEBPa","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CEBPa","target":"CEBPa","value":"True","context":null}`#
+#!static_property:essentiality_CEBPa_Gfi1:#`{"id":"essentiality_CEBPa_Gfi1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CEBPa","target":"Gfi1","value":"True","context":null}`#
+#!static_property:essentiality_CEBPa_PU1:#`{"id":"essentiality_CEBPa_PU1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CEBPa","target":"PU1","value":"True","context":null}`#
+#!static_property:essentiality_EKLF_Fli1:#`{"id":"essentiality_EKLF_Fli1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"EKLF","target":"Fli1","value":"True","context":null}`#
+#!static_property:essentiality_EgrNab_Gfi1:#`{"id":"essentiality_EgrNab_Gfi1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"EgrNab","target":"Gfi1","value":"True","context":null}`#
+#!static_property:essentiality_FOG1_CEBPa:#`{"id":"essentiality_FOG1_CEBPa","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FOG1","target":"CEBPa","value":"True","context":null}`#
+#!static_property:essentiality_FOG1_GATA2:#`{"id":"essentiality_FOG1_GATA2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FOG1","target":"GATA2","value":"True","context":null}`#
+#!static_property:essentiality_Fli1_EKLF:#`{"id":"essentiality_Fli1_EKLF","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Fli1","target":"EKLF","value":"True","context":null}`#
+#!static_property:essentiality_Fli1_GATA1:#`{"id":"essentiality_Fli1_GATA1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Fli1","target":"GATA1","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_CEBPa:#`{"id":"essentiality_GATA1_CEBPa","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"CEBPa","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_EKLF:#`{"id":"essentiality_GATA1_EKLF","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"EKLF","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_FOG1:#`{"id":"essentiality_GATA1_FOG1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"FOG1","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_Fli1:#`{"id":"essentiality_GATA1_Fli1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"Fli1","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_GATA1:#`{"id":"essentiality_GATA1_GATA1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"GATA1","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_GATA2:#`{"id":"essentiality_GATA1_GATA2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"GATA2","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_PU1:#`{"id":"essentiality_GATA1_PU1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"PU1","value":"True","context":null}`#
+#!static_property:essentiality_GATA1_SCL:#`{"id":"essentiality_GATA1_SCL","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA1","target":"SCL","value":"True","context":null}`#
+#!static_property:essentiality_GATA2_GATA1:#`{"id":"essentiality_GATA2_GATA1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA2","target":"GATA1","value":"True","context":null}`#
+#!static_property:essentiality_GATA2_GATA2:#`{"id":"essentiality_GATA2_GATA2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA2","target":"GATA2","value":"True","context":null}`#
+#!static_property:essentiality_GATA2_PU1:#`{"id":"essentiality_GATA2_PU1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"GATA2","target":"PU1","value":"True","context":null}`#
+#!static_property:essentiality_Gfi1_EgrNab:#`{"id":"essentiality_Gfi1_EgrNab","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Gfi1","target":"EgrNab","value":"True","context":null}`#
+#!static_property:essentiality_Gfi1_cjun:#`{"id":"essentiality_Gfi1_cjun","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"Gfi1","target":"cjun","value":"True","context":null}`#
+#!static_property:essentiality_PU1_EgrNab:#`{"id":"essentiality_PU1_EgrNab","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"PU1","target":"EgrNab","value":"True","context":null}`#
+#!static_property:essentiality_PU1_GATA1:#`{"id":"essentiality_PU1_GATA1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"PU1","target":"GATA1","value":"True","context":null}`#
+#!static_property:essentiality_PU1_GATA2:#`{"id":"essentiality_PU1_GATA2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"PU1","target":"GATA2","value":"True","context":null}`#
+#!static_property:essentiality_PU1_PU1:#`{"id":"essentiality_PU1_PU1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"PU1","target":"PU1","value":"True","context":null}`#
+#!static_property:essentiality_PU1_SCL:#`{"id":"essentiality_PU1_SCL","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"PU1","target":"SCL","value":"True","context":null}`#
+#!static_property:essentiality_PU1_cjun:#`{"id":"essentiality_PU1_cjun","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"PU1","target":"cjun","value":"True","context":null}`#
+#!static_property:essentiality_SCL_CEBPa:#`{"id":"essentiality_SCL_CEBPa","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"SCL","target":"CEBPa","value":"True","context":null}`#
+#!static_property:essentiality_cjun_EgrNab:#`{"id":"essentiality_cjun_EgrNab","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"cjun","target":"EgrNab","value":"True","context":null}`#
+#!static_property:monotonicity_CEBPa_CEBPa:#`{"id":"monotonicity_CEBPa_CEBPa","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"CEBPa","target":"CEBPa","value":"Activation","context":null}`#
+#!static_property:monotonicity_CEBPa_Gfi1:#`{"id":"monotonicity_CEBPa_Gfi1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"CEBPa","target":"Gfi1","value":"Activation","context":null}`#
+#!static_property:monotonicity_CEBPa_PU1:#`{"id":"monotonicity_CEBPa_PU1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"CEBPa","target":"PU1","value":"Activation","context":null}`#
+#!static_property:monotonicity_EKLF_Fli1:#`{"id":"monotonicity_EKLF_Fli1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"EKLF","target":"Fli1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_EgrNab_Gfi1:#`{"id":"monotonicity_EgrNab_Gfi1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"EgrNab","target":"Gfi1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_FOG1_CEBPa:#`{"id":"monotonicity_FOG1_CEBPa","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FOG1","target":"CEBPa","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_FOG1_GATA2:#`{"id":"monotonicity_FOG1_GATA2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FOG1","target":"GATA2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Fli1_EKLF:#`{"id":"monotonicity_Fli1_EKLF","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Fli1","target":"EKLF","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Fli1_GATA1:#`{"id":"monotonicity_Fli1_GATA1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Fli1","target":"GATA1","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA1_CEBPa:#`{"id":"monotonicity_GATA1_CEBPa","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"CEBPa","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_GATA1_EKLF:#`{"id":"monotonicity_GATA1_EKLF","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"EKLF","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA1_FOG1:#`{"id":"monotonicity_GATA1_FOG1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"FOG1","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA1_Fli1:#`{"id":"monotonicity_GATA1_Fli1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"Fli1","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA1_GATA1:#`{"id":"monotonicity_GATA1_GATA1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"GATA1","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA1_GATA2:#`{"id":"monotonicity_GATA1_GATA2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"GATA2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_GATA1_PU1:#`{"id":"monotonicity_GATA1_PU1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"PU1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_GATA1_SCL:#`{"id":"monotonicity_GATA1_SCL","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA1","target":"SCL","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA2_GATA1:#`{"id":"monotonicity_GATA2_GATA1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA2","target":"GATA1","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA2_GATA2:#`{"id":"monotonicity_GATA2_GATA2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA2","target":"GATA2","value":"Activation","context":null}`#
+#!static_property:monotonicity_GATA2_PU1:#`{"id":"monotonicity_GATA2_PU1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"GATA2","target":"PU1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Gfi1_EgrNab:#`{"id":"monotonicity_Gfi1_EgrNab","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Gfi1","target":"EgrNab","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_Gfi1_cjun:#`{"id":"monotonicity_Gfi1_cjun","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"Gfi1","target":"cjun","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_PU1_EgrNab:#`{"id":"monotonicity_PU1_EgrNab","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"PU1","target":"EgrNab","value":"Activation","context":null}`#
+#!static_property:monotonicity_PU1_GATA1:#`{"id":"monotonicity_PU1_GATA1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"PU1","target":"GATA1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_PU1_GATA2:#`{"id":"monotonicity_PU1_GATA2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"PU1","target":"GATA2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_PU1_PU1:#`{"id":"monotonicity_PU1_PU1","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"PU1","target":"PU1","value":"Activation","context":null}`#
+#!static_property:monotonicity_PU1_SCL:#`{"id":"monotonicity_PU1_SCL","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"PU1","target":"SCL","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_PU1_cjun:#`{"id":"monotonicity_PU1_cjun","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"PU1","target":"cjun","value":"Activation","context":null}`#
+#!static_property:monotonicity_SCL_CEBPa:#`{"id":"monotonicity_SCL_CEBPa","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"SCL","target":"CEBPa","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_cjun_EgrNab:#`{"id":"monotonicity_cjun_EgrNab","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"cjun","target":"EgrNab","value":"Activation","context":null}`#
+#!variable:CEBPa:#`{"id":"CEBPa","name":"CEBPa","annotation":"","update_fn":""}`#
+#!variable:EKLF:#`{"id":"EKLF","name":"EKLF","annotation":"","update_fn":""}`#
+#!variable:EgrNab:#`{"id":"EgrNab","name":"EgrNab","annotation":"","update_fn":""}`#
+#!variable:FOG1:#`{"id":"FOG1","name":"FOG1","annotation":"","update_fn":""}`#
+#!variable:Fli1:#`{"id":"Fli1","name":"Fli1","annotation":"","update_fn":""}`#
+#!variable:GATA1:#`{"id":"GATA1","name":"GATA1","annotation":"","update_fn":""}`#
+#!variable:GATA2:#`{"id":"GATA2","name":"GATA2","annotation":"","update_fn":""}`#
+#!variable:Gfi1:#`{"id":"Gfi1","name":"Gfi1","annotation":"","update_fn":""}`#
+#!variable:PU1:#`{"id":"PU1","name":"PU1","annotation":"","update_fn":""}`#
+#!variable:SCL:#`{"id":"SCL","name":"SCL","annotation":"","update_fn":""}`#
+#!variable:cjun:#`{"id":"cjun","name":"cjun","annotation":"","update_fn":""}`#

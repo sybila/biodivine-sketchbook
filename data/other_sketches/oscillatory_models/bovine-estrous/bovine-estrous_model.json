@@ -1,0 +1,1426 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "CL",
+        "name": "CL",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "E2",
+        "name": "E2",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "FSH",
+        "name": "FSH",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "Foll",
+        "name": "Foll",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "GnRH",
+        "name": "GnRH",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "IOF",
+        "name": "IOF",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "Inh",
+        "name": "Inh",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "LH",
+        "name": "LH",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "P4",
+        "name": "P4",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "PGF",
+        "name": "PGF",
+        "annotation": "",
+        "update_fn": ""
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "CL",
+        "target": "CL",
+        "sign": "Dual",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "CL",
+        "target": "IOF",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "CL",
+        "target": "P4",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "E2",
+        "target": "E2",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "E2",
+        "target": "GnRH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "E2",
+        "target": "PGF",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH",
+        "target": "FSH",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "FSH",
+        "target": "Foll",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Foll",
+        "target": "CL",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Foll",
+        "target": "E2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "Foll",
+        "target": "Foll",
+        "sign": "Dual",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "Foll",
+        "target": "Inh",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "GnRH",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "GnRH",
+        "target": "LH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "IOF",
+        "target": "CL",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "IOF",
+        "target": "IOF",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "Inh",
+        "target": "FSH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "Inh",
+        "target": "Inh",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "LH",
+        "target": "CL",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "LH",
+        "target": "Foll",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "LH",
+        "target": "LH",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "P4",
+        "target": "Foll",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "GnRH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "LH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "P4",
+        "target": "P4",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "P4",
+        "target": "PGF",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "PGF",
+        "target": "IOF",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "PGF",
+        "target": "PGF",
+        "sign": "Inhibition",
+        "essential": "Unknown"
+      }
+    ],
+    "uninterpreted_fns": [],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "E2",
+            "px": 34.68611,
+            "py": -158.97803
+          },
+          {
+            "layout": "default",
+            "variable": "Inh",
+            "px": -186.68759,
+            "py": -104.78991
+          },
+          {
+            "layout": "default",
+            "variable": "Foll",
+            "px": -206.3237,
+            "py": 67.3474
+          },
+          {
+            "layout": "default",
+            "variable": "CL",
+            "px": 162.45618,
+            "py": 25.035038
+          },
+          {
+            "layout": "default",
+            "variable": "FSH",
+            "px": -276.64545,
+            "py": -113.76404
+          },
+          {
+            "layout": "default",
+            "variable": "IOF",
+            "px": 237.02898,
+            "py": -113.62341
+          },
+          {
+            "layout": "default",
+            "variable": "GnRH",
+            "px": -77.11279,
+            "py": -141.81836
+          },
+          {
+            "layout": "default",
+            "variable": "LH",
+            "px": -19.595379,
+            "py": 108.18545
+          },
+          {
+            "layout": "default",
+            "variable": "P4",
+            "px": 85.19222,
+            "py": -55.918045
+          },
+          {
+            "layout": "default",
+            "variable": "PGF",
+            "px": 136.45366,
+            "py": -161.80544
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "name": "ovul",
+      "id": "ovul",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "obs_1",
+          "name": "obs_1",
+          "annotation": "",
+          "dataset": "ovul",
+          "values": "100"
+        },
+        {
+          "id": "obs_2",
+          "name": "obs_2",
+          "annotation": "",
+          "dataset": "ovul",
+          "values": "110"
+        },
+        {
+          "id": "obs_3",
+          "name": "obs_3",
+          "annotation": "",
+          "dataset": "ovul",
+          "values": "101"
+        },
+        {
+          "id": "obs_4",
+          "name": "obs_4",
+          "annotation": "",
+          "dataset": "ovul",
+          "values": "000"
+        }
+      ],
+      "variables": [
+        "E2",
+        "LH",
+        "P4"
+      ]
+    },
+    {
+      "name": "time_series",
+      "id": "time_series",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "Ob_01",
+          "name": "Ob_01",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001001"
+        },
+        {
+          "id": "Ob_02",
+          "name": "Ob_02",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001000"
+        },
+        {
+          "id": "Ob_03",
+          "name": "Ob_03",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001100"
+        },
+        {
+          "id": "Ob_04",
+          "name": "Ob_04",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1101001100"
+        },
+        {
+          "id": "Ob_05",
+          "name": "Ob_05",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1111001100"
+        },
+        {
+          "id": "Ob_06",
+          "name": "Ob_06",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1011001100"
+        },
+        {
+          "id": "Ob_07",
+          "name": "Ob_07",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1011101100"
+        },
+        {
+          "id": "Ob_08",
+          "name": "Ob_08",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1000101100"
+        },
+        {
+          "id": "Ob_09",
+          "name": "Ob_09",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1000111100"
+        },
+        {
+          "id": "Ob_10",
+          "name": "Ob_10",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000110100"
+        },
+        {
+          "id": "Ob_11",
+          "name": "Ob_11",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000110000"
+        },
+        {
+          "id": "Ob_12",
+          "name": "Ob_12",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100110000"
+        },
+        {
+          "id": "Ob_13",
+          "name": "Ob_13",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101110000"
+        },
+        {
+          "id": "Ob_14",
+          "name": "Ob_14",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101110010"
+        },
+        {
+          "id": "Ob_15",
+          "name": "Ob_15",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111010"
+        },
+        {
+          "id": "Ob_16",
+          "name": "Ob_16",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111110"
+        },
+        {
+          "id": "Ob_17",
+          "name": "Ob_17",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0001111111"
+        },
+        {
+          "id": "Ob_18",
+          "name": "Ob_18",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000011111"
+        },
+        {
+          "id": "Ob_19",
+          "name": "Ob_19",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000010111"
+        },
+        {
+          "id": "Ob_20",
+          "name": "Ob_20",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000111"
+        },
+        {
+          "id": "Ob_21",
+          "name": "Ob_21",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000011"
+        },
+        {
+          "id": "Ob_22",
+          "name": "Ob_22",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100000011"
+        },
+        {
+          "id": "Ob_23",
+          "name": "Ob_23",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100000001"
+        },
+        {
+          "id": "Ob_24",
+          "name": "Ob_24",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101000001"
+        },
+        {
+          "id": "Ob_25",
+          "name": "Ob_25",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101000000"
+        },
+        {
+          "id": "Ob_26",
+          "name": "Ob_26",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001000"
+        },
+        {
+          "id": "Ob_27",
+          "name": "Ob_27",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001100"
+        },
+        {
+          "id": "Ob_28",
+          "name": "Ob_28",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1111001100"
+        },
+        {
+          "id": "Ob_29",
+          "name": "Ob_29",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1011001100"
+        },
+        {
+          "id": "Ob_30",
+          "name": "Ob_30",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1011101100"
+        },
+        {
+          "id": "Ob_31",
+          "name": "Ob_31",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1001101100"
+        },
+        {
+          "id": "Ob_32",
+          "name": "Ob_32",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1000101100"
+        },
+        {
+          "id": "Ob_33",
+          "name": "Ob_33",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1000111100"
+        },
+        {
+          "id": "Ob_34",
+          "name": "Ob_34",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000111100"
+        },
+        {
+          "id": "Ob_35",
+          "name": "Ob_35",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000110100"
+        },
+        {
+          "id": "Ob_36",
+          "name": "Ob_36",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000110000"
+        },
+        {
+          "id": "Ob_37",
+          "name": "Ob_37",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100110000"
+        },
+        {
+          "id": "Ob_38",
+          "name": "Ob_38",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101110000"
+        },
+        {
+          "id": "Ob_39",
+          "name": "Ob_39",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101110010"
+        },
+        {
+          "id": "Ob_40",
+          "name": "Ob_40",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111010"
+        },
+        {
+          "id": "Ob_41",
+          "name": "Ob_41",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111110"
+        },
+        {
+          "id": "Ob_42",
+          "name": "Ob_42",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111111"
+        },
+        {
+          "id": "Ob_43",
+          "name": "Ob_43",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0001111111"
+        },
+        {
+          "id": "Ob_44",
+          "name": "Ob_44",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0001011111"
+        },
+        {
+          "id": "Ob_45",
+          "name": "Ob_45",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000011111"
+        },
+        {
+          "id": "Ob_46",
+          "name": "Ob_46",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000001111"
+        },
+        {
+          "id": "Ob_47",
+          "name": "Ob_47",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000111"
+        },
+        {
+          "id": "Ob_48",
+          "name": "Ob_48",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000011"
+        },
+        {
+          "id": "Ob_49",
+          "name": "Ob_49",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000001"
+        },
+        {
+          "id": "Ob_50",
+          "name": "Ob_50",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100000001"
+        },
+        {
+          "id": "Ob_51",
+          "name": "Ob_51",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101000001"
+        },
+        {
+          "id": "Ob_52",
+          "name": "Ob_52",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101000000"
+        },
+        {
+          "id": "Ob_53",
+          "name": "Ob_53",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001000"
+        },
+        {
+          "id": "Ob_54",
+          "name": "Ob_54",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001100"
+        },
+        {
+          "id": "Ob_55",
+          "name": "Ob_55",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1101001100"
+        },
+        {
+          "id": "Ob_56",
+          "name": "Ob_56",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1111001100"
+        },
+        {
+          "id": "Ob_57",
+          "name": "Ob_57",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1011001100"
+        },
+        {
+          "id": "Ob_58",
+          "name": "Ob_58",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1011101100"
+        },
+        {
+          "id": "Ob_59",
+          "name": "Ob_59",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1000101100"
+        },
+        {
+          "id": "Ob_60",
+          "name": "Ob_60",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "1000111100"
+        },
+        {
+          "id": "Ob_61",
+          "name": "Ob_61",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000111100"
+        },
+        {
+          "id": "Ob_62",
+          "name": "Ob_62",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000110100"
+        },
+        {
+          "id": "Ob_63",
+          "name": "Ob_63",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000110000"
+        },
+        {
+          "id": "Ob_64",
+          "name": "Ob_64",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100110000"
+        },
+        {
+          "id": "Ob_65",
+          "name": "Ob_65",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101110000"
+        },
+        {
+          "id": "Ob_66",
+          "name": "Ob_66",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101110010"
+        },
+        {
+          "id": "Ob_67",
+          "name": "Ob_67",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111010"
+        },
+        {
+          "id": "Ob_68",
+          "name": "Ob_68",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111110"
+        },
+        {
+          "id": "Ob_69",
+          "name": "Ob_69",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101111111"
+        },
+        {
+          "id": "Ob_70",
+          "name": "Ob_70",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0001111111"
+        },
+        {
+          "id": "Ob_71",
+          "name": "Ob_71",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0001011111"
+        },
+        {
+          "id": "Ob_72",
+          "name": "Ob_72",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000011111"
+        },
+        {
+          "id": "Ob_73",
+          "name": "Ob_73",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000111"
+        },
+        {
+          "id": "Ob_74",
+          "name": "Ob_74",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000011"
+        },
+        {
+          "id": "Ob_75",
+          "name": "Ob_75",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0000000001"
+        },
+        {
+          "id": "Ob_76",
+          "name": "Ob_76",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0100000001"
+        },
+        {
+          "id": "Ob_77",
+          "name": "Ob_77",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101000001"
+        },
+        {
+          "id": "Ob_78",
+          "name": "Ob_78",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101000000"
+        },
+        {
+          "id": "Ob_79",
+          "name": "Ob_79",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001000"
+        },
+        {
+          "id": "Ob_80",
+          "name": "Ob_80",
+          "annotation": "",
+          "dataset": "time_series",
+          "values": "0101001100"
+        }
+      ],
+      "variables": [
+        "GnRH",
+        "FSH",
+        "LH",
+        "Foll",
+        "CL",
+        "P4",
+        "E2",
+        "Inh",
+        "PGF",
+        "IOF"
+      ]
+    }
+  ],
+  "dyn_properties": [
+    {
+      "id": "a02_CL_b_P4",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "3 {x}: ((~CL & ~P4) => EF (CL & ~P4)) => EF (CL & P4)"
+    },
+    {
+      "id": "Ovul",
+      "name": "Trajectory existence",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "ovul"
+    },
+    {
+      "id": "ts",
+      "name": "Trajectory existence",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "time_series"
+    },
+    {
+      "id": "a03_Foll_b_E2Inh",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "3 {x}: (Foll & ~E2 & ~Inh) => EF (Foll & E2 & Inh)"
+    },
+    {
+      "id": "a01_LH_b_CL",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "3 {x}: (LH & ~CL) => EF (~LH & CL)"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "essentiality_Inh_FSH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Inh",
+      "target": "FSH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_Foll",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "Foll",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Foll_Foll",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Foll",
+      "target": "Foll",
+      "value": "Dual",
+      "context": null
+    },
+    {
+      "id": "monotonicity_LH_Foll",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "LH",
+      "target": "Foll",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_Foll_E2",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Foll",
+      "target": "E2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_E2_E2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "E2",
+      "target": "E2",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_LH_CL",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "LH",
+      "target": "CL",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Inh_FSH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Inh",
+      "target": "FSH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Inh_Inh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Inh",
+      "target": "Inh",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CL_IOF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CL",
+      "target": "IOF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Foll_CL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Foll",
+      "target": "CL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_PGF_PGF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "PGF",
+      "target": "PGF",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_PGF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "PGF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "GnRH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_E2_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "E2",
+      "target": "GnRH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_IOF_CL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "IOF",
+      "target": "CL",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Foll_E2",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Foll",
+      "target": "E2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Foll_Inh",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Foll",
+      "target": "Inh",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_LH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "LH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_LH_Foll",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "LH",
+      "target": "Foll",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_PGF_IOF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "PGF",
+      "target": "IOF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_Foll",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "Foll",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CL_CL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CL",
+      "target": "CL",
+      "value": "Dual",
+      "context": null
+    },
+    {
+      "id": "essentiality_Foll_CL",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Foll",
+      "target": "CL",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_LH_LH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "LH",
+      "target": "LH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_LH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH",
+      "target": "LH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_GnRH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "GnRH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_LH_CL",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "LH",
+      "target": "CL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_PGF_IOF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "PGF",
+      "target": "IOF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_Foll",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH",
+      "target": "Foll",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_LH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "LH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_E2_PGF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "E2",
+      "target": "PGF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_E2_PGF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "E2",
+      "target": "PGF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_CL_P4",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "CL",
+      "target": "P4",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_IOF_IOF",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "IOF",
+      "target": "IOF",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_E2_GnRH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "E2",
+      "target": "GnRH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_Foll",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH",
+      "target": "Foll",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_P4_PGF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "P4",
+      "target": "PGF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Foll_Inh",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Foll",
+      "target": "Inh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CL_P4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CL",
+      "target": "P4",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_LH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH",
+      "target": "LH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_IOF_CL",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "IOF",
+      "target": "CL",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_FSH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH",
+      "target": "FSH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_P4_P4",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "P4",
+      "target": "P4",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_CL_IOF",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "CL",
+      "target": "IOF",
+      "value": "True",
+      "context": null
+    }
+  ],
+  "annotation": ""
+}

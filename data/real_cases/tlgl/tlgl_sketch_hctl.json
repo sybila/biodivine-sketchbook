@@ -737,65 +737,21 @@
       }
     ]
   },
-  "datasets": [
-    {
-      "name": "Expected phenotypes",
-      "id": "dataset_1",
-      "annotation": "",
-      "observations": [
-        {
-          "id": "Observation1",
-          "name": "Observation1",
-          "annotation": "",
-          "dataset": "dataset_1",
-          "values": "100000000000000000"
-        },
-        {
-          "id": "Observation2",
-          "name": "Observation2",
-          "annotation": "",
-          "dataset": "dataset_1",
-          "values": "0110001001**0***1*"
-        }
-      ],
-      "variables": [
-        "Apoptosis_",
-        "S1P",
-        "sFas",
-        "Fas",
-        "Ceramide_",
-        "Caspase",
-        "MCL1",
-        "BID_",
-        "DISC_",
-        "FLIP_",
-        "CTLA4_",
-        "TCR",
-        "IFNG_",
-        "CREB",
-        "P2",
-        "SMAD_",
-        "GPCR_",
-        "IAP_"
-      ]
-    }
-  ],
+  "datasets": [],
   "dyn_properties": [
     {
       "id": "a_diseased_attr",
       "name": "Attractor where cell lives (diseased behavior)",
       "annotation": "",
-      "variant": "HasAttractor",
-      "dataset": "dataset_1",
-      "observation": "Observation2"
+      "variant": "GenericDynProp",
+      "formula": "(3{x}: (@{x}: (~Apoptosis_ & S1P & sFas & ~Fas & ~Ceramide_ & ~Caspase & MCL1 & ~BID_ & ~DISC_ & FLIP_ & ~IFNG_ & GPCR_ & (AG EF (~Apoptosis_ & S1P & sFas & ~Fas & ~Ceramide_ & ~Caspase & MCL1 & ~BID_ & ~DISC_ & FLIP_ & ~IFNG_ & GPCR_ & {x})))))"
     },
     {
       "id": "b_healthy_fixed_point",
       "name": "Cell death fixed point (healthy behavior)",
       "annotation": "",
-      "variant": "ExistsFixedPoint",
-      "dataset": "dataset_1",
-      "observation": "Observation1"
+      "variant": "GenericDynProp",
+      "formula": "(3{x}: (@{x}: (Apoptosis_ & ~S1P & ~sFas & ~Fas & ~Ceramide_ & ~Caspase & ~MCL1 & ~BID_ & ~DISC_ & ~FLIP_ & ~CTLA4_ & ~TCR & ~IFNG_ & ~CREB & ~P2 & ~SMAD_ & ~GPCR_ & ~IAP_ & (AX (Apoptosis_ & ~S1P & ~sFas & ~Fas & ~Ceramide_ & ~Caspase & ~MCL1 & ~BID_ & ~DISC_ & ~FLIP_ & ~CTLA4_ & ~TCR & ~IFNG_ & ~CREB & ~P2 & ~SMAD_ & ~GPCR_ & ~IAP_)))))"
     }
   ],
   "stat_properties": [

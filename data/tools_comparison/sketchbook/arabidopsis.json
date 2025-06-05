@@ -966,5 +966,5 @@
       "context": null
     }
   ],
-  "annotation": "This sketch is created based on the network and data published by La Rota et al. in [this paper](https://doi.org/10.1105/tpc.111.092619), and later adapted in [this paper](https://doi.org/10.3389/fgene.2018.00039) about the BN inference tool Griffin."
+  "annotation": "This sketch is created based on the network and data published by La Rota et al. in [this paper](https://doi.org/10.1105/tpc.111.092619)."
 }

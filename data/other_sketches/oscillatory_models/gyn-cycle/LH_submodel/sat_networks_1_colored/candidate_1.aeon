@@ -1,0 +1,28 @@
+E2 -| E2
+GnRH_R_a -| GnRH_R_a
+E2 -> LH_Pit
+GnRH_R_a -| LH_Pit
+LH_Pit -| LH_Pit
+P4 -| LH_Pit
+LH_R -| LH_R
+LH_bld -> LH_R
+R_LH -> LH_R
+GnRH_R_a -> LH_bld
+LH_Pit -> LH_bld
+LH_bld -| LH_bld
+R_LH -| LH_bld
+P4 -| P4
+LH_bld -| R_LH
+R_LH -| R_LH
+R_LH_des -> R_LH
+LH_R -> R_LH_des
+R_LH_des -| R_LH_des
+$E2: !E2
+$GnRH_R_a: !GnRH_R_a
+$LH_Pit: !P4 | !LH_Pit | !GnRH_R_a | E2
+$LH_R: R_LH | LH_bld | !LH_R
+$LH_bld: !R_LH | !LH_bld | LH_Pit | GnRH_R_a
+$P4: !P4
+$R_LH: !R_LH | (!LH_bld & R_LH & R_LH_des)
+$R_LH_des: LH_R & !R_LH_des
+

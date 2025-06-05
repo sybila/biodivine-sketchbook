@@ -1,0 +1,950 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "FSH_R",
+        "name": "FSH_R",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "FSH_bld",
+        "name": "FSH_bld",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "FSH_pit",
+        "name": "FSH_pit",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "GnRH_R_a",
+        "name": "GnRH_R_a",
+        "annotation": "",
+        "update_fn": "!GnRH_R_a"
+      },
+      {
+        "id": "InhA_delay",
+        "name": "InhA_delay",
+        "annotation": "",
+        "update_fn": "!InhA_delay"
+      },
+      {
+        "id": "InhB",
+        "name": "InhB",
+        "annotation": "",
+        "update_fn": "!InhB"
+      },
+      {
+        "id": "R_FSH",
+        "name": "R_FSH",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "R_FSH_des",
+        "name": "R_FSH_des",
+        "annotation": "",
+        "update_fn": ""
+      },
+      {
+        "id": "freq",
+        "name": "freq",
+        "annotation": "",
+        "update_fn": "!freq"
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "FSH_R",
+        "target": "FSH_R",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_R",
+        "target": "R_FSH_des",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_bld",
+        "target": "FSH_R",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_bld",
+        "target": "FSH_bld",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_bld",
+        "target": "R_FSH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_pit",
+        "target": "FSH_bld",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FSH_pit",
+        "target": "FSH_pit",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "FSH_bld",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "FSH_pit",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "GnRH_R_a",
+        "target": "GnRH_R_a",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "InhA_delay",
+        "target": "FSH_pit",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "InhA_delay",
+        "target": "InhA_delay",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "InhB",
+        "target": "FSH_pit",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "InhB",
+        "target": "InhB",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_FSH",
+        "target": "FSH_R",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_FSH",
+        "target": "FSH_bld",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_FSH",
+        "target": "R_FSH",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_FSH_des",
+        "target": "R_FSH",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "R_FSH_des",
+        "target": "R_FSH_des",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "freq",
+        "target": "FSH_pit",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "freq",
+        "target": "freq",
+        "sign": "Inhibition",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "InhA_delay",
+            "px": 127.990074,
+            "py": 440.7965
+          },
+          {
+            "layout": "default",
+            "variable": "freq",
+            "px": 157.03085,
+            "py": 315.227
+          },
+          {
+            "layout": "default",
+            "variable": "FSH_pit",
+            "px": 258.5066,
+            "py": 391.1132
+          },
+          {
+            "layout": "default",
+            "variable": "R_FSH_des",
+            "px": 566.0222,
+            "py": 481.55896
+          },
+          {
+            "layout": "default",
+            "variable": "InhB",
+            "px": 135.44455,
+            "py": 380.40662
+          },
+          {
+            "layout": "default",
+            "variable": "R_FSH",
+            "px": 550.5802,
+            "py": 389.7896
+          },
+          {
+            "layout": "default",
+            "variable": "FSH_bld",
+            "px": 375.50043,
+            "py": 392.03488
+          },
+          {
+            "layout": "default",
+            "variable": "FSH_R",
+            "px": 426.16217,
+            "py": 493.03018
+          },
+          {
+            "layout": "default",
+            "variable": "GnRH_R_a",
+            "px": 189.67957,
+            "py": 500.9717
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "name": "dataset_1",
+      "id": "dataset_1",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "Ob_01",
+          "name": "Ob_01",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000110010"
+        },
+        {
+          "id": "Ob_02",
+          "name": "Ob_02",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "101010100"
+        },
+        {
+          "id": "Ob_03",
+          "name": "Ob_03",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "101010101"
+        },
+        {
+          "id": "Ob_04",
+          "name": "Ob_04",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111011101"
+        },
+        {
+          "id": "Ob_05",
+          "name": "Ob_05",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "011001101"
+        },
+        {
+          "id": "Ob_06",
+          "name": "Ob_06",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111001101"
+        },
+        {
+          "id": "Ob_07",
+          "name": "Ob_07",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "011001100"
+        },
+        {
+          "id": "Ob_08",
+          "name": "Ob_08",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000101010"
+        },
+        {
+          "id": "Ob_09",
+          "name": "Ob_09",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000100010"
+        },
+        {
+          "id": "Ob_10",
+          "name": "Ob_10",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000110010"
+        },
+        {
+          "id": "Ob_11",
+          "name": "Ob_11",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "101010100"
+        },
+        {
+          "id": "Ob_12",
+          "name": "Ob_12",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111011101"
+        },
+        {
+          "id": "Ob_13",
+          "name": "Ob_13",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111001101"
+        },
+        {
+          "id": "Ob_14",
+          "name": "Ob_14",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111001100"
+        },
+        {
+          "id": "Ob_15",
+          "name": "Ob_15",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000101010"
+        },
+        {
+          "id": "Ob_16",
+          "name": "Ob_16",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000100010"
+        },
+        {
+          "id": "Ob_17",
+          "name": "Ob_17",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "001010100"
+        },
+        {
+          "id": "Ob_18",
+          "name": "Ob_18",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "101010101"
+        },
+        {
+          "id": "Ob_19",
+          "name": "Ob_19",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111011101"
+        },
+        {
+          "id": "Ob_20",
+          "name": "Ob_20",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111001101"
+        },
+        {
+          "id": "Ob_21",
+          "name": "Ob_21",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000101010"
+        },
+        {
+          "id": "Ob_22",
+          "name": "Ob_22",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000100010"
+        },
+        {
+          "id": "Ob_23",
+          "name": "Ob_23",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000110010"
+        },
+        {
+          "id": "Ob_24",
+          "name": "Ob_24",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "000010010"
+        },
+        {
+          "id": "Ob_25",
+          "name": "Ob_25",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "101010101"
+        },
+        {
+          "id": "Ob_26",
+          "name": "Ob_26",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111011101"
+        },
+        {
+          "id": "Ob_27",
+          "name": "Ob_27",
+          "annotation": "",
+          "dataset": "dataset_1",
+          "values": "111001101"
+        }
+      ],
+      "variables": [
+        "FSH_bld",
+        "InhB",
+        "R_FSH_des",
+        "InhA_delay",
+        "FSH_pit",
+        "GnRH_R_a",
+        "FSH_R",
+        "R_FSH",
+        "freq"
+      ]
+    }
+  ],
+  "dyn_properties": [
+    {
+      "id": "dynamic_03",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (FSH_bld & InhB & R_FSH_des & ~InhA_delay & FSH_pit & GnRH_R_a & FSH_R & ~R_FSH & freq & EF (FSH_bld & InhB & R_FSH_des & ~InhA_delay & ~FSH_pit & GnRH_R_a & FSH_R & ~R_FSH & freq))"
+    },
+    {
+      "id": "dynamic_1",
+      "name": "Attractor existence",
+      "annotation": "",
+      "variant": "HasAttractor",
+      "dataset": "dataset_1",
+      "observation": null
+    },
+    {
+      "id": "dynamic_04",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (FSH_bld & InhB & R_FSH_des & ~InhA_delay & ~FSH_pit & GnRH_R_a & FSH_R & ~R_FSH & freq & EF (~FSH_bld & ~InhB & ~R_FSH_des & InhA_delay & ~FSH_pit & GnRH_R_a & ~FSH_R & R_FSH & ~freq))"
+    },
+    {
+      "id": "dynamic_02",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (FSH_bld & ~InhB & R_FSH_des & ~InhA_delay & FSH_pit & ~GnRH_R_a & FSH_R & ~R_FSH & freq & EF (FSH_bld & InhB & R_FSH_des & ~InhA_delay & FSH_pit & GnRH_R_a & FSH_R & ~R_FSH & freq))"
+    },
+    {
+      "id": "dynamic_01",
+      "name": "Trajectory existence",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "dataset_1"
+    },
+    {
+      "id": "dynamic_07",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (FSH_bld & ~InhB & R_FSH_des & ~InhA_delay & FSH_pit & ~GnRH_R_a & FSH_R & ~R_FSH & freq & EF (FSH_bld & InhB & R_FSH_des & ~InhA_delay & FSH_pit & GnRH_R_a & FSH_R & ~R_FSH & freq & EF (FSH_bld & InhB & R_FSH_des & ~InhA_delay & ~FSH_pit & GnRH_R_a & FSH_R & ~R_FSH & freq & EF (~FSH_bld & ~InhB & ~R_FSH_des & InhA_delay & ~FSH_pit & GnRH_R_a & ~FSH_R & R_FSH & ~freq & EF (~FSH_bld & ~InhB & ~R_FSH_des & InhA_delay & ~FSH_pit & ~GnRH_R_a & ~FSH_R & R_FSH & ~freq & EF (FSH_bld & ~InhB & R_FSH_des & ~InhA_delay & FSH_pit & ~GnRH_R_a & FSH_R & ~R_FSH & freq))))))"
+    },
+    {
+      "id": "dynamic_00",
+      "name": "Attractor count",
+      "annotation": "",
+      "variant": "AttractorCount",
+      "minimal": 1,
+      "maximal": 1
+    },
+    {
+      "id": "dynamic_05",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (~FSH_bld & ~InhB & ~R_FSH_des & InhA_delay & ~FSH_pit & GnRH_R_a & ~FSH_R & R_FSH & ~freq & EF (~FSH_bld & ~InhB & ~R_FSH_des & InhA_delay & ~FSH_pit & ~GnRH_R_a & ~FSH_R & R_FSH & ~freq))"
+    },
+    {
+      "id": "dynamic_06",
+      "name": "Generic dynamic property",
+      "annotation": "",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (~FSH_bld & ~InhB & ~R_FSH_des & InhA_delay & ~FSH_pit & ~GnRH_R_a & ~FSH_R & R_FSH & ~freq & EF (FSH_bld & ~InhB & R_FSH_des & ~InhA_delay & FSH_pit & ~GnRH_R_a & FSH_R & ~R_FSH & freq))"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "essentiality_freq_FSH_pit",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "freq",
+      "target": "FSH_pit",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_FSH_FSH_bld",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_FSH",
+      "target": "FSH_bld",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_FSH_pit",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "FSH_pit",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_R_R_FSH_des",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_R",
+      "target": "R_FSH_des",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_InhA_delay_FSH_pit",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "InhA_delay",
+      "target": "FSH_pit",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_pit_FSH_bld",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_pit",
+      "target": "FSH_bld",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_InhB_InhB",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "InhB",
+      "target": "InhB",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_freq_freq",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "freq",
+      "target": "freq",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_bld_FSH_bld",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_bld",
+      "target": "FSH_bld",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_InhB_InhB",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "InhB",
+      "target": "InhB",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_FSH_pit",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "FSH_pit",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_FSH_bld",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "FSH_bld",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_InhA_delay_InhA_delay",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "InhA_delay",
+      "target": "InhA_delay",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_bld_FSH_R",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_bld",
+      "target": "FSH_R",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_FSH_des_R_FSH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_FSH_des",
+      "target": "R_FSH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_InhA_delay_InhA_delay",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "InhA_delay",
+      "target": "InhA_delay",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_FSH_des_R_FSH_des",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_FSH_des",
+      "target": "R_FSH_des",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_R_FSH_R",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_R",
+      "target": "FSH_R",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_pit_FSH_pit",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_pit",
+      "target": "FSH_pit",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_InhB_FSH_pit",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "InhB",
+      "target": "FSH_pit",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_FSH_bld",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "FSH_bld",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_bld_FSH_bld",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_bld",
+      "target": "FSH_bld",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GnRH_R_a_GnRH_R_a",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GnRH_R_a",
+      "target": "GnRH_R_a",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_FSH_R_FSH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_FSH",
+      "target": "R_FSH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_R_R_FSH_des",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_R",
+      "target": "R_FSH_des",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_FSH_FSH_bld",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_FSH",
+      "target": "FSH_bld",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_FSH_R_FSH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_FSH",
+      "target": "R_FSH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_FSH_FSH_R",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_FSH",
+      "target": "FSH_R",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_bld_R_FSH",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_bld",
+      "target": "R_FSH",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_freq_freq",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "freq",
+      "target": "freq",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_R_FSH_des_R_FSH_des",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "R_FSH_des",
+      "target": "R_FSH_des",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_pit_FSH_bld",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_pit",
+      "target": "FSH_bld",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_FSH_FSH_R",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_FSH",
+      "target": "FSH_R",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_pit_FSH_pit",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_pit",
+      "target": "FSH_pit",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_freq_FSH_pit",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "freq",
+      "target": "FSH_pit",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_InhA_delay_FSH_pit",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "InhA_delay",
+      "target": "FSH_pit",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_bld_R_FSH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_bld",
+      "target": "R_FSH",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_R_FSH_des_R_FSH",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "R_FSH_des",
+      "target": "R_FSH",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GnRH_R_a_GnRH_R_a",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GnRH_R_a",
+      "target": "GnRH_R_a",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_InhB_FSH_pit",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "InhB",
+      "target": "FSH_pit",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FSH_R_FSH_R",
+      "name": "Regulation essentiality property",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FSH_R",
+      "target": "FSH_R",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FSH_bld_FSH_R",
+      "name": "Regulation monotonicity property",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FSH_bld",
+      "target": "FSH_R",
+      "value": "Activation",
+      "context": null
+    }
+  ],
+  "annotation": ""
+}

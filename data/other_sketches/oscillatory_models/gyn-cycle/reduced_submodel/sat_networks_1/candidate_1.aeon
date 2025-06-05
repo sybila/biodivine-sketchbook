@@ -1,0 +1,57 @@
+FSH_red -> AF_red
+LH_red -? AF_red
+R_Foll -? AF_red
+AF_red -> E2
+LH_red -> E2
+Lut -> E2
+GnRH -| FSH_red
+Inh -| FSH_red
+freq -| FSH_red
+freq -> GnRH
+mass -> GnRH
+AF_red -> Inh
+Lut -> Inh
+OvF -> Inh
+E2 -> LH_red
+GnRH -| LH_red
+P4 -| LH_red
+GnRH -| Lut
+OvF -> Lut
+LH_red -> OvF
+OvF -| OvF
+R_Foll -> OvF
+Lut -> P4
+P4 -| P4
+FSH_red -> R_Foll
+P4 -| R_Foll
+Sc -| Sc
+E2 -> freq
+P4 -| freq
+E2 -> mass
+$AF_red: (LH_red & R_Foll) | (!LH_red & !R_Foll) | (FSH_red & LH_red & !R_Foll)
+$E2: Lut | (AF_red & LH_red)
+$FSH_red: !GnRH & !Inh & !freq
+$GnRH: freq & mass
+$Inh: OvF | Lut | AF_red
+$LH_red: !P4 | !GnRH | E2
+$Lut: OvF | !GnRH
+$OvF: !OvF | (LH_red & OvF & R_Foll)
+$P4: !P4 | Lut
+$R_Foll: !P4 | FSH_red
+$Sc: !Sc
+$freq: !P4 | E2
+$mass: E2
+#position:AF_red:294.79025,801.22003
+#position:P4:109.78359,653.8724
+#position:OvF:455.698,801.9749
+#position:Inh:147.02058,708.70294
+#position:FSH_red:424.06943,601.95264
+#position:freq:104.99239,471.43967
+#position:LH_red:283.83414,593.7105
+#position:Sc:516.42773,776.4159
+#position:Lut:619.03564,770.2758
+#position:E2:129.50406,562.6848
+#position:mass:38.25953,533.5483
+#position:R_Foll:322.27667,684.5808
+#position:GnRH:398.59918,478.89377
+

@@ -1,7 +1,7 @@
-A real case studies collected and adapted to BN sketches framework. The Arabidopsis is discussed in the Sketchbook thesis, while TLGL in our original theoretical paper. 
+Collection of various case studies that were used to employ the BN sketches framework. At the moment, there are two main cases - the Arabidopsis (discussed in the Sketchbook thesis) and TLGL (described in our original theoretical paper). Some more biologically-relevant sketches can be found in the `other_sketches` folder.
 
 1) Arabidopsis sketch:
-    - background: This model and expected attractor data is taken from [this paper](https://doi.org/10.3389/fgene.2018.00039) about the BN inference tool Griffin. Originally, the model was developed by La Rota et al. in [this paper](https://doi.org/10.1105/tpc.111.092619).
+    - background: This model and expected attractor data is taken from the model developed by La Rota et al. in [this paper](https://doi.org/10.1105/tpc.111.092619), and later adapted in [this paper](https://doi.org/10.3389/fgene.2018.00039) about the BN inference tool Griffin.
     - model: We use the fully unspecified model directly as is.
     - properties: We use two fixed-point properties adapted from the Griffin paper.
     - candidates after static: 4761711360
