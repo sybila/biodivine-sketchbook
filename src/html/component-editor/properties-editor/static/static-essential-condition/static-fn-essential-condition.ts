@@ -1,36 +1,23 @@
 import { css, html, type TemplateResult, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import style_less from './static-input-essential-condition.less?inline'
+import style_less from './static-essential-condition.less?inline'
 import {
-  Essentiality,
-  type IFunctionInputEssentialStaticProperty,
-  type IVariableRegulatorEssentialStaticProperty
+  type IFunctionInputEssentialStaticProperty
 } from '../../../../util/data-interfaces'
 import { getEssentialityText, getNextEssentiality } from '../../../../util/utilities'
 import { map } from 'lit/directives/map.js'
-import StaticSelectorsProperty from '../static-selectors-property'
+import StaticFnSelectorsProperty from '../static-fn-selectors-property'
 
-@customElement('static-input-essential-condition')
-export default class StaticInputEssentialCondition extends StaticSelectorsProperty {
+@customElement('static-fn-essential-condition')
+export default class StaticFnEssentialCondition extends StaticFnSelectorsProperty {
   static styles = css`${unsafeCSS(style_less)}`
-  @property() declare property: IFunctionInputEssentialStaticProperty | IVariableRegulatorEssentialStaticProperty
-
-  private getEssentialitySymbol (): string {
-    switch (this.property.value) {
-      case Essentiality.TRUE:
-        return '<-'
-      case Essentiality.FALSE:
-        return '</-'
-      default:
-        return '??'
-    }
-  }
+  @property() declare property: IFunctionInputEssentialStaticProperty
 
   toggleEssentiality (): void {
-    let value = getNextEssentiality(this.property.value)
-    if (value === Essentiality.UNKNOWN) {
-      value = getNextEssentiality(value)
-    }
+    const value = getNextEssentiality(this.property.value)
+    // if (value === Essentiality.UNKNOWN) {
+    //  value = getNextEssentiality(value)
+    // }
     this.updateProperty({
       ...this.property,
       value
@@ -42,14 +29,15 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
       <div class="property-body">
         ${this.renderNameplate()}
         <div class="value-section">
-          <div class="value-symbol gap">
+          <div class="value-symbol uk-width-3-5 gap">
+            <label for="target-selector">Fn:</label>
             <select id="target-selector" class="uk-select" @change="${this.targetChanged}">
               <option value="${null}">---</option>
               ${map(this.getTargetSelectorItems(), (item) => html`
                 <option value="${item}">${item}</option>
               `)}
             </select>
-            <span>${this.getEssentialitySymbol()}</span>
+            <label for="input-selector">Input:</label>
             <select id="input-selector" class="uk-select" @change="${this.inputChanged}"
                     ?disabled="${this.property.target === null}">
               <option value="${null}">---</option>
@@ -58,7 +46,7 @@ export default class StaticInputEssentialCondition extends StaticSelectorsProper
               `)}
             </select>
           </div>
-          <div class="value-symbol" @click="${() => {
+          <div class="value-symbol uk-width-2-5" @click="${() => {
             this.toggleEssentiality()
           }}">
             <span class="essentiality">

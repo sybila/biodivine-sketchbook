@@ -38,7 +38,7 @@ export default class abstractStaticProperty extends AbstractProperty {
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
           <label class="uk-form-label" for="id-field">ID</label>
-          <input id="id-field" class="uk-input static-name-field" .value="${this.property.id}" readonly/>
+          <input id="id-field" class="name-field static-name-field" .value="${this.property.id}" readonly/>
         </div>
 
         <div class="uk-flex uk-flex-column name-section">

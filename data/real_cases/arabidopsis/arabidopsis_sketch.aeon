@@ -1,37 +1,121 @@
-## PROPERTIES
-#! dynamic_property: fp1: #`(3{x}: (@{x}: (AGO1 & ~AGO10 & ~AGO7 & ANT & ARF4 & ~AS1 & ~AS2 & ETT & FIL & KAN1 & miR165 & miR390 & ~REV & ~TAS3siRNA & AGO1_miR165 & ~AGO7_miR390 & ~AS1_AS2 & AUXINh & ~CKh & ~GTE6 & ~IPT5 & (AX (AGO1 & ~AGO10 & ~AGO7 & ANT & ARF4 & ~AS1 & ~AS2 & ETT & FIL & KAN1 & miR165 & miR390 & ~REV & ~TAS3siRNA & AGO1_miR165 & ~AGO7_miR390 & ~AS1_AS2 & AUXINh & ~CKh & ~GTE6 & ~IPT5)))))`#
-#! dynamic_property: fp2: #`(3{x}: (@{x}: (~AGO1 & AGO10 & AGO7 & ANT & ~ARF4 & AS1 & AS2 & ~ETT & ~FIL & ~KAN1 & ~miR165 & miR390 & REV & TAS3siRNA & ~AGO1_miR165 & AGO7_miR390 & AS1_AS2 & AUXINh & CKh & GTE6 & IPT5 & (AX (~AGO1 & AGO10 & AGO7 & ANT & ~ARF4 & AS1 & AS2 & ~ETT & ~FIL & ~KAN1 & ~miR165 & miR390 & REV & TAS3siRNA & ~AGO1_miR165 & AGO7_miR390 & AS1_AS2 & AUXINh & CKh & GTE6 & IPT5)))))`#
-
-## MODEL
-AUXINh ->? AUXINh
 AUXINh ->? miR390
-miR390 -> AGO7_miR390
 AGO7 -> AGO7_miR390
-REV ->? AGO7
-AUXINh ->? REV
-AGO1_miR165 -| REV
-AUXINh ->? ANT
-AUXINh ->? ARF4
-FIL ->? ARF4
-TAS3siRNA -| ARF4
-ANT ->? FIL
-ARF4 ->? FIL
-ETT ->? FIL
-AGO7_miR390 -> TAS3siRNA
-FIL ->? ETT
-TAS3siRNA -| ETT
 FIL ->? KAN1
-AS1_AS2 -|? KAN1
-AS2 -> AS1_AS2
-AS1 -> AS1_AS2
-miR165 -> AGO1_miR165
-AGO1 -> AGO1_miR165
-KAN1 -| AS2
-GTE6 -> AS1
-CKh ->? GTE6
-TAS3siRNA -|? miR165
-AS1_AS2 -|? miR165
-IPT5 -> CKh
 REV ->? IPT5
-AGO10 -|? AGO1
+AUXINh ->? AUXINh
 REV ->? AGO10
+miR390 -> AGO7_miR390
+ETT ->? FIL
+AUXINh ->? REV
+GTE6 -> AS1
+FIL ->? ARF4
+AS1_AS2 -|? miR165
+AGO1 -> AGO1_miR165
+AS1_AS2 -|? KAN1
+FIL ->? ETT
+AGO10 -|? AGO1
+IPT5 -> CKh
+REV ->? AGO7
+ANT ->? FIL
+CKh ->? GTE6
+TAS3siRNA -| ETT
+AGO1_miR165 -| REV
+ARF4 ->? FIL
+TAS3siRNA -| ARF4
+AUXINh ->? ARF4
+AUXINh ->? ANT
+KAN1 -| AS2
+AS2 -> AS1_AS2
+miR165 -> AGO1_miR165
+AGO7_miR390 -> TAS3siRNA
+AS1 -> AS1_AS2
+TAS3siRNA -|? miR165
+#position:FIL:27.96114,-238.2047
+#position:AS1:239.0624,-165.63762
+#position:AGO1:-87.963394,234.34479
+#position:AGO10:-211.38138,125.12924
+#position:AGO1_miR165:33.103477,264.55807
+#position:AS1_AS2:222.5151,198.69817
+#position:REV:-246.3728,49.55174
+#position:IPT5:-244.31677,0.3059232
+#position:AGO7_miR390:279.33173,146.2002
+#position:GTE6:313.60553,-56.795307
+#position:miR165:141.75871,242.05377
+#position:ETT:116.12924,-226.75644
+#position:AGO7:315.59872,76.21962
+#position:AUXINh:-197.56892,-128.57117
+#position:CKh:-235.80388,-65.14867
+#position:ARF4:-74.91142,-218.5323
+#position:ANT:-152.03842,-183.62268
+#position:KAN1:-172.00859,186.5409
+#position:AS2:282.20248,-112.04745
+#position:TAS3siRNA:319.6096,5.985072
+#position:miR390:180.1229,-203.43517
+#!dataset:dataset_1:#`{"name":"dataset_1","id":"dataset_1","annotation":"","observations":[{"id":"Observation1","name":"Observation1","annotation":"","dataset":"dataset_1","values":"100110011111001001000"},{"id":"Observation2","name":"Observation2","annotation":"","dataset":"dataset_1","values":"011101100001110111111"}],"variables":["AGO1","AGO10","AGO7","ANT","ARF4","AS1","AS2","ETT","FIL","KAN1","miR165","miR390","REV","TAS3siRNA","AGO1_miR165","AGO7_miR390","AS1_AS2","AUXINh","CKh","GTE6","IPT5"]}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Fixed point existence","annotation":"","variant":"ExistsFixedPoint","dataset":"dataset_1","observation":null}`#
+#!static_property:essentiality_AGO1_AGO1_miR165:#`{"id":"essentiality_AGO1_AGO1_miR165","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AGO1","target":"AGO1_miR165","value":"True","context":null}`#
+#!static_property:essentiality_AGO1_miR165_REV:#`{"id":"essentiality_AGO1_miR165_REV","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AGO1_miR165","target":"REV","value":"True","context":null}`#
+#!static_property:essentiality_AGO7_AGO7_miR390:#`{"id":"essentiality_AGO7_AGO7_miR390","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AGO7","target":"AGO7_miR390","value":"True","context":null}`#
+#!static_property:essentiality_AGO7_miR390_TAS3siRNA:#`{"id":"essentiality_AGO7_miR390_TAS3siRNA","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AGO7_miR390","target":"TAS3siRNA","value":"True","context":null}`#
+#!static_property:essentiality_AS1_AS1_AS2:#`{"id":"essentiality_AS1_AS1_AS2","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AS1","target":"AS1_AS2","value":"True","context":null}`#
+#!static_property:essentiality_AS2_AS1_AS2:#`{"id":"essentiality_AS2_AS1_AS2","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"AS2","target":"AS1_AS2","value":"True","context":null}`#
+#!static_property:essentiality_GTE6_AS1:#`{"id":"essentiality_GTE6_AS1","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"GTE6","target":"AS1","value":"True","context":null}`#
+#!static_property:essentiality_IPT5_CKh:#`{"id":"essentiality_IPT5_CKh","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"IPT5","target":"CKh","value":"True","context":null}`#
+#!static_property:essentiality_KAN1_AS2:#`{"id":"essentiality_KAN1_AS2","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"KAN1","target":"AS2","value":"True","context":null}`#
+#!static_property:essentiality_TAS3siRNA_ARF4:#`{"id":"essentiality_TAS3siRNA_ARF4","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TAS3siRNA","target":"ARF4","value":"True","context":null}`#
+#!static_property:essentiality_TAS3siRNA_ETT:#`{"id":"essentiality_TAS3siRNA_ETT","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"TAS3siRNA","target":"ETT","value":"True","context":null}`#
+#!static_property:essentiality_miR165_AGO1_miR165:#`{"id":"essentiality_miR165_AGO1_miR165","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"miR165","target":"AGO1_miR165","value":"True","context":null}`#
+#!static_property:essentiality_miR390_AGO7_miR390:#`{"id":"essentiality_miR390_AGO7_miR390","name":"Regulation essentiality property","annotation":"","variant":"RegulationEssential","input":"miR390","target":"AGO7_miR390","value":"True","context":null}`#
+#!static_property:monotonicity_AGO10_AGO1:#`{"id":"monotonicity_AGO10_AGO1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AGO10","target":"AGO1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_AGO1_AGO1_miR165:#`{"id":"monotonicity_AGO1_AGO1_miR165","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AGO1","target":"AGO1_miR165","value":"Activation","context":null}`#
+#!static_property:monotonicity_AGO1_miR165_REV:#`{"id":"monotonicity_AGO1_miR165_REV","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AGO1_miR165","target":"REV","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_AGO7_AGO7_miR390:#`{"id":"monotonicity_AGO7_AGO7_miR390","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AGO7","target":"AGO7_miR390","value":"Activation","context":null}`#
+#!static_property:monotonicity_AGO7_miR390_TAS3siRNA:#`{"id":"monotonicity_AGO7_miR390_TAS3siRNA","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AGO7_miR390","target":"TAS3siRNA","value":"Activation","context":null}`#
+#!static_property:monotonicity_ANT_FIL:#`{"id":"monotonicity_ANT_FIL","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ANT","target":"FIL","value":"Activation","context":null}`#
+#!static_property:monotonicity_ARF4_FIL:#`{"id":"monotonicity_ARF4_FIL","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ARF4","target":"FIL","value":"Activation","context":null}`#
+#!static_property:monotonicity_AS1_AS1_AS2:#`{"id":"monotonicity_AS1_AS1_AS2","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AS1","target":"AS1_AS2","value":"Activation","context":null}`#
+#!static_property:monotonicity_AS1_AS2_KAN1:#`{"id":"monotonicity_AS1_AS2_KAN1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AS1_AS2","target":"KAN1","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_AS1_AS2_miR165:#`{"id":"monotonicity_AS1_AS2_miR165","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AS1_AS2","target":"miR165","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_AS2_AS1_AS2:#`{"id":"monotonicity_AS2_AS1_AS2","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AS2","target":"AS1_AS2","value":"Activation","context":null}`#
+#!static_property:monotonicity_AUXINh_ANT:#`{"id":"monotonicity_AUXINh_ANT","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AUXINh","target":"ANT","value":"Activation","context":null}`#
+#!static_property:monotonicity_AUXINh_ARF4:#`{"id":"monotonicity_AUXINh_ARF4","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AUXINh","target":"ARF4","value":"Activation","context":null}`#
+#!static_property:monotonicity_AUXINh_AUXINh:#`{"id":"monotonicity_AUXINh_AUXINh","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AUXINh","target":"AUXINh","value":"Activation","context":null}`#
+#!static_property:monotonicity_AUXINh_REV:#`{"id":"monotonicity_AUXINh_REV","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AUXINh","target":"REV","value":"Activation","context":null}`#
+#!static_property:monotonicity_AUXINh_miR390:#`{"id":"monotonicity_AUXINh_miR390","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"AUXINh","target":"miR390","value":"Activation","context":null}`#
+#!static_property:monotonicity_CKh_GTE6:#`{"id":"monotonicity_CKh_GTE6","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"CKh","target":"GTE6","value":"Activation","context":null}`#
+#!static_property:monotonicity_ETT_FIL:#`{"id":"monotonicity_ETT_FIL","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"ETT","target":"FIL","value":"Activation","context":null}`#
+#!static_property:monotonicity_FIL_ARF4:#`{"id":"monotonicity_FIL_ARF4","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"FIL","target":"ARF4","value":"Activation","context":null}`#
+#!static_property:monotonicity_FIL_ETT:#`{"id":"monotonicity_FIL_ETT","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"FIL","target":"ETT","value":"Activation","context":null}`#
+#!static_property:monotonicity_FIL_KAN1:#`{"id":"monotonicity_FIL_KAN1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"FIL","target":"KAN1","value":"Activation","context":null}`#
+#!static_property:monotonicity_GTE6_AS1:#`{"id":"monotonicity_GTE6_AS1","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"GTE6","target":"AS1","value":"Activation","context":null}`#
+#!static_property:monotonicity_IPT5_CKh:#`{"id":"monotonicity_IPT5_CKh","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"IPT5","target":"CKh","value":"Activation","context":null}`#
+#!static_property:monotonicity_KAN1_AS2:#`{"id":"monotonicity_KAN1_AS2","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"KAN1","target":"AS2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_REV_AGO10:#`{"id":"monotonicity_REV_AGO10","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"REV","target":"AGO10","value":"Activation","context":null}`#
+#!static_property:monotonicity_REV_AGO7:#`{"id":"monotonicity_REV_AGO7","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"REV","target":"AGO7","value":"Activation","context":null}`#
+#!static_property:monotonicity_REV_IPT5:#`{"id":"monotonicity_REV_IPT5","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"REV","target":"IPT5","value":"Activation","context":null}`#
+#!static_property:monotonicity_TAS3siRNA_ARF4:#`{"id":"monotonicity_TAS3siRNA_ARF4","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAS3siRNA","target":"ARF4","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_TAS3siRNA_ETT:#`{"id":"monotonicity_TAS3siRNA_ETT","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAS3siRNA","target":"ETT","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_TAS3siRNA_miR165:#`{"id":"monotonicity_TAS3siRNA_miR165","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"TAS3siRNA","target":"miR165","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_miR165_AGO1_miR165:#`{"id":"monotonicity_miR165_AGO1_miR165","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"miR165","target":"AGO1_miR165","value":"Activation","context":null}`#
+#!static_property:monotonicity_miR390_AGO7_miR390:#`{"id":"monotonicity_miR390_AGO7_miR390","name":"Regulation monotonicity property","annotation":"","variant":"RegulationMonotonic","input":"miR390","target":"AGO7_miR390","value":"Activation","context":null}`#
+#!variable:AGO1:#`{"id":"AGO1","name":"AGO1","annotation":"","update_fn":""}`#
+#!variable:AGO10:#`{"id":"AGO10","name":"AGO10","annotation":"","update_fn":""}`#
+#!variable:AGO1_miR165:#`{"id":"AGO1_miR165","name":"AGO1_miR165","annotation":"","update_fn":""}`#
+#!variable:AGO7:#`{"id":"AGO7","name":"AGO7","annotation":"","update_fn":""}`#
+#!variable:AGO7_miR390:#`{"id":"AGO7_miR390","name":"AGO7_miR390","annotation":"","update_fn":""}`#
+#!variable:ANT:#`{"id":"ANT","name":"ANT","annotation":"","update_fn":""}`#
+#!variable:ARF4:#`{"id":"ARF4","name":"ARF4","annotation":"","update_fn":""}`#
+#!variable:AS1:#`{"id":"AS1","name":"AS1","annotation":"","update_fn":""}`#
+#!variable:AS1_AS2:#`{"id":"AS1_AS2","name":"AS1_AS2","annotation":"","update_fn":""}`#
+#!variable:AS2:#`{"id":"AS2","name":"AS2","annotation":"","update_fn":""}`#
+#!variable:AUXINh:#`{"id":"AUXINh","name":"AUXINh","annotation":"","update_fn":""}`#
+#!variable:CKh:#`{"id":"CKh","name":"CKh","annotation":"","update_fn":""}`#
+#!variable:ETT:#`{"id":"ETT","name":"ETT","annotation":"","update_fn":""}`#
+#!variable:FIL:#`{"id":"FIL","name":"FIL","annotation":"","update_fn":""}`#
+#!variable:GTE6:#`{"id":"GTE6","name":"GTE6","annotation":"","update_fn":""}`#
+#!variable:IPT5:#`{"id":"IPT5","name":"IPT5","annotation":"","update_fn":""}`#
+#!variable:KAN1:#`{"id":"KAN1","name":"KAN1","annotation":"","update_fn":""}`#
+#!variable:REV:#`{"id":"REV","name":"REV","annotation":"","update_fn":""}`#
+#!variable:TAS3siRNA:#`{"id":"TAS3siRNA","name":"TAS3siRNA","annotation":"","update_fn":""}`#
+#!variable:miR165:#`{"id":"miR165","name":"miR165","annotation":"","update_fn":""}`#
+#!variable:miR390:#`{"id":"miR390","name":"miR390","annotation":"","update_fn":""}`#

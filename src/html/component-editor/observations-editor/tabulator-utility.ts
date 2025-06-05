@@ -15,15 +15,19 @@ import {
   Tabulator
 } from 'tabulator-tables'
 
-export const dataCell = (field: string): ColumnDefinition => {
+/** Column template for variable data during importing.
+ * It is a simplified version of the column used later in Observations
+ * editor, not having any context menu.
+ */
+export const variableImportColumn = (field: string): ColumnDefinition => {
   return {
     title: field,
     field,
     editor: 'number',
     sorter: 'number',
-    headerFilter: 'tickCross',
     hozAlign: 'center',
     editable: true,
+    headerFilter: 'tickCross',
     headerFilterParams: { tristate: true }
   }
 }

@@ -1,7 +1,7 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper};
 use crate::app::{AeonError, DynError};
-use crate::sketchbook::data_structs::{ChangeIdData, ObservationData};
+use crate::sketchbook::data_structs::{ChangeIdData, DatasetData, ObservationData};
 use crate::sketchbook::event_utils::{make_reversible, mk_obs_event, mk_obs_state_change};
 use crate::sketchbook::ids::{DatasetId, ObservationId};
 use crate::sketchbook::observations::{Dataset, Observation};
@@ -22,28 +22,6 @@ impl SessionHelper for Dataset {}
 /// `Dataset` does not implement `SessionState` trait directly. Instead, it just offers methods
 /// to perform certain events, after the preprocessing is done by `ObservationManager`.
 impl Dataset {
-    /// Perform event of adding a new `observation` to the end of this `Dataset`.
-    pub(in crate::sketchbook::observations) fn event_push_observation(
-        &mut self,
-        event: &Event,
-        dataset_id: DatasetId,
-    ) -> Result<Consumed, DynError> {
-        let component_name = "observations/dataset";
-
-        // get payload components and perform the action
-        let payload = Self::clone_payload_str(event, component_name)?;
-        let observation_data = ObservationData::from_json_str(payload.as_str())?;
-        let observation = observation_data.to_observation()?;
-        self.push_obs(observation)?;
-
-        // prepare the state-change variant (remove IDs from the path)
-        let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
-        // prepare the reverse event (which is a pop event)
-        let reverse_at_path = [dataset_id.as_str(), "pop_obs"];
-        let reverse_event = mk_obs_event(&reverse_at_path, None);
-        Ok(make_reversible(state_change, event, reverse_event))
-    }
-
     /// Perform event of adding a completely new "empty" `observation` to the end of this `Dataset`.
     ///
     /// All its values are `unspecified` and its Id is newly generated.
@@ -61,34 +39,9 @@ impl Dataset {
 
         // prepare the state-change variant - classical push_obs event
         let state_change = mk_obs_state_change(&["push_obs"], &observation_data);
-        // prepare the reverse event (which is a pop event)
-        let reverse_at_path = [dataset_id.as_str(), "pop_obs"];
+        // prepare the reverse event to remove this observation
+        let reverse_at_path = [dataset_id.as_str(), id.as_str(), REMOVE_OBSERVATION_PATH];
         let reverse_event = mk_obs_event(&reverse_at_path, None);
-        Ok(make_reversible(state_change, event, reverse_event))
-    }
-
-    /// Perform event of removing the last observation from this `Dataset`.
-    pub(in crate::sketchbook::observations) fn event_pop_observation(
-        &mut self,
-        event: &Event,
-        dataset_id: DatasetId,
-    ) -> Result<Consumed, DynError> {
-        if self.num_observations() == 0 {
-            return Ok(Consumed::NoChange); // nothing to remove
-        }
-
-        // save the original observation data for state change and reverse event
-        let last_obs = self.observations.last().unwrap();
-        let obs_data = ObservationData::from_obs(last_obs, &dataset_id);
-
-        // perform the action, prepare the state-change variant (move IDs from path to payload)
-        self.pop_obs();
-        let state_change = mk_obs_state_change(&["pop_obs"], &obs_data);
-
-        // prepare the reverse 'add_last' event (path has no ids, all info carried by payload)
-        let reverse_at_path = [dataset_id.as_str(), "push_obs"];
-        let payload = obs_data.to_json_str();
-        let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
         Ok(make_reversible(state_change, event, reverse_event))
     }
 
@@ -103,18 +56,21 @@ impl Dataset {
 
         match action {
             REMOVE_OBSERVATION_PATH => {
-                // Save the original observation data for state change and reverse event
-                let original_obs = self.get_obs(&obs_id)?.clone();
-                let obs_data = ObservationData::from_obs(&original_obs, &dataset_id);
+                // Save the original data for state change and reverse event
+                let orig_dataset_data = DatasetData::from_dataset(&dataset_id, self);
+                let original_obs = self.get_obs(&obs_id)?;
+                let obs_data = ObservationData::from_obs(original_obs, &dataset_id);
 
                 // Perform the action and prepare the state-change variant
                 self.remove_obs(&obs_id)?;
                 let state_change = mk_obs_state_change(&["remove_obs"], &obs_data);
 
-                Ok(Consumed::Irreversible {
-                    state_change,
-                    reset: true,
-                })
+                // To make this simple, we just set the whole original content of the dataset
+                // TODO: do more efficiently by creating new "add observation" event
+                let reverse_at_path = [dataset_id.as_str(), "set_content"];
+                let payload = orig_dataset_data.to_json_str();
+                let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
+                Ok(make_reversible(state_change, event, reverse_event))
             }
             SET_OBSERVATION_ID_PATH => {
                 // Get the payload - string for "new_id"

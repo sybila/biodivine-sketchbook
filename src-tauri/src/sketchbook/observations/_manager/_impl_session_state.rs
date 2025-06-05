@@ -31,16 +31,12 @@ const SET_DATASET_CONTENT_PATH: &str = "set_content";
 const SET_DATASET_METADATA_PATH: &str = "set_metadata";
 // remove a particular variable from dataset
 const REMOVE_VARIABLE_PATH: &str = "remove_var";
-// add variable to a dataset
-const ADD_VARIABLE_PATH: &str = "add_var";
+// add a new default variable column to a dataset (with empty values)
+const ADD_DEFAULT_VARIABLE_PATH: &str = "add_default_var";
 // set ID of a particular variable in a dataset
 const SET_VARIABLE_ID_PATH: &str = "set_var_id";
-// push observation to a dataset
-const PUSH_OBS_PATH: &str = "push_obs";
-// push empty observation to a dataset
+// push new default empty observation to a dataset
 const PUSH_EMPTY_OBS_PATH: &str = "push_empty_obs";
-// pop observation from a dataset
-const POP_OBS_PATH: &str = "pop_obs";
 // refresh all datasets
 const GET_ALL_DATASETS_PATH: &str = "get_all_datasets";
 // refresh particular dataset
@@ -256,14 +252,15 @@ impl ObservationManager {
                 self.swap_dataset_content(&dataset_id, new_dataset)?;
                 let state_change = mk_obs_state_change(&["set_content"], &new_dataset_data);
 
-                // prepare the reverse event (setting the original ID back)
+                // prepare the reverse event (setting the original data back)
                 let reverse_at_path = [dataset_id.as_str(), "set_content"];
                 let payload = orig_dataset_data.to_json_str();
                 let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
                 Ok(make_reversible(state_change, event, reverse_event))
             }
             Some(&SET_DATASET_METADATA_PATH) => {
-                // get the payload - json string encoding metadata with (potentially) new name/annotation/variables
+                // Get the payload - json string encoding metadata with (potentially) updated name,
+                // annotation, or variable names
                 let payload = Self::clone_payload_str(event, component_name)?;
                 let new_metadata = DatasetMetaData::from_json_str(&payload)?;
                 let orig_dataset = self.get_dataset(&dataset_id)?;
@@ -289,38 +286,43 @@ impl ObservationManager {
                 Ok(make_reversible(state_change, event, reverse_event))
             }
             Some(&REMOVE_VARIABLE_PATH) => {
-                // get the payload - string encoding variable ID
+                // Get the payload - string encoding variable ID
                 let var_id_str = Self::clone_payload_str(event, component_name)?;
+                // Save the original dataset for later (used in the reverse event)
+                let orig_dataset = self.get_dataset(&dataset_id)?;
+                let orig_dataset_data = DatasetData::from_dataset(&dataset_id, orig_dataset);
 
-                // perform the event, prepare the state-change variant (move id from path to payload)
+                // Prepare the state-change variant
+                // Since this is a large change, we basically send the whole dataset data to the frontend
                 self.remove_var_by_str(dataset_id.as_str(), var_id_str.as_str())?;
                 let new_dataset = self.get_dataset(&dataset_id)?;
                 let new_dataset_data = DatasetData::from_dataset(&dataset_id, new_dataset);
-                let state_change = mk_obs_state_change(&["remove_var"], &new_dataset_data);
+                let state_change = mk_obs_state_change(&["set_content"], &new_dataset_data);
 
-                // TODO: we can make this potentially into reversible event
-                Ok(Consumed::Irreversible {
-                    state_change,
-                    reset: true,
-                })
+                // Prepare the reverse event
+                // To make this simple, we just set the whole original content of the dataset
+                let reverse_at_path = [dataset_id.as_str(), "set_content"];
+                let payload = orig_dataset_data.to_json_str();
+                let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
+                Ok(make_reversible(state_change, event, reverse_event))
             }
-            Some(&ADD_VARIABLE_PATH) => {
+            Some(&ADD_DEFAULT_VARIABLE_PATH) => {
                 Self::assert_payload_empty(event, component_name)?;
 
-                // prepare a placeholder variable name and add it
+                // Prepare a new placeholder variable name and add it
                 let var_id = self.generate_var_id(&dataset_id, "var", Some(1));
-                self.add_var(&dataset_id, var_id)?;
+                self.add_var(&dataset_id, var_id.clone())?;
 
-                // prepare the state-change variant (move id from path to payload)
+                // Prepare the state-change variant
+                // Since this is a large change, we basically send the whole dataset data to the frontend
                 let new_dataset = self.get_dataset(&dataset_id)?;
                 let new_dataset_data = DatasetData::from_dataset(&dataset_id, new_dataset);
-                let state_change = mk_obs_state_change(&["add_var"], &new_dataset_data);
+                let state_change = mk_obs_state_change(&["set_content"], &new_dataset_data);
 
-                // TODO: we can make this potentially into reversible event
-                Ok(Consumed::Irreversible {
-                    state_change,
-                    reset: true,
-                })
+                // Prepare the reverse event (removing the variable)
+                let reverse_at_path = [dataset_id.as_str(), "remove_var"];
+                let reverse_event = mk_obs_event(&reverse_at_path, Some(var_id.as_str()));
+                Ok(make_reversible(state_change, event, reverse_event))
             }
             Some(&SET_VARIABLE_ID_PATH) => {
                 // get the payload - string for ChangeIdData
@@ -344,14 +346,6 @@ impl ObservationManager {
                 let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));
                 Ok(make_reversible(state_change, event, reverse_event))
             }
-            Some(&PUSH_OBS_PATH) => {
-                // Adding particular observation to the end of a specific dataset
-                // This is handled by the `Dataset` itself
-
-                // the ID is valid (checked before), we can unwrap
-                let dataset = self.datasets.get_mut(&dataset_id).unwrap();
-                dataset.event_push_observation(event, dataset_id)
-            }
             Some(&PUSH_EMPTY_OBS_PATH) => {
                 // Adding new empty observation to the end of a specific dataset
                 // This is handled by the `Dataset` itself
@@ -359,14 +353,6 @@ impl ObservationManager {
                 // the ID is valid (checked before), we can unwrap
                 let dataset = self.datasets.get_mut(&dataset_id).unwrap();
                 dataset.event_push_empty_observation(event, dataset_id)
-            }
-            Some(&POP_OBS_PATH) => {
-                // Removing last observation from the end of a specific dataset
-                // This is handled by the `Dataset` itself
-
-                // the ID is valid (checked before), we can unwrap
-                let dataset = self.datasets.get_mut(&dataset_id).unwrap();
-                dataset.event_pop_observation(event, dataset_id)
             }
             _ => {
                 // Finally, remaining events must be some kind of modification of a specific observation
