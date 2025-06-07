@@ -32,6 +32,8 @@ const IMPORT_AEON_PATH: &str = "import_aeon";
 const IMPORT_SBML_PATH: &str = "import_sbml";
 // check if various components of sketch are consistent together (and report issues)
 const CHECK_CONSISTENCY_PATH: &str = "check_consistency";
+// get number of parameters of the PSBN
+const GET_NUM_PSBN_PARAMS_PATH: &str = "get_num_psbn_params";
 // assert that various components of sketch are consistent together
 const ASSERT_CONSISTENCY_PATH: &str = "assert_consistency";
 // set annotation for the sketch
@@ -146,6 +148,15 @@ impl SessionState for Sketch {
             let payload = serde_json::to_string(&results).unwrap();
             let state_change = Event::build(&["sketch", "consistency_results"], Some(&payload));
             // irreversible change that should just bypass the stack (not reset it)
+            Ok(Consumed::Irreversible {
+                state_change,
+                reset: false,
+            })
+        } else if Self::starts_with(GET_NUM_PSBN_PARAMS_PATH, at_path).is_some() {
+            let num_params = self.get_num_parameters();
+            let payload = serde_json::to_string(&num_params).unwrap();
+            let state_change = Event::build(&["sketch", "num_psbn_params"], Some(&payload));
+            // irreversible event that just bypasses the stack (but does not reset it)
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: false,

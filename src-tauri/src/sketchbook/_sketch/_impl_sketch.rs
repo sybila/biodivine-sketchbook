@@ -1,3 +1,5 @@
+use biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext;
+
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::{Dataset, ObservationManager};
@@ -89,6 +91,19 @@ impl Sketch {
     /// Get annotation string.
     pub fn get_annotation(&self) -> &str {
         &self.annotation
+    }
+
+    /// Get number of BN "parameters", e.g., number of symbolic variables needed to encode
+    /// the uninterprete functions. The number of interpretations should be 2^{num_parameters}.
+    ///
+    /// All unused function symbols are pruned first, and function expressions are substituted
+    /// in before computing the number of params.
+    pub fn get_num_parameters(&self) -> usize {
+        let bn = self.model.to_bn_with_plain_regulations(None);
+        // remove all unused function symbols, as these would cause problems later
+        let bn = bn.prune_unused_parameters();
+        let context = SymbolicContext::new(&bn).unwrap();
+        context.num_parameter_variables()
     }
 
     /// Set annotation string.

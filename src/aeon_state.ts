@@ -199,6 +199,10 @@ interface AeonState {
     checkConsistency: () => void
     /** Results of an explicit consistency check (a summary message). */
     consistencyResults: Observable<string>
+    /** Fetch the number of parameters of the PSBN component. */
+    fetchNumPSBNParams: () => void
+    /** Number of parameters of the PSBN component. */
+    numPSBNParamsFetched: Observable<number>
 
     /** The state of the main model. */
     model: {
@@ -569,6 +573,7 @@ export const aeonState: AeonState = {
   sketch: {
     sketchRefreshed: new Observable<SketchData>(['sketch', 'get_whole_sketch']),
     consistencyResults: new Observable<string>(['sketch', 'consistency_results']),
+    numPSBNParamsFetched: new Observable<number>(['sketch', 'num_psbn_params']),
     sketchReplaced: new Observable<SketchData>(['sketch', 'set_all']),
     annotationChanged: new Observable<string>(['sketch', 'set_annotation']),
 
@@ -620,6 +625,12 @@ export const aeonState: AeonState = {
     checkConsistency (): void {
       aeonEvents.emitAction({
         path: ['sketch', 'check_consistency'],
+        payload: null
+      })
+    },
+    fetchNumPSBNParams (): void {
+      aeonEvents.emitAction({
+        path: ['sketch', 'get_num_psbn_params'],
         payload: null
       })
     },
