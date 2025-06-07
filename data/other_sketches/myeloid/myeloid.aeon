@@ -1,54 +1,54 @@
-CEBPa -> Gfi1
-FOG1 -| GATA2
-GATA2 -> GATA1
-PU1 -> PU1
-Fli1 -| EKLF
-GATA1 -> SCL
+PU1 -| GATA1
 GATA1 -| CEBPa
-SCL -| CEBPa
-GATA1 -> EKLF
-PU1 -| GATA2
-PU1 -| SCL
 Fli1 -> GATA1
-GATA1 -> Fli1
-PU1 -> EgrNab
 cjun -> EgrNab
 Gfi1 -| EgrNab
-Gfi1 -| cjun
+PU1 -| GATA2
 CEBPa -> CEBPa
-GATA2 -| PU1
-GATA1 -> FOG1
-GATA1 -> GATA1
-EKLF -| Fli1
-PU1 -| GATA1
-PU1 -> cjun
-GATA1 -| GATA2
 GATA1 -| PU1
-EgrNab -| Gfi1
 FOG1 -| CEBPa
-GATA2 -> GATA2
+GATA1 -> GATA1
+PU1 -> cjun
+FOG1 -| GATA2
+GATA1 -> EKLF
+Fli1 -| EKLF
+GATA1 -> SCL
+CEBPa -> Gfi1
+GATA1 -> FOG1
+GATA2 -> GATA1
 CEBPa -> PU1
-#position:EKLF:325.92612,-226.8565
-#position:CEBPa:27.443956,-216.9239
-#position:Fli1:331.15344,-67.76327
-#position:GATA2:152.53964,-12.283747
-#position:GATA1:232.30206,-149.9392
-#position:FOG1:150.46284,-259.55215
-#position:EgrNab:-81.09596,-40.79018
-#position:PU1:31.361515,-79.4219
-#position:cjun:-169.24475,-149.82033
+EgrNab -| Gfi1
+SCL -| CEBPa
+Gfi1 -| cjun
+GATA1 -| GATA2
+EKLF -| Fli1
+GATA1 -> Fli1
+PU1 -> EgrNab
+PU1 -> PU1
+GATA2 -| PU1
+GATA2 -> GATA2
+PU1 -| SCL
 #position:Gfi1:-81.611046,-281.53668
+#position:GATA2:152.53964,-12.283747
+#position:PU1:31.361515,-79.4219
+#position:EgrNab:-81.09596,-40.79018
 #position:SCL:80.84242,-151.98013
+#position:EKLF:325.92612,-226.8565
+#position:Fli1:331.15344,-67.76327
+#position:cjun:-169.24475,-149.82033
+#position:FOG1:150.46284,-259.55215
+#position:GATA1:232.30206,-149.9392
+#position:CEBPa:27.443956,-216.9239
 #!dataset:dataset_1:#`{"name":"attractors","id":"dataset_1","annotation":"","observations":[{"id":"Erythrocyte","name":"Erythrocyte","annotation":"","dataset":"dataset_1","values":"01110100000"},{"id":"Megakaryocyte","name":"Megakaryocyte","annotation":"","dataset":"dataset_1","values":"11101100000"},{"id":"Monocyte","name":"Monocyte","annotation":"","dataset":"dataset_1","values":"00000011110"},{"id":"Granulocyte","name":"Granulocyte","annotation":"","dataset":"dataset_1","values":"00000011001"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
 #!dataset:dataset_2:#`{"name":"erythro","id":"dataset_2","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_2","values":"10000011000"},{"id":"Erythrocyte","name":"Erythrocyte","annotation":"","dataset":"dataset_2","values":"01110100000"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
 #!dataset:dataset_3:#`{"name":"megakaryo","id":"dataset_3","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_3","values":"10000011000"},{"id":"Megakaryocyte","name":"Megakaryocyte","annotation":"","dataset":"dataset_3","values":"11101100000"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
 #!dataset:dataset_4:#`{"name":"mono","id":"dataset_4","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_4","values":"10000011000"},{"id":"Monocyte","name":"Monocyte","annotation":"","dataset":"dataset_4","values":"00000011110"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
 #!dataset:dataset_5:#`{"name":"granulo","id":"dataset_5","annotation":"","observations":[{"id":"Progenitor","name":"Progenitor","annotation":"","dataset":"dataset_5","values":"10000011000"},{"id":"Granulocyte","name":"Granulocyte","annotation":"","dataset":"dataset_5","values":"00000011001"}],"variables":["GATA2","GATA1","FOG1","EKLF","Fli1","SCL","CEBPa","PU1","cjun","EgrNab","Gfi1"]}`#
-#!dynamic_property:dynamic_2:#`{"id":"dynamic_2","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_2"}`#
-#!dynamic_property:dynamic_3:#`{"id":"dynamic_3","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_3"}`#
-#!dynamic_property:dynamic_4:#`{"id":"dynamic_4","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_4"}`#
-#!dynamic_property:dynamic_5:#`{"id":"dynamic_5","name":"Trajectory existence","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_5"}`#
-#!dynamic_property:dynamic_8:#`{"id":"dynamic_8","name":"Attractor existence","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Expected attractors","annotation":"","variant":"HasAttractor","dataset":"dataset_1","observation":null}`#
+#!dynamic_property:dynamic_2:#`{"id":"dynamic_2","name":"Progenitor -> Erythrocyte trajectory","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_2"}`#
+#!dynamic_property:dynamic_3:#`{"id":"dynamic_3","name":"Progenitor -> Megakaryocyte trajectory","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_3"}`#
+#!dynamic_property:dynamic_4:#`{"id":"dynamic_4","name":"Progenitor -> Monocyte trajectory","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_4"}`#
+#!dynamic_property:dynamic_5:#`{"id":"dynamic_5","name":"Progenitor -> Granulocyte trajectory","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_5"}`#
 #!static_property:essentiality_CEBPa_CEBPa:#`{"id":"essentiality_CEBPa_CEBPa","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CEBPa","target":"CEBPa","value":"True","context":null}`#
 #!static_property:essentiality_CEBPa_Gfi1:#`{"id":"essentiality_CEBPa_Gfi1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CEBPa","target":"Gfi1","value":"True","context":null}`#
 #!static_property:essentiality_CEBPa_PU1:#`{"id":"essentiality_CEBPa_PU1","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"CEBPa","target":"PU1","value":"True","context":null}`#

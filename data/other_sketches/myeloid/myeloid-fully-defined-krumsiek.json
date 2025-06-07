@@ -258,9 +258,9 @@
         "nodes": [
           {
             "layout": "default",
-            "variable": "EKLF",
-            "px": 325.92612,
-            "py": -226.8565
+            "variable": "GATA1",
+            "px": 232.30206,
+            "py": -149.9392
           },
           {
             "layout": "default",
@@ -270,21 +270,9 @@
           },
           {
             "layout": "default",
-            "variable": "Fli1",
-            "px": 331.15344,
-            "py": -67.76327
-          },
-          {
-            "layout": "default",
             "variable": "GATA2",
             "px": 152.53964,
             "py": -12.283747
-          },
-          {
-            "layout": "default",
-            "variable": "GATA1",
-            "px": 232.30206,
-            "py": -149.9392
           },
           {
             "layout": "default",
@@ -294,9 +282,9 @@
           },
           {
             "layout": "default",
-            "variable": "EgrNab",
-            "px": -81.09596,
-            "py": -40.79018
+            "variable": "EKLF",
+            "px": 325.92612,
+            "py": -226.8565
           },
           {
             "layout": "default",
@@ -312,21 +300,67 @@
           },
           {
             "layout": "default",
+            "variable": "SCL",
+            "px": 72.994225,
+            "py": -148.84085
+          },
+          {
+            "layout": "default",
+            "variable": "EgrNab",
+            "px": -81.09596,
+            "py": -40.79018
+          },
+          {
+            "layout": "default",
             "variable": "Gfi1",
             "px": -81.611046,
             "py": -281.53668
           },
           {
             "layout": "default",
-            "variable": "SCL",
-            "px": 72.994225,
-            "py": -148.84085
+            "variable": "Fli1",
+            "px": 331.15344,
+            "py": -67.76327
           }
         ]
       }
     ]
   },
   "datasets": [
+    {
+      "name": "mono",
+      "id": "dataset_4",
+      "annotation": "",
+      "observations": [
+        {
+          "id": "Progenitor",
+          "name": "Progenitor",
+          "annotation": "",
+          "dataset": "dataset_4",
+          "values": "10000011000"
+        },
+        {
+          "id": "Monocyte",
+          "name": "Monocyte",
+          "annotation": "",
+          "dataset": "dataset_4",
+          "values": "00000011110"
+        }
+      ],
+      "variables": [
+        "GATA2",
+        "GATA1",
+        "FOG1",
+        "EKLF",
+        "Fli1",
+        "SCL",
+        "CEBPa",
+        "PU1",
+        "cjun",
+        "EgrNab",
+        "Gfi1"
+      ]
+    },
     {
       "name": "megakaryo",
       "id": "dataset_3",
@@ -345,40 +379,6 @@
           "annotation": "",
           "dataset": "dataset_3",
           "values": "11101100000"
-        }
-      ],
-      "variables": [
-        "GATA2",
-        "GATA1",
-        "FOG1",
-        "EKLF",
-        "Fli1",
-        "SCL",
-        "CEBPa",
-        "PU1",
-        "cjun",
-        "EgrNab",
-        "Gfi1"
-      ]
-    },
-    {
-      "name": "erythro",
-      "id": "dataset_2",
-      "annotation": "",
-      "observations": [
-        {
-          "id": "Progenitor",
-          "name": "Progenitor",
-          "annotation": "",
-          "dataset": "dataset_2",
-          "values": "10000011000"
-        },
-        {
-          "id": "Erythrocyte",
-          "name": "Erythrocyte",
-          "annotation": "",
-          "dataset": "dataset_2",
-          "values": "01110100000"
         }
       ],
       "variables": [
@@ -478,23 +478,23 @@
       ]
     },
     {
-      "name": "mono",
-      "id": "dataset_4",
+      "name": "erythro",
+      "id": "dataset_2",
       "annotation": "",
       "observations": [
         {
           "id": "Progenitor",
           "name": "Progenitor",
           "annotation": "",
-          "dataset": "dataset_4",
+          "dataset": "dataset_2",
           "values": "10000011000"
         },
         {
-          "id": "Monocyte",
-          "name": "Monocyte",
+          "id": "Erythrocyte",
+          "name": "Erythrocyte",
           "annotation": "",
-          "dataset": "dataset_4",
-          "values": "00000011110"
+          "dataset": "dataset_2",
+          "values": "01110100000"
         }
       ],
       "variables": [
@@ -514,37 +514,37 @@
   ],
   "dyn_properties": [
     {
-      "id": "dynamic_5",
-      "name": "Trajectory existence",
-      "annotation": "",
-      "variant": "ExistsTrajectory",
-      "dataset": "dataset_5"
-    },
-    {
       "id": "dynamic_2",
-      "name": "Trajectory existence",
+      "name": "Progenitor -> Erythrocyte trajectory",
       "annotation": "",
       "variant": "ExistsTrajectory",
       "dataset": "dataset_2"
     },
     {
+      "id": "dynamic_3",
+      "name": "Progenitor -> Megakaryocyte trajectory",
+      "annotation": "",
+      "variant": "ExistsTrajectory",
+      "dataset": "dataset_3"
+    },
+    {
       "id": "dynamic_1",
-      "name": "Fixed point existence",
+      "name": "Expected fixed points",
       "annotation": "",
       "variant": "ExistsFixedPoint",
       "dataset": "dataset_1",
       "observation": null
     },
     {
-      "id": "dynamic_3",
-      "name": "Trajectory existence",
+      "id": "dynamic_5",
+      "name": "Progenitor -> Granulocyte trajectory",
       "annotation": "",
       "variant": "ExistsTrajectory",
-      "dataset": "dataset_3"
+      "dataset": "dataset_5"
     },
     {
       "id": "dynamic_4",
-      "name": "Trajectory existence",
+      "name": "Progenitor -> Monocyte trajectory",
       "annotation": "",
       "variant": "ExistsTrajectory",
       "dataset": "dataset_4"
@@ -552,123 +552,23 @@
   ],
   "stat_properties": [
     {
-      "id": "monotonicity_Fli1_EKLF",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "Fli1",
-      "target": "EKLF",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_PU1_GATA1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "PU1",
-      "target": "GATA1",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_PU1_SCL",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "PU1",
-      "target": "SCL",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_GATA2",
+      "id": "essentiality_GATA1_FOG1",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "GATA1",
-      "target": "GATA2",
+      "target": "FOG1",
       "value": "True",
       "context": null
     },
     {
-      "id": "essentiality_GATA2_GATA2",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA2",
-      "target": "GATA2",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_Fli1_GATA1",
+      "id": "monotonicity_PU1_cjun",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
-      "input": "Fli1",
-      "target": "GATA1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_Gfi1_cjun",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "Gfi1",
+      "input": "PU1",
       "target": "cjun",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_FOG1_GATA2",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "FOG1",
-      "target": "GATA2",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_EKLF_Fli1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "EKLF",
-      "target": "Fli1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_SCL",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA1",
-      "target": "SCL",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA2_GATA1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA2",
-      "target": "GATA1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_Gfi1_EgrNab",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "Gfi1",
-      "target": "EgrNab",
-      "value": "Inhibition",
+      "value": "Activation",
       "context": null
     },
     {
@@ -682,142 +582,12 @@
       "context": null
     },
     {
-      "id": "essentiality_EgrNab_Gfi1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "EgrNab",
-      "target": "Gfi1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_CEBPa_Gfi1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "CEBPa",
-      "target": "Gfi1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_GATA1_FOG1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GATA1",
-      "target": "FOG1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_CEBPa_CEBPa",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "CEBPa",
-      "target": "CEBPa",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_PU1_GATA1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "PU1",
-      "target": "GATA1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_CEBPa_Gfi1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "CEBPa",
-      "target": "Gfi1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_Fli1_EKLF",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "Fli1",
-      "target": "EKLF",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_PU1_PU1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "PU1",
-      "target": "PU1",
-      "value": "True",
-      "context": null
-    },
-    {
       "id": "monotonicity_GATA1_SCL",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "GATA1",
       "target": "SCL",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_SCL_CEBPa",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "SCL",
-      "target": "CEBPa",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_EKLF_Fli1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "EKLF",
-      "target": "Fli1",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_cjun_EgrNab",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "cjun",
-      "target": "EgrNab",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_GATA1_CEBPa",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GATA1",
-      "target": "CEBPa",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_PU1_EgrNab",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "PU1",
-      "target": "EgrNab",
       "value": "Activation",
       "context": null
     },
@@ -832,62 +602,62 @@
       "context": null
     },
     {
-      "id": "monotonicity_GATA1_EKLF",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GATA1",
-      "target": "EKLF",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_CEBPa_CEBPa",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "CEBPa",
-      "target": "CEBPa",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA2_PU1",
+      "id": "essentiality_GATA2_GATA2",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "GATA2",
-      "target": "PU1",
+      "target": "GATA2",
       "value": "True",
       "context": null
     },
     {
-      "id": "monotonicity_GATA1_GATA1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GATA1",
-      "target": "GATA1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_CEBPa_PU1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "CEBPa",
-      "target": "PU1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_Gfi1_EgrNab",
+      "id": "essentiality_SCL_CEBPa",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
+      "input": "SCL",
+      "target": "CEBPa",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Gfi1_cjun",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
       "input": "Gfi1",
-      "target": "EgrNab",
+      "target": "cjun",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA2_GATA1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA2",
+      "target": "GATA1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Fli1_EKLF",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Fli1",
+      "target": "EKLF",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA1_GATA2",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA1",
+      "target": "GATA2",
       "value": "True",
       "context": null
     },
@@ -902,16 +672,6 @@
       "context": null
     },
     {
-      "id": "essentiality_SCL_CEBPa",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "SCL",
-      "target": "CEBPa",
-      "value": "True",
-      "context": null
-    },
-    {
       "id": "monotonicity_GATA2_GATA1",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
@@ -919,6 +679,96 @@
       "input": "GATA2",
       "target": "GATA1",
       "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_Fli1_EKLF",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Fli1",
+      "target": "EKLF",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_Gfi1_cjun",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Gfi1",
+      "target": "cjun",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_CEBPa_PU1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "CEBPa",
+      "target": "PU1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_EgrNab_Gfi1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "EgrNab",
+      "target": "Gfi1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_PU1_EgrNab",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "PU1",
+      "target": "EgrNab",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CEBPa_CEBPa",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CEBPa",
+      "target": "CEBPa",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FOG1_GATA2",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FOG1",
+      "target": "GATA2",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FOG1_CEBPa",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FOG1",
+      "target": "CEBPa",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_CEBPa_CEBPa",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "CEBPa",
+      "target": "CEBPa",
+      "value": "True",
       "context": null
     },
     {
@@ -942,92 +792,12 @@
       "context": null
     },
     {
-      "id": "essentiality_Gfi1_cjun",
+      "id": "essentiality_PU1_SCL",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
-      "input": "Gfi1",
-      "target": "cjun",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_GATA1_Fli1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GATA1",
-      "target": "Fli1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_CEBPa",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA1",
-      "target": "CEBPa",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_GATA1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA1",
-      "target": "GATA1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_PU1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA1",
-      "target": "PU1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_CEBPa_PU1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "CEBPa",
-      "target": "PU1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_Fli1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA1",
-      "target": "Fli1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_cjun_EgrNab",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "cjun",
-      "target": "EgrNab",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_GATA1_FOG1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GATA1",
-      "target": "FOG1",
+      "input": "PU1",
+      "target": "SCL",
       "value": "True",
       "context": null
     },
@@ -1052,72 +822,12 @@
       "context": null
     },
     {
-      "id": "essentiality_PU1_EgrNab",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "PU1",
-      "target": "EgrNab",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_EgrNab_Gfi1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "EgrNab",
-      "target": "Gfi1",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_GATA2_PU1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GATA2",
-      "target": "PU1",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_GATA1_PU1",
+      "id": "monotonicity_GATA1_FOG1",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "GATA1",
-      "target": "PU1",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_FOG1_CEBPa",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "FOG1",
-      "target": "CEBPa",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_PU1_SCL",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "PU1",
-      "target": "SCL",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_PU1_cjun",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "PU1",
-      "target": "cjun",
+      "target": "FOG1",
       "value": "Activation",
       "context": null
     },
@@ -1142,12 +852,302 @@
       "context": null
     },
     {
+      "id": "essentiality_Gfi1_EgrNab",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "Gfi1",
+      "target": "EgrNab",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_PU1_EgrNab",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "PU1",
+      "target": "EgrNab",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_EKLF_Fli1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "EKLF",
+      "target": "Fli1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GATA1_CEBPa",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GATA1",
+      "target": "CEBPa",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CEBPa_PU1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CEBPa",
+      "target": "PU1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA1_SCL",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA1",
+      "target": "SCL",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_PU1_SCL",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "PU1",
+      "target": "SCL",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GATA1_Fli1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GATA1",
+      "target": "Fli1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA1_PU1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA1",
+      "target": "PU1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GATA1_PU1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GATA1",
+      "target": "PU1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CEBPa_Gfi1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CEBPa",
+      "target": "Gfi1",
+      "value": "Activation",
+      "context": null
+    },
+    {
       "id": "essentiality_FOG1_CEBPa",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
       "input": "FOG1",
       "target": "CEBPa",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_EgrNab_Gfi1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "EgrNab",
+      "target": "Gfi1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GATA1_EKLF",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GATA1",
+      "target": "EKLF",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SCL_CEBPa",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "SCL",
+      "target": "CEBPa",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GATA2_PU1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GATA2",
+      "target": "PU1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA1_GATA1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA1",
+      "target": "GATA1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_CEBPa_Gfi1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "CEBPa",
+      "target": "Gfi1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_EKLF_Fli1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "EKLF",
+      "target": "Fli1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_PU1_PU1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "PU1",
+      "target": "PU1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Gfi1_EgrNab",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Gfi1",
+      "target": "EgrNab",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_cjun_EgrNab",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "cjun",
+      "target": "EgrNab",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA2_PU1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA2",
+      "target": "PU1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA1_CEBPa",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA1",
+      "target": "CEBPa",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_Fli1_GATA1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "Fli1",
+      "target": "GATA1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_cjun_EgrNab",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "cjun",
+      "target": "EgrNab",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_PU1_GATA1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "PU1",
+      "target": "GATA1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_PU1_GATA1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "PU1",
+      "target": "GATA1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GATA1_GATA1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GATA1",
+      "target": "GATA1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_GATA1_Fli1",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "GATA1",
+      "target": "Fli1",
       "value": "True",
       "context": null
     }
