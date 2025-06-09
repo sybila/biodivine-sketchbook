@@ -113,7 +113,7 @@ export class AnnotationsTab extends LitElement {
         <div class="header uk-background-primary uk-margin-bottom">
           <h3 class="uk-heading-bullet uk-margin-remove-bottom">${sectionTitle}</h3>
         </div>
-        <div class="annotation uk-container">
+        <div class="annotation">
           ${formatAnnotationsFn()}
         </div>
       </div>

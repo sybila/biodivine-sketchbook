@@ -17,8 +17,8 @@
 }
 
 .section {
-  min-width: 25em;
-  max-width: 45em;
+  min-width: @section-min-width;
+  max-width: @tab-max-width / 2;
   overflow: auto;
   width: 50%;
 }
@@ -44,10 +44,11 @@
   color: @text-dark;
 }
 
-@container analyses-list (max-width: 64em) {
+@container analyses-list (max-width: @multi-section-breaking-width) {
 
   .section {
     width: 100%;
+    max-width: @multi-section-breaking-width - 8em;
     overflow: unset;
   }
 

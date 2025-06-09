@@ -447,33 +447,39 @@ export class RegulationsEditor extends LitElement {
    * Conditionally show help message if `showHelp` is true. */
   render (): TemplateResult {
     return html`
-      <div class="header uk-background-primary">
-        <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Network</h3>
+      <!-- Single-section container to limit the max width of the tab content. -->
+      <div class="width-container">
+        <div class="width-section">
+          <div class="header uk-background-primary">
+            <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Network</h3>
+          </div>
+          ${this.contentData.variables.length === 0 || this.showHelp
+    ? html`
+            <div id="quick-help" class="help-message-block">
+              <h3 style="display: block; margin: 0 auto; float: right;">HELP</h3>
+              <b>Network editor actions:</b>
+              <ul>
+                <li>Double click to create a new variable.</li>
+                <li>Select element (click) to show the context menu.</li>
+                <li>Add and edit regulations using the context menu.</li>
+              </ul>
+              <b>Keyboard shortcuts:</b>
+              <ul>
+                <li>(⌫) Remove selected element.</li>
+                <li>(E) Edit selected variable.</li>
+                <li>(A) Add edge from the selected variable.</li>
+                <li>(S) Add self-loop to the selected variable.</li>
+                <li>(F) Edit update function of the selected variable.</li>
+                <li>(O) Change observability of the selected regulation.</li>
+                <li>(M) Change monotonicity of the selected regulation.</li>
+              </ul>
+              <div style="width: 100%; text-align: center; font-size: 14px;">(this message disappears when you create the first variable)</div>            
+            </div>`
+            : ''}
+          </div>
       </div>
-      ${this.contentData.variables.length === 0 || this.showHelp
-? html`
-        <div id="quick-help" class="help-message-block">
-          <h3 style="display: block; margin: 0 auto; float: right;">HELP</h3>
-          <b>Network editor actions:</b>
-          <ul>
-            <li>Double click to create a new variable.</li>
-            <li>Select element (click) to show the context menu.</li>
-            <li>Add and edit regulations using the context menu.</li>
-          </ul>
-          <b>Keyboard shortcuts:</b>
-          <ul>
-            <li>(⌫) Remove selected element.</li>
-            <li>(E) Edit selected variable.</li>
-            <li>(A) Add edge from the selected variable.</li>
-            <li>(S) Add self-loop to the selected variable.</li>
-            <li>(F) Edit update function of the selected variable.</li>
-            <li>(O) Change observability of the selected regulation.</li>
-            <li>(M) Change monotonicity of the selected regulation.</li>
-          </ul>
-          <div style="width: 100%; text-align: center; font-size: 14px;">(this message disappears when you create the first variable)</div>            
-        </div>`
-        : ''}
       <!-- Prepares a clean environment for the cytoscape element with a floating menu. -->
+      <!-- Cytoscape editor is not part of the container above to make it always 100% of width. -->
       <div style="width: 100%; height: 100%; position: relative;">
         ${this.editorElement}
         <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}

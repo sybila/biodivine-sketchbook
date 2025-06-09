@@ -450,38 +450,42 @@ export default class ObservationsEditor extends LitElement {
 
   render (): TemplateResult {
     return html`
-      <div class="observations">
-        <div class="header uk-background-primary uk-margin-bottom">
-          <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Observations</h3>
-          <div class="buttons-container">
-            <button @click="${this.createDataset}" class="uk-button uk-button-primary uk-button-small create-button">+ Create</button>
-            <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
-          </div>
-        </div>
-        ${this.contentData?.observations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label uk-margin-bottom">No observations loaded</span></div>` : ''}
-        <div class="accordion-body">
-          <div class="accordion uk-margin-small-left uk-margin-small-right">
-            ${map(this.contentData.observations, (dataset, index) => html`
-              <div class="container ${this.shownDatasets.includes(index) ? 'active' : ''}" id="${'container' + index}">
-                <div class="label name-id-container" @click="${() => {
-                  this.toggleDataset(index)
-                }}">
-                ${html`${dataset.id}&nbsp;&nbsp;&nbsp;(${dataset.name})`}
-                </div>
-                ${when(this.shownDatasets.includes(index), () => html`
-                  <div class="content">
-                    <observations-set
-                        .data="${dataset}">
-                    </observations-set>
+      <!-- Single-section container to limit the max width of the tab content. -->
+      <div class="width-container">
+        <div class="width-section">
+          <div class="observations">
+            <div class="header uk-background-primary uk-margin-bottom">
+              <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Observations</h3>
+              <div class="buttons-container">
+                <button @click="${this.createDataset}" class="uk-button uk-button-primary uk-button-small create-button">+ Create</button>
+                <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
+              </div>
+            </div>
+            ${this.contentData?.observations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label uk-margin-bottom">No observations loaded</span></div>` : ''}
+            <div class="accordion-body">
+              <div class="accordion uk-margin-small-left uk-margin-small-right">
+                ${map(this.contentData.observations, (dataset, index) => html`
+                  <div class="container ${this.shownDatasets.includes(index) ? 'active' : ''}" id="${'container' + index}">
+                    <div class="label name-id-container" @click="${() => {
+                      this.toggleDataset(index)
+                    }}">
+                    ${html`${dataset.id}&nbsp;&nbsp;&nbsp;(${dataset.name})`}
+                    </div>
+                    ${when(this.shownDatasets.includes(index), () => html`
+                      <div class="content">
+                        <observations-set
+                            .data="${dataset}">
+                        </observations-set>
+                      </div>
+                    `)}
                   </div>
+                  <hr class="uk-margin-bottom uk-margin-left uk-margin-right">
                 `)}
               </div>
-              <hr class="uk-margin-bottom uk-margin-left uk-margin-right">
-            `)}
+            </div>
           </div>
         </div>
       </div>
-      
     `
   }
 }

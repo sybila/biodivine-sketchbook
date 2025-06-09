@@ -334,96 +334,94 @@ export default class AnalysisComponent extends LitElement {
   /** Render the page for inference, using conditional rendering where possible. */
   render (): TemplateResult {
     return html`
-      <div class="container">
-        <div class="inference">
-          <div class="section" id="inference">
-            <div class="header uk-background-primary uk-margin-bottom">
-              <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
+      <div class="width-container">
+        <div class="width-section" id="inference">
+          <div class="header uk-background-primary uk-margin-bottom">
+            <h3 class="uk-heading-bullet uk-margin-remove-bottom">Inference</h3>
+          </div>
+
+          <!-- Conditionally render inference buttons only if no inference is selected yet,
+                Otherwise, render a button for resetting inference. -->
+          ${this.selected_inference === null
+? html`
+            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
+              <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
+                      @click="${() => {
+                        this.runInference()
+                      }}">Run full inference
+              </button>
             </div>
-  
-            <!-- Conditionally render inference buttons only if no inference is selected yet,
-                 Otherwise, render a button for resetting inference. -->
-            ${this.selected_inference === null
-? html`
-              <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
-                <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
-                        @click="${() => {
-                          this.runInference()
-                        }}">Run full inference
-                </button>
-              </div>
-              
-              <!-- Space between the buttons -->
-              <div style="height: 10px;"></div>
-              
-              <div class="uk-flex uk-flex-row uk-flex-center">
-                <button id="static-inference-button" class="uk-button uk-button-large uk-button-secondary"
-                        @click="${() => {
-                          this.runStaticInference()
-                        }}">Run static inference
-                </button>
-              </div>
-            `
+            
+            <!-- Space between the buttons -->
+            <div style="height: 10px;"></div>
+            
+            <div class="uk-flex uk-flex-row uk-flex-center">
+              <button id="static-inference-button" class="uk-button uk-button-large uk-button-secondary"
+                      @click="${() => {
+                        this.runStaticInference()
+                      }}">Run static inference
+              </button>
+            </div>
+          `
 : html`
-              <div class="reset-buttons">
-                <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary"
-                        @click="${() => {
-                          void this.resetInference()
-                        }}">Start again
-                </button>
-              </div>
-            `
+            <div class="reset-buttons">
+              <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary"
+                      @click="${() => {
+                        void this.resetInference()
+                      }}">Start again
+              </button>
+            </div>
+          `
 }
-            <!-- Conditionally render results window when inference starts, centered on screen -->
-            ${this.selected_inference !== null
+          <!-- Conditionally render results window when inference starts, centered on screen -->
+          ${this.selected_inference !== null
 ? html`
-              <div class="results-window">
-                <div class="overview-message uk-text" 
-                  .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4) + '<br>'}">
+            <div class="results-window">
+              <div class="overview-message uk-text" 
+                .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4) + '<br>'}">
+              </div>
+
+              <textarea rows="12" cols="120" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
+
+              <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
+              ${this.results !== null && this.results.num_sat_networks > 0
+? html`
+                <div class="results-options uk-container">
+                  <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
+                          @click="${async () => {
+                            await this.dumpFullResults()
+                          }}">Save full results
+                  </button>
                 </div>
 
-                <textarea rows="12" cols="120" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
+                <div class="sample-options">
+                  <label>Candidate networks sampling:</label>
+                  <div style="display: flex; align-items: center; justify-content: center;">
+                    <label>Network count</label>
+                    <input  type="number" min="1" .value="${1}" id="witness-count">
 
-                <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
-                ${this.results !== null && this.results.num_sat_networks > 0
+                    <label>Randomize</label>
+                    <input type="checkbox" id="randomize" .checked="${this.isRandomizeChecked}" @change="${this.handleRandomizeChange}" style="margin-left: 5px;">
+                    
+                    <!-- Conditionally render random seed input based on the state -->
+                    ${this.isRandomizeChecked
 ? html`
-                  <div class="results-options uk-container">
-                    <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
-                            @click="${async () => {
-                              await this.dumpFullResults()
-                            }}">Save full results
-                    </button>
+                      <label style="margin-left: 15px;">Random seed</label>
+                      <input type="number" id="random-seed" .value="${0}">
+                    `
+: ''}
                   </div>
-
-                  <div class="sample-options">
-                    <label>Candidate networks sampling:</label>
-                    <div style="display: flex; align-items: center; justify-content: center;">
-                      <label>Network count</label>
-                      <input  type="number" min="1" .value="${1}" id="witness-count">
-  
-                      <label>Randomize</label>
-                      <input type="checkbox" id="randomize" .checked="${this.isRandomizeChecked}" @change="${this.handleRandomizeChange}" style="margin-left: 5px;">
-                      
-                      <!-- Conditionally render random seed input based on the state -->
-                      ${this.isRandomizeChecked
-? html`
-                        <label style="margin-left: 15px;">Random seed</label>
-                        <input type="number" id="random-seed" .value="${0}">
-                      `
+                  <button id="generate-network-button" class="uk-button uk-button-large uk-button-secondary"
+                          @click="${async () => {
+                            await this.sampleNetworks()
+                          }}">Sample network(s)
+                  </button>
+                </div>
+              `
 : ''}
-                    </div>
-                    <button id="generate-network-button" class="uk-button uk-button-large uk-button-secondary"
-                            @click="${async () => {
-                              await this.sampleNetworks()
-                            }}">Sample network(s)
-                    </button>
-                  </div>
-                `
+            </div>
+          `
 : ''}
-              </div>
-            `
-: ''}
-          </div>
         </div>
       </div>
     `

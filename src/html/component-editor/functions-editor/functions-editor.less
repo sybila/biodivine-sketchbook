@@ -17,8 +17,8 @@
 }
 
 .section {
-  min-width: 25em;
-  max-width: 45em;
+  min-width: @section-min-width;
+  max-width: @tab-max-width / 2;
   overflow: auto;
   width: 50%;
 }
@@ -44,11 +44,12 @@
   color: @text-dark;
 }
 
-@container function-list (max-width: 64em) {
+@container function-list (max-width: @multi-section-breaking-width) {
 
   .section {
     width: 100%;
     overflow: unset;
+    max-width: @multi-section-breaking-width - 8em;
   }
 
   /* Moves the functions list after the variable list if the width is too small. */

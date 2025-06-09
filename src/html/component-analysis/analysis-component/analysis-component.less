@@ -9,6 +9,19 @@
   overflow: hidden;
 }
 
+.width-container {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.width-section {
+  min-width: @section-min-width;
+  max-width: @tab-max-width;
+  width: 100%;
+}
+
 .results-window {
   display: flex; 
   justify-content: center; 
@@ -52,7 +65,6 @@
 }
 
 .header {
-  height: @header-height;
   .uk-flex;
   .uk-flex-row;
   .uk-flex-between;

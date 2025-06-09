@@ -35,6 +35,15 @@
 @text: @text-light;
 @button: @button-light;
 
+// Base width for a single-section tab 
+// Divide this by the number of sections per tab for multi-section tabs
+@tab-max-width: 100em;
+// Minimal width for each section 
+@section-min-width: 25em;
+// A breaking-point width for a multi-section tab when sections start be displayed
+// in a single column instead of next to each other
+@multi-section-breaking-width: 64em;
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
