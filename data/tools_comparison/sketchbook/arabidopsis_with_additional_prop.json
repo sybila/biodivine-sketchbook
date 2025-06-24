@@ -330,6 +330,60 @@
         "nodes": [
           {
             "layout": "default",
+            "variable": "AGO10",
+            "px": -211.38138,
+            "py": 125.12924
+          },
+          {
+            "layout": "default",
+            "variable": "miR390",
+            "px": 180.1229,
+            "py": -203.43517
+          },
+          {
+            "layout": "default",
+            "variable": "AGO1_miR165",
+            "px": 33.103477,
+            "py": 264.55807
+          },
+          {
+            "layout": "default",
+            "variable": "GTE6",
+            "px": 313.60553,
+            "py": -56.795307
+          },
+          {
+            "layout": "default",
+            "variable": "IPT5",
+            "px": -244.31677,
+            "py": 0.3059232
+          },
+          {
+            "layout": "default",
+            "variable": "ARF4",
+            "px": -74.91142,
+            "py": -218.5323
+          },
+          {
+            "layout": "default",
+            "variable": "AS1",
+            "px": 239.0624,
+            "py": -165.63762
+          },
+          {
+            "layout": "default",
+            "variable": "TAS3siRNA",
+            "px": 319.6096,
+            "py": 5.985072
+          },
+          {
+            "layout": "default",
+            "variable": "FIL",
+            "px": 27.96114,
+            "py": -238.2047
+          },
+          {
+            "layout": "default",
             "variable": "REV",
             "px": -246.3728,
             "py": 49.55174
@@ -342,21 +396,27 @@
           },
           {
             "layout": "default",
-            "variable": "TAS3siRNA",
-            "px": 319.6096,
-            "py": 5.985072
+            "variable": "AGO7",
+            "px": 315.59872,
+            "py": 76.21962
           },
           {
             "layout": "default",
-            "variable": "AGO10",
-            "px": -211.38138,
-            "py": 125.12924
+            "variable": "AS1_AS2",
+            "px": 222.5151,
+            "py": 198.69817
           },
           {
             "layout": "default",
-            "variable": "IPT5",
-            "px": -244.31677,
-            "py": 0.3059232
+            "variable": "miR165",
+            "px": 141.75871,
+            "py": 242.05377
+          },
+          {
+            "layout": "default",
+            "variable": "KAN1",
+            "px": -172.00859,
+            "py": 186.5409
           },
           {
             "layout": "default",
@@ -372,69 +432,9 @@
           },
           {
             "layout": "default",
-            "variable": "AS2",
-            "px": 282.20248,
-            "py": -112.04745
-          },
-          {
-            "layout": "default",
-            "variable": "ARF4",
-            "px": -74.91142,
-            "py": -218.5323
-          },
-          {
-            "layout": "default",
-            "variable": "FIL",
-            "px": 27.96114,
-            "py": -238.2047
-          },
-          {
-            "layout": "default",
-            "variable": "AS1",
-            "px": 239.0624,
-            "py": -165.63762
-          },
-          {
-            "layout": "default",
-            "variable": "AGO7",
-            "px": 315.59872,
-            "py": 76.21962
-          },
-          {
-            "layout": "default",
-            "variable": "KAN1",
-            "px": -172.00859,
-            "py": 186.5409
-          },
-          {
-            "layout": "default",
-            "variable": "AS1_AS2",
-            "px": 222.5151,
-            "py": 198.69817
-          },
-          {
-            "layout": "default",
-            "variable": "AGO1_miR165",
-            "px": 33.103477,
-            "py": 264.55807
-          },
-          {
-            "layout": "default",
             "variable": "AGO1",
             "px": -87.963394,
             "py": 234.34479
-          },
-          {
-            "layout": "default",
-            "variable": "GTE6",
-            "px": 313.60553,
-            "py": -56.795307
-          },
-          {
-            "layout": "default",
-            "variable": "miR165",
-            "px": 141.75871,
-            "py": 242.05377
           },
           {
             "layout": "default",
@@ -444,9 +444,9 @@
           },
           {
             "layout": "default",
-            "variable": "miR390",
-            "px": 180.1229,
-            "py": -203.43517
+            "variable": "AS2",
+            "px": 282.20248,
+            "py": -112.04745
           },
           {
             "layout": "default",
@@ -506,60 +506,130 @@
   ],
   "dyn_properties": [
     {
-      "id": "dynamic_1",
-      "name": "Fixed point existence",
-      "annotation": "",
-      "variant": "ExistsFixedPoint",
-      "dataset": "dataset_1",
-      "observation": null
-    },
-    {
       "id": "dynamic_2",
-      "name": "New attractor count property",
+      "name": "Exactly two attractors",
       "annotation": "",
       "variant": "AttractorCount",
       "minimal": 2,
       "maximal": 2
+    },
+    {
+      "id": "dynamic_1",
+      "name": "Expected fixed points",
+      "annotation": "",
+      "variant": "ExistsFixedPoint",
+      "dataset": "dataset_1",
+      "observation": null
     }
   ],
   "stat_properties": [
     {
-      "id": "monotonicity_AGO10_AGO1",
+      "id": "monotonicity_AGO7_miR390_TAS3siRNA",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
-      "input": "AGO10",
-      "target": "AGO1",
+      "input": "AGO7_miR390",
+      "target": "TAS3siRNA",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_AGO7_miR390_TAS3siRNA",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AGO7_miR390",
+      "target": "TAS3siRNA",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS1_AS1_AS2",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS1",
+      "target": "AS1_AS2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_KAN1_AS2",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "KAN1",
+      "target": "AS2",
       "value": "Inhibition",
       "context": null
     },
     {
-      "id": "monotonicity_AGO7_AGO7_miR390",
+      "id": "monotonicity_AGO1_miR165_REV",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
-      "input": "AGO7",
-      "target": "AGO7_miR390",
-      "value": "Activation",
+      "input": "AGO1_miR165",
+      "target": "REV",
+      "value": "Inhibition",
       "context": null
     },
     {
-      "id": "monotonicity_AS2_AS1_AS2",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AS2",
-      "target": "AS1_AS2",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_AS2_AS1_AS2",
+      "id": "essentiality_GTE6_AS1",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
-      "input": "AS2",
-      "target": "AS1_AS2",
+      "input": "GTE6",
+      "target": "AS1",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_ARF4",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "ARF4",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ARF4_FIL",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "ARF4",
+      "target": "FIL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_miR390",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "miR390",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_AUXINh",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "AUXINh",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_IPT5_CKh",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "IPT5",
+      "target": "CKh",
       "value": "True",
       "context": null
     },
@@ -574,53 +644,33 @@
       "context": null
     },
     {
-      "id": "monotonicity_FIL_ARF4",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "FIL",
-      "target": "ARF4",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AGO1_miR165_REV",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AGO1_miR165",
-      "target": "REV",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AS1_AS2_miR165",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AS1_AS2",
-      "target": "miR165",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_ETT_FIL",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "ETT",
-      "target": "FIL",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_AS1_AS1_AS2",
+      "id": "essentiality_miR165_AGO1_miR165",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
-      "input": "AS1",
-      "target": "AS1_AS2",
+      "input": "miR165",
+      "target": "AGO1_miR165",
       "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_miR390_AGO7_miR390",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "miR390",
+      "target": "AGO7_miR390",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_REV",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AUXINh",
+      "target": "REV",
+      "value": "Activation",
       "context": null
     },
     {
@@ -631,6 +681,76 @@
       "input": "AS1_AS2",
       "target": "KAN1",
       "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_KAN1_AS2",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "KAN1",
+      "target": "AS2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_GTE6_AS1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "GTE6",
+      "target": "AS1",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TAS3siRNA_ARF4",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "TAS3siRNA",
+      "target": "ARF4",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ANT_FIL",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "ANT",
+      "target": "FIL",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TAS3siRNA_ETT",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "TAS3siRNA",
+      "target": "ETT",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_CKh_GTE6",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "CKh",
+      "target": "GTE6",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_AS2_AS1_AS2",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AS2",
+      "target": "AS1_AS2",
+      "value": "True",
       "context": null
     },
     {
@@ -654,52 +774,62 @@
       "context": null
     },
     {
+      "id": "monotonicity_AGO10_AGO1",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO10",
+      "target": "AGO1",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_TAS3siRNA_ARF4",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "TAS3siRNA",
+      "target": "ARF4",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO7_AGO7_miR390",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO7",
+      "target": "AGO7_miR390",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AGO1_AGO1_miR165",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AGO1",
+      "target": "AGO1_miR165",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FIL_ETT",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FIL",
+      "target": "ETT",
+      "value": "Activation",
+      "context": null
+    },
+    {
       "id": "monotonicity_miR165_AGO1_miR165",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "miR165",
       "target": "AGO1_miR165",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_CKh_GTE6",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "CKh",
-      "target": "GTE6",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_REV_AGO10",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "REV",
-      "target": "AGO10",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_IPT5_CKh",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "IPT5",
-      "target": "CKh",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AS1_AS1_AS2",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AS1",
-      "target": "AS1_AS2",
       "value": "Activation",
       "context": null
     },
@@ -714,146 +844,6 @@
       "context": null
     },
     {
-      "id": "essentiality_AGO1_miR165_REV",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "AGO1_miR165",
-      "target": "REV",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_KAN1_AS2",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "KAN1",
-      "target": "AS2",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_ANT_FIL",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "ANT",
-      "target": "FIL",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_TAS3siRNA_miR165",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "TAS3siRNA",
-      "target": "miR165",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AUXINh_AUXINh",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AUXINh",
-      "target": "AUXINh",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_GTE6_AS1",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "GTE6",
-      "target": "AS1",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AUXINh_ANT",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AUXINh",
-      "target": "ANT",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AUXINh_miR390",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AUXINh",
-      "target": "miR390",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_ARF4_FIL",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "ARF4",
-      "target": "FIL",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "essentiality_GTE6_AS1",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "GTE6",
-      "target": "AS1",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "essentiality_miR165_AGO1_miR165",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "miR165",
-      "target": "AGO1_miR165",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_REV_AGO7",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "REV",
-      "target": "AGO7",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_KAN1_AS2",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "KAN1",
-      "target": "AS2",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "monotonicity_AGO1_AGO1_miR165",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "AGO1",
-      "target": "AGO1_miR165",
-      "value": "Activation",
-      "context": null
-    },
-    {
       "id": "monotonicity_IPT5_CKh",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
@@ -864,82 +854,32 @@
       "context": null
     },
     {
-      "id": "monotonicity_AGO7_miR390_TAS3siRNA",
+      "id": "monotonicity_REV_AGO10",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
-      "input": "AGO7_miR390",
-      "target": "TAS3siRNA",
+      "input": "REV",
+      "target": "AGO10",
       "value": "Activation",
       "context": null
     },
     {
-      "id": "monotonicity_miR390_AGO7_miR390",
+      "id": "monotonicity_ETT_FIL",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
-      "input": "miR390",
-      "target": "AGO7_miR390",
+      "input": "ETT",
+      "target": "FIL",
       "value": "Activation",
       "context": null
     },
     {
-      "id": "essentiality_TAS3siRNA_ARF4",
+      "id": "essentiality_AGO1_miR165_REV",
       "name": "Regulation essentiality (generated)",
       "annotation": "",
       "variant": "RegulationEssential",
-      "input": "TAS3siRNA",
-      "target": "ARF4",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_FIL_ETT",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "FIL",
-      "target": "ETT",
-      "value": "Activation",
-      "context": null
-    },
-    {
-      "id": "monotonicity_TAS3siRNA_ARF4",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "TAS3siRNA",
-      "target": "ARF4",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_AGO7_miR390_TAS3siRNA",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "AGO7_miR390",
-      "target": "TAS3siRNA",
-      "value": "True",
-      "context": null
-    },
-    {
-      "id": "monotonicity_TAS3siRNA_ETT",
-      "name": "Regulation monotonicity (generated)",
-      "annotation": "",
-      "variant": "RegulationMonotonic",
-      "input": "TAS3siRNA",
-      "target": "ETT",
-      "value": "Inhibition",
-      "context": null
-    },
-    {
-      "id": "essentiality_miR390_AGO7_miR390",
-      "name": "Regulation essentiality (generated)",
-      "annotation": "",
-      "variant": "RegulationEssential",
-      "input": "miR390",
-      "target": "AGO7_miR390",
+      "input": "AGO1_miR165",
+      "target": "REV",
       "value": "True",
       "context": null
     },
@@ -954,25 +894,85 @@
       "context": null
     },
     {
-      "id": "monotonicity_AUXINh_REV",
+      "id": "monotonicity_REV_AGO7",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
-      "input": "AUXINh",
-      "target": "REV",
+      "input": "REV",
+      "target": "AGO7",
       "value": "Activation",
       "context": null
     },
     {
-      "id": "monotonicity_AUXINh_ARF4",
+      "id": "monotonicity_FIL_ARF4",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FIL",
+      "target": "ARF4",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AUXINh_ANT",
       "name": "Regulation monotonicity (generated)",
       "annotation": "",
       "variant": "RegulationMonotonic",
       "input": "AUXINh",
-      "target": "ARF4",
+      "target": "ANT",
       "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS2_AS1_AS2",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS2",
+      "target": "AS1_AS2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_AS1_AS1_AS2",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "AS1",
+      "target": "AS1_AS2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_TAS3siRNA_miR165",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "TAS3siRNA",
+      "target": "miR165",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "essentiality_miR390_AGO7_miR390",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "miR390",
+      "target": "AGO7_miR390",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_AS1_AS2_miR165",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "AS1_AS2",
+      "target": "miR165",
+      "value": "Inhibition",
       "context": null
     }
   ],
-  "annotation": "This sketch is created based on the network and data published by La Rota et al. in [this paper](https://doi.org/10.1105/tpc.111.092619), and later adapted in [this paper](https://doi.org/10.3389/fgene.2018.00039) about the BN inference tool Griffin."
+  "annotation": "This sketch is created based on the network and data published by La Rota et al. in [this paper](https://doi.org/10.1105/tpc.111.092619)."
 }
