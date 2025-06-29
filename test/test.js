@@ -168,7 +168,7 @@ describe('Basic walkthrough test', () => {
     const heading = await findInShadowRoot(initialScreenComponent, "h2", driver);
     
     const headingText = await heading.getText();
-    expect(headingText).to.match(/Welcome to SketchBook/);
+    expect(headingText).to.match(/Welcome to Sketchbook/);
   });
 
   /** 

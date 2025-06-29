@@ -57,7 +57,7 @@ export class InitialScreen extends LitElement {
     return html`
       <div class="container">
         <div class="header uk-background-primary uk-margin-bottom">
-          <h2 class="uk-heading-bullet uk-margin-remove-bottom ">Welcome to SketchBook</h2>
+          <h2 class="uk-heading-bullet uk-margin-remove-bottom ">Welcome to Sketchbook</h2>
           <img src="${logoPath}" alt="Logo" class="logo-image" />
         </div>
         

@@ -12,7 +12,7 @@ use zip::write::{FileOptions, ZipWriter};
 ///
 /// The results archive include:
 /// - a summary report (basically information tracked by the `InferenceResults` struct)
-/// - original sketch in JSON format for replicability in SketchBook
+/// - original sketch in JSON format for replicability in Sketchbook
 /// - BDD with satisfying colors
 /// - a PSBN model derived from the sketch (in aeon format) that can be used as a context for the BDD
 /// - a folder with admissible update function variants per variable
