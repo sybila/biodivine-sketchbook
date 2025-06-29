@@ -1,0 +1,316 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "ERK",
+        "name": "ERK",
+        "annotation": "",
+        "update_fn": "h(FRS2, SHC)"
+      },
+      {
+        "id": "FGFR",
+        "name": "FGFR",
+        "annotation": "",
+        "update_fn": "f(FGFR, FRS2)"
+      },
+      {
+        "id": "FRS2",
+        "name": "FRS2",
+        "annotation": "",
+        "update_fn": "g(FGFR, ERK)"
+      },
+      {
+        "id": "SHC",
+        "name": "SHC",
+        "annotation": "",
+        "update_fn": "FGFR"
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "ERK",
+        "target": "FRS2",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "FGFR",
+        "target": "FGFR",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FGFR",
+        "target": "FRS2",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FGFR",
+        "target": "SHC",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FRS2",
+        "target": "ERK",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "FRS2",
+        "target": "FGFR",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "SHC",
+        "target": "ERK",
+        "sign": "Activation",
+        "essential": "True"
+      }
+    ],
+    "uninterpreted_fns": [
+      {
+        "id": "f",
+        "name": "fn_1",
+        "annotation": "",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "g",
+        "name": "fn_3",
+        "annotation": "",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "h",
+        "name": "fn_2",
+        "annotation": "",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      }
+    ],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "FRS2",
+            "px": 75.05169,
+            "py": -135.18256
+          },
+          {
+            "layout": "default",
+            "variable": "ERK",
+            "px": 170.83922,
+            "py": -134.66382
+          },
+          {
+            "layout": "default",
+            "variable": "FGFR",
+            "px": -29.900528,
+            "py": -134.78008
+          },
+          {
+            "layout": "default",
+            "variable": "SHC",
+            "px": 75.2072,
+            "py": -38.768864
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [],
+  "dyn_properties": [
+    {
+      "id": "dynamic_2",
+      "name": "Possible sustained ERK activation",
+      "annotation": "Starting in a state with triggered receptor FGFR and inactive ERK, there is trajectory on which ERK gets stably activated.",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (FGFR & ~ERK & EF (AG ERK))"
+    },
+    {
+      "id": "dynamic_1",
+      "name": "Possible transient ERK pulse",
+      "annotation": "Starting in a state with triggered receptor FGFR and inactive ERK, there is trajectory on which ERK temporarily activates (a transient \"pulse\"), and then deactivates (reaching attractor with inactive ERK). ",
+      "variant": "GenericDynProp",
+      "formula": "\\exists {x}: \\jump {x}: (FGFR & ~ERK & EF (ERK & EF (AG ~ERK)))"
+    }
+  ],
+  "stat_properties": [
+    {
+      "id": "essentiality_FGFR_FGFR",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FGFR",
+      "target": "FGFR",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FGFR_FRS2",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FGFR",
+      "target": "FRS2",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_FRS2_ERK",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FRS2",
+      "target": "ERK",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_SHC_ERK",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "SHC",
+      "target": "ERK",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_ERK_FRS2",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "ERK",
+      "target": "FRS2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FGFR_FRS2",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FGFR",
+      "target": "FRS2",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FRS2_ERK",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FRS2",
+      "target": "ERK",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_FGFR_SHC",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FGFR",
+      "target": "SHC",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_FRS2_FGFR",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "FRS2",
+      "target": "FGFR",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_SHC_ERK",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "SHC",
+      "target": "ERK",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FGFR_SHC",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FGFR",
+      "target": "SHC",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FGFR_FGFR",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FGFR",
+      "target": "FGFR",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "monotonicity_FRS2_FGFR",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "FRS2",
+      "target": "FGFR",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_ERK_FRS2",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "ERK",
+      "target": "FRS2",
+      "value": "Inhibition",
+      "context": null
+    }
+  ],
+  "annotation": ""
+}
