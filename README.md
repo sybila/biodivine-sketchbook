@@ -1,8 +1,8 @@
 # Biodivine Sketchbook
 
-Sketchbook is a multi-platform application for the synthesis of Boolean network models.
-It provides a user-friendly interface for designing a Boolean network sketch and inferring admissible BNs.
-You can find the newest version of the Sketchbook at [this Github repository](https://github.com/sybila/biodivine-sketchbook).
+Sketchbook is a multi-platform tool for synthesis of Boolean models using the framework of Boolean network sketches.
+It provides a user-friendly interface for designing a BN sketches and inferring all admissible candidate BNs.
+You can find the newest version of the Sketchbook at [our Github repository](https://github.com/sybila/biodivine-sketchbook).
 
 Boolean network sketches, introduced in [this paper](https://doi.org/10.1093/bioinformatics/btad158), serve as a method for integrating various kinds of prior knowledge and experimental data. The sketch consists of an influence graph, partially specified update functions, update function properties, and dynamic properties (including experimental data). 
 Sketchbook presents a way to design all these components and more.
@@ -15,7 +15,7 @@ In the provided `manual.pdf`, we discuss the details regarding
 - installation,
 - editing BN sketches in Sketchbook,
 - running BN inference in Sketchbook,
-- format and syntax used.
+- supported formats and syntax.
 
 We also provide an introduction to Sketchbook using a short video tutorial that you can find as `tutorial.mp4`.
 This tutorial covers basics on how to edit an sketch and run the inference.
