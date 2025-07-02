@@ -53,10 +53,10 @@ export default class AbstractDynamicProperty extends AbstractProperty {
           <input id="name-field" class="name-field" .value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
         </div>
-        <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.editDynProperty}">
+        <button class="property-button uk-button uk-button-secondary uk-button-small" @click="${this.editDynProperty}">
           ${icon(faEdit).node}
         </button>
-        <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
+        <button class="property-button uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
           ${icon(faTrash).node}
         </button>
       </div>

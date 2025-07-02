@@ -33,7 +33,11 @@ export default class abstractStaticProperty extends AbstractProperty {
     super.editProperty(this.property.id, EVENT_PROPERTY_EDITED)
   }
 
-  renderNameplate (removeButton: boolean = true): TemplateResult {
+  /**
+   * Renders the nameplate for a static property. Param *editable* determines whether the
+   * nameplate should be editable or not (i.e., if the buttons for edit/remove are shown).
+   */
+  renderNameplate (editable: boolean = true): TemplateResult {
     return html`
       <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column">
@@ -46,11 +50,11 @@ export default class abstractStaticProperty extends AbstractProperty {
           <input id="name-field" class="name-field static-name-field" .value="${this.property.name}" readonly/>
         </div>
         
-        ${when(removeButton, () => html`
-          <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.editStatProperty}">
+        ${when(editable, () => html`
+          <button class="property-button uk-button uk-button-secondary uk-button-small" @click="${this.editStatProperty}">
             ${icon(faEdit).node}
           </button>
-          <button class="remove-property uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
+          <button class="property-button uk-button uk-button-secondary uk-button-small" @click="${this.removeProperty}">
             ${icon(faTrash).node}
           </button>
         `)}
