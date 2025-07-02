@@ -305,15 +305,14 @@ pub fn process_wild_cards(
                     DynProperty::mk_fixed_point(&id, Some(data_id.clone()), obs_id.clone(), "");
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
-            WildCardType::TrapSpaces(data_id, obs_id) => {
+            WildCardType::TrapSpaces(data_id, obs_id, is_minimal, is_non_percolable) => {
                 // lets create `DynProperty` instance with the same meaning as this wild-card
-                // TODO: if we add more fields to WildCardType::TrapSpaces, pass them here
                 let temp_prop = DynProperty::mk_trap_space(
                     &id,
                     Some(data_id.clone()),
                     obs_id.clone(),
-                    false,
-                    false,
+                    *is_minimal,
+                    *is_non_percolable,
                     "",
                 );
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?

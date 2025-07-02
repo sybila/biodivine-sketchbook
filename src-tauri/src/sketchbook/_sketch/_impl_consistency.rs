@@ -252,7 +252,7 @@ impl Sketch {
                 self.assert_dataset_valid(data_id)?;
                 self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
             }
-            WildCardType::TrapSpaces(data_id, obs_id) => {
+            WildCardType::TrapSpaces(data_id, obs_id, _, _) => {
                 self.assert_dataset_valid(data_id)?;
                 self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
             }

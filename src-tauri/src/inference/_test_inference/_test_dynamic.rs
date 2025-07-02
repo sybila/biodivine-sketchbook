@@ -41,7 +41,7 @@ fn inference_hctl() {
     let property = mk_hctl_prop(formula).unwrap();
     assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 19);
 
-    // Has 111* minimal trap space
+    // Has 111* minimal trap space (e.g., it is a trap space and there are no fixed points in it)
     let sketch = load_test_model();
     let formula = "V{x}: @{x}: (((A & B & C) => AG (A & B & C)) & ~ AX {x})";
     let id = "has_111X_mts";
@@ -84,6 +84,13 @@ fn inference_template_attr_count_wildcard() {
     let formula = format!("%attractor_count(3, 4)%");
     let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
     assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 2);
+
+    // Attractor count exactly 3, written using wild-card proposition in generic property
+    let sketch = load_test_model();
+    let id = "exactly_3_attr";
+    let formula = format!("%attractor_count(3)%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 1);
 }
 
 #[test]
@@ -171,6 +178,7 @@ fn inference_template_trap_space() {
 /// Similar to [inference_template_trap_space], but with properties encoded
 /// using a language of dynamic properties (and not a template property).
 fn inference_template_trap_space_wildcard() {
+    // Has 111* (general) trap space
     let sketch = load_test_model();
     let id = "has_111X_ts";
     let data_id = sketch.observations.get_dataset_id("data_mts").unwrap();
@@ -178,6 +186,20 @@ fn inference_template_trap_space_wildcard() {
     let formula = format!("%trap_spaces({data_id}, {obs_id})%");
     let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
     assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 4);
+
+    // Has 111* essential trap space
+    let sketch = load_test_model();
+    let id = "has_111X_ets";
+    let formula = format!("%non_percolable_trap_spaces({data_id}, {obs_id})%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 4);
+
+    // Has 111* minimal trap space
+    let sketch = load_test_model();
+    let id = "has_111X_mts";
+    let formula = format!("%min_trap_spaces({data_id}, {obs_id})%");
+    let property = DynProperty::try_mk_generic(id, &formula, "").unwrap();
+    assert_eq!(add_dyn_prop_and_infer(sketch, property, id), 2);
 }
 
 #[test]

@@ -249,9 +249,9 @@ export function getTemplateHelpText (propertyType: PropertyType): string {
     case DynamicPropertyType.ExistsTrajectory:
       return 'Observations of selected dataset lay on trajectory.'
     case DynamicPropertyType.FixedPoint:
-      return 'Each selected observation exists in a fixed point.'
+      return 'Each selected observation corresponds to a fixed point.'
     case DynamicPropertyType.TrapSpace:
-      return 'Each selected observation exists in a trap space.'
+      return 'Each selected observation corresponds to a trap space.'
     case DynamicPropertyType.HasAttractor:
       return 'Each selected observation exists in an attractor.'
     case DynamicPropertyType.Generic:

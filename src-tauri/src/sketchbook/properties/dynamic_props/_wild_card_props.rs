@@ -14,8 +14,8 @@ pub enum WildCardType {
     /// Fixed points given by a dataset (or a single observation).
     FixedPoints(DatasetId, Option<ObservationId>),
     /// Trap spaces given by a dataset (or a single observation).
-    /// TODO: add other flags (minimal, non-percolable)
-    TrapSpaces(DatasetId, Option<ObservationId>),
+    /// The Boolean flags indicate whether to consider minimal or non-percolable trap spaces.
+    TrapSpaces(DatasetId, Option<ObservationId>, bool, bool),
     /// Attractor count range (min, max).
     AttractorCount(usize, usize),
 }
@@ -49,8 +49,8 @@ impl WildCardProposition {
         Self::new_raw(orig_str, variant)
     }
 
-    /// Create `WildCardProposition` instance describing existence of fixed points
-    /// corresponding to a given dataset (and optionally its single observation).
+    /// Create `WildCardProposition` instance describing existence of fixed points corresponding
+    /// to observations of a given dataset (or optionally its single observation).
     pub fn mk_fixed_points(
         orig_str: &str,
         dataset: DatasetId,
@@ -60,19 +60,58 @@ impl WildCardProposition {
         Self::new_raw(orig_str, variant)
     }
 
+    /// Utility to create `WildCardProposition` instance describing existence of trap spaces
+    /// corresponding to a given dataset (and optionally its single observation).
+    /// Trap space may be standard, minimal, or non-percolable.
+    fn mk_trap_spaces(
+        orig_str: &str,
+        dataset: DatasetId,
+        observation: Option<ObservationId>,
+        is_min: bool,
+        is_non_perc: bool,
+    ) -> WildCardProposition {
+        let variant = WildCardType::TrapSpaces(dataset, observation, is_min, is_non_perc);
+        Self::new_raw(orig_str, variant)
+    }
+
     /// Create `WildCardProposition` instance describing existence of trap spaces
     /// corresponding to a given dataset (and optionally its single observation).
-    pub fn mk_trap_spaces(
+    ///
+    /// This is a any trap space, i.e., it is not required to be minimal or not
+    /// non-percolable.
+    pub fn mk_general_trap_spaces(
         orig_str: &str,
         dataset: DatasetId,
         observation: Option<ObservationId>,
     ) -> WildCardProposition {
-        let variant = WildCardType::TrapSpaces(dataset, observation);
-        Self::new_raw(orig_str, variant)
+        Self::mk_trap_spaces(orig_str, dataset, observation, false, false)
     }
 
-    /// Create `WildCardProposition` instance describing existence of attractors
-    /// corresponding to a given dataset (and optionally its single observation).
+    /// Create `WildCardProposition` instance describing existence of minimal trap spaces
+    /// corresponding to observations of a given dataset (or optionally its single observation).
+    pub fn mk_min_trap_spaces(
+        orig_str: &str,
+        dataset: DatasetId,
+        observation: Option<ObservationId>,
+    ) -> WildCardProposition {
+        // Minimal trap spaces are always also non-percolable
+        Self::mk_trap_spaces(orig_str, dataset, observation, true, true)
+    }
+
+    /// Create `WildCardProposition` instance describing existence of non-percolable trap spaces
+    /// corresponding to observations of a given dataset (or optionally its single observation).
+    ///
+    /// Non-percolable trap spaces do not need to be minimal.
+    pub fn mk_non_percolable_trap_spaces(
+        orig_str: &str,
+        dataset: DatasetId,
+        observation: Option<ObservationId>,
+    ) -> WildCardProposition {
+        Self::mk_trap_spaces(orig_str, dataset, observation, false, true)
+    }
+
+    /// Create `WildCardProposition` instance describing existence of attractors corresponding
+    /// to observations of a given dataset (or optionally its single observation).
     pub fn mk_attractors(
         orig_str: &str,
         dataset: DatasetId,
@@ -83,7 +122,7 @@ impl WildCardProposition {
     }
 
     /// Create `WildCardProposition` instance describing existence of a trajectory
-    /// corresponding to a given dataset.
+    /// between observations of a given dataset.
     pub fn mk_trajectory(orig_str: &str, dataset: DatasetId) -> WildCardProposition {
         let variant = WildCardType::Trajectory(dataset);
         Self::new_raw(orig_str, variant)
@@ -109,26 +148,53 @@ impl WildCardProposition {
 
 impl WildCardProposition {
     /// Parse a single `WildCardProposition` from a string, which must be in a correct format.
+    /// Some of the templates make it possible to omit optional arguments for convenience.
     ///
     /// Currently supported variants are:
-    /// - observation in a dataset given as `datasetId/observationId`
+    /// - observation in a dataset given as `datasetId, observationId`
+    /// - trajectory template `trajectory(datasetId)`
+    /// - attractors given as `attractors(datasetId, observationId)` or `attractors(datasetId)`
+    /// - fixed points given as `fixed_points(datasetId, observationId)` or `fixed_points(datasetId)`
+    /// - trap spaces given as `trap_spaces(datasetId, observationId)` or `trap_spaces(datasetId)`
+    /// - minimal trap spaces given as `min_trap_spaces(datasetId, observationId)` or `min_trap_spaces(datasetId)`
+    /// - non-percolable trap spaces given as `non_percolable_trap_spaces(datasetId, observationId)` or `non_percolable_trap_spaces(datasetId)`
+    /// - attractor count given as `attractor_count(minimal, maximal)` or `attractor_count(number)`
     pub fn try_from_str(formula: &str) -> Result<WildCardProposition, String> {
+        // regex for ID matching (valid for both dataset and observation IDs)
         let id_re: &str = r"[a-zA-Z_][a-zA-Z0-9_]*";
+
+        // observation in a dataset given as `datasetId, observationId`
         let observation_re = Regex::new(&format!(r"^({id_re})\s*,\s*({id_re})$")).unwrap();
+        // trajectory template `trajectory(datasetId)`
         let trajectory_re = Regex::new(&format!(r"^trajectory\(\s*({id_re})\s*\)$")).unwrap();
+        // attractors template `attractors(datasetId, observationId)` or `attractors(datasetId)`
         let attr_re = Regex::new(&format!(
             r"^attractors\(\s*({id_re})(?:\s*,\s*({id_re}))?\s*\)$"
         ))
         .unwrap();
+        // fixed points template `fixed_points(datasetId, observationId)` or `fixed_points(datasetId)`
         let fp_re = Regex::new(&format!(
             r"^fixed_points\(\s*({id_re})(?:\s*,\s*({id_re}))?\s*\)$"
         ))
         .unwrap();
+        // general trap spaces template `trap_spaces(datasetId, observationId)` or `trap_spaces(datasetId)`
         let ts_re = Regex::new(&format!(
             r"^trap_spaces\(\s*({id_re})(?:\s*,\s*({id_re}))?\s*\)$"
         ))
         .unwrap();
-        let attr_count_re = Regex::new(r"^attractor_count\(\s*(\d+)\s*,\s*(\d+)\s*\)$").unwrap();
+        // minimal trap spaces template `min_trap_spaces(datasetId, observationId)` or `min_trap_spaces(datasetId)`
+        let min_ts_re = Regex::new(&format!(
+            r"^min_trap_spaces\(\s*({id_re})(?:\s*,\s*({id_re}))?\s*\)$"
+        ))
+        .unwrap();
+        // non-percolable trap spaces template `non_percolable_trap_spaces(datasetId, observationId)` or `non_percolable_trap_spaces(datasetId)`
+        let non_percolable_ts_re = Regex::new(&format!(
+            r"^non_percolable_trap_spaces\(\s*({id_re})(?:\s*,\s*({id_re}))?\s*\)$"
+        ))
+        .unwrap();
+        // attractor count template `attractor_count(minimal, maximal)` or `attractor_count(number)`
+        let attr_count_re =
+            Regex::new(r"^attractor_count\(\s*(\d+)(?:\s*,\s*(\d+))?\s*\)$").unwrap();
 
         if let Some(captures) = observation_re.captures(formula) {
             let dataset_id = DatasetId::new(&captures[1])?;
@@ -160,7 +226,31 @@ impl WildCardProposition {
             } else {
                 None
             };
-            Ok(WildCardProposition::mk_trap_spaces(
+            Ok(WildCardProposition::mk_general_trap_spaces(
+                formula,
+                dataset_id,
+                observation_id,
+            ))
+        } else if let Some(captures) = min_ts_re.captures(formula) {
+            let dataset_id = DatasetId::new(&captures[1])?;
+            let observation_id = if let Some(obs_id) = captures.get(2) {
+                Some(ObservationId::new(obs_id.as_str())?)
+            } else {
+                None
+            };
+            Ok(WildCardProposition::mk_min_trap_spaces(
+                formula,
+                dataset_id,
+                observation_id,
+            ))
+        } else if let Some(captures) = non_percolable_ts_re.captures(formula) {
+            let dataset_id = DatasetId::new(&captures[1])?;
+            let observation_id = if let Some(obs_id) = captures.get(2) {
+                Some(ObservationId::new(obs_id.as_str())?)
+            } else {
+                None
+            };
+            Ok(WildCardProposition::mk_non_percolable_trap_spaces(
                 formula,
                 dataset_id,
                 observation_id,
@@ -179,7 +269,14 @@ impl WildCardProposition {
             ))
         } else if let Some(captures) = attr_count_re.captures(formula) {
             let minimal = captures[1].parse::<usize>().map_err(|e| e.to_string())?;
-            let maximal = captures[2].parse::<usize>().map_err(|e| e.to_string())?;
+            let maximal = if let Some(max_match) = captures.get(2) {
+                max_match
+                    .as_str()
+                    .parse::<usize>()
+                    .map_err(|e| e.to_string())?
+            } else {
+                minimal
+            };
             WildCardProposition::try_mk_attractor_count(formula, minimal, maximal)
         } else {
             Err(format!(
@@ -205,9 +302,26 @@ impl WildCardProposition {
                 Some(obs_id) => format!("fixed_points_{dat_id}_{obs_id}"),
                 None => format!("fixed_points_{dat_id}_all"),
             },
-            WildCardType::TrapSpaces(dat_id, obs_id) => match obs_id {
-                Some(obs_id) => format!("trap_spaces_{dat_id}_{obs_id}"),
-                None => format!("trap_spaces_{dat_id}_all"),
+            WildCardType::TrapSpaces(dat_id, obs_id, is_min, is_non_perc) => match obs_id {
+                // distinguish between general/non-percolable/minimal trap spaces
+                Some(obs_id) => {
+                    if *is_min {
+                        format!("min_trap_spaces_{dat_id}_{obs_id}")
+                    } else if *is_non_perc {
+                        format!("non_percolable_trap_spaces_{dat_id}_{obs_id}")
+                    } else {
+                        format!("trap_spaces_{dat_id}_{obs_id}")
+                    }
+                }
+                None => {
+                    if *is_min {
+                        format!("min_trap_spaces_{dat_id}_all")
+                    } else if *is_non_perc {
+                        format!("non_percolable_trap_spaces_{dat_id}_all")
+                    } else {
+                        format!("trap_spaces_{dat_id}_all")
+                    }
+                }
             },
             WildCardType::AttractorCount(minimal, maximal) => {
                 format!("attractor_count_{minimal}_{maximal}")
@@ -300,7 +414,7 @@ mod tests {
 
     #[test]
     fn test_parse_attr_count() {
-        // normal case without spaces
+        // normal range without spaces
         let prop = WildCardProposition::try_from_str("attractor_count(2,9)").unwrap();
         assert_eq!(prop.orig_string(), "attractor_count(2,9)");
         assert_eq!(prop.processed_string(), "attractor_count_2_9");
@@ -312,7 +426,7 @@ mod tests {
             _ => assert!(false),
         }
 
-        // normal case with spaces
+        // normal range with spaces
         let prop = WildCardProposition::try_from_str("attractor_count( 8 ,  8 )").unwrap();
         assert_eq!(prop.orig_string(), "attractor_count( 8 ,  8 )");
         assert_eq!(prop.processed_string(), "attractor_count_8_8");
@@ -320,6 +434,18 @@ mod tests {
             WildCardType::AttractorCount(minimal, maximal) => {
                 assert_eq!(*minimal, 8);
                 assert_eq!(*maximal, 8);
+            }
+            _ => assert!(false),
+        }
+
+        // only single value provided
+        let prop = WildCardProposition::try_from_str("attractor_count( 7 )").unwrap();
+        assert_eq!(prop.orig_string(), "attractor_count( 7 )");
+        assert_eq!(prop.processed_string(), "attractor_count_7_7");
+        match prop.get_prop_data() {
+            WildCardType::AttractorCount(minimal, maximal) => {
+                assert_eq!(*minimal, 7);
+                assert_eq!(*maximal, 7);
             }
             _ => assert!(false),
         }
@@ -390,9 +516,11 @@ mod tests {
         assert_eq!(prop.orig_string(), "trap_spaces(d1, o1)");
         assert_eq!(prop.processed_string(), "trap_spaces_d1_o1");
         match prop.get_prop_data() {
-            WildCardType::TrapSpaces(ds, obs) => {
+            WildCardType::TrapSpaces(ds, obs, is_min, is_non_perc) => {
                 assert_eq!(ds.as_str(), "d1");
                 assert_eq!(obs.clone().unwrap().as_str(), "o1");
+                assert!(!is_min);
+                assert!(!is_non_perc);
             }
             _ => assert!(false),
         }
@@ -402,9 +530,73 @@ mod tests {
         assert_eq!(prop.orig_string(), "trap_spaces(d1)");
         assert_eq!(prop.processed_string(), "trap_spaces_d1_all");
         match prop.get_prop_data() {
-            WildCardType::TrapSpaces(ds, obs) => {
+            WildCardType::TrapSpaces(ds, obs, is_min, is_non_perc) => {
                 assert_eq!(ds.as_str(), "d1");
                 assert!(obs.is_none());
+                assert!(!is_min);
+                assert!(!is_non_perc);
+            }
+            _ => assert!(false),
+        }
+    }
+
+        #[test]
+    fn test_parse_min_trap_spaces() {
+        // observation specified
+        let prop = WildCardProposition::try_from_str("min_trap_spaces(d1, o1)").unwrap();
+        assert_eq!(prop.orig_string(), "min_trap_spaces(d1, o1)");
+        assert_eq!(prop.processed_string(), "min_trap_spaces_d1_o1");
+        match prop.get_prop_data() {
+            WildCardType::TrapSpaces(ds, obs, is_min, is_non_perc) => {
+                assert_eq!(ds.as_str(), "d1");
+                assert_eq!(obs.clone().unwrap().as_str(), "o1");
+                assert!(is_min);
+                assert!(is_non_perc);
+            }
+            _ => assert!(false),
+        }
+
+        // observation not specified
+        let prop = WildCardProposition::try_from_str("min_trap_spaces(d1)").unwrap();
+        assert_eq!(prop.orig_string(), "min_trap_spaces(d1)");
+        assert_eq!(prop.processed_string(), "min_trap_spaces_d1_all");
+        match prop.get_prop_data() {
+            WildCardType::TrapSpaces(ds, obs, is_min, is_non_perc) => {
+                assert_eq!(ds.as_str(), "d1");
+                assert!(obs.is_none());
+                assert!(is_min);
+                assert!(is_non_perc);
+            }
+            _ => assert!(false),
+        }
+    }
+
+        #[test]
+    fn test_parse_non_percolable_trap_spaces() {
+        // observation specified
+        let prop = WildCardProposition::try_from_str("non_percolable_trap_spaces(d1, o1)").unwrap();
+        assert_eq!(prop.orig_string(), "non_percolable_trap_spaces(d1, o1)");
+        assert_eq!(prop.processed_string(), "non_percolable_trap_spaces_d1_o1");
+        match prop.get_prop_data() {
+            WildCardType::TrapSpaces(ds, obs, is_min, is_non_perc) => {
+                assert_eq!(ds.as_str(), "d1");
+                assert_eq!(obs.clone().unwrap().as_str(), "o1");
+                assert!(!is_min);
+                assert!(is_non_perc);
+            }
+            _ => assert!(false),
+        }
+
+        // observation not specified
+        let prop = WildCardProposition::try_from_str("non_percolable_trap_spaces(d1)").unwrap();
+        assert_eq!(prop.orig_string(), "non_percolable_trap_spaces(d1)");
+        assert_eq!(prop.processed_string(), "non_percolable_trap_spaces_d1_all");
+        match prop.get_prop_data() {
+            WildCardType::TrapSpaces(ds, obs, is_min, is_non_perc) => {
+                assert_eq!(ds.as_str(), "d1");
+                assert!(obs.is_none());
+                assert!(!is_min);
+                assert!(is_non_perc);
             }
             _ => assert!(false),
         }
