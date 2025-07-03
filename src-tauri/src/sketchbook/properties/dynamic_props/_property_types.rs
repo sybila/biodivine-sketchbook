@@ -5,12 +5,21 @@ use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
 use std::mem::discriminant;
 
-/// Variant of `DynProperty` requiring that a particular HCTL formula is satisfied.
+use super::WildCardProposition;
+
+/// Variant of `DynProperty` requiring that a particular HCTL formula to be satisfied.
 /// The struct carries the user-provided `raw_formula` string, as well as its processed
-/// internal version `processed_formula`.
+/// internal version `processed_formula`. The two may differ a bit.
+///
+/// In addition, the struct contains a list of `wild_cards`, special propositions
+/// that are used in the formula that can represent various "high-level templates".
+/// They have to be processed separately and the format may differ between the
+/// original and processed formula.
+///
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct GenericDynProp {
     pub raw_formula: String,
+    pub wild_cards: Vec<WildCardProposition>,
     pub processed_formula: HctlFormula,
 }
 

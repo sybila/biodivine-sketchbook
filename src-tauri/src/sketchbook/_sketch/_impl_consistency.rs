@@ -1,5 +1,7 @@
 use crate::sketchbook::ids::{DatasetId, ObservationId, UninterpretedFnId, VarId};
-use crate::sketchbook::properties::dynamic_props::DynPropertyType;
+use crate::sketchbook::properties::dynamic_props::{
+    DynPropertyType, WildCardProposition, WildCardType,
+};
 use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::{DynProperty, FirstOrderFormula, HctlFormula, StatProperty};
 use crate::sketchbook::Sketch;
@@ -192,7 +194,7 @@ impl Sketch {
         Ok(())
     }
 
-    /// Check if all fields of the dynamic property are filled and have valid values.
+    /// Check if all fields of a dynamic property are filled and have valid values.
     /// If not, return appropriate message.
     fn assert_dynamic_prop_valid(&self, prop: &DynProperty) -> Result<(), String> {
         // first just check if all required fields are filled out (that is usually the dataset ID)
@@ -201,7 +203,15 @@ impl Sketch {
         // now, let's validate the fields (we know the required ones are filled in)
         match prop.get_prop_data() {
             DynPropertyType::GenericDynProp(generic_prop) => {
-                HctlFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)?;
+                HctlFormula::check_syntax_with_model(
+                    generic_prop.processed_formula.as_str(),
+                    &self.model,
+                )?;
+
+                // we will need to check wild cards as well
+                for wild_card_proposition in generic_prop.wild_cards.iter() {
+                    self.assert_wild_card_prop_valid(wild_card_proposition)?;
+                }
             }
             DynPropertyType::HasAttractor(p) => {
                 self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
@@ -219,6 +229,34 @@ impl Sketch {
                 self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
             }
             DynPropertyType::AttractorCount(_) => {} // no fields that can be invalid
+        }
+        Ok(())
+    }
+
+    /// Check if all fields of a wild-card proposition are filled and have valid values.
+    /// If not, return appropriate message.
+    fn assert_wild_card_prop_valid(&self, prop: &WildCardProposition) -> Result<(), String> {
+        match prop.get_prop_data() {
+            WildCardType::Observation(data_id, obs_id) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, Some(obs_id))?;
+            }
+            WildCardType::Trajectory(data_id) => {
+                self.assert_dataset_valid(data_id)?;
+            }
+            WildCardType::Attractors(data_id, obs_id) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
+            }
+            WildCardType::FixedPoints(data_id, obs_id) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
+            }
+            WildCardType::TrapSpaces(data_id, obs_id, _, _) => {
+                self.assert_dataset_valid(data_id)?;
+                self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
+            }
+            WildCardType::AttractorCount(..) => {} // no fields that can be invalid
         }
         Ok(())
     }

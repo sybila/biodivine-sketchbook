@@ -386,24 +386,23 @@ impl FnTree {
     /// uninterpreted function with its (transformed) expression.
     ///
     /// Before replacing the function symbol with its expression, the expression will be
-    /// tranformed. The formal parameters of the function will be substituted with the actual
+    /// transformed. The formal parameters of the function will be substituted with the actual
     /// parameters to which the function is applied.
     ///
     /// For example, if this is tree for function `A & fn_1(B, C)`, and we have the following
-    /// expression for fn_1: `fn_1(var1, var2) = var1 | var2`, then this will result in a tree
-    /// for `A & (B | C)`.
+    /// expression for `fn_1``: `fn_1(var1, var2) = var1 | var2`, then this will result in a
+    /// tree for `A & (B | C)`.
     pub fn substitute_fn_symbol_with_expression(
         &self,
         fn_id: &UninterpretedFnId,
         fn_expression: &FnTree,
     ) -> FnTree {
-        // TODO: we must substitute the symbol (in update fn tree) with the expression
-
         match self {
             FnTree::Const(_) => self.clone(),
             FnTree::Var(_) => self.clone(),
             FnTree::PlaceholderVar(_) => self.clone(),
             FnTree::UninterpretedFn(id, args) => {
+                // recursively solve the usb-trees first
                 let transformed_args = args
                     .iter()
                     .map(|it| it.substitute_fn_symbol_with_expression(fn_id, fn_expression))
@@ -412,7 +411,8 @@ impl FnTree {
                 if fn_id == id {
                     let mut transformed_fn_expression = fn_expression.clone();
 
-                    // TODO: 1) compute the mapping of formal -> actual function arguments (placeholder_var -> fn_tree)
+                    // Compute the mapping of formal -> actual function arguments (i.e., mapping from
+                    // formal placeholder variables to actual expressions
                     let formal_to_actual_arg_map = transformed_args
                         .into_iter()
                         .enumerate()
@@ -424,11 +424,11 @@ impl FnTree {
                         })
                         .collect::<HashMap<VarId, FnTree>>();
 
-                    // TODO: 2) substitute placeholder variables in uninterpreted fn expression using the mapping
+                    // substitute placeholder variables in uninterpreted fn expression using the mapping
                     transformed_fn_expression = transformed_fn_expression
                         .substitute_all_placeholders(&formal_to_actual_arg_map)
                         .unwrap();
-                    // TODO: 3) substitute the function symbol here with its transformed expression
+                    // this transformed expression is returned instead of the original fn symbol
                     transformed_fn_expression
                 } else {
                     FnTree::UninterpretedFn(id.clone(), transformed_args)

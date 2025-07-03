@@ -1,9 +1,14 @@
 use crate::algorithms::eval_dynamic::encode::encode_dataset_hctl_str;
-use crate::sketchbook::observations::Dataset;
-use crate::sketchbook::properties::dynamic_props::DynPropertyType;
+use crate::sketchbook::ids::DynPropertyId;
+use crate::sketchbook::observations::{Dataset, Observation};
+use crate::sketchbook::properties::dynamic_props::{
+    DynPropertyType, WildCardProposition, WildCardType,
+};
+use crate::sketchbook::properties::DynProperty;
 use crate::sketchbook::Sketch;
 
 /// Enum of possible variants of data encodings via HCTL.
+/// This is used as arguments for HCTL encoding functions.
 #[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub enum DataEncodingType {
     Attractor,
@@ -12,11 +17,28 @@ pub enum DataEncodingType {
     TimeSeries,
 }
 
-/// Property requiring that a particular HCTL formula is satisfied.
+/// Property requiring that a particular extended HCTL formula is satisfied.
+///
+/// The language of dynamic properties allows to write template sub-properties
+/// using wild-card propositions. These wild card propositions are turned into
+/// `sub_properties` field.
+///
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ProcessedHctlFormula {
     pub id: String,
     pub formula: String,
+    pub sub_properties: Vec<ProcessedDynProp>,
+}
+
+/// A special case - this is not a full property, but just a template that
+/// can be used as a sub-property in HCTL props. It should be taken as just
+/// a simple shortcut, nothing more.
+///
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProcessedObservation {
+    pub id: String,
+    pub obs: Observation,
+    pub var_names: Vec<String>,
 }
 
 /// Property requiring that observations in a particular dataset are trap spaces.
@@ -55,15 +77,25 @@ pub enum ProcessedDynProp {
     ProcessedTrapSpace(ProcessedTrapSpace),
     ProcessedHctlFormula(ProcessedHctlFormula),
     ProcessedSimpleTrajectory(ProcessedSimpleTrajectory),
+    /// This one is just for sub-properties.
+    ProcessedObservation(ProcessedObservation),
 }
 
 /// Simplified constructors for processed dynamic properties.
 impl ProcessedDynProp {
     /// Create HCTL `ProcessedDynProp` instance.
-    pub fn mk_hctl(id: &str, formula: &str) -> ProcessedDynProp {
+    ///
+    /// Arg `processed_wild_cards` represents template sub-properties that were
+    /// extracted from wild-card propositions in the formula.
+    pub fn mk_hctl(
+        id: &str,
+        formula: &str,
+        processed_wild_cards: Vec<ProcessedDynProp>,
+    ) -> ProcessedDynProp {
         let property = ProcessedHctlFormula {
             id: id.to_string(),
             formula: formula.to_string(),
+            sub_properties: processed_wild_cards,
         };
         ProcessedDynProp::ProcessedHctlFormula(property)
     }
@@ -112,6 +144,16 @@ impl ProcessedDynProp {
         Ok(ProcessedDynProp::ProcessedSimpleTrajectory(property))
     }
 
+    /// Create observation `ProcessedDynProp` instance.
+    pub fn mk_obs(id: &str, obs: Observation, var_names: Vec<String>) -> ProcessedDynProp {
+        let property = ProcessedObservation {
+            id: id.to_string(),
+            obs,
+            var_names,
+        };
+        ProcessedDynProp::ProcessedObservation(property)
+    }
+
     /// Get ID of the underlying processed property.
     pub fn id(&self) -> &str {
         match &self {
@@ -119,6 +161,7 @@ impl ProcessedDynProp {
             ProcessedDynProp::ProcessedAttrCount(prop) => &prop.id,
             ProcessedDynProp::ProcessedTrapSpace(prop) => &prop.id,
             ProcessedDynProp::ProcessedSimpleTrajectory(prop) => &prop.id,
+            ProcessedDynProp::ProcessedObservation(prop) => &prop.id,
         }
     }
 }
@@ -133,84 +176,151 @@ pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, S
 
     let mut processed_props = Vec::new();
     for (id, dyn_prop) in dynamic_props {
-        // we translate as many types of properties into HCTL, but we also treat some
-        // as special cases (these will have their own optimized evaluation)
+        let dyn_prop_processed = process_dyn_prop_single(id, dyn_prop, sketch)?;
+        processed_props.push(dyn_prop_processed);
+    }
 
-        let dyn_prop_processed = match dyn_prop.get_prop_data() {
-            // handled as a special case
-            DynPropertyType::AttractorCount(prop) => {
-                ProcessedDynProp::mk_attr_count(id.as_str(), prop.minimal, prop.maximal)
-            }
-            // handled as a special case
-            DynPropertyType::ExistsTrapSpace(prop) => {
-                let dataset_id = prop.dataset.clone().unwrap();
-                let mut dataset = sketch.observations.get_dataset(&dataset_id)?.clone();
+    Ok(processed_props)
+}
 
-                // if we only want to encode single observation, lets restrict the dataset
-                if let Some(obs_id) = &prop.observation {
-                    let observation = dataset.get_obs(obs_id)?.clone();
-                    let var_names = dataset.variable_names();
-                    let var_names_ref = var_names.iter().map(|v| v.as_str()).collect();
-                    dataset = Dataset::new("trap_space_data", vec![observation], var_names_ref)?;
-                }
+/// Process a given dynamic property into one of the supported `ProcessedDynProp` variants.
+///
+/// That usually means encoding them into HCTL, or doing some other preprocessing for
+/// special cases. The HCTL encoding is the default, but can result in slower non-optimized
+/// evaluation. If there is an optimized evaluation algorithm (better than HCTL model checking),
+/// a different variant should be used.
+fn process_dyn_prop_single(
+    id: &DynPropertyId,
+    dyn_prop: &DynProperty,
+    sketch: &Sketch,
+) -> Result<ProcessedDynProp, String> {
+    let dyn_prop_processed = match dyn_prop.get_prop_data() {
+        // handled as a special case
+        DynPropertyType::AttractorCount(prop) => {
+            ProcessedDynProp::mk_attr_count(id.as_str(), prop.minimal, prop.maximal)
+        }
+        // handled as a special case
+        DynPropertyType::ExistsTrapSpace(prop) => {
+            let dataset_id = prop.dataset.clone().unwrap();
+            let mut dataset = sketch.observations.get_dataset(&dataset_id)?.clone();
 
-                ProcessedDynProp::mk_trap_space(
-                    id.as_str(),
-                    dataset,
-                    prop.minimal,
-                    prop.nonpercolable,
-                )
+            // if we only want to encode single observation, lets restrict the dataset
+            if let Some(obs_id) = &prop.observation {
+                let observation = dataset.get_obs(obs_id)?.clone();
+                let var_names = dataset.variable_names();
+                let var_names_ref = var_names.iter().map(|v| v.as_str()).collect();
+                dataset = Dataset::new("trap_space_data", vec![observation], var_names_ref)?;
             }
-            // default generic HCTL
-            DynPropertyType::GenericDynProp(prop) => {
-                ProcessedDynProp::mk_hctl(id.as_str(), prop.processed_formula.as_str())
-            }
-            // encode fixed-points HCTL formula
-            DynPropertyType::ExistsFixedPoint(prop) => {
-                // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
-                let dataset_id = prop.dataset.clone().unwrap();
-                let dataset = sketch.observations.get_dataset(&dataset_id)?;
-                let formula = encode_dataset_hctl_str(
-                    dataset,
-                    prop.observation.clone(),
-                    DataEncodingType::FixedPoint,
-                )?;
-                ProcessedDynProp::mk_hctl(id.as_str(), &formula)
-            }
-            // encode attractors with HCTL formula
-            DynPropertyType::HasAttractor(prop) => {
-                // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
-                let dataset_id = prop.dataset.clone().unwrap();
-                let dataset = sketch.observations.get_dataset(&dataset_id)?;
-                let formula = encode_dataset_hctl_str(
-                    dataset,
-                    prop.observation.clone(),
-                    DataEncodingType::Attractor,
-                )?;
-                ProcessedDynProp::mk_hctl(id.as_str(), &formula)
-            }
-            // encode time series with HCTL formula
-            DynPropertyType::ExistsTrajectory(prop) => {
-                let dataset_id = prop.dataset.clone().unwrap();
-                let dataset = sketch.observations.get_dataset(&dataset_id)?;
 
-                // if the dataset does not have any missing values and has at least 3 observations, we
-                // use an optimized reachability-based method
-                // otherwise, a standard HCTL formula is created and later evaluated with model checker
+            ProcessedDynProp::mk_trap_space(id.as_str(), dataset, prop.minimal, prop.nonpercolable)
+        }
+        // default generic HCTL
+        DynPropertyType::GenericDynProp(prop) => {
+            let sub_properties = process_wild_cards(&prop.wild_cards, sketch)?;
+            ProcessedDynProp::mk_hctl(id.as_str(), prop.processed_formula.as_str(), sub_properties)
+        }
+        // encode fixed-points HCTL formula
+        DynPropertyType::ExistsFixedPoint(prop) => {
+            // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
+            let dataset_id = prop.dataset.clone().unwrap();
+            let dataset = sketch.observations.get_dataset(&dataset_id)?;
+            let formula = encode_dataset_hctl_str(
+                dataset,
+                prop.observation.clone(),
+                DataEncodingType::FixedPoint,
+            )?;
+            ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new()) // no wild-cards
+        }
+        // encode attractors with HCTL formula
+        DynPropertyType::HasAttractor(prop) => {
+            // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
+            let dataset_id = prop.dataset.clone().unwrap();
+            let dataset = sketch.observations.get_dataset(&dataset_id)?;
+            let formula = encode_dataset_hctl_str(
+                dataset,
+                prop.observation.clone(),
+                DataEncodingType::Attractor,
+            )?;
+            ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new()) // no wild-cards
+        }
+        // encode time series with HCTL formula
+        DynPropertyType::ExistsTrajectory(prop) => {
+            let dataset_id = prop.dataset.clone().unwrap();
+            let dataset = sketch.observations.get_dataset(&dataset_id)?;
 
-                let no_missing_values = dataset
-                    .observations()
-                    .iter()
-                    .all(|obs| (obs.num_unspecified_values() == 0));
-                if no_missing_values && dataset.num_observations() > 2 {
-                    // we can unwrap, since we checked no values are missing
-                    ProcessedDynProp::mk_simple_trajectory(id.as_str(), dataset.clone()).unwrap()
-                } else {
-                    // TODO: also optimize the computation for the base case to avoid pure model checking
-                    let formula =
-                        encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
-                    ProcessedDynProp::mk_hctl(id.as_str(), &formula)
-                }
+            // if the dataset does not have any missing values and has at least 3 observations, we
+            // use an optimized reachability-based method
+            // otherwise, a standard HCTL formula is created and later evaluated with model checker
+
+            let no_missing_values = dataset
+                .observations()
+                .iter()
+                .all(|obs| (obs.num_unspecified_values() == 0));
+            if no_missing_values && dataset.num_observations() > 2 {
+                // we can unwrap, since we checked no values are missing
+                ProcessedDynProp::mk_simple_trajectory(id.as_str(), dataset.clone()).unwrap()
+            } else {
+                // TODO: also optimize the computation for the base case to avoid pure model checking
+                let formula = encode_dataset_hctl_str(dataset, None, DataEncodingType::TimeSeries)?;
+                ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new())
+                // no wild-cards
+            }
+        }
+    };
+    Ok(dyn_prop_processed)
+}
+
+/// Process special template wild-card propositions (from a single HCTL formula), turning them into
+/// type-safe sub-properties. Each sub-property is encoded as `ProcessedDynProp` variant.
+pub fn process_wild_cards(
+    wild_cards: &Vec<WildCardProposition>,
+    sketch: &Sketch,
+) -> Result<Vec<ProcessedDynProp>, String> {
+    let mut processed_props = Vec::new();
+    for wild_card_prop in wild_cards {
+        // the ID always corresponds to the "processed string" that appears in the formula
+        let id = wild_card_prop.processed_string();
+
+        let dyn_prop_processed = match wild_card_prop.get_prop_data() {
+            WildCardType::Observation(data_id, obs_id) => {
+                let dataset = sketch.observations.get_dataset(data_id)?;
+                let observation = dataset.get_obs(obs_id)?;
+                let var_names = dataset.variable_names();
+                ProcessedDynProp::mk_obs(&id, observation.clone(), var_names)
+            }
+            WildCardType::Trajectory(data_id) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop = DynProperty::mk_trajectory(&id, Some(data_id.clone()), "");
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::Attractors(data_id, obs_id) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop =
+                    DynProperty::mk_has_attractor(&id, Some(data_id.clone()), obs_id.clone(), "");
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::FixedPoints(data_id, obs_id) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop =
+                    DynProperty::mk_fixed_point(&id, Some(data_id.clone()), obs_id.clone(), "");
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::TrapSpaces(data_id, obs_id, is_minimal, is_non_percolable) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop = DynProperty::mk_trap_space(
+                    &id,
+                    Some(data_id.clone()),
+                    obs_id.clone(),
+                    *is_minimal,
+                    *is_non_percolable,
+                    "",
+                );
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
+            }
+            WildCardType::AttractorCount(minimal, maximal) => {
+                // lets create `DynProperty` instance with the same meaning as this wild-card
+                let temp_prop = DynProperty::try_mk_attractor_count(&id, *minimal, *maximal, "")?;
+                process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
         };
         processed_props.push(dyn_prop_processed);
