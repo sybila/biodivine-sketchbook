@@ -540,7 +540,7 @@ mod tests {
         }
     }
 
-        #[test]
+    #[test]
     fn test_parse_min_trap_spaces() {
         // observation specified
         let prop = WildCardProposition::try_from_str("min_trap_spaces(d1, o1)").unwrap();
@@ -571,7 +571,7 @@ mod tests {
         }
     }
 
-        #[test]
+    #[test]
     fn test_parse_non_percolable_trap_spaces() {
         // observation specified
         let prop = WildCardProposition::try_from_str("non_percolable_trap_spaces(d1, o1)").unwrap();
