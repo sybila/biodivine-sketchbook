@@ -39,6 +39,7 @@ impl ProcessedStatProp {
 /// these symbols. Note that removing properties of unused functions has no effect on the results.
 ///
 /// TODO: Not sure how to handle generic FOL properties referencing pruned symbols.
+/// TODO v2: Pruned symbols must be substituted with their expressions
 pub fn process_static_props(
     sketch: &Sketch,
     bn: &BooleanNetwork,
