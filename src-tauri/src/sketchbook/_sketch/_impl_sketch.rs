@@ -99,7 +99,7 @@ impl Sketch {
     /// All unused function symbols are pruned first, and function expressions are substituted
     /// in before computing the number of params.
     pub fn get_num_parameters(&self) -> usize {
-        let bn = self.model.to_bn_with_plain_regulations(None);
+        let bn = self.model.to_bn_with_plain_regulations();
         // remove all unused function symbols, as these would cause problems later
         let bn = bn.prune_unused_parameters();
         let context = SymbolicContext::new(&bn).unwrap();

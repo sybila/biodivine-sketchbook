@@ -442,7 +442,7 @@ impl InferenceSolver {
 impl InferenceSolver {
     /// Extract and process BN component from the sketch.
     fn extract_bn(sketch: &Sketch) -> Result<BooleanNetwork, String> {
-        let bn = sketch.model.to_bn_with_plain_regulations(None);
+        let bn = sketch.model.to_bn_with_plain_regulations();
         // remove all unused function symbols, as these would cause problems later
         let mut bn = bn.prune_unused_parameters();
         // add expressions "f_var_N(regulator_1, ..., regulator_M)" instead of all empty updates

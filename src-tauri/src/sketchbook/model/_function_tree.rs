@@ -52,9 +52,9 @@ impl FnTree {
     ) -> Result<FnTree, String> {
         let bn_context = if let Some(fn_id) = is_uninterpreted {
             let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
-            model.to_fake_bn_with_params(uninterpreted_fn.get_arity())
+            model.to_bn_with_fake_vars(uninterpreted_fn.get_arity())
         } else {
-            model.to_empty_bn_with_params()
+            model.to_bn_with_empty_updates()
         };
         let fn_update = parse_update_fn_wrapper(expression, &bn_context)?;
         let fn_tree = Self::from_fn_update(fn_update, model, is_uninterpreted)?;
@@ -67,9 +67,9 @@ impl FnTree {
     /// library, and thus `model` is needed to provide context (regarding IDs).
     pub fn to_string(&self, model: &ModelState, is_uninterpreted: Option<usize>) -> String {
         let bn_context = if let Some(n) = is_uninterpreted {
-            model.to_fake_bn_with_params(n)
+            model.to_bn_with_fake_vars(n)
         } else {
-            model.to_empty_bn_with_params()
+            model.to_bn_with_empty_updates()
         };
         let fn_update = self.to_fn_update_recursive(&bn_context);
         fn_update.to_string(&bn_context)
@@ -84,10 +84,10 @@ impl FnTree {
     ) -> Result<FnTree, String> {
         if let Some(fn_id) = is_uninterpreted {
             let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
-            let bn_context = model.to_fake_bn_with_params(uninterpreted_fn.get_arity());
+            let bn_context = model.to_bn_with_fake_vars(uninterpreted_fn.get_arity());
             Self::from_fn_update_recursive(fn_update, model, &bn_context, Some(fn_id))
         } else {
-            let bn_context = model.to_empty_bn_with_params();
+            let bn_context = model.to_bn_with_empty_updates();
             Self::from_fn_update_recursive(fn_update, model, &bn_context, None)
         }
     }
