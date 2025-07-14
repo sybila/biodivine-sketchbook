@@ -39,7 +39,8 @@ impl ProcessedStatProp {
 /// these symbols. Note that removing properties of unused functions has no effect on the results.
 ///
 /// TODO: Not sure how to handle generic FOL properties referencing pruned symbols.
-/// TODO v2: Pruned symbols must be substituted with their expressions
+/// TODO v2: Pruned symbols that were replaced by their expression must be substituted with that expression
+/// TODO v3: What to do with properties referencing symbols that were pruned because they were unused?
 pub fn process_static_props(
     sketch: &Sketch,
     bn: &BooleanNetwork,
@@ -50,6 +51,8 @@ pub fn process_static_props(
 
     let mut processed_props = Vec::new();
     for (id, stat_prop) in static_props {
+        // TODO: Below is a temporary solution, the function symbols should be substituted with their
+        // expressions after being transformed into FOL.
         // We want to remove all properties of function symbols (parameters) not present in the BN.
         // These parameters were pruned beforehand because they are unused (redundant), and
         // we must do the same with their properties.
@@ -57,6 +60,7 @@ pub fn process_static_props(
         // Everything else is currently encoded into first-order logic (into a "generic" property)
         match stat_prop.get_prop_data() {
             StatPropertyType::GenericStatProp(prop) => {
+                // TODO: What to do with pruned symbols present in formula?
                 let new_prop =
                     ProcessedStatProp::mk_fol(id.as_str(), prop.processed_formula.as_str());
                 processed_props.push(new_prop);
@@ -98,6 +102,7 @@ pub fn process_static_props(
                 let fn_id = prop.target.clone().unwrap();
                 // Only process this property if the BN contains this function symbol as its valid
                 // parameter (otherwise it was pruned out for being unused).
+                // TODO: Once we add substitutions for pruned symbols, update this?
                 if bn.find_parameter(fn_id.as_str()).is_some() {
                     let input_idx = prop.input_index.unwrap();
                     let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;
@@ -119,6 +124,7 @@ pub fn process_static_props(
                 let fn_id = prop.target.clone().unwrap();
                 // Only process this property if the BN contains this function symbol as its valid
                 // parameter (otherwise it was pruned out for being unused).
+                // TODO: Once we add substitutions for pruned symbols, update this?
                 if bn.find_parameter(fn_id.as_str()).is_some() {
                     let input_idx = prop.input_index.unwrap();
                     let number_inputs = sketch.model.get_uninterpreted_fn_arity(&fn_id)?;

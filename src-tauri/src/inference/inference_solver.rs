@@ -539,6 +539,8 @@ impl InferenceSolver {
     /// If some internal error happens, the message should contain the internal error message,
     /// and some additional details on at which part of the computation failed.
     /// This message is then displayed on the frontend.
+    ///
+    /// TODO: Add enum/structs for typesafe errors to avoid using several layers of strings.
     pub fn run_inference_modular(
         &mut self,
         inference_type: InferenceType,

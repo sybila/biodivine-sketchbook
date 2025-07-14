@@ -10,6 +10,9 @@ mod _impl_convert_bn;
 mod _impl_convert_reg_graph;
 /// **(internal)** Methods for safely constructing or editing instances of `ModelState`.
 mod _impl_editing;
+/// **(internal)** Methods for working with function expressions (e.g., substitution,
+/// propagation, or consistency checking).
+mod _impl_fn_expressions;
 /// **(internal)** Implementation of the safe identifier generating.
 mod _impl_id_generating;
 /// **(internal)** Methods for observing instances of `ModelState` (various getters, etc.).

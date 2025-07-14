@@ -69,15 +69,21 @@ impl Sketch {
             message += "> ISSUE: There must be at least one variable.\n";
         }
 
-        // Check there are no function symbols that would be completely unused in any expression.
-        // Note that we automatically prune the unused symbols before the inference anyway, so this
-        // is just to inform the user. Unused symbols can cause issues only if used in properties.
-        let unused_fn_symbols = self.model.find_unused_uninterpreted_fns();
-        for fn_symbol in unused_fn_symbols {
+        // Check there are no function symbols that would be completely unused in any update
+        // expression, even after propagating their expressions.
+        // We automatically prune the unused symbols before the inference. These unused
+        // symbols can cause issues if referenced in static properties though.
+        let redundant_fn_symbols = self.model.find_redundant_uninterpreted_fns();
+        for fn_symbol in redundant_fn_symbols {
             consitent = false;
-            let issue = format!("> ISSUE: Function `{fn_symbol}` is unused (not referenced in any function expression). Remove it.\n");
+            let issue =
+                format!("> ISSUE: Function `{fn_symbol}` is redundant. Consider removing it.\n");
             message += &issue;
         }
+
+        // TODO: check that unused symbols are not referenced in static properties?
+        //       -> that would solve potential issues later in the inference
+        //       -> plus, we can let the user keep the unused symbols not referenced in properties
 
         // TODO: in future, we can also add a check if update fn expressions match regulation properties,
         // TODO: which would help users to discover unsatisfiable models earlier

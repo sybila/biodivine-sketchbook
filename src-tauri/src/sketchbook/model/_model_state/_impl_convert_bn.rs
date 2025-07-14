@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::sketchbook::model::ModelState;
 use biodivine_lib_param_bn::{BooleanNetwork, RegulatoryGraph};
 
@@ -17,6 +19,12 @@ impl ModelState {
     /// that contain parameters, you must also include parameters, and so on...).
     /// Rather use one of the provided wrappers. For instance, you can get the full PSBN with
     /// all info using [Self::to_bn].
+    ///
+    /// TODO: Add methods to propagate expressions between uninterpreted functions before
+    ///       propagating them into update functions.
+    /// TODO: By default remove all unused function symbols from the BN (check downstream functions
+    ///       if there is anything that may break first).
+    /// TODO: Check for cycles in expressions of uninterpreted functions (and decide how to treat them).
     fn to_bn_internal(
         &self,
         regulation_types: bool,
@@ -24,6 +32,7 @@ impl ModelState {
         update_fns: bool,
         extra_vars: Option<Vec<String>>,
     ) -> Result<BooleanNetwork, String> {
+        // First create the regulatory graph base (variables and regulations).
         let reg_graph = if regulation_types {
             self.to_reg_graph(extra_vars)
         } else {
@@ -31,6 +40,8 @@ impl ModelState {
         };
         let mut bn = BooleanNetwork::new(reg_graph);
 
+        // Add all uninterpreted functions as parameters.
+        // Parameters must be added before update function expressions are set.
         if parameters {
             for (fn_id, uninterpreted_fn) in self.uninterpreted_fns.iter() {
                 // uninterpreted fns always have unique valid IDs, so we can unwrap
@@ -39,24 +50,25 @@ impl ModelState {
             }
         }
 
+        // TODO: propagate expressions through uninterpreted fns
+
+        // Set update functions for variables. If a function symbol is used in the update function,
+        // we must check if it has an expression specified, and if so, substitute the function.
         if update_fns {
             for (var_id, update_fn) in self.update_fns.iter() {
                 if !update_fn.has_empty_expression() {
-                    let mut transformed_update_fn_tree = update_fn.get_fn_tree().clone().unwrap();
-                    // check if this update fn contains any fn symbols that have their expressions specified
-                    let fn_symbols_used = update_fn.collect_fn_symbols();
-                    for fn_id in fn_symbols_used {
-                        let uninterpreted_fn = self.get_uninterpreted_fn(&fn_id)?;
-                        if let Some(fn_expression_tree) = uninterpreted_fn.get_fn_tree() {
-                            // If there is an expression, we must substitute the function symbol (inside of the
-                            // update fn tree) with that expression
-                            // All the magical transformations happen inside this method
-                            transformed_update_fn_tree = transformed_update_fn_tree
-                                .substitute_fn_symbol_with_expression(&fn_id, fn_expression_tree);
-                        }
-                    }
-
-                    // Add the (potentionally transformed) update function
+                    // Substitute all all function symbols with their expressions, if they are specified
+                    let referenced_fn_symbols = update_fn.collect_fn_symbols();
+                    // TODO: once we have propagated expression mapping above, use it instead
+                    let mut expression_mapping = HashMap::new();
+                    referenced_fn_symbols.iter().for_each(|fn_id| {
+                        let uninterpreted_fn = self.get_uninterpreted_fn(fn_id).unwrap();
+                        let fn_expression = uninterpreted_fn.get_fn_tree().clone();
+                        // Either maps the ID to the expression tree or None
+                        expression_mapping.insert(fn_id.clone(), fn_expression);
+                    });
+                    let transformed_update_fn_tree =
+                        self.substitute_expressions_to_update_fn(update_fn, &expression_mapping)?;
                     let transformed_expression = transformed_update_fn_tree.to_string(self, None);
                     bn.add_string_update_function(var_id.as_str(), &transformed_expression)?;
                 }
