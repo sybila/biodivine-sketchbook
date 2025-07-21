@@ -14,8 +14,6 @@ impl ModelState {
     /// For example, if the update function has an expression `f_A = g(B) | C`, and
     /// we have `g(x1) = !x1`, then this method will substitute `g(B)` with `!B`, resulting
     /// in `f_A = !B | C`.
-    ///
-    /// TODO: provide function expression mapping
     pub fn substitute_expressions_to_update_fn(
         self: &ModelState,
         update_fn: &UpdateFn,
