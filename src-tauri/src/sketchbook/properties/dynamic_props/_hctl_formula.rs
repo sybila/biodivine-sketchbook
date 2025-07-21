@@ -109,16 +109,16 @@ impl HctlFormula {
     }
 
     /// Assert that formula is correctly formed based on HCTL syntactic rules, and also
-    /// whether the propositions correspond to valid network variables used in the `model`.
+    /// that the propositions correspond to valid network variables of the `model`.
     ///
-    /// Note that potential wild-card propositions and their validity is not checked as
-    /// that is done elsewhere.
+    /// Note that validity of potential wild-card propositions and their validity is not
+    /// checked as that is done elsewhere.
     ///
     /// If you only want to also check the basic syntactic rules (ignoring potentially
-    /// invalid propositions, check [Self::check_syntax].
+    /// invalid propositions), check [Self::check_syntax].
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
-        // Create a simple bn object ignoring update fns. 
-        // We need it just to check if all propositions in formula are valid variables.
+        // Create a simple bn object ignoring update fns. We need it just to check
+        // if all propositions in formula are valid variables.
         let bn = model.to_bn_with_empty_updates();
         let ctx = SymbolicContext::new(&bn)?;
 

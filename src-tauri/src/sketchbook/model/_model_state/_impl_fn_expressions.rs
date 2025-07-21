@@ -92,7 +92,7 @@ impl ModelState {
     /// (or None if they don't have an expression to start with).
     ///
     /// There must be no cycles in the expressions of uninterpreted functions,
-    /// otherwise this method will panic.
+    /// otherwise this method will return error.
     ///
     /// For example, if we have three functions with the following expressions:
     /// - `f(x, y) = g(x) | h(x, y)`
@@ -183,7 +183,7 @@ impl ModelState {
 
             if all_derived_fn_symbols.contains(fn_id) {
                 return Err(format!(
-                    "Cycle detected in the expression of function '{fn_id}'."
+                    "Recursion detected in the expression of function '{fn_id}'."
                 ));
             }
         }
@@ -193,6 +193,9 @@ impl ModelState {
     /// Find all uninterpreted functions that are not used in any update function,
     /// even after propagating their expressions.
     ///
+    /// There must be no cycles in the expressions of uninterpreted functions,
+    /// otherwise this method will return error.
+    ///
     /// For example, if we have PSBN with `A: f(B); B: A & B` and the following functions:
     /// - `f(x) = g(x) | x`
     /// - `g(x) = !x`
@@ -200,7 +203,10 @@ impl ModelState {
     /// - `i(x) = x`
     ///
     /// Then functions `h` and `i` are unused, as they are not used in any update function.
-    pub fn find_redundant_uninterpreted_fns(&self) -> HashSet<UninterpretedFnId> {
+    pub fn find_redundant_uninterpreted_fns(&self) -> Result<HashSet<UninterpretedFnId>, String> {
+        // Assert there are no cycle references (so that the algo terminates)
+        self.assert_no_cycles_in_fn_expressions()?;
+
         // Slowly collect all used functions, and then subtract them from all functions
         let mut used_fn_symbols: HashSet<UninterpretedFnId> = HashSet::new();
         let all_fn_symbols: HashSet<UninterpretedFnId> =
@@ -237,10 +243,11 @@ impl ModelState {
         }
 
         // Subtract used functions from all functions to get the unused ones
-        all_fn_symbols
+        let redundant_symbols = all_fn_symbols
             .difference(&used_fn_symbols)
             .cloned()
-            .collect()
+            .collect();
+        Ok(redundant_symbols)
     }
 }
 
@@ -353,7 +360,7 @@ mod tests {
             .unwrap();
 
         // Functions `h` and `i` should be detected as unused
-        let unused_fns = model.find_redundant_uninterpreted_fns();
+        let unused_fns = model.find_redundant_uninterpreted_fns().unwrap();
         assert_eq!(unused_fns.len(), 2);
         assert!(unused_fns.contains(&UninterpretedFnId::new("h").unwrap()));
         assert!(unused_fns.contains(&UninterpretedFnId::new("i").unwrap()));

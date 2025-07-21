@@ -77,7 +77,7 @@ fn parse_and_validate(
         let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
 
         // check if all variables valid
-        let fol_vars = collect_unique_fol_vars(&tree);
+        let fol_vars = tree.collect_quantified_fol_vars();
         for fol_var in fol_vars {
             if !check_fol_var_support(graph, &fol_var) {
                 return Err(format!(
@@ -87,7 +87,7 @@ fn parse_and_validate(
         }
 
         // check if all functions valid
-        let function_symbols = collect_unique_fn_symbols(&tree)?;
+        let function_symbols = tree.collect_unique_fn_symbols()?;
         for (fn_name, arity) in function_symbols.iter() {
             if let Ok(var) = get_var_from_implicit(fn_name) {
                 // if this is update fn symbol, we must check the corresponding variable exists

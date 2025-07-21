@@ -5,6 +5,7 @@ use crate::sketchbook::properties::dynamic_props::{
 use crate::sketchbook::properties::static_props::StatPropertyType;
 use crate::sketchbook::properties::{DynProperty, FirstOrderFormula, HctlFormula, StatProperty};
 use crate::sketchbook::Sketch;
+use std::collections::HashSet;
 
 /// Utilities to perform consistency checks.
 impl Sketch {
@@ -26,7 +27,7 @@ impl Sketch {
     /// before the inference is started).
     ///
     /// This should include:
-    /// - check that model is not empty
+    /// - check that model is not empty, and there are no problems in function expressions
     /// - check that dataset variables are valid network variables and vice versa
     /// - check that various template properties reference valid variables and data
     /// - check that HCTL formulas only use valid variables as atomic propositions
@@ -57,7 +58,9 @@ impl Sketch {
     /// Part of the consistency check responsible for the 'model' component.
     /// Returns bool (whether a model is consistent) and formated message with issues.
     ///
-    /// Essentially, we currently only ensure that the network is not empty.
+    /// We currently ensure that the network is not empty, there are no redundant (unused)
+    /// function symbols, and that expressions of uninterpreted functions are not defined
+    /// recursively.
     fn check_model(&self) -> (bool, String) {
         let mut consitent = true;
         let mut message = String::new();
@@ -69,24 +72,33 @@ impl Sketch {
             message += "> ISSUE: There must be at least one variable.\n";
         }
 
-        // Check there are no function symbols that would be completely unused in any update
-        // expression, even after propagating their expressions.
-        // We automatically prune the unused symbols before the inference. These unused
-        // symbols can cause issues if referenced in static properties though.
-        let redundant_fn_symbols = self.model.find_redundant_uninterpreted_fns();
-        for fn_symbol in redundant_fn_symbols {
+        // Check there are no cycles in expressions of uninterpreted functions (e.g., having
+        // that `f(x) = g(x)` and `g(x) = f(x) | !x`). Circular definitions are not allowed.
+        if let Err(error_msg) = self.model.assert_no_cycles_in_fn_expressions() {
             consitent = false;
-            let issue =
-                format!("> ISSUE: Function `{fn_symbol}` is redundant. Consider removing it.\n");
+            // The particular function is mentioned in the error message itself
+            let issue = format!("> ISSUE: Function expressions cannot be recursive: {error_msg}\n");
             message += &issue;
         }
 
-        // TODO: check that unused symbols are not referenced in static properties?
-        //       -> that would solve potential issues later in the inference
-        //       -> plus, we can let the user keep the unused symbols not referenced in properties
+        // Check there are no uninterpreted functions that would be completely unused in any update
+        // expression, even after propagating function expressions. If the method returns an error, it
+        // is because there are recursive definitions (which is already reported in the previous step).
+        if let Ok(redundant_fn_symbols) = self.model.find_redundant_uninterpreted_fns() {
+            for fn_symbol in redundant_fn_symbols {
+                consitent = false;
+                let issue = format!(
+                    "> ISSUE: Function `{fn_symbol}` is redundant (not used in any update expression). Consider using it or remove it.\n"
+                );
+                message += &issue;
+            }
+        }
 
-        // TODO: in future, we can also add a check if update fn expressions match regulation properties,
-        // TODO: which would help users to discover unsatisfiable models earlier
+        // TODO: Maybe allow the redundant functions? We already check if these symbols are not
+        //       used in static properties, and we prune the rest later, so it should be fine.
+
+        // TODO: we can consider adding a check whether update fn expressions match regulation
+        //       properties (essentially a partial check for some static properties)
 
         (consitent, message)
     }
@@ -163,26 +175,52 @@ impl Sketch {
 
     /// Check if all fields of the static property are filled and have valid values.
     /// If not, return appropriate message.
+    ///
+    /// Apart from the syntactic check, static properties should not reference any
+    /// "redundant" uninterpreted functions (unused functions that won't appear in
+    /// any update expression, even after propagating the function expressions).
     fn assert_static_prop_valid(&self, prop: &StatProperty) -> Result<(), String> {
-        // first just check if all required fields are filled out
+        // First just check if all required fields are filled out
         prop.assert_fully_filled()?;
 
-        // now, let's validate the fields (we know the required ones are filled in)
+        // Collect all unused function IDs that should not be utilized in any property
+        // If the function returns error, use empty set (since the issue is handled elsewhere)
+        let unused_functions: HashSet<String> = self
+            .model
+            .find_redundant_uninterpreted_fns()
+            .unwrap_or_default()
+            .iter()
+            .map(|f| f.to_string())
+            .collect();
+
+        // Now, let's validate the fields (we know the required ones are filled in)
         match prop.get_prop_data() {
             StatPropertyType::GenericStatProp(generic_prop) => {
                 FirstOrderFormula::check_syntax_with_model(&generic_prop.raw_formula, &self.model)?;
+                let functions_referenced = generic_prop
+                    .processed_formula
+                    .tree()
+                    .collect_unique_fn_symbols()
+                    .unwrap();
+                for (fn_id, _) in functions_referenced.iter() {
+                    self.assert_fn_symbol_not_redundant(fn_id, &unused_functions)?;
+                }
             }
             StatPropertyType::FnInputEssential(p)
             | StatPropertyType::FnInputEssentialContext(p) => {
-                self.assert_fn_valid_in_model(p.target.as_ref().unwrap())?;
-                self.assert_fn_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
+                let fn_id = p.target.as_ref().unwrap();
+                self.assert_fn_valid_in_model(fn_id)?;
+                self.assert_fn_index_valid(p.input_index.unwrap(), fn_id)?;
                 self.assert_context_valid_or_none(p.context.as_ref())?;
+                self.assert_fn_symbol_not_redundant(fn_id.as_str(), &unused_functions)?;
             }
             StatPropertyType::FnInputMonotonic(p)
             | StatPropertyType::FnInputMonotonicContext(p) => {
-                self.assert_fn_valid_in_model(p.target.as_ref().unwrap())?;
-                self.assert_fn_index_valid(p.input_index.unwrap(), p.target.as_ref().unwrap())?;
+                let fn_id = p.target.as_ref().unwrap();
+                self.assert_fn_valid_in_model(fn_id)?;
+                self.assert_fn_index_valid(p.input_index.unwrap(), fn_id)?;
                 self.assert_context_valid_or_none(p.context.as_ref())?;
+                self.assert_fn_symbol_not_redundant(fn_id.as_str(), &unused_functions)?;
             }
             StatPropertyType::RegulationEssential(p)
             | StatPropertyType::RegulationEssentialContext(p) => {
@@ -265,6 +303,23 @@ impl Sketch {
             WildCardType::AttractorCount(..) => {} // no fields that can be invalid
         }
         Ok(())
+    }
+
+    /// Check that the function symbol (that is referenced in the property) is not
+    /// one of the redundant symbols. If not, return error with a proper message.
+    ///
+    /// Note: redundant symbols are those that won't appear in any update expression,
+    /// even after propagating the function expressions.
+    fn assert_fn_symbol_not_redundant(
+        &self,
+        fn_id: &str,
+        redundant_functions: &HashSet<String>,
+    ) -> Result<(), String> {
+        if redundant_functions.contains(fn_id) {
+            Err(format!("Property references unused function `{fn_id}` (which is not used in any update expression, and thus not part of the model)."))
+        } else {
+            Ok(())
+        }
     }
 
     /// Check that variable is valid in a model. If not, return error with a proper message.
@@ -365,14 +420,44 @@ mod tests {
     }
 
     #[test]
-    /// Test that consistency check fails on empty sketch.
-    fn consistency_empty_sketch() {
+    /// Test that consistency check reports issues when model is empty (no variables).
+    fn consistency_empty_model() {
         let sketch = Sketch::default();
         assert!(sketch.assert_consistency().is_err());
     }
 
     #[test]
-    /// Test that consistency check fails if a HCTL/FOL property references variable not
+    /// Test that consistency check reports issues if there are recursive definitions in
+    /// expressions of uninterpreted functions.
+    fn consistency_recursion_in_expressions() {
+        // a simple sketch that defines two function symbols
+        let mut sketch = Sketch::from_aeon("A -> A\n$A:f(A) | g(A)").unwrap();
+        // the expressions of the functions have cyclic references
+        sketch
+            .model
+            .set_uninterpreted_fn_expression_by_str("f", "g(var0) | var0")
+            .unwrap();
+        sketch
+            .model
+            .set_uninterpreted_fn_expression_by_str("g", "!var0 & f(var0)")
+            .unwrap();
+        assert!(sketch.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Test that consistency check reports issues if there are redundant function symbols.
+    fn consistency_redundant_function() {
+        let mut sketch = Sketch::from_aeon("A -> A\n$A:f(A)").unwrap();
+        // another function symbol not used anywhere
+        sketch
+            .model
+            .add_empty_uninterpreted_fn_by_str("g", "g", 2)
+            .unwrap();
+        assert!(sketch.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Test that consistency check reports issues if a HCTL/FOL property references variable not
     /// present in the model.
     fn consistency_properties() {
         // build a simple sketch with one variable A and function symbol f
@@ -401,8 +486,29 @@ mod tests {
     }
 
     #[test]
+    /// Test that property consistency check reports issues if a redundant function symbol is
+    /// used.
+    fn consistency_property_with_redundant_function() {
+        let mut sketch = Sketch::from_aeon("A -> A\n$A:f(A)").unwrap();
+        // add another function symbol not used anywhere
+        sketch
+            .model
+            .add_empty_uninterpreted_fn_by_str("g", "g", 1)
+            .unwrap();
+        let static_prop = StatProperty::try_mk_generic("prop", "\\exists x: g(x)", "").unwrap();
+        sketch
+            .properties
+            .add_static_by_str("prop", static_prop.clone())
+            .unwrap();
+
+        // We cant use the full consistency check directly - if would report error as well,
+        // but simply because there is the unused function in the sketch (different reason).
+        assert!(sketch.assert_static_prop_valid(&static_prop).is_err());
+    }
+
+    #[test]
     /// Test that consistency check fails if a dataset contains variable not
-    /// present in the model.
+    /// present in the model (and the other way around).
     fn consistency_dataset() {
         // build a simple sketch with one variables A, B and a function symbol f
         let sketch = Sketch::from_aeon("A -> A\nB -> B\n$A:f(A)\n$B:f(B)").unwrap();

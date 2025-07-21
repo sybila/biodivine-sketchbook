@@ -1,6 +1,5 @@
 use crate::algorithms::eval_static::processed_props::ProcessedStatProp;
 use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
-use crate::algorithms::fo_logic::utils::collect_unique_fol_vars;
 use biodivine_lib_bdd::Bdd;
 use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
 use biodivine_lib_param_bn::BooleanNetwork;
@@ -29,7 +28,7 @@ pub fn prepare_graph_for_static_fol(
     for prop in static_props {
         let formula = &prop.formula;
         let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
-        let num_tree_vars = collect_unique_fol_vars(&tree).len();
+        let num_tree_vars = tree.collect_quantified_fol_vars().len();
         num_fol_vars = max(num_fol_vars, num_tree_vars);
     }
 

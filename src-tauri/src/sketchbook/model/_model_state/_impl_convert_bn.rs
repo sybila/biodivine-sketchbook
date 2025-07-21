@@ -199,25 +199,40 @@ mod tests {
     /// Test whether conversion to BN correctly propagates expressions of uninterpreted
     /// functions into update functions.
     ///
-    /// Update fn for `a` is `(b & !a) | f(a, b)`, which contains uninterpreted fn `f`.
-    /// We set expression for `f(var0, var1)` to `var0 => var1`. Therefore, the update
-    /// function should be transformed into `(b & !a) | (a => b)`
+    /// We have a sketch with variables `A` and `B`, and functions `f`, `g`, `h`.
+    /// Update fn for `A` is `(B & !A) | f(A, B)`, and uninterpreted fn expressions are:
+    /// - `f(x, y) = g(x) & h(y)
+    /// - `g(x) = !x`
+    /// - `h(x) .. unspecified`
+    ///
+    /// The update function for `A` should be transformed into `(B & !A) | (!A => h(B))`
     #[test]
     fn test_to_bn_with_propagated_expressions() {
-        let mut model = prepare_test_model_full();
+        let mut model = ModelState::new_from_vars(vec![("A", "A"), ("B", "B")]).unwrap();
         model
-            .set_uninterpreted_fn_expression_by_str("f", "var0 => var1")
+            .add_multiple_regulations(vec!["A -> B", "B -> A", "A -| A"])
+            .unwrap();
+        model
+            .add_multiple_uninterpreted_fns(vec![("f", "f", 2), ("g", "g", 1), ("h", "h", 1)])
+            .unwrap();
+        let var_a = model.get_var_id("A").unwrap();
+        model.set_update_fn(&var_a, "(B & !A) | f(A, B)").unwrap();
+        model
+            .set_uninterpreted_fn_expression_by_str("f", "g(var0) & h(var1)")
+            .unwrap();
+        model
+            .set_uninterpreted_fn_expression_by_str("g", "!var0")
             .unwrap();
 
         let bn = model.to_bn();
-        let var_a = bn.as_graph().find_variable("a").unwrap();
-        let var_b = bn.as_graph().find_variable("b").unwrap();
+        let var_a = bn.as_graph().find_variable("A").unwrap();
+        let var_b = bn.as_graph().find_variable("B").unwrap();
         let update_var_a = bn
             .get_update_function(var_a)
             .as_ref()
             .unwrap()
             .to_string(&bn);
-        assert_eq!(update_var_a, "(b & !a) | (a => b)");
+        assert_eq!(update_var_a, "(B & !A) | (!A & h(B))");
         assert_eq!(bn.get_update_function(var_b), &None);
     }
 

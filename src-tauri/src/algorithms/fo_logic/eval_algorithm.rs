@@ -146,7 +146,8 @@ fn eval_applied_update_function(
         // substitute variables in the update fn's expression to actual arguments of the function
         for (input_var, expression) in input_vars.iter().zip(arguments) {
             let input_name = bn.get_variable_name(*input_var);
-            converted_update_fn = converted_update_fn.substitute_variable(input_name, &expression);
+            converted_update_fn =
+                converted_update_fn.substitute_free_variable(input_name, &expression);
         }
         eval_node(converted_update_fn, graph)
     } else {
