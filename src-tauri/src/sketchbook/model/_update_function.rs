@@ -6,6 +6,14 @@ use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
 /// Update function of a `BooleanNetwork`.
+///
+/// This holds two versions of the function expression:
+/// - `expression` is the string variant used for simple things and to be displayed
+///   on the frontend
+/// - `tree` is the parsed syntactic tree of the expression, used for more complex
+///   operations and analysis
+///
+/// If the expression is not specified, we use empty string, and `tree` is None.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UpdateFn {
     expression: String,

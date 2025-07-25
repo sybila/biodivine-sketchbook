@@ -51,6 +51,6 @@ impl VariableData {
 
     /// Extract new `Variable` instance from this data.
     pub fn to_var(&self) -> Result<Variable, String> {
-        Variable::new_annotated(&self.name, &self.annotation)
+        Ok(Variable::new(&self.name)?.with_annotation(&self.annotation))
     }
 }

@@ -3,8 +3,8 @@ use core::convert::From;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-/// Enum for all possible Boolean binary operators occurring in update functions
-/// or first-order formulas (for static properties).
+/// Enum for all possible Boolean binary operators occurring in update function
+/// expressions or first-order formulas (for static properties).
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize, PartialOrd)]
 pub enum BinaryOp {
     And, // '&'

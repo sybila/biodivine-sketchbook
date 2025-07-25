@@ -4,8 +4,9 @@ use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-/// Syntactic tree of a partially defined Boolean function.
-/// This might specify an update function, or a partially defined uninterpreted fn.
+/// Syntactic tree of a partially specified Boolean expression.
+/// This struct is used to specify expressions of both update functions and uninterpreted
+/// functions.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FnTree {
     /// A true/false constant.

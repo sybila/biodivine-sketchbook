@@ -29,7 +29,7 @@ pub use _model_state::ModelState;
 pub use _monotonicity::Monotonicity;
 pub use _regulation::Regulation;
 pub use _uninterpreted_fn::UninterpretedFn;
-pub use _uninterpreted_fn_arg::FnArgument;
+pub use _uninterpreted_fn_arg::FnArgumentProperty;
 pub use _update_function::UpdateFn;
 pub use _variable::Variable;
 
