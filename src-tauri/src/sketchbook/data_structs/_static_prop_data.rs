@@ -11,7 +11,7 @@ fn input_id_to_index(input_id: &Option<String>) -> Result<Option<usize>, String>
         Some(s) if s.starts_with("var") && s[3..].chars().all(char::is_numeric) => s[3..]
             .parse::<usize>()
             .map(Some)
-            .map_err(|e| format!("{:?}", e)),
+            .map_err(|e| format!("{e:?}")),
         None => Ok(None),
         _ => Err("Input ID has invalid format, must be `varN`".to_string()),
     }
@@ -19,7 +19,7 @@ fn input_id_to_index(input_id: &Option<String>) -> Result<Option<usize>, String>
 
 /// **(internal)** Convert function input from its index `N` into corresponding string `varN`.
 fn input_index_to_id(input_index: usize) -> String {
-    format!("var{}", input_index)
+    format!("var{input_index}")
 }
 
 /// Simplified variant to carry data regarding [static_props::GenericStatProp] static property.

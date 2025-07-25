@@ -9,7 +9,6 @@ use crate::debug;
 use crate::inference::inference_results::InferenceResults;
 use crate::inference::inference_status::InferenceStatus;
 use crate::inference::inference_type::InferenceType;
-use crate::sketchbook::ids::UninterpretedFnId;
 use crate::sketchbook::model::FnTree;
 use crate::sketchbook::{JsonSerde, Sketch};
 use biodivine_lib_param_bn::symbolic_async_graph::{
@@ -244,7 +243,7 @@ impl InferenceSolver {
     ) -> String {
         let candidates_str = if num_candidates.is_some() & requires_candidate_num(status) {
             let num = num_candidates.unwrap();
-            format!(" ({} candidates)", num)
+            format!(" ({num} candidates)")
         } else {
             String::new()
         };
@@ -446,16 +445,21 @@ impl InferenceSolver {
     /// Extract [BooleanNetwork] component from the sketch and add a default function symbol
     /// for each empty update function.
     ///
-    /// We also return mapping from all uninterpreted functions to their (optional) expressions.
-    /// These are the final expressions we get after propagating the functions. They can be used
-    /// to substitute pruned function symbols in static properties.
-    fn extract_bn(
+    /// We also return mapping from all function symbols to their (optional) expressions. This
+    /// includes all uninterpreted functions (after propagating the expressions). We also include
+    /// all "implicit" function symbols for update functions. These may or may not appear anywhere
+    /// in the BN, but they can be used to reference update functions within static properties.
+    pub(crate) fn extract_bn(
         sketch: &Sketch,
-    ) -> Result<(BooleanNetwork, HashMap<UninterpretedFnId, Option<FnTree>>), String> {
+    ) -> Result<(BooleanNetwork, HashMap<String, Option<FnTree>>), String> {
         let bn = sketch.model.to_bn_with_plain_regulations();
+        // Save expressions for each function symbol (or None if unspecified)
         let mut fn_expressions = sketch
             .model
-            .propagate_expressions_through_uninterpreted_fns()?;
+            .propagate_expressions_through_uninterpreted_fns()?
+            .into_iter()
+            .map(|(fn_id, expression)| (fn_id.to_string(), expression))
+            .collect::<HashMap<String, Option<FnTree>>>();
 
         // Prune all function symbols not used in any update expression out from the BN.
         // This removes the function symbols that got substituted by their expressions.
@@ -465,9 +469,11 @@ impl InferenceSolver {
         // Add expressions "f_varName(regulator_1, ..., regulator_M)" instead of all empty updates.
         // This gets us rid of "implicit" update functions, leaving us with only "explicit" parameters.
         for var in bn.variables().clone() {
+            let var_name = bn.get_variable_name(var).clone();
+            // an implicit name that can be used to reference the update fn in static properties
+            let fn_name = get_implicit_function_name(&var_name);
+
             if bn.get_update_function(var).is_none() {
-                let var_name = bn.get_variable_name(var).clone();
-                let fn_name = get_implicit_function_name(&var_name);
                 let inputs = bn.regulators(var);
                 bn.add_parameter(&fn_name, inputs.len() as u32).unwrap();
                 let input_str = inputs
@@ -478,10 +484,12 @@ impl InferenceSolver {
                 let update_fn_str = format!("{fn_name}({input_str})");
                 bn.add_string_update_function(&var_name, &update_fn_str)
                     .unwrap();
-
-                // For completeness, save the new function symbol (with empty expression) to our mapping
-                fn_expressions.insert(UninterpretedFnId::new(&fn_name)?, None);
             }
+
+            // For completeness, save (implicit) function symbols for all update function (with empty
+            // expression) to our mapping. Any of these can appear in FOL formulas for static properties
+            // of update functions.
+            fn_expressions.insert(fn_name, None);
         }
         Ok((bn, fn_expressions))
     }
@@ -587,7 +595,7 @@ impl InferenceSolver {
         let base_var_name = bn.as_graph().get_variable_name(base_var).clone();
         // Pre-process static properties into a version more suitable for the computation
         // We also have to remove all properties for unused function symbols pruned in previous line
-        let static_props = process_static_props(&sketch, &bn, &fn_expressions, &base_var_name)
+        let static_props = process_static_props(&sketch, &bn, fn_expressions, &base_var_name)
             .map_err(|e| format!("Failed pre-processing static properties: {e}."))?;
         // Pre-process dynamic properties into a version more suitable for the computation
         let dynamic_props = process_dynamic_props(&sketch)
@@ -717,4 +725,82 @@ fn requires_candidate_num(status: &InferenceStatus) -> bool {
             | InferenceStatus::Error
             | InferenceStatus::InternalProgress(..)
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, vec};
+
+    use crate::inference::inference_solver::InferenceSolver;
+    use crate::sketchbook::model::FnTree;
+    use crate::sketchbook::Sketch;
+
+    #[test]
+    /// We have a sketch with variables `A` and `B`, and functions `f`, `g`, `h`.
+    /// Update fn for `A` is `(B & !A) | f(A, B)`, and uninterpreted fn expressions are:
+    /// - `f(x, y) = g(x) & h(y)
+    /// - `g(x) = !x`
+    /// - `h(x) .. unspecified`
+    fn test_extract_bn() {
+        // Aeon string with simple BN with unspecified regulations (since BN extracted
+        // from the sketch has unspecified regulations as well). Functions are specified later.
+        let aeon_str = r#"
+            A -?? A
+            A -?? B
+            B -?? A
+            B -?? B
+        "#;
+        let mut sketch = Sketch::from_aeon(aeon_str).unwrap();
+        let model = &mut sketch.model;
+
+        model
+            .add_multiple_uninterpreted_fns(vec![("f", "f", 2), ("g", "g", 1), ("h", "h", 1)])
+            .unwrap();
+        let var_a = model.get_var_id("A").unwrap();
+        let fn_f = model.get_uninterpreted_fn_id("f").unwrap();
+        let fn_g = model.get_uninterpreted_fn_id("g").unwrap();
+
+        model.set_update_fn(&var_a, "(B & !A) | f(A, B)").unwrap();
+        model
+            .set_uninterpreted_fn_expression_by_str("f", "g(var0) & h(var1)")
+            .unwrap();
+        model
+            .set_uninterpreted_fn_expression_by_str("g", "!var0")
+            .unwrap();
+
+        // Prepare expected function expressions after the expression propagation
+        let expected_f = FnTree::try_from_str("!var0 & h(var1)", &model, Some(&fn_f)).unwrap();
+        let expected_g = FnTree::try_from_str("!var0", &model, Some(&fn_g)).unwrap();
+
+        let (bn, fn_expression_mapping) = InferenceSolver::extract_bn(&sketch).unwrap();
+
+        // First, check if the udate functions in the BN are correctly processed
+        let var_a = bn.as_graph().find_variable("A").unwrap();
+        let var_b = bn.as_graph().find_variable("B").unwrap();
+        let update_var_a = bn
+            .get_update_function(var_a)
+            .as_ref()
+            .unwrap()
+            .to_string(&bn);
+        let update_var_b = bn
+            .get_update_function(var_b)
+            .as_ref()
+            .unwrap()
+            .to_string(&bn);
+        // Function for A must have correctly propagated expression of f
+        assert_eq!(update_var_a, "(B & !A) | (!A & h(B))");
+        // Function for B must have new implicit function symbol
+        assert_eq!(update_var_b, "f_B(A, B)");
+
+        // Second, check the function mapping (must contain correctly propagated functions
+        // and all implicit function symbols for update fns)
+        let expected_expressions_mapping = HashMap::from([
+            ("f".to_string(), Some(expected_f)),
+            ("g".to_string(), Some(expected_g)),
+            ("h".to_string(), None),
+            ("f_A".to_string(), None),
+            ("f_B".to_string(), None),
+        ]);
+        assert_eq!(fn_expression_mapping, expected_expressions_mapping);
+    }
 }

@@ -11,9 +11,9 @@ use crate::algorithms::fo_logic::tokenizer::{try_tokenize_formula, FolToken};
 /// preprocessing and validation at once.
 pub fn parse_fol_formula(formula: &str) -> Result<FolTreeNode, String> {
     let tokens = try_tokenize_formula(formula.to_string())
-        .map_err(|e| format!("Error during FOL formula processing: {}", e))?;
+        .map_err(|e| format!("Error during FOL formula processing: {e}"))?;
     let tree = parse_fol_tokens(&tokens)
-        .map_err(|e| format!("Error during FOL formula processing: {}", e))?;
+        .map_err(|e| format!("Error during FOL formula processing: {e}"))?;
     Ok(tree)
 }
 
@@ -32,7 +32,7 @@ pub fn parse_and_minimize_fol_formula(
     let tree = parse_fol_formula(formula)?;
     let tree = tree
         .validate_and_rename_vars(base_var_name)
-        .map_err(|e| format!("Error during FOL formula processing: {}", e))?;
+        .map_err(|e| format!("Error during FOL formula processing: {e}"))?;
     Ok(tree)
 }
 

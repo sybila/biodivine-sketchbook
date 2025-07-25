@@ -61,7 +61,7 @@ pub fn is_update_fn_symbol(fn_symbol: &str) -> bool {
 /// Internally, each variable gets a function symbol to represent its update function.
 /// For example, to reason about update fn of variable `A`, we use `f_A`.
 pub fn get_implicit_function_name(variable_name: &str) -> String {
-    format!("f_{}", variable_name)
+    format!("f_{variable_name}")
 }
 
 /// Check that the BDD represenation for the given extended symbolic graph

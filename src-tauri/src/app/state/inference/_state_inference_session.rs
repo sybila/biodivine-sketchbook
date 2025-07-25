@@ -56,7 +56,7 @@ impl StackSession for InferenceSession {
             };
             Ok((None, Some(state_change)))
         } else {
-            let error_msg = format!("`InferenceSession` cannot process path {:?}.", path);
+            let error_msg = format!("`InferenceSession` cannot process path {path:?}.");
             AeonError::throw(error_msg)
         };
 

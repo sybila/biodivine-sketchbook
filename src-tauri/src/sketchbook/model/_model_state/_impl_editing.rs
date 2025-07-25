@@ -634,17 +634,17 @@ impl ModelState {
         self.assert_valid_uninterpreted_fn(original_id)?;
         self.assert_no_uninterpreted_fn(&new_id)?;
 
-        // all changes must be done directly, not through some helper fns, because the state
+        // All changes must be done directly, not through some helper fns, because the state
         // might not be consistent in between various deletions
 
-        // change key in uninterpreted functions hashmap
+        // Change key in uninterpreted functions hashmap
         if let Some(uninterpreted_fn) = self.uninterpreted_fns.remove(original_id) {
             self.uninterpreted_fns
                 .insert(new_id.clone(), uninterpreted_fn);
         }
 
-        // substitute id for this uninterpreted fn in all uninterpreted functions' expressions
-        // TODO: there may be more efficient way to do this
+        // Substitute id for this uninterpreted fn in all uninterpreted functions' expressions
+        // TODO: there may be a more efficient way to do this
         for fn_id in self.uninterpreted_fns.clone().keys() {
             let uninterpreted_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
             let new_uninterpreted_fn =
@@ -653,7 +653,7 @@ impl ModelState {
                 .insert(fn_id.clone(), new_uninterpreted_fn);
         }
 
-        // substitute id for this uninterpreted fn in all update functions
+        // Substitute id for this uninterpreted fn in all update functions
         for var_id in self.variables.keys() {
             let update_fn = self.update_fns.remove(var_id).unwrap();
             let new_update_fn = UpdateFn::with_changed_fn_id(update_fn, original_id, &new_id, self);

@@ -40,7 +40,7 @@ impl<T: Serialize + DeserializeOwned + PartialEq + Clone> AtomicState<T> {
 impl<T: Serialize + DeserializeOwned + PartialEq + Clone> SessionState for AtomicState<T> {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         if !at_path.is_empty() {
-            let msg = format!("Atomic state cannot consume a path `{:?}`.", at_path);
+            let msg = format!("Atomic state cannot consume a path `{at_path:?}`.");
             return AeonError::throw(msg);
         }
         let Some(payload) = &event.payload else {
@@ -71,7 +71,7 @@ impl<T: Serialize + DeserializeOwned + PartialEq + Clone> SessionState for Atomi
 
     fn refresh(&self, full_path: &[String], at_path: &[&str]) -> Result<Event, DynError> {
         if !at_path.is_empty() {
-            let msg = format!("Atomic state cannot consume a path `{:?}`.", at_path);
+            let msg = format!("Atomic state cannot consume a path `{at_path:?}`.");
             return AeonError::throw(msg);
         }
         Ok(Event {

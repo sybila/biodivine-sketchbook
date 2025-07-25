@@ -625,7 +625,7 @@ impl StatProperty {
     /// Get ID of a static property that describes monotonicity of a regulation
     /// between `regulator` and `target`.
     pub fn get_reg_monotonicity_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
-        let id_str = format!("monotonicity_{}_{}", regulator, target);
+        let id_str = format!("monotonicity_{regulator}_{target}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
@@ -633,7 +633,7 @@ impl StatProperty {
     /// Get ID of a static property that describes essentiality of a regulation
     /// between `regulator` and `target`.
     pub fn get_reg_essentiality_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
-        let id_str = format!("essentiality_{}_{}", regulator, target);
+        let id_str = format!("essentiality_{regulator}_{target}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
@@ -644,7 +644,7 @@ impl StatProperty {
         fn_id: &UninterpretedFnId,
         index: usize,
     ) -> StatPropertyId {
-        let id_str = format!("fn_monotonicity_{}_{}", fn_id, index);
+        let id_str = format!("fn_monotonicity_{fn_id}_{index}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
@@ -655,7 +655,7 @@ impl StatProperty {
         fn_id: &UninterpretedFnId,
         index: usize,
     ) -> StatPropertyId {
-        let id_str = format!("fn_essentiality_{}_{}", fn_id, index);
+        let id_str = format!("fn_essentiality_{fn_id}_{index}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }

@@ -22,7 +22,7 @@ pub struct HctlFormula {
 /// See [parse_extended_formula] for details.
 pub fn parse_hctl_formula_wrapper(formula: &str) -> Result<HctlTreeNode, String> {
     parse_extended_formula(formula)
-        .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
+        .map_err(|e| format!("Error during HCTL formula processing: '{e}'"))
 }
 
 /// A wrapper function for full preprocessing step for HCTL formulas, with proper error
@@ -33,7 +33,7 @@ pub fn parse_and_minimize_hctl_formula_wrapper(
     formula: &str,
 ) -> Result<HctlTreeNode, String> {
     parse_and_minimize_extended_formula(symbolic_context, formula)
-        .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
+        .map_err(|e| format!("Error during HCTL formula processing: '{e}'"))
 }
 
 /// *(internal)* Serialize field `tree` of `HctlFormula` as a string.

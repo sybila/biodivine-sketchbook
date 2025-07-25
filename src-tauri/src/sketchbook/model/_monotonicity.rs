@@ -32,7 +32,7 @@ impl Monotonicity {
             ">" => Ok(Monotonicity::Activation),
             "|" => Ok(Monotonicity::Inhibition),
             "*" => Ok(Monotonicity::Dual),
-            _ => Err(format!("{} does not encode any `Monotonicity`", sign)),
+            _ => Err(format!("{sign} does not encode any `Monotonicity`")),
         }
     }
 
@@ -42,7 +42,7 @@ impl Monotonicity {
             "Activation" => Ok(Monotonicity::Activation),
             "Inhibition" => Ok(Monotonicity::Inhibition),
             "Dual" => Ok(Monotonicity::Dual),
-            _ => Err(format!("{} does not describe any `Monotonicity`", sign)),
+            _ => Err(format!("{sign} does not describe any `Monotonicity`")),
         }
     }
 

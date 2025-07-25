@@ -134,7 +134,9 @@ impl ProcessedDynProp {
     pub fn mk_simple_trajectory(id: &str, dataset: Dataset) -> Result<ProcessedDynProp, String> {
         for obs in dataset.observations() {
             if obs.num_unspecified_values() > 0 {
-                return Err(format!("Property {id} cant be transformed into simple trajectory, the dataset contains some missing values."));
+                return Err(format!(
+                    "Property {id} cant be transformed into simple trajectory, the dataset contains some missing values."
+                ));
             }
         }
         let property = ProcessedSimpleTrajectory {

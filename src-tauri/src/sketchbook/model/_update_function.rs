@@ -84,9 +84,7 @@ impl UpdateFn {
 
     /// Return a set of all variables that are actually used as inputs in this function.
     pub fn to_fn_update(&self, context: &BooleanNetwork) -> Option<FnUpdate> {
-        self.tree
-            .as_ref()
-            .map(|tree| tree.to_fn_update_recursive(context))
+        self.tree.as_ref().map(|tree| tree.to_fn_update(context))
     }
 
     /// Return a set of all variables that are actually used as inputs in this function.

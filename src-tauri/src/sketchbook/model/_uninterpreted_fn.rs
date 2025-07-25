@@ -321,7 +321,7 @@ impl Display for UninterpretedFn {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut args = Vec::new();
         for i in 1..=self.get_arity() {
-            args.push(format!("x_{}", i));
+            args.push(format!("x_{i}"));
         }
         let args_str = args.join(", ");
         write!(f, "{}({})", self.name, args_str)

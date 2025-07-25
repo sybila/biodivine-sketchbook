@@ -56,10 +56,7 @@ pub fn export_results(
     for (var, &count) in &finished_solver.results.num_update_fns_per_var {
         let variants = get_update_fn_variants_from_solver(finished_solver, var)?;
         // "admissible_update_functions/varname_XY_fns"
-        let file_name = format!(
-            "admissible_update_functions/{}_{}_functions.txt",
-            var, count
-        );
+        let file_name = format!("admissible_update_functions/{var}_{count}_functions.txt");
 
         let variants_content = variants.into_iter().collect::<Vec<_>>().join("\n");
         write_to_zip(&file_name, &mut zip_writer, variants_content)?;

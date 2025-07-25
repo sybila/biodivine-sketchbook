@@ -1,10 +1,10 @@
 use crate::app::event::Event;
 use crate::app::state::SessionState;
+use crate::sketchbook::JsonSerde;
 use crate::sketchbook::_tests_events::{check_reverse, stringify_path};
 use crate::sketchbook::data_structs::*;
 use crate::sketchbook::ids::DatasetId;
 use crate::sketchbook::observations::{Dataset, Observation, ObservationManager};
-use crate::sketchbook::JsonSerde;
 
 /// Prepare a simple dataset with 3 variables and 2 observations.
 fn prepare_dataset_3v_2o() -> Dataset {

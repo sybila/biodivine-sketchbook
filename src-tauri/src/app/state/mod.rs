@@ -72,7 +72,7 @@ pub trait SessionHelper {
 
     /// A utility function which emits a "invalid path" error mentioning specific state's `component`.
     fn invalid_path_error_specific<T>(path: &[&str], component: &str) -> Result<T, DynError> {
-        AeonError::throw(format!("`{component}` cannot process path `{:?}`.", path))
+        AeonError::throw(format!("`{component}` cannot process path `{path:?}`."))
     }
 
     /// A utility function to get and clone a payload of an event. Errors if payload is empty.
@@ -92,7 +92,7 @@ pub trait SessionHelper {
     /// This might be useful to directly mention relevant fields of more complex types.
     fn assert_path_length(path: &[&str], length: usize, component: &str) -> Result<(), DynError> {
         if path.len() != length {
-            return AeonError::throw(format!("`{component}` cannot process path `{:?}`.", path));
+            return AeonError::throw(format!("`{component}` cannot process path `{path:?}`."));
         }
         Ok(())
     }

@@ -94,8 +94,11 @@ impl Sketch {
                 let prop_data = StatPropertyData::from_json_str(&content_str)?;
                 let property = prop_data.to_property()?;
 
-                // ignore automatically generated static props as they were added before
-                // TODO: decide how to handle this
+                // Ignore automatically generated static props as they were added before
+                // TODO: Decide how to handle potential inconsistencies between the standard AEON
+                //       regulations and sketch annotations with regulation properties. Moreover,
+                //       AEON format does not support full range of monotonicity/essentiality options.
+                //       For now, we ignore automatically generated regulation properties.
                 match prop_data.variant {
                     StatPropertyTypeData::RegulationEssential(..)
                     | StatPropertyTypeData::RegulationMonotonic(..) => {}

@@ -118,7 +118,7 @@ impl AppState {
             .lock()
             .unwrap_or_else(|_e| panic!("Main application state is poisoned. Cannot recover."));
         let session = guard.deref_mut().get_mut(session_id).unwrap_or_else(|| {
-            panic!("Unknown session id {}.", session_id);
+            panic!("Unknown session id {session_id}.");
         });
         let state_change = session.perform_action(action)?;
         self.emit_to_session_windows(app, session_id, state_change)
@@ -136,7 +136,7 @@ impl AppState {
             .lock()
             .unwrap_or_else(|_e| panic!("Main application state is poisoned. Cannot recover."));
         let session = guard.deref_mut().get_mut(session_to_id).unwrap_or_else(|| {
-            panic!("Unknown session id {}.", session_to_id);
+            panic!("Unknown session id {session_to_id}.");
         });
         let (opt_response, opt_state_change) = session.process_message(message)?;
 
@@ -169,7 +169,7 @@ impl AppState {
             .lock()
             .unwrap_or_else(|_e| panic!("Main application state is poisoned. Cannot recover."));
         let session = guard.deref_mut().get_mut(session_id).unwrap_or_else(|| {
-            panic!("Unknown session id {}.", session_id);
+            panic!("Unknown session id {session_id}.");
         });
         let at_path = full_path.iter().map(|it| it.as_str()).collect::<Vec<_>>();
         let event = session.refresh(full_path, &at_path)?;

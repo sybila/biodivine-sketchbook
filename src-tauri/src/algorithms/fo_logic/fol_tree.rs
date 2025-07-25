@@ -1,6 +1,7 @@
 use crate::algorithms::fo_logic::operator_enums::*;
 use crate::algorithms::fo_logic::parser::parse_fol_tokens;
 use crate::algorithms::fo_logic::tokenizer::FolToken;
+use crate::sketchbook::model::FnTree;
 use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 
 use std::cmp;
@@ -117,7 +118,7 @@ impl FolTreeNode {
             .map(|child| child.formula_str.clone())
             .collect();
         let args_str = child_formulas.join(", ");
-        let formula_str = format!("{}({})", name, args_str);
+        let formula_str = format!("{name}({args_str})");
 
         let inner_boxed_nodes = inner_nodes.into_iter().map(Box::new).collect();
 
@@ -131,10 +132,13 @@ impl FolTreeNode {
 
 impl FolTreeNode {
     /// Recursively convert `FnUpdate` expression into a `FolTreeNode`.
-    /// `FnUpdate` is used to internally represent update functions. All these expressions are
-    /// also valid FOL expressions, and we need to work with both at once sometimes.
+    /// `FnUpdate` from [biodivine_lib_param_bn] is one of the structs used to internally
+    /// represent update functions. All FnUpdate expressions are also valid FOL expressions,
+    /// and sometimes we need to work with both types of structs at once.
     ///
     /// The provided BN gives context for variable and parameter IDs.
+    ///
+    /// See [Self::from_fn_tree] for a similar conversion from Sketchbook's own internal struct.
     pub fn from_fn_update(fn_update: FnUpdate, bn_context: &BooleanNetwork) -> FolTreeNode {
         match fn_update {
             FnUpdate::Const(value) => FolTreeNode::mk_constant(value),
@@ -165,21 +169,57 @@ impl FolTreeNode {
         }
     }
 
-    /// Create a copy of this [FolTreeNode] with every occurrence of variable `var` substituted
-    /// for [FolTreeNode] `expression`. It is up to you to ensure the variable is free and not
-    /// quantified (otherwise weird things may happen).
+    /// Recursively convert `FnTree` expression into a `FolTreeNode`.
+    /// `FnTree` is Sketchbook's struct used to internally represent function expressions.
+    /// All function expressions are also valid FOL expressions, and sometimes we need to
+    /// work with both types of structs at once.
+    ///
+    /// You have to ensure to use the result correctly. For instance, the function expressions
+    /// can contain "placeholder" variables (formal arguments) that needs to be substituted
+    /// into real expressions with BN variables before evaluation.
+    ///
+    /// See [Self::from_fn_update] for a similar conversion method from FnUpdate struct.
+    pub fn from_fn_tree(fn_tree: FnTree) -> FolTreeNode {
+        match fn_tree {
+            FnTree::Const(value) => FolTreeNode::mk_constant(value),
+            FnTree::Var(id) => FolTreeNode::mk_variable(id.as_str()),
+            FnTree::PlaceholderVar(id) => FolTreeNode::mk_variable(id.as_str()),
+            FnTree::Not(inner) => {
+                let inner_transformed = Self::from_fn_tree(*inner);
+                FolTreeNode::mk_unary(inner_transformed, UnaryOp::Not)
+            }
+            FnTree::Binary(op, l, r) => {
+                let l_transformed = Self::from_fn_tree(*l);
+                let r_transformed = Self::from_fn_tree(*r);
+                FolTreeNode::mk_binary(l_transformed, r_transformed, op)
+            }
+            FnTree::UninterpretedFn(id, args) => {
+                let args_transformed: Vec<FolTreeNode> =
+                    args.into_iter().map(Self::from_fn_tree).collect();
+                FolTreeNode::mk_function(id.as_str(), args_transformed, false)
+            }
+        }
+    }
+
+    /// Create a copy of this [FolTreeNode] with all chosen free variables substituted with given
+    /// expressions. The variable -> expression mapping is given in `expression_mapping`.
+    /// You MUST ensure all selected variables are free (not quantified). Otherwise, the formula
+    /// would get corrupted (it intentionally does not modify quantifier nodes).
     ///
     /// Note that free variables are not supported in standard FOL formulas. This function is
-    /// intended for a special case when we are modifying update function expressions before we
-    /// propagate them into FOL properties. For instance, having update function `f_A = A & B` and
-    /// expression `\forall x, y: f_A(x, g(y))`, we need to do substitutions `A` -> `x` and `B` -> `g(y)`
-    /// so that we can receive the expression `\forall x, y: (x & g(y))`.
-    pub fn substitute_free_variable(&self, var: &str, expression: &FolTreeNode) -> FolTreeNode {
+    /// intended for a special case when we are modifying function expressions before we propagate
+    /// them into FOL properties. For instance, having update function `f_A = A & B` and expression
+    /// `\forall x, y: f_A(x, g(y))`, we need to do substitutions `A` -> `x` and `B` -> `g(y)` in f_A so
+    /// that we can plug it into FOL formula and receive the expression `\forall x, y: (x & g(y))`.
+    pub fn substitute_free_variables(
+        &self,
+        expression_mapping: &HashMap<String, FolTreeNode>,
+    ) -> FolTreeNode {
         match &self.node_type {
             // rename vars in terminal state-var nodes
             NodeType::Terminal(ref atom) => match atom {
-                Atom::Var(name) => {
-                    if name == var {
+                Atom::Var(var_name) => {
+                    if let Some(expression) = expression_mapping.get(var_name) {
                         expression.clone()
                     } else {
                         self.clone()
@@ -189,18 +229,18 @@ impl FolTreeNode {
                 _ => self.clone(),
             },
             NodeType::Unary(op, child) => {
-                let node = child.substitute_free_variable(var, expression);
+                let node = child.substitute_free_variables(expression_mapping);
                 FolTreeNode::mk_unary(node, *op)
             }
             NodeType::Binary(op, left, right) => {
-                let node1 = left.substitute_free_variable(var, expression);
-                let node2 = right.substitute_free_variable(var, expression);
+                let node1 = left.substitute_free_variables(expression_mapping);
+                let node2 = right.substitute_free_variables(expression_mapping);
                 FolTreeNode::mk_binary(node1, node2, *op)
             }
             NodeType::Quantifier(op, quantified_var, child) => {
-                // currently do not rename variables in quantifiers, up to the user to ensure the
+                // currently DO NOT rename variables in quantifiers, up to the user to ensure the
                 // variable to be substituted is not quantified
-                let node = child.substitute_free_variable(var, expression);
+                let node = child.substitute_free_variables(expression_mapping);
                 FolTreeNode::mk_quantifier(node, quantified_var, *op)
             }
             // just dive one level deeper for function nodes and rename string
@@ -210,9 +250,82 @@ impl FolTreeNode {
                 let new_children = child_nodes
                     .clone()
                     .into_iter()
-                    .map(|node| node.substitute_free_variable(var, expression))
+                    .map(|node| node.substitute_free_variables(expression_mapping))
                     .collect();
                 FolTreeNode::mk_function(&name, new_children, is_update)
+            }
+        }
+    }
+
+    /// Create a copy of this [FolTreeNode] with all function symbols substituted
+    /// with their expressions, if they are specified. Functions with unspecified
+    /// expressions will remain untouched. All occuring function symbols MUST be
+    /// present in `fn_expressions` mapping with either valid expression or None.
+    ///
+    /// Motivation is that before inference, many function symbols are replaced by
+    /// their expressions in the sketch (and pruned out from the BN). Therefore, we need
+    /// to replace these function symbols in FOL properties as well. Functions with
+    /// unspecified expressions remain untouched.
+    pub fn substitute_fns_with_expressions(
+        &self,
+        fn_expressions: &HashMap<String, Option<FolTreeNode>>,
+    ) -> FolTreeNode {
+        match &self.node_type {
+            NodeType::Terminal(_) => self.clone(), // Terminal nodes stay the same
+            NodeType::Unary(op, child) => {
+                // Just dive one level deeper and update child node
+                let node = child.substitute_fns_with_expressions(fn_expressions);
+                FolTreeNode::mk_unary(node, *op)
+            }
+            NodeType::Binary(op, left, right) => {
+                // Just dive one level deeper and update children nodes
+                let node1 = left.substitute_fns_with_expressions(fn_expressions);
+                let node2 = right.substitute_fns_with_expressions(fn_expressions);
+                FolTreeNode::mk_binary(node1, node2, *op)
+            }
+            NodeType::Quantifier(op, quantified_var, child) => {
+                // Just dive one level deeper and update child node
+                let node = child.substitute_fns_with_expressions(fn_expressions);
+                FolTreeNode::mk_quantifier(node, quantified_var, *op)
+            }
+            NodeType::Function(fn_symbol, arg_nodes) => {
+                // Recursively solve the sub-trees first (arguments may be complex expressions)
+                let transformed_args: Vec<FolTreeNode> = arg_nodes
+                    .clone()
+                    .into_iter()
+                    .map(|node| node.substitute_fns_with_expressions(fn_expressions))
+                    .collect();
+
+                // If the symbol is for uninterpreted fn and has expression specified, substitute
+                // it with its expression. Otherwise, leave it as is.
+                // Note that update functions are handled differently during eval.
+                let maybe_expression = fn_expressions.get(&fn_symbol.name).unwrap();
+                if maybe_expression.is_some() && !fn_symbol.is_update_fn {
+                    let fn_expression = maybe_expression.as_ref().cloned().unwrap();
+                    // We have to map formal fn arguments to the actual ones in the fn expression
+                    let mut transformed_fn_expression = fn_expression.clone();
+
+                    // Compute the mapping of formal -> actual function arguments (i.e., mapping from
+                    // formal placeholder variables to actual expressions
+                    let formal_to_actual_arg_map = transformed_args
+                        .into_iter()
+                        .enumerate()
+                        .map(|(i, arg_expression)| (format!("var{i}"), arg_expression))
+                        .collect::<HashMap<String, FolTreeNode>>();
+
+                    // Substitute formal (placeholder) args in uninterpreted fn expression using the mapping
+                    transformed_fn_expression = transformed_fn_expression
+                        .substitute_free_variables(&formal_to_actual_arg_map);
+
+                    // Return transformed expression instead of the original fn symbol
+                    transformed_fn_expression
+                } else {
+                    FolTreeNode::mk_function(
+                        &fn_symbol.name,
+                        transformed_args,
+                        fn_symbol.is_update_fn,
+                    )
+                }
             }
         }
     }
@@ -287,8 +400,7 @@ impl FolTreeNode {
                     // if the symbol is already saved, check it has the same arity
                     if *existing_arity != arity {
                         return Err(format!(
-                            "Symbol {} is used with two different arities: {} and {}",
-                            name, arity, existing_arity
+                            "Symbol {name} is used with two different arities: {arity} and {existing_arity}"
                         ));
                     }
                 } else {
@@ -423,9 +535,10 @@ mod tests {
     use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 
     use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
-    use crate::algorithms::fo_logic::operator_enums::Quantifier;
+    use crate::algorithms::fo_logic::operator_enums::{Quantifier, UnaryOp};
     use crate::algorithms::fo_logic::parser::parse_fol_formula;
     use crate::algorithms::fo_logic::tokenizer::try_tokenize_formula;
+    use crate::sketchbook::model::{FnTree, ModelState};
 
     #[test]
     /// Test creation, ordering, and display of FOL tree nodes.
@@ -454,33 +567,66 @@ mod tests {
     }
 
     #[test]
-    /// Test conversion from FnUpdate to FolTreeNode.
+    /// Test conversion from `FnUpdate` to `FolTreeNode`.
     fn tree_from_fn_update() {
-        // simple formula and a corresponding BN for context (with all vars and functions)
+        // Simple formula and a corresponding BN for context (with all vars and functions)
         let boolean_formula = "(f(A) => B) & false";
         let context_bn = BooleanNetwork::try_from("A-?A\nB-?B\n$A: A\n$B: f(B)").unwrap();
 
+        // Compare directly parsed `FolTreeNode` with the one converted from `FnUpdate`
         let expected_fol_formula = parse_fol_formula(boolean_formula).unwrap();
-        let update_fn = FnUpdate::try_from_str(boolean_formula, &context_bn).unwrap();
-        let transformed_fol_formula = FolTreeNode::from_fn_update(update_fn, &context_bn);
+        let update_fn_tree = FnUpdate::try_from_str(boolean_formula, &context_bn).unwrap();
+        let transformed_fol_formula = FolTreeNode::from_fn_update(update_fn_tree, &context_bn);
         assert_eq!(transformed_fol_formula, expected_fol_formula);
     }
 
     #[test]
-    /// Test substitution of variables in `FolTreeNode`.
-    fn tree_substitute_variable() {
+    /// Test conversion from `FnTree` to `FolTreeNode`.
+    fn tree_from_fn_tree() {
+        // simple formula and a corresponding BN for context (with all vars and functions)
+        let boolean_formula = "(f(A) => B) & false";
+        let context_bn = BooleanNetwork::try_from("A-?A\nB-?B\n$A: A\n$B: f(B)").unwrap();
+        let model = ModelState::from_bn(&context_bn).unwrap();
+
+        // Compare directly parsed `FolTreeNode` with the one converted from `FnTree`
+        let expected_fol_formula = parse_fol_formula(boolean_formula).unwrap();
+        let boolean_fn_tree = FnTree::try_from_str(boolean_formula, &model, None).unwrap();
+        let transformed_fol_formula = FolTreeNode::from_fn_tree(boolean_fn_tree);
+        assert_eq!(transformed_fol_formula, expected_fol_formula);
+    }
+
+    #[test]
+    /// Test substitution of free variables in `FolTreeNode`.
+    fn tree_substitute_variables() {
         // formula with free variables corresponding to some update fn
         let formula = parse_fol_formula("(A & B)").unwrap();
 
-        // Substitute y with constant true
+        // Substitute A with constant true and B with f(x)
         let substitute_a = FolTreeNode::mk_constant(true);
-        let substituted = formula.substitute_free_variable("A", &substitute_a);
-        assert_eq!(substituted.to_string(), "(1 & B)");
-
         let substitute_b =
             FolTreeNode::mk_function("f", vec![FolTreeNode::mk_variable("x")], false);
-        let substituted = substituted.substitute_free_variable("B", &substitute_b);
+        let var_expression_mapping = HashMap::from([
+            ("A".to_string(), substitute_a),
+            ("B".to_string(), substitute_b),
+        ]);
+        let substituted = formula.substitute_free_variables(&var_expression_mapping);
         assert_eq!(substituted.to_string(), "(1 & f(x))");
+    }
+
+    #[test]
+    /// Test substitution of function symbols in `FolTreeNode`.
+    fn tree_substitute_fucntions() {
+        // expression with fn symbols corresponding to some update fn
+        let formula = parse_fol_formula("(f(A) & g(B))").unwrap();
+
+        // Substitute `f(var0)` with `!var0`, and leave `g(var0)` as is
+        let substitute_f = FolTreeNode::mk_unary(FolTreeNode::mk_variable("var0"), UnaryOp::Not);
+        let fn_expression_mapping = HashMap::from([
+            ("f".to_string(), Some(substitute_f)),
+            ("g".to_string(), None),
+        ]);
+        let substituted = formula.substitute_fns_with_expressions(&fn_expression_mapping);
+        assert_eq!(substituted.to_string(), "((!A) & g(B))");
     }
 
     #[test]

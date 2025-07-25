@@ -49,7 +49,7 @@ impl StackSession for EditorSession {
             // response message; but no change in state for frontend
             Ok((Some(response_msg), None))
         } else {
-            let error_msg = format!("`EditorSession` cannot process path {:?}.", path);
+            let error_msg = format!("`EditorSession` cannot process path {path:?}.");
             AeonError::throw(error_msg)
         };
 

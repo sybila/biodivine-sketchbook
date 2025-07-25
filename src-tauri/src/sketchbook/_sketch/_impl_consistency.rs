@@ -97,7 +97,7 @@ impl Sketch {
         // TODO: Maybe allow the redundant functions? We already check if these symbols are not
         //       used in static properties, and we prune the rest later, so it should be fine.
 
-        // TODO: we can consider adding a check whether update fn expressions match regulation
+        // TODO: We can consider adding a check whether update fn expressions match regulation
         //       properties (essentially a partial check for some static properties)
 
         (consitent, message)
@@ -316,7 +316,9 @@ impl Sketch {
         redundant_functions: &HashSet<String>,
     ) -> Result<(), String> {
         if redundant_functions.contains(fn_id) {
-            Err(format!("Property references unused function `{fn_id}` (which is not used in any update expression, and thus not part of the model)."))
+            Err(format!(
+                "Property references unused function `{fn_id}` (which is not used in any update expression, and thus not part of the model)."
+            ))
         } else {
             Ok(())
         }
@@ -396,7 +398,7 @@ impl Sketch {
 
 /// **(internal)** Simple internal utility to append issue message regarding a particular property.
 fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> String {
-    let issue = format!("> ISSUE with property `{}`: {description}\n", prop_id);
+    let issue = format!("> ISSUE with property `{prop_id}`: {description}\n");
     log += &issue;
     log
 }

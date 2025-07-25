@@ -409,4 +409,51 @@ mod tests {
 
         assert!(model.assert_no_cycles_in_fn_expressions().is_ok());
     }
+
+    #[test]
+    fn test_propagate_fn_expressions() {
+        // Example using functions with the following expressions:
+        // - `f(x, y) = g(x, x) | h(y)`
+        // - `g(x, y) = !h(y) | i(x)`
+        // - `h(x) = !x`
+        // - `i(x) ... unspecified`
+        let mut model = ModelState::new_empty();
+        model
+            .add_multiple_uninterpreted_fns(vec![
+                ("f", "f", 2),
+                ("g", "g", 2),
+                ("h", "h", 1),
+                ("i", "i", 1),
+            ])
+            .unwrap();
+        let fn_f = model.get_uninterpreted_fn_id("f").unwrap();
+        let fn_g = model.get_uninterpreted_fn_id("g").unwrap();
+        let fn_h = model.get_uninterpreted_fn_id("h").unwrap();
+        let fn_i = model.get_uninterpreted_fn_id("i").unwrap();
+
+        model
+            .set_uninterpreted_fn_expression(&fn_f, "g(var0, var0) | h(var1)")
+            .unwrap();
+        model
+            .set_uninterpreted_fn_expression(&fn_g, "!h(var1) | i(var0)")
+            .unwrap();
+        model
+            .set_uninterpreted_fn_expression(&fn_h, "!var0")
+            .unwrap();
+
+        let expected_f =
+            FnTree::try_from_str("(!!var0 | i(var0)) | !var1", &model, Some(&fn_f)).unwrap();
+        let expected_g = FnTree::try_from_str("!!var1 | i(var0)", &model, Some(&fn_g)).unwrap();
+        let expected_h = FnTree::try_from_str("!var0", &model, Some(&fn_h)).unwrap();
+        let expected_expressions_mapping = HashMap::from([
+            (fn_f, Some(expected_f)),
+            (fn_g, Some(expected_g)),
+            (fn_h, Some(expected_h)),
+            (fn_i, None),
+        ]);
+        let result_expressions_mapping = model
+            .propagate_expressions_through_uninterpreted_fns()
+            .unwrap();
+        assert_eq!(result_expressions_mapping, expected_expressions_mapping);
+    }
 }

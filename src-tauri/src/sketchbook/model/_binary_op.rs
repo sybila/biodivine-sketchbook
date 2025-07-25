@@ -35,7 +35,7 @@ impl Display for BinaryOp {
             BinaryOp::Imp => "=>",
             BinaryOp::Iff => "<=>",
         };
-        write!(f, "{}", symbol)
+        write!(f, "{symbol}")
     }
 }
 

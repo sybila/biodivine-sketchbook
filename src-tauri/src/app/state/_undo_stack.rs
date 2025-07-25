@@ -201,7 +201,7 @@ impl SessionState for UndoStack {
                 path: full_path.to_vec(),
                 payload: serde_json::to_string(&self.can_redo()).ok(),
             }),
-            _ => AeonError::throw(format!("`UndoStack` has no path `{:?}`.", at_path)),
+            _ => AeonError::throw(format!("`UndoStack` has no path `{at_path:?}`.")),
         }
     }
 }
