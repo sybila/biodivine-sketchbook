@@ -57,13 +57,13 @@ fn inference_fol_essentiality() {
     let sketch = load_test_model();
     let formula = "f_A(1) ^ f_A(0)";
     let id = "c_a_is_essential";
-    let property = StatProperty::try_mk_generic(id, formula, "").unwrap();
+    let property = StatProperty::try_mk_generic(id, formula).unwrap();
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 16);
 
     let sketch = load_test_model();
     let formula = "!(f_A(1) ^ f_A(0))";
     let id = "c_a_not_essential";
-    let property = StatProperty::try_mk_generic(id, formula, "").unwrap();
+    let property = StatProperty::try_mk_generic(id, formula).unwrap();
     assert_eq!(add_stat_prop_and_infer(sketch, property, id), 16);
 }
 

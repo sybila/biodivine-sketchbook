@@ -136,40 +136,40 @@ impl DynPropertyData {
         let annot = self.annotation.as_str();
         let property = match &self.variant {
             DynPropertyTypeData::GenericDynProp(p) => {
-                DynProperty::try_mk_generic(name, &p.formula, annot)?
+                DynProperty::try_mk_generic(name, &p.formula)?.with_annotation(annot)
             }
-            DynPropertyTypeData::ExistsFixedPoint(p) => DynProperty::mk_fixed_point(
-                name,
-                p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
-                p.observation
+            DynPropertyTypeData::ExistsFixedPoint(p) => {
+                let dataset = p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok());
+                let obs = p
+                    .observation
                     .as_ref()
-                    .and_then(|t| ObservationId::new(t).ok()),
-                annot,
-            ),
-            DynPropertyTypeData::ExistsTrapSpace(p) => DynProperty::mk_trap_space(
-                name,
-                p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
-                p.observation
+                    .and_then(|t| ObservationId::new(t).ok());
+                DynProperty::mk_fixed_point(name, dataset, obs).with_annotation(annot)
+            }
+            DynPropertyTypeData::ExistsTrapSpace(p) => {
+                let dataset = p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok());
+                let obs = p
+                    .observation
                     .as_ref()
-                    .and_then(|t| ObservationId::new(t).ok()),
-                p.minimal,
-                p.nonpercolable,
-                annot,
-            ),
+                    .and_then(|t| ObservationId::new(t).ok());
+                DynProperty::mk_trap_space(name, dataset, obs, p.minimal, p.nonpercolable)
+                    .with_annotation(annot)
+            }
             DynPropertyTypeData::ExistsTrajectory(p) => {
                 let dataset = p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok());
-                DynProperty::mk_trajectory(name, dataset, annot)
+                DynProperty::mk_trajectory(name, dataset).with_annotation(annot)
             }
-            DynPropertyTypeData::HasAttractor(p) => DynProperty::mk_has_attractor(
-                name,
-                p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok()),
-                p.observation
+            DynPropertyTypeData::HasAttractor(p) => {
+                let dataset = p.dataset.as_ref().and_then(|t| DatasetId::new(t).ok());
+                let obs = p
+                    .observation
                     .as_ref()
-                    .and_then(|t| ObservationId::new(t).ok()),
-                annot,
-            ),
+                    .and_then(|t| ObservationId::new(t).ok());
+                DynProperty::mk_has_attractor(name, dataset, obs).with_annotation(annot)
+            }
             DynPropertyTypeData::AttractorCount(p) => {
-                DynProperty::try_mk_attractor_count(name, p.minimal, p.maximal, annot)?
+                DynProperty::try_mk_attractor_count(name, p.minimal, p.maximal)?
+                    .with_annotation(annot)
             }
         };
         Ok(property)

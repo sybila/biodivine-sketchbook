@@ -5,7 +5,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-/// Update function of a `BooleanNetwork`.
+/// Update function governing evolution of some variable in a model.
+/// It can either be partially specified with a logical formula, or left empty
+/// (meaning the formula is fully unspecified, and all options will be considered.)
 ///
 /// This holds two versions of the function expression:
 /// - `expression` is the string variant used for simple things and to be displayed

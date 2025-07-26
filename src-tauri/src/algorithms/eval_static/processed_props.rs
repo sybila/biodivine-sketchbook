@@ -181,7 +181,7 @@ mod tests {
         let mut sketch = Sketch::from_aeon(aeon_str).unwrap();
 
         // Add simple FOL property involving function f
-        let prop = StatProperty::try_mk_generic("p1", "\\forall x: f(x)", "").unwrap();
+        let prop = StatProperty::try_mk_generic("p1", "\\forall x: f(x)").unwrap();
         sketch.properties.add_static_by_str("p1", prop).unwrap();
 
         // Process the static properties and check results
@@ -210,7 +210,7 @@ mod tests {
             .unwrap();
 
         // Add simple FOL property involving function f
-        let prop = StatProperty::try_mk_generic("p1", "\\forall x: f(x)", "").unwrap();
+        let prop = StatProperty::try_mk_generic("p1", "\\forall x: f(x)").unwrap();
         sketch.properties.add_static_by_str("p1", prop).unwrap();
 
         // Process the static properties and check results - function symbol must get replaced
@@ -238,7 +238,7 @@ mod tests {
 
         // Add simple function property involving function f
         let prop =
-            StatProperty::mk_fn_input_essential("p1", Some(0), Some(fn_f), Essentiality::True, "");
+            StatProperty::mk_fn_input_essential("p1", Some(0), Some(fn_f), Essentiality::True);
         sketch.properties.add_static_by_str("p1", prop).unwrap();
 
         // Process the static properties and check the encoded result (standard encoding)
@@ -266,7 +266,6 @@ mod tests {
             Some(var_a.clone()),
             Some(var_a),
             Essentiality::True,
-            "",
         );
         sketch.properties.add_static_by_str("p1", prop).unwrap();
 
@@ -301,7 +300,7 @@ mod tests {
 
         // Add simple function property involving function f
         let prop =
-            StatProperty::mk_fn_input_essential("p1", Some(0), Some(fn_f), Essentiality::True, "");
+            StatProperty::mk_fn_input_essential("p1", Some(0), Some(fn_f), Essentiality::True);
         sketch.properties.add_static_by_str("p1", prop).unwrap();
 
         // Process the static properties and check results - function symbol in the resulting

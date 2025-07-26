@@ -88,7 +88,7 @@ impl Sketch {
         // we allow two modes - a JSON string for any property, or formula string for HCTL/FOL properties
         for (id, content_str) in stat_props {
             // try parsing formula
-            if let Ok(prop) = StatProperty::try_mk_generic(&id, &content_str, "") {
+            if let Ok(prop) = StatProperty::try_mk_generic(&id, &content_str) {
                 sketch.properties.add_static_by_str(&id, prop)?
             } else {
                 let prop_data = StatPropertyData::from_json_str(&content_str)?;
@@ -110,7 +110,7 @@ impl Sketch {
         }
         for (id, content_str) in dyn_props {
             // try parsing formula
-            if let Ok(prop) = DynProperty::try_mk_generic(&id, &content_str, "") {
+            if let Ok(prop) = DynProperty::try_mk_generic(&id, &content_str) {
                 sketch.properties.add_dynamic_by_str(&id, prop)?
             } else {
                 let prop_data = DynPropertyData::from_json_str(&content_str)?;

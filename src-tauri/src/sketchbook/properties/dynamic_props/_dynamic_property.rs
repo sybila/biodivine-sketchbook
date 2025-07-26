@@ -6,10 +6,11 @@ use serde::{Deserialize, Serialize};
 
 /// A typesafe representation wrapping various kinds of dynamic properties.
 /// Each property has a `name` and field `variant` encompassing inner data.
+/// It can also be annotated using a string `annotation` field.
 ///
-/// The formula that will be internally created (usually, apart from generic variant) depends on
-/// particular type of the property - there are multiple `variants` of properties, each carrying
-/// its own different metadata that are later used to build the formula.
+/// Different kinds of properties can be evaluated using different algorithms. The
+/// standard way is to build an HCTL formula based on the property type and its data,
+/// and use model checking to evaluate it.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct DynProperty {
     name: String,
@@ -19,23 +20,25 @@ pub struct DynProperty {
 
 /// Creating dynamic properties.
 impl DynProperty {
-    /// **(internal)** Shorthand to create a property given its already created internal
-    /// `DynPropertyType` data, name, and annotation.
-    fn new_raw(name: &str, variant: DynPropertyType, annotation: &str) -> DynProperty {
+    /// **(internal)** Shorthand to create a property given fully prepared internal
+    /// `DynPropertyType` data and name. Annotation is left empty for now.
+    fn new_raw(name: &str, variant: DynPropertyType) -> DynProperty {
         DynProperty {
             name: name.to_string(),
-            annotation: annotation.to_string(),
+            annotation: String::new(),
             variant,
         }
     }
 
-    /// Create "generic" `DynProperty` instance directly from a formula, which must be in a
-    /// correct format (the syntax is checked).
-    pub fn try_mk_generic(
-        name: &str,
-        raw_formula: &str,
-        annotation: &str,
-    ) -> Result<DynProperty, String> {
+    /// Update the `annotation` property.
+    pub fn with_annotation(mut self, annotation: &str) -> Self {
+        self.annotation = annotation.to_string();
+        self
+    }
+
+    /// Create new "generic" `DynProperty` instance directly from a formula, which must be
+    /// in a correct format (the general syntax is checked). Annotation is left empty for now.
+    pub fn try_mk_generic(name: &str, raw_formula: &str) -> Result<DynProperty, String> {
         // first process potential wild card propositions
         // this collects all the wild cards, and modifies them to adhere to internal syntax rules
         let (modified_formula, wild_cards) = process_wild_card_props(raw_formula)?;
@@ -45,35 +48,34 @@ impl DynProperty {
             wild_cards,
         };
         let variant = DynPropertyType::GenericDynProp(property);
-        Ok(Self::new_raw(name, variant, annotation))
+        Ok(Self::new_raw(name, variant))
     }
 
-    /// Create `DynProperty` instance describing existence of a fixed point corresponding to
-    /// a given observation.
+    /// Create new `DynProperty` instance describing existence of a fixed point corresponding
+    /// to a given observation. Dataset and observation can be left out, but they have to
+    /// be specified before the inference. Annotation is left empty for now.
     pub fn mk_fixed_point(
         name: &str,
         dataset: Option<DatasetId>,
         observation: Option<ObservationId>,
-        annotation: &str,
     ) -> DynProperty {
         let property = ExistsFixedPoint {
             dataset,
             observation,
         };
         let variant = DynPropertyType::ExistsFixedPoint(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
-    /// Create `DynProperty` instance describing existence of a trap space corresponding to
-    /// a given observation. Optionally, the trap space might be required to be minimal or
-    /// non-percolable.
+    /// Create new `DynProperty` instance describing existence of a trap space corresponding
+    /// to a given observation. Optionally, the trap space might be required to be minimal or
+    /// non-percolable. Annotation is left empty for now.
     pub fn mk_trap_space(
         name: &str,
         dataset: Option<DatasetId>,
         observation: Option<ObservationId>,
         minimal: bool,
         nonpercolable: bool,
-        annotation: &str,
     ) -> DynProperty {
         let property = ExistsTrapSpace {
             dataset,
@@ -82,23 +84,24 @@ impl DynProperty {
             nonpercolable,
         };
         let variant = DynPropertyType::ExistsTrapSpace(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create `DynProperty` instance describing existence of a trajectory corresponding to
-    /// observations from a given observation (in the given order).
-    pub fn mk_trajectory(name: &str, dataset: Option<DatasetId>, annotation: &str) -> DynProperty {
+    /// observations from a given observation (in the given order). Annotation is left empty
+    /// for now.
+    pub fn mk_trajectory(name: &str, dataset: Option<DatasetId>) -> DynProperty {
         let property = ExistsTrajectory { dataset };
         let variant = DynPropertyType::ExistsTrajectory(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
-    /// Create `DynProperty` instance describing the number of existing attractors.
+    /// Create `DynProperty` instance describing the number of existing attractors.\
+    /// Annotation is left empty for now.
     pub fn try_mk_attractor_count(
         name: &str,
         minimal: usize,
         maximal: usize,
-        annotation: &str,
     ) -> Result<DynProperty, String> {
         if minimal > maximal {
             return Err("`minimal` attractor count cannot be larger than `maximal`.".to_string());
@@ -108,23 +111,23 @@ impl DynProperty {
         }
         let property = AttractorCount { minimal, maximal };
         let variant = DynPropertyType::AttractorCount(property);
-        Ok(Self::new_raw(name, variant, annotation))
+        Ok(Self::new_raw(name, variant))
     }
 
-    /// Create `DynProperty` instance describing the existence of an attractor corresponding to
-    /// a corresponding dataset, or some specific observation in it.
+    /// Create `DynProperty` instance describing the existence of an attractor corresponding
+    /// to a corresponding dataset, or some specific observation in it. Annotation is left
+    /// empty for now.
     pub fn mk_has_attractor(
         name: &str,
         dataset: Option<DatasetId>,
         observation: Option<ObservationId>,
-        annotation: &str,
     ) -> DynProperty {
         let property = HasAttractor {
             dataset,
             observation,
         };
         let variant = DynPropertyType::HasAttractor(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create default `DynProperty` instance of specified variant.
@@ -141,44 +144,37 @@ impl DynProperty {
 
     /// Create default "generic" `DynProperty` instance, representing "true" formula.
     pub fn default_generic() -> DynProperty {
-        Self::try_mk_generic("New generic dynamic property", "true", "").unwrap()
+        Self::try_mk_generic("New generic dynamic property", "true").unwrap()
     }
 
     /// Create default `DynProperty` instance for the existence of a fixed point, with empty
     /// `dataset` and `observation` fields.
     pub fn default_fixed_point() -> DynProperty {
-        Self::mk_fixed_point("New exist fixed points property", None, None, "")
+        Self::mk_fixed_point("New exist fixed points property", None, None)
     }
 
     /// Create default `DynProperty` instance for the existence of a trap space, with empty
     /// `dataset` and `observation` fields, and all flags set to false.
     pub fn default_trap_space() -> DynProperty {
-        Self::mk_trap_space(
-            "New exist trap spaces property",
-            None,
-            None,
-            false,
-            false,
-            "",
-        )
+        Self::mk_trap_space("New exist trap spaces property", None, None, false, false)
     }
 
     /// Create default `DynProperty` instance for the existence of a trajectory, with an empty
     /// `dataset`field.
     pub fn default_trajectory() -> DynProperty {
-        Self::mk_trajectory("New exist trajectory property", None, "")
+        Self::mk_trajectory("New exist trajectory property", None)
     }
 
     /// Create default `DynProperty` instance for the number of existing attractors, with default
     /// count being 1.
     pub fn default_attractor_count() -> DynProperty {
-        Self::try_mk_attractor_count("New attractor count property", 1, 1, "").unwrap()
+        Self::try_mk_attractor_count("New attractor count property", 1, 1).unwrap()
     }
 
     /// Create default `DynProperty` instance for the existence of an attractor with empty
     /// `dataset` and `observation` fields.
     pub fn default_has_attractor() -> DynProperty {
-        Self::mk_has_attractor("New exist attractors property", None, None, "")
+        Self::mk_has_attractor("New exist attractors property", None, None)
     }
 }
 

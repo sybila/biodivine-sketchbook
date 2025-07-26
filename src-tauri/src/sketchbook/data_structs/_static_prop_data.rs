@@ -188,83 +188,71 @@ impl StatPropertyData {
         let annot = self.annotation.as_str();
         let property = match &self.variant {
             StatPropertyTypeData::GenericStatProp(p) => {
-                StatProperty::try_mk_generic(name, &p.formula, annot)?
+                StatProperty::try_mk_generic(name, &p.formula)?.with_annotation(annot)
             }
-            StatPropertyTypeData::FnInputMonotonic(p) => StatProperty::mk_fn_input_monotonic(
-                name,
-                input_id_to_index(&p.input)?,
-                p.target
+            StatPropertyTypeData::FnInputMonotonic(p) => {
+                let input = input_id_to_index(&p.input)?;
+                let target = p
+                    .target
                     .as_ref()
-                    .and_then(|t| UninterpretedFnId::new(t).ok()),
-                p.value,
-                annot,
-            ),
+                    .and_then(|t| UninterpretedFnId::new(t).ok());
+                StatProperty::mk_fn_input_monotonic(name, input, target, p.value)
+                    .with_annotation(annot)
+            }
             StatPropertyTypeData::FnInputMonotonicContext(p) => {
-                StatProperty::mk_fn_input_monotonic_context(
-                    name,
-                    input_id_to_index(&p.input)?,
-                    p.target
-                        .as_ref()
-                        .and_then(|t| UninterpretedFnId::new(t).ok()),
-                    p.value,
-                    p.context.clone().ok_or("Context missing.")?,
-                    annot,
-                )
-            }
-            StatPropertyTypeData::FnInputEssential(p) => StatProperty::mk_fn_input_essential(
-                name,
-                input_id_to_index(&p.input)?,
-                p.target
+                let input = input_id_to_index(&p.input)?;
+                let target = p
+                    .target
                     .as_ref()
-                    .and_then(|t| UninterpretedFnId::new(t).ok()),
-                p.value,
-                annot,
-            ),
+                    .and_then(|t| UninterpretedFnId::new(t).ok());
+                let context = p.context.clone().ok_or("Context missing.")?;
+                StatProperty::mk_fn_input_monotonic_context(name, input, target, p.value, context)
+                    .with_annotation(annot)
+            }
+            StatPropertyTypeData::FnInputEssential(p) => {
+                let input = input_id_to_index(&p.input)?;
+                let target = p
+                    .target
+                    .as_ref()
+                    .and_then(|t| UninterpretedFnId::new(t).ok());
+                StatProperty::mk_fn_input_essential(name, input, target, p.value)
+                    .with_annotation(annot)
+            }
             StatPropertyTypeData::FnInputEssentialContext(p) => {
-                StatProperty::mk_fn_input_essential_context(
-                    name,
-                    input_id_to_index(&p.input)?,
-                    p.target
-                        .as_ref()
-                        .and_then(|t| UninterpretedFnId::new(t).ok()),
-                    p.value,
-                    p.context.clone().ok_or("Context missing.")?,
-                    annot,
-                )
+                let input = input_id_to_index(&p.input)?;
+                let target = p
+                    .target
+                    .as_ref()
+                    .and_then(|t| UninterpretedFnId::new(t).ok());
+                let context = p.context.clone().ok_or("Context missing.")?;
+                StatProperty::mk_fn_input_essential_context(name, input, target, p.value, context)
+                    .with_annotation(annot)
             }
-            StatPropertyTypeData::RegulationMonotonic(p) => StatProperty::mk_regulation_monotonic(
-                name,
-                p.input.as_ref().and_then(|i| VarId::new(i).ok()),
-                p.target.as_ref().and_then(|t| VarId::new(t).ok()),
-                p.value,
-                annot,
-            ),
+            StatPropertyTypeData::RegulationMonotonic(p) => {
+                let input = p.input.as_ref().and_then(|i| VarId::new(i).ok());
+                let target = p.target.as_ref().and_then(|t| VarId::new(t).ok());
+                StatProperty::mk_regulation_monotonic(name, input, target, p.value)
+                    .with_annotation(annot)
+            }
             StatPropertyTypeData::RegulationMonotonicContext(p) => {
-                StatProperty::mk_regulation_monotonic_context(
-                    name,
-                    p.input.as_ref().and_then(|i| VarId::new(i).ok()),
-                    p.target.as_ref().and_then(|t| VarId::new(t).ok()),
-                    p.value,
-                    p.context.clone().ok_or("Context missing.")?,
-                    annot,
-                )
+                let input = p.input.as_ref().and_then(|i| VarId::new(i).ok());
+                let target = p.target.as_ref().and_then(|t| VarId::new(t).ok());
+                let context = p.context.clone().ok_or("Context missing.")?;
+                StatProperty::mk_regulation_monotonic_context(name, input, target, p.value, context)
+                    .with_annotation(annot)
             }
-            StatPropertyTypeData::RegulationEssential(p) => StatProperty::mk_regulation_essential(
-                name,
-                p.input.as_ref().and_then(|i| VarId::new(i).ok()),
-                p.target.as_ref().and_then(|t| VarId::new(t).ok()),
-                p.value,
-                annot,
-            ),
+            StatPropertyTypeData::RegulationEssential(p) => {
+                let input = p.input.as_ref().and_then(|i| VarId::new(i).ok());
+                let target = p.target.as_ref().and_then(|t| VarId::new(t).ok());
+                StatProperty::mk_regulation_essential(name, input, target, p.value)
+                    .with_annotation(annot)
+            }
             StatPropertyTypeData::RegulationEssentialContext(p) => {
-                StatProperty::mk_regulation_essential_context(
-                    name,
-                    p.input.as_ref().and_then(|i| VarId::new(i).ok()),
-                    p.target.as_ref().and_then(|t| VarId::new(t).ok()),
-                    p.value,
-                    p.context.clone().ok_or("Context missing.")?,
-                    annot,
-                )
+                let input = p.input.as_ref().and_then(|i| VarId::new(i).ok());
+                let target = p.target.as_ref().and_then(|t| VarId::new(t).ok());
+                let context = p.context.clone().ok_or("Context missing.")?;
+                StatProperty::mk_regulation_essential_context(name, input, target, p.value, context)
+                    .with_annotation(annot)
             }
         };
         Ok(property)
