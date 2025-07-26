@@ -62,7 +62,7 @@ impl DatasetData {
             .map(|o| o.to_observation())
             .collect::<Result<Vec<Observation>, String>>()?;
         let variables = self.variables.iter().map(|v| v.as_str()).collect();
-        Dataset::new_annotated(&self.name, &self.annotation, observations, variables)
+        Ok(Dataset::new(&self.name, observations, variables)?.with_annotation(&self.annotation))
     }
 }
 

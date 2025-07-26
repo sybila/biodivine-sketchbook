@@ -50,14 +50,11 @@ impl ObservationData {
     }
 
     /// Extract the corresponding `Observation` from the `ObservationData`.
-    /// There is a syntax check just to make sure that the data are valid.
+    /// Internal syntax check is done just to make sure that the data are valid.
     pub fn to_observation(&self) -> Result<Observation, String> {
-        Observation::try_from_str_annotated(
-            &self.values.clone(),
-            &self.id,
-            &self.name,
-            &self.annotation,
-        )
+        Ok(Observation::try_from_str(&self.values.clone(), &self.id)?
+            .with_name(&self.name)
+            .with_annotation(&self.annotation))
     }
 }
 

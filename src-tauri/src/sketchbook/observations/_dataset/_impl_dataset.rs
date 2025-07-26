@@ -8,23 +8,9 @@ impl Dataset {
     /// Create new dataset from a list of observations and variables.
     ///
     /// Length of each observation and number of variables must match. Observation
-    /// IDs must be valid identifiers and must be unique. Annotation is empty (for
-    /// annotated version, check [Dataset::new_annotated])
+    /// IDs must be valid identifiers and must be unique. Annotation is left empty.
     pub fn new(
         name: &str,
-        observations: Vec<Observation>,
-        var_names: Vec<&str>,
-    ) -> Result<Self, String> {
-        Self::new_annotated(name, "", observations, var_names)
-    }
-
-    /// Create new dataset from a list of observations and variables.
-    ///
-    /// Length of each observation and number of variables must match.
-    /// Observation IDs must be valid identifiers and must be unique.
-    pub fn new_annotated(
-        name: &str,
-        annotation: &str,
         observations: Vec<Observation>,
         var_names: Vec<&str>,
     ) -> Result<Self, String> {
@@ -51,7 +37,7 @@ impl Dataset {
 
         Ok(Self {
             name: name.to_string(),
-            annotation: annotation.to_string(),
+            annotation: String::new(),
             observations,
             variables,
             index_map,
@@ -66,6 +52,12 @@ impl Dataset {
     /// Default dataset instance with no Variables or Observations, and with an empty annotation.
     pub fn default(name: &str) -> Dataset {
         Dataset::new_empty(name, Vec::new()).unwrap()
+    }
+
+    /// Update the `annotation` property.
+    pub fn with_annotation(mut self, annotation: &str) -> Self {
+        self.annotation = annotation.to_string();
+        self
     }
 
     /// **(internal)** Try converting variables string slices into VarIDs.
