@@ -1,0 +1,37 @@
+A -?? B
+B -?? C
+A -?? C
+D -?? B
+C -?? C
+C -?? A
+D -? D
+$A: h(C)
+$B: f(A, D)
+$C: A & g(B, C)
+#position:A:346.89832,183.03789
+#position:D:642.49677,185.15988
+#position:B:0,0
+#position:C:504.7078,101.93903
+#!dataset:data_fp:#`{"name":"data_fp","id":"data_fp","annotation":"","observations":[{"id":"ones","name":"ones","annotation":"","dataset":"data_fp","values":"1111"},{"id":"zeros","name":"zeros","annotation":"","dataset":"data_fp","values":"0000"}],"variables":["A","B","C","D"]}`#
+#!dataset:data_mts:#`{"name":"data_mts","id":"data_mts","annotation":"","observations":[{"id":"abc","name":"abc","annotation":"","dataset":"data_mts","values":"111*"},{"id":"ab","name":"ab","annotation":"","dataset":"data_mts","values":"11**"}],"variables":["A","B","C","D"]}`#
+#!dataset:data_time_series:#`{"name":"data_time_series","id":"data_time_series","annotation":"","observations":[{"id":"a","name":"a","annotation":"","dataset":"data_time_series","values":"1000"},{"id":"b","name":"b","annotation":"","dataset":"data_time_series","values":"1100"},{"id":"c","name":"c","annotation":"","dataset":"data_time_series","values":"1110"},{"id":"d","name":"d","annotation":"","dataset":"data_time_series","values":"1111"}],"variables":["A","B","C","D"]}`#
+#!function:f:#`{"id":"f","name":"f","annotation":"","arguments":[["Activation","True"],["Activation","True"]],"expression":""}`#
+#!function:g:#`{"id":"g","name":"g","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:h:#`{"id":"h","name":"h","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!function:new_fn1:#`{"id":"new_fn1","name":"fn_1","annotation":"","arguments":[["Activation","True"],["Activation","True"],["Inhibition","True"]],"expression":"var0 & g(var1, var2)"}`#
+#!function:new_fn2:#`{"id":"new_fn2","name":"fn_1","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"],["Unknown","Unknown"]],"expression":"f(var0, var1)"}`#
+#!static_property:essentiality_D_D:#`{"id":"essentiality_D_D","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"D","target":"D","value":"True","context":null}`#
+#!static_property:fn_essentiality_f_0:#`{"id":"fn_essentiality_f_0","name":"Fn input essentiality (generated)","annotation":"","variant":"FnInputEssential","input":"var0","target":"f","value":"True","context":null}`#
+#!static_property:fn_essentiality_f_1:#`{"id":"fn_essentiality_f_1","name":"Fn input essentiality (generated)","annotation":"","variant":"FnInputEssential","input":"var1","target":"f","value":"True","context":null}`#
+#!static_property:fn_essentiality_new_fn1_0:#`{"id":"fn_essentiality_new_fn1_0","name":"Fn input essentiality (generated)","annotation":"","variant":"FnInputEssential","input":"var0","target":"new_fn1","value":"True","context":null}`#
+#!static_property:fn_essentiality_new_fn1_1:#`{"id":"fn_essentiality_new_fn1_1","name":"Fn input essentiality (generated)","annotation":"","variant":"FnInputEssential","input":"var1","target":"new_fn1","value":"True","context":null}`#
+#!static_property:fn_essentiality_new_fn1_2:#`{"id":"fn_essentiality_new_fn1_2","name":"Fn input essentiality (generated)","annotation":"","variant":"FnInputEssential","input":"var2","target":"new_fn1","value":"True","context":null}`#
+#!static_property:fn_monotonicity_f_0:#`{"id":"fn_monotonicity_f_0","name":"Fn input monotonicity (generated)","annotation":"","variant":"FnInputMonotonic","input":"var0","target":"f","value":"Activation","context":null}`#
+#!static_property:fn_monotonicity_f_1:#`{"id":"fn_monotonicity_f_1","name":"Fn input monotonicity (generated)","annotation":"","variant":"FnInputMonotonic","input":"var1","target":"f","value":"Activation","context":null}`#
+#!static_property:fn_monotonicity_new_fn1_0:#`{"id":"fn_monotonicity_new_fn1_0","name":"Fn input monotonicity (generated)","annotation":"","variant":"FnInputMonotonic","input":"var0","target":"new_fn1","value":"Activation","context":null}`#
+#!static_property:fn_monotonicity_new_fn1_1:#`{"id":"fn_monotonicity_new_fn1_1","name":"Fn input monotonicity (generated)","annotation":"","variant":"FnInputMonotonic","input":"var1","target":"new_fn1","value":"Activation","context":null}`#
+#!static_property:fn_monotonicity_new_fn1_2:#`{"id":"fn_monotonicity_new_fn1_2","name":"Fn input monotonicity (generated)","annotation":"","variant":"FnInputMonotonic","input":"var2","target":"new_fn1","value":"Inhibition","context":null}`#
+#!variable:A:#`{"id":"A","name":"A","annotation":"","update_fn":"h(C)"}`#
+#!variable:B:#`{"id":"B","name":"B","annotation":"","update_fn":"new_fn2(A, D, D)"}`#
+#!variable:C:#`{"id":"C","name":"C","annotation":"","update_fn":"new_fn1(A, B, C)"}`#
+#!variable:D:#`{"id":"D","name":"D","annotation":"","update_fn":""}`#

@@ -414,7 +414,7 @@ mod tests {
     #[test]
     /// Test that consistency check is successful on our test sketch.
     fn consistency_valid_sketch() {
-        let mut sketch_file = File::open("../data/test_data/test_model.json").unwrap();
+        let mut sketch_file = File::open("../data/test_data/test_sketch_1.json").unwrap();
         let mut file_content = String::new();
         sketch_file.read_to_string(&mut file_content).unwrap();
         let sketch = Sketch::from_custom_json(&file_content).unwrap();
