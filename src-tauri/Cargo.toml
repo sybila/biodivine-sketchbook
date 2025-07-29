@@ -1,6 +1,6 @@
 [package]
 name = "biodivine-sketchbook"
-version = "0.2.0"
+version = "0.2.1"
 description = "A multi-platform application for designing and analysing large-scale logical models."
 authors = ["Ondrej Huvar <xhuvar@fi.muni.cz>", "Samuel Pastva <sam.pastva@gmail.com>", "Petr Ivicic"]
 license = "MIT"
