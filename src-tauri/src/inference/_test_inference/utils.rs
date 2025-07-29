@@ -10,24 +10,32 @@ use std::io::Read;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
-/// Wrapper to read the test model from JSON file.
-pub fn load_test_model() -> Sketch {
-    let mut json_sketch_file = File::open("../data/test_data/test_model_with_data.json").unwrap();
+/// Wrapper to read prepared test sketches from JSON files.
+///
+/// Arg `variant` specifies index of the model file to load (starting at 1). All
+/// variants are semantically same sketches (same variables, same set ofcandidates),
+/// they are just using different formalisms (properties of regulations vs properties
+/// of uninterpreted functions and so on). We have currently 2 such testing models.
+pub fn load_test_sketch(variant: usize) -> Sketch {
+    let model_path = format!("../data/test_data/test_sketch_{variant}.json");
+    let mut json_sketch_file = File::open(model_path).unwrap();
     let mut json_contents = String::new();
     json_sketch_file.read_to_string(&mut json_contents).unwrap();
 
     Sketch::from_custom_json(&json_contents).unwrap()
 }
 
-/// Wrapper to create an inference solver, run the inference on a given sketch, and return results.
+/// Wrapper to create an inference solver, run the inference on a given sketch,
+/// and return results.
 pub fn run_inference(sketch: Sketch) -> InferenceResults {
     run_inference_check_statuses(sketch, None)
 }
 
-/// Wrapper to create an inference solver, run the inference on a given sketch, and return results.
+/// Wrapper to create an inference solver, run the inference on a given sketch,
+/// and return results.
 ///
-/// Optionally, you can provide a number of expected status updates from the solver, and this function
-/// asserts that solver sends exactly this number of them.
+/// Optionally, you can provide a number of expected status updates from the solver,
+/// and this function asserts that solver sends exactly this number of them.
 pub fn run_inference_check_statuses(
     sketch: Sketch,
     num_statuses: Option<usize>,
@@ -63,8 +71,8 @@ pub fn apply_event_fully(sketch: &mut Sketch, event: &Event, at_path: &[&str]) {
     }
 }
 
-/// Wrapper to add a given dynamic property to the model, run the inference, and return the number  
-/// of satisfying candidates.
+/// Wrapper to add a given dynamic property to the model, run the inference, and return
+/// the number of satisfying candidates.
 pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str: &str) -> u128 {
     sketch
         .properties
@@ -74,8 +82,8 @@ pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str:
     results.num_sat_networks
 }
 
-/// Wrapper to add a given static property to the model, run the inference, and return the number  
-/// of satisfying candidates.
+/// Wrapper to add a given static property to the model, run the inference, and return
+/// the number of satisfying candidates.
 pub fn add_stat_prop_and_infer(mut sketch: Sketch, property: StatProperty, id_str: &str) -> u128 {
     sketch
         .properties

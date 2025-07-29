@@ -39,11 +39,14 @@ impl Sketch {
     ///   #!static_property: ID: #`fol_formula_string`#
     ///   #!dynamic_property: ID: #`hctl_formula_string`#
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
-        // set psbn info (variables, functions, regulations and corresponding properties)
+        // Set basic PSBN info (variables, functions, regulations) by parsing the aeon file.
+        // This also derives automatically-generated regulation properties.
+        // BUT we have to be careful - some function symbols of the sketch file may only
+        // be present in the annotations (if they are not part of any update expressions).
         let bn = BooleanNetwork::try_from(aeon_str)?;
         let mut sketch = Sketch::from_boolean_network(&bn)?;
 
-        // set layout info
+        // Set layout info
         let node_positions = Self::extract_aeon_layout_info(aeon_str);
         let default_layout = ModelState::get_default_layout_id();
         for (node, x, y) in node_positions {
@@ -53,7 +56,7 @@ impl Sketch {
                 .update_position(&default_layout, &node_id, x, y)?;
         }
 
-        // recover the remaining components from aeon model annotations
+        // Recover the remaining sketch components from aeon model annotations
         let aeon_annotations = ModelAnnotation::from_model_string(aeon_str);
         let variables = Self::extract_entities(&aeon_annotations, "variable")?;
         let functions = Self::extract_entities(&aeon_annotations, "function")?;
@@ -61,19 +64,33 @@ impl Sketch {
         let stat_props = Self::extract_entities(&aeon_annotations, "static_property")?;
         let dyn_props = Self::extract_entities(&aeon_annotations, "dynamic_property")?;
 
-        // for variables and functions, there can be additional info (like names, annotations, ...)
-        for (id, variable_str) in variables {
-            let var_data = VariableData::from_json_str(&variable_str)?;
-            let var_id = sketch.model.get_var_id(&id)?;
-            sketch.model.set_raw_var(&var_id, var_data.to_var()?)?;
-            sketch.model.set_update_fn(&var_id, &var_data.update_fn)?;
+        // The annotations may contain some additional function symbols of the sketch (that
+        // were not part of any update expressions). We must first add these function symbols
+        // before we set any expressions that may involve them.
+        for (id, fn_str) in functions.iter() {
+            let fn_data = UninterpretedFnData::from_json_str(fn_str)?;
+            if !sketch.model.is_valid_uninterpreted_fn_id_str(id) {
+                let arity = fn_data.arguments.len();
+                sketch
+                    .model
+                    .add_empty_uninterpreted_fn_by_str(id, id, arity)?;
+            }
         }
+
+        // Now we can safely add all additional info (like names, annotations, expressions)
+        // for variables and functions.
         for (id, fn_str) in functions {
             let fn_data = UninterpretedFnData::from_json_str(&fn_str)?;
             let fn_id = sketch.model.get_uninterpreted_fn_id(&id)?;
             sketch
                 .model
                 .set_raw_function(&fn_id, fn_data.to_uninterpreted_fn(&sketch.model)?)?;
+        }
+        for (id, variable_str) in variables {
+            let var_data = VariableData::from_json_str(&variable_str)?;
+            let var_id = sketch.model.get_var_id(&id)?;
+            sketch.model.set_raw_var(&var_id, var_data.to_var()?)?;
+            sketch.model.set_update_fn(&var_id, &var_data.update_fn)?;
         }
 
         // datasets have to be added from scratch
@@ -88,14 +105,17 @@ impl Sketch {
         // we allow two modes - a JSON string for any property, or formula string for HCTL/FOL properties
         for (id, content_str) in stat_props {
             // try parsing formula
-            if let Ok(prop) = StatProperty::try_mk_generic(&id, &content_str, "") {
+            if let Ok(prop) = StatProperty::try_mk_generic(&id, &content_str) {
                 sketch.properties.add_static_by_str(&id, prop)?
             } else {
                 let prop_data = StatPropertyData::from_json_str(&content_str)?;
                 let property = prop_data.to_property()?;
 
-                // ignore automatically generated static props as they were added before
-                // TODO: decide how to handle this
+                // Ignore automatically generated static props as they were added before
+                // TODO: Decide how to handle potential inconsistencies between the standard AEON
+                //       regulations and sketch annotations with regulation properties. Moreover,
+                //       AEON format does not support full range of monotonicity/essentiality options.
+                //       For now, we ignore automatically generated regulation properties.
                 match prop_data.variant {
                     StatPropertyTypeData::RegulationEssential(..)
                     | StatPropertyTypeData::RegulationMonotonic(..) => {}
@@ -107,7 +127,7 @@ impl Sketch {
         }
         for (id, content_str) in dyn_props {
             // try parsing formula
-            if let Ok(prop) = DynProperty::try_mk_generic(&id, &content_str, "") {
+            if let Ok(prop) = DynProperty::try_mk_generic(&id, &content_str) {
                 sketch.properties.add_dynamic_by_str(&id, prop)?
             } else {
                 let prop_data = DynPropertyData::from_json_str(&content_str)?;
@@ -307,20 +327,22 @@ mod tests {
 
     #[test]
     /// Test that importing the same data from aeon and json format results in the same sketch.
-    /// This test involves a full sketch format with datasets and properties.
+    /// This test involves two full sketches.
     fn full_import() {
-        let mut aeon_sketch_file =
-            File::open("../data/test_data/test_model_with_data.aeon").unwrap();
-        let mut json_sketch_file =
-            File::open("../data/test_data/test_model_with_data.json").unwrap();
+        for sketch_idx in [1, 2] {
+            let mut aeon_sketch_file =
+                File::open(format!("../data/test_data/test_sketch_{sketch_idx}.aeon")).unwrap();
+            let mut json_sketch_file =
+                File::open(format!("../data/test_data/test_sketch_{sketch_idx}.json")).unwrap();
 
-        let mut aeon_contents = String::new();
-        aeon_sketch_file.read_to_string(&mut aeon_contents).unwrap();
-        let mut json_contents = String::new();
-        json_sketch_file.read_to_string(&mut json_contents).unwrap();
+            let mut aeon_contents = String::new();
+            aeon_sketch_file.read_to_string(&mut aeon_contents).unwrap();
+            let mut json_contents = String::new();
+            json_sketch_file.read_to_string(&mut json_contents).unwrap();
 
-        let sketch1 = Sketch::from_aeon(&aeon_contents).unwrap();
-        let sketch2 = Sketch::from_custom_json(&json_contents).unwrap();
-        assert_eq!(sketch1, sketch2);
+            let sketch1 = Sketch::from_aeon(&aeon_contents).unwrap();
+            let sketch2 = Sketch::from_custom_json(&json_contents).unwrap();
+            assert_eq!(sketch1, sketch2);
+        }
     }
 }

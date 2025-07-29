@@ -66,7 +66,7 @@ impl Dataset {
                 let state_change = mk_obs_state_change(&["remove_obs"], &obs_data);
 
                 // To make this simple, we just set the whole original content of the dataset
-                // TODO: do more efficiently by creating new "add observation" event
+                // TODO: Do this more efficiently by creating new "add observation" event
                 let reverse_at_path = [dataset_id.as_str(), "set_content"];
                 let payload = orig_dataset_data.to_json_str();
                 let reverse_event = mk_obs_event(&reverse_at_path, Some(&payload));

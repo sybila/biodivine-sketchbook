@@ -44,7 +44,7 @@ fn get_payload_or_panic(event: tauri::Event, event_type: &str) -> String {
 /// Logged message contains the provided `context` and the given error.
 fn handle_result<T, E: std::fmt::Debug>(result: Result<T, E>, context: &str, should_panic: bool) {
     if let Err(e) = result {
-        let message = format!("{}: {:?}", context, e);
+        let message = format!("{context}: {e:?}");
         error!("{message}");
         if should_panic {
             panic!("{message}");
@@ -136,7 +136,7 @@ fn handle_new_inference_session(
 
         match new_window {
             Ok(_) => debug!("New session `{new_session_id}` and window `{new_window_id}` created."),
-            Err(e) => panic!("Failed to create new window: {:?}", e),
+            Err(e) => panic!("Failed to create new window: {e:?}"),
         }
     }
 }
@@ -147,7 +147,7 @@ fn handle_new_inference_session(
 fn deserialize_payload<T: serde::de::DeserializeOwned>(payload: &str, event_type: &str) -> T {
     serde_json::from_str::<T>(payload).unwrap_or_else(|e| {
         // TODO: think about whether this could be a normal error
-        let message = format!("Failed to deserialize {event_type} payload: {:?}", e);
+        let message = format!("Failed to deserialize {event_type} payload: {e:?}");
         error!("{message}");
         panic!("{message}");
     })
@@ -226,7 +226,7 @@ fn main() {
                 // Show backtrace to the user (this does not include line numbers, but
                 // should at least be somewhat informative).
                 let backtrace = std::backtrace::Backtrace::force_capture();
-                MessageDialogBuilder::new("Unexpected error", format!("{}", backtrace)).show();
+                MessageDialogBuilder::new("Unexpected error", format!("{backtrace}")).show();
                 // invoke the default handler and exit the process
                 orig_hook(panic_info);
                 process::exit(1);

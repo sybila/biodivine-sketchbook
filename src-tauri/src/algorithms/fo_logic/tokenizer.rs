@@ -87,7 +87,7 @@ fn try_tokenize_recursive(
                     Ok((output, ')'))
                 } else {
                     Err("Unexpected ')' without opening counterpart.".to_string())
-                }
+                };
             }
             '(' => {
                 // start a nested token group
@@ -242,8 +242,7 @@ fn collect_vars_from_operator(
             }
             _ => {
                 return Err(format!(
-                    "Expected ',' or ':' after variable name in quantifier '{}'.",
-                    operator
+                    "Expected ',' or ':' after variable name in quantifier '{operator}'."
                 ));
             }
         }

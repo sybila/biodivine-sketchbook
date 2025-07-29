@@ -79,7 +79,7 @@ impl InferenceResults {
             } else {
                 count.to_string()
             };
-            output.push_str(&format!("{}: {}\n", var, count_display));
+            output.push_str(&format!("{var}: {count_display}\n"));
         }
 
         output.push_str("--------------\n");

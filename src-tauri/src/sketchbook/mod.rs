@@ -113,14 +113,14 @@ pub trait Manager {
         let start_index = start_index.unwrap_or(1);
         let last_index = start_index + num_indices;
         for n in start_index..last_index {
-            let id = T::from_str(format!("{}_{}", transformed_id, n).as_str()).unwrap();
+            let id = T::from_str(format!("{transformed_id}_{n}").as_str()).unwrap();
             if !is_taken(self, &id) {
                 return id;
             }
         }
 
         // this must be valid, we already tried more than `max_idx` options
-        T::from_str(format!("{}_{}", transformed_id, last_index).as_str()).unwrap()
+        T::from_str(format!("{transformed_id}_{last_index}").as_str()).unwrap()
     }
 
     /// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates),

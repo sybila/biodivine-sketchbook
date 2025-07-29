@@ -6,7 +6,6 @@ use crate::sketchbook::model::{
     UninterpretedFnIterator, UpdateFn, UpdateFnIterator, Variable, VariableIterator,
 };
 
-use std::collections::HashSet;
 use std::str::FromStr;
 
 /// Id (and also name) of the initial default layout.
@@ -394,28 +393,5 @@ impl ModelState {
     /// Static fn to get name of the default layout (same for all `ModelStates`).
     pub fn get_default_layout_name() -> &'static str {
         DEFAULT_LAYOUT_ID
-    }
-
-    /// Compute all uninterpreted functions that are unused (not present in any update
-    /// function expression or any uninterpreted function expressions).
-    ///
-    /// TODO: This does not take into account more complex type of function symbols that are
-    /// used, but only inside of expressions of other function symbols that are unused.
-    pub fn find_unused_uninterpreted_fns(&self) -> HashSet<UninterpretedFnId> {
-        let mut unused_functions: HashSet<UninterpretedFnId> =
-            self.uninterpreted_fns.keys().cloned().collect();
-        for (_, update_fn) in self.update_fns() {
-            unused_functions = unused_functions
-                .difference(&update_fn.collect_fn_symbols())
-                .cloned()
-                .collect();
-        }
-        for (_, uninterpreted_fn) in self.uninterpreted_fns() {
-            unused_functions = unused_functions
-                .difference(&uninterpreted_fn.collect_fn_symbols())
-                .cloned()
-                .collect();
-        }
-        unused_functions
     }
 }

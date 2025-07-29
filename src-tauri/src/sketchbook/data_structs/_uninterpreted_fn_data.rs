@@ -1,6 +1,6 @@
 use crate::sketchbook::ids::UninterpretedFnId;
 use crate::sketchbook::model::{
-    Essentiality, FnArgument, ModelState, Monotonicity, UninterpretedFn,
+    Essentiality, FnArgumentProperty, ModelState, Monotonicity, UninterpretedFn,
 };
 use crate::sketchbook::JsonSerde;
 use serde::{Deserialize, Serialize};
@@ -27,10 +27,10 @@ impl UninterpretedFnData {
         id: &str,
         name: &str,
         annot: &str,
-        arguments: &[FnArgument],
+        arg_properties: &[FnArgumentProperty],
         expression: &str,
     ) -> UninterpretedFnData {
-        let arguments_transformed = arguments
+        let arg_props_transformed = arg_properties
             .iter()
             .map(|a| (a.monotonicity, a.essential))
             .collect();
@@ -38,7 +38,7 @@ impl UninterpretedFnData {
             id: id.to_string(),
             name: name.to_string(),
             annotation: annot.to_string(),
-            arguments: arguments_transformed,
+            arguments: arg_props_transformed,
             expression: expression.to_string(),
         }
     }
@@ -63,18 +63,16 @@ impl UninterpretedFnData {
     ///
     /// Model is given for validity check during parsing the function's expression.
     pub fn to_uninterpreted_fn(&self, model: &ModelState) -> Result<UninterpretedFn, String> {
-        let arguments = self
+        let arguments: Vec<FnArgumentProperty> = self
             .arguments
             .iter()
-            .map(|(m, e)| FnArgument::new(*e, *m))
+            .map(|(m, e)| FnArgumentProperty::new(*e, *m))
             .collect();
-        UninterpretedFn::new(
-            &self.name,
-            &self.annotation,
-            &self.expression,
-            arguments,
-            model,
-            &model.get_uninterpreted_fn_id(&self.id)?,
-        )
+        let arity = arguments.len();
+        let own_id = &model.get_uninterpreted_fn_id(&self.id)?;
+        UninterpretedFn::new_default(&self.name, arity)?
+            .with_annotation(&self.annotation)
+            .with_argument_properties(arguments)?
+            .with_expression(&self.expression, model, own_id)
     }
 }

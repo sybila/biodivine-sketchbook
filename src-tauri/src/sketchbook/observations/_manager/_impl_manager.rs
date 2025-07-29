@@ -18,7 +18,7 @@ impl ObservationManager {
 
         let prop_id_set = datasets.iter().map(|pair| pair.0).collect::<HashSet<_>>();
         if prop_id_set.len() != datasets.len() {
-            return Err(format!("Datasets {:?} contain duplicate IDs.", datasets));
+            return Err(format!("Datasets {datasets:?} contain duplicate IDs."));
         }
 
         for (id, dataset) in datasets {

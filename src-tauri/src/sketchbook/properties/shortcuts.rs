@@ -8,7 +8,7 @@ use super::DynProperty;
 /// Chosen name is generic and annotation is empty.
 pub fn mk_fol_prop(formula: &str) -> Result<StatProperty, String> {
     let name_str = "Generic FOL property";
-    StatProperty::try_mk_generic(name_str, formula, "")
+    StatProperty::try_mk_generic(name_str, formula)
 }
 
 /// Shorthand to get a static property that describes essentiality of a regulation
@@ -25,7 +25,6 @@ pub fn mk_reg_essentiality_prop(
         Some(regulator.clone()),
         Some(target.clone()),
         essentiality,
-        "",
     )
 }
 
@@ -43,7 +42,6 @@ pub fn mk_reg_monotonicity_prop(
         Some(regulator.clone()),
         Some(target.clone()),
         monotonicity,
-        "",
     )
 }
 
@@ -56,13 +54,7 @@ pub fn mk_fn_input_essentiality_prop(
     essentiality: Essentiality,
 ) -> StatProperty {
     let name_str = "Fn input essentiality (generated)";
-    StatProperty::mk_fn_input_essential(
-        name_str,
-        Some(index),
-        Some(fn_id.clone()),
-        essentiality,
-        "",
-    )
+    StatProperty::mk_fn_input_essential(name_str, Some(index), Some(fn_id.clone()), essentiality)
 }
 
 /// Shorthand to get a static property that describes that argument of an
@@ -74,18 +66,12 @@ pub fn mk_fn_input_monotonicity_prop(
     monotonicity: Monotonicity,
 ) -> StatProperty {
     let name_str = "Fn input monotonicity (generated)";
-    StatProperty::mk_fn_input_monotonic(
-        name_str,
-        Some(index),
-        Some(fn_id.clone()),
-        monotonicity,
-        "",
-    )
+    StatProperty::mk_fn_input_monotonic(name_str, Some(index), Some(fn_id.clone()), monotonicity)
 }
 
 /// Shorthand to get a generic dynamic property with HCTL formula.
 /// Chosen name is generic and annotation is empty.
 pub fn mk_hctl_prop(formula: &str) -> Result<DynProperty, String> {
     let name_str = "Generic HCTL property";
-    DynProperty::try_mk_generic(name_str, formula, "")
+    DynProperty::try_mk_generic(name_str, formula)
 }

@@ -2,7 +2,7 @@ use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-/// A type safe object for a Boolean variable of a `ModelState`.
+/// A type safe object for a Boolean variable of a model.
 ///
 /// Currently, it only stores the variable's `name` and `annotation`.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -12,18 +12,19 @@ pub struct Variable {
 }
 
 impl Variable {
-    /// Create new `Variable` instance with an annotation.
-    pub fn new_annotated(name_str: &str, annotation: &str) -> Result<Variable, String> {
+    /// Create new `Variable` instance. Annotation is left empty.
+    pub fn new(name_str: &str) -> Result<Variable, String> {
         assert_name_valid(name_str)?;
         Ok(Variable {
             name: name_str.to_string(),
-            annotation: annotation.to_string(),
+            annotation: String::new(),
         })
     }
 
-    /// Create new `Variable` instance. Annotation is left empty.
-    pub fn new(name_str: &str) -> Result<Variable, String> {
-        Self::new_annotated(name_str, "")
+    /// Update the `annotation` property.
+    pub fn with_annotation(mut self, annotation: &str) -> Self {
+        self.annotation = annotation.to_string();
+        self
     }
 
     /// Human-readable name of this variable.

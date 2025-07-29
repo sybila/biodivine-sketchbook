@@ -257,7 +257,9 @@ impl SessionState for InferenceState {
             }
             Some(&"run_static_inference") => {
                 Self::assert_payload_empty(event, "inference")?;
-                debug!("Event `run_static_inference` received. Starting partial inference with static properties.");
+                debug!(
+                    "Event `run_static_inference` received. Starting partial inference with static properties."
+                );
 
                 self.start_inference(InferenceType::StaticInference)?; // Start inference and handle asynchronously
                 let state_change = Event::build(&["inference", "inference_running"], Some("true"));
@@ -268,7 +270,9 @@ impl SessionState for InferenceState {
             }
             Some(&"run_dynamic_inference") => {
                 Self::assert_payload_empty(event, "inference")?;
-                debug!("Event `run_dynamic_inference` received. Starting partial inference with dynamic properties.");
+                debug!(
+                    "Event `run_dynamic_inference` received. Starting partial inference with dynamic properties."
+                );
 
                 self.start_inference(InferenceType::DynamicInference)?; // Start inference and handle asynchronously
                 let state_change = Event::build(&["inference", "inference_running"], Some("true"));

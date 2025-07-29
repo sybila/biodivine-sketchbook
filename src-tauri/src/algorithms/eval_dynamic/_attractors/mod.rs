@@ -20,9 +20,9 @@ pub fn sort_colors_by_attr_num<F: FnMut(&GraphColoredVertices, &str)>(
     progress_callback: &mut F,
 ) -> Vec<GraphColors> {
     // First, perform ITGR reduction.
-    // TODO: Add internal progress callback into ITGR
     let initial = graph.mk_unit_colored_vertices();
     progress_callback(&initial, "Starting state space pre-pruning using the ITGR.");
+    // TODO: Add internal progress callback into the ITGR as well
     let (universe, active_variables) = interleaved_transition_guided_reduction(graph, initial);
 
     let mut colors_by_num_attrs = Vec::new();

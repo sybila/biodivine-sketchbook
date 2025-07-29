@@ -134,7 +134,9 @@ impl ProcessedDynProp {
     pub fn mk_simple_trajectory(id: &str, dataset: Dataset) -> Result<ProcessedDynProp, String> {
         for obs in dataset.observations() {
             if obs.num_unspecified_values() > 0 {
-                return Err(format!("Property {id} cant be transformed into simple trajectory, the dataset contains some missing values."));
+                return Err(format!(
+                    "Property {id} cant be transformed into simple trajectory, the dataset contains some missing values."
+                ));
             }
         }
         let property = ProcessedSimpleTrajectory {
@@ -290,19 +292,19 @@ pub fn process_wild_cards(
             }
             WildCardType::Trajectory(data_id) => {
                 // lets create `DynProperty` instance with the same meaning as this wild-card
-                let temp_prop = DynProperty::mk_trajectory(&id, Some(data_id.clone()), "");
+                let temp_prop = DynProperty::mk_trajectory(&id, Some(data_id.clone()));
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
             WildCardType::Attractors(data_id, obs_id) => {
                 // lets create `DynProperty` instance with the same meaning as this wild-card
                 let temp_prop =
-                    DynProperty::mk_has_attractor(&id, Some(data_id.clone()), obs_id.clone(), "");
+                    DynProperty::mk_has_attractor(&id, Some(data_id.clone()), obs_id.clone());
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
             WildCardType::FixedPoints(data_id, obs_id) => {
                 // lets create `DynProperty` instance with the same meaning as this wild-card
                 let temp_prop =
-                    DynProperty::mk_fixed_point(&id, Some(data_id.clone()), obs_id.clone(), "");
+                    DynProperty::mk_fixed_point(&id, Some(data_id.clone()), obs_id.clone());
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
             WildCardType::TrapSpaces(data_id, obs_id, is_minimal, is_non_percolable) => {
@@ -313,13 +315,12 @@ pub fn process_wild_cards(
                     obs_id.clone(),
                     *is_minimal,
                     *is_non_percolable,
-                    "",
                 );
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
             WildCardType::AttractorCount(minimal, maximal) => {
                 // lets create `DynProperty` instance with the same meaning as this wild-card
-                let temp_prop = DynProperty::try_mk_attractor_count(&id, *minimal, *maximal, "")?;
+                let temp_prop = DynProperty::try_mk_attractor_count(&id, *minimal, *maximal)?;
                 process_dyn_prop_single(&DynPropertyId::new(&id).unwrap(), &temp_prop, sketch)?
             }
         };

@@ -5,7 +5,17 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 
-/// Update function of a `BooleanNetwork`.
+/// Update function governing evolution of some variable in a model.
+/// It can either be partially specified with a logical formula, or left empty
+/// (meaning the formula is fully unspecified, and all options will be considered.)
+///
+/// This holds two versions of the function expression:
+/// - `expression` is the string variant used for simple things and to be displayed
+///   on the frontend
+/// - `tree` is the parsed syntactic tree of the expression, used for more complex
+///   operations and analysis
+///
+/// If the expression is not specified, we use empty string, and `tree` is None.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UpdateFn {
     expression: String,
@@ -84,9 +94,7 @@ impl UpdateFn {
 
     /// Return a set of all variables that are actually used as inputs in this function.
     pub fn to_fn_update(&self, context: &BooleanNetwork) -> Option<FnUpdate> {
-        self.tree
-            .as_ref()
-            .map(|tree| tree.to_fn_update_recursive(context))
+        self.tree.as_ref().map(|tree| tree.to_fn_update(context))
     }
 
     /// Return a set of all variables that are actually used as inputs in this function.

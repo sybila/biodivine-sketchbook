@@ -18,26 +18,26 @@ impl Observation {
     /// a valid identifier).
     ///
     /// Name is initialized same as ID, and annotation is empty.
-    /// For full initializer with name and annotation, check [Self::new_annotated].
     pub fn new(values: Vec<VarValue>, id: &str) -> Result<Self, String> {
-        Self::new_annotated(values, id, id, "")
-    }
-
-    /// Create `Observation` object from a vector with values, string ID (which must be
-    /// a valid identifier), string name, and annotation.
-    pub fn new_annotated(
-        values: Vec<VarValue>,
-        id: &str,
-        name: &str,
-        annot: &str,
-    ) -> Result<Self, String> {
-        assert_name_valid(name)?;
+        assert_name_valid(id)?;
         Ok(Self {
             id: ObservationId::new(id)?,
-            name: name.to_string(),
-            annotation: annot.to_string(),
+            name: id.to_string(),
+            annotation: String::new(),
             values,
         })
+    }
+
+    /// Update the `annotation` property.
+    pub fn with_annotation(mut self, annotation: &str) -> Self {
+        self.annotation = annotation.to_string();
+        self
+    }
+
+    /// Update the `name` property.
+    pub fn with_name(mut self, name: &str) -> Self {
+        self.name = name.to_string();
+        self
     }
 
     /// Create `Observation` encoding a vector of `n` ones.
@@ -62,7 +62,6 @@ impl Observation {
     /// Values are encoded using characters `1`, `0`, or `*`.
     ///
     /// Name is initialized same as ID, and annotation is empty.
-    /// For full initializer with name and annotation, check [Self::try_from_str_annotated].
     pub fn try_from_str(observation_str: &str, id: &str) -> Result<Self, String> {
         let mut observation_vec: Vec<VarValue> = Vec::new();
         for c in observation_str.chars() {
@@ -70,20 +69,6 @@ impl Observation {
         }
 
         Self::new(observation_vec, id)
-    }
-
-    /// Create `Observation` object from string encoding of its (ordered) values.
-    /// Values are encoded using characters `1`, `0`, or `*`.
-    pub fn try_from_str_annotated(
-        observation_str: &str,
-        id: &str,
-        name: &str,
-        annot: &str,
-    ) -> Result<Self, String> {
-        let mut obs = Self::try_from_str(observation_str, id)?;
-        obs.set_name(name)?;
-        obs.set_annotation(annot);
-        Ok(obs)
     }
 }
 

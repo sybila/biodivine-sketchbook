@@ -10,6 +10,9 @@ mod _impl_convert_bn;
 mod _impl_convert_reg_graph;
 /// **(internal)** Methods for safely constructing or editing instances of `ModelState`.
 mod _impl_editing;
+/// **(internal)** Methods for working with function expressions (e.g., substitution,
+/// propagation, or consistency checking).
+mod _impl_fn_expressions;
 /// **(internal)** Implementation of the safe identifier generating.
 mod _impl_id_generating;
 /// **(internal)** Methods for observing instances of `ModelState` (various getters, etc.).
@@ -18,16 +21,20 @@ mod _impl_observing;
 mod _impl_session_state;
 
 /// Structure representing the state of the "model" part of the sketch. `ModelState`
-/// encompasses information about the regulatory network and the PSBN. Specifically, it
+/// encompasses information about the PSBN and its regulatory network. Specifically, it
 /// covers:
 /// - set of Boolean variables
 /// - set of regulations between the variables
-/// - set of function symbols (or uninterpreted functions)
+/// - set of function symbols (or uninterpreted/supplementary functions)
 /// - Boolean update functions for each variable
 /// - layout information regarding the regulatory network
 ///
+/// This model structure, coupled with observations and properties, forms a base of a
+/// Boolean network sketch.
+///
 /// `ModelState` can be observed/edited using its classical Rust API, as well as through
-/// the external events (as it implements the `SessionState` event).
+/// the external events (as it implements the `SessionState` event). Events are used
+/// as a way for communication between Rust backend and TS frontend of the app.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelState {
     variables: HashMap<VarId, Variable>,

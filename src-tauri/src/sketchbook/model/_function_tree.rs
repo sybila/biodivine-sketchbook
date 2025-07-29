@@ -4,8 +4,9 @@ use biodivine_lib_param_bn::{BooleanNetwork, FnUpdate};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-/// Syntactic tree of a partially defined Boolean function.
-/// This might specify an update function, or a partially defined uninterpreted fn.
+/// Syntactic tree of a partially specified Boolean expression.
+/// This struct is used to specify expressions of both update functions and uninterpreted
+/// functions.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FnTree {
     /// A true/false constant.
@@ -34,7 +35,7 @@ fn parse_update_fn_wrapper(
     bn_context: &BooleanNetwork,
 ) -> Result<FnUpdate, String> {
     let fn_update = FnUpdate::try_from_str(expression, bn_context)
-        .map_err(|e| format!("Error during update function processing: {}", e))?;
+        .map_err(|e| format!("Error during update function processing: {e}"))?;
     Ok(fn_update)
 }
 
@@ -52,9 +53,9 @@ impl FnTree {
     ) -> Result<FnTree, String> {
         let bn_context = if let Some(fn_id) = is_uninterpreted {
             let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
-            model.to_fake_bn_with_params(uninterpreted_fn.get_arity())
+            model.to_bn_with_fake_vars(uninterpreted_fn.get_arity())
         } else {
-            model.to_empty_bn_with_params()
+            model.to_bn_with_empty_updates()
         };
         let fn_update = parse_update_fn_wrapper(expression, &bn_context)?;
         let fn_tree = Self::from_fn_update(fn_update, model, is_uninterpreted)?;
@@ -67,11 +68,11 @@ impl FnTree {
     /// library, and thus `model` is needed to provide context (regarding IDs).
     pub fn to_string(&self, model: &ModelState, is_uninterpreted: Option<usize>) -> String {
         let bn_context = if let Some(n) = is_uninterpreted {
-            model.to_fake_bn_with_params(n)
+            model.to_bn_with_fake_vars(n)
         } else {
-            model.to_empty_bn_with_params()
+            model.to_bn_with_empty_updates()
         };
-        let fn_update = self.to_fn_update_recursive(&bn_context);
+        let fn_update = self.to_fn_update(&bn_context);
         fn_update.to_string(&bn_context)
     }
 
@@ -84,10 +85,10 @@ impl FnTree {
     ) -> Result<FnTree, String> {
         if let Some(fn_id) = is_uninterpreted {
             let uninterpreted_fn = model.get_uninterpreted_fn(fn_id)?;
-            let bn_context = model.to_fake_bn_with_params(uninterpreted_fn.get_arity());
+            let bn_context = model.to_bn_with_fake_vars(uninterpreted_fn.get_arity());
             Self::from_fn_update_recursive(fn_update, model, &bn_context, Some(fn_id))
         } else {
-            let bn_context = model.to_empty_bn_with_params();
+            let bn_context = model.to_bn_with_empty_updates();
             Self::from_fn_update_recursive(fn_update, model, &bn_context, None)
         }
     }
@@ -124,7 +125,9 @@ impl FnTree {
                         let var_id = VarId::new(var_id_str).unwrap(); // safe to unwrap now
                         Ok(FnTree::PlaceholderVar(var_id))
                     } else {
-                        Err(format!("Variable {var_id_str} is invalid in expression of function {fn_id}. Use only function's arguments."))
+                        Err(format!(
+                            "Variable {var_id_str} is invalid in expression of function {fn_id}. Use only function's arguments."
+                        ))
                     }
                 } else {
                     let var_id = model.get_var_id(var_id_str)?;
@@ -178,7 +181,7 @@ impl FnTree {
     ///
     /// Variables are simply translated into BN variables, and uninterpreted functions into
     /// PSBN parameters.
-    pub(crate) fn to_fn_update_recursive(&self, bn_context: &BooleanNetwork) -> FnUpdate {
+    pub(crate) fn to_fn_update(&self, bn_context: &BooleanNetwork) -> FnUpdate {
         match self {
             FnTree::Const(value) => FnUpdate::Const(*value),
             FnTree::Var(var_id) => {
@@ -199,13 +202,13 @@ impl FnTree {
                 FnUpdate::Var(bn_var_id)
             }
             FnTree::Not(inner) => {
-                let inner_transformed = inner.to_fn_update_recursive(bn_context);
+                let inner_transformed = inner.to_fn_update(bn_context);
                 FnUpdate::Not(Box::new(inner_transformed))
             }
             FnTree::Binary(op, l, r) => {
                 let binary_transformed = op.to_lib_param_bn_version();
-                let l_transformed = l.to_fn_update_recursive(bn_context);
-                let r_transformed = r.to_fn_update_recursive(bn_context);
+                let l_transformed = l.to_fn_update(bn_context);
+                let r_transformed = r.to_fn_update(bn_context);
                 FnUpdate::Binary(
                     binary_transformed,
                     Box::new(l_transformed),
@@ -214,10 +217,8 @@ impl FnTree {
             }
             FnTree::UninterpretedFn(fn_id, args) => {
                 let bn_param_id = bn_context.find_parameter(fn_id.as_str()).unwrap();
-                let args_transformed: Vec<FnUpdate> = args
-                    .iter()
-                    .map(|f| f.to_fn_update_recursive(bn_context))
-                    .collect();
+                let args_transformed: Vec<FnUpdate> =
+                    args.iter().map(|f| f.to_fn_update(bn_context)).collect();
                 FnUpdate::Param(bn_param_id, args_transformed)
             }
         }

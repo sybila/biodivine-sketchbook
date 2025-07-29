@@ -94,7 +94,7 @@ fn encode_observation_str(
     let final_formula = if formula.is_empty() {
         "(true)".to_string()
     } else {
-        format!("({})", formula)
+        format!("({formula})")
     };
     Ok(final_formula)
 }
@@ -152,7 +152,7 @@ pub fn mk_formula_attractor_list(attractor_state_list: &[String]) -> String {
         .map(|attractor_state| mk_formula_attractor(attractor_state))
         .collect::<Vec<_>>()
         .join(" & ");
-    format!("({})", formula)
+    format!("({formula})")
 }
 
 /// Create HCTL formula that prohibits existence of any attractor apart from the ones
@@ -171,7 +171,7 @@ pub fn mk_formula_forbid_other_attractors(attractor_state_list: &[String]) -> St
         .collect::<Vec<_>>()
         .join(" | ");
 
-    format!("~(3{{x}}: (@{{x}}: ~(AG EF ({}))))", inner_disjunction)
+    format!("~(3{{x}}: (@{{x}}: ~(AG EF ({inner_disjunction}))))")
 }
 
 /// Create HCTL formula describing that 1) each sub-space (observation) in a list must contain
@@ -212,7 +212,7 @@ pub fn mk_formula_trap_space_list(sub_spaces_list: &[String]) -> String {
         .collect::<Vec<_>>()
         .join(" & ");
 
-    format!("({})", formula)
+    format!("({formula})")
 }
 
 /// Create HCTL formula describing that given state is a steady state (fixed-point).
@@ -254,7 +254,7 @@ pub fn mk_formula_fixed_point_list(steady_state_list: &[String]) -> String {
         .collect::<Vec<_>>()
         .join(" & ");
 
-    format!("({})", formula)
+    format!("({formula})")
 }
 
 /// Create HCTL formula that prohibits existence of any steady state apart from the ones
@@ -268,11 +268,11 @@ pub fn mk_formula_forbid_other_fixed_points(steady_state_list: &[String]) -> Str
 
     let inner_conjunction = steady_state_list
         .iter()
-        .map(|steady_state| format!("~({})", steady_state))
+        .map(|steady_state| format!("~({steady_state})"))
         .collect::<Vec<_>>()
         .join(" & ");
 
-    format!("~(3{{x}}: (@{{x}}: {} & (AX {{x}})))", inner_conjunction)
+    format!("~(3{{x}}: (@{{x}}: {inner_conjunction} & (AX {{x}})))")
 }
 
 /// Create HCTL formula describing that 1) each sub-space (observation) in a list must contain
@@ -320,14 +320,14 @@ pub fn mk_formula_reachability_chain(states_sequence: &[String]) -> String {
 
     let mut chain = String::new();
     for state in states_sequence.iter().take(num_states - 1) {
-        write!(chain, "({}) & EF (", state).unwrap();
+        write!(chain, "({state}) & EF (").unwrap();
     }
 
     let final_state = &states_sequence[num_states - 1];
     let parentheses = ")".repeat(num_states - 1);
-    write!(chain, "{}{}", final_state, parentheses).unwrap();
+    write!(chain, "{final_state}{parentheses}").unwrap();
 
-    format!("(3{{x}}: (@{{x}}: {}))", chain)
+    format!("(3{{x}}: (@{{x}}: {chain}))")
 }
 
 #[cfg(test)]

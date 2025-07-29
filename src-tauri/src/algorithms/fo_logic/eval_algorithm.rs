@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::algorithms::fo_logic::fol_tree::{FolTreeNode, NodeType};
 use crate::algorithms::fo_logic::operator_enums::*;
 use crate::algorithms::fo_logic::utils::{get_var_base_and_offset, get_var_from_implicit};
@@ -137,17 +139,22 @@ fn eval_applied_update_function(
     //    internally uses a function symbol, and we can use it directly as is
 
     if let Some(update_fn) = bn.get_update_function(variable) {
-        // convert the tree representation so that it is same as FOL tree
+        // Convert the tree representation so that it is same as FOL tree
         let mut converted_update_fn = FolTreeNode::from_fn_update(update_fn.clone(), bn);
 
-        // get the (automatically sorted) set of inputs of the update fn
+        // Get the (automatically sorted) set of inputs of the update fn
         let input_vars = bn.regulators(variable);
 
-        // substitute variables in the update fn's expression to actual arguments of the function
-        for (input_var, expression) in input_vars.iter().zip(arguments) {
-            let input_name = bn.get_variable_name(*input_var);
-            converted_update_fn = converted_update_fn.substitute_variable(input_name, &expression);
-        }
+        // Compute mapping from inputs (formal args) used in the update fn's expression to the
+        // actual arguments that the function symbol is applied to (in the FOL formula)
+        let var_expression_mapping: HashMap<String, FolTreeNode> = input_vars
+            .iter()
+            .map(|var_id| bn.get_variable_name(*var_id).clone())
+            .zip(arguments)
+            .collect();
+        // Substitute the formal arguments (variables) with the actual arguments (can be complex expressions)
+        converted_update_fn =
+            converted_update_fn.substitute_free_variables(&var_expression_mapping);
         eval_node(converted_update_fn, graph)
     } else {
         // we already made sure that empty functions are substituted with expressions "f_v_N(regulator1, ..., regulatorM)"

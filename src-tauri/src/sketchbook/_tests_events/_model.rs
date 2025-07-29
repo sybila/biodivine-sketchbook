@@ -1,11 +1,11 @@
 use crate::app::state::{Consumed, SessionState};
+use crate::sketchbook::JsonSerde;
 use crate::sketchbook::_tests_events::{check_reverse, stringify_path};
 use crate::sketchbook::data_structs::*;
 use crate::sketchbook::event_utils::mk_model_event;
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
-use crate::sketchbook::JsonSerde;
 
 #[test]
 /// Test adding variable via events.

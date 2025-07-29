@@ -4,6 +4,21 @@ from pathlib import Path
 
 # All model paths to run inference on
 MODEL_PATHS = [
+    "test_data/test_sketch_1.aeon",
+    "test_data/test_sketch_1.json",
+    "test_data/test_sketch_2.aeon",
+    "test_data/test_sketch_2.json",
+    "real_cases/arabidopsis/arabidopsis_sketch.aeon",
+    "real_cases/arabidopsis/arabidopsis_sketch_hctl.json",
+    "real_cases/arabidopsis/arabidopsis_sketch.json",
+    "real_cases/arabidopsis/arabidopsis_with_additional_prop.json",
+    "real_cases/tlgl/tlgl_sketch.aeon",
+    "real_cases/tlgl/tlgl_sketch.json",
+    "real_cases/tlgl/tlgl_sketch_hctl.json",
+    "small_example/small_example_sketch.json",
+    "small_example/small_example_sketch.aeon",
+    "small_example/previous_version/small_example.aeon",
+    "small_example/previous_version/small_example.json",
     "benchmarks/celldivb/celldivb_sketch.aeon", 
     "benchmarks/eprotein/eprotein_sketch.aeon", 
     "benchmarks/nsp4/nsp4_sketch.aeon", 
@@ -19,18 +34,6 @@ MODEL_PATHS = [
     "other_sketches/oscillatory_models/gyn_cycle/LH_submodel/LH_submodel.json",
     "other_sketches/oscillatory_models/gyn_cycle/reduced_submodel/gyn-cycle_model_red_ts_properties_31k.json",
     "other_sketches/oscillatory_models/predator_prey/predator-prey_model_final.json",
-    "real_cases/arabidopsis/arabidopsis_sketch.aeon",
-    "real_cases/arabidopsis/arabidopsis_sketch_hctl.json",
-    "real_cases/arabidopsis/arabidopsis_sketch.json",
-    "real_cases/tlgl/tlgl_sketch.aeon",
-    "real_cases/tlgl/tlgl_sketch.json",
-    "real_cases/tlgl/tlgl_sketch_hctl.json",
-    "small_example/small_example_sketch.json",
-    "small_example/small_example_sketch.aeon",
-    "small_example/previous_version/small_example.aeon",
-    "small_example/previous_version/small_example.json",
-    "test_data/test_model.aeon",
-    "test_data/test_model.json",
 ]
 
 # Step 1: Compile Rust binaries

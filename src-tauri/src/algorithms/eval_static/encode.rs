@@ -231,8 +231,7 @@ mod tests {
 
         // encode that fn "h" is dual in second of two inputs
         let fol_formula = encode_monotonicity(2, 1, "h", Monotonicity::Dual);
-        let expected =
-            "(!((\\forall x_0: h(x_0, 0) => h(x_0, 1))) & !((\\forall x_0: h(x_0, 1) => h(x_0, 0))))";
+        let expected = "(!((\\forall x_0: h(x_0, 0) => h(x_0, 1))) & !((\\forall x_0: h(x_0, 1) => h(x_0, 0))))";
         assert_eq!(&fol_formula, expected);
 
         // encode unknown monotonicity

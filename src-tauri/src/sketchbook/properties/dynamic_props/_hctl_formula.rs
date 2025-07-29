@@ -18,20 +18,22 @@ pub struct HctlFormula {
 }
 
 /// A wrapper function for parsing HCTL formulas with extended error message.
+/// We use parsing variant for extended formulas since we allow wild-card propositions.
 /// See [parse_extended_formula] for details.
 pub fn parse_hctl_formula_wrapper(formula: &str) -> Result<HctlTreeNode, String> {
     parse_extended_formula(formula)
-        .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
+        .map_err(|e| format!("Error during HCTL formula processing: '{e}'"))
 }
 
-/// A wrapper function for full preprocessing step for HCTL formulas, with extended error message.
+/// A wrapper function for full preprocessing step for HCTL formulas, with proper error
+/// message. We use parsing for extended formulas since we allow wild-card propositions.
 /// See [parse_and_minimize_extended_formula] for details.
 pub fn parse_and_minimize_hctl_formula_wrapper(
     symbolic_context: &SymbolicContext,
     formula: &str,
 ) -> Result<HctlTreeNode, String> {
     parse_and_minimize_extended_formula(symbolic_context, formula)
-        .map_err(|e| format!("Error during HCTL formula processing: '{}'", e))
+        .map_err(|e| format!("Error during HCTL formula processing: '{e}'"))
 }
 
 /// *(internal)* Serialize field `tree` of `HctlFormula` as a string.
@@ -107,17 +109,17 @@ impl HctlFormula {
     }
 
     /// Assert that formula is correctly formed based on HCTL syntactic rules, and also
-    /// whether the propositions correspond to valid network variables used in the `model`.
+    /// that the propositions correspond to valid network variables of the `model`.
     ///
-    /// Note that potential wild-card propositions and their validity is not checked as
-    /// that is done elsewhere.
+    /// Note that validity of potential wild-card propositions and their validity is not
+    /// checked as that is done elsewhere.
     ///
     /// If you only want to also check the basic syntactic rules (ignoring potentially
-    /// invalid propositions, check [Self::check_syntax].
+    /// invalid propositions), check [Self::check_syntax].
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
-        // create simplest bn possible, we just need to cover all the variables
-        // this BN instance does not need any parameters, as these cant appear in HCTL formulas
-        let bn = model.to_empty_bn();
+        // Create a simple bn object ignoring update fns. We need it just to check
+        // if all propositions in formula are valid variables.
+        let bn = model.to_bn_with_empty_updates();
         let ctx = SymbolicContext::new(&bn)?;
 
         let res: Result<HctlTreeNode, String> =

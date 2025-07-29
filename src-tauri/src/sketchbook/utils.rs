@@ -17,7 +17,7 @@ pub(crate) fn assert_name_valid(name: &str) -> Result<(), String> {
 pub(crate) fn assert_ids_unique<T: Eq + Hash + Debug>(id_list: &Vec<T>) -> Result<(), String> {
     let id_set = id_list.iter().collect::<HashSet<_>>();
     if id_set.len() != id_list.len() {
-        return Err(format!("List of IDs `{:?}` contain duplicates.", id_list));
+        return Err(format!("List of IDs `{id_list:?}` contain duplicates."));
     }
     Ok(())
 }

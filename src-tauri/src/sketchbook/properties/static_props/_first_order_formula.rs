@@ -1,8 +1,7 @@
 use crate::algorithms::fo_logic::fol_tree::FolTreeNode;
 use crate::algorithms::fo_logic::parser::{parse_and_minimize_fol_formula, parse_fol_formula};
-use crate::algorithms::fo_logic::utils::*;
+use crate::algorithms::fo_logic::utils::get_var_from_implicit;
 use crate::sketchbook::model::ModelState;
-use biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext;
 
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
@@ -77,35 +76,51 @@ impl FirstOrderFormula {
 impl FirstOrderFormula {
     /// Check if the formula is correctly formed based on predefined FOL syntactic rules.
     pub fn check_pure_syntax(formula: &str) -> Result<(), String> {
-        // we have to provide some placeholder name (for minimization), but it does not matter here
+        // We use `parse_and_minimize_fol_formula` since it not only parses the formula, but
+        // also validates the variable names (we dont care about the variable renaming step here).
+        // We have to provide some placeholder name (for minimization), but it does not matter here
         parse_and_minimize_fol_formula(formula, "PLACEHOLDER").map(|_| ())
     }
 
-    /// Check if the formula is correctly formed based on predefined FO syntactic rules, and also
-    /// whether formula respects the model (function symbols must be valid entities in the model and
-    /// so on).
+    /// Check if the formula is correctly formed based on predefined FO syntactic rules, and
+    /// also whether the atomic elements respect the model (e.g., function symbols must be valid
+    /// given the `model` and so on).
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
-        let bn = model.to_bn();
-        // before creating symbolic context, we must prune unused parameters or it will fail with an error
-        let bn = bn.prune_unused_parameters();
-        let ctx = SymbolicContext::new(&bn)?;
-
-        // we have to provide some placeholder name (for minimization), but it does not matter here
+        // We use `parse_and_minimize_fol_formula` since it not only parses the formula, but
+        // also validates the variable names (we dont care about the variable renaming step here).
+        // We have to provide some placeholder name (for minimization), but it does not matter here
         let tree = parse_and_minimize_fol_formula(formula, "PLACEHOLDER")?;
 
-        // check if all functions valid
-        let function_symbols = collect_unique_fn_symbols(&tree)?;
+        // Check if all used functions symbols are valid for the model. A function symbol is valid
+        // if it references an uninterpreted function or some update function.
+        let function_symbols = tree.collect_unique_fn_symbols()?;
         for (fn_name, arity) in function_symbols.iter() {
+            // Check if the name corresponds to an (implicit) update function symbol for some variable
             if let Ok(var) = get_var_from_implicit(fn_name) {
-                // if this is update fn symbol, we must check the corresponding variable exists
-                if !check_update_fn_support(&bn, &var, *arity) {
+                // If this is an update fn symbol, the corresponding variable must exist,
+                // and that the arity of the function is correct.
+                if let Ok(valid_var_id) = model.get_var_id(&var) {
+                    let update_fn_arity = model.regulators(&valid_var_id).unwrap().len(); // safe to unwrap
+                    if update_fn_arity != *arity {
+                        return Err(format!(
+                            "Update function symbol `{fn_name}` is used with incorrect arity."
+                        ));
+                    }
+                } else {
                     return Err(format!(
-                        "Variable for update function `{fn_name}` does not exist, or its arity is different."
+                        "There is no variable corresponding to update function `{fn_name}`."
                     ));
                 }
             } else {
-                // if this is uninterpreted fn symbol, we must check the corresponding parameter exists
-                if !check_fn_symbol_support(&ctx, fn_name, *arity) {
+                // If this is not update fn symbol, it must be correspond to an uninterpreted function.
+                if let Ok(valid_fn_id) = model.get_uninterpreted_fn_id(fn_name) {
+                    let fn_arity = model.get_uninterpreted_fn_arity(&valid_fn_id).unwrap(); // safe to unwrap
+                    if fn_arity != *arity {
+                        return Err(format!(
+                            "Function symbol `{fn_name}` is used with incorrect arity."
+                        ));
+                    }
+                } else {
                     return Err(format!(
                         "Function `{fn_name}` with arity {arity} not found in the model."
                     ));

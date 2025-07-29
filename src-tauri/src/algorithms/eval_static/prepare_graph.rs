@@ -1,6 +1,4 @@
 use crate::algorithms::eval_static::processed_props::ProcessedStatProp;
-use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
-use crate::algorithms::fo_logic::utils::collect_unique_fol_vars;
 use biodivine_lib_bdd::Bdd;
 use biodivine_lib_param_bn::symbolic_async_graph::{SymbolicAsyncGraph, SymbolicContext};
 use biodivine_lib_param_bn::BooleanNetwork;
@@ -27,9 +25,8 @@ pub fn prepare_graph_for_static_fol(
     let mut num_fol_vars: usize = 0;
     //let plain_context = SymbolicContext::new(&bn).unwrap();
     for prop in static_props {
-        let formula = &prop.formula;
-        let tree = parse_and_minimize_fol_formula(formula, base_var_name)?;
-        let num_tree_vars = collect_unique_fol_vars(&tree).len();
+        let formula_tree = &prop.formula;
+        let num_tree_vars = formula_tree.collect_quantified_fol_vars().len();
         num_fol_vars = max(num_fol_vars, num_tree_vars);
     }
 
@@ -79,6 +76,7 @@ mod tests {
         get_fol_extended_symbolic_graph, prepare_graph_for_static_fol,
     };
     use crate::algorithms::eval_static::processed_props::ProcessedStatProp;
+    use crate::algorithms::fo_logic::parser::parse_and_minimize_fol_formula;
 
     #[test]
     /// Test automatic generation of symbolic context for FOL properties.
@@ -110,7 +108,8 @@ mod tests {
         assert_eq!(graph_fol_expected.unit_colors(), graph_fol.unit_colors());
 
         // test deriving FOL context automatically from property
-        let fol_prop = ProcessedStatProp::mk_fol("doesntmatter", "3 x: true");
+        let parsed_formula = parse_and_minimize_fol_formula("3 x: true", "a").unwrap();
+        let fol_prop = ProcessedStatProp::mk_fol("doesntmatter", parsed_formula);
         let property_list = vec![fol_prop];
         let graph_fol = prepare_graph_for_static_fol(&bn, &property_list, "a", None).unwrap();
         assert_eq!(graph_fol_expected.unit_colors(), graph_fol.unit_colors());

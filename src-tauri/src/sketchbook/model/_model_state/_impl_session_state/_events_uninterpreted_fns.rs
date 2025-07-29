@@ -10,7 +10,7 @@ use crate::sketchbook::event_utils::{
 };
 use crate::sketchbook::ids::UninterpretedFnId;
 use crate::sketchbook::model::{
-    Essentiality, FnArgument, ModelState, Monotonicity, UninterpretedFn,
+    Essentiality, FnArgumentProperty, ModelState, Monotonicity, UninterpretedFn,
 };
 use crate::sketchbook::properties::shortcuts::*;
 use crate::sketchbook::properties::StatProperty;
@@ -142,7 +142,7 @@ impl ModelState {
             .arguments
             .clone()
             .into_iter()
-            .map(|(m, e)| FnArgument::new(e, m))
+            .map(|(m, e)| FnArgumentProperty::new(e, m))
             .collect();
         self.add_uninterpreted_fn_by_str(
             &fn_data.id,
@@ -175,7 +175,7 @@ impl ModelState {
         let arity = 0;
         // start indexing at 1
         let fn_id = self.generate_uninterpreted_fn_id("fn", Some(1));
-        let uninterpreted_fn = UninterpretedFn::new_without_constraints(fn_id.as_str(), arity)?;
+        let uninterpreted_fn = UninterpretedFn::new_default(fn_id.as_str(), arity)?;
         let fn_data = UninterpretedFnData::from_fn(&fn_id, &uninterpreted_fn);
         self.add_empty_uninterpreted_fn_by_str(&fn_data.id, &fn_data.name, arity)?;
 

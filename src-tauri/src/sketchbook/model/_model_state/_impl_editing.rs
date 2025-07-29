@@ -2,8 +2,8 @@ use crate::sketchbook::data_structs::ModelData;
 use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::layout::Layout;
 use crate::sketchbook::model::{
-    Essentiality, FnArgument, ModelState, Monotonicity, Regulation, UninterpretedFn, UpdateFn,
-    Variable,
+    Essentiality, FnArgumentProperty, ModelState, Monotonicity, Regulation, UninterpretedFn,
+    UpdateFn, Variable,
 };
 use crate::sketchbook::utils::assert_ids_unique;
 use crate::sketchbook::Manager;
@@ -74,7 +74,7 @@ impl ModelState {
             let arguments = f
                 .arguments
                 .iter()
-                .map(|(m, e)| FnArgument::new(*e, *m))
+                .map(|(m, e)| FnArgumentProperty::new(*e, *m))
                 .collect();
             model.set_uninterpreted_fn_all_args_by_str(&f.id, arguments)?;
         }
@@ -115,7 +115,7 @@ impl ModelState {
     /// Returns `Err` in case the `id` is already being used.
     pub fn add_var(&mut self, var_id: VarId, name: &str, annot: &str) -> Result<(), String> {
         self.assert_no_variable(&var_id)?;
-        let variable = Variable::new_annotated(name, annot)?;
+        let variable = Variable::new(name)?.with_annotation(annot);
         self.variables.insert(var_id.clone(), variable);
         self.add_default_update_fn(var_id.clone())?;
         self.insert_to_all_layouts(var_id)?;
@@ -164,12 +164,15 @@ impl ModelState {
         &mut self,
         fn_id: UninterpretedFnId,
         name: &str,
-        arguments: Vec<FnArgument>,
+        arguments: Vec<FnArgumentProperty>,
         expression: &str,
         annot: &str,
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
-        let f = UninterpretedFn::new(name, annot, expression, arguments, self, &fn_id)?;
+        let f = UninterpretedFn::new_default(name, arguments.len())?
+            .with_annotation(annot)
+            .with_argument_properties(arguments)?
+            .with_expression(expression, self, &fn_id)?;
         self.uninterpreted_fns.insert(fn_id, f);
         Ok(())
     }
@@ -182,7 +185,7 @@ impl ModelState {
         &mut self,
         id: &str,
         name: &str,
-        arguments: Vec<FnArgument>,
+        arguments: Vec<FnArgumentProperty>,
         expression: &str,
         annot: &str,
     ) -> Result<(), String> {
@@ -202,10 +205,8 @@ impl ModelState {
         arity: usize,
     ) -> Result<(), String> {
         self.assert_no_uninterpreted_fn(&fn_id)?;
-        self.uninterpreted_fns.insert(
-            fn_id,
-            UninterpretedFn::new_without_constraints(name, arity)?,
-        );
+        self.uninterpreted_fns
+            .insert(fn_id, UninterpretedFn::new_default(name, arity)?);
         Ok(())
     }
 
@@ -605,11 +606,11 @@ impl ModelState {
     pub fn set_uninterpreted_fn_all_args(
         &mut self,
         fn_id: &UninterpretedFnId,
-        fn_arguments: Vec<FnArgument>,
+        fn_arguments: Vec<FnArgumentProperty>,
     ) -> Result<(), String> {
         self.assert_valid_uninterpreted_fn(fn_id)?;
         let uninterpreted_fn = self.uninterpreted_fns.get_mut(fn_id).unwrap();
-        uninterpreted_fn.set_all_arguments(fn_arguments)?;
+        uninterpreted_fn.set_all_argument_properties(fn_arguments)?;
         Ok(())
     }
 
@@ -617,7 +618,7 @@ impl ModelState {
     pub fn set_uninterpreted_fn_all_args_by_str(
         &mut self,
         id: &str,
-        fn_arguments: Vec<FnArgument>,
+        fn_arguments: Vec<FnArgumentProperty>,
     ) -> Result<(), String> {
         let fn_id = UninterpretedFnId::new(id)?;
         self.set_uninterpreted_fn_all_args(&fn_id, fn_arguments)
@@ -634,17 +635,17 @@ impl ModelState {
         self.assert_valid_uninterpreted_fn(original_id)?;
         self.assert_no_uninterpreted_fn(&new_id)?;
 
-        // all changes must be done directly, not through some helper fns, because the state
+        // All changes must be done directly, not through some helper fns, because the state
         // might not be consistent in between various deletions
 
-        // change key in uninterpreted functions hashmap
+        // Change key in uninterpreted functions hashmap
         if let Some(uninterpreted_fn) = self.uninterpreted_fns.remove(original_id) {
             self.uninterpreted_fns
                 .insert(new_id.clone(), uninterpreted_fn);
         }
 
-        // substitute id for this uninterpreted fn in all uninterpreted functions' expressions
-        // TODO: there may be more efficient way to do this
+        // Substitute id for this uninterpreted fn in all uninterpreted functions' expressions
+        // TODO: there may be a more efficient way to do this
         for fn_id in self.uninterpreted_fns.clone().keys() {
             let uninterpreted_fn = self.uninterpreted_fns.remove(fn_id).unwrap();
             let new_uninterpreted_fn =
@@ -653,7 +654,7 @@ impl ModelState {
                 .insert(fn_id.clone(), new_uninterpreted_fn);
         }
 
-        // substitute id for this uninterpreted fn in all update functions
+        // Substitute id for this uninterpreted fn in all update functions
         for var_id in self.variables.keys() {
             let update_fn = self.update_fns.remove(var_id).unwrap();
             let new_update_fn = UpdateFn::with_changed_fn_id(update_fn, original_id, &new_id, self);

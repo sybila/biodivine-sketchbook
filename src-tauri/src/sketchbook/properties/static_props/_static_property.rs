@@ -20,38 +20,40 @@ pub struct StatProperty {
 
 /// Creating static properties.
 impl StatProperty {
-    /// **(internal)** Shorthand to create a property given its already created internal
-    /// `StatPropertyType` data, name, and annotation.
-    fn new_raw(name: &str, variant: StatPropertyType, annotation: &str) -> StatProperty {
+    /// **(internal)** Shorthand to create a named property given fully prepared internal
+    /// `StatPropertyType` data. Annotation is left empty for now.
+    fn new_raw(name: &str, variant: StatPropertyType) -> StatProperty {
         StatProperty {
             name: name.to_string(),
-            annotation: annotation.to_string(),
+            annotation: String::new(),
             variant,
         }
     }
 
+    /// Update the `annotation` property.
+    pub fn with_annotation(mut self, annotation: &str) -> Self {
+        self.annotation = annotation.to_string();
+        self
+    }
+
     /// Create "generic" `StatProperty` instance directly from a formula, which must be in a
-    /// correct format (which is verified).
-    pub fn try_mk_generic(
-        name: &str,
-        raw_formula: &str,
-        annotation: &str,
-    ) -> Result<StatProperty, String> {
+    /// correct format (general FOL syntax is checked). Annotation is left empty for now.
+    pub fn try_mk_generic(name: &str, raw_formula: &str) -> Result<StatProperty, String> {
         let property = GenericStatProp {
             raw_formula: raw_formula.to_string(),
             processed_formula: FirstOrderFormula::try_from_str(raw_formula)?,
         };
         let variant = StatPropertyType::GenericStatProp(property);
-        Ok(Self::new_raw(name, variant, annotation))
+        Ok(Self::new_raw(name, variant))
     }
 
-    /// Create `StatProperty` instance describing that an input of an update function is essential.
+    /// Create `StatProperty` instance describing that an input of an update function is
+    /// essential. Annotation is left empty for now.
     pub fn mk_regulation_essential(
         name: &str,
         input: Option<VarId>,
         target: Option<VarId>,
         value: Essentiality,
-        annotation: &str,
     ) -> StatProperty {
         let property = RegulationEssential {
             input,
@@ -60,18 +62,17 @@ impl StatProperty {
             context: None,
         };
         let variant = StatPropertyType::RegulationEssential(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
-    /// Create `StatProperty` instance describing that an input of an update function is essential
-    /// in a certain context.
+    /// Create `StatProperty` instance describing that an input of an update function is
+    /// essential in a certain context. Annotation is left empty for now.
     pub fn mk_regulation_essential_context(
         name: &str,
         input: Option<VarId>,
         target: Option<VarId>,
         value: Essentiality,
         context: String,
-        annotation: &str,
     ) -> StatProperty {
         let property = RegulationEssential {
             input,
@@ -80,16 +81,16 @@ impl StatProperty {
             context: Some(context),
         };
         let variant = StatPropertyType::RegulationEssentialContext(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
-    /// Create `StatProperty` instance describing that an input of an update function is monotonic.
+    /// Create `StatProperty` instance describing that an input of an update function is
+    /// monotonic. Annotation is left empty for now.
     pub fn mk_regulation_monotonic(
         name: &str,
         input: Option<VarId>,
         target: Option<VarId>,
         value: Monotonicity,
-        annotation: &str,
     ) -> StatProperty {
         let property = RegulationMonotonic {
             input,
@@ -98,18 +99,17 @@ impl StatProperty {
             context: None,
         };
         let variant = StatPropertyType::RegulationMonotonic(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
-    /// Create `StatProperty` instance describing that an input of an update function is monotonic
-    /// in a certain context.
+    /// Create `StatProperty` instance describing that an input of an update function is
+    /// monotonic in a certain context. Annotation is left empty for now.
     pub fn mk_regulation_monotonic_context(
         name: &str,
         input: Option<VarId>,
         target: Option<VarId>,
         value: Monotonicity,
         context: String,
-        annotation: &str,
     ) -> StatProperty {
         let property = RegulationMonotonic {
             input,
@@ -118,17 +118,16 @@ impl StatProperty {
             context: Some(context),
         };
         let variant = StatPropertyType::RegulationMonotonicContext(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
-    /// is essential.
+    /// is essential. Annotation is left empty for now.
     pub fn mk_fn_input_essential(
         name: &str,
         input_index: Option<usize>,
         target: Option<UninterpretedFnId>,
         value: Essentiality,
-        annotation: &str,
     ) -> StatProperty {
         let property = FnInputEssential {
             input_index,
@@ -137,18 +136,17 @@ impl StatProperty {
             context: None,
         };
         let variant = StatPropertyType::FnInputEssential(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
-    /// is essential in a certain context.
+    /// is essential in a certain context. Annotation is left empty for now.
     pub fn mk_fn_input_essential_context(
         name: &str,
         input_index: Option<usize>,
         target: Option<UninterpretedFnId>,
         value: Essentiality,
         context: String,
-        annotation: &str,
     ) -> StatProperty {
         let property = FnInputEssential {
             input_index,
@@ -157,17 +155,16 @@ impl StatProperty {
             context: Some(context),
         };
         let variant = StatPropertyType::FnInputEssentialContext(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
-    /// is monotonic.
+    /// is monotonic. Annotation is left empty for now.
     pub fn mk_fn_input_monotonic(
         name: &str,
         input_index: Option<usize>,
         target: Option<UninterpretedFnId>,
         value: Monotonicity,
-        annotation: &str,
     ) -> StatProperty {
         let property = FnInputMonotonic {
             input_index,
@@ -176,18 +173,17 @@ impl StatProperty {
             context: None,
         };
         let variant = StatPropertyType::FnInputMonotonic(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create `StatProperty` instance describing that an input of an uninterpreted function
-    /// is monotonic in a certain context.
+    /// is monotonic in a certain context. Annotation is left empty for now.
     pub fn mk_fn_input_monotonic_context(
         name: &str,
         input_index: Option<usize>,
         target: Option<UninterpretedFnId>,
         value: Monotonicity,
         context: String,
-        annotation: &str,
     ) -> StatProperty {
         let property = FnInputMonotonic {
             input_index,
@@ -196,7 +192,7 @@ impl StatProperty {
             context: Some(context),
         };
         let variant = StatPropertyType::FnInputMonotonicContext(property);
-        Self::new_raw(name, variant, annotation)
+        Self::new_raw(name, variant)
     }
 
     /// Create default `StatProperty` instance of specified variant.
@@ -224,7 +220,7 @@ impl StatProperty {
 
     /// Create default "generic" `StatProperty` instance, representing "true" formula.
     pub fn default_generic() -> StatProperty {
-        Self::try_mk_generic("New generic static property", "true", "").unwrap()
+        Self::try_mk_generic("New generic static property", "true").unwrap()
     }
 
     /// Create default `StatProperty` instance for regulation essentiality (with empty `input` and
@@ -235,7 +231,6 @@ impl StatProperty {
             None,
             None,
             Essentiality::Unknown,
-            "",
         )
     }
 
@@ -248,7 +243,6 @@ impl StatProperty {
             None,
             Essentiality::Unknown,
             "true".to_string(),
-            "",
         )
     }
 
@@ -260,7 +254,6 @@ impl StatProperty {
             None,
             None,
             Monotonicity::Unknown,
-            "",
         )
     }
 
@@ -273,7 +266,6 @@ impl StatProperty {
             None,
             Monotonicity::Unknown,
             "true".to_string(),
-            "",
         )
     }
 
@@ -285,7 +277,6 @@ impl StatProperty {
             None,
             None,
             Essentiality::Unknown,
-            "",
         )
     }
 
@@ -298,7 +289,6 @@ impl StatProperty {
             None,
             Essentiality::Unknown,
             "true".to_string(),
-            "",
         )
     }
 
@@ -310,7 +300,6 @@ impl StatProperty {
             None,
             None,
             Monotonicity::Unknown,
-            "",
         )
     }
 
@@ -323,7 +312,6 @@ impl StatProperty {
             None,
             Monotonicity::Unknown,
             "true".to_string(),
-            "",
         )
     }
 }
@@ -625,7 +613,7 @@ impl StatProperty {
     /// Get ID of a static property that describes monotonicity of a regulation
     /// between `regulator` and `target`.
     pub fn get_reg_monotonicity_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
-        let id_str = format!("monotonicity_{}_{}", regulator, target);
+        let id_str = format!("monotonicity_{regulator}_{target}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
@@ -633,7 +621,7 @@ impl StatProperty {
     /// Get ID of a static property that describes essentiality of a regulation
     /// between `regulator` and `target`.
     pub fn get_reg_essentiality_prop_id(regulator: &VarId, target: &VarId) -> StatPropertyId {
-        let id_str = format!("essentiality_{}_{}", regulator, target);
+        let id_str = format!("essentiality_{regulator}_{target}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
@@ -644,7 +632,7 @@ impl StatProperty {
         fn_id: &UninterpretedFnId,
         index: usize,
     ) -> StatPropertyId {
-        let id_str = format!("fn_monotonicity_{}_{}", fn_id, index);
+        let id_str = format!("fn_monotonicity_{fn_id}_{index}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
@@ -655,7 +643,7 @@ impl StatProperty {
         fn_id: &UninterpretedFnId,
         index: usize,
     ) -> StatPropertyId {
-        let id_str = format!("fn_essentiality_{}_{}", fn_id, index);
+        let id_str = format!("fn_essentiality_{fn_id}_{index}");
         // this will always be a valid ID string, we can unwrap
         StatPropertyId::new(&id_str).unwrap()
     }
