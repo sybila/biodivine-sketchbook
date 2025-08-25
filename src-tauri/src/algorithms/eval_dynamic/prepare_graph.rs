@@ -24,8 +24,10 @@ use std::collections::HashMap;
 /// Note that some cases like trap spaces need different kind of symbolic context and
 /// graph, but this context is always the same and is easily handled during evaluation.
 ///
-/// Arg `unit` is optional unit BDD with potentially different symbolic context (can
-/// have different symbolic variables, but has the same bn vars and colors).
+/// Arg `unit` is optional unit BDD with potentially slightly different symbolic context (it
+/// can have different UNUSED symbolic variables, but has the same bn vars and colors).
+/// This can be useful for example when transfering between HCTL model checking and FOL
+/// checking contexts.
 pub fn prepare_graph_for_dynamic_hctl(
     bn: &BooleanNetwork,
     dyn_props: &Vec<ProcessedDynProp>,

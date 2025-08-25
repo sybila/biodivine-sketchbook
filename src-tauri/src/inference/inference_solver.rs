@@ -678,8 +678,7 @@ impl InferenceSolver {
         } else {
             // Let's convert all symbolic structs to the "pure" symbolic context (without any additional vars)
             // this is useful if we export the color BDD and want to reload it later
-            let current_context: &biodivine_lib_param_bn::symbolic_async_graph::SymbolicContext =
-                self.graph()?.symbolic_context();
+            let current_context = self.graph()?.symbolic_context();
             let pure_context = current_context.as_canonical_context();
             let current_sat_colors = self.graph()?.mk_unit_colors();
             let current_unit_bdd = current_sat_colors.as_bdd();

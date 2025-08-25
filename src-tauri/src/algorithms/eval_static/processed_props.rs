@@ -91,6 +91,7 @@ pub fn process_static_props(
                 if let Some(context_formula) = &prop.context {
                     formula = encode_property_in_context(context_formula, &formula);
                 }
+                // TODO: maybe we need to run the substitution here because of the context formula as well?
                 parse_and_minimize_fol_formula(&formula, base_var_name)?
             }
             StatPropertyType::RegulationMonotonic(prop)
@@ -108,6 +109,7 @@ pub fn process_static_props(
                 if let Some(context_formula) = &prop.context {
                     formula = encode_property_in_context(context_formula, &formula);
                 }
+                // TODO: maybe we need to run the substitution here because of the context formula as well?
                 parse_and_minimize_fol_formula(&formula, base_var_name)?
             }
             StatPropertyType::FnInputEssential(prop)

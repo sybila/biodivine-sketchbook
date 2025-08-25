@@ -65,6 +65,10 @@ impl ModelState {
     /// The resulting BN contains all the variables, parameters, and regulations, but it has
     /// empty update function expressions.
     ///
+    /// WARNING: If you want to create symbolic context for BN produced by this method, prune
+    /// unused parameters first with [BooleanNetwork::prune_unused_parameters]. That's because
+    /// there may (by design) be some unused function symbols which can apparently cause issues.
+    ///
     /// This kind of BN object can be used as a "context object" when we work with various
     /// logical expressions and need to verify that variables/functions are valid.
     pub fn to_bn_with_empty_updates(&self) -> BooleanNetwork {
@@ -77,6 +81,10 @@ impl ModelState {
     /// The resulting BN will not contain any variables or regulations of the original model,
     /// and all update functions will be empty. It will however contain all uninterpreted functions
     /// of this model as (unused) parameters.
+    ///
+    /// WARNING: If you want to create symbolic context for BN produced by this method, prune
+    /// unused parameters first with [BooleanNetwork::prune_unused_parameters]. That's because
+    /// there may (by design) be some unused function symbols which can apparently cause issues.
     ///
     /// This kind of BN object can be used as a "context object" when parsing function expressions
     /// into `FnTree` instances. Function expressions can contain the placeholder variables as
@@ -100,7 +108,11 @@ impl ModelState {
     /// the variables, regulations, update expressions and uninterpreted functions (as parameters).
     ///
     /// If some uninterpreted functions have specified expressions, they will be propagated into
-    /// update functions directly. This can make some parameters redundant (already substituted).
+    /// update functions directly. This can make some parameters redundant (once already substituted).
+    ///
+    /// WARNING: If you want to create symbolic context for BN produced by this method, prune
+    /// unused parameters first with [BooleanNetwork::prune_unused_parameters]. That's because
+    /// there may (by design) be some unused function symbols which can apparently cause issues.
     ///
     /// Note that currently the `BooleanNetwork` class does not support some features of the `ModelState`
     /// (such as the whole range of regulation types or properties of uninterpreted functions).
@@ -115,6 +127,10 @@ impl ModelState {
     /// functions).
     /// The types of regulations (both monotonicity and essentiality) are intentionally ignored. This
     /// is useful when we want to process regulation characteristics separately via static properties.
+    ///
+    /// WARNING: If you want to create symbolic context for BN produced by this method, prune
+    /// unused parameters first with [BooleanNetwork::prune_unused_parameters]. That's because
+    /// there may (by design) be some unused function symbols which can apparently cause issues.
     ///
     /// If some uninterpreted functions have specified expressions, they will be propagated into
     /// update functions directly. This can make some parameters redundant (already substituted).

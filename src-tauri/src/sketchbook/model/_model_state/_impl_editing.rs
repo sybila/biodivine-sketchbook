@@ -271,6 +271,20 @@ impl ModelState {
         Ok(())
     }
 
+    /// Add a new prepared `Regulation` to this `ModelState`.
+    ///
+    /// Returns `Err` when one of the variables is invalid, or the regulation between the two
+    /// variables already exists.
+    pub fn add_regulation_raw(&mut self, regulation: Regulation) -> Result<(), String> {
+        let regulator = regulation.get_regulator();
+        let target = regulation.get_target();
+        self.assert_valid_variable(regulator)?;
+        self.assert_valid_variable(target)?;
+        self.assert_no_regulation(regulator, target)?;
+        self.regulations.insert(regulation);
+        Ok(())
+    }
+
     /// Add a new `Regulation` to this `ModelState` using a string representation. The
     /// variables in the given string must be valid ID strings for this `ModelState`.
     ///
@@ -837,8 +851,8 @@ impl ModelState {
     }
 
     /// Add a new (pre-generated) `Layout` with given `id` to this `ModelState`, or update
-    /// existing if the `id` is already used. The layout must contain nodes for exactly all model's
-    /// variables.
+    /// existing if the `id` is already used. The layout must contain nodes for exactly all
+    /// model's variables.
     pub fn add_or_update_layout_raw(&mut self, id: LayoutId, layout: Layout) -> Result<(), String> {
         let model_vars: HashSet<_> = self.variables.keys().collect();
         let layout_vars: HashSet<_> = layout.layout_nodes().map(|(v, _)| v).collect();
@@ -848,6 +862,15 @@ impl ModelState {
 
         self.layouts.insert(id, layout);
         Ok(())
+    }
+
+    /// Set (fully update) the default layout to the new given state.
+    ///
+    /// It must contain exactly the same set of variables as the model.
+    /// Returns `Err` otherwise.
+    pub fn update_default_layout(&mut self, new_layout: Layout) -> Result<(), String> {
+        let default_layout_id = Self::get_default_layout_id();
+        self.add_or_update_layout_raw(default_layout_id, new_layout)
     }
 
     /// Add a new `Layout` with given `layout_id` and `name` to this `ModelState`. The layout

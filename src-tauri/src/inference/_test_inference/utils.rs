@@ -16,7 +16,7 @@ use std::sync::mpsc::{Receiver, Sender};
 /// variants are semantically same sketches (same variables, same set ofcandidates),
 /// they are just using different formalisms (properties of regulations vs properties
 /// of uninterpreted functions and so on). We have currently 2 such testing models.
-pub fn load_test_sketch(variant: usize) -> Sketch {
+pub(super) fn load_test_sketch(variant: usize) -> Sketch {
     let model_path = format!("../data/test_data/test_sketch_{variant}.json");
     let mut json_sketch_file = File::open(model_path).unwrap();
     let mut json_contents = String::new();
@@ -25,21 +25,28 @@ pub fn load_test_sketch(variant: usize) -> Sketch {
     Sketch::from_custom_json(&json_contents).unwrap()
 }
 
-/// Wrapper to create an inference solver, run the inference on a given sketch,
-/// and return results.
-pub fn run_inference(sketch: Sketch) -> InferenceResults {
+/// Wrapper to check sketch consistency, create an inference solver, run
+/// the inference on a given sketch, and return results.
+///
+/// See [run_inference_check_statuses] for details.
+pub(super) fn run_inference(sketch: Sketch) -> InferenceResults {
     run_inference_check_statuses(sketch, None)
 }
 
-/// Wrapper to create an inference solver, run the inference on a given sketch,
-/// and return results.
+/// Wrapper to run the full inference process:
+/// 1) check sketch consistency
+/// 2) create an inference solver
+/// 3) run the inference on a given sketch
+/// 4) and return results.
 ///
 /// Optionally, you can provide a number of expected status updates from the solver,
 /// and this function asserts that solver sends exactly this number of them.
-pub fn run_inference_check_statuses(
+pub(super) fn run_inference_check_statuses(
     sketch: Sketch,
     num_statuses: Option<usize>,
 ) -> InferenceResults {
+    assert!(sketch.assert_consistency().is_ok());
+
     let (send_channel, rec_channel): (Sender<String>, Receiver<String>) = mpsc::channel();
     let mut solver = InferenceSolver::new(send_channel);
     let results = solver.run_inference_modular(InferenceType::FullInference, sketch, true, true);
@@ -57,7 +64,7 @@ pub fn run_inference_check_statuses(
 
 /// Wrapper to apply an event, and if the result is `Consumed::Restart`, apply
 /// all the subsequent sub-events.
-pub fn apply_event_fully(sketch: &mut Sketch, event: &Event, at_path: &[&str]) {
+pub(super) fn apply_event_fully(sketch: &mut Sketch, event: &Event, at_path: &[&str]) {
     let result = sketch.perform_event(event, at_path).unwrap();
 
     if let Consumed::Restart(mut sub_events) = result {
@@ -73,7 +80,11 @@ pub fn apply_event_fully(sketch: &mut Sketch, event: &Event, at_path: &[&str]) {
 
 /// Wrapper to add a given dynamic property to the model, run the inference, and return
 /// the number of satisfying candidates.
-pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str: &str) -> u128 {
+pub(super) fn add_dyn_prop_and_infer(
+    mut sketch: Sketch,
+    property: DynProperty,
+    id_str: &str,
+) -> u128 {
     sketch
         .properties
         .add_dynamic_by_str(id_str, property)
@@ -84,7 +95,11 @@ pub fn add_dyn_prop_and_infer(mut sketch: Sketch, property: DynProperty, id_str:
 
 /// Wrapper to add a given static property to the model, run the inference, and return
 /// the number of satisfying candidates.
-pub fn add_stat_prop_and_infer(mut sketch: Sketch, property: StatProperty, id_str: &str) -> u128 {
+pub(super) fn add_stat_prop_and_infer(
+    mut sketch: Sketch,
+    property: StatProperty,
+    id_str: &str,
+) -> u128 {
     sketch
         .properties
         .add_static_by_str(id_str, property)

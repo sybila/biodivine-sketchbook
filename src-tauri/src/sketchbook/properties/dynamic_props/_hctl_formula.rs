@@ -117,9 +117,12 @@ impl HctlFormula {
     /// If you only want to also check the basic syntactic rules (ignoring potentially
     /// invalid propositions), check [Self::check_syntax].
     pub fn check_syntax_with_model(formula: &str, model: &ModelState) -> Result<(), String> {
-        // Create a simple bn object ignoring update fns. We need it just to check
-        // if all propositions in formula are valid variables.
+        // Create a simple bn object, ignoring all update fns. It will only be used as a context
+        // to check if all propositions in formula are valid variables.
         let bn = model.to_bn_with_empty_updates();
+        // Remove unused params to avoid integrity errors when creating symbolic context
+        // (lib_param_bn throws errors if there are unused parameters).
+        let bn = bn.prune_unused_parameters();
         let ctx = SymbolicContext::new(&bn)?;
 
         let res: Result<HctlTreeNode, String> =

@@ -615,7 +615,7 @@ mod tests {
 
     #[test]
     /// Test substitution of function symbols in `FolTreeNode`.
-    fn tree_substitute_fucntions() {
+    fn tree_substitute_functions() {
         // expression with fn symbols corresponding to some update fn
         let formula = parse_fol_formula("(f(A) & g(B))").unwrap();
 
