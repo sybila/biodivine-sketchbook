@@ -1,5 +1,7 @@
-use crate::inference::inference_solver::FinishedInferenceSolver;
 use crate::inference::update_fn_details::get_update_fn_variants;
+use crate::inference::{
+    inference_solver::FinishedInferenceSolver, refine_regulations::refine_regulatory_network,
+};
 use crate::sketchbook::Sketch;
 
 use std::fs::File;
@@ -12,10 +14,10 @@ use zip::write::{FileOptions, ZipWriter};
 ///
 /// The results archive include:
 /// - a summary report (basically information tracked by the `InferenceResults` struct)
+/// - BDD representation of the candidate set (e.g., BDD enocoding the satisfying colors)
+/// - a folder with admissible update function variants for each variable
 /// - original sketch in JSON format for replicability in Sketchbook
-/// - BDD with satisfying colors
-/// - a PSBN model derived from the sketch (in aeon format) that can be used as a context for the BDD
-/// - a folder with admissible update function variants per variable
+/// - a PSBN model derived from the original sketch (in aeon format) that can be used as a context for the BDD
 pub fn export_results(
     path: &str,
     finished_solver: &FinishedInferenceSolver,
@@ -61,6 +63,18 @@ pub fn export_results(
         let variants_content = variants.into_iter().collect::<Vec<_>>().join("\n");
         write_to_zip(&file_name, &mut zip_writer, variants_content)?;
     }
+
+    // TODO: This should probably be moved elsewhere. The computation of the refined
+    // regulatory network may take some time, so it should be precomputed during the inference directly?
+
+    // Write the refined regulatory network (the rest of the sketch here is empty)
+    let refined_model = refine_regulatory_network(finished_solver, original_sketch)?;
+    let refined_model_sketch = Sketch {
+        model: refined_model,
+        ..Default::default()
+    };
+    let refined_model_json = refined_model_sketch.to_custom_json();
+    write_to_zip("refined_network.json", &mut zip_writer, refined_model_json)?;
 
     zip_writer.finish().map_err(|e| format!("{e:?}"))?;
     Ok(())

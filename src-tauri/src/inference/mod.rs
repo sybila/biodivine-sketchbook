@@ -13,6 +13,8 @@ pub mod inference_state;
 pub mod inference_status;
 /// Enum with various supported inference types.
 pub mod inference_type;
+/// Utilities to refine regalutions according to the results.
+pub mod refine_regulations;
 /// Utilities to download results.
 pub mod results_export;
 /// Struct with details regarding candidate sampling.
