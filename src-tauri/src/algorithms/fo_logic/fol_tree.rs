@@ -429,7 +429,7 @@ impl FolTreeNode {
         self.validate_and_rename_recursive(var_base_name, HashMap::new(), 0)
     }
 
-    /// Internal recursive implementation of [FolTreeNode::validate_and_rename_vars]. 
+    /// Internal recursive implementation of [FolTreeNode::validate_and_rename_vars].
     /// See the public method for detailed comments.
     fn validate_and_rename_recursive(
         &self,
