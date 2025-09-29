@@ -421,20 +421,16 @@ impl FolTreeNode {
     ///
     /// Original instance is not modified, new updated struct is returned.
     ///
-    /// The format of variable names is given by how [SymbolicContext::with_extra_state_variables]
-    /// creates new extra variables. Basically, we choose a name of one BN variable (`var_base_name`),
-    /// and use it as a base for extra variables `{var_base_name}_extra_{index}` (index starts at 0).
+    /// The variable name format is given by how new extra symbolic variables are created in
+    /// `lib-param-bn` (see `SymbolicContext::with_extra_state_variables`).
+    /// Basically, we choose a name of one BN variable (`var_base_name`), and use it as a base
+    /// for extra variables `{var_base_name}_extra_{index}` (index starts at 0).
     pub fn validate_and_rename_vars(&self, var_base_name: &str) -> Result<FolTreeNode, String> {
         self.validate_and_rename_recursive(var_base_name, HashMap::new(), 0)
     }
 
-    /// Checks that all FOL variables in the formula's syntactic tree are quantified (exactly once),
-    /// and renames these variables to a pseudo-canonical form that will be used in BDDs.
-    /// It renames as many variables as possible to identical names, without affecting the semantics.
-    ///
-    /// The format of variable names is given by how [SymbolicContext::with_extra_state_variables]
-    /// creates new extra variables. Basically, we choose a name of one BN variable (`var_core_name`),
-    /// and it is used as a base for extra variables `{var_base_name}_extra_{index}`.
+    /// Internal recursive implementation of [FolTreeNode::validate_and_rename_vars]. 
+    /// See the public method for detailed comments.
     fn validate_and_rename_recursive(
         &self,
         var_base_name: &str,

@@ -15,7 +15,7 @@ use biodivine_lib_param_bn::symbolic_async_graph::{
     GraphColoredVertices, GraphColors, SymbolicAsyncGraph,
 };
 use biodivine_lib_param_bn::BooleanNetwork;
-use num_bigint::BigInt;
+use num_bigint::BigUint;
 use num_traits::ToPrimitive;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -304,7 +304,7 @@ impl InferenceSolver {
     /// This method only makes sense when the computation is already on the way.
     fn check_if_finished_unsat(&mut self, update_status: bool) -> Result<bool, String> {
         if let Ok(candidate_set) = self.current_candidate_colors() {
-            let unsat = candidate_set.exact_cardinality() == BigInt::from(0);
+            let unsat = candidate_set.exact_cardinality() == BigUint::ZERO;
             if update_status && unsat {
                 self.update_status(InferenceStatus::DetectedUnsat);
             }
@@ -534,7 +534,7 @@ impl InferenceSolver {
             // prepare a callback that will be used to report progress of the underlying model-checking computation
             let mut progress_callback = |colored_set: &GraphColoredVertices, msg: &str| {
                 // the progress message should contain BDD size info only when relevant
-                let msg = if colored_set.exact_cardinality() > BigInt::ZERO {
+                let msg = if colored_set.exact_cardinality() > BigUint::ZERO {
                     format!("{msg} Current BDD size: {}", colored_set.symbolic_size(),)
                 } else {
                     msg.to_string()

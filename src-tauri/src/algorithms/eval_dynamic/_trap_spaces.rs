@@ -54,7 +54,7 @@ pub fn compute_minimal_trap_spaces(
         ctx.mk_unit_colored_spaces(graph)
     };
 
-    TrapSpaces::minimal_symbolic(ctx, graph, &unit_set)
+    TrapSpaces::minimal_symbolic(ctx, graph, &unit_set, None)
 }
 
 /// Compute colors where each given observation corresponds to minimal trap spaces.
