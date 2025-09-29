@@ -19,8 +19,8 @@ pub use _state_app::AppState;
 pub use _state_atomic::AtomicState;
 //pub use _state_map::MapState;
 
-pub type DynSessionState = Box<(dyn SessionState + Send + 'static)>;
-pub type DynSession = Box<(dyn StackSession + Send + 'static)>;
+pub type DynSessionState = Box<dyn SessionState + Send + 'static>;
+pub type DynSession = Box<dyn StackSession + Send + 'static>;
 
 pub trait SessionState {
     /// Modify the session state using the provided `event`. The possible outcomes are

@@ -241,9 +241,12 @@ impl InferenceSolver {
         comp_time: u128,
         num_candidates: Option<String>,
     ) -> String {
-        let candidates_str = if num_candidates.is_some() & requires_candidate_num(status) {
-            let num = num_candidates.unwrap();
-            format!(" ({num} candidates)")
+        let candidates_str = if let Some(num) = num_candidates {
+            if requires_candidate_num(status) {
+                format!(" ({num} candidates)")
+            } else {
+                String::new()
+            }
         } else {
             String::new()
         };

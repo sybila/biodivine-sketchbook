@@ -186,7 +186,7 @@ impl Layout {
     }
 
     /// Return an iterator over all nodes of this layout.
-    pub fn layout_nodes(&self) -> LayoutNodeIterator {
+    pub fn layout_nodes(&self) -> LayoutNodeIterator<'_> {
         self.nodes.iter()
     }
 }

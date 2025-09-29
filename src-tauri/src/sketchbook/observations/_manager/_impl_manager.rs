@@ -325,7 +325,7 @@ impl ObservationManager {
     }
 
     /// Return an iterator over all datasets of this model.
-    pub fn datasets(&self) -> DatasetIterator {
+    pub fn datasets(&self) -> DatasetIterator<'_> {
         self.datasets.iter()
     }
 

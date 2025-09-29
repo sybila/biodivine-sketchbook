@@ -360,28 +360,28 @@ impl ModelState {
     }
 
     /// Return an iterator over all variables (with IDs) of this model.
-    pub fn variables(&self) -> VariableIterator {
+    pub fn variables(&self) -> VariableIterator<'_> {
         self.variables.iter()
     }
 
     /// Return an iterator over all update functions (with corresponding var IDs) of
     /// this model.
-    pub fn update_fns(&self) -> UpdateFnIterator {
+    pub fn update_fns(&self) -> UpdateFnIterator<'_> {
         self.update_fns.iter()
     }
 
     /// Return an iterator over all uninterpreted_fns (with IDs) of this model.
-    pub fn uninterpreted_fns(&self) -> UninterpretedFnIterator {
+    pub fn uninterpreted_fns(&self) -> UninterpretedFnIterator<'_> {
         self.uninterpreted_fns.iter()
     }
 
     /// Return an iterator over all regulations of this model.
-    pub fn regulations(&self) -> RegulationIterator {
+    pub fn regulations(&self) -> RegulationIterator<'_> {
         self.regulations.iter()
     }
 
     /// Return an iterator over all layouts (with IDs) of this model.
-    pub fn layouts(&self) -> LayoutIterator {
+    pub fn layouts(&self) -> LayoutIterator<'_> {
         self.layouts.iter()
     }
 

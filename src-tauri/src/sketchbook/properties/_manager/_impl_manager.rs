@@ -512,12 +512,12 @@ impl PropertyManager {
     }
 
     /// Return an iterator over all dynamic properties of this model.
-    pub fn dyn_props(&self) -> DynPropIterator {
+    pub fn dyn_props(&self) -> DynPropIterator<'_> {
         self.dyn_properties.iter()
     }
 
     /// Return an iterator over all dynamic properties of this model.
-    pub fn stat_props(&self) -> StatPropIterator {
+    pub fn stat_props(&self) -> StatPropIterator<'_> {
         self.stat_properties.iter()
     }
 

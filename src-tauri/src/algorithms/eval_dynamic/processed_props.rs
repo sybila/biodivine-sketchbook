@@ -257,7 +257,7 @@ fn process_dyn_prop_single(
             let no_missing_values = dataset
                 .observations()
                 .iter()
-                .all(|obs| (obs.num_unspecified_values() == 0));
+                .all(|obs| obs.num_unspecified_values() == 0);
             if no_missing_values && dataset.num_observations() > 2 {
                 // we can unwrap, since we checked no values are missing
                 ProcessedDynProp::mk_simple_trajectory(id.as_str(), dataset.clone()).unwrap()

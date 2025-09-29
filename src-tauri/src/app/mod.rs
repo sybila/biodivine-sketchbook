@@ -33,4 +33,4 @@ pub const DEFAULT_WINDOW_ID: &str = "editor";
 /// You can convert most standard "typed" errors into [DynError]. If you want to
 /// throw a general "runtime error" with no particular type, you can also use
 /// [AeonError] (see [AeonError::throw] and [AeonError::throw_with_source]).
-pub type DynError = Box<(dyn Error + 'static)>;
+pub type DynError = Box<dyn Error + 'static>;
