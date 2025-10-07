@@ -39,7 +39,9 @@ We provide pre-built binaries and installation files for the application in the 
 To start using Sketchbook, choose the latest release, download binary for your operating system - you choose between `.app` and `.dmg` for macOS, `.AppImage`, `.deb` and `.rpm` for Linux, or `.exe` and `.msi` for Windows.
 If you need a different pre-built binary for a specific platform, let us know!
 
-> Note that the binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/biodivine-sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
+> Note that on newer Linux distributions (Ubuntu 24 or Debian 13), some Tauri dependencies may not be supported by default. This does not affect the setup through `.AppImage` (as it bundles all dependencies inside). However, it may affect installation with the `.deb` package, where you need to first install `libwebkit2gtk-4.0`. See a solution for that at [this GitHub issue](https://github.com/tauri-apps/tauri/issues/9662#issuecomment-2604798408). This will be resolved once we switch to Tauri 2.
+
+> The binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/biodivine-sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
 
 Alternatively, if you want to build the tool locally, the instructions are provided in the Development guide below. Note that the local build requires additional dependencies to be installed.
 
@@ -58,7 +60,13 @@ First, make sure you have Rust and NPM installed. For Rust, we recommend followi
 
 On some Linux distributions, additional packages might be needed for developing with Tauri. We recommend checking the [setup instructions by Tauri](https://v1.tauri.app/v1/guides/getting-started/prerequisites/).
 
-> On newer Linux distributions (Ubuntu 24 or Debian 13), you may experience issues installing some of the Tauri dependencies. Check this [GitHub issue](https://github.com/tauri-apps/tauri/issues/9662) on how to solve potential problems. This will be resolved once we switch to Tauri 2.
+> As discussed in the previous section, some Tauri dependencies may no longer be supported by default in newer Linux distributions (Ubuntu 24 or Debian 13). You need to first install `libwebkit2gtk-4.0`, see a solution for that at [this GitHub issue](https://github.com/tauri-apps/tauri/issues/9662#issuecomment-2604798408) (also commented out below). This will be resolved once we switch to Tauri 2.
+
+[//]: <> (open file /etc/apt/sources.list)
+[//]: <> (insert new line deb http://archive.ubuntu.com/ubuntu jammy main universe)
+[//]: <> (sudo apt update)
+[//]: <> (sudo apt upgrade)
+[//]: <> (sudo apt install libwebkit2gtk-4.0-dev)
 
 The latest version of Sketchbook is developed and tested using the following versions:
 - npm 11.3.0 
