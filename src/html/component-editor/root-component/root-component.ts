@@ -48,6 +48,11 @@ export default class RootComponent extends LitElement {
       void this.#onErrorMessage(e)
     })
 
+    // warning event listener
+    aeonState.warning.warningReceived.addEventListener((e) => {
+      void this.#onWarningMessage(e)
+    })
+
     // tab bar event listeners
     aeonState.tabBar.active.addEventListener(this.#onSwitched.bind(this))
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
@@ -138,6 +143,14 @@ export default class RootComponent extends LitElement {
     await dialog.message(errorMessage, {
       type: 'error',
       title: 'Error'
+    })
+  }
+
+  /** Process warning message sent by backend, display warning dialog. */
+  async #onWarningMessage (warningMessage: string): Promise<void> {
+    await dialog.message(warningMessage, {
+      type: 'warning',
+      title: 'Warning'
     })
   }
 

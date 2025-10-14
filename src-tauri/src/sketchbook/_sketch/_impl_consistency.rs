@@ -20,6 +20,9 @@ impl Sketch {
     }
 
     /// General check that all components of the sketch are consistent together.
+    /// Returns a flag whether the sketch is consistent, a main message summarizing potential
+    /// major issues (or stating there are none), and a message with warnings. Warnings
+    /// are smaller issues that do not make sketch inconsistent, but may help users.
     ///
     /// Note that most of the general consistency (syntax of formulas, check validity and
     /// uniqueness of IDs, ..) is enforced automatically when editing the sketch. However,
@@ -32,9 +35,12 @@ impl Sketch {
     /// - check that various template properties reference valid variables and data
     /// - check that HCTL formulas only use valid variables as atomic propositions
     /// - check that FOL formulas only use valid function symbols
-    pub fn run_consistency_check(&self) -> (bool, String) {
+    pub fn run_consistency_check(&self) -> (bool, String, String) {
         let mut all_consitent = true;
-        let mut message = String::new();
+        let mut main_message = String::new();
+        // A message with less important issues, will be sent as warnings.
+        // Warnings do not affect overall consistency.
+        let mut warning_message = String::new();
 
         // we divide the code by different components to avoid replication
         let componets_results = vec![
@@ -44,24 +50,28 @@ impl Sketch {
             self.check_dynamic(),
         ];
 
-        for (consistent, sub_message) in componets_results {
+        for (consistent, sub_err_message, sub_warn_message) in componets_results {
             if !consistent {
-                message += sub_message.as_str();
-                message += "\n";
+                main_message += sub_err_message.as_str();
+                main_message += "\n";
                 all_consitent = false;
             }
+            if !sub_warn_message.is_empty() {
+                warning_message += sub_warn_message.as_str();
+                warning_message += "\n";
+            }
         }
-
-        (all_consitent, message)
+        (all_consitent, main_message, warning_message)
     }
 
     /// Part of the consistency check responsible for the 'model' component.
-    /// Returns bool (whether a model is consistent) and formated message with issues.
+    /// Returns bool (whether a model is consistent), a formated message with error issues,
+    /// and a separate message with warnings.
     ///
     /// We currently ensure that the network is not empty, there are no redundant (unused)
     /// function symbols, and that expressions of uninterpreted functions are not defined
     /// recursively.
-    fn check_model(&self) -> (bool, String) {
+    fn check_model(&self) -> (bool, String, String) {
         let mut consitent = true;
         let mut message = String::new();
         message += "MODEL:\n";
@@ -100,16 +110,22 @@ impl Sketch {
         // TODO: We can consider adding a check whether update fn expressions match regulation
         //       properties (essentially a partial check for some static properties)
 
-        (consitent, message)
+        // At the moment, there are no warnings here
+        (consitent, message, String::new())
     }
 
     /// Part of the consistency check responsible for the 'observations' (datasets) component.
-    /// Returns bool (whether datasets are consistent) and a formated message with issues.
+    /// Returns bool (whether datasets are consistent), a formated message with error issues,
+    /// and a separate message with warnings.
     ///
     /// Essentially, we currently check that variables in datasets and in the network exactly match.
-    fn check_datasets(&self) -> (bool, String) {
+    fn check_datasets(&self) -> (bool, String, String) {
         let mut message = String::new();
         message += "DATASETS:\n";
+
+        // Warning message with minor issues to warn user
+        // For now, this is just regarding unused datasets
+        let mut warnings = String::new();
 
         let mut dataset_err_found = false;
         for (dataset_id, dataset) in self.observations.datasets() {
@@ -137,13 +153,23 @@ impl Sketch {
                     dataset_err_found = true;
                 }
             }
+
+            // Check if the dataset is used within some dynamic prop, and if not, create
+            // warning
+            if !self.is_dataset_used(dataset_id) {
+                let warning =
+                    format!("Dataset {dataset_id} is not used in any dynamic properties.\n");
+                warnings += &warning;
+            }
         }
-        (!dataset_err_found, message)
+
+        (!dataset_err_found, message, warnings)
     }
 
     /// Part of the consistency check responsible for the 'static properties' component.
-    /// Returns bool (whether a static properties are consistent) and formated message with issues.
-    fn check_static(&self) -> (bool, String) {
+    /// Returns bool (whether a static properties are consistent), a formated message with error issues,
+    /// and a separate message with warnings.
+    fn check_static(&self) -> (bool, String, String) {
         let mut message = String::new();
         message += "STATIC PROPERTIES:\n";
 
@@ -154,12 +180,14 @@ impl Sketch {
                 stat_err_found = true;
             }
         }
-        (!stat_err_found, message)
+        // At the moment, there are no warnings here
+        (!stat_err_found, message, String::new())
     }
 
     /// Part of the consistency check responsible for the 'dynamic properties' component.
-    /// Returns bool (whether a dynamic properties are consistent) and formated message with issues.
-    fn check_dynamic(&self) -> (bool, String) {
+    /// Returns bool (whether a dynamic properties are consistent), a formated message with error issues,
+    /// and a separate message with warnings.
+    fn check_dynamic(&self) -> (bool, String, String) {
         let mut message = String::new();
         message += "DYNAMIC PROPERTIES:\n";
 
@@ -170,7 +198,8 @@ impl Sketch {
                 dyn_err_found = true;
             }
         }
-        (!dyn_err_found, message)
+        // At the moment, there are no warnings here
+        (!dyn_err_found, message, String::new())
     }
 
     /// Check if all fields of the static property are filled and have valid values.
@@ -393,6 +422,20 @@ impl Sketch {
             }
         }
         Ok(())
+    }
+
+    /// Check if the given dataset is used within any of the dyn properties.
+    /// We expect dataset ID is already checked as valid.
+    fn is_dataset_used(&self, dataset_id: &DatasetId) -> bool {
+        for (_, dyn_prop) in self.properties.dyn_props() {
+            // If property has dataset subfield and it is filled, we check it for match
+            if let Ok(Some(prop_dataset)) = dyn_prop.get_dataset() {
+                if &prop_dataset == dataset_id {
+                    return true;
+                }
+            }
+        }
+        false
     }
 }
 

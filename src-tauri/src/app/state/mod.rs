@@ -22,6 +22,11 @@ pub use _state_atomic::AtomicState;
 pub type DynSessionState = Box<dyn SessionState + Send + 'static>;
 pub type DynSession = Box<dyn StackSession + Send + 'static>;
 
+/// Wrapper to escape a string message and wrap it in quotes (in a crude way).
+fn escape_string_json(message: &str) -> String {
+    serde_json::Value::String(message.to_string()).to_string()
+}
+
 pub trait SessionState {
     /// Modify the session state using the provided `event`. The possible outcomes are
     /// described by [Consumed].
@@ -208,6 +213,25 @@ pub trait StackSession: SessionState {
                     reset,
                 } => {
                     state_changes.push(state_change);
+                    if reset {
+                        // We cannot reverse this event, but the rest can be reversed.
+                        reverse = None;
+                        reset_stack = true;
+                    }
+                }
+                Consumed::IrreversibleWithWarning {
+                    state_change,
+                    reset,
+                    warning,
+                } => {
+                    // Add the original state change event
+                    state_changes.push(state_change);
+
+                    // And also create new state change event with the warning
+                    let json_message = escape_string_json(&warning); // Excape the message in quotes.
+                    let warning_state_change = Event::build(&["warning"], Some(&json_message));
+                    state_changes.push(warning_state_change);
+
                     if reset {
                         // We cannot reverse this event, but the rest can be reversed.
                         reverse = None;

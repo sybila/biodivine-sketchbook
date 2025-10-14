@@ -84,6 +84,9 @@ fn handle_new_inference_session(
         events: vec![Event::build(&["sketch", "assert_consistency"], None)],
     };
     let consistency_res = state.consume_event(aeon, editor_session_id, &consistency_assert_event);
+
+    // TODO: also report on warnings regarding the consistency check (now ignored here)
+
     if let Err(e) = consistency_res {
         // If sketch was inconsistent, lets first send this event with a summary of issues to the frontend
         let consistency_check_event = UserAction {

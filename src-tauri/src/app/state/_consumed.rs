@@ -34,6 +34,14 @@ pub enum Consumed {
     /// if `reset=false`.
     Irreversible { state_change: Event, reset: bool },
 
+    /// The action was successfully consumed (same as [Consumed::Irreversible], but there
+    /// is an additional warning sent to the frontend.
+    IrreversibleWithWarning {
+        state_change: Event,
+        reset: bool,
+        warning: String,
+    },
+
     /// Action cannot be consumed as is and should be instead replaced by the provided
     /// list of events.
     ///
