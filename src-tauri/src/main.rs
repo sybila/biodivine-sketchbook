@@ -85,7 +85,7 @@ fn handle_new_inference_session(
     };
     let consistency_res = state.consume_event(aeon, editor_session_id, &consistency_assert_event);
 
-    // TODO: also report on warnings regarding the consistency check (now ignored here)
+    // TODO: do this more efficiently without running consistency check twice
 
     if let Err(e) = consistency_res {
         // If sketch was inconsistent, lets first send this event with a summary of issues to the frontend
@@ -106,6 +106,16 @@ fn handle_new_inference_session(
             "Sketch is not consistent. See detailed summary in the 'Consistency Check' section.";
         emit_error(state, editor_session_id, aeon, message);
     } else {
+        // First just re-run the consistency check to sent output (potential warning messages) to the
+        // frontend.
+        let consistency_check_event = UserAction {
+            events: vec![Event::build(&["sketch", "check_consistency"], None)],
+        };
+        // This event processing can't return error
+        state
+            .consume_event(aeon, editor_session_id, &consistency_check_event)
+            .unwrap();
+
         // If sketch is consistent, we are ready to create a new session.
         // 1) prepare session and window IDs, and save them to AppState
         let time_now = Utc::now();

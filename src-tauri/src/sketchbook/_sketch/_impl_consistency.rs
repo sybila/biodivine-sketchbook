@@ -158,7 +158,7 @@ impl Sketch {
             // warning
             if !self.is_dataset_used(dataset_id) {
                 let warning =
-                    format!("Dataset {dataset_id} is not used in any dynamic properties.\n");
+                    format!("Dataset `{dataset_id}` is not linked to any dynamic property.\n");
                 warnings += &warning;
             }
         }

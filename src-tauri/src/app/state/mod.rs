@@ -224,13 +224,13 @@ pub trait StackSession: SessionState {
                     reset,
                     warning,
                 } => {
-                    // Add the original state change event
-                    state_changes.push(state_change);
-
-                    // And also create new state change event with the warning
+                    // First add a new state change event with the warning
                     let json_message = escape_string_json(&warning); // Excape the message in quotes.
                     let warning_state_change = Event::build(&["warning"], Some(&json_message));
                     state_changes.push(warning_state_change);
+
+                    // And also add the original state change event
+                    state_changes.push(state_change);
 
                     if reset {
                         // We cannot reverse this event, but the rest can be reversed.
