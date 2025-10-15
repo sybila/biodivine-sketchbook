@@ -94,6 +94,13 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
           'border-style': 'solid'
         }
       },
+      {
+        selector: 'node.input-node',
+        style: {
+          // TODO
+          'background-color': '#add8e6'
+        }
+      },
       { // General style of the graph edge
         selector: 'edge',
         style: {

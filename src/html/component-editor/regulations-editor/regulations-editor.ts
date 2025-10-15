@@ -245,6 +245,16 @@ export class RegulationsEditor extends LitElement {
       e.target.removeClass('hover')
     })
 
+    this.cy.on('mouseover', 'node.input-node', (event) => {
+      console.log('Mouse over input node.', event.target.data())
+      // TODO
+    })
+
+    this.cy.on('mouseout', 'node.input-node', (event) => {
+      console.log('Mouse out of input node.', event.target.data())
+      // TODO
+    })
+
     // Once everything is ready, center and fit it
     this.cy.ready(() => {
       this.cy?.center()
@@ -380,9 +390,12 @@ export class RegulationsEditor extends LitElement {
 
   /** Add new variable node to a given position. */
   private addNode (id: string, name: string, annotation: string, position = { x: 0, y: 0 }): void {
+    // Check if node has no incoming edges (regulations)
+    const hasIncoming = this.contentData.regulations.some(reg => reg.target === id)
     this.cy?.add({
       data: { id, name, annotation },
-      position: { ...position }
+      position: { ...position },
+      classes: hasIncoming ? '' : 'input-node'
     })
   }
 
