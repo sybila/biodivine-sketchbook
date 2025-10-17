@@ -43,12 +43,25 @@ pub struct ProcessedObservation {
 
 /// Property requiring that observations in a particular dataset are trap spaces.
 /// The trap space might be required to be `minimal` or `non-percolable`.
+///
+/// If the user selected only a single observation, the dataset is filtereted into
+/// a singleton before creating this instance.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ProcessedTrapSpace {
     pub id: String,
     pub dataset: Dataset,
     pub minimal: bool,
     pub nonpercolable: bool,
+}
+
+/// Property requiring that observations in a particular dataset are fixed points.
+///
+/// If the user selected only a single observation, the dataset is filtereted into
+/// a singleton before creating this instance.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProcessedFixedPoint {
+    pub id: String,
+    pub dataset: Dataset,
 }
 
 /// Property requiring that the number of attractors falls into the range <minimal, maximal>.
@@ -77,6 +90,7 @@ pub enum ProcessedDynProp {
     ProcessedTrapSpace(ProcessedTrapSpace),
     ProcessedHctlFormula(ProcessedHctlFormula),
     ProcessedSimpleTrajectory(ProcessedSimpleTrajectory),
+    ProcessedFixedPoint(ProcessedFixedPoint),
     /// This one is just for sub-properties.
     ProcessedObservation(ProcessedObservation),
 }
@@ -101,7 +115,7 @@ impl ProcessedDynProp {
     }
 
     /// Create trap-space `ProcessedDynProp` instance.
-    /// To encode single observation, make a singleton dataset.
+    /// To encode single observation, provide a singleton dataset.
     pub fn mk_trap_space(
         id: &str,
         dataset: Dataset,
@@ -115,6 +129,16 @@ impl ProcessedDynProp {
             nonpercolable,
         };
         ProcessedDynProp::ProcessedTrapSpace(property)
+    }
+
+    /// Create fixed-point `ProcessedDynProp` instance.
+    /// To encode single observation, provide a singleton dataset.
+    pub fn mk_fixed_point(id: &str, dataset: Dataset) -> ProcessedDynProp {
+        let property = ProcessedFixedPoint {
+            id: id.to_string(),
+            dataset,
+        };
+        ProcessedDynProp::ProcessedFixedPoint(property)
     }
 
     /// Create attractor-count `ProcessedDynProp` instance.
@@ -163,6 +187,7 @@ impl ProcessedDynProp {
             ProcessedDynProp::ProcessedAttrCount(prop) => &prop.id,
             ProcessedDynProp::ProcessedTrapSpace(prop) => &prop.id,
             ProcessedDynProp::ProcessedSimpleTrajectory(prop) => &prop.id,
+            ProcessedDynProp::ProcessedFixedPoint(prop) => &prop.id,
             ProcessedDynProp::ProcessedObservation(prop) => &prop.id,
         }
     }
@@ -201,7 +226,7 @@ fn process_dyn_prop_single(
         DynPropertyType::AttractorCount(prop) => {
             ProcessedDynProp::mk_attr_count(id.as_str(), prop.minimal, prop.maximal)
         }
-        // handled as a special case
+        // trap spaces handled as a special case
         DynPropertyType::ExistsTrapSpace(prop) => {
             let dataset_id = prop.dataset.clone().unwrap();
             let mut dataset = sketch.observations.get_dataset(&dataset_id)?.clone();
@@ -221,17 +246,20 @@ fn process_dyn_prop_single(
             let sub_properties = process_wild_cards(&prop.wild_cards, sketch)?;
             ProcessedDynProp::mk_hctl(id.as_str(), prop.processed_formula.as_str(), sub_properties)
         }
-        // encode fixed-points HCTL formula
+        // fixed points handled as a special case
         DynPropertyType::ExistsFixedPoint(prop) => {
             // TODO: if we have whole dataset, instead of using conjunction, try encoding as multiple properties
             let dataset_id = prop.dataset.clone().unwrap();
-            let dataset = sketch.observations.get_dataset(&dataset_id)?;
-            let formula = encode_dataset_hctl_str(
-                dataset,
-                prop.observation.clone(),
-                DataEncodingType::FixedPoint,
-            )?;
-            ProcessedDynProp::mk_hctl(id.as_str(), &formula, Vec::new()) // no wild-cards
+            let mut dataset = sketch.observations.get_dataset(&dataset_id)?.clone();
+
+            // if we only want to encode single observation, lets restrict the dataset
+            if let Some(obs_id) = &prop.observation {
+                let observation = dataset.get_obs(obs_id)?.clone();
+                let var_names = dataset.variable_names();
+                let var_names_ref = var_names.iter().map(|v| v.as_str()).collect();
+                dataset = Dataset::new("fixed_point_data", vec![observation], var_names_ref)?;
+            }
+            ProcessedDynProp::mk_fixed_point(id.as_str(), dataset)
         }
         // encode attractors with HCTL formula
         DynPropertyType::HasAttractor(prop) => {

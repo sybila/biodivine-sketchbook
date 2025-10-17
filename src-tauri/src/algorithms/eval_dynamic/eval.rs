@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::algorithms::eval_dynamic::_attractors::sort_colors_by_attr_num;
+use crate::algorithms::eval_dynamic::_fixed_points::colors_where_fixed_points;
 use crate::algorithms::eval_dynamic::_trap_spaces::{
     colors_where_essential_traps, colors_where_minimal_traps,
 };
@@ -149,6 +150,14 @@ pub fn eval_dyn_prop<F: FnMut(&GraphColoredVertices, &str)>(
                 sat_colors = GraphColors::new(sat_colors_bdd, original_context)
             }
 
+            Ok(sat_colors)
+        }
+        ProcessedDynProp::ProcessedFixedPoint(prop) => {
+            let observations = prop.dataset.observations().clone();
+            let var_names = prop.dataset.variable_names();
+
+            progress_callback(initial, "Starting to compute fixed points.");
+            let sat_colors = colors_where_fixed_points(observations, &var_names, graph);
             Ok(sat_colors)
         }
         ProcessedDynProp::ProcessedSimpleTrajectory(prop) => {
