@@ -406,8 +406,11 @@ export class RegulationsEditor extends LitElement {
   private addNode (id: string, name: string, annotation: string, position = { x: 0, y: 0 }): void {
     // Check if node has no incoming edges (regulations)
     const hasIncoming = this.contentData.regulations.some(reg => reg.target === id)
+    // use circled-i '\u2139' (ℹ) as info icon
+    const infoIcon = '\u2139'
+    const displayName = hasIncoming ? name : `${name} (${infoIcon})` // name + ICON for input nodes
     this.cy?.add({
-      data: { id, name, annotation },
+      data: { id, name, displayName, annotation },
       position: { ...position },
       classes: hasIncoming ? '' : 'input-node'
     })

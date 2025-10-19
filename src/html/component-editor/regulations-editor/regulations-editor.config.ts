@@ -59,7 +59,7 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         selector: 'node[name]',
         style: {
           //
-          label: 'data(name)',
+          label: 'data(displayName)',
           // put label in the middle of the node (vertically)
           'text-valign': 'center',
           // a rectangle with slightly sloped edges
