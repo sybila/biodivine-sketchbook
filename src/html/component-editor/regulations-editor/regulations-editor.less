@@ -53,10 +53,10 @@
 .input-hint {
   position: absolute;
   /* This is to accommodate longer hints */
-  width: 27em;
-  min-height: 2em;
+  width: 23em;
+  min-height: 0.8em;
   height: auto;
-  border-radius: 8px;
+  border-radius: 7px;
   box-sizing: border-box;
   padding: 0.2em 0.2em;
   /* Ensure hint is in the middle */
@@ -80,17 +80,7 @@
     word-wrap: break-word; /* fallback */
     word-break: break-word;
     hyphens: auto;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .hint {
-      text-shadow: 0 2px 5px #000000;
-    }
-  }
-
-  @media (prefers-color-scheme: light) {
-    .hint {
-      text-shadow: 0 2px 5px #d0d0d0;
-    }
+    font-size: 13px;
+    line-height: 17px;
   }
 }

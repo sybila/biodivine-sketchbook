@@ -532,12 +532,9 @@ export class RegulationsEditor extends LitElement {
         <div class="input-hint help-message-block" style="left: ${this.hintPosition.x - (200 / 2) * this.hintZoom}px; 
                                       top: ${this.hintPosition.y + 30 * this.hintZoom}px; 
                                       transform: scale(${this.hintZoom})">
-          <span class="hint">Value of this node will be fixed in any interpretation. If you want both values possible, add essential self-activation.</span>
+          <span class="hint">This node has no regulators, so it can only take a single fixed value in any interpretation. To make it a proper input that can be fixed to either value, add essential self-activation.</span>
         </div>`
         )}
-
-        <input-hint .show=${this.showHint} .position=${this.hintPosition} .zoom=${this.hintZoom}
-                    .data=${this.hintData}></input-hint>
       </div>
       <button class="uk-button uk-button-small uk-button-secondary help-button" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
         ?
