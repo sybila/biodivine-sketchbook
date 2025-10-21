@@ -6,6 +6,7 @@ from pathlib import Path
 SOURCE_DIR = Path("src-tauri")
 BENCH_DIR = Path("data/benchmarks/")
 MODELS = ["celldivb", "eprotein", "nsp4", "etc", "interferon", "nsp9", "macrophage"]
+# MODELS = ["nsp9", "macrophage"]
 
 # Step 1: Compile Rust binaries
 print(">>>>>>>>>> COMPILE RUST BINARIES", flush=True)
@@ -28,7 +29,8 @@ for model in MODELS:
     
     model_dir = BENCH_DIR / model
     aeon_file = model_dir / f"{model}_sketch.aeon"
-    
+    # aeon_file = model_dir / f"{model}_sketch_v2.aeon"
+
     if not aeon_file.exists():
         print(f"File not found: {aeon_file}", file=sys.stderr, flush=True)
         continue
