@@ -17,7 +17,7 @@ In the provided `manual.pdf`, we discuss the details regarding
 - running BN inference in Sketchbook,
 - supported formats and syntax.
 
-The manual also provides a tutorial section showcasing Sketchbook on a simplified FGFR signalling model.
+The manual also provides a tutorial section showcasing Sketchbook on a simplified FGFR signalling model. Data for this tutorial can be found in `data/tutorial` subfolder.
 
 Furthermore, we give a short video introduction that you can find as `intro-video.mp4`.
 This introduction covers basics on how to edit an sketch and run the inference.

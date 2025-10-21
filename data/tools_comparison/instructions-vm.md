@@ -87,3 +87,16 @@ python3 run_performance_eval.py
 
 The results will be printed to the standard output (including the number of candidates and computation times).
 If you want to examine the models and pre-computed results, see `data/benchmarks` with all the details.
+
+#### Comparison with enumeration approach 
+
+To run Sketchbook performance benchmarking on the two models with large solution spaces, you can modify the `run_performance_eval.py` script. Simply uncomment lines 9 and 32, and you can run the modified Python script the same way as described above.
+
+To run this experiment BoNesis, first activate the Python virtual environment in the `bonesis` sub-folder as described above. Then go to `bonesis/larger_benchmarks` subfolder and use the `bonesis_experiment_large.py` script as follows (choose a solution limit). 
+
+```
+python3 bonesis_experiment_large.py ./nsp9/nsp9_sketch_v2.aeon ./nsp9/nsp9_dataset.csv --limit 10000
+python3 bonesis_experiment_large.py ./macrophage/macrophage_sketch_v2.aeon ./macrophage/macrophage_dataset.csv --limit 10000
+```
+
+You can examine the input files, and you can check precomputed results in `sketchbook-output.txt` and `bonesis-out.txt`.
