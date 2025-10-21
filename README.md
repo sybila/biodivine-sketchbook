@@ -13,12 +13,14 @@ Once you finish designing your sketch, you can run the state-of-the-art synthesi
 
 In the provided `manual.pdf`, we discuss the details regarding
 - installation,
-- editing BN sketches in Sketchbook,
+- designing model specification in Sketchbook,
 - running BN inference in Sketchbook,
 - supported formats and syntax.
 
-We also provide an introduction to Sketchbook using a short video tutorial that you can find as `tutorial.mp4`.
-This tutorial covers basics on how to edit an sketch and run the inference.
+The manual also provides a tutorial section showcasing Sketchbook on a simplified FGFR signalling model.
+
+Furthermore, we give a short video introduction that you can find as `intro-video.mp4`.
+This introduction covers basics on how to edit an sketch and run the inference.
 For more details and explanations, see the manual.
 
 The installation is also summarized below, with an additional development guide.

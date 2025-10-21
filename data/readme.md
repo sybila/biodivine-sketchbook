@@ -2,6 +2,7 @@ This folder contains various models, benchmarks, and datasets. The structure is 
 
 - `benchmarks` | Multiple sketches used for performance evaluation. Also contains expected output and metadata. Check `benchmarks/readme.md` for more details.
 - `real_cases` | Sketches and datasets relevant to cases studies on biological models and real datasets. Check `real_cases/readme.md` for more details.
+- `tutorial` | Tutorial model described in the tool's `Manual`. Contains the sketch file, resulting model, and a network screenshot.
 - `small_example` | An example sketch used to introduce the framework. Sketch is available in AEON and JSON format. We also provide results of the inference and the resulting sampled BN candidate.
 - `test_data` | Sketches and datasets for internal testing purposes, mainly to test importing and inference.
 - `tools_comparison` | Data and instructions for setup and comparison of various inference tools. We compare the tools on a task of inferring a BN model of sepal development in arabidopsis. More details in `tools_comparison/readme.md`.

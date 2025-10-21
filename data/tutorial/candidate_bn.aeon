@@ -1,0 +1,14 @@
+FRS2 -> ERK
+RAS -> ERK
+FGFR_stim -> FGFR3
+FRS2 -| FGFR3
+FGFR_stim -> FGFR_stim
+ERK -| FRS2
+FGFR3 -> FRS2
+FGFR3 -> RAS
+$ERK: RAS | FRS2
+$FGFR3: FGFR_stim & !FRS2
+$FGFR_stim: FGFR_stim
+$FRS2: !ERK & FGFR3
+$RAS: FGFR3
+
