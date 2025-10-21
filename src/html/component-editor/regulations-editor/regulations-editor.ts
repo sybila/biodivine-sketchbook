@@ -12,6 +12,7 @@ import { type Event as TauriEvent } from '@tauri-apps/api/event'
 import { ContentData, ElementType, type IRegulationData, type IVariableData } from '../../util/data-interfaces'
 import _ from 'lodash'
 import { aeonState } from '../../../aeon_state'
+import { when } from 'lit/directives/when.js'
 
 /** Component responsible for the regulations editor of the editor session. */
 @customElement('regulations-editor')
@@ -37,6 +38,12 @@ export class RegulationsEditor extends LitElement {
   /** The last visible width of the editor. Used to compensate
    * the camera position if the width changes. */
   @state() renderedWidth = 0
+
+  /** Details for potentially displayed input node hints. */
+  @state() showHint = false
+  @state() hintPosition = { x: 0, y: 0 }
+  @state() hintZoom = 1.0
+  @state() hintData: IRegulationData | IVariableData | undefined = undefined
 
   constructor () {
     super()
@@ -202,47 +209,64 @@ export class RegulationsEditor extends LitElement {
     this.cy.on('zoom', () => {
       this.renderMenuForSelectedNode()
       this.renderMenuForSelectedEdge()
+      this.toggleInputHint(false) // hide input hints
     })
     this.cy.on('pan', () => {
       this.renderMenuForSelectedNode()
       this.renderMenuForSelectedEdge()
+      this.toggleInputHint(false) // hide input hints
     })
     this.cy.on('dblclick', (e) => {
       if (e.target !== this.cy) return // dont trigger when mouse is over cy elements
       this.createVariable(e.position)
     })
     this.cy.on('mouseover', 'node', function (e) {
-      e.target.addClass('hover')
+      e.target.addClass('highlight')
     })
 
     this.cy.on('mouseover', 'node', (e) => {
-      e.target.addClass('hover')
+      e.target.addClass('highlight')
     })
     this.cy.on('mouseout', 'node', (e) => {
-      e.target.removeClass('hover')
+      e.target.removeClass('highlight')
     })
     this.cy.on('select', 'node', (e) => {
+      this.toggleInputHint(false) // hide hint messages
       this.renderMenuForSelectedNode(e.target)
     })
     this.cy.on('unselect', 'node', () => {
+      this.toggleInputHint(false) // hide hint messages
       this.toggleMenu(ElementType.NONE)
     })
     this.cy.on('drag', (e) => {
+      this.toggleInputHint(false) // hide hint messages
       if ((e.target as NodeSingular).selected()) this.renderMenuForSelectedNode(e.target)
       this.renderMenuForSelectedEdge()
     })
 
     this.cy.on('select', 'edge', (e) => {
+      this.toggleInputHint(false) // hide hint messages
       this.renderMenuForSelectedEdge(e.target)
     })
     this.cy.on('unselect', 'edge', () => {
+      this.toggleInputHint(false) // hide hint messages
       this.toggleMenu(ElementType.NONE) // hide menu
     })
     this.cy.on('mouseover', 'edge', (e) => {
-      e.target.addClass('hover')
+      e.target.addClass('highlight')
     })
     this.cy.on('mouseout', 'edge', (e) => {
-      e.target.removeClass('hover')
+      e.target.removeClass('highlight')
+    })
+
+    this.cy.on('mouseover', 'node.input-node', (event) => {
+      console.log('Mouse over input node.', event.target.data())
+      this.renderHintForInputNode(event.target)
+    })
+
+    this.cy.on('mouseout', 'node.input-node', (event) => {
+      console.log('Mouse out of input node.', event.target.data())
+      this.toggleInputHint(false)
     })
 
     // Once everything is ready, center and fit it
@@ -380,9 +404,15 @@ export class RegulationsEditor extends LitElement {
 
   /** Add new variable node to a given position. */
   private addNode (id: string, name: string, annotation: string, position = { x: 0, y: 0 }): void {
+    // Check if node has no incoming edges (regulations)
+    const hasIncoming = this.contentData.regulations.some(reg => reg.target === id)
+    // use circled-i '\u2139' (ℹ) as info icon
+    const infoIcon = '\u2139'
+    const displayName = hasIncoming ? name : `${name} (${infoIcon})` // name + ICON for input nodes
     this.cy?.add({
-      data: { id, name, annotation },
-      position: { ...position }
+      data: { id, name, displayName, annotation },
+      position: { ...position },
+      classes: hasIncoming ? '' : 'input-node'
     })
   }
 
@@ -406,6 +436,20 @@ export class RegulationsEditor extends LitElement {
     this.menuPosition = position ?? { x: 0, y: 0 }
     this.menuZoom = zoom
     this.menuData = data
+  }
+
+  /** Render hint message for the selected node. */
+  private renderHintForInputNode (node: NodeSingular): void {
+    const zoom = this.cy?.zoom()
+    const position = node.renderedPosition()
+    this.toggleInputHint(true, position, zoom, node.data())
+  }
+
+  private toggleInputHint (showHint: boolean, position: Position | undefined = undefined, zoom = 1.0, data = undefined): void {
+    this.showHint = showHint
+    this.hintPosition = position ?? { x: 0, y: 0 }
+    this.hintZoom = zoom
+    this.hintData = data
   }
 
   private ensureRegulation (regulation: IRegulationData): void {
@@ -484,6 +528,13 @@ export class RegulationsEditor extends LitElement {
         ${this.editorElement}
         <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
                     .data=${this.menuData}></float-menu>
+        ${when(this.showHint, () => html`
+        <div class="input-hint help-message-block" style="left: ${this.hintPosition.x - (200 / 2) * this.hintZoom}px; 
+                                      top: ${this.hintPosition.y + 30 * this.hintZoom}px; 
+                                      transform: scale(${this.hintZoom})">
+          <span class="hint">This node has no regulators, so it can only take a single fixed value in any interpretation. To make it a proper input that can be fixed to either value, add essential self-activation.</span>
+        </div>`
+        )}
       </div>
       <button class="uk-button uk-button-small uk-button-secondary help-button" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
         ?

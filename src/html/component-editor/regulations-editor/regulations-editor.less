@@ -49,3 +49,38 @@
   right: 0;
   bottom: 0;
 }
+
+.input-hint {
+  position: absolute;
+  /* This is to accommodate longer hints */
+  width: 23em;
+  min-height: 0.8em;
+  height: auto;
+  border-radius: 7px;
+  box-sizing: border-box;
+  padding: 0.2em 0.2em;
+  /* Ensure hint is in the middle */
+  text-align: center;
+  /* Ensures the zoom is properly applied when needed */
+  transform-origin: 0 0;
+  /* We don't animate other stuff because that needs to be in sync with the graph */
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.92;
+
+  .hint {
+    display: block;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    user-select: none;
+    /* allow wrapping on multiple lines */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-wrap: break-word; /* fallback */
+    word-break: break-word;
+    hyphens: auto;
+    font-size: 13px;
+    line-height: 17px;
+  }
+}

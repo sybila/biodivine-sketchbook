@@ -14,6 +14,8 @@ pub mod utils;
 
 /// Internal algorithms for attractor computation (adapted from AEON).
 mod _attractors;
+/// Internal algorithms for fixed point computation (wrappers for lib-param-bn).
+mod _fixed_points;
 /// Internal algorithms for some cases of reachability computation.
 mod _trajectory;
 /// Internal algorithms for trap space computation (adapted from lib-param-bn).

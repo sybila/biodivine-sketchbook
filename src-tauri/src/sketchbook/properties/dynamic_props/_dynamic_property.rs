@@ -311,6 +311,20 @@ impl DynProperty {
         &self.variant
     }
 
+    /// Get property's sub-field `dataset` if present. If not present, return `Err`.
+    pub fn get_dataset(&self) -> Result<Option<DatasetId>, String> {
+        match &self.variant {
+            DynPropertyType::ExistsFixedPoint(prop) => Ok(prop.dataset.clone()),
+            DynPropertyType::ExistsTrapSpace(prop) => Ok(prop.dataset.clone()),
+            DynPropertyType::ExistsTrajectory(prop) => Ok(prop.dataset.clone()),
+            DynPropertyType::HasAttractor(prop) => Ok(prop.dataset.clone()),
+            // Other cases do not have a dataset field
+            other_variant => Err(format!(
+                "{other_variant:?} does not have a field `dataset`."
+            )),
+        }
+    }
+
     /// Check that the property has all required fields filled out. That is just the `dataset`
     /// in most cases at the moment.
     /// If some of the required field is set to None, return error.

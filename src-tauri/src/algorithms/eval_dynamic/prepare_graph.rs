@@ -71,6 +71,8 @@ pub fn count_num_hctl_vars_single(
         ProcessedDynProp::ProcessedAttrCount(..) => 0,
         // no need for any additional variables for a simple trajectory property
         ProcessedDynProp::ProcessedSimpleTrajectory(..) => 0,
+        // no need for any additional variables for a fixed point property
+        ProcessedDynProp::ProcessedFixedPoint(..) => 0,
         // this one is handled entirely later during evaluation
         ProcessedDynProp::ProcessedTrapSpace(..) => 0,
         // no need for any additional variables for an observation sub-property

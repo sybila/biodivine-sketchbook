@@ -59,7 +59,7 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
         selector: 'node[name]',
         style: {
           //
-          label: 'data(name)',
+          label: 'data(displayName)',
           // put label in the middle of the node (vertically)
           'text-valign': 'center',
           // a rectangle with slightly sloped edges
@@ -92,6 +92,13 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
           'border-width': '2.0px',
           'border-color': '#6a7ea5',
           'border-style': 'solid'
+        }
+      },
+      {
+        selector: 'node.input-node',
+        style: {
+          // TODO
+          'background-color': '#add8e6'
         }
       },
       { // General style of the graph edge

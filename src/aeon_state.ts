@@ -513,6 +513,12 @@ interface AeonState {
     errorReceived: Observable<string>
   }
 
+  /** The information about warning occurring when processing events on backend. */
+  warning: {
+    /** Generic warning, with a message provided by backend. */
+    warningReceived: Observable<string>
+  }
+
   /** Events for creating new sessions. */
   new_session: {
     /** Create a new inference session. */
@@ -561,6 +567,9 @@ export const aeonState: AeonState = {
   },
   error: {
     errorReceived: new Observable<string>(['error'])
+  },
+  warning: {
+    warningReceived: new Observable<string>(['warning'])
   },
   new_session: {
     createNewInferenceSession (): void {

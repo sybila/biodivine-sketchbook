@@ -1,0 +1,45 @@
+FRS2 -> ERK
+FGFR3 -> FRS2
+FGFR_stim -> FGFR3
+FGFR_stim -> FGFR_stim
+ERK -| FRS2
+RAS -> ERK
+FRS2 -| FGFR3
+FGFR3 -> RAS
+$ERK: f(FRS2, RAS)
+$FGFR3: FGFR_stim & !FRS2
+$FRS2: g(ERK, FGFR3)
+$RAS: FGFR3
+#position:FGFR3:-29.900528,-134.78008
+#position:FRS2:75.05169,-135.18256
+#position:RAS:72.50556,-45.04952
+#position:FGFR_stim:-149.82674,-134.5128
+#position:ERK:171.97955,-137.51465
+#!dataset:dataset_1:#`{"name":"Long-term ERK stabilities","id":"dataset_1","annotation":"","observations":[{"id":"obs_1","name":"Active ERK","annotation":"","dataset":"dataset_1","values":"1****"},{"id":"obs_2","name":"Inactive ERK","annotation":"","dataset":"dataset_1","values":"0****"}],"variables":["ERK","FGFR3","FRS2","RAS","FGFR_stim"]}`#
+#!dataset:dataset_2:#`{"name":"Transient ERK pulse","id":"dataset_2","annotation":"","observations":[{"id":"obs_1","name":"Start","annotation":"","dataset":"dataset_2","values":"0****"},{"id":"obs_2","name":"ERK pulse","annotation":"","dataset":"dataset_2","values":"1****"},{"id":"obs_3","name":"Deactivation","annotation":"","dataset":"dataset_2","values":"0****"}],"variables":["ERK","FGFR3","FRS2","RAS","FGFR_stim"]}`#
+#!dynamic_property:dynamic_1:#`{"id":"dynamic_1","name":"Fixed point with active ERK","annotation":"","variant":"ExistsFixedPoint","dataset":"dataset_1","observation":"obs_1"}`#
+#!dynamic_property:dynamic_2:#`{"id":"dynamic_2","name":"Fixed point with inactive ERK","annotation":"","variant":"ExistsFixedPoint","dataset":"dataset_1","observation":"obs_2"}`#
+#!dynamic_property:dynamic_3:#`{"id":"dynamic_3","name":"Transient ERK trajectory","annotation":"","variant":"ExistsTrajectory","dataset":"dataset_2"}`#
+#!function:f:#`{"id":"f","name":"fn_1","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:g:#`{"id":"g","name":"fn_1","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!static_property:essentiality_ERK_FRS2:#`{"id":"essentiality_ERK_FRS2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"ERK","target":"FRS2","value":"True","context":null}`#
+#!static_property:essentiality_FGFR3_FRS2:#`{"id":"essentiality_FGFR3_FRS2","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FGFR3","target":"FRS2","value":"True","context":null}`#
+#!static_property:essentiality_FGFR3_RAS:#`{"id":"essentiality_FGFR3_RAS","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FGFR3","target":"RAS","value":"True","context":null}`#
+#!static_property:essentiality_FGFR_stim_FGFR3:#`{"id":"essentiality_FGFR_stim_FGFR3","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FGFR_stim","target":"FGFR3","value":"True","context":null}`#
+#!static_property:essentiality_FGFR_stim_FGFR_stim:#`{"id":"essentiality_FGFR_stim_FGFR_stim","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FGFR_stim","target":"FGFR_stim","value":"True","context":null}`#
+#!static_property:essentiality_FRS2_ERK:#`{"id":"essentiality_FRS2_ERK","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FRS2","target":"ERK","value":"True","context":null}`#
+#!static_property:essentiality_FRS2_FGFR3:#`{"id":"essentiality_FRS2_FGFR3","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"FRS2","target":"FGFR3","value":"True","context":null}`#
+#!static_property:essentiality_RAS_ERK:#`{"id":"essentiality_RAS_ERK","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"RAS","target":"ERK","value":"True","context":null}`#
+#!static_property:monotonicity_ERK_FRS2:#`{"id":"monotonicity_ERK_FRS2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"ERK","target":"FRS2","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_FGFR3_FRS2:#`{"id":"monotonicity_FGFR3_FRS2","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FGFR3","target":"FRS2","value":"Activation","context":null}`#
+#!static_property:monotonicity_FGFR3_RAS:#`{"id":"monotonicity_FGFR3_RAS","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FGFR3","target":"RAS","value":"Activation","context":null}`#
+#!static_property:monotonicity_FGFR_stim_FGFR3:#`{"id":"monotonicity_FGFR_stim_FGFR3","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FGFR_stim","target":"FGFR3","value":"Activation","context":null}`#
+#!static_property:monotonicity_FGFR_stim_FGFR_stim:#`{"id":"monotonicity_FGFR_stim_FGFR_stim","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FGFR_stim","target":"FGFR_stim","value":"Activation","context":null}`#
+#!static_property:monotonicity_FRS2_ERK:#`{"id":"monotonicity_FRS2_ERK","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FRS2","target":"ERK","value":"Activation","context":null}`#
+#!static_property:monotonicity_FRS2_FGFR3:#`{"id":"monotonicity_FRS2_FGFR3","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"FRS2","target":"FGFR3","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_RAS_ERK:#`{"id":"monotonicity_RAS_ERK","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"RAS","target":"ERK","value":"Activation","context":null}`#
+#!variable:ERK:#`{"id":"ERK","name":"ERK","annotation":"","update_fn":"f(FRS2, RAS)"}`#
+#!variable:FGFR3:#`{"id":"FGFR3","name":"FGFR3","annotation":"","update_fn":"FGFR_stim & !FRS2"}`#
+#!variable:FGFR_stim:#`{"id":"FGFR_stim","name":"FGFR_stim","annotation":"","update_fn":""}`#
+#!variable:FRS2:#`{"id":"FRS2","name":"FRS2","annotation":"","update_fn":"g(ERK, FGFR3)"}`#
+#!variable:RAS:#`{"id":"RAS","name":"RAS","annotation":"","update_fn":"FGFR3"}`#

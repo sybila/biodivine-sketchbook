@@ -138,20 +138,32 @@ impl SessionState for Sketch {
                 reset: true,
             })
         } else if Self::starts_with(CHECK_CONSISTENCY_PATH, at_path).is_some() {
-            let (success, message) = self.run_consistency_check();
+            let (success, main_message, warn_message) = self.run_consistency_check();
             let results = if success {
-                "No issues with the sketch were discovered!".to_string()
+                "No major issues with the sketch were discovered!".to_string()
             } else {
-                format!("There are issues with the sketch:\n\n{message}")
+                format!("There are major issues with the sketch:\n\n{main_message}")
             };
 
             let payload = serde_json::to_string(&results).unwrap();
             let state_change = Event::build(&["sketch", "consistency_results"], Some(&payload));
-            // irreversible change that should just bypass the stack (not reset it)
-            Ok(Consumed::Irreversible {
-                state_change,
-                reset: false,
-            })
+
+            // Result is an irreversible event that just bypasses the stack (but does not reset it)
+            // We sent the state change with or without warning message, depending if its empty
+            if warn_message.is_empty() {
+                Ok(Consumed::Irreversible {
+                    state_change,
+                    reset: false,
+                })
+            } else {
+                let warning =
+                    format!("There are potential minor issues with the sketch. Consider fixing them before running the inference. \n\n{warn_message}");
+                Ok(Consumed::IrreversibleWithWarning {
+                    state_change,
+                    reset: false,
+                    warning,
+                })
+            }
         } else if Self::starts_with(GET_NUM_PSBN_PARAMS_PATH, at_path).is_some() {
             let num_params = self.get_num_parameters();
             let payload = serde_json::to_string(&num_params).unwrap();
@@ -177,7 +189,8 @@ impl SessionState for Sketch {
 
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(ASSERT_CONSISTENCY_PATH, at_path).is_some() {
-            // this is a "synthetic" event that either returns an error, or Consumed::NoChange
+            // This is a "synthetic" event that either returns an error, or Consumed::NoChange
+            // Use `CHECK_CONSISTENCY_PATH` to also send detailed message to frontend
             self.assert_consistency()?;
             Ok(Consumed::NoChange)
         } else {

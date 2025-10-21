@@ -1,0 +1,15 @@
+Loaded PSBN from .\nsp9\nsp9_sketch_v2.aeon
+Loaded 2 observations from .\nsp9\nsp9_dataset.csv
+Time to process inputs: 52ms
+Grounding...done in 0.1s
+There are 10000 candidate networks (max limit was set to 10000).
+Total time elapsed: 1895ms
+
+==============
+
+Loaded PSBN from .\macrophage\macrophage_sketch.aeon
+Loaded 1 observations from .\macrophage\macrophage_dataset.csv
+Time to process inputs: 40ms
+Grounding...done in 0.1s
+There are 10000 candidate networks (max limit was set to 10000).
+Total time elapsed: 4583ms

@@ -47,6 +47,11 @@ export default class AnalysisComponent extends LitElement {
       void this.#onErrorMessage(e)
     })
 
+    // warning event listener
+    aeonState.warning.warningReceived.addEventListener((e) => {
+      void this.#onWarningMessage(e)
+    })
+
     // underlying sketch data updated (should only happen at the beginning)
     aeonState.analysis.sketchRefreshed.addEventListener((sketch) => {
       void this.#onSketchRefreshed(sketch)
@@ -93,6 +98,14 @@ export default class AnalysisComponent extends LitElement {
     await dialog.message(errorMessage, {
       type: 'error',
       title: 'Error'
+    })
+  }
+
+  /** Process warning message sent by backend, display warning dialog. */
+  async #onWarningMessage (warningMessage: string): Promise<void> {
+    await dialog.message(warningMessage, {
+      type: 'warning',
+      title: 'Warning'
     })
   }
 
