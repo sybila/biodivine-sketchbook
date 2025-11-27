@@ -15,9 +15,9 @@ impl ObservationManager {
     pub fn parse_dataset_from_csv(name: &str, csv_content: &str) -> Result<Dataset, String> {
         let mut rdr = csv::Reader::from_reader(csv_content.as_bytes());
 
-        // parse variable names from the header
+        // parse variable names from the header (and strip whitespaces)
         let header = rdr.headers().map_err(|e| e.to_string())?.clone();
-        let variables = header.into_iter().skip(1).collect::<Vec<&str>>().clone();
+        let variables = header.iter().skip(1).map(|s| s.trim()).collect();
 
         // parse all rows as observations
         let mut observations = Vec::new();
@@ -26,11 +26,11 @@ impl ObservationManager {
             if record.is_empty() {
                 return Err("Cannot import empty observation.".to_string());
             }
-            let id: &str = record.get(0).unwrap();
+            let id: &str = record.get(0).unwrap().trim(); // trim the ID
             let values: Vec<VarValue> = record
                 .iter()
                 .skip(1)
-                .map(VarValue::from_str)
+                .map(|s| VarValue::from_str(s.trim()))
                 .collect::<Result<Vec<VarValue>, String>>()?;
             let observation = Observation::new(values, id)?;
             observations.push(observation);
@@ -62,7 +62,7 @@ mod tests {
     use crate::sketchbook::observations::{Dataset, Observation};
 
     #[test]
-    fn test_dataset_to_csv_string() {
+    fn test_dataset_from_csv_string() {
         // Prepare expected dataset
         let obs1 = Observation::try_from_str("*11", "obs1").unwrap();
         let obs2 = Observation::try_from_str("000", "obs2").unwrap();
@@ -72,7 +72,8 @@ mod tests {
         let expected_dataset = Dataset::new(dataset_name, obs_list, var_names).unwrap();
 
         // Parse the dataset from CSV string and compare the two
-        let csv_string = "ID,a,b,c\nobs1,*,1,1\nobs2,0,0,0\n";
+        // Include white spaces that should be handled automatically
+        let csv_string = "ID , a , b , c \n obs1 , * , 1 , 1 \n obs2 , 0 , 0 , 0 \n";
         let parsed_dataset =
             ObservationManager::parse_dataset_from_csv(dataset_name, csv_string).unwrap();
         assert_eq!(parsed_dataset, expected_dataset);
