@@ -1,8 +1,8 @@
 Scripts and data for testing that Sketchbook and BoNesis compute the same results.
 
 The benchmarks are selected so that:
-- We can enumerate all results with BoNesis and compare exhaustively.
-- Properties fall into the subset that BoNesis can process (we chose fixed points and universal fixed points)
+- Small enough so we can enumerate all results with BoNesis and compare exhaustively.
+- Dynamic properties fall into the subset that BoNesis can process (we chose fixed points and universal fixed points)
 - The input PSBNs have monotone functions (BoNesis cant currently work with non-monotone uninterpreted functions)
 
 You'll need to install `bonesis` and `biodivine_aeon` Python libraries. Simply follow the BoNesis installation instructions in the main `instructions-vm.md` of the parent directory.
@@ -14,3 +14,5 @@ python .\compare_sketchbook_bonesis.py "arabidopsis/results_universal_fps.zip" "
 ```
 
 Or use `python .\compare_sketchbook_bonesis.py -h` for usage help.
+
+Be careful since BoNesis struggles with processing more complex update function expressions. It uses a simple syntax check for monotonicity - positive regulators must not be negated in update functions, and the other way around. This means it sometimes cannot directly process standard valid logical expressions used in .aeon files, but they need to be simplified first (into equivalent but simpler form).

@@ -17,6 +17,10 @@ name = "run-inference"
 path = "src/bin/run_inference.rs"
 
 [[bin]]
+name = "run-fixed-point-inference"
+path = "src/bin/run_fixed_point_inference.rs"
+
+[[bin]]
 name = "biodivine-sketchbook"
 path = "src/main.rs"
 
