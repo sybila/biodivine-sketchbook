@@ -1,0 +1,8 @@
+ID,v_Cdc20,v_Cdh1,v_CycA,v_CycB,v_CycD,v_CycE,v_E2F,v_Rb1,v_Rb2,v_Skp2,v_UbcH10,v_p27_1_b1,v_p27_1_b2,v_p27_2
+Observation1,0,1,0,0,0,0,0,1,1,0,0,0,0,0
+Observation2,0,1,0,0,0,0,0,1,1,0,0,0,1,0
+Observation3,0,1,0,0,0,0,0,1,1,0,0,1,0,1
+Observation4,0,1,0,0,0,0,0,1,1,0,0,1,1,1
+Observation5,0,1,0,0,1,1,1,1,0,1,0,1,1,0
+Observation6,0,1,1,0,0,0,0,1,1,0,0,1,0,1
+Observation7,0,1,1,0,0,0,0,1,1,0,0,1,1,1

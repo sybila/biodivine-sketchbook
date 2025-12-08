@@ -1,0 +1,5 @@
+ID,v_Eve_b1,v_Eve_b2,v_Eve_b3,v_Ftz_b1,v_Ftz_b2,v_Odd,v_Ppa,v_Prd_b1,v_Prd_b2,v_Run,v_Slp
+Observation1,0,0,0,0,0,0,1,1,0,1,1
+Observation2,0,0,0,0,0,1,1,0,0,0,0
+Observation3,1,0,0,1,1,0,1,1,0,1,0
+Observation4,1,1,1,0,0,0,0,1,1,0,0

@@ -1,0 +1,11 @@
+ID,v_Aop,v_CNK,v_Drk,v_Dsor1,v_Ksr,v_Pnt,v_Pvf1,v_Pvf2,v_Pvf3,v_Pvr,v_Raf,v_Ras,v_Rl,v_Sos,v_Src42,v_Sty,v_Targets,v_msk
+Observation1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+Observation2,1,0,1,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1
+Observation3,1,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,1
+Observation4,1,1,1,0,0,0,0,0,1,1,0,1,0,1,1,0,0,1
+Observation5,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,0,0,1
+Observation6,1,1,1,0,0,0,0,0,1,1,0,1,0,1,1,0,0,0
+Observation7,1,0,1,0,0,0,0,0,1,1,0,0,0,1,1,1,0,0
+Observation8,1,0,1,0,1,0,0,0,1,1,0,0,0,1,0,1,0,1
+Observation9,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,0,0,1
+Observation10,1,0,1,0,0,0,0,1,0,1,0,0,0,1,1,1,0,0

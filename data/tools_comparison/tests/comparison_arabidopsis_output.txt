@@ -1,0 +1,33 @@
+> python3 ./compare_sketchbook_bonesis.py "arabidopsis/results_universal_fps.zip" "arabidopsis/sketch.aeon" "arabidopsis/dataset.csv" --universal_fps
+Processing Sketchbook results...
+Loaded raw Sketchbook results from zip: ColorSet(cardinality=48352, symbolic_size=569)
+Extracted 48352 Sketchbook candidate networks.
+
+Computing BoNesis results...
+Grounding...done in 0.0s
+Extracted 48352 BoNesis candidate networks.
+
+Comparing the results...
+Networks in both: 48352
+Networks only in Sketchbook: 0
+Networks only in Bonesis: 0
+
+Results match exactly!
+
+
+# ===========================================
+> python3 ./compare_sketchbook_bonesis.py "arabidopsis/results.zip" "arabidopsis/sketch.aeon" "arabidopsis/dataset.csv"
+Processing Sketchbook results...
+Loaded raw Sketchbook results from zip: ColorSet(cardinality=439296, symbolic_size=79)
+Extracted 439296 Sketchbook candidate networks.
+
+Computing BoNesis results...
+Grounding...done in 0.0s
+Extracted 439296 BoNesis candidate networks.
+
+Comparing the results...
+Networks in both: 439296
+Networks only in Sketchbook: 0
+Networks only in Bonesis: 0
+
+Results match exactly!

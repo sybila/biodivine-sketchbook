@@ -1,0 +1,750 @@
+> python ./run_compare_all.py test_bbm_benchmarks/
+
+Found 41 Sketchbook result files
+
+[1/41] Comparing model_0_5v_0i_14r_CORTICAL-AREA-DEVELOPMENT
+  Sketchbook: model_0_5v_0i_14r_CORTICAL-AREA-DEVELOPMENT.zip
+  Model: model_0_5v_0i_14r_CORTICAL-AREA-DEVELOPMENT.aeon
+  Data: model_0_5v_0i_14r_CORTICAL-AREA-DEVELOPMENT.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=324, symbolic_size=59)
+    Extracted 324 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 324 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 324
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[2/41] Comparing model_10_10v_3i_22r_LAC-OPERON
+  Sketchbook: model_10_10v_3i_22r_LAC-OPERON.zip
+  Model: model_10_10v_3i_22r_LAC-OPERON.aeon
+  Data: model_10_10v_3i_22r_LAC-OPERON.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=16)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[3/41] Comparing model_11_9v_4i_18r_REGULATION-OF-L-ARABINOSE-OPERON
+  Sketchbook: model_11_9v_4i_18r_REGULATION-OF-L-ARABINOSE-OPERON.zip
+  Model: model_11_9v_4i_18r_REGULATION-OF-L-ARABINOSE-OPERON.aeon
+  Data: model_11_9v_4i_18r_REGULATION-OF-L-ARABINOSE-OPERON.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=20)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[4/41] Comparing model_12_6v_0i_11r_MIR-9-NEUROGENESIS
+  Sketchbook: model_12_6v_0i_11r_MIR-9-NEUROGENESIS.zip
+  Model: model_12_6v_0i_11r_MIR-9-NEUROGENESIS.aeon
+  Data: model_12_6v_0i_11r_MIR-9-NEUROGENESIS.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=21)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[5/41] Comparing model_13_12v_4i_58r_MAPK-REDUCED-3
+  Sketchbook: model_13_12v_4i_58r_MAPK-REDUCED-3.zip
+  Model: model_13_12v_4i_58r_MAPK-REDUCED-3.aeon
+  Data: model_13_12v_4i_58r_MAPK-REDUCED-3.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=7, symbolic_size=31)
+    Extracted 7 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 7 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 7
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[6/41] Comparing model_14_9v_1i_27r_FISSION-YEAST-2008
+  Sketchbook: model_14_9v_1i_27r_FISSION-YEAST-2008.zip
+  Model: model_14_9v_1i_27r_FISSION-YEAST-2008.aeon
+  Data: model_14_9v_1i_27r_FISSION-YEAST-2008.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=5, symbolic_size=28)
+    Extracted 5 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 5 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 5
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[7/41] Comparing model_15_11v_3i_42r_DROSOPHILA-CELL-CYCLE
+  Sketchbook: model_15_11v_3i_42r_DROSOPHILA-CELL-CYCLE.zip
+  Model: model_15_11v_3i_42r_DROSOPHILA-CELL-CYCLE.aeon
+  Data: model_15_11v_3i_42r_DROSOPHILA-CELL-CYCLE.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=16)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[8/41] Comparing model_16_5v_0i_15r_ASYMMETRIC-CELL-DIVISION-A
+  Sketchbook: model_16_5v_0i_15r_ASYMMETRIC-CELL-DIVISION-A.zip
+  Model: model_16_5v_0i_15r_ASYMMETRIC-CELL-DIVISION-A.aeon
+  Data: model_16_5v_0i_15r_ASYMMETRIC-CELL-DIVISION-A.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=21)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[9/41] Comparing model_17_9v_0i_12r_ASYMMETRIC-CELL-DIVISION-B
+  Sketchbook: model_17_9v_0i_12r_ASYMMETRIC-CELL-DIVISION-B.zip
+  Model: model_17_9v_0i_12r_ASYMMETRIC-CELL-DIVISION-B.aeon
+  Data: model_17_9v_0i_12r_ASYMMETRIC-CELL-DIVISION-B.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=17)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[10/41] Comparing model_18_13v_6i_21r_JNK-PATHWAY
+  Sketchbook: model_18_13v_6i_21r_JNK-PATHWAY.zip
+  Model: model_18_13v_6i_21r_JNK-PATHWAY.aeon
+  Data: model_18_13v_6i_21r_JNK-PATHWAY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=14)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[11/41] Comparing model_19_7v_14i_24r_TGFB-PATHWAY
+  Sketchbook: model_19_7v_14i_24r_TGFB-PATHWAY.zip
+  Model: model_19_7v_14i_24r_TGFB-PATHWAY.aeon
+  Data: model_19_7v_14i_24r_TGFB-PATHWAY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=12)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[12/41] Comparing model_1_14v_2i_20r_NEUROTRANSMITTER-SIGNALING-PATHWAY
+  Sketchbook: model_1_14v_2i_20r_NEUROTRANSMITTER-SIGNALING-PATHWAY.zip
+  Model: model_1_14v_2i_20r_NEUROTRANSMITTER-SIGNALING-PATHWAY.aeon
+  Data: model_1_14v_2i_20r_NEUROTRANSMITTER-SIGNALING-PATHWAY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=19)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[13/41] Comparing model_20_11v_5i_44r_BUDDING-YEAST-EXIT-MODULE
+  Sketchbook: model_20_11v_5i_44r_BUDDING-YEAST-EXIT-MODULE.zip
+  Model: model_20_11v_5i_44r_BUDDING-YEAST-EXIT-MODULE.aeon
+  Data: model_20_11v_5i_44r_BUDDING-YEAST-EXIT-MODULE.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=28, symbolic_size=39)
+    Extracted 28 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.1s
+    Extracted 28 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 28
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[14/41] Comparing model_21_12v_2i_62r_AGS-CELL-FATE-DECISION-REDUCED
+  Sketchbook: model_21_12v_2i_62r_AGS-CELL-FATE-DECISION-REDUCED.zip
+  Model: model_21_12v_2i_62r_AGS-CELL-FATE-DECISION-REDUCED.aeon
+  Data: model_21_12v_2i_62r_AGS-CELL-FATE-DECISION-REDUCED.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=21)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[15/41] Comparing model_22_7v_0i_30r_LAMBDA-PHAGE-LYSOGENY
+  Sketchbook: model_22_7v_0i_30r_LAMBDA-PHAGE-LYSOGENY.zip
+  Model: model_22_7v_0i_30r_LAMBDA-PHAGE-LYSOGENY.aeon
+  Data: model_22_7v_0i_30r_LAMBDA-PHAGE-LYSOGENY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=14, symbolic_size=31)
+    Extracted 14 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 14 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 14
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[16/41] Comparing model_23_10v_8i_40r_DROSOPHILA-DPP-PATHWAY
+  Sketchbook: model_23_10v_8i_40r_DROSOPHILA-DPP-PATHWAY.zip
+  Model: model_23_10v_8i_40r_DROSOPHILA-DPP-PATHWAY.aeon
+  Data: model_23_10v_8i_40r_DROSOPHILA-DPP-PATHWAY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=25)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[17/41] Comparing model_24_4v_4i_16r_EGGSHELL-PATTERNING-PHENOMOENOLOGICAL
+  Sketchbook: model_24_4v_4i_16r_EGGSHELL-PATTERNING-PHENOMOENOLOGICAL.zip
+  Model: model_24_4v_4i_16r_EGGSHELL-PATTERNING-PHENOMOENOLOGICAL.aeon
+  Data: model_24_4v_4i_16r_EGGSHELL-PATTERNING-PHENOMOENOLOGICAL.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=14)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[18/41] Comparing model_25_7v_12i_36r_DROSOPHILA-JAK-STAT-PATHWAY
+  Sketchbook: model_25_7v_12i_36r_DROSOPHILA-JAK-STAT-PATHWAY.zip
+  Model: model_25_7v_12i_36r_DROSOPHILA-JAK-STAT-PATHWAY.aeon
+  Data: model_25_7v_12i_36r_DROSOPHILA-JAK-STAT-PATHWAY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=18)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[19/41] Comparing model_26_7v_6i_26r_DROSOPHILA-NOTCH-PATHWAY
+  Sketchbook: model_26_7v_6i_26r_DROSOPHILA-NOTCH-PATHWAY.zip
+  Model: model_26_7v_6i_26r_DROSOPHILA-NOTCH-PATHWAY.aeon
+  Data: model_26_7v_6i_26r_DROSOPHILA-NOTCH-PATHWAY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=12)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[20/41] Comparing model_27_5v_2i_17r_DROSOPHILA-GAP-A
+  Sketchbook: model_27_5v_2i_17r_DROSOPHILA-GAP-A.zip
+  Model: model_27_5v_2i_17r_DROSOPHILA-GAP-A.aeon
+  Data: model_27_5v_2i_17r_DROSOPHILA-GAP-A.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=15)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[21/41] Comparing model_28_4v_3i_15r_DROSOPHILA-GAP-B
+  Sketchbook: model_28_4v_3i_15r_DROSOPHILA-GAP-B.zip
+  Model: model_28_4v_3i_15r_DROSOPHILA-GAP-B.aeon
+  Data: model_28_4v_3i_15r_DROSOPHILA-GAP-B.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=12)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[22/41] Comparing model_29_5v_2i_20r_DROSOPHILA-GAP-C
+  Sketchbook: model_29_5v_2i_20r_DROSOPHILA-GAP-C.zip
+  Model: model_29_5v_2i_20r_DROSOPHILA-GAP-C.aeon
+  Data: model_29_5v_2i_20r_DROSOPHILA-GAP-C.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=27)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[23/41] Comparing model_2_14v_3i_29r_BODY-SEGMENTATION-IN-DROSOPHILA-2013
+  Sketchbook: model_2_14v_3i_29r_BODY-SEGMENTATION-IN-DROSOPHILA-2013.zip
+  Model: model_2_14v_3i_29r_BODY-SEGMENTATION-IN-DROSOPHILA-2013.aeon
+  Data: model_2_14v_3i_29r_BODY-SEGMENTATION-IN-DROSOPHILA-2013.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=24)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[24/41] Comparing model_30_5v_2i_12r_DROSOPHILA-GAP-D
+  Sketchbook: model_30_5v_2i_12r_DROSOPHILA-GAP-D.zip
+  Model: model_30_5v_2i_12r_DROSOPHILA-GAP-D.aeon
+  Data: model_30_5v_2i_12r_DROSOPHILA-GAP-D.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=28, symbolic_size=38)
+    Extracted 28 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 28 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 28
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[25/41] Comparing model_31_11v_1i_36r_MORPHOGENETIC-CHECKPOINT
+  Sketchbook: model_31_11v_1i_36r_MORPHOGENETIC-CHECKPOINT.zip
+  Model: model_31_11v_1i_36r_MORPHOGENETIC-CHECKPOINT.aeon
+  Data: model_31_11v_1i_36r_MORPHOGENETIC-CHECKPOINT.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=9, symbolic_size=29)
+    Extracted 9 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 9 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 9
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[26/41] Comparing model_32_12v_1i_59r_MULTILEVEL-CELL-CYCLE
+  Sketchbook: model_32_12v_1i_59r_MULTILEVEL-CELL-CYCLE.zip
+  Model: model_32_12v_1i_59r_MULTILEVEL-CELL-CYCLE.aeon
+  Data: model_32_12v_1i_59r_MULTILEVEL-CELL-CYCLE.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=162, symbolic_size=55)
+    Extracted 162 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 162 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 162
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[27/41] Comparing model_33_12v_2i_59r_BOOLEAN-CELL-CYCLE
+  Sketchbook: model_33_12v_2i_59r_BOOLEAN-CELL-CYCLE.zip
+  Model: model_33_12v_2i_59r_BOOLEAN-CELL-CYCLE.aeon
+  Data: model_33_12v_2i_59r_BOOLEAN-CELL-CYCLE.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=28, symbolic_size=45)
+    Extracted 28 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 28 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 28
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[28/41] Comparing model_34_5v_1i_15r_P53-MDM2-NETWORK
+  Sketchbook: model_34_5v_1i_15r_P53-MDM2-NETWORK.zip
+  Model: model_34_5v_1i_15r_P53-MDM2-NETWORK.aeon
+  Data: model_34_5v_1i_15r_P53-MDM2-NETWORK.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=72, symbolic_size=52)
+    Extracted 72 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 72 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 72
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[29/41] Comparing model_35_12v_3i_34r_CHICKEN-SEX-DETERMINATION
+  Sketchbook: model_35_12v_3i_34r_CHICKEN-SEX-DETERMINATION.zip
+  Model: model_35_12v_3i_34r_CHICKEN-SEX-DETERMINATION.aeon
+  Data: model_35_12v_3i_34r_CHICKEN-SEX-DETERMINATION.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=25)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[30/41] Comparing model_36_7v_3i_25r_CHICKEN-SEX-DETERMINATION-REDUCED
+  Sketchbook: model_36_7v_3i_25r_CHICKEN-SEX-DETERMINATION-REDUCED.zip
+  Model: model_36_7v_3i_25r_CHICKEN-SEX-DETERMINATION-REDUCED.aeon
+  Data: model_36_7v_3i_25r_CHICKEN-SEX-DETERMINATION-REDUCED.csv
+
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=16)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[31/41] Comparing model_37_13v_6i_55r_MAMMAL-SEX-DETERMINATION-1-CELL
+  Sketchbook: model_37_13v_6i_55r_MAMMAL-SEX-DETERMINATION-1-CELL.zip
+  Model: model_37_13v_6i_55r_MAMMAL-SEX-DETERMINATION-1-CELL.aeon
+  Data: model_37_13v_6i_55r_MAMMAL-SEX-DETERMINATION-1-CELL.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=4, symbolic_size=29)
+    Extracted 4 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.1s
+    Extracted 4 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 4
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[32/41] Comparing model_38_5v_1i_13r_TRP-BIOSYNTHESIS
+  Sketchbook: model_38_5v_1i_13r_TRP-BIOSYNTHESIS.zip
+  Model: model_38_5v_1i_13r_TRP-BIOSYNTHESIS.aeon
+  Data: model_38_5v_1i_13r_TRP-BIOSYNTHESIS.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=25)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[33/41] Comparing model_39_11v_0i_48r_PAIR-RULE-MODULE
+  Sketchbook: model_39_11v_0i_48r_PAIR-RULE-MODULE.zip
+  Model: model_39_11v_0i_48r_PAIR-RULE-MODULE.aeon
+  Data: model_39_11v_0i_48r_PAIR-RULE-MODULE.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=14, symbolic_size=39)
+    Extracted 14 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 14 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 14
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[34/41] Comparing model_3_10v_8i_18r_VEGF-PATHWAY-OF-DROSOPHILA
+  Sketchbook: model_3_10v_8i_18r_VEGF-PATHWAY-OF-DROSOPHILA.zip
+  Model: model_3_10v_8i_18r_VEGF-PATHWAY-OF-DROSOPHILA.aeon
+  Data: model_3_10v_8i_18r_VEGF-PATHWAY-OF-DROSOPHILA.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=12)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[35/41] Comparing model_40_15v_0i_36r_HEMATOPOIESIS-AGING
+  Sketchbook: model_40_15v_0i_36r_HEMATOPOIESIS-AGING.zip
+  Model: model_40_15v_0i_36r_HEMATOPOIESIS-AGING.aeon
+  Data: model_40_15v_0i_36r_HEMATOPOIESIS-AGING.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=23)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[36/41] Comparing model_4_9v_0i_19r_CELL-CYCLE-TRANSCRIPTION
+  Sketchbook: model_4_9v_0i_19r_CELL-CYCLE-TRANSCRIPTION.zip
+  Model: model_4_9v_0i_19r_CELL-CYCLE-TRANSCRIPTION.aeon
+  Data: model_4_9v_0i_19r_CELL-CYCLE-TRANSCRIPTION.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=4, symbolic_size=18)
+    Extracted 4 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 4 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 4
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[37/41] Comparing model_5_11v_5i_46r_BT474-BREAST-CELL-LINE-SHORT-TERM
+  Sketchbook: model_5_11v_5i_46r_BT474-BREAST-CELL-LINE-SHORT-TERM.zip
+  Model: model_5_11v_5i_46r_BT474-BREAST-CELL-LINE-SHORT-TERM.aeon
+  Data: model_5_11v_5i_46r_BT474-BREAST-CELL-LINE-SHORT-TERM.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=7, symbolic_size=26)
+    Extracted 7 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 7 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 7
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[38/41] Comparing model_6_11v_5i_46r_HCC1954-BREAST-CELL-LINE-SHORT-TERM
+  Sketchbook: model_6_11v_5i_46r_HCC1954-BREAST-CELL-LINE-SHORT-TERM.zip
+  Model: model_6_11v_5i_46r_HCC1954-BREAST-CELL-LINE-SHORT-TERM.aeon
+  Data: model_6_11v_5i_46r_HCC1954-BREAST-CELL-LINE-SHORT-TERM.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=6, symbolic_size=26)
+    Extracted 6 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 6 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 6
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[39/41] Comparing model_7_11v_5i_41r_SKBR3-BREAST-CELL-LINE-SHORT-TERM
+  Sketchbook: model_7_11v_5i_41r_SKBR3-BREAST-CELL-LINE-SHORT-TERM.zip
+  Model: model_7_11v_5i_41r_SKBR3-BREAST-CELL-LINE-SHORT-TERM.aeon
+  Data: model_7_11v_5i_41r_SKBR3-BREAST-CELL-LINE-SHORT-TERM.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=2, symbolic_size=17)
+    Extracted 2 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 2 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 2
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[40/41] Comparing model_8_14v_10i_48r_TOL-REGULATORY-NETWORK
+  Sketchbook: model_8_14v_10i_48r_TOL-REGULATORY-NETWORK.zip
+  Model: model_8_14v_10i_48r_TOL-REGULATORY-NETWORK.aeon
+  Data: model_8_14v_10i_48r_TOL-REGULATORY-NETWORK.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=14)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+[41/41] Comparing model_9_12v_6i_78r_CD4-T-CELL-DIFFERENTIATION-AND-PLASTICITY
+  Sketchbook: model_9_12v_6i_78r_CD4-T-CELL-DIFFERENTIATION-AND-PLASTICITY.zip
+  Model: model_9_12v_6i_78r_CD4-T-CELL-DIFFERENTIATION-AND-PLASTICITY.aeon
+  Data: model_9_12v_6i_78r_CD4-T-CELL-DIFFERENTIATION-AND-PLASTICITY.csv
+  -> Success
+    Processing Sketchbook results...
+    Loaded raw Sketchbook results from zip: ColorSet(cardinality=1, symbolic_size=12)
+    Extracted 1 Sketchbook candidate networks.
+    Computing BoNesis results...
+    Grounding...done in 0.0s
+    Extracted 1 BoNesis candidate networks.
+    Comparing the results...
+    Networks in both: 1
+    Networks only in Sketchbook: 0
+    Networks only in Bonesis: 0
+    Results match exactly!
+
+
+================================================================================
+SUMMARY
+================================================================================
+model_0_5v_0i_14r_CORTICAL-AREA-DEVELOPMENT                  MATCH
+model_10_10v_3i_22r_LAC-OPERON                               MATCH
+model_11_9v_4i_18r_REGULATION-OF-L-ARABINOSE-OPERON          MATCH
+model_12_6v_0i_11r_MIR-9-NEUROGENESIS                        MATCH
+model_13_12v_4i_58r_MAPK-REDUCED-3                           MATCH
+model_14_9v_1i_27r_FISSION-YEAST-2008                        MATCH
+model_15_11v_3i_42r_DROSOPHILA-CELL-CYCLE                    MATCH
+model_16_5v_0i_15r_ASYMMETRIC-CELL-DIVISION-A                MATCH
+model_17_9v_0i_12r_ASYMMETRIC-CELL-DIVISION-B                MATCH
+model_18_13v_6i_21r_JNK-PATHWAY                              MATCH
+model_19_7v_14i_24r_TGFB-PATHWAY                             MATCH
+model_1_14v_2i_20r_NEUROTRANSMITTER-SIGNALING-PATHWAY        MATCH
+model_20_11v_5i_44r_BUDDING-YEAST-EXIT-MODULE                MATCH
+model_21_12v_2i_62r_AGS-CELL-FATE-DECISION-REDUCED           MATCH
+model_22_7v_0i_30r_LAMBDA-PHAGE-LYSOGENY                     MATCH
+model_23_10v_8i_40r_DROSOPHILA-DPP-PATHWAY                   MATCH
+model_24_4v_4i_16r_EGGSHELL-PATTERNING-PHENOMOENOLOGICAL     MATCH
+model_25_7v_12i_36r_DROSOPHILA-JAK-STAT-PATHWAY              MATCH
+model_26_7v_6i_26r_DROSOPHILA-NOTCH-PATHWAY                  MATCH
+model_27_5v_2i_17r_DROSOPHILA-GAP-A                          MATCH
+model_28_4v_3i_15r_DROSOPHILA-GAP-B                          MATCH
+model_29_5v_2i_20r_DROSOPHILA-GAP-C                          MATCH
+model_2_14v_3i_29r_BODY-SEGMENTATION-IN-DROSOPHILA-2013      MATCH
+model_30_5v_2i_12r_DROSOPHILA-GAP-D                          MATCH
+model_31_11v_1i_36r_MORPHOGENETIC-CHECKPOINT                 MATCH
+model_32_12v_1i_59r_MULTILEVEL-CELL-CYCLE                    MATCH
+model_33_12v_2i_59r_BOOLEAN-CELL-CYCLE                       MATCH
+model_34_5v_1i_15r_P53-MDM2-NETWORK                          MATCH
+model_35_12v_3i_34r_CHICKEN-SEX-DETERMINATION                MATCH
+model_36_7v_3i_25r_CHICKEN-SEX-DETERMINATION-REDUCED         MATCH
+model_37_13v_6i_55r_MAMMAL-SEX-DETERMINATION-1-CELL          MATCH
+model_38_5v_1i_13r_TRP-BIOSYNTHESIS                          MATCH
+model_39_11v_0i_48r_PAIR-RULE-MODULE                         MATCH
+model_3_10v_8i_18r_VEGF-PATHWAY-OF-DROSOPHILA                MATCH
+model_40_15v_0i_36r_HEMATOPOIESIS-AGING                      MATCH
+model_4_9v_0i_19r_CELL-CYCLE-TRANSCRIPTION                   MATCH
+model_5_11v_5i_46r_BT474-BREAST-CELL-LINE-SHORT-TERM         MATCH
+model_6_11v_5i_46r_HCC1954-BREAST-CELL-LINE-SHORT-TERM       MATCH
+model_7_11v_5i_41r_SKBR3-BREAST-CELL-LINE-SHORT-TERM         MATCH
+model_8_14v_10i_48r_TOL-REGULATORY-NETWORK                   MATCH
+model_9_12v_6i_78r_CD4-T-CELL-DIFFERENTIATION-AND-PLASTICITY MATCH
+
+--------------------------------------------------------------------------------
+MATCH           41

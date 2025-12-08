@@ -1,0 +1,29 @@
+v_Ae -> v_A
+v_T -> v_A
+v_Ae -> v_Ae
+v_Aem -> v_Aem
+v_Ae -> v_Am
+v_Aem -> v_Am
+v_T -> v_Am
+v_Ge -| v_C
+v_MS -> v_E
+v_Ge -> v_Ge
+v_S_2_Ara_ -> v_L
+v_S_7_Ara_ -| v_L
+v_C -> v_MS
+v_S_7_Ara_ -> v_MS
+v_C -> v_MT
+v_S_7_Ara_ -> v_MT
+v_S_2_Ara_ -> v_S_2_Ara_
+v_A -> v_S_7_Ara_
+v_Am -> v_S_7_Ara_
+v_S_2_Ara_ -> v_S_7_Ara_
+v_MT -> v_T
+$v_E: v_MS
+$v_Ge: v_Ge
+$v_L: v_S_2_Ara_ & !v_S_7_Ara_
+$v_MS: v_C & v_S_7_Ara_
+$v_MT: v_C & v_S_7_Ara_
+$v_S_2_Ara_: v_S_2_Ara_
+$v_S_7_Ara_: (v_A & v_S_2_Ara_) | (v_Am & v_S_2_Ara_)
+$v_T: v_MT

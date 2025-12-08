@@ -1,0 +1,11 @@
+ID,v_Apoptosis,v_DNA_damage,v_EGFR_stimulus,v_ERK,v_FGFR3_stimulus,v_GADD45,v_GRB2,v_Growth_Arrest,v_JNK,v_MDM2,v_PI3K,v_PLCG,v_Proliferation,v_RAS,v_TGFBR_stimulus,v_p38
+Observation1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,1
+Observation2,1,1,0,0,0,1,1,1,1,0,1,0,0,1,1,1
+Observation3,1,0,0,0,0,1,1,1,1,0,1,0,0,1,1,1
+Observation4,1,1,0,0,1,1,1,1,1,0,1,0,0,1,1,1
+Observation5,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0
+Observation6,1,1,0,0,0,1,0,1,1,0,1,0,0,0,0,1
+Observation7,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1
+Observation8,1,0,1,0,1,1,1,1,1,0,1,0,0,1,1,1
+Observation9,1,0,0,0,1,1,1,1,1,0,1,0,0,1,1,1
+Observation10,1,1,0,0,0,1,0,1,1,0,0,0,0,0,0,1

@@ -29,4 +29,6 @@ Cargo.lock
 local/
 msedgedriver.exe
 
+env/
 venv/
+venv-ubuntu/

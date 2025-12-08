@@ -135,3 +135,8 @@ Then, you should find the binary `run-inference` (with an extension according to
 ```
 ./src-tauri/target/release/run-inference data/real_cases/tlgl/tlgl.json --results-path "results-tlgl.zip"
 ```
+
+There is also a binary specifically for running inference with just a set of fixed-point properties. It takes a PSBN in `aeon` format and fixed-point data in a standard `csv` format. It exports the symbolic inference results to the given path.
+```
+./src-tauri/target/release/run-fixed-point-inference <PSBN_PATH> <CSV_PATH> <RESULTS_PATH>
+```
