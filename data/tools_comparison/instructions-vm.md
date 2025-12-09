@@ -100,3 +100,9 @@ python3 bonesis_experiment_large.py ./macrophage/macrophage_sketch_v2.aeon ./mac
 ```
 
 You can examine the input files, and you can check precomputed results in `sketchbook-output.txt` and `bonesis-out.txt`.
+
+### Results validation and testing
+
+Additionally, in the sub-folder `tests`, we provide a scripts and data for automated validation that Sketchbook and BoNesis compute exactly the same inference results on various models. 
+
+All details and instructions are present in the `tests/readme.md`.

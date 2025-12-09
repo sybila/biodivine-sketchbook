@@ -1,0 +1,3 @@
+ID,v_Adenylate_cyclase,v_COMT,v_Calcineurin,v_Calcium,v_DARPP32,v_Dopamine,v_Dopamine_Receptor_1,v_Dopamine_Receptor_2,v_Exocytosis,v_Glutamate,v_Glutamate_Receptor,v_Packaging_Proteins,v_Phospholipase_C,v_Protein_Kinase_A,v_Protein_Phosphatase_1,v_Tryosine_hydroxylase
+Observation1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+Observation2,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0

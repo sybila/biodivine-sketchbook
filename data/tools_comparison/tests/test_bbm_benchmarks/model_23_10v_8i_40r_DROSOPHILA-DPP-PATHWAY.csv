@@ -1,0 +1,11 @@
+ID,v_Brk,v_Dad,v_Dpp_b1,v_Dpp_b2,v_Gbb,v_MadMed_b1,v_MadMed_b2,v_Nej,v_Punt,v_Sax,v_Scw,v_Shn,v_Sog,v_Targets,v_Tkv_b1,v_Tkv_b2,v_Tld,v_Tsg
+Observation1,0,0,1,1,0,1,0,0,1,1,0,0,0,0,0,0,1,1
+Observation2,0,0,0,0,0,1,0,0,1,1,1,1,0,0,0,0,1,1
+Observation3,0,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0
+Observation4,0,0,1,1,0,0,0,0,1,0,1,1,1,0,0,0,0,0
+Observation5,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0
+Observation6,0,0,1,1,1,0,0,1,1,0,1,1,1,0,0,0,0,1
+Observation7,1,0,1,0,0,0,0,1,1,0,1,0,1,0,0,0,0,0
+Observation8,1,0,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0
+Observation9,0,0,1,0,1,1,0,1,1,1,0,0,0,1,1,0,1,0
+Observation10,1,0,1,1,1,0,0,0,1,0,1,0,1,0,0,0,0,0

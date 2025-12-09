@@ -1,0 +1,10 @@
+ID,v_A,v_Am,v_B,v_C,v_Ge,v_L,v_Le,v_Lem,v_Lm,v_M,v_P,v_R,v_Rm
+Observation1,0,0,0,0,1,0,0,0,0,0,0,1,1
+Observation2,0,0,0,0,1,0,1,0,0,0,0,1,1
+Observation3,0,0,0,0,1,0,0,1,0,0,0,1,1
+Observation4,0,0,0,0,1,0,1,1,0,0,0,1,1
+Observation5,0,0,0,1,0,0,0,0,0,0,0,1,1
+Observation6,0,0,0,1,0,0,0,1,0,0,0,1,1
+Observation7,0,1,1,1,0,0,0,1,1,1,1,0,0
+Observation8,1,1,1,1,0,1,1,0,1,1,1,0,0
+Observation9,1,1,1,1,0,1,1,1,1,1,1,0,0

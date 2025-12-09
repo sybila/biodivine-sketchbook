@@ -28,3 +28,7 @@ Cargo.lock
 # local test data and binaries for test setup
 local/
 msedgedriver.exe
+
+env/
+venv/
+venv-ubuntu/

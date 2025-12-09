@@ -1,0 +1,11 @@
+ID,v_BMP,v_EGF_b1,v_EGF_b2,v_Floor,v_Operculum,v_Roof,v_Roof_adj,v_anterior
+Observation1,0,0,0,0,0,0,1,1
+Observation2,1,0,0,0,0,0,1,1
+Observation3,0,0,0,0,0,0,0,0
+Observation4,1,0,0,0,0,0,1,0
+Observation5,0,1,1,0,0,0,0,0
+Observation6,1,1,0,0,0,0,1,0
+Observation7,0,0,0,0,0,0,0,1
+Observation8,1,1,0,1,0,0,1,1
+Observation9,1,1,1,1,0,0,1,1
+Observation10,1,1,1,0,0,0,1,0

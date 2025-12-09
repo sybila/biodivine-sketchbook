@@ -1,0 +1,11 @@
+ID,v_CtBP,v_Da,v_Delta,v_E_Spl_b1,v_E_Spl_b2,v_Emc,v_Gro,v_H,v_Mam,v_Nicd,v_Notch,v_Twi_b1,v_Twi_b2
+Observation1,0,1,0,1,0,0,0,1,1,0,0,1,1
+Observation2,0,1,1,1,0,1,1,1,0,1,1,1,0
+Observation3,0,0,0,1,0,0,0,1,1,0,0,0,0
+Observation4,1,0,1,1,0,1,1,0,0,1,1,0,0
+Observation5,1,1,1,0,0,1,0,0,1,1,1,1,1
+Observation6,1,0,1,0,0,1,1,0,1,1,1,0,0
+Observation7,0,0,0,1,0,0,1,1,1,0,0,0,0
+Observation8,0,0,0,1,0,0,0,0,0,0,0,0,0
+Observation9,0,0,0,1,0,0,0,0,1,0,0,0,0
+Observation10,1,0,1,1,0,1,0,0,0,1,1,0,0

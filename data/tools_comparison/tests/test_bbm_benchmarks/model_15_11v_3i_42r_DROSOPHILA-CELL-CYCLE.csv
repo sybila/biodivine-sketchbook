@@ -1,0 +1,8 @@
+ID,v_Ago,v_CycA,v_CycB,v_CycD,v_CycE,v_Dap,v_E2F,v_Fzr,v_Fzy,v_Notch,v_Rb,v_Rux,v_Stg,v_Wee1
+Observation1,0,0,0,0,0,0,0,1,0,1,1,1,0,1
+Observation2,0,0,0,0,0,1,0,1,0,0,1,1,0,1
+Observation3,0,0,0,0,1,1,1,1,0,1,0,1,0,1
+Observation4,0,0,0,1,1,1,1,1,0,1,0,0,0,1
+Observation5,1,0,0,0,0,0,0,1,0,1,1,1,0,1
+Observation6,1,0,0,0,0,1,0,1,0,0,1,1,0,1
+Observation7,1,0,0,1,0,1,1,1,0,0,0,1,1,1

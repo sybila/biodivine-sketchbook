@@ -1,0 +1,11 @@
+ID,v_AKT,v_EGF,v_ERBB1,v_ERBB2,v_ERBB3,v_ERK1_2,v_HRG,v_MEK1_2,v_PDK1,v_PKCa,v_PLCg,v_erlotinib,v_mTOR,v_p70S6K,v_pertuzumab,v_trastuzumab
+Observation1,1,0,0,0,0,1,0,0,0,1,0,0,1,1,0,1
+Observation2,1,0,0,0,0,1,1,0,0,0,0,0,1,1,1,1
+Observation3,1,0,0,0,0,1,0,0,1,1,0,0,1,1,0,1
+Observation4,1,1,0,0,0,1,0,0,1,1,1,1,1,1,0,1
+Observation5,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,0
+Observation6,1,0,0,0,0,1,1,0,0,1,0,1,1,1,0,1
+Observation7,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1
+Observation8,1,0,0,0,0,1,0,0,1,0,0,0,1,1,1,0
+Observation9,1,0,0,0,0,1,0,0,0,1,0,1,1,1,1,0
+Observation10,1,0,0,0,0,1,0,1,1,1,0,0,1,1,1,1

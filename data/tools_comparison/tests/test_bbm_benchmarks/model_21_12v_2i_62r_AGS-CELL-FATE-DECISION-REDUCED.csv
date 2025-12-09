@@ -1,0 +1,5 @@
+ID,v_AKT,v_Antisurvival_b1,v_Antisurvival_b2,v_Antisurvival_b3,v_ERK,v_GSK3,v_MEK,v_PI3K,v_Prosurvival_b1,v_Prosurvival_b2,v_Prosurvival_b3,v_TAK1,v_betacatenin,v_p38alpha
+Observation1,0,1,0,0,1,0,1,0,0,0,0,1,0,0
+Observation2,1,0,0,0,1,0,1,1,1,1,1,1,1,0
+Observation3,1,0,0,0,1,1,1,1,1,0,0,1,0,0
+Observation4,1,0,0,0,1,1,1,1,1,1,1,1,1,0

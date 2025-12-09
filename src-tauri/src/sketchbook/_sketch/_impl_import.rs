@@ -3,11 +3,14 @@ use crate::sketchbook::data_structs::{
     UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
+use crate::sketchbook::observations::ObservationManager;
 use crate::sketchbook::properties::shortcuts::*;
 use crate::sketchbook::properties::{DynProperty, StatProperty};
 use crate::sketchbook::{JsonSerde, Sketch};
 use biodivine_lib_param_bn::{BooleanNetwork, ModelAnnotation};
 use regex::Regex;
+use std::fs::File;
+use std::io::Read;
 
 impl Sketch {
     /// Create sketch instance from a custom JSON model format.
@@ -292,6 +295,23 @@ impl Sketch {
     fn standardize_generated_static_ids(&mut self) -> Result<(), String> {
         self.properties.make_generated_reg_prop_ids_consistent().map_err(|e| format!("Some IDs of generated regulation properties are corrupted and we cant standardize them: {e}"))?;
         self.properties.make_generated_fn_prop_ids_consistent().map_err(|e| format!("Some IDs of generated function properties are corrupted and we cant standardize them: {e}"))?;
+        Ok(())
+    }
+
+    /// Load dataset from a provided CSV file path, and add it (with provided id/name)
+    /// to this sketch.
+    pub fn load_dataset(&mut self, dataset_id: &str, csv_path: &str) -> Result<(), String> {
+        // Load file contents
+        let mut file = File::open(csv_path).map_err(|e| e.to_string())?;
+        let mut csv_string = String::new();
+        file.read_to_string(&mut csv_string)
+            .map_err(|e| e.to_string())?;
+
+        // Process the CSV data into `Dataset` instance and add it to the sketch
+        let parsed_dataset =
+            ObservationManager::parse_dataset_from_csv(dataset_id, &csv_string).unwrap();
+        self.observations
+            .add_dataset_by_str(dataset_id, parsed_dataset)?;
         Ok(())
     }
 }

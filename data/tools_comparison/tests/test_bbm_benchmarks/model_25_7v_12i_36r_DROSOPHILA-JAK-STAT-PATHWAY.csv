@@ -1,0 +1,11 @@
+ID,v_Brwd3,v_Dome,v_ET,v_Hop_b1,v_Hop_b2,v_Hrs,v_Ken,v_NStat92E,v_OS,v_Ptp61F,v_Socs36E,v_Socs44A,v_Stam,v_Stat92E_b1,v_Stat92E_b2,v_Su_var,v_Targets,v_Upd2,v_Upd3
+Observation1,1,1,0,1,1,1,1,0,1,1,0,1,1,0,0,1,0,1,1
+Observation2,1,1,0,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0
+Observation3,1,1,0,1,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0
+Observation4,0,1,0,1,1,1,1,0,1,1,0,1,1,0,0,1,0,1,0
+Observation5,0,1,1,0,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1
+Observation6,0,1,0,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,1
+Observation7,1,1,0,1,0,1,1,1,0,0,0,1,0,0,0,0,0,1,1
+Observation8,1,1,1,0,0,0,1,0,1,1,0,1,0,0,0,1,0,0,0
+Observation9,0,1,1,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0
+Observation10,0,1,1,0,0,1,1,0,0,1,0,1,0,0,0,0,0,1,0

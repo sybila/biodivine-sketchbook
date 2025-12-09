@@ -1,0 +1,11 @@
+ID,v_Cdc25,v_Cdc2_Cdc13,v_Cdc2_Cdc13_A,v_PP,v_Rum1,v_SK,v_Slp1,v_Start,v_Ste9,v_Wee1_Mik1
+Observation1,1,0,0,0,1,0,0,0,1,0
+Observation2,1,0,0,0,0,0,0,0,1,0
+Observation3,0,0,0,0,1,0,0,0,0,1
+Observation4,1,0,0,0,1,0,0,0,0,1
+Observation5,0,0,0,0,1,0,0,0,1,1
+Observation6,1,0,0,0,0,0,0,0,1,1
+Observation7,0,0,0,0,1,0,0,0,0,0
+Observation8,0,0,0,0,0,0,0,0,1,0
+Observation9,1,0,0,0,1,0,0,0,0,0
+Observation10,0,0,0,0,1,0,0,0,1,0
