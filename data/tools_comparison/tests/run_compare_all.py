@@ -4,7 +4,10 @@ from pathlib import Path
 
 
 def run_comparisons_for_all_models(models_dir: str, universal_fps: bool = False):
-    """Run compare_sketchbook_bonesis.py for all matching zip-aeon-csv triplets."""
+    """
+    Run compare_sketchbook_bonesis.py for all matching zip-aeon-csv triplets
+    in the directory.
+    """
     models_path = Path(models_dir)
     if not models_path.exists():
         print(f"Error: Directory {models_dir} does not exist")

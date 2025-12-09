@@ -31,7 +31,7 @@ pip install sympy
 # dynamic specification
 python ./helper_scripts/run_compute_fps_all.py "${out_dir}"
 
-# Loosen the models by adding function symbols, making PSBNs for inference
+# Parametrize the models by adding function symbols, making PSBNs for inference
 python ./helper_scripts/run_loosen_models_all.py "${out_dir}" "${out_dir}"
 
 # Simplify the update function expressions by converting them to DNF

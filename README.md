@@ -117,7 +117,7 @@ However, note that we found the testing framework a bit unstable when the testin
 
 ## Benchmarks and data
 
-The benchmark models, results, and more details are in `data/benchmarks`. 
+The performance benchmark models, results, and more details are in `data/benchmarks`. 
 There is also a README with further instructions, you can follow it.
 Tldr, to run the performance benchmarks, you can use python and execute them all with `python3 run_performance_eval.py`.
 
@@ -127,16 +127,17 @@ An example sketch used to introduce the framework is in `data/small_example`. Sk
 
 ## Using Sketchbook from the command line
 
-Although the main interface of the tool is its GUI, we provide the most important functionality through a library and CLI as well. If you want to use the CLI variant, you must prepare the sketch first. Once you have the sketch file, you can run the inference from the command line as follows.
+Although the main interface of the tool is its GUI, we provide the most important inference functionality through a library and CLI as well. If you want to use the CLI variant, you must prepare the sketch first. Once you have the sketch file, you can run the inference from the command line as described below. The program then computes all BN instances satisfying the sketch, and based on selected mode either prints a summary, exports symbolic results, or samples candidate BNs.
 
 First, compile the code in `src-tauri` with: `cargo build --release`.
-Then, you should find the binary `run-inference` (with an extension according to your system) in `src-tauri/target/release`. The binary has multiple options regarding results export, sampling or logging. See all the details and instructions by running `run-inference --help`. The example of use on Linux would be:
+Then, you should find the binary `run-inference` (with an extension according to your system) in `src-tauri/target/release`. The binary has multiple options regarding results export, sampling or logging. See all the details and instructions by running `run-inference --help`. 
+The example of use on Linux would be:
 
 ```
 ./src-tauri/target/release/run-inference data/real_cases/tlgl/tlgl.json --results-path "results-tlgl.zip"
 ```
 
-There is also a binary specifically for running inference with just a set of fixed-point properties. It takes a PSBN in `aeon` format and fixed-point data in a standard `csv` format. It exports the symbolic inference results to the given path.
+We also prepared a binary `run-fixed-point-inference` specifically for running inference with just a set of fixed-point properties. It takes a PSBN in `aeon` format and fixed-point data in the standard `csv` format. It computes all instances of the PSBN that exhibit the required fixed-point states. It exports the symbolic inference results to the given path. Use it as:
 ```
 ./src-tauri/target/release/run-fixed-point-inference <PSBN_PATH> <CSV_PATH> <RESULTS_PATH>
 ```
