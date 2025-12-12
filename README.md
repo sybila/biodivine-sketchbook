@@ -91,7 +91,9 @@ This section describes the setup and instructions for static analysis tools, tes
 
 For format checking/fixing for the TypeScript part of the project, you can run `npx eslint "src/**/*.{js,jsx,ts,tsx}" --config .eslintrc.yml --fix`. You can use `cargo fmt` and `cargo clippy` for the Rust side.
 
-To run the full Rust test suite, use `cargo test`. To run the TypeScript tests, run `npx vitest --run` or `npm test`.
+To run the full Rust test suite, use `cargo test`. The test suite contains both simple unit tests, as well as complex integration and inference tests. For instance, some tests regarding the inference computation pipeline are present in the module `src-tauri/src/inference/_test_inference`. Another important part of the tests for event processing are present in the module `src-tauri/src/sketchbook/_test_events`. Unit tests are present in all relevant modules, as is standard in Rust.
+
+To run the TypeScript tests, run `npx vitest --run` or `npm test`.
 
 To automatically generate Rust documentation, execute `cargo doc --no-deps --document-private-items`.
 
