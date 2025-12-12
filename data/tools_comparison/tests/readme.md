@@ -40,8 +40,8 @@ You can run the validation on a single test case with the prepared script `compa
 
 For the `arabidopsis` model, execute one of the following commands (one compares the results with enforced universal fixed-point property, disallowing additional fixed points; the other does not enforce this property). The first should finish in a few seconds, but the second can take longer, enumerating almost 500k satisfying models.
 ```
-python .\compare_sketchbook_bonesis.py "arabidopsis/results_universal_fps.zip" "arabidopsis/sketch.aeon" "arabidopsis/dataset.csv" --universal_fps
-python .\compare_sketchbook_bonesis.py "arabidopsis/results.zip" "arabidopsis/sketch.aeon" "arabidopsis/dataset.csv"
+python ./compare_sketchbook_bonesis.py "arabidopsis/results_universal_fps.zip" "arabidopsis/sketch.aeon" "arabidopsis/dataset.csv" --universal_fps
+python ./compare_sketchbook_bonesis.py "arabidopsis/results.zip" "arabidopsis/sketch.aeon" "arabidopsis/dataset.csv"
 ```
 
 A short summary is printed on standard output. Expected outputs are provided in `comparison_arabidopsis_output.txt`.
