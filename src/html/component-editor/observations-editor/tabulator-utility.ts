@@ -6,6 +6,7 @@ import {
   FormatModule,
   InteractionModule,
   MenuModule,
+  MoveColumnsModule,
   type Options,
   PageModule,
   ReactiveDataModule,
@@ -84,6 +85,7 @@ export const tabulatorOptions: Options = {
     column: 'index',
     dir: 'asc'
   }],
+  movableColumns: true,
   headerSort: true,
   index: 'id',
   paginationSize: 20,
@@ -110,4 +112,5 @@ export const loadTabulatorPlugins = (): void => {
   Tabulator.registerModule(MenuModule)
   Tabulator.registerModule(ResizeColumnsModule)
   Tabulator.registerModule(ReactiveDataModule)
+  Tabulator.registerModule(MoveColumnsModule)
 }
