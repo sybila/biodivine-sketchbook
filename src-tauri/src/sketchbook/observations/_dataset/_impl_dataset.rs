@@ -49,11 +49,6 @@ impl Dataset {
         Self::new(name, Vec::new(), var_names)
     }
 
-    /// Default dataset instance with no Variables or Observations, and with an empty annotation.
-    pub fn default(name: &str) -> Dataset {
-        Dataset::new_empty(name, Vec::new()).unwrap()
-    }
-
     /// Update the `annotation` property.
     pub fn with_annotation(mut self, annotation: &str) -> Self {
         self.annotation = annotation.to_string();

@@ -176,8 +176,10 @@ export default class ObservationsEditor extends LitElement {
     }, 50)
   }
 
+  /** Create empty dataset (no observations) with network variables as columns. */
   private createDataset (): void {
-    aeonState.sketch.observations.addDefaultDataset()
+    const variableIds = this.contentData.variables.map(v => v.id)
+    aeonState.sketch.observations.addDefaultDataset(variableIds)
   }
 
   #onDatasetCreated (data: DatasetData): void {

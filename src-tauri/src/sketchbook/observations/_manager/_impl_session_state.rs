@@ -140,16 +140,19 @@ impl ObservationManager {
     }
 
     /// Perform event of adding a new DEFAULT (empty) `dataset` to this `ObservationsManager`.
+    /// The payload contains variable names to be used as columns.
     pub(super) fn event_add_default_dataset(
         &mut self,
         event: &Event,
     ) -> Result<Consumed, DynError> {
         let component_name = "observations";
-        Self::assert_payload_empty(event, component_name)?;
+        let payload = Self::clone_payload_str(event, component_name)?;
+        let var_names: Vec<String> = serde_json::from_str(&payload).map_err(|e| e.to_string())?;
+        let var_names_ref = var_names.iter().map(|v| v.as_str()).collect();
 
         // generate new ID (and name at the same time), start indexing at 1
         let dataset_id = self.generate_dataset_id("dataset", Some(1));
-        let dataset = Dataset::default(dataset_id.as_str());
+        let dataset = Dataset::new_empty(dataset_id.as_str(), var_names_ref)?;
         let dataset_data = DatasetData::from_dataset(&dataset_id, &dataset);
 
         self.add_dataset(dataset_id, dataset)?;

@@ -353,8 +353,8 @@ interface AeonState {
 
       /** DatasetData for a newly created dataset. */
       datasetCreated: Observable<DatasetData>
-      /** Create a new empty dataset. */
-      addDefaultDataset: () => void
+      /** Create a new empty dataset with variable IDs as columns. */
+      addDefaultDataset: (variable_ids: string[]) => void
       /** DatasetData for a newly loaded dataset (from a csv file).
        *  This is intentionally different than `datasetCreated`, since loaded datasets might require some processing. */
       datasetLoaded: Observable<DatasetData>
@@ -858,10 +858,10 @@ export const aeonState: AeonState = {
       observationIdChanged: new Observable<ObservationIdUpdateData>(['sketch', 'observations', 'set_obs_id']),
       observationDataChanged: new Observable<ObservationData>(['sketch', 'observations', 'set_obs_data']),
 
-      addDefaultDataset (): void {
+      addDefaultDataset (variableIds: string[]): void {
         aeonEvents.emitAction({
           path: ['sketch', 'observations', 'add_default'],
-          payload: null
+          payload: JSON.stringify(variableIds)
         })
       },
       loadDataset (path: string): void {
