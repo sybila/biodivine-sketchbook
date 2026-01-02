@@ -326,6 +326,12 @@ interface AeonState {
       layoutRemoved: Observable<LayoutData>
       /** Remove a layout with given ID. */
       removeLayout: (layoutId: string) => void
+      /** Collection of LayoutNodeData (with new `px` and `py`) for a modified layout.
+       * This should change exacty all nodes in the network. */
+      layoutPositionsChanged: Observable<LayoutNodeData[]>
+      /** Change a position of all variables in a layout to new coordinates.
+       * This should change exacty all nodes in the network. */
+      changeLayoutPositions: (layoutId: string, newCoordinates: LayoutNodeData[]) => void
       /** LayoutNodeData (with new `px` and `py`) for a modified layout node. */
       nodePositionChanged: Observable<LayoutNodeData>
       /** Change a position of a variable in a layout to new coordinates. */
@@ -698,6 +704,7 @@ export const aeonState: AeonState = {
 
       layoutCreated: new Observable<LayoutData>(['sketch', 'model', 'layout', 'add']),
       layoutRemoved: new Observable<LayoutData>(['sketch', 'model', 'layout', 'remove']),
+      layoutPositionsChanged: new Observable<LayoutNodeData[]>(['sketch', 'model', 'layout', 'update_all_positions']),
       nodePositionChanged: new Observable<LayoutNodeData>(['sketch', 'model', 'layout', 'update_position']),
 
       addDefaultVariable (position: LayoutNodeDataPrototype | LayoutNodeDataPrototype[] = []): void {
@@ -822,6 +829,12 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'model', 'layout', layoutId, 'remove'],
           payload: null
+        })
+      },
+      changeLayoutPositions (layoutId, newCoordinates) {
+        aeonEvents.emitAction({
+          path: ['sketch', 'model', 'layout', layoutId, 'update_all_positions'],
+          payload: JSON.stringify(newCoordinates)
         })
       },
       changeNodePosition (layoutId: string, varId: string, newX: number, newY: number): void {

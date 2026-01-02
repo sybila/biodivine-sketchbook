@@ -1,4 +1,4 @@
-use crate::sketchbook::data_structs::ModelData;
+use crate::sketchbook::data_structs::{LayoutNodeData, ModelData};
 use crate::sketchbook::ids::{LayoutId, UninterpretedFnId, VarId};
 use crate::sketchbook::layout::Layout;
 use crate::sketchbook::model::{
@@ -933,6 +933,23 @@ impl ModelState {
             .get_mut(layout_id)
             .ok_or(format!("Error accessing layout {layout_id} in layout map"))?
             .update_node_position(var_id, px, py)
+    }
+
+    /// Update positions of ALL nodes in a given layout. This should not add/remove
+    /// any variables, just update their positions.
+    ///
+    /// Return `Err` if some provided variable is invalid for the network.
+    pub fn update_all_positions(
+        &mut self,
+        layout_id: &LayoutId,
+        nodes: Vec<LayoutNodeData>,
+    ) -> Result<(), String> {
+        self.assert_valid_layout(layout_id)?;
+
+        self.layouts
+            .get_mut(layout_id)
+            .ok_or(format!("Error accessing layout {layout_id} in layout map"))?
+            .update_all_node_positions(nodes)
     }
 
     /// **(internal)** Utility method to add a variable node to a given layout.

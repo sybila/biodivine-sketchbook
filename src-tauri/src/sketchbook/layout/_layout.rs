@@ -1,3 +1,4 @@
+use crate::sketchbook::data_structs::LayoutNodeData;
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::{LayoutNode, LayoutNodeIterator, NodePosition};
 use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
@@ -118,6 +119,22 @@ impl Layout {
             .get_mut(variable)
             .unwrap()
             .change_position(new_x, new_y);
+        Ok(())
+    }
+
+    /// Update positions of all nodes in this layout. This should not add/remove
+    /// any variables, just update their positions.
+    ///
+    /// Return `Err` if some provided variable is invalid for the network.
+    pub fn update_all_node_positions(&mut self, nodes: Vec<LayoutNodeData>) -> Result<(), String> {
+        for node in nodes {
+            let variable = VarId::new(&node.variable)?;
+            self.assert_valid_variable(&variable)?;
+            self.nodes
+                .get_mut(&variable)
+                .unwrap()
+                .change_position(node.px, node.py);
+        }
         Ok(())
     }
 
