@@ -6,7 +6,6 @@ use crate::sketchbook::model::{
     UpdateFn, Variable,
 };
 use crate::sketchbook::utils::assert_ids_unique;
-use crate::sketchbook::Manager;
 use std::collections::{HashMap, HashSet};
 
 /// Methods for safely constructing or mutating instances of `ModelState`.
@@ -30,6 +29,7 @@ impl ModelState {
     }
 
     /// Create a new `ModelState` given a corresponding `ModelData` instance.
+    /// TODO: speed up
     pub fn new_from_model_data(model_data: &ModelData) -> Result<ModelState, String> {
         let mut model = ModelState::new_empty();
         // start with variables and plain function symbols (so that they can be used in expressions later)
@@ -65,6 +65,7 @@ impl ModelState {
             .iter()
             .map(|v| (v.id.as_str(), v.update_fn.as_str()))
             .collect();
+        // TODO: speed up
         model.set_multiple_update_fns(update_fns)?;
 
         // set expressions, arguments, and annotations for uninterpreted fns
@@ -90,6 +91,8 @@ impl ModelState {
     /// The variable annotations are left empty.
     ///
     /// Return `Err` in case the IDs are not unique.
+    ///
+    /// TODO: speed up
     pub fn new_from_vars(variables: Vec<(&str, &str)>) -> Result<ModelState, String> {
         let mut model = ModelState::new_empty();
         let var_ids = variables.iter().map(|pair| pair.0).collect();
@@ -132,31 +135,6 @@ impl ModelState {
     pub fn add_var_by_str(&mut self, id: &str, name: &str, annot: &str) -> Result<(), String> {
         let var_id = VarId::new(id)?;
         self.add_var(var_id, name, annot)
-    }
-
-    /// Shorthand to add a list of new variables with given string IDs and names to this `ModelState`.
-    ///
-    /// Each ID must be valid identifier that is not already used by some other variable.
-    /// The names might be same as the ID. It also might be empty or non-unique.
-    /// Variable annotations are left empty.
-    ///
-    /// Returns `Err` in case some `id` is already being used.
-    pub fn add_multiple_variables(
-        &mut self,
-        id_name_pairs: Vec<(&str, &str)>,
-    ) -> Result<(), String> {
-        // before making any changes, check that all IDs are actually valid and unique
-        let var_ids: Vec<&str> = id_name_pairs.iter().map(|pair| pair.0).collect();
-        self.assert_ids_unique_and_new(&var_ids, &(Self::assert_no_variable))?;
-        for id in var_ids {
-            let var_id = VarId::new(id)?;
-            self.assert_no_variable(&var_id)?;
-        }
-        // now we can safely add them
-        for (id, name) in id_name_pairs {
-            self.add_var_by_str(id, name, "")?;
-        }
-        Ok(())
     }
 
     /// Add a new uninterpreted fn given by its components.
@@ -226,8 +204,9 @@ impl ModelState {
         self.add_empty_uninterpreted_fn(fn_id, name, arity)
     }
 
-    /// Shorthand to add a list of new uninterpreted fns, each with a string ID, name, and arity,
-    /// to this `ModelState`. Details (incl. annotations) for these functions are left empty.
+    /// Shorthand for testing to add a list of new uninterpreted fns, each with a string ID,
+    /// name, and arity to this `ModelState`. Details (incl. annotations) for these functions
+    /// are left empty.
     ///
     /// Each ID must be valid identifier that is not already used by some other uninterpreted fns.
     /// Returns `Err` in case the `id` is already being used.
@@ -235,13 +214,18 @@ impl ModelState {
         &mut self,
         id_name_arity_tuples: Vec<(&str, &str, usize)>,
     ) -> Result<(), String> {
-        // before making any changes, check that all IDs are actually valid and unique
-        let fn_ids = id_name_arity_tuples
+        // Before making any changes, check that all IDs are actually valid and unique
+        let fn_ids: Vec<&str> = id_name_arity_tuples
             .iter()
             .map(|triplet| triplet.0)
             .collect();
-        self.assert_ids_unique_and_new(&fn_ids, &(Self::assert_no_uninterpreted_fn))?;
-        // now we can safely add them
+        assert_ids_unique(&fn_ids)?;
+        // Also must check the IDs are new and not yet used
+        for id_str in fn_ids {
+            let id = UninterpretedFnId::new(id_str)?;
+            self.assert_no_uninterpreted_fn(&id)?;
+        }
+        // Now we can safely add them
         for (id, name, arity) in id_name_arity_tuples {
             self.add_empty_uninterpreted_fn_by_str(id, name, arity)?;
         }
@@ -802,10 +786,15 @@ impl ModelState {
         &mut self,
         update_functions: Vec<(&str, &str)>,
     ) -> Result<(), String> {
-        // before making any changes, we must perform all validity checks
+        // Before making any changes, we must perform all validity checks
         // -> check IDs are unique, correspond to existing variables, and that expressions are valid
         let var_ids = update_functions.iter().map(|pair| pair.0).collect();
-        self.assert_ids_unique_and_used(&var_ids, &(Self::assert_valid_variable))?;
+        assert_ids_unique(&var_ids)?;
+        // Also must check the IDs are new and not yet used
+        for id_str in &var_ids {
+            let id = VarId::new(id_str)?;
+            self.assert_valid_variable(&id)?;
+        }
         let parsed_fns = update_functions
             .iter()
             .map(|(_, expression)| UpdateFn::try_from_str(expression, self))
@@ -1108,12 +1097,6 @@ mod tests {
         model.add_var_by_str("c", "c_name", "").unwrap();
         assert_eq!(model.num_vars(), 3);
         assert!(model.is_valid_var_id_str("c"));
-
-        // add list of variables at once
-        let variables = vec![("aaa", "aaa_name"), ("bbb", "bbb_name")];
-        model.add_multiple_variables(variables).unwrap();
-        assert_eq!(model.num_vars(), 5);
-        assert!(model.is_valid_var_id_str("bbb"));
     }
 
     /// Test adding uninterpreted functions (both incrementally and at once).
@@ -1171,11 +1154,9 @@ mod tests {
     /// covered by other tests.
     #[test]
     fn test_manually_editing_regulation_graph() {
-        let mut model = ModelState::new_empty();
-
         // add variables a, b, c
         let variables = vec![("a", "a_name"), ("b", "b_name"), ("c", "c_name")];
-        model.add_multiple_variables(variables).unwrap();
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         assert_eq!(model.num_vars(), 3);
         assert!(model.is_valid_var_id_str("c"));
 
@@ -1291,10 +1272,9 @@ mod tests {
     /// Test adding invalid variables.
     #[test]
     fn test_add_invalid_vars() {
-        let mut model = ModelState::new_empty();
         // same names should not be an issue
         let variables = vec![("a", "a_name"), ("b", "b_name")];
-        model.add_multiple_variables(variables).unwrap();
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         assert_eq!(model.num_vars(), 2);
 
         // adding same ID again should cause error
@@ -1310,9 +1290,8 @@ mod tests {
     /// Test adding invalid regulations.
     #[test]
     fn test_add_invalid_regs() {
-        let mut model = ModelState::new_empty();
         let variables = vec![("a", "a_name"), ("b", "b_name")];
-        model.add_multiple_variables(variables).unwrap();
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         let var_a = model.get_var_id("a").unwrap();
         let var_b = model.get_var_id("b").unwrap();
 
@@ -1338,9 +1317,8 @@ mod tests {
     /// Test that changing variable's name works correctly.
     #[test]
     fn test_var_name_change() {
-        let mut model = ModelState::new_empty();
         let variables = vec![("a", "a_name"), ("b", "b_name")];
-        model.add_multiple_variables(variables).unwrap();
+        let mut model = ModelState::new_from_vars(variables).unwrap();
         let var_a = model.get_var_id("a").unwrap();
 
         // setting random unique name

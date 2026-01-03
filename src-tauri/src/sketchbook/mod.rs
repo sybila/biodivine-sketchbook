@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use std::hash::Hash;
 use std::str::FromStr;
-use utils::assert_ids_unique;
 
 /// Structs and utility methods that can be used for communication with frontend.
 pub mod data_structs;
@@ -123,6 +121,7 @@ pub trait Manager {
         T::from_str(format!("{transformed_id}_{last_index}").as_str()).unwrap()
     }
 
+    /*
     /// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates),
     /// and check that all of the IDs are already managed by the manager instance (this is
     /// important, for instance, when we need to change already existing elements).
@@ -144,7 +143,6 @@ pub trait Manager {
         }
         Ok(())
     }
-
     /// Check that the list of (typesafe or string) IDs contains only unique IDs (no duplicates),
     /// and check that all of the IDs are NOT yet managed by the manager instance, i.e.,
     /// they are fresh new values (this is important, for instance, when we need to add several new
@@ -167,4 +165,5 @@ pub trait Manager {
         }
         Ok(())
     }
+    */
 }
