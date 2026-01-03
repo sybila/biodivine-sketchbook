@@ -7,8 +7,10 @@ use std::collections::HashMap;
 impl Dataset {
     /// Create new dataset from a list of observations and variables.
     ///
-    /// Length of each observation and number of variables must match. Observation
-    /// IDs must be valid identifiers and must be unique. Annotation is left empty.
+    /// Variables must be unique valid identifiers. Number of values in each observation
+    /// and number of variables must match. Observation IDs must be valid unique identifiers.
+    ///
+    ///  Annotation is left empty, use `with_annotation` modifier if needed.
     pub fn new(
         name: &str,
         observations: Vec<Observation>,
@@ -16,23 +18,29 @@ impl Dataset {
     ) -> Result<Self, String> {
         assert_name_valid(name)?;
 
-        // check that all variables are unique and valid, same for observation IDs
-        let variables = Self::try_convert_vars(&var_names)?;
+        // Check that each variable is valid identifier and IDs are unique
+        let variables = Self::try_convert_var_ids(&var_names)?;
         assert_ids_unique(&variables)?;
-        let observation_ids: Vec<&ObservationId> =
-            observations.iter().map(|o| o.get_id()).collect();
-        assert_ids_unique(&observation_ids)?;
 
-        // Check that number of variables is the same as the length of observations.
-        if !observations
-            .iter()
-            .all(|obs| obs.num_values() == var_names.len())
-        {
-            return Err("Number of variables and length of observations differ.".to_string());
-        }
-        let mut index_map = HashMap::new();
+        // For the observations, check that all IDs are unique and that the
+        // number of values in each observation matches the number of variables
+
+        // Create index map, mapping observation's ID to its index in the vector
+        let mut observation_index_map = HashMap::with_capacity(observations.len());
         for (i, obs) in observations.iter().enumerate() {
-            index_map.insert(obs.get_id().clone(), i); // uniqueness of observations checked before
+            let obs_id = obs.get_id().clone();
+            // Check that the number of values in the observation matches variable count
+            if obs.num_values() != variables.len() {
+                return Err(format!(
+                    "Number of values in observation {obs_id} differs from the variable count."
+                ));
+            }
+            // Check for uniqueness of observation IDs when adding them
+            if observation_index_map.insert(obs_id.clone(), i).is_some() {
+                return Err(format!(
+                    "Observation with id {obs_id} already exists in the dataset (id must be unique)."
+                ));
+            }
         }
 
         Ok(Self {
@@ -40,7 +48,7 @@ impl Dataset {
             annotation: String::new(),
             observations,
             variables,
-            index_map,
+            index_map: observation_index_map,
         })
     }
 
@@ -55,8 +63,9 @@ impl Dataset {
         self
     }
 
-    /// **(internal)** Try converting variables string slices into VarIDs.
-    fn try_convert_vars(var_names: &[&str]) -> Result<Vec<VarId>, String> {
+    /// **(internal)** Try parsing vector of variables string slices into vector of
+    /// typesafe `VarId`.
+    fn try_convert_var_ids(var_names: &[&str]) -> Result<Vec<VarId>, String> {
         var_names
             .iter()
             .map(|v| VarId::new(v))
@@ -147,8 +156,8 @@ impl Dataset {
         Ok(())
     }
 
-    /// Remove variable and all the values corresponding to it (decrementing dimension of the
-    /// dataset in process).
+    /// Remove variable and all the values corresponding to it (decrementing dimension
+    /// of the dataset in process).
     pub fn remove_var_by_str(&mut self, id: &str) -> Result<(), String> {
         let var_id = VarId::new(id)?;
         self.remove_var(&var_id)
@@ -218,10 +227,11 @@ impl Dataset {
     }
 
     /// Set the list of all variable IDs (essentially renaming some/all of them).
-    /// The length of the new list must be the same as existing one (only renaming, not adding/removing variables).
+    /// The length of the new list must be the same as existing one (only renaming, not
+    /// adding/removing variables).
     pub fn set_all_variables(&mut self, new_variables_list: Vec<VarId>) -> Result<(), String> {
         if new_variables_list.len() != self.num_variables() {
-            return Err("Vectors of old and new variables differ in length.".to_string());
+            return Err("Vectors of old and new variables must have the same length.".to_string());
         }
         assert_ids_unique(&new_variables_list)?;
 
@@ -229,16 +239,17 @@ impl Dataset {
         Ok(())
     }
 
-    /// Set the list with all variable IDs (essentially renaming some/all of them) using string names.
-    /// The length of the new list must be the same as existing one (only renaming, not adding/removing variables).
+    /// Set the list with all variable IDs (essentially renaming some/all of them) using
+    /// string names. The length of the new list must be the same as existing one (only
+    /// renaming, not adding/removing variables).
     pub fn set_all_variables_by_str(
         &mut self,
         new_variables_list: Vec<&str>,
     ) -> Result<(), String> {
         if new_variables_list.len() != self.num_variables() {
-            return Err("Vectors of old and new variables differ in length.".to_string());
+            return Err("Vectors of old and new variables must have the same length.".to_string());
         }
-        let variables = Self::try_convert_vars(&new_variables_list)?;
+        let variables = Self::try_convert_var_ids(&new_variables_list)?;
         self.set_all_variables(variables)
     }
 

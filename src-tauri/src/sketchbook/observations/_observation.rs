@@ -28,13 +28,13 @@ impl Observation {
         })
     }
 
-    /// Update the `annotation` property.
+    /// Modifier to update the `annotation` property.
     pub fn with_annotation(mut self, annotation: &str) -> Self {
         self.annotation = annotation.to_string();
         self
     }
 
-    /// Update the `name` property.
+    /// Modifier to update the `name` property.
     pub fn with_name(mut self, name: &str) -> Self {
         self.name = name.to_string();
         self
@@ -63,7 +63,7 @@ impl Observation {
     ///
     /// Name is initialized same as ID, and annotation is empty.
     pub fn try_from_str(observation_str: &str, id: &str) -> Result<Self, String> {
-        let mut observation_vec: Vec<VarValue> = Vec::new();
+        let mut observation_vec: Vec<VarValue> = Vec::with_capacity(observation_str.len());
         for c in observation_str.chars() {
             observation_vec.push(VarValue::from_str(&c.to_string())?)
         }
@@ -105,7 +105,7 @@ impl Observation {
     /// number of values as the original observation ("arity" does not change).
     pub fn set_all_values(&mut self, values: Vec<VarValue>) -> Result<(), String> {
         if values.len() != self.num_values() {
-            return Err("Vectors of old and new values differ in length.".to_string());
+            return Err("Vectors of old and new values must have the same length.".to_string());
         }
         self.values = values;
         Ok(())
@@ -115,7 +115,7 @@ impl Observation {
     /// The new vector of values must have the same number of values as the original observation
     /// ("arity" does not change).
     pub fn set_all_values_by_str(&mut self, values: &str) -> Result<(), String> {
-        let mut converted_values: Vec<VarValue> = Vec::new();
+        let mut converted_values: Vec<VarValue> = Vec::with_capacity(values.len());
         for c in values.chars() {
             converted_values.push(VarValue::from_str(&c.to_string())?)
         }
@@ -214,7 +214,7 @@ impl Observation {
     /// Make a string with bit-encoding of values of this `Observation`.
     /// Values are encoded using characters `1`, `0`, or `*`.
     pub fn to_values_string(&self) -> String {
-        let mut values_string = String::new();
+        let mut values_string = String::with_capacity(self.num_values());
         self.values
             .iter()
             .for_each(|v| values_string.push_str(v.as_str()));
