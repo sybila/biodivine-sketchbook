@@ -104,7 +104,7 @@ impl Sketch {
             }
         }
 
-        // TODO: Maybe allow the redundant functions? We already check if these symbols are not
+        // TODO: Maybe allow the redundant unused functions? We already check if these symbols are not
         //       used in static properties, and we prune the rest later, so it should be fine.
 
         // TODO: We can consider adding a check whether update fn expressions match regulation

@@ -2,6 +2,7 @@ use crate::sketchbook::data_structs::{
     DatasetData, DynPropertyData, SketchData, StatPropertyData, StatPropertyTypeData,
     UninterpretedFnData, VariableData,
 };
+use crate::sketchbook::ids::StatPropertyId;
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
 use crate::sketchbook::observations::ObservationManager;
 use crate::sketchbook::properties::shortcuts::*;
@@ -37,14 +38,16 @@ impl Sketch {
     /// These annotations either cover additional information (complementing variables and
     /// functions), or completely new components like static/dynamic properties and datasets.
     ///
+    /// If there are inconsistencies between annotations and pure AEON format, the annotations
+    /// take precedence. This may arise since Sketchbook provides more types of regulations
+    /// (e.g., dual) than AEON format can handle, and these are saved in the annotations.
+    ///
     /// We allow a special case for writing HCTL and FOL properties, compatible with the
     /// original BN sketches prototype format:
     ///   #!static_property: ID: #`fol_formula_string`#
     ///   #!dynamic_property: ID: #`hctl_formula_string`#
-    ///
-    /// TODO: speed up
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
-        // Set basic PSBN info (variables, functions, regulations) by parsing the aeon file.
+        // Parse basic AEON PSBN info (variables, functions, regulations) from the aeon file.
         // This also derives automatically-generated regulation properties.
         // BUT we have to be careful - some function symbols of the sketch file may only
         // be present in the annotations (if they are not part of any update expressions).
@@ -73,8 +76,8 @@ impl Sketch {
         // were not part of any update expressions). We must first add these function symbols
         // before we set any expressions that may involve them.
         for (id, fn_str) in functions.iter() {
-            let fn_data = UninterpretedFnData::from_json_str(fn_str)?;
             if !sketch.model.is_valid_uninterpreted_fn_id_str(id) {
+                let fn_data = UninterpretedFnData::from_json_str(fn_str)?;
                 let arity = fn_data.arguments.len();
                 sketch
                     .model
@@ -83,7 +86,7 @@ impl Sketch {
         }
 
         // Now we can safely add all additional info (like names, annotations, expressions)
-        // for variables and functions.
+        // for variables and uninterpreted functions.
         for (id, fn_str) in functions {
             let fn_data = UninterpretedFnData::from_json_str(&fn_str)?;
             let fn_id = sketch.model.get_uninterpreted_fn_id(&id)?;
@@ -98,7 +101,7 @@ impl Sketch {
             sketch.model.set_update_fn(&var_id, &var_data.update_fn)?;
         }
 
-        // datasets have to be added from scratch
+        // Datasets have to be added from scratch
         for (id, dataset_str) in datasets {
             let dataset_data = DatasetData::from_json_str(&dataset_str)?;
             sketch
@@ -106,24 +109,70 @@ impl Sketch {
                 .add_dataset_by_str(&id, dataset_data.to_dataset()?)?;
         }
 
-        // properties have to be added from scratch (apart from automatically generated static props)
-        // we allow two modes - a JSON string for any property, or formula string for HCTL/FOL properties
+        // Properties have to be added from scratch (apart from automatically generated static props).
+        // We allow two modes - a JSON string for any property, or formula string for HCTL/FOL properties.
         for (id, content_str) in stat_props {
-            // try parsing formula
+            // Try parsing a FOL formula, and if not successful, parse a JSON string
             if let Ok(prop) = StatProperty::try_mk_generic(&id, &content_str) {
                 sketch.properties.add_static_by_str(&id, prop)?
             } else {
                 let prop_data = StatPropertyData::from_json_str(&content_str)?;
                 let property = prop_data.to_property()?;
 
-                // Ignore automatically generated static props as they were added before
-                // TODO: Decide how to handle potential inconsistencies between the standard AEON
-                //       regulations and sketch annotations with regulation properties. Moreover,
-                //       AEON format does not support full range of monotonicity/essentiality options.
-                //       For now, we ignore automatically generated regulation properties.
+                // Ignore automatically generated static props as they were already added before
+                // together with regulations.
+                // However, if some regulation property parsed from annotation is not consistent with the
+                // underlying regulation, update the regulation to match it. Since pure AEON format does not
+                // support full range of monotonicity/essentiality options, advanced properties are only
+                // conserved correctly in annotations.
                 match prop_data.variant {
-                    StatPropertyTypeData::RegulationEssential(..)
-                    | StatPropertyTypeData::RegulationMonotonic(..) => {}
+                    // If the current regulation has different essentiality, update its value
+                    StatPropertyTypeData::RegulationEssential(p) => {
+                        let maybe_regulator = p.input;
+                        let maybe_target = p.target;
+                        // Only interested in fully specified regulation properties
+                        if let (Some(regulator), Some(target)) = (maybe_regulator, maybe_target) {
+                            let current_reg =
+                                sketch.model.get_regulation_by_str(&regulator, &target)?;
+                            if *current_reg.get_essentiality() != p.value {
+                                // Change both the model regulation and the corresponding static property
+                                sketch.model.change_regulation_essentiality_by_str(
+                                    &regulator, &target, &p.value,
+                                )?;
+                                // The static property may or may not (if the essentiality was unknown) be present
+                                let prop_id = StatPropertyId::new(&id)?;
+                                if sketch.properties.is_valid_stat_property_id(&prop_id) {
+                                    sketch.properties.set_stat_essentiality(&prop_id, p.value)?;
+                                } else {
+                                    sketch.properties.add_static_by_str(&id, property)?;
+                                }
+                            }
+                        }
+                    }
+                    // If the current regulation has different monotonicity, update its value
+                    StatPropertyTypeData::RegulationMonotonic(p) => {
+                        let maybe_regulator = p.input;
+                        let maybe_target = p.target;
+                        // Only interested in fully specified regulation properties
+                        if let (Some(regulator), Some(target)) = (maybe_regulator, maybe_target) {
+                            let current_reg =
+                                sketch.model.get_regulation_by_str(&regulator, &target)?;
+                            if *current_reg.get_sign() != p.value {
+                                // Change both the model regulation and the corresponding static property
+                                sketch
+                                    .model
+                                    .change_regulation_sign_by_str(&regulator, &target, &p.value)?;
+                                // The static property may or may not (if the monononicity was unknown) be present
+                                let prop_id = StatPropertyId::new(&id)?;
+                                if sketch.properties.is_valid_stat_property_id(&prop_id) {
+                                    sketch.properties.set_stat_monotonicity(&prop_id, p.value)?;
+                                } else {
+                                    sketch.properties.add_static_by_str(&id, property)?;
+                                }
+                            }
+                        }
+                    }
+                    // Add all other properties as-is
                     _ => {
                         sketch.properties.add_static_by_str(&id, property)?;
                     }
@@ -131,7 +180,7 @@ impl Sketch {
             }
         }
         for (id, content_str) in dyn_props {
-            // try parsing formula
+            // Try parsing a HCTL formula, and if not successful, parse a JSON string
             if let Ok(prop) = DynProperty::try_mk_generic(&id, &content_str) {
                 sketch.properties.add_dynamic_by_str(&id, prop)?
             } else {
@@ -153,26 +202,25 @@ impl Sketch {
     /// - update functions and function symbols
     /// - layout information
     pub fn from_sbml(sbml_str: &str) -> Result<Sketch, String> {
-        // set psbn info (variables, functions, regulations and corresponding properties)
+        // Set psbn info (variables, functions, regulations and corresponding properties)
         let (bn, layout_map) = BooleanNetwork::try_from_sbml(sbml_str)?;
         let mut sketch = Sketch::from_boolean_network(&bn)?;
 
         let default_layout = ModelState::get_default_layout_id();
-        for (node, (px, py)) in layout_map {
-            let node_id = sketch.model.get_var_id(&node)?;
+        for (variable_node, (px, py)) in layout_map {
+            let var_id = sketch.model.get_var_id(&variable_node)?;
             sketch
                 .model
-                .update_position(&default_layout, &node_id, px as f32, py as f32)?;
+                .update_position(&default_layout, &var_id, px as f32, py as f32)?;
         }
 
-        // lastly, make sure that automatically generated static properties have standardized IDs
-        // this is not needed for SBML at the moment, but we may need it later
+        // Lastly, make sure that automatically generated static properties have standardized IDs
+        // This is probably not needed for SBML at the moment, but we may need it later
         sketch.standardize_generated_static_ids()?;
-
         Ok(sketch)
     }
 
-    /// Create sketch instance from a BooleanNetwork instance of `lib-param-bn`.
+    /// Create `Sketch` instance from a BooleanNetwork instance of `lib-param-bn`.
     /// This includes processing:
     /// - variables
     /// - regulations (and corresponding automatically generated static properties)
@@ -182,7 +230,7 @@ impl Sketch {
         let model = ModelState::from_bn(bn)?;
 
         sketch.model = model;
-        // correctly set regulation static properties if needed
+        // Correctly set regulation static properties if needed
         for reg in sketch.model.regulations() {
             let input_var = reg.get_regulator();
             let target_var = reg.get_target();
@@ -326,7 +374,8 @@ mod tests {
 
     #[test]
     /// Test that importing the same data from different formats results in the same sketch.
-    /// These models only include PSBN (no additional datasets or properties).
+    /// These models only include PSBN (no additional datasets or properties) with standard
+    /// AEON-compatible regulations (no dual regulations and so on).
     fn basic_import() {
         let mut aeon_sketch_file = File::open("../data/test_data/test_model.aeon").unwrap();
         let mut json_sketch_file = File::open("../data/test_data/test_model.json").unwrap();
@@ -349,7 +398,8 @@ mod tests {
 
     #[test]
     /// Test that importing the same data from aeon and json format results in the same sketch.
-    /// This test involves two full sketches.
+    /// This test involves two full sketches, but only with standard AEON-compatible regulations
+    /// (no dual regulations and so on).
     fn full_import() {
         for sketch_idx in [1, 2] {
             let mut aeon_sketch_file =
@@ -366,5 +416,27 @@ mod tests {
             let sketch2 = Sketch::from_custom_json(&json_contents).unwrap();
             assert_eq!(sketch1, sketch2);
         }
+    }
+
+    #[test]
+    /// Test that importing the same data from aeon and json format results in the same sketch.
+    /// This test involves two models with various non-aeon-compatible regulations (such as
+    /// dual regulations).
+    fn full_import_with_various_regulations() {
+        let mut aeon_sketch_file =
+            File::open("../data/test_data/test_model_various_regulations.aeon".to_string())
+                .unwrap();
+        let mut json_sketch_file =
+            File::open("../data/test_data/test_model_various_regulations.json".to_string())
+                .unwrap();
+
+        let mut aeon_contents = String::new();
+        aeon_sketch_file.read_to_string(&mut aeon_contents).unwrap();
+        let mut json_contents = String::new();
+        json_sketch_file.read_to_string(&mut json_contents).unwrap();
+
+        let sketch1 = Sketch::from_aeon(&aeon_contents).unwrap();
+        let sketch2 = Sketch::from_custom_json(&json_contents).unwrap();
+        assert_eq!(sketch1, sketch2);
     }
 }

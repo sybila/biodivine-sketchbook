@@ -77,16 +77,14 @@ impl ModelState {
         reg_graph
     }
 
-    /// Create a `ModelState` from the given `RegulatoryGraph` instance. The model will have
-    /// the provided variables and regulations. Name of each variable (and parameter) used
-    /// in the RegulatoryGraph (which should be unique) is used as both its ID and name in
-    /// the resulting model.
+    /// Create a `ModelState` from a given `RegulatoryGraph` instance. The model will have
+    /// the provided variables and regulations. Name of each variable (and uninterpreted fn)
+    /// used in the `RegulatoryGraph` (which should be unique) is used as both its ID and name
+    /// in the resulting `ModelState`.
     ///
-    /// All other components of the `ModelState` (update functions, uninterpreted functions,...)
-    /// are left empty. A default layout (all nodes at 0,0) is created for the variables.
-    /// Annotations are left empty.
-    ///
-    /// TODO: speed up
+    /// All other components of the `ModelState` not present in regulatory graph (update
+    /// functions, uninterpreted functions,...) are left empty. A default layout (all nodes
+    /// at origin 0,0) is created for the variables. Annotations are left empty.
     pub fn from_reg_graph(reg_graph: &RegulatoryGraph) -> Result<ModelState, String> {
         let mut model = ModelState::new_empty();
 

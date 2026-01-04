@@ -8,6 +8,8 @@ MODEL_PATHS = [
     "test_data/test_sketch_1.json",
     "test_data/test_sketch_2.aeon",
     "test_data/test_sketch_2.json",
+    "test_data/test_model_various_regulations.aeon",
+    "test_data/test_model_various_regulations.json",
     "real_cases/arabidopsis/arabidopsis_sketch.aeon",
     "real_cases/arabidopsis/arabidopsis_sketch_hctl.json",
     "real_cases/arabidopsis/arabidopsis_sketch.json",

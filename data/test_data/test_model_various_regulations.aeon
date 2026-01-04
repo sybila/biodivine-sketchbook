@@ -1,0 +1,39 @@
+A -| D
+A -? A
+A ->? C
+B -? C
+D -?? B
+A -> B
+D -?? D
+C -|? C
+C -?? A
+B -?? B
+$A: h(C)
+$B: f(A, D)
+$C: A & g(C, B)
+#position:A:346.89832,183.03789
+#position:C:504.7078,101.93903
+#position:D:642.49677,185.15988
+#position:B:503,269.6
+#!function:f:#`{"id":"f","name":"f","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:g:#`{"id":"g","name":"g","annotation":"","arguments":[["Unknown","Unknown"],["Unknown","Unknown"]],"expression":""}`#
+#!function:h:#`{"id":"h","name":"h","annotation":"","arguments":[["Unknown","Unknown"]],"expression":""}`#
+#!static_property:essentiality_A_A:#`{"id":"essentiality_A_A","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"A","value":"True","context":null}`#
+#!static_property:essentiality_A_B:#`{"id":"essentiality_A_B","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"B","value":"True","context":null}`#
+#!static_property:essentiality_A_C:#`{"id":"essentiality_A_C","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"C","value":"False","context":null}`#
+#!static_property:essentiality_A_D:#`{"id":"essentiality_A_D","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"A","target":"D","value":"True","context":null}`#
+#!static_property:essentiality_B_C:#`{"id":"essentiality_B_C","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"B","target":"C","value":"True","context":null}`#
+#!static_property:essentiality_C_A:#`{"id":"essentiality_C_A","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"C","target":"A","value":"False","context":null}`#
+#!static_property:essentiality_C_C:#`{"id":"essentiality_C_C","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"C","target":"C","value":"False","context":null}`#
+#!static_property:essentiality_D_B:#`{"id":"essentiality_D_B","name":"Regulation essentiality (generated)","annotation":"","variant":"RegulationEssential","input":"D","target":"B","value":"False","context":null}`#
+#!static_property:monotonicity_A_B:#`{"id":"monotonicity_A_B","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"B","value":"Activation","context":null}`#
+#!static_property:monotonicity_A_C:#`{"id":"monotonicity_A_C","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"C","value":"Activation","context":null}`#
+#!static_property:monotonicity_A_D:#`{"id":"monotonicity_A_D","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"A","target":"D","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_B_C:#`{"id":"monotonicity_B_C","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"B","target":"C","value":"Dual","context":null}`#
+#!static_property:monotonicity_C_C:#`{"id":"monotonicity_C_C","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"C","target":"C","value":"Inhibition","context":null}`#
+#!static_property:monotonicity_D_B:#`{"id":"monotonicity_D_B","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"D","target":"B","value":"Dual","context":null}`#
+#!static_property:monotonicity_D_D:#`{"id":"monotonicity_D_D","name":"Regulation monotonicity (generated)","annotation":"","variant":"RegulationMonotonic","input":"D","target":"D","value":"Dual","context":null}`#
+#!variable:A:#`{"id":"A","name":"A","annotation":"","update_fn":"h(C)"}`#
+#!variable:B:#`{"id":"B","name":"B","annotation":"","update_fn":"f(A, D)"}`#
+#!variable:C:#`{"id":"C","name":"C","annotation":"","update_fn":"A & g(C, B)"}`#
+#!variable:D:#`{"id":"D","name":"D","annotation":"","update_fn":""}`#

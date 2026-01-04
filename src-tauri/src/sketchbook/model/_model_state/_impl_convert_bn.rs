@@ -148,8 +148,6 @@ impl ModelState {
     /// Name of each variable (and parameter) used in BooleanNetwork (which should be unique) is
     /// used as both its ID and name in the resulting model. All annotations are left empty.
     /// A default layout (all nodes at 0,0) is created for the variables.
-    ///
-    /// TODO: speed up
     pub fn from_bn(bn: &BooleanNetwork) -> Result<Self, String> {
         // this collects variables and regulations
         let mut model = ModelState::from_reg_graph(bn.as_graph())?;

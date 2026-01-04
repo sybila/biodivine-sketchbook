@@ -172,7 +172,8 @@ impl ModelState {
     }
 
     /// Add a new variable with given `var_id` and `name` to this `ModelState`. The variable
-    /// will receive a default "empty" update function.
+    /// will receive a default "empty" update function and its layout node will be crated
+    /// at a default position.
     ///
     /// The ID must be valid identifier that is not already used by some other variable.
     /// The names might be same as the ID. It also might be empty or non-unique.
@@ -788,6 +789,21 @@ impl ModelState {
         Ok(())
     }
 
+    /// Shorthand to change sign of a `Regulation` pointing from `regulator` to `target`.
+    /// Currently it basically removes the regulation, and adds a new one with the new sign.
+    ///
+    /// Returns `Err` when one of the variables is invalid
+    pub fn change_regulation_sign_by_str(
+        &mut self,
+        regulator: &str,
+        target: &str,
+        new_sign: &Monotonicity,
+    ) -> Result<(), String> {
+        let regulator_id = VarId::new(regulator)?;
+        let target_id = VarId::new(target)?;
+        self.change_regulation_sign(&regulator_id, &target_id, new_sign)
+    }
+
     /// Shorthand to change essentiality of a `Regulation` pointing from `regulator` to `target`.
     /// Currently it basically removes the regulation, and adds a new one with the new essentiality value.
     ///
@@ -808,6 +824,21 @@ impl ModelState {
             *regulation.get_sign(),
         )?;
         Ok(())
+    }
+
+    /// Shorthand to change essentiality of a `Regulation` pointing from `regulator` to `target`.
+    /// Currently it basically removes the regulation, and adds a new one with the new essentiality value.
+    ///
+    /// Returns `Err` when one of the variables is invalid.
+    pub fn change_regulation_essentiality_by_str(
+        &mut self,
+        regulator: &str,
+        target: &str,
+        new_essentiality: &Essentiality,
+    ) -> Result<(), String> {
+        let regulator_id = VarId::new(regulator)?;
+        let target_id = VarId::new(target)?;
+        self.change_regulation_essentiality(&regulator_id, &target_id, new_essentiality)
     }
 
     /// Set update function for a given variable to a provided expression.
