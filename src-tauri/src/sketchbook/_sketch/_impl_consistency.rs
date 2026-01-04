@@ -267,13 +267,16 @@ impl Sketch {
         Ok(())
     }
 
-    /// Check if all fields of a dynamic property are filled and have valid values.
-    /// If not, return appropriate message.
+    /// Check if all required fields of a dynamic property are filled and have valid
+    /// values. If not, return appropriate message.
     fn assert_dynamic_prop_valid(&self, prop: &DynProperty) -> Result<(), String> {
-        // first just check if all required fields are filled out (that is usually the dataset ID)
-        prop.assert_dataset_filled()?;
+        // First make sure all required fields are filled (this is currently just the
+        // dataset ID for most kinds of properties). Other fields either have default
+        // values (attractor count) or can remain empty (observation counts).
+        prop.assert_required_fields_filled()?;
 
-        // now, let's validate the fields (we know the required ones are filled in)
+        // Now we can safely unwrap the dataset ID in all corresponding properties
+        // Let's validate all the relevant fields
         match prop.get_prop_data() {
             DynPropertyType::GenericDynProp(generic_prop) => {
                 HctlFormula::check_syntax_with_model(
@@ -281,24 +284,24 @@ impl Sketch {
                     &self.model,
                 )?;
 
-                // we will need to check wild cards as well
+                // We also need to check wild cards
                 for wild_card_proposition in generic_prop.wild_cards.iter() {
                     self.assert_wild_card_prop_valid(wild_card_proposition)?;
                 }
             }
             DynPropertyType::HasAttractor(p) => {
-                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_dataset_valid_and_nonempty(p.dataset.as_ref().unwrap())?;
                 self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
             }
             DynPropertyType::ExistsFixedPoint(p) => {
-                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_dataset_valid_and_nonempty(p.dataset.as_ref().unwrap())?;
                 self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
             }
             DynPropertyType::ExistsTrajectory(p) => {
-                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_dataset_valid_and_nonempty(p.dataset.as_ref().unwrap())?;
             }
             DynPropertyType::ExistsTrapSpace(p) => {
-                self.assert_dataset_valid(p.dataset.as_ref().unwrap())?;
+                self.assert_dataset_valid_and_nonempty(p.dataset.as_ref().unwrap())?;
                 self.assert_obs_valid_or_none(p.dataset.as_ref().unwrap(), p.observation.as_ref())?;
             }
             DynPropertyType::AttractorCount(_) => {} // no fields that can be invalid
@@ -311,22 +314,22 @@ impl Sketch {
     fn assert_wild_card_prop_valid(&self, prop: &WildCardProposition) -> Result<(), String> {
         match prop.get_prop_data() {
             WildCardType::Observation(data_id, obs_id) => {
-                self.assert_dataset_valid(data_id)?;
+                self.assert_dataset_valid_and_nonempty(data_id)?;
                 self.assert_obs_valid_or_none(data_id, Some(obs_id))?;
             }
             WildCardType::Trajectory(data_id) => {
-                self.assert_dataset_valid(data_id)?;
+                self.assert_dataset_valid_and_nonempty(data_id)?;
             }
             WildCardType::Attractors(data_id, obs_id) => {
-                self.assert_dataset_valid(data_id)?;
+                self.assert_dataset_valid_and_nonempty(data_id)?;
                 self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
             }
             WildCardType::FixedPoints(data_id, obs_id) => {
-                self.assert_dataset_valid(data_id)?;
+                self.assert_dataset_valid_and_nonempty(data_id)?;
                 self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
             }
             WildCardType::TrapSpaces(data_id, obs_id, _, _) => {
-                self.assert_dataset_valid(data_id)?;
+                self.assert_dataset_valid_and_nonempty(data_id)?;
                 self.assert_obs_valid_or_none(data_id, obs_id.as_ref())?;
             }
             WildCardType::AttractorCount(..) => {} // no fields that can be invalid
@@ -398,12 +401,19 @@ impl Sketch {
         Ok(())
     }
 
-    /// Check that dataset is valid. If not, return error with a proper message.
-    fn assert_dataset_valid(&self, dataset_id: &DatasetId) -> Result<(), String> {
-        if self.observations.is_valid_dataset_id(dataset_id) {
-            Ok(())
+    /// Check that dataset is valid and contains at least a single observation.
+    /// If not, return error with a proper message.
+    fn assert_dataset_valid_and_nonempty(&self, dataset_id: &DatasetId) -> Result<(), String> {
+        if let Ok(dataset) = self.observations.get_dataset(dataset_id) {
+            if dataset.num_observations() > 0 {
+                Ok(())
+            } else {
+                Err(format!("Referenced dataset `{dataset_id}` is empty."))
+            }
         } else {
-            Err(format!("Dataset `{dataset_id}` is not a valid dataset."))
+            Err(format!(
+                "Referenced dataset `{dataset_id}` is not a valid dataset."
+            ))
         }
     }
 
