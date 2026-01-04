@@ -11,7 +11,7 @@ use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
 /// Test adding variable via events.
 fn test_add_var() {
     let variables = vec![("a", "a")];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     let model_orig = model.clone();
     assert_eq!(model.num_vars(), 1);
 
@@ -32,7 +32,7 @@ fn test_add_var() {
 /// Test removing a variable that has no regulations and its node is in default position.
 fn test_remove_var_simple() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     let model_orig = model.clone();
 
     // test variable remove event
@@ -49,7 +49,7 @@ fn test_remove_var_simple() {
 /// Test removing a variable that has regulations and its node is in non-default position.
 fn test_remove_var_complex() {
     // make a model where var `a` is part of regulations, and its position is changed
-    let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+    let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
     let var_a = model.get_var_id("a").unwrap();
     let regulations = vec!["a -> a", "a -> b", "b -> b"];
     model.add_multiple_regulations(regulations).unwrap();
@@ -96,7 +96,7 @@ fn test_remove_var_complex() {
 /// Test setting variable's name and ID via events.
 fn test_set_var_name_id() {
     let orig_name = "a_name";
-    let mut model = ModelState::new_from_vars(vec![("a", orig_name)]).unwrap();
+    let mut model = ModelState::new_with_vars(vec![("a", orig_name)]).unwrap();
     let var_a = model.get_var_id("a").unwrap();
     let new_name = "new_name";
     let model_orig = model.clone();
@@ -126,7 +126,7 @@ fn test_set_var_name_id() {
 /// Test setting variable's update function via event.
 fn test_set_update_fn() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     let model_orig = model.clone();
     let expression = "a => b";
     let var_a = model.get_var_id("a").unwrap();
@@ -173,7 +173,7 @@ fn test_invalid_var_events() {
 /// Test adding regulation via (raw) event.
 fn test_add_reg_simple() {
     let variables = vec![("a", "a"), ("b", "b")];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     let model_orig = model.clone();
 
     // test regulation add event
@@ -192,7 +192,7 @@ fn test_add_reg_simple() {
 /// Test changing regulation's monotonicity and essentiality via event.
 fn test_change_reg_sign_essentiality() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     let regulations = vec!["a -> a", "a -> b", "b -> a"];
     model.add_multiple_regulations(regulations).unwrap();
     let model_orig = model.clone();
@@ -224,7 +224,7 @@ fn test_change_reg_sign_essentiality() {
 /// Test removing regulation via (raw) event.
 fn test_remove_reg_simple() {
     let variables = vec![("a", "a_name"), ("b", "b_name")];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     model.add_regulation_by_str("a -?? b").unwrap();
     let model_orig = model.clone();
 
@@ -319,7 +319,7 @@ fn test_refresh() {
     let regulations = vec!["a -> a", "b -| a", "b -| b"];
     let functions = vec![("f", "f", 2), ("g", "g", 3)];
     let expressions = ["a & !b", "!b"];
-    let mut model = ModelState::new_from_vars(variables).unwrap();
+    let mut model = ModelState::new_with_vars(variables).unwrap();
     model.add_multiple_uninterpreted_fns(functions).unwrap();
     model.add_multiple_regulations(regulations).unwrap();
 

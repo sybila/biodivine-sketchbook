@@ -58,7 +58,7 @@ impl Layout {
     /// variables, and all of the nodes will be located at a default position.
     ///
     /// Returns `Error` if given ids contain duplicates.
-    pub fn new_from_vars_default(name: &str, variables: Vec<VarId>) -> Result<Layout, String> {
+    pub fn new_with_vars_default(name: &str, variables: Vec<VarId>) -> Result<Layout, String> {
         let mut nodes_map = HashMap::with_capacity(variables.len());
         for var_id in &variables {
             if nodes_map
@@ -140,7 +140,9 @@ impl Layout {
     ///
     /// Return `Err` if the provided variables do not exactly match the layout variables.
     pub fn update_all_node_positions(&mut self, nodes: Vec<LayoutNodeData>) -> Result<(), String> {
-        let layout_variables = self.get_variables()?;
+        // Check if layout variables and provided variables match exactly
+        let layout_variables: HashSet<_> =
+            self.get_variables()?.iter().map(|v| v.as_str()).collect();
         let provided_variables = nodes
             .iter()
             .map(|n| n.variable.as_str())
@@ -149,9 +151,10 @@ impl Layout {
             return Err("Layout variables and provided variables must match exactly.".to_string());
         }
 
+        // Now add the nodes
         for node in nodes {
             let variable = VarId::new(&node.variable)?;
-            // We can now safely unwrap, since we checked above
+            // We can now safely unwrap, since we checked the validity of variables above
             self.nodes
                 .get_mut(&variable)
                 .unwrap()
@@ -210,8 +213,8 @@ impl Layout {
     }
 
     /// Collect variable IDs from all nodes of this layout.
-    pub fn get_variables(&self) -> Result<HashSet<&str>, String> {
-        Ok(self.nodes.keys().map(|k| k.as_str()).collect())
+    pub fn get_variables(&self) -> Result<HashSet<&VarId>, String> {
+        Ok(self.nodes.keys().collect())
     }
 
     /// Human-readable name of this layout.

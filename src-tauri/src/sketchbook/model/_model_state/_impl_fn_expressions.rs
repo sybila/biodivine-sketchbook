@@ -262,7 +262,7 @@ mod tests {
         // - `f(x) = !x`
         // - `g(x) = unspecified`
 
-        let mut model = ModelState::new_from_vars(vec![("A", "A")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("A", "A")]).unwrap();
         let var_a = model.get_var_id("A").unwrap();
 
         model
@@ -332,7 +332,7 @@ mod tests {
         // - `h(x) = i(x) | x`
         // - `i(x) = x`
 
-        let mut model = ModelState::new_from_vars(vec![("A", "A"), ("B", "B")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("A", "A"), ("B", "B")]).unwrap();
         model
             .add_multiple_regulations(vec!["A -?? B", "B -?? A", "B -?? B"])
             .unwrap();
@@ -345,7 +345,10 @@ mod tests {
             ])
             .unwrap();
         model
-            .set_multiple_update_fns(vec![("A", "f(B)"), ("B", "A & B")])
+            .set_update_fn(&model.get_var_id("A").unwrap(), "f(B)")
+            .unwrap();
+        model
+            .set_update_fn(&model.get_var_id("B").unwrap(), "A & B")
             .unwrap();
         model
             .set_uninterpreted_fn_expression_by_str("f", "g(var0) | var0")

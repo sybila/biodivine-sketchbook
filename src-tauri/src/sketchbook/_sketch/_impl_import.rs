@@ -41,6 +41,8 @@ impl Sketch {
     /// original BN sketches prototype format:
     ///   #!static_property: ID: #`fol_formula_string`#
     ///   #!dynamic_property: ID: #`hctl_formula_string`#
+    ///
+    /// TODO: speed up
     pub fn from_aeon(aeon_str: &str) -> Result<Sketch, String> {
         // Set basic PSBN info (variables, functions, regulations) by parsing the aeon file.
         // This also derives automatically-generated regulation properties.
@@ -299,7 +301,7 @@ impl Sketch {
     }
 
     /// Load dataset from a provided CSV file path, and add it (with provided id/name)
-    /// to this sketch.
+    /// directly to this sketch.
     pub fn load_dataset(&mut self, dataset_id: &str, csv_path: &str) -> Result<(), String> {
         // Load file contents
         let mut file = File::open(csv_path).map_err(|e| e.to_string())?;

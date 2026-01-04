@@ -86,6 +86,7 @@ impl ModelState {
     /// are left empty. A default layout (all nodes at 0,0) is created for the variables.
     /// Annotations are left empty.
     ///
+    /// TODO: speed up
     pub fn from_reg_graph(reg_graph: &RegulatoryGraph) -> Result<ModelState, String> {
         let mut model = ModelState::new_empty();
 
@@ -118,7 +119,7 @@ mod tests {
 
     /// Prepare a test model containing only variables and regulations.
     fn prepare_test_model() -> ModelState {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model
             .add_multiple_regulations(vec!["a -> b", "b -> a", "a -| a"])
             .unwrap();

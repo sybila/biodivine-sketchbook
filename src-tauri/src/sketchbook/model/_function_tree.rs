@@ -455,7 +455,7 @@ mod tests {
     #[test]
     /// Test parsing of a valid update function's expression.
     fn test_valid_update_fn() {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model
             .add_empty_uninterpreted_fn_by_str("f", "f", 1)
             .unwrap();
@@ -489,7 +489,7 @@ mod tests {
     #[test]
     /// Test parsing of several invalid update functions' expressions.
     fn test_invalid_update_fns() {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model
             .add_empty_uninterpreted_fn_by_str("f", "f", 2)
             .unwrap();
@@ -513,7 +513,7 @@ mod tests {
     #[test]
     /// Test parsing invalid uninterpreted functions' expressions.
     fn test_invalid_uninterpreted_fn() {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model
             .add_empty_uninterpreted_fn_by_str("f", "f", 1)
             .unwrap();
@@ -543,7 +543,7 @@ mod tests {
     #[test]
     /// Test variable & uninterpreted fn substitution.
     fn test_substitution() {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         model
             .add_empty_uninterpreted_fn_by_str("f", "f", 1)
             .unwrap();
@@ -569,7 +569,7 @@ mod tests {
     #[test]
     /// Test collecting function symbols from function's expression.
     fn test_collect_fns() {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         let fns = vec![("f", "f", 1), ("g", "g", 1), ("h", "h", 1)];
         model.add_multiple_uninterpreted_fns(fns).unwrap();
         let f = model.get_uninterpreted_fn_id("f").unwrap();
@@ -585,7 +585,7 @@ mod tests {
     /// Test collecting variables from function's expression.
     fn test_collect_vars() {
         let variables = vec![("a", "a"), ("b", "b"), ("c", "c")];
-        let mut model = ModelState::new_from_vars(variables).unwrap();
+        let mut model = ModelState::new_with_vars(variables).unwrap();
         model
             .add_empty_uninterpreted_fn_by_str("f", "f", 1)
             .unwrap();
