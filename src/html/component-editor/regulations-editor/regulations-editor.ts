@@ -561,7 +561,7 @@ export class RegulationsEditor extends LitElement {
       </div>
       <!-- Prepares a clean environment for the cytoscape element with a floating menu. -->
       <!-- Cytoscape editor is not part of the container above to make it always 100% of width. -->
-      <div style="width: 100%; height: 100%; position: relative;">
+      <div style="width: 100%; height: calc(100% - 3em); position: relative;">
         ${this.editorElement}
         <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
                     .data=${this.menuData}></float-menu>
