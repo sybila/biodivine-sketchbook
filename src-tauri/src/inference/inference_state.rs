@@ -211,7 +211,10 @@ impl InferenceState {
         self.receiver_channel = Some(progress_receiver);
         let solver = Arc::new(RwLock::new(InferenceSolver::new(progress_sender)));
         self.solver = Some(Arc::clone(&solver));
-        let sketch = self.sketch.clone();
+
+        // Process datasets in sketch, so that the variables match exactly with the model
+        // (add missing variables with unspecified values, remove extra variables)
+        let sketch = self.sketch.with_processed_datasets();
 
         // Capture only the necessary data for the async block
         let solver_clone = Arc::clone(&solver);

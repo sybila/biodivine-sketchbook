@@ -146,7 +146,7 @@ impl Dataset {
     }
 
     /// Remove variable and all the values corresponding to it (decrementing dimension of the
-    /// dataset in process).
+    /// dataset in process). Essentially removes a column in the dataset table.
     pub fn remove_var(&mut self, var_id: &VarId) -> Result<(), String> {
         let idx = self.get_idx_of_var(var_id)?; // validity check inside
         self.variables.remove(idx);
@@ -587,15 +587,15 @@ mod tests {
     /// Test removing variable from a dataset.
     fn test_remove_variable() {
         let name = "dataset";
-        let obs1 = Observation::try_from_str("*1", "o").unwrap();
-        let obs2 = Observation::try_from_str("00", "p").unwrap();
-        let mut dataset = Dataset::new(name, vec![obs1, obs2], vec!["a", "b"]).unwrap();
+        let obs1 = Observation::try_from_str("*1*", "o").unwrap();
+        let obs2 = Observation::try_from_str("000", "p").unwrap();
+        let mut dataset = Dataset::new(name, vec![obs1, obs2], vec!["a", "b", "c"]).unwrap();
         dataset.remove_var_by_str("a").unwrap();
 
-        let obs1_expected = Observation::try_from_str("1", "o").unwrap();
-        let obs2_expected = Observation::try_from_str("0", "p").unwrap();
+        let obs1_expected = Observation::try_from_str("1*", "o").unwrap();
+        let obs2_expected = Observation::try_from_str("00", "p").unwrap();
         let obs_expected = vec![obs1_expected, obs2_expected];
-        let dataset_expected = Dataset::new(name, obs_expected, vec!["b"]).unwrap();
+        let dataset_expected = Dataset::new(name, obs_expected, vec!["b", "c"]).unwrap();
 
         assert_eq!(dataset, dataset_expected);
     }
