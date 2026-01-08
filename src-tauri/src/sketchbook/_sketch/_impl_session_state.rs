@@ -157,7 +157,7 @@ impl SessionState for Sketch {
                 })
             } else {
                 let warning =
-                    format!("There are potential minor issues with the sketch. Consider fixing them before running the inference. \n\n{warn_message}");
+                    format!("The sketch has potential minor issues. Please review before running inference: \n\n{warn_message}");
                 Ok(Consumed::IrreversibleWithWarning {
                     state_change,
                     reset: false,

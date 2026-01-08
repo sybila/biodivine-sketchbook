@@ -176,7 +176,7 @@ mod tests {
     /// Test that after processing datasets, they all have matching
     /// variables with model.
     fn processing_dataset() {
-        // Build a simple sketch with one variables A, B, C
+        // Build a simple sketch with three variables A, B, C
         let mut sketch = Sketch::from_aeon("A -> A\nB -> B\nC -> C").unwrap();
         assert!(sketch.assert_consistency().is_ok());
 

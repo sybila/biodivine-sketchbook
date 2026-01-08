@@ -98,7 +98,7 @@ impl Sketch {
             for fn_symbol in redundant_fn_symbols {
                 consitent = false;
                 let issue = format!(
-                    "> ISSUE: Function `{fn_symbol}` is redundant (not used in any update expression). Consider using it or remove it.\n"
+                    "> ISSUE: Function `{fn_symbol}` is redundant (not used in any update expression).\n"
                 );
                 message += &issue;
             }
@@ -118,52 +118,60 @@ impl Sketch {
     /// Returns bool (whether datasets are consistent), a formated message with error issues,
     /// and a separate message with warnings.
     ///
-    /// Essentially, we currently check that variables in datasets and in the network exactly match.
+    /// Currently only warnings are sent to the user, there are no hard error situations.
+    /// We check that variables in datasets and in the network exactly match, and that all
+    /// datasets are used within some dynamic property.
+    ///
+    /// The issues are only reported as warnings since they are handled automatically before
+    /// inference.
     fn check_datasets(&self) -> (bool, String, String) {
         let mut message = String::new();
         message += "DATASETS:\n";
 
-        // Warning message with minor issues to warn user
-        // For now, this is just regarding unused datasets
+        // We only report issues using warnings here
         let mut warnings = String::new();
 
-        let mut dataset_err_found = false;
         for (dataset_id, dataset) in self.observations.datasets() {
-            // check that all dataset variables are part of the network
+            // 1) Check that all dataset variables are part of the network
+            let mut invalid_variables = Vec::new();
             for var_id in dataset.variables() {
                 if !self.model.is_valid_var_id(var_id) {
-                    let issue_var =
-                        format!("Variable {} is not present in the model.", var_id.as_str());
-                    let issue = format!(
-                        "> ISSUE with dataset `{}`: {issue_var}\n",
-                        dataset_id.as_str()
-                    );
-                    message += &issue;
-                    dataset_err_found = true;
+                    invalid_variables.push(var_id.to_string());
                 }
             }
-            // check that all network variables are part of the dataset
-            // TODO: in future, maybe automatically add missing variables before inference instead?
-            for (var_id, _) in self.model.variables() {
-                if !dataset.is_valid_variable(var_id) {
-                    let issue_var =
-                        format!("Variable {var_id} is not present in the dataset {dataset_id}.");
-                    let issue = format!("> ISSUE with dataset `{dataset_id}`: {issue_var}\n");
-                    message += &issue;
-                    dataset_err_found = true;
-                }
+            if !invalid_variables.is_empty() {
+                let invalid_vars_str = invalid_variables.join(", ");
+                let warning_inner =
+                    format!("Following variables are not part of the network and will be ignored for the inference: {invalid_vars_str}");
+                let warning = format!("> ISSUE with dataset `{dataset_id}`: {warning_inner}\n",);
+                warnings += &warning;
             }
 
-            // Check if the dataset is used within some dynamic prop, and if not, create
-            // warning
+            // 2) Check that all network variables are part of the dataset
+            let mut missing_variables = Vec::new();
+            for (var_id, _) in self.model.variables() {
+                if !dataset.is_valid_variable(var_id) {
+                    missing_variables.push(var_id.to_string());
+                }
+            }
+            if !missing_variables.is_empty() {
+                let missing_vars_str = missing_variables.join(", ");
+                let warning_inner =
+                    format!("Following network variables are missing in the dataset (unspecified values will be used): {missing_vars_str}");
+                let warning = format!("> ISSUE with dataset `{dataset_id}`: {warning_inner}\n",);
+                warnings += &warning;
+            }
+
+            // Check if the dataset is used within some dynamic prop,
+            // If not, create a warning
             if !self.is_dataset_used(dataset_id) {
                 let warning =
-                    format!("Dataset `{dataset_id}` is not linked to any dynamic property.\n");
+                    format!("> ISSUE with dataset `{dataset_id}`: This dataset is not linked to any dynamic property.\n");
                 warnings += &warning;
             }
         }
 
-        (!dataset_err_found, message, warnings)
+        (true, message, warnings)
     }
 
     /// Part of the consistency check responsible for the 'static properties' component.
@@ -458,7 +466,8 @@ fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> S
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::observations::Dataset;
+    use crate::sketchbook::ids::DatasetId;
+    use crate::sketchbook::observations::{Dataset, Observation};
     use crate::sketchbook::properties::{DynProperty, StatProperty};
     use crate::sketchbook::Sketch;
     use std::fs::File;
@@ -556,44 +565,85 @@ mod tests {
             .add_static_by_str("prop", static_prop.clone())
             .unwrap();
 
-        // We cant use the full consistency check directly - if would report error as well,
-        // but simply because there is the unused function in the sketch (different reason).
+        // We cant use the full consistency check directly - it would report error as well,
+        // but for a different reason - simply because there is unused function in the sketch.
         assert!(sketch.assert_static_prop_valid(&static_prop).is_err());
     }
 
     #[test]
-    /// Test that consistency check fails if a dataset contains variable not
-    /// present in the model (and the other way around).
+    /// Test that property consistency check reports issues if an empty dataset is used
+    /// within a property.
+    fn consistency_property_with_empty_dataset() {
+        let mut sketch = Sketch::from_aeon("A -> A\n").unwrap();
+
+        // Prepare empty dataset
+        let dataset_id = DatasetId::new("d").unwrap();
+        let dataset = Dataset::new_empty("d", vec!["A"]).unwrap();
+        sketch
+            .observations
+            .add_dataset(dataset_id.clone(), dataset)
+            .unwrap();
+
+        // Prepare property referencing the dataset
+        let dyn_prop = DynProperty::mk_trajectory("p", Some(dataset_id));
+        sketch
+            .properties
+            .add_dynamic_by_str("p", dyn_prop.clone())
+            .unwrap();
+
+        assert!(sketch.assert_dynamic_prop_valid(&dyn_prop).is_err());
+        assert!(sketch.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Test that consistency check succeeds but returns warnings if a dataset contains
+    /// variables not present in the model and the other way around.
     fn consistency_dataset() {
-        // build a simple sketch with one variables A, B and a function symbol f
-        let sketch = Sketch::from_aeon("A -> A\nB -> B\n$A:f(A)\n$B:f(B)").unwrap();
+        // Build a simple sketch with two variables A, B
+        let mut sketch = Sketch::from_aeon("A -> A\nB -> B").unwrap();
         assert!(sketch.assert_consistency().is_ok());
+        // Prepare a property to reference the dataset (that we'll add later)
+        // This property is needed so that the dataset is actually used
+        let dataset_id = DatasetId::new("dataset").unwrap();
+        let dyn_prop = DynProperty::mk_trajectory("p", Some(dataset_id));
+        sketch.properties.add_dynamic_by_str("p", dyn_prop).unwrap();
 
-        // dataset referencing additional non-existing variable C
-        let dataset = Dataset::new_empty("d1", vec!["A", "B", "C"]).unwrap();
+        // Note that the dataset must not be empty for consistency
+
+        // Dataset referencing additional non-existing variable C
+        let mock_obs = Observation::new_full_ones(3, "o").unwrap();
+        let dataset = Dataset::new("d1", vec![mock_obs], vec!["A", "B", "C"]).unwrap();
         let mut sketch_copy = sketch.clone();
         sketch_copy
             .observations
-            .add_dataset_by_str("d1", dataset)
+            .add_dataset_by_str("dataset", dataset)
             .unwrap();
-        assert!(sketch_copy.assert_consistency().is_err());
+        let (consistent, _, warnings) = sketch_copy.run_consistency_check();
+        assert!(consistent);
+        assert!(warnings.contains("Following variables are not part of the network"));
 
-        // dataset missing variable B
-        let dataset = Dataset::new_empty("d2", vec!["A"]).unwrap();
+        // Dataset missing variable B
+        let mock_obs = Observation::new_full_ones(1, "o").unwrap();
+        let dataset = Dataset::new("d2", vec![mock_obs], vec!["A"]).unwrap();
         let mut sketch_copy = sketch.clone();
         sketch_copy
             .observations
-            .add_dataset_by_str("d2", dataset)
+            .add_dataset_by_str("dataset", dataset)
             .unwrap();
-        assert!(sketch_copy.assert_consistency().is_err());
+        let (consistent, _, warnings) = sketch_copy.run_consistency_check();
+        assert!(consistent);
+        assert!(warnings.contains("Following network variables are missing in the dataset"));
 
-        // dataset that is consistent with the model
-        let dataset = Dataset::new_empty("d3", vec!["A", "B"]).unwrap();
+        // Dataset that is consistent with the model (no warnings)
+        let mock_obs = Observation::new_full_ones(2, "o").unwrap();
+        let dataset = Dataset::new("d3", vec![mock_obs], vec!["A", "B"]).unwrap();
         let mut sketch_copy = sketch.clone();
         sketch_copy
             .observations
-            .add_dataset_by_str("d3", dataset)
+            .add_dataset_by_str("dataset", dataset)
             .unwrap();
-        assert!(sketch_copy.assert_consistency().is_ok());
+        let (consistent, _, warnings) = sketch_copy.run_consistency_check();
+        assert!(consistent);
+        assert!(warnings.is_empty());
     }
 }
