@@ -357,7 +357,12 @@ export default class AnalysisComponent extends LitElement {
                 Otherwise, render a button for resetting inference. -->
           ${this.selected_inference === null
 ? html`
-            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
+            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 40px">
+              <div id="inference-description" class="help-message-block uk-flex uk-flex-row uk-flex-center">
+                Ready to infer satisfying networks. The sketch is now locked for the whole computation. You can export/sample the results when complete.
+              </div>
+            </div>
+            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 40px">
               <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
                       @click="${() => {
                         this.runInference()

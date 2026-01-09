@@ -621,6 +621,7 @@ mod tests {
         let (consistent, _, warnings) = sketch_copy.run_consistency_check();
         assert!(consistent);
         assert!(warnings.contains("Following variables are not part of the network"));
+        assert!(warnings.contains(": C"));
 
         // Dataset missing variable B
         let mock_obs = Observation::new_full_ones(1, "o").unwrap();
@@ -633,6 +634,7 @@ mod tests {
         let (consistent, _, warnings) = sketch_copy.run_consistency_check();
         assert!(consistent);
         assert!(warnings.contains("Following network variables are missing in the dataset"));
+        assert!(warnings.contains(": B"));
 
         // Dataset that is consistent with the model (no warnings)
         let mock_obs = Observation::new_full_ones(2, "o").unwrap();
