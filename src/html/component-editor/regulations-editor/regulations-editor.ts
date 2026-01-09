@@ -573,15 +573,15 @@ export class RegulationsEditor extends LitElement {
         </div>`
         )}
       </div>
-      <button id="center-layout-button" class="uk-button uk-button-small uk-button-secondary" 
+      <button id="center-layout-button" class="uk-button uk-button-small uk-button-secondary uk-border-rounded" 
         @click="${() => { this.centerFitLayout() }}">
         Center and fit
       </button>
-      <button id="cose-layout-button" class="uk-button uk-button-small uk-button-secondary" 
+      <button id="cose-layout-button" class="uk-button uk-button-small uk-button-secondary uk-border-rounded" 
         @click="${() => { this.applyCoseLayout() }}">
         Auto layout
       </button>
-      <button class="uk-button uk-button-small uk-button-secondary help-button" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
+      <button class="uk-button uk-button-small uk-button-secondary help-button uk-border-rounded" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
         ?
       </button>
     `

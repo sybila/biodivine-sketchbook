@@ -451,7 +451,7 @@ export default class PropertiesEditor extends LitElement {
           <div class="section" id="functions">
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom">Static</h3>
-              <button id="add-static-property-button" class="add-property add-static-property uk-button uk-button-small uk-button-primary"
+              <button id="add-static-property-button" class="add-property add-static-property uk-button uk-button-small uk-button-primary uk-border-rounded"
                       @click="${this.openAddStaticPropertyMenu}">
                       + Add
               </button>
@@ -464,16 +464,16 @@ export default class PropertiesEditor extends LitElement {
               </div>`
 : html`
               ${this.numGeneratedRegProperties() > 0
-? html`<div class="uk-margin-small">
-                <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleRegulationPropertiesVisibility}">
+? html`<div>
+                <button class="uk-button uk-button-small uk-button-secondary uk-margin-bottom uk-border-rounded" @click="${this.toggleRegulationPropertiesVisibility}">
                   ${this.showRegulationProperties ? 'Hide' : 'Show'} Generated Regulation Properties
                 </button>
               </div>`
 : html``}
 
               ${this.numGeneratedFnProperties() > 0
-? html`<div class="uk-margin-small">
-                <button class="uk-button uk-button-small uk-button-primary uk-margin-bottom" @click="${this.toggleFunctionPropertiesVisibility}">
+? html`<div>
+                <button class="uk-button uk-button-small uk-button-secondary uk-margin-bottom uk-border-rounded" @click="${this.toggleFunctionPropertiesVisibility}">
                   ${this.showFunctionProperties ? 'Hide' : 'Show'} Generated Function Properties
                 </button>
               </div>`
@@ -569,7 +569,7 @@ export default class PropertiesEditor extends LitElement {
           <div class="section" id="variables">
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Dynamic</h3>
-              <button id="add-dynamic-property-button" class="add-property add-dynamic-property uk-button uk-button-small uk-button-primary"
+              <button id="add-dynamic-property-button" class="add-property add-dynamic-property uk-button uk-button-small uk-button-primary uk-border-rounded"
                       @click="${this.openAddDynamicPropertyMenu}">
                 + Add
               </button>

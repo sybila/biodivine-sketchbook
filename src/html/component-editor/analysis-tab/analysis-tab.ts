@@ -139,7 +139,7 @@ export class AnalysisTab extends LitElement {
                     <td class="value">
                       ${this.numPSBNParams === null
                           ? html`
-                          <button id="compute-psbn-params-button" class="uk-button uk-button-small uk-button-secondary"
+                          <button id="compute-psbn-params-button" class="uk-button uk-button-small uk-button-secondary uk-border-rounded"
                             @click="${() => {
                               this.getPSBNParamsNum()
                             }}">Fetch
@@ -154,7 +154,7 @@ export class AnalysisTab extends LitElement {
               </table>
             </div>
             <div class="uk-flex uk-flex-row uk-flex-center">
-              <button id="open-inference-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
+              <button id="open-inference-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom uk-border-rounded"
                       @click="${() => {
                         this.runInference()
                       }}">Start inference session
@@ -166,7 +166,7 @@ export class AnalysisTab extends LitElement {
               <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Consistency check</h3>
             </div>
             <div class="uk-flex uk-flex-row uk-flex-center">
-              <button id="consistency-check-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom"
+              <button id="consistency-check-button" class="uk-button uk-button-large uk-button-secondary uk-margin-bottom uk-border-rounded"
                       @click="${() => {
                         this.checkConsistency()
                       }}">Run consistency check
@@ -178,7 +178,7 @@ export class AnalysisTab extends LitElement {
                   ? html`
                     <div class="results-window" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
                       <textarea rows="12" cols="60" readonly style="text-align: center;">${this.consistencyResults}</textarea>
-                      <button class="uk-button uk-button-small uk-button-danger uk-margin-top"
+                      <button class="uk-button uk-button-small uk-button-danger uk-margin-top uk-border-rounded"
                               @click="${this.closeConsistencyResults}">Close</button>
                     </div>
                   `
