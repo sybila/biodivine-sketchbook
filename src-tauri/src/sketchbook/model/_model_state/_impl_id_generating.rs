@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn test_var_id_generating() {
         let model =
-            ModelState::new_from_vars(vec![("a", "name"), ("b", "name"), ("c", "name")]).unwrap();
+            ModelState::new_with_vars(vec![("a", "name"), ("b", "name"), ("c", "name")]).unwrap();
         assert_eq!(model.num_vars(), 3);
 
         // name slice that is a valid identifier as is

@@ -1,0 +1,325 @@
+{
+  "model": {
+    "variables": [
+      {
+        "id": "A",
+        "name": "A",
+        "annotation": "",
+        "update_fn": "h(C)"
+      },
+      {
+        "id": "B",
+        "name": "B",
+        "annotation": "",
+        "update_fn": "f(A, D)"
+      },
+      {
+        "id": "C",
+        "name": "C",
+        "annotation": "",
+        "update_fn": "A & g(C, B)"
+      },
+      {
+        "id": "D",
+        "name": "D",
+        "annotation": "",
+        "update_fn": ""
+      }
+    ],
+    "regulations": [
+      {
+        "regulator": "A",
+        "target": "A",
+        "sign": "Unknown",
+        "essential": "True"
+      },
+      {
+        "regulator": "A",
+        "target": "B",
+        "sign": "Activation",
+        "essential": "True"
+      },
+      {
+        "regulator": "A",
+        "target": "C",
+        "sign": "Activation",
+        "essential": "False"
+      },
+      {
+        "regulator": "A",
+        "target": "D",
+        "sign": "Inhibition",
+        "essential": "True"
+      },
+      {
+        "regulator": "B",
+        "target": "B",
+        "sign": "Unknown",
+        "essential": "Unknown"
+      },
+      {
+        "regulator": "B",
+        "target": "C",
+        "sign": "Dual",
+        "essential": "True"
+      },
+      {
+        "regulator": "C",
+        "target": "A",
+        "sign": "Unknown",
+        "essential": "False"
+      },
+      {
+        "regulator": "C",
+        "target": "C",
+        "sign": "Inhibition",
+        "essential": "False"
+      },
+      {
+        "regulator": "D",
+        "target": "B",
+        "sign": "Dual",
+        "essential": "False"
+      },
+      {
+        "regulator": "D",
+        "target": "D",
+        "sign": "Dual",
+        "essential": "Unknown"
+      }
+    ],
+    "uninterpreted_fns": [
+      {
+        "id": "f",
+        "name": "f",
+        "annotation": "",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "g",
+        "name": "g",
+        "annotation": "",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ],
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      },
+      {
+        "id": "h",
+        "name": "h",
+        "annotation": "",
+        "arguments": [
+          [
+            "Unknown",
+            "Unknown"
+          ]
+        ],
+        "expression": ""
+      }
+    ],
+    "layouts": [
+      {
+        "id": "default",
+        "name": "default",
+        "nodes": [
+          {
+            "layout": "default",
+            "variable": "A",
+            "px": 346.89832,
+            "py": 183.03789
+          },
+          {
+            "layout": "default",
+            "variable": "C",
+            "px": 504.7078,
+            "py": 101.93903
+          },
+          {
+            "layout": "default",
+            "variable": "D",
+            "px": 642.49677,
+            "py": 185.15988
+          },
+          {
+            "layout": "default",
+            "variable": "B",
+            "px": 503.0,
+            "py": 269.6
+          }
+        ]
+      }
+    ]
+  },
+  "datasets": [],
+  "dyn_properties": [],
+  "stat_properties": [
+    {
+      "id": "monotonicity_C_C",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "C",
+      "target": "C",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_D_B",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "D",
+      "target": "B",
+      "value": "Dual",
+      "context": null
+    },
+    {
+      "id": "essentiality_B_C",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "B",
+      "target": "C",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_D",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "D",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_B",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "B",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_A",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "A",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_C",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "C",
+      "value": "False",
+      "context": null
+    },
+    {
+      "id": "essentiality_A_B",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "A",
+      "target": "B",
+      "value": "True",
+      "context": null
+    },
+    {
+      "id": "essentiality_C_C",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "C",
+      "target": "C",
+      "value": "False",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_D",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "D",
+      "value": "Inhibition",
+      "context": null
+    },
+    {
+      "id": "monotonicity_D_D",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "D",
+      "target": "D",
+      "value": "Dual",
+      "context": null
+    },
+    {
+      "id": "essentiality_C_A",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "C",
+      "target": "A",
+      "value": "False",
+      "context": null
+    },
+    {
+      "id": "monotonicity_A_C",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "A",
+      "target": "C",
+      "value": "Activation",
+      "context": null
+    },
+    {
+      "id": "essentiality_D_B",
+      "name": "Regulation essentiality (generated)",
+      "annotation": "",
+      "variant": "RegulationEssential",
+      "input": "D",
+      "target": "B",
+      "value": "False",
+      "context": null
+    },
+    {
+      "id": "monotonicity_B_C",
+      "name": "Regulation monotonicity (generated)",
+      "annotation": "",
+      "variant": "RegulationMonotonic",
+      "input": "B",
+      "target": "C",
+      "value": "Dual",
+      "context": null
+    }
+  ],
+  "annotation": ""
+}

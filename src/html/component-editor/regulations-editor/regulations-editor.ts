@@ -259,14 +259,30 @@ export class RegulationsEditor extends LitElement {
       e.target.removeClass('highlight')
     })
 
+    // When mouse hovers over input nodes, show hint message
     this.cy.on('mouseover', 'node.input-node', (event) => {
-      console.log('Mouse over input node.', event.target.data())
       this.renderHintForInputNode(event.target)
     })
 
-    this.cy.on('mouseout', 'node.input-node', (event) => {
-      console.log('Mouse out of input node.', event.target.data())
+    // When mouse hovers out of input nodes, remove hint message
+    this.cy.on('mouseout', 'node.input-node', () => {
       this.toggleInputHint(false)
+    })
+
+    // Once layout algorithm finishes, send out event with new coordinates
+    this.cy.on('layoutstop', () => {
+      const nodesWithCoords = this.cy?.nodes().map((node) => {
+        return {
+          id: node.data().id,
+          x: node.position().x,
+          y: node.position().y
+        }
+      })
+      this.dispatchEvent(new CustomEvent('change-layout', {
+        detail: { nodesWithCoords },
+        composed: true,
+        bubbles: true
+      }))
     })
 
     // Once everything is ready, center and fit it
@@ -487,6 +503,27 @@ export class RegulationsEditor extends LitElement {
     })
   }
 
+  /** Apply cose layout algorithm (the result is handled via the 'layoutstop' event). */
+  private applyCoseLayout (): void {
+    this.cy?.layout({
+      name: 'cose',
+      padding: 60,
+      animate: true,
+      animationDuration: 300,
+      animationThreshold: 250,
+      refresh: 20,
+      fit: true,
+      nodeOverlap: 20,
+      nodeRepulsion: () => 200000,
+      nodeDimensionsIncludeLabels: true
+    }).start()
+  }
+
+  /** Move the screen to the center of the layout, fitting the whole graph. */
+  private centerFitLayout (): void {
+    this.cy?.fit()
+  }
+
   /** Render the network editor's component.
    * Conditionally show help message if `showHelp` is true. */
   render (): TemplateResult {
@@ -524,7 +561,7 @@ export class RegulationsEditor extends LitElement {
       </div>
       <!-- Prepares a clean environment for the cytoscape element with a floating menu. -->
       <!-- Cytoscape editor is not part of the container above to make it always 100% of width. -->
-      <div style="width: 100%; height: 100%; position: relative;">
+      <div style="width: 100%; height: calc(100% - 3em); position: relative;">
         ${this.editorElement}
         <float-menu .type=${this.menuType} .position=${this.menuPosition} .zoom=${this.menuZoom}
                     .data=${this.menuData}></float-menu>
@@ -536,7 +573,15 @@ export class RegulationsEditor extends LitElement {
         </div>`
         )}
       </div>
-      <button class="uk-button uk-button-small uk-button-secondary help-button" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
+      <button id="center-layout-button" class="uk-button uk-button-small uk-button-secondary uk-border-rounded" 
+        @click="${() => { this.centerFitLayout() }}">
+        Center and fit
+      </button>
+      <button id="cose-layout-button" class="uk-button uk-button-small uk-button-secondary uk-border-rounded" 
+        @click="${() => { this.applyCoseLayout() }}">
+        Auto layout
+      </button>
+      <button class="uk-button uk-button-small uk-button-secondary help-button uk-border-rounded" @mouseenter="${() => { this.showHelp = true }}" @mouseleave="${() => { this.showHelp = false }}">
         ?
       </button>
     `

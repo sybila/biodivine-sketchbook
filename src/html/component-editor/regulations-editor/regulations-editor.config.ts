@@ -40,18 +40,6 @@ export const initOptions = (container: HTMLElement): CytoscapeOptions => {
   return {
     wheelSensitivity: 0.5,
     container,
-    // Some sensible default auto-layout algorithm
-    layout: {
-      animate: true,
-      animationDuration: 300,
-      animationThreshold: 250,
-      refresh: 20,
-      fit: true,
-      name: 'cose',
-      padding: 100,
-      nodeRepulsion: () => 100000,
-      nodeDimensionsIncludeLabels: true
-    },
     boxSelectionEnabled: false,
     selectionType: 'single',
     style: [

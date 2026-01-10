@@ -108,7 +108,7 @@ pub trait SessionHelper {
     /// This might be useful to directly mention relevant fields of more complex types.
     fn assert_payload_empty(event: &Event, component: &str) -> Result<(), DynError> {
         if event.payload.is_some() {
-            let message = format!("This event to `{component}` cannot have empty payload.");
+            let message = format!("This event to `{component}` must carry empty payload.");
             return AeonError::throw(message);
         }
         Ok(())

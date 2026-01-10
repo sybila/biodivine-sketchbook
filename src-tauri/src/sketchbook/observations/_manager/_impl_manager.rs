@@ -1,6 +1,6 @@
 use crate::sketchbook::ids::{DatasetId, ObservationId, VarId};
 use crate::sketchbook::observations::{Dataset, DatasetIterator, Observation, ObservationManager};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::str::FromStr;
 
 /// Creating instances of `ObservationManager`.
@@ -14,18 +14,18 @@ impl ObservationManager {
 
     /// Instantiate `ObservationManager` with given list of ID-dataset pairs.
     pub fn from_datasets(datasets: Vec<(&str, Dataset)>) -> Result<ObservationManager, String> {
-        let mut manager = ObservationManager::new_empty();
-
-        let prop_id_set = datasets.iter().map(|pair| pair.0).collect::<HashSet<_>>();
-        if prop_id_set.len() != datasets.len() {
-            return Err(format!("Datasets {datasets:?} contain duplicate IDs."));
-        }
-
+        let mut datasets_map = HashMap::with_capacity(datasets.len());
         for (id, dataset) in datasets {
-            let dataset_id = DatasetId::new(id)?;
-            manager.datasets.insert(dataset_id, dataset);
+            let id = DatasetId::new(id)?;
+            if datasets_map.insert(id.clone(), dataset).is_some() {
+                return Err(format!(
+                    "Dataset with id {id} already exists (id must be unique)."
+                ));
+            }
         }
-        Ok(manager)
+        Ok(ObservationManager {
+            datasets: datasets_map,
+        })
     }
 }
 
@@ -48,25 +48,6 @@ impl ObservationManager {
     pub fn add_dataset_by_str(&mut self, id: &str, dataset: Dataset) -> Result<(), String> {
         let dataset_id = DatasetId::new(id)?;
         self.add_dataset(dataset_id, dataset)
-    }
-
-    /// Shorthand to add a list of new datasets with given string IDs to this manager.
-    ///
-    /// The ID must be valid identifier that is not already used by some other dataset.
-    /// Returns `Err` in case the `id` is already being used.
-    pub fn add_multiple_datasets(
-        &mut self,
-        id_name_pairs: Vec<(&str, Dataset)>,
-    ) -> Result<(), String> {
-        // before making any changes, check if all IDs are actually valid
-        for (id, _) in &id_name_pairs {
-            let dataset_id = DatasetId::new(id)?;
-            self.assert_no_dataset(&dataset_id)?;
-        }
-        for (id, name) in id_name_pairs {
-            self.add_dataset_by_str(id, name)?;
-        }
-        Ok(())
     }
 
     /// Swap content of a dataset with given `id`. The ID must be valid identifier.
@@ -389,7 +370,7 @@ mod tests {
 
         // try adding dataset with the same ID again (should fail)
         let d3 = Dataset::new("d3", vec![], vec!["a", "c"]).unwrap();
-        assert!(manager.add_multiple_datasets(vec![("d3", d3)]).is_err());
+        assert!(manager.add_dataset_by_str("d3", d3).is_err());
         assert_eq!(manager.num_datasets(), 3);
 
         // remove a dataset

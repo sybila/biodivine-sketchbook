@@ -27,6 +27,7 @@ import { resolveResource } from '@tauri-apps/api/path'
 
 const exampleModelPath = await resolveResource('resources/tlgl.json')
 
+// Default layout identifier (we may support multiple layouts in future)
 const LAYOUT = 'default'
 
 /** The main root component responsible for the editor session handling on the frontend. */
@@ -43,39 +44,39 @@ export default class RootComponent extends LitElement {
   constructor () {
     super()
 
-    // error event listener
+    // Error event listener
     aeonState.error.errorReceived.addEventListener((e) => {
       void this.#onErrorMessage(e)
     })
 
-    // warning event listener
+    // Warning event listener
     aeonState.warning.warningReceived.addEventListener((e) => {
       void this.#onWarningMessage(e)
     })
 
-    // tab bar event listeners
+    // Tab bar event listeners
     aeonState.tabBar.active.addEventListener(this.#onSwitched.bind(this))
     aeonState.tabBar.pinned.addEventListener(this.#onPinned.bind(this))
     aeonState.tabBar.active.refresh()
     aeonState.tabBar.pinned.refresh()
 
-    // window focus event listeners
+    // Window focus event listeners
     window.addEventListener('focus-function-field', this.focusFunction.bind(this))
     window.addEventListener('focus-variable', this.focusVariable.bind(this))
 
-    // listeners to events from initial screen
+    // Listeners to events from initial screen
     window.addEventListener('start-new-sketch', this.startNewSketch.bind(this))
     window.addEventListener('start-import-json', (e) => { void this.startImportJson(e) })
     window.addEventListener('start-import-aeon', (e) => { void this.startImportAeon(e) })
     window.addEventListener('start-import-sbml', (e) => { void this.startImportSbml(e) })
     window.addEventListener('start-import-example', this.startImportExample.bind(this))
 
-    // listeners to import events from editor menu
+    // Listeners to import events from editor menu
     window.addEventListener('import-json', (e) => { void this.importJson(e) })
     window.addEventListener('import-aeon', (e) => { void this.importAeon(e) })
     window.addEventListener('import-sbml', (e) => { void this.importSbml(e) })
 
-    // variable-related events
+    // Variable-related events
     this.addEventListener('add-variable', this.addNewVariable)
     aeonState.sketch.model.variableCreated.addEventListener(this.#onVariableCreated.bind(this))
     this.addEventListener('add-regulation', this.addRegulation)
@@ -93,7 +94,11 @@ export default class RootComponent extends LitElement {
     this.addEventListener('remove-variable', (e) => { void this.removeVariable(e) })
     aeonState.sketch.model.variableRemoved.addEventListener(this.#onVariableRemoved.bind(this))
 
-    // regulation-related events
+    // Layout-related events
+    this.addEventListener('change-layout', this.changeLayout)
+    aeonState.sketch.model.layoutPositionsChanged.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
+
+    // Regulation-related events
     this.addEventListener('toggle-regulation-essential', this.toggleRegulationEssentiality)
     aeonState.sketch.model.regulationEssentialityChanged.addEventListener(this.#regulationEssentialityChanged.bind(this))
     this.addEventListener('toggle-regulation-monotonicity', this.toggleRegulationMonotonicity)
@@ -111,17 +116,17 @@ export default class RootComponent extends LitElement {
     // 3) After changing fn arity, we call backend to refresh the static properties.
     aeonState.sketch.model.uninterpretedFnArityChanged.addEventListener(this.#onFunctionArityChanged.bind(this))
 
-    // listeners for refresh events from backend
+    // Listeners for refresh events from backend
     aeonState.sketch.model.modelRefreshed.addEventListener(this.#onModelRefreshed.bind(this))
     aeonState.sketch.model.variablesRefreshed.addEventListener(this.#onVariablesRefreshed.bind(this))
     aeonState.sketch.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.sketch.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
-    // when refreshing/replacing whole sketch, this component is responsible for updating the whole `Sketch`, that means
+    // When refreshing/replacing whole sketch, this component is responsible for updating the whole `Sketch`, that means
     // updating model components, and distributing the rest (observations, properties) to particular sub-modules
     aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
     aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
 
-    // event listener to capture changes from sub-modules (FunctionEditor, ObservationEditor, or PropertiesEditor)
+    // Event listener to capture changes from sub-modules (FunctionEditor, ObservationEditor, or PropertiesEditor)
     // with updated uninterpreted functions
     this.addEventListener('save-functions', this.saveFunctionData.bind(this))
     this.addEventListener('save-observations', this.saveObservationData.bind(this))
@@ -129,11 +134,11 @@ export default class RootComponent extends LitElement {
     this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
     this.addEventListener('save-annotation', this.saveAnnotationData.bind(this))
 
-    // load variable editorStarted from session storage (so it survives refresh)
+    // Load variable editorStarted from session storage (so it survives refresh)
     const storedEditorStarted = sessionStorage.getItem('editorStarted')
     this.editorStarted = storedEditorStarted === 'true'
     if (this.editorStarted) {
-      // at the beginning, refresh content of the whole sketch from backend
+      // At the beginning, refresh content of the whole sketch from backend
       aeonState.sketch.refreshSketch()
     }
   }
@@ -564,6 +569,19 @@ export default class RootComponent extends LitElement {
   private setVariableId (event: Event): void {
     const details = (event as CustomEvent).detail
     aeonState.sketch.model.setVariableId(details.oldId, details.newId)
+  }
+
+  /** Invoke backend to change a position of all nodes in the network. */
+  private changeLayout (event: Event): void {
+    const nodeList = (event as CustomEvent<{ nodesWithCoords: Array<{ id: string, x: number, y: number }> }>).detail.nodesWithCoords.map((nodeInfo) => {
+      return {
+        layout: LAYOUT,
+        variable: nodeInfo.id,
+        px: nodeInfo.x,
+        py: nodeInfo.y
+      }
+    })
+    aeonState.sketch.model.changeLayoutPositions(LAYOUT, nodeList)
   }
 
   /** Invoke backend to change regulation's essentiality. */

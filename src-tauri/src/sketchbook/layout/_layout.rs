@@ -1,8 +1,9 @@
+use crate::sketchbook::data_structs::LayoutNodeData;
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::{LayoutNode, LayoutNodeIterator, NodePosition};
-use crate::sketchbook::utils::{assert_ids_unique, assert_name_valid};
+use crate::sketchbook::utils::assert_name_valid;
 use crate::sketchbook::Manager;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// Structure to capture all the layout data regarding one particular layout of the regulations
 /// editor.
@@ -25,18 +26,23 @@ impl Layout {
         })
     }
 
-    /// Create new `Layout` with a given name and nodes.
+    /// Create new `Layout` with a given name and variable nodes.
+    /// Returns `Error` if given ids contain duplicates.
     pub fn new(name: &str, var_node_pairs: Vec<(&str, LayoutNode)>) -> Result<Layout, String> {
-        // before making any changes, check that all IDs are actually valid and unique
-        let var_ids: Vec<&str> = var_node_pairs.iter().map(|pair| pair.0).collect();
-        assert_ids_unique(&var_ids)?;
-
-        // now we can safely add them
-        let mut layout = Layout::new_empty(name)?;
-        for (var_id, node) in var_node_pairs {
-            layout.add_node(VarId::new(var_id)?, node)?;
+        let mut nodes_map = HashMap::with_capacity(var_node_pairs.len());
+        for (var_id_str, node) in var_node_pairs {
+            let var_id = VarId::new(var_id_str)?;
+            if nodes_map.insert(var_id.clone(), node).is_some() {
+                return Err(format!(
+                    "Layout node for variable {var_id} already exists (id must be unique)."
+                ));
+            }
         }
-        Ok(layout)
+
+        Ok(Layout {
+            name: name.to_string(),
+            nodes: nodes_map,
+        })
     }
 
     /// Create new `Layout` with a given name, that is a direct copy of another existing
@@ -48,19 +54,27 @@ impl Layout {
         }
     }
 
-    /// Create new `Layout` with a given name, which will contain nodes all the given variables,
-    /// all of the nodes will be located at a default position.
+    /// Create new `Layout` with a given name, which will contain nodes for all the given
+    /// variables, and all of the nodes will be located at a default position.
     ///
     /// Returns `Error` if given ids contain duplicates.
-    pub fn new_from_vars_default(name: &str, variables: Vec<VarId>) -> Result<Layout, String> {
-        // before making any changes, check that all IDs are actually valid and unique
-        assert_ids_unique(&variables)?;
-        // now we can safely add them
-        let mut layout = Layout::new_empty(name)?;
-        for var_id in variables {
-            layout.add_default_node(var_id.clone())?;
+    pub fn new_with_vars_default(name: &str, variables: Vec<VarId>) -> Result<Layout, String> {
+        let mut nodes_map = HashMap::with_capacity(variables.len());
+        for var_id in &variables {
+            if nodes_map
+                .insert(var_id.clone(), LayoutNode::default())
+                .is_some()
+            {
+                return Err(format!(
+                    "Layout node for variable {var_id} already exists (id must be unique)."
+                ));
+            }
         }
-        Ok(layout)
+
+        Ok(Layout {
+            name: name.to_string(),
+            nodes: nodes_map,
+        })
     }
 
     /// Rename this `Layout`.
@@ -121,6 +135,34 @@ impl Layout {
         Ok(())
     }
 
+    /// Update positions of all nodes in this layout. This should not add/remove
+    /// any variables, just update their positions.
+    ///
+    /// Return `Err` if the provided variables do not exactly match the layout variables.
+    pub fn update_all_node_positions(&mut self, nodes: Vec<LayoutNodeData>) -> Result<(), String> {
+        // Check if layout variables and provided variables match exactly
+        let layout_variables: HashSet<_> =
+            self.get_variables()?.iter().map(|v| v.as_str()).collect();
+        let provided_variables = nodes
+            .iter()
+            .map(|n| n.variable.as_str())
+            .collect::<HashSet<_>>();
+        if layout_variables != provided_variables {
+            return Err("Layout variables and provided variables must match exactly.".to_string());
+        }
+
+        // Now add the nodes
+        for node in nodes {
+            let variable = VarId::new(&node.variable)?;
+            // We can now safely unwrap, since we checked the validity of variables above
+            self.nodes
+                .get_mut(&variable)
+                .unwrap()
+                .change_position(node.px, node.py);
+        }
+        Ok(())
+    }
+
     /// Remove a node for a given variable from this layout.
     ///
     /// Return `Err` if variable did not have a corresponding node in this layout.
@@ -168,6 +210,11 @@ impl Layout {
         self.nodes
             .get(variable)
             .ok_or(format!("No layout data for variable {variable}."))
+    }
+
+    /// Collect variable IDs from all nodes of this layout.
+    pub fn get_variables(&self) -> Result<HashSet<&VarId>, String> {
+        Ok(self.nodes.keys().collect())
     }
 
     /// Human-readable name of this layout.

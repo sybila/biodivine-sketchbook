@@ -10,11 +10,13 @@ use crate::sketchbook::JsonSerde;
 
 /* Constants for event path segments in `ModelState` related to layout events. */
 
-// add whole new layout
+// Add whole new layout
 const ADD_LAYOUT_PATH: &str = "add";
-// update position of a node in a particular layout
+// Update position of a single node in a particular layout
 const UPDATE_POSITION_PATH: &str = "update_position";
-// remove whole layout
+// Update positions of ALL nodes in a particular layout
+const UPDATE_ALL_POSITIONS_PATH: &str = "update_all_positions";
+// Remove whole layout
 const REMOVE_LAYOUT_PATH: &str = "remove";
 
 /// Implementation for events related to `layouts` of the model.
@@ -101,6 +103,36 @@ impl ModelState {
             // prepare the reverse event
             let mut reverse_event = event.clone();
             reverse_event.payload = Some(orig_pos_data.to_json_str());
+            Ok(make_reversible(state_change, event, reverse_event))
+        } else if Self::starts_with(UPDATE_ALL_POSITIONS_PATH, at_path).is_some() {
+            // get payload components (json containing list of nodes)
+            let payload = Self::clone_payload_str(event, component_name)?;
+            let new_nodes_data: Vec<LayoutNodeData> = serde_json::from_str(payload.as_str())?;
+
+            // snapshot of original layout (so that we can reverse)
+            let orig_nodes_data: Vec<LayoutNodeData> = self
+                .get_layout(&layout_id)?
+                .layout_nodes()
+                .map(|(var_id, node)| {
+                    LayoutNodeData::new(
+                        layout_id.as_str(),
+                        var_id.as_str(),
+                        node.get_px(),
+                        node.get_py(),
+                    )
+                })
+                .collect();
+
+            // perform the event, prepare the state-change variant (move ID from path to payload)
+            self.update_all_positions(&layout_id, new_nodes_data)?;
+            let state_change = Event::build(
+                &["sketch", "model", "layout", "update_all_positions"],
+                Some(&payload),
+            );
+
+            // prepare the reverse event
+            let mut reverse_event = event.clone();
+            reverse_event.payload = Some(serde_json::to_string(&orig_nodes_data)?);
             Ok(make_reversible(state_change, event, reverse_event))
         } else if Self::starts_with(REMOVE_LAYOUT_PATH, at_path).is_some() {
             Self::assert_payload_empty(event, component_name)?;

@@ -1,0 +1,330 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+>>>>>>>>>> START INFERENCE RUN
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+==========================
+Model test_data/test_sketch_1.aeon
+==========================
+
+Number of candidates: 32
+Computation time: 24ms
+N. of candidates before evaluating any properties: 4096
+N. of candidates after evaluating static props: 32
+N. of candidates after evaluating dynamic props: 32
+
+==========================
+Model test_data/test_sketch_1.json
+==========================
+
+Number of candidates: 32
+Computation time: 26ms
+N. of candidates before evaluating any properties: 4096
+N. of candidates after evaluating static props: 32
+N. of candidates after evaluating dynamic props: 32
+
+==========================
+Model test_data/test_sketch_2.aeon
+==========================
+
+Number of candidates: 32
+Computation time: 23ms
+N. of candidates before evaluating any properties: 4096
+N. of candidates after evaluating static props: 32
+N. of candidates after evaluating dynamic props: 32
+
+==========================
+Model test_data/test_sketch_2.json
+==========================
+
+Number of candidates: 32
+Computation time: 24ms
+N. of candidates before evaluating any properties: 4096
+N. of candidates after evaluating static props: 32
+N. of candidates after evaluating dynamic props: 32
+
+==========================
+Model test_data/test_model_various_regulations.aeon
+==========================
+
+Number of candidates: 0
+Computation time: 9ms
+N. of candidates before evaluating any properties: 16384
+N. of candidates after evaluating static props: 0
+Sketch found unsatisfiable after processing 1 static and 0 dynamic properties
+
+==========================
+Model test_data/test_model_various_regulations.json
+==========================
+
+Number of candidates: 0
+Computation time: 7ms
+N. of candidates before evaluating any properties: 16384
+N. of candidates after evaluating static props: 0
+Sketch found unsatisfiable after processing 1 static and 0 dynamic properties
+
+==========================
+Model real_cases/arabidopsis/arabidopsis_sketch.aeon
+==========================
+
+Number of candidates: 439296
+Computation time: 347ms
+N. of candidates before evaluating any properties: 295147905179352825856
+N. of candidates after evaluating static props: 4761711360
+N. of candidates after evaluating dynamic props: 439296
+
+==========================
+Model real_cases/arabidopsis/arabidopsis_sketch_hctl.json
+==========================
+
+Number of candidates: 439296
+Computation time: 640ms
+N. of candidates before evaluating any properties: 295147905179352825856
+N. of candidates after evaluating static props: 4761711360
+N. of candidates after evaluating dynamic props: 439296
+
+==========================
+Model real_cases/arabidopsis/arabidopsis_sketch.json
+==========================
+
+Number of candidates: 439296
+Computation time: 383ms
+N. of candidates before evaluating any properties: 295147905179352825856
+N. of candidates after evaluating static props: 4761711360
+N. of candidates after evaluating dynamic props: 439296
+
+==========================
+Model real_cases/arabidopsis/arabidopsis_with_additional_prop.json
+==========================
+
+Number of candidates: 48352
+Computation time: 1903ms
+N. of candidates before evaluating any properties: 295147905179352825856
+N. of candidates after evaluating static props: 4761711360
+N. of candidates after evaluating dynamic props: 48352
+
+==========================
+Model real_cases/tlgl/tlgl_sketch.aeon
+==========================
+
+Number of candidates: 486
+Computation time: 801ms
+N. of candidates before evaluating any properties: 72057594037927936
+N. of candidates after evaluating static props: 1296
+N. of candidates after evaluating dynamic props: 486
+
+==========================
+Model real_cases/tlgl/tlgl_sketch.json
+==========================
+
+Number of candidates: 486
+Computation time: 838ms
+N. of candidates before evaluating any properties: 72057594037927936
+N. of candidates after evaluating static props: 1296
+N. of candidates after evaluating dynamic props: 486
+
+==========================
+Model real_cases/tlgl/tlgl_sketch_hctl.json
+==========================
+
+Number of candidates: 486
+Computation time: 872ms
+N. of candidates before evaluating any properties: 72057594037927936
+N. of candidates after evaluating static props: 1296
+N. of candidates after evaluating dynamic props: 486
+
+==========================
+Model small_example/small_example_sketch.json
+==========================
+
+Number of candidates: 1
+Computation time: 16ms
+N. of candidates before evaluating any properties: 64
+N. of candidates after evaluating static props: 12
+N. of candidates after evaluating dynamic props: 1
+
+==========================
+Model small_example/small_example_sketch.aeon
+==========================
+
+Number of candidates: 1
+Computation time: 16ms
+N. of candidates before evaluating any properties: 64
+N. of candidates after evaluating static props: 12
+N. of candidates after evaluating dynamic props: 1
+
+==========================
+Model small_example/previous_version/small_example.aeon
+==========================
+
+Number of candidates: 1
+Computation time: 13ms
+N. of candidates before evaluating any properties: 256
+N. of candidates after evaluating static props: 16
+N. of candidates after evaluating dynamic props: 1
+
+==========================
+Model small_example/previous_version/small_example.json
+==========================
+
+Number of candidates: 1
+Computation time: 13ms
+N. of candidates before evaluating any properties: 256
+N. of candidates after evaluating static props: 16
+N. of candidates after evaluating dynamic props: 1
+
+==========================
+Model benchmarks/celldivb/celldivb_sketch.aeon
+==========================
+
+Number of candidates: 14088
+Computation time: 226ms
+N. of candidates before evaluating any properties: 16777216
+N. of candidates after evaluating static props: 64000
+N. of candidates after evaluating dynamic props: 14088
+
+==========================
+Model benchmarks/eprotein/eprotein_sketch.aeon
+==========================
+
+Number of candidates: 1008
+Computation time: 1807ms
+N. of candidates before evaluating any properties: 18889465931478580854784
+N. of candidates after evaluating static props: 944784
+N. of candidates after evaluating dynamic props: 1008
+
+==========================
+Model benchmarks/nsp4/nsp4_sketch.aeon
+==========================
+
+Number of candidates: 128
+Computation time: 1571ms
+N. of candidates before evaluating any properties: 75557863725914323419136
+N. of candidates after evaluating static props: 1179648
+N. of candidates after evaluating dynamic props: 128
+
+==========================
+Model benchmarks/etc/etc_sketch.aeon
+Model benchmarks/etc/etc_sketch.aeon
+==========================
+
+Number of candidates: 3167262
+Computation time: 410964ms
+N. of candidates before evaluating any properties: 4722366482869645213696
+N. of candidates after evaluating static props: 242337096
+N. of candidates after evaluating dynamic props: 3167262
+
+==========================
+Model benchmarks/interferon/interferon_sketch.aeon
+==========================
+
+Number of candidates: 682290
+Computation time: 318617ms
+N. of candidates before evaluating any properties: 10141204801825835211973625643008
+N. of candidates after evaluating static props: 53378248050663953006592
+N. of candidates after evaluating dynamic props: 682290
+
+==========================
+Model benchmarks/nsp9/nsp9_sketch.aeon
+==========================
+==========================
+
+Number of candidates: 55145152512
+Computation time: 35866ms
+N. of candidates before evaluating any properties: 85070591730234615865843651857942052864
+N. of candidates after evaluating static props: 3143273693184
+N. of candidates after evaluating dynamic props: 55145152512
+
+==========================
+Model benchmarks/macrophage/macrophage_sketch.aeon
+==========================
+
+Number of candidates: 787353224904
+Computation time: 574625ms
+N. of candidates before evaluating any properties: 20282409603651670423947251286016
+N. of candidates after evaluating static props: 9973140848784
+N. of candidates after evaluating dynamic props: 787353224904
+
+==========================
+Model other_sketches/fgf_signalling/fgf_sketch.json
+==========================
+
+Number of candidates: 1
+Computation time: 33ms
+N. of candidates before evaluating any properties: 4096
+N. of candidates after evaluating static props: 8
+N. of candidates after evaluating dynamic props: 1
+
+==========================
+Model other_sketches/myeloid/myeloid-sketch-no-updates.json
+==========================
+
+Number of candidates: 5451624
+Computation time: 4585ms
+N. of candidates before evaluating any properties: 19807040628566084398385987584
+N. of candidates after evaluating static props: 48642052608
+N. of candidates after evaluating dynamic props: 5451624
+
+==========================
+Model other_sketches/oscillatory_models/bovine_estrous/bovine-estrous_model_final_cutdown.json
+==========================
+
+Number of candidates: 271488
+Computation time: 11543ms
+N. of candidates before evaluating any properties: 1208925819614629174706176
+N. of candidates after evaluating static props: 638673984
+N. of candidates after evaluating dynamic props: 271488
+
+==========================
+Model other_sketches/oscillatory_models/gyn_cycle/FSH_submodel/FSH_submodel.json
+==========================
+
+Number of candidates: 113275314
+Computation time: 281263ms
+N. of candidates before evaluating any properties: 295147905179352825856
+N. of candidates after evaluating static props: 127318392
+N. of candidates after evaluating dynamic props: 113275314
+
+==========================
+Model other_sketches/oscillatory_models/gyn_cycle/GnRH_submodel/GnRH_submodel.json
+==========================
+
+Number of candidates: 966152038
+Computation time: 255853ms
+N. of candidates before evaluating any properties: 75557863725914323419136
+N. of candidates after evaluating static props: 1612699632
+N. of candidates after evaluating dynamic props: 966152038
+
+==========================
+Model other_sketches/oscillatory_models/gyn_cycle/LH_submodel/LH_submodel.json
+==========================
+
+Number of candidates: 0
+Computation time: 1101ms
+N. of candidates before evaluating any properties: 36028797018963968
+N. of candidates after evaluating static props: 16842816
+N. of candidates after evaluating dynamic props: 0
+Sketch found unsatisfiable after processing 32 static and 1 dynamic properties
+
+==========================
+Model other_sketches/oscillatory_models/gyn_cycle/reduced_submodel/gyn-cycle_model_red_ts_properties_31k.json     
+==========================
+
+Number of candidates: 8712
+Computation time: 79790ms
+N. of candidates before evaluating any properties: 17592186044416
+N. of candidates after evaluating static props: 31104
+N. of candidates after evaluating dynamic props: 8712
+
+==========================
+Model other_sketches/oscillatory_models/predator_prey/predator-prey_model_final.json
+==========================
+
+Number of candidates: 1
+Computation time: 7ms
+N. of candidates before evaluating any properties: 256
+N. of candidates after evaluating static props: 256
+N. of candidates after evaluating dynamic props: 1
+
+==========================
+ALL COMPUTATIONS COMPLETED SUCCESSFULLY
+==========================

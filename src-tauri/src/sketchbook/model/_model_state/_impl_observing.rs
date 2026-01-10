@@ -33,14 +33,6 @@ impl ModelState {
         self.regulations.len()
     }
 
-    /// Get arity of the uninterpreted function with the most arguments.
-    pub fn highest_uninterpreted_fn_arity(&self) -> usize {
-        self.uninterpreted_fns()
-            .map(|(_, x)| x.get_arity())
-            .max()
-            .unwrap_or(0)
-    }
-
     /// Check if there is a variable with given Id.
     pub fn is_valid_var_id(&self, var_id: &VarId) -> bool {
         self.variables.contains_key(var_id)

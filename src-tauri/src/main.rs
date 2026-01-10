@@ -183,7 +183,7 @@ fn process_aeon_action_event(payload: &str, aeon: &AeonApp, handle: &AppHandle) 
     } else {
         let result = state.consume_event(aeon, &session_id, &action);
         if let Err(e) = result {
-            // there may be better way to propagate the message to frontend
+            // There may be better way to propagate the message to frontend
             let error_message = e.to_string();
             debug!("Error processing last event: `{}`.", error_message);
             emit_error(&state, &session_id, aeon, &error_message);

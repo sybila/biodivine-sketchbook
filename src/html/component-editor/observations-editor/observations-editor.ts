@@ -176,8 +176,10 @@ export default class ObservationsEditor extends LitElement {
     }, 50)
   }
 
+  /** Create empty dataset (no observations) with network variables as columns. */
   private createDataset (): void {
-    aeonState.sketch.observations.addDefaultDataset()
+    const variableIds = this.contentData.variables.map(v => v.id)
+    aeonState.sketch.observations.addDefaultDataset(variableIds)
   }
 
   #onDatasetCreated (data: DatasetData): void {
@@ -457,8 +459,8 @@ export default class ObservationsEditor extends LitElement {
             <div class="header uk-background-primary uk-margin-bottom">
               <h3 class="uk-heading-bullet uk-margin-remove-bottom ">Observations</h3>
               <div class="buttons-container">
-                <button @click="${this.createDataset}" class="uk-button uk-button-primary uk-button-small create-button">+ Create</button>
-                <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button">+ Import</button>
+                <button @click="${this.createDataset}" class="uk-button uk-button-primary uk-button-small create-button uk-border-rounded">+ Create</button>
+                <button @click="${this.loadDataset}" class="uk-button uk-button-primary uk-button-small import-button uk-border-rounded">+ Import</button>
               </div>
             </div>
             ${this.contentData?.observations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label uk-margin-bottom">No observations loaded</span></div>` : ''}

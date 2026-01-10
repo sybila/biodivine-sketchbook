@@ -311,7 +311,8 @@ impl DynProperty {
         &self.variant
     }
 
-    /// Get property's sub-field `dataset` if present. If not present, return `Err`.
+    /// Get property's sub-field `dataset`, if this kind of property has such field.
+    /// If this kind of property does not have a `dataset` field, return `Err`.
     pub fn get_dataset(&self) -> Result<Option<DatasetId>, String> {
         match &self.variant {
             DynPropertyType::ExistsFixedPoint(prop) => Ok(prop.dataset.clone()),
@@ -325,10 +326,11 @@ impl DynProperty {
         }
     }
 
-    /// Check that the property has all required fields filled out. That is just the `dataset`
-    /// in most cases at the moment.
+    /// Check that the property has all required fields filled out. For most kinds of
+    /// properties, this is just the `dataset` field in most cases at the moment.
+    ///
     /// If some of the required field is set to None, return error.
-    pub fn assert_dataset_filled(&self) -> Result<(), String> {
+    pub fn assert_required_fields_filled(&self) -> Result<(), String> {
         let missing_field_msg = "One of the required fields is not filled.";
 
         match &self.variant {

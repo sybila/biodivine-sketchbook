@@ -33,7 +33,7 @@ export default class ContentPane extends LitElement {
   protected render (): TemplateResult {
     return html`
       <div class="content-pane">
-        <button class="uk-button uk-button-small uk-button-secondary pin-button" @click="${this.pin}">
+        <button class="uk-button uk-button-small uk-button-secondary pin-button uk-border-rounded" @click="${this.pin}">
           ${this.tab.pinned ? icon(faLock).node : icon(faLockOpen).node}
         </button>
         ${this.tab.content(this.data)}

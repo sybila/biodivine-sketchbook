@@ -7,7 +7,6 @@ use crate::sketchbook::properties::static_props::{are_same_stat_variant, StatPro
 use crate::sketchbook::properties::{
     DynPropIterator, DynProperty, PropertyManager, StatPropIterator, StatProperty,
 };
-use crate::sketchbook::utils::assert_ids_unique;
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -27,23 +26,30 @@ impl PropertyManager {
         dyn_properties: Vec<(&str, DynProperty)>,
         stat_properties: Vec<(&str, StatProperty)>,
     ) -> Result<PropertyManager, String> {
-        let mut manager = PropertyManager::new_empty();
-
-        let dyn_prop_ids = dyn_properties.iter().map(|pair| pair.0).collect();
-        assert_ids_unique(&dyn_prop_ids)?;
-
-        let stat_prop_ids = stat_properties.iter().map(|pair| pair.0).collect();
-        assert_ids_unique(&stat_prop_ids)?;
-
+        let mut dyn_properties_map = HashMap::with_capacity(dyn_properties.len());
         for (id, prop) in dyn_properties {
-            manager.dyn_properties.insert(DynPropertyId::new(id)?, prop);
+            let id = DynPropertyId::new(id)?;
+            if dyn_properties_map.insert(id.clone(), prop).is_some() {
+                return Err(format!(
+                    "Dynamic property with id {id} already exists (id must be unique)."
+                ));
+            }
         }
+
+        let mut stat_properties_map = HashMap::with_capacity(stat_properties.len());
         for (id, prop) in stat_properties {
-            manager
-                .stat_properties
-                .insert(StatPropertyId::new(id)?, prop);
+            let id = StatPropertyId::new(id)?;
+            if stat_properties_map.insert(id.clone(), prop).is_some() {
+                return Err(format!(
+                    "Static property with id {id} already exists (id must be unique)."
+                ));
+            }
         }
-        Ok(manager)
+
+        Ok(PropertyManager {
+            dyn_properties: dyn_properties_map,
+            stat_properties: stat_properties_map,
+        })
     }
 }
 

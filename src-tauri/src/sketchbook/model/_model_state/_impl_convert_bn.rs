@@ -147,7 +147,7 @@ impl ModelState {
     ///
     /// Name of each variable (and parameter) used in BooleanNetwork (which should be unique) is
     /// used as both its ID and name in the resulting model. All annotations are left empty.
-    // A default layout (all nodes at 0,0) is created for the variables.
+    /// A default layout (all nodes at 0,0) is created for the variables.
     pub fn from_bn(bn: &BooleanNetwork) -> Result<Self, String> {
         // this collects variables and regulations
         let mut model = ModelState::from_reg_graph(bn.as_graph())?;
@@ -183,7 +183,7 @@ mod tests {
     /// - function symbol `f` of arity 2
     /// - `a` has update `(b & !a) | f(a, b)`, `b` has empty update
     fn prepare_test_model_full() -> ModelState {
-        let mut model = ModelState::new_from_vars(vec![("a", "a"), ("b", "b")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("a", "a"), ("b", "b")]).unwrap();
         let var_a = model.get_var_id("a").unwrap();
         model
             .add_multiple_regulations(vec!["a -> b", "b -> a", "a -| a"])
@@ -224,7 +224,7 @@ mod tests {
     /// The update function for `A` should be transformed into `(B & !A) | (!A => h(B))`
     #[test]
     fn test_to_bn_with_propagated_expressions() {
-        let mut model = ModelState::new_from_vars(vec![("A", "A"), ("B", "B")]).unwrap();
+        let mut model = ModelState::new_with_vars(vec![("A", "A"), ("B", "B")]).unwrap();
         model
             .add_multiple_regulations(vec!["A -> B", "B -> A", "A -| A"])
             .unwrap();

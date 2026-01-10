@@ -245,15 +245,15 @@ export function getTemplateHelpText (propertyType: PropertyType): string {
     case StaticPropertyType.Generic:
       return 'A generic static property defined by the user.'
     case DynamicPropertyType.AttractorCount:
-      return 'Attractor count falls into given range.'
+      return 'Attractor count must fall into selected range.'
     case DynamicPropertyType.ExistsTrajectory:
-      return 'Observations of selected dataset lay on trajectory.'
+      return 'Observations of selected dataset must lay on trajectory.'
     case DynamicPropertyType.FixedPoint:
-      return 'Each selected observation corresponds to a fixed point.'
+      return 'Each selected observation must correspond to a fixed point.'
     case DynamicPropertyType.TrapSpace:
-      return 'Each selected observation corresponds to a trap space.'
+      return 'Each selected observation must correspond to a trap space.'
     case DynamicPropertyType.HasAttractor:
-      return 'Each selected observation exists in an attractor.'
+      return 'Each selected observation must correspond to an attractor state.'
     case DynamicPropertyType.Generic:
       return 'A generic HCTL property defined by the user.'
   }

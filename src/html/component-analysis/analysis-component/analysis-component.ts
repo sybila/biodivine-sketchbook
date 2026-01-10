@@ -357,8 +357,13 @@ export default class AnalysisComponent extends LitElement {
                 Otherwise, render a button for resetting inference. -->
           ${this.selected_inference === null
 ? html`
-            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 90px">
-              <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary"
+            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 40px">
+              <div id="inference-description" class="help-message-block uk-flex uk-flex-row uk-flex-center">
+                Ready to infer satisfying networks. The sketch is now locked for the whole computation. You can export/sample the results when complete.
+              </div>
+            </div>
+            <div class="uk-flex uk-flex-row uk-flex-center" style="margin-top: 40px">
+              <button id="full-inference-button" class="uk-button uk-button-large uk-button-secondary uk-border-rounded"
                       @click="${() => {
                         this.runInference()
                       }}">Run full inference
@@ -369,7 +374,7 @@ export default class AnalysisComponent extends LitElement {
             <div style="height: 10px;"></div>
             
             <div class="uk-flex uk-flex-row uk-flex-center">
-              <button id="static-inference-button" class="uk-button uk-button-large uk-button-secondary"
+              <button id="static-inference-button" class="uk-button uk-button-large uk-button-secondary uk-border-rounded"
                       @click="${() => {
                         this.runStaticInference()
                       }}">Run static inference
@@ -378,7 +383,7 @@ export default class AnalysisComponent extends LitElement {
           `
 : html`
             <div class="reset-buttons">
-              <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary"
+              <button id="reset-inference-button" class="uk-button uk-button-large uk-button-secondary uk-border-rounded"
                       @click="${() => {
                         void this.resetInference()
                       }}">Start again
@@ -394,13 +399,13 @@ export default class AnalysisComponent extends LitElement {
                 .innerHTML="${this.results !== null ? this.formatResultsOverview(this.results) : this.waitingMainMessage + '.'.repeat(this.pingCounter % 4) + '<br>'}">
               </div>
 
-              <textarea rows="12" cols="120" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
+              <textarea class="uk-border-rounded" rows="12" cols="120" readonly style="text-align: left;">${this.results !== null ? this.formatResultsMetadata(this.results) : this.waitingProgressReport}</textarea>
 
               <!-- Conditionally render dumping/sampling sections if results are set (and there are >0 candiates) -->
               ${this.results !== null && this.results.num_sat_networks > 0
 ? html`
                 <div class="results-options uk-container">
-                  <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary"
+                  <button id="dump-bdd-button" class="uk-button uk-button-large uk-button-secondary uk-border-rounded"
                           @click="${async () => {
                             await this.dumpFullResults()
                           }}">Save full results
@@ -424,7 +429,7 @@ export default class AnalysisComponent extends LitElement {
                     `
 : ''}
                   </div>
-                  <button id="generate-network-button" class="uk-button uk-button-large uk-button-secondary"
+                  <button id="generate-network-button" class="uk-button uk-button-large uk-button-secondary uk-border-rounded"
                           @click="${async () => {
                             await this.sampleNetworks()
                           }}">Sample network(s)
