@@ -142,7 +142,7 @@ impl Sketch {
             if !invalid_variables.is_empty() {
                 let invalid_vars_str = invalid_variables.join(", ");
                 let warning_inner =
-                    format!("Following variables are not part of the network and will be ignored for the inference: {invalid_vars_str}");
+                    format!("Following dataset variables are not part of the network and will be ignored for the inference: {invalid_vars_str}");
                 let warning = format!("> ISSUE with dataset `{dataset_id}`: {warning_inner}\n",);
                 warnings += &warning;
             }
@@ -620,7 +620,7 @@ mod tests {
             .unwrap();
         let (consistent, _, warnings) = sketch_copy.run_consistency_check();
         assert!(consistent);
-        assert!(warnings.contains("Following variables are not part of the network"));
+        assert!(warnings.contains("Following dataset variables are not part of the network"));
         assert!(warnings.contains(": C"));
 
         // Dataset missing variable B

@@ -177,7 +177,7 @@ export class AnalysisTab extends LitElement {
               ${this.consistencyResults !== null
                   ? html`
                     <div class="results-window" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-                      <textarea rows="12" cols="60" readonly style="text-align: center;">${this.consistencyResults}</textarea>
+                      <textarea rows="12" cols="60" class="uk-border-rounded" readonly style="text-align: center;">${this.consistencyResults}</textarea>
                       <button class="uk-button uk-button-small uk-button-danger uk-margin-top uk-border-rounded"
                               @click="${this.closeConsistencyResults}">Close</button>
                     </div>
