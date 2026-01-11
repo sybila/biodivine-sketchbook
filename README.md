@@ -1,13 +1,11 @@
 # Biodivine Sketchbook
 
-Sketchbook is a multi-platform tool for synthesis of Boolean models using the framework of Boolean network sketches.
-It provides a user-friendly interface for designing a BN sketches and inferring all admissible candidate BNs.
-You can find the newest version of the Sketchbook at [our Github repository](https://github.com/sybila/biodivine-sketchbook).
+Sketchbook is a multi-platform tool for inference of Boolean models from interaction networks combined with advanced static and dynamic properties.
+The symbolic inference is based on the recently published framework of [Boolean network sketches](https://doi.org/10.1093/bioinformatics/btad158).
 
-Boolean network sketches, introduced in [this paper](https://doi.org/10.1093/bioinformatics/btad158), serve as a method for integrating various kinds of prior knowledge and experimental data. The sketch consists of an influence graph, partially specified update functions, update function properties, and dynamic properties (including experimental data). 
-Sketchbook presents a way to design all these components and more.
+Sketchbook offers an interactive graphical editor where users can specify regulatory interactions and partial update functions. It features a rich framework to describe expected model dynamics (e.g., attractors, oscillations, or transient patterns) and incorporates experimental data when available. The tool employs a high-performance symbolic inference engine to efficiently compute the set of all BN models consistent with the specification. Users can then sample candidate models or further process the results with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
-Once you finish designing your sketch, you can run the state-of-the-art synthesis algorithms and symbolically compute all BNs consistent with your requirements. You can then sample individual BNs, or export the results for further analysis with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
+<img width="800" alt="network-screen" src="https://github.com/user-attachments/assets/59761767-aca3-4333-8044-c6869f0a2718" />
 
 #### Manual and tutorial
 
@@ -17,12 +15,10 @@ In the provided `manual.pdf`, we discuss the details regarding
 - running BN inference in Sketchbook,
 - supported formats and syntax.
 
-The manual also provides a tutorial section showcasing Sketchbook on a simplified FGFR signalling model. Data for this tutorial can be found in `data/tutorial` subfolder.
-
+The manual also provides a **tutorial section** showcasing Sketchbook on a simplified FGFR signalling model. Data for this tutorial can be found in `data/tutorial` subfolder.
 Furthermore, we give a short video introduction that you can find as `intro-video.mp4`.
 This introduction covers basics on how to edit an sketch and run the inference.
 For more details and explanations, see the manual.
-
 The installation is also summarized below, with an additional development guide.
 
 #### Citation
@@ -45,20 +41,19 @@ If you need a different pre-built binary for a specific platform, let us know!
 
 > The binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/biodivine-sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
 
-Alternatively, if you want to build the tool locally, the instructions are provided in the Development guide below. Note that the local build requires additional dependencies to be installed.
+Alternatively, if you want to build the tool locally from the source code, the instructions are provided in the Development guide below. Note that the local build requires additional dependencies to be installed.
 
 ## Development
 
-The following instructions describe the local installation of the application and relevant frameworks. We recommend using the pre-built binaries described in the previous section.
+The following instructions describe the installation of the application from source code, including setting up all dependencies. We highly recommend using the pre-built binaries described in the previous section.
 
 For a summary of all technologies and detailed project structure, see `project-docs/architecture.md`. The directory `project-docs` also contains other documents relevant to the design/development.
-
 We also provide web-based Rust documentation (including internal modules), currently hosted on [these GitHub pages](https://ondrej33.github.io/biodivine_sketchbook/). Instructions to generate Rust documentation locally are given below.
 
 
 ### Installation of dependencies
 
-First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). On Windows, we recommend [this tutorial](https://learn.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
+First, make sure you have Rust and NPM installed. For Rust, we recommend following the instructions on [rustlang.org](https://www.rust-lang.org/learn/get-started). For instructions on NPM and Node installation, feel free to check [their website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). On Windows, we recommend [this tutorial](https://learn.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows). The latest version of Sketchbook is developed and tested using `npm 11.3.0`, `node 22.11.0`, and `rust 1.86.0`.
 
 On some Linux distributions, additional packages might be needed for developing with Tauri. We recommend checking the [setup instructions by Tauri](https://v1.tauri.app/v1/guides/getting-started/prerequisites/).
 
@@ -69,11 +64,6 @@ On some Linux distributions, additional packages might be needed for developing 
 [//]: <> (sudo apt update)
 [//]: <> (sudo apt upgrade)
 [//]: <> (sudo apt install libwebkit2gtk-4.0-dev)
-
-The latest version of Sketchbook is developed and tested using the following versions:
-- npm 11.3.0 
-- node 22.11.0
-- rust 1.86.0
 
 Then, after cloning the repository, run `npm install` to download all JS/TS dependencies. Rust dependencies are downloaded automatically during the build (next step).
 
