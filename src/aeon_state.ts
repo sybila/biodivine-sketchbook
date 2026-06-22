@@ -25,6 +25,7 @@ export interface SketchData {
   datasets: DatasetData[]
   dyn_properties: DynamicProperty[]
   stat_properties: StaticProperty[]
+  perturbations: PerturbationData[]
   annotation: string
 }
 
@@ -115,6 +116,14 @@ export interface DatasetMetaData {
   variables: string[]
 }
 
+/** An object representing a perturbation. */
+export interface PerturbationData {
+  id: string
+  name: string
+  annotation: string
+  perturbed_vars: Array<[string, boolean]>
+}
+
 /** An object representing information needed for loading a dataset. */
 export interface DatasetLoadData { path: string, id: string }
 
@@ -135,6 +144,9 @@ export interface DynPropIdUpdateData { original_id: string, new_id: string }
 
 /** An object representing information needed for static property's id change. */
 export interface StatPropIdUpdateData { original_id: string, new_id: string }
+
+/** An object representing information needed for perturbation's id change. */
+export interface PerturbationIdUpdateData { original_id: string, new_id: string }
 
 /**
  * A type-safe representation of the state managed by an Aeon session.
@@ -466,6 +478,45 @@ interface AeonState {
       /** List of all `StaticProperty` after variable's ID or function's ID is changed.
        * Since these ID changes can affect multiple properties, we "refresh" all data at once. */
       allStaticUpdated: Observable<StaticProperty[]>
+    }
+
+    /** The state of the perturbations. */
+    
+    perturbations: {
+      /** Refresh events: */
+
+      /** List of all perturbations. */
+      perturbationsRefreshed: Observable<PerturbationData[]>
+      /** Refresh all perturbations. */
+      refreshPerturbations: () => void
+
+      /** Events to edit perturbations: */
+
+      /** PerturbationData for a newly created perturbation. */
+      perturbationCreated: Observable<PerturbationData>
+      /** Create a new default perturbation. */
+      addDefaultPerturbation: () => void
+      /** PerturbationData for a newly added perturbation (from explicit data). */
+      perturbationAdded: Observable<PerturbationData>
+      /** Add a new perturbation with explicit data. */
+      addPerturbation: (perturbationData: PerturbationData) => void
+      /** PerturbationData of a removed perturbation. */
+      perturbationRemoved: Observable<PerturbationData>
+      /** Remove perturbation with given ID. */
+      removePerturbation: (id: string) => void
+      /** Object with `original_id` of a perturbation and its `new_id`. */
+      perturbationIdChanged: Observable<PerturbationIdUpdateData>
+      /** Set ID of perturbation with given original ID to a new id. */
+      setPerturbationId: (originalId: string, newId: string) => void
+      /** PerturbationData (with updated content) for a modified perturbation. */
+      perturbationContentChanged: Observable<PerturbationData>
+      /** Set content of perturbation with given ID. */
+      setPerturbationContent: (id: string, newContent: PerturbationData) => void
+      /** List of all PerturbationData after variable's ID is changed.
+       * Since variable ID changes can affect multiple perturbations, we refresh all data at once. */
+      allPerturbationsUpdated: Observable<PerturbationData[]>
+      /** Update all perturbations when a variable's ID is changed throughout the sketch. */
+      setPerturbationVariableId: (originalVarId: string, newVarId: string) => void
     }
   }
 
@@ -1022,6 +1073,57 @@ export const aeonState: AeonState = {
         aeonEvents.emitAction({
           path: ['sketch', 'properties', 'static', originalId, 'set_id'],
           payload: newId
+        })
+      }
+    },
+
+    perturbations: {
+      perturbationsRefreshed: new Observable<PerturbationData[]>(['sketch', 'perturbations', 'get_all_perturbations']),
+      refreshPerturbations (): void {
+        aeonEvents.refresh(['sketch', 'perturbations', 'get_all_perturbations'])
+      },
+
+      perturbationCreated: new Observable<PerturbationData>(['sketch', 'perturbations', 'add']),
+      perturbationAdded: new Observable<PerturbationData>(['sketch', 'perturbations', 'add']),
+      perturbationRemoved: new Observable<PerturbationData>(['sketch', 'perturbations', 'remove']),
+      perturbationIdChanged: new Observable<PerturbationIdUpdateData>(['sketch', 'perturbations', 'set_id']),
+      perturbationContentChanged: new Observable<PerturbationData>(['sketch', 'perturbations', 'set_content']),
+      allPerturbationsUpdated: new Observable<PerturbationData[]>(['sketch', 'perturbations', 'all_perturb_updated']),
+
+      addDefaultPerturbation (): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'perturbations', 'add_default'],
+          payload: null
+        })
+      },
+      addPerturbation (perturbationData: PerturbationData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'perturbations', 'add'],
+          payload: JSON.stringify(perturbationData)
+        })
+      },
+      removePerturbation (id: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'perturbations', id, 'remove'],
+          payload: null
+        })
+      },
+      setPerturbationId (originalId: string, newId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'perturbations', originalId, 'set_id'],
+          payload: newId
+        })
+      },
+      setPerturbationContent (id: string, newContent: PerturbationData): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'perturbations', id, 'set_content'],
+          payload: JSON.stringify(newContent)
+        })
+      },
+      setPerturbationVariableId (originalVarId: string, newVarId: string): void {
+        aeonEvents.emitAction({
+          path: ['sketch', 'perturbations', 'set_var_id_everywhere'],
+          payload: JSON.stringify({ original_id: originalVarId, new_id: newVarId })
         })
       }
     }

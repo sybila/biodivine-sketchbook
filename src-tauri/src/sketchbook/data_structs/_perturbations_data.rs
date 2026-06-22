@@ -1,7 +1,7 @@
 use crate::sketchbook::ids::{PerturbationId, VarId};
 use crate::sketchbook::perturbations::Perturbation;
 use crate::sketchbook::JsonSerde;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::BTreeMap;
 
 /// Structure for sending data about `Perturbation` to the frontend.
@@ -14,6 +14,7 @@ pub struct PerturbationData {
     pub id: String,
     pub name: String,
     pub annotation: String,
+    #[serde(serialize_with = "map_to_pairs", deserialize_with = "pairs_to_map")]
     pub perturbed_vars: BTreeMap<String, bool>,
 }
 
@@ -67,4 +68,25 @@ impl PerturbationData {
 
         Ok(Perturbation::new(&self.name, perturbed_vars).with_annotation(&self.annotation))
     }
+}
+
+// Helper function to serialize map as a sequence of pairs
+fn map_to_pairs<K, V, S>(map: &BTreeMap<K, V>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    K: Serialize,
+    V: Serialize,
+    S: Serializer,
+{
+    serializer.collect_seq(map.iter())
+}
+
+// Helper function to deserialize sequence of pairs as a map
+fn pairs_to_map<'de, K, V, D>(deserializer: D) -> Result<BTreeMap<K, V>, D::Error>
+where
+    K: Deserialize<'de> + Ord,
+    V: Deserialize<'de>,
+    D: Deserializer<'de>,
+{
+    let pairs: Vec<(K, V)> = Vec::deserialize(deserializer)?;
+    Ok(pairs.into_iter().collect())
 }

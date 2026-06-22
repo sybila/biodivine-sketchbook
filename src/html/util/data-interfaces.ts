@@ -55,6 +55,7 @@ export class ContentData extends Data {
   observations: IObservationSet[] = []
   dynamicProperties: DynamicProperty[] = []
   staticProperties: StaticProperty[] = []
+  perturbations: IPerturbationData[] = []
   annotation: string = ''
 }
 
@@ -209,3 +210,14 @@ export type StaticProperty =
   | IVariableRegulatorMonotonicStaticProperty
   | IVariableRegulatorEssentialStaticProperty
   | IGenericStaticProperty
+
+/** Structure mapping perturbed variables to their values. */
+export type IPerturbationMap = Map<string, boolean>
+
+/** Internally used structure to represent perturbations. */
+export interface IPerturbationData {
+  id: string
+  name: string
+  annotation: string
+  perturbedVars: IPerturbationMap
+}
