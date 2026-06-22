@@ -17,6 +17,8 @@ pub mod observations;
 pub mod properties;
 /// Utilities regarding conversion of BN components and similar.
 pub mod bn_utils;
+/// Structs and utility methods regarding perturbations.
+pub mod perturbations;
 
 /// **(internal)** Utility functions specifically related to events.
 pub(crate) mod event_utils;

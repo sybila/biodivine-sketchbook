@@ -1,7 +1,7 @@
 # Biodivine Sketchbook
 
 Sketchbook is a multi-platform tool for inference of Boolean models from interaction networks combined with advanced static and dynamic properties.
-The symbolic inference is based on the recently published framework of [Boolean network sketches](https://doi.org/10.1093/bioinformatics/btad158).
+The symbolic inference method is based on the framework of [Boolean network sketches](https://doi.org/10.1093/bioinformatics/btad158). 
 
 Sketchbook offers an interactive graphical editor where users can specify regulatory interactions and partial update functions. It features a rich framework to describe expected model dynamics (e.g., attractors, oscillations, or transient patterns) and incorporates experimental data when available. The tool employs a high-performance symbolic inference engine to efficiently compute the set of all BN models consistent with the specification. Users can then sample candidate models or further process the results with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
@@ -26,9 +26,10 @@ The installation is also summarized below, with an additional development guide.
 If you used Sketchbook for some academic work, we'd be very happy if you could cite it using the following publication:
 
 ```
-Beneš, N., Brim, L., Huvar, O., Pastva, S., & Šafránek, D. (2023). 
-Boolean network sketches: a unifying framework for logical model inference.
-Bioinformatics, 39(4), https://doi.org/10.1093/bioinformatics/btad158.
+Ondřej Huvar, Nikola Beneš, Luboš Brim, Samuel Pastva, David Šafránek
+Sketchbook: logical model inference from Boolean network sketches 
+Bioinformatics Advances, Volume 6, Issue 1, 2026
+https://doi.org/10.1093/bioadv/vbag014
 ```
 
 ## Installation

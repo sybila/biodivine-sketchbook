@@ -15,6 +15,8 @@ mod _layout_node_data;
 mod _model_data;
 /// **(internal)** Definition and utility methods for `ObservationData`.
 mod _observation_data;
+/// **(internal)** Definition and utility methods for `PerturbationData`.
+mod _perturbations_data;
 /// **(internal)** Definition and utility methods for `RegulationData`.
 mod _regulation_data;
 /// **(internal)** Definition and utility methods for `SketchData`.
@@ -34,6 +36,7 @@ pub use _layout_data::{LayoutData, LayoutMetaData};
 pub use _layout_node_data::{LayoutNodeData, LayoutNodeDataPrototype};
 pub use _model_data::ModelData;
 pub use _observation_data::ObservationData;
+pub use _perturbations_data::PerturbationData;
 pub use _regulation_data::RegulationData;
 pub use _sketch_data::SketchData;
 pub use _static_prop_data::{StatPropertyData, StatPropertyTypeData};

@@ -103,6 +103,8 @@ id_wrapper!(StatPropertyId, "StatProperty");
 id_wrapper!(UninterpretedFnId, "UninterpretedFn");
 id_wrapper!(VarId, "Variable");
 
+id_wrapper!(PerturbationId, "Perturbation");
+
 #[cfg(test)]
 mod tests {
     use crate::sketchbook::ids::BaseId;
