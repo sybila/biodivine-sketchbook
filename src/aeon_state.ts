@@ -481,7 +481,7 @@ interface AeonState {
     }
 
     /** The state of the perturbations. */
-    
+
     perturbations: {
       /** Refresh events: */
 

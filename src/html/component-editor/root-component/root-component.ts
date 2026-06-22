@@ -14,14 +14,15 @@ import { tabList } from '../../util/config'
 import {
   ContentData, type IFunctionData, type ILayoutData,
   type IObservationSet, type IRegulationData, type IVariableData,
-  type DynamicProperty, type StaticProperty
+  type DynamicProperty, type StaticProperty, type IPerturbationData
 } from '../../util/data-interfaces'
 import { open } from '@tauri-apps/api/dialog'
 import { dialog } from '@tauri-apps/api'
 import {
   getNextEssentiality, getNextMonotonicity,
   convertToIFunction, convertToILayout, convertToIVariable,
-  convertToIObservationSet, convertToIRegulation
+  convertToIObservationSet, convertToIRegulation,
+  convertToIPerturbation
 } from '../../util/utilities'
 import { resolveResource } from '@tauri-apps/api/path'
 
@@ -122,7 +123,7 @@ export default class RootComponent extends LitElement {
     aeonState.sketch.model.layoutNodesRefreshed.addEventListener(this.#onLayoutNodesRefreshed.bind(this))
     aeonState.sketch.model.regulationsRefreshed.addEventListener(this.#onRegulationsRefreshed.bind(this))
     // When refreshing/replacing whole sketch, this component is responsible for updating the whole `Sketch`, that means
-    // updating model components, and distributing the rest (observations, properties) to particular sub-modules
+    // updating model components, and distributing the rest (observations, properties, perturbations) to particular sub-modules
     aeonState.sketch.sketchRefreshed.addEventListener(this.#onSketchRefreshed.bind(this))
     aeonState.sketch.sketchReplaced.addEventListener(this.#onSketchRefreshed.bind(this))
 
@@ -132,6 +133,7 @@ export default class RootComponent extends LitElement {
     this.addEventListener('save-observations', this.saveObservationData.bind(this))
     this.addEventListener('save-dynamic-properties', this.saveDynamicPropertyData.bind(this))
     this.addEventListener('save-static-properties', this.saveStaticPropertyData.bind(this))
+    this.addEventListener('save-perturbations', this.savePerturbationData.bind(this))
     this.addEventListener('save-annotation', this.saveAnnotationData.bind(this))
 
     // Load variable editorStarted from session storage (so it survives refresh)
@@ -339,6 +341,13 @@ export default class RootComponent extends LitElement {
     this.saveDynamicProperties(properties)
   }
 
+  /** Save perturbation data sent from one of the sub-components. */
+  savePerturbationData (event: Event): void {
+    // update perturbations using modified data propagated from PerturbationsEditor
+    const perturbations: IPerturbationData[] = (event as CustomEvent).detail.perturbations
+    this.savePerturbations(perturbations)
+  }
+
   /** Save annotations data sent from one of the sub-components. */
   saveAnnotationData (event: Event): void {
     // update annotation propagated from AnnotationTab
@@ -362,6 +371,12 @@ export default class RootComponent extends LitElement {
   private saveObservations (observations: IObservationSet[]): void {
     observations.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({ observations })
+  }
+
+  /** Save perturbations data. */
+  private savePerturbations (perturbations: IPerturbationData[]): void {
+    perturbations.sort((a, b) => (a.id > b.id ? 1 : -1))
+    this.data = this.data.copy({ perturbations })
   }
 
   /** Save functions data. */
@@ -416,6 +431,7 @@ export default class RootComponent extends LitElement {
     observations: IObservationSet[],
     staticProperties: StaticProperty[],
     dynamicProperties: DynamicProperty[],
+    perturbations: IPerturbationData[],
     annotation: string
   ): void {
     functions.sort((a, b) => (a.id > b.id ? 1 : -1))
@@ -424,6 +440,7 @@ export default class RootComponent extends LitElement {
     staticProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     dynamicProperties.sort((a, b) => (a.id > b.id ? 1 : -1))
     observations.sort((a, b) => (a.id > b.id ? 1 : -1))
+    perturbations.sort((a, b) => (a.id > b.id ? 1 : -1))
     this.data = this.data.copy({
       functions,
       variables,
@@ -431,7 +448,7 @@ export default class RootComponent extends LitElement {
       layout,
       staticProperties,
       dynamicProperties,
-      observations,
+      perturbations,
       annotation
     })
   }
@@ -693,6 +710,7 @@ export default class RootComponent extends LitElement {
   /** Process and save refreshed sketch data coming from the backend. */
   #onSketchRefreshed (sketch: SketchData): void {
     const datasets = sketch.datasets.map(d => convertToIObservationSet(d))
+    const perturbations = sketch.perturbations.map(p => convertToIPerturbation(p))
     const functions = sketch.model.uninterpreted_fns.map(f => convertToIFunction(f))
     const variables = sketch.model.variables.map(v => convertToIVariable(v))
     const regulations = sketch.model.regulations.map(r => convertToIRegulation(r))
@@ -706,6 +724,7 @@ export default class RootComponent extends LitElement {
       datasets,
       sketch.stat_properties,
       sketch.dyn_properties,
+      perturbations,
       sketch.annotation
     )
   }

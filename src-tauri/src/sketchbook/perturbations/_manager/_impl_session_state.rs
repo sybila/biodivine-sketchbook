@@ -35,7 +35,6 @@ impl SessionState for PerturbationManager {
         // When adding new perturbation, the `at_path` starts with "add" (or "add_default")
         // When editing existing perturbations, the `at_path` continues with "perturbation_id" and "action"
 
-        let at_path = &at_path[1..];
         if Self::starts_with(ADD_DEFAULT_PATH, at_path).is_some() {
             Self::assert_path_length(at_path, 1, component_name)?;
             self.event_add_default_perturb(event)

@@ -1,0 +1,74 @@
+@import '/src/uikit-theme';
+
+.container {
+  container-name: components-list;
+  container-type: inline-size;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.components-list {
+  width: 100%;
+  justify-content: unset;
+  align-items: center;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  min-width: @section-min-width;
+  max-width: @tab-max-width;
+  overflow: auto;
+  width: 100%;
+}
+
+// Make sure to wrap long lines correctly
+.ann {
+  margin-left: 2em;
+  margin-right: 2em;
+  margin-top: 1em;
+  margin-bottom: 2em;
+  max-width: 100%;   
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/*
+  Header sticks to the top of the list.
+*/
+
+.header {
+  .uk-flex;
+  .uk-flex-row;
+  .uk-flex-between;
+  .uk-flex-middle;
+  .uk-box-shadow-small;
+  padding: 0.5em 1em;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+@heading-bullet-border: @text-dark;
+.header h3 {
+  color: @text-dark;
+}
+
+textarea::placeholder {
+  font-weight: inherit;
+  color: @text-muted;
+}
+
+.placeholder {
+  color: @text-muted;
+}
+
+@container components-list (max-width: @multi-section-breaking-width) {
+
+  .section {
+    max-width: @multi-section-breaking-width - 8em;
+  }
+}
