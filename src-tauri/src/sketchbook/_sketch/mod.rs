@@ -1,5 +1,6 @@
 use crate::sketchbook::model::ModelState;
 use crate::sketchbook::observations::ObservationManager;
+use crate::sketchbook::perturbations::PerturbationManager;
 use crate::sketchbook::properties::PropertyManager;
 use crate::sketchbook::Manager;
 
@@ -24,6 +25,7 @@ pub struct Sketch {
     pub model: ModelState,
     pub observations: ObservationManager,
     pub properties: PropertyManager,
+    pub perturbations: PerturbationManager,
     pub annotation: String,
 }
 
@@ -36,6 +38,7 @@ impl Default for Sketch {
             model: ModelState::default(),
             observations: ObservationManager::default(),
             properties: PropertyManager::default(),
+            perturbations: PerturbationManager::default(),
             annotation: String::default(),
         }
     }

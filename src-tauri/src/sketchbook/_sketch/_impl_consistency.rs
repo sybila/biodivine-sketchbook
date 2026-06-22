@@ -35,6 +35,7 @@ impl Sketch {
     /// - check that various template properties reference valid variables and data
     /// - check that HCTL formulas only use valid variables as atomic propositions
     /// - check that FOL formulas only use valid function symbols
+    /// - check that all perturbation variables are valid network variables
     pub fn run_consistency_check(&self) -> (bool, String, String) {
         let mut all_consitent = true;
         let mut main_message = String::new();
@@ -48,6 +49,7 @@ impl Sketch {
             self.check_datasets(),
             self.check_static(),
             self.check_dynamic(),
+            self.check_perturbations(),
         ];
 
         for (consistent, sub_err_message, sub_warn_message) in componets_results {
@@ -208,6 +210,37 @@ impl Sketch {
         }
         // At the moment, there are no warnings here
         (!dyn_err_found, message, String::new())
+    }
+
+    /// Part of the consistency check responsible for the 'perturbations' component.
+    /// Returns bool (whether perturbations are consistent), a formated message with error issues,
+    /// and a separate message with warnings.
+    ///
+    /// The issues are only reported as warnings since they are handled automatically before
+    /// inference. We check that variables in perturbations are valid network variables.
+    fn check_perturbations(&self) -> (bool, String, String) {
+        let mut message = String::new();
+        message += "PERTURBATIONS:\n";
+
+        let mut perturb_err_found = false;
+        for (perturb_id, perturb) in self.perturbations.perturbations_iter() {
+            // Check that all perturbed variables are part of the network
+            let mut invalid_variables = Vec::new();
+            for var_id in perturb.get_perturbed_vars().keys() {
+                if !self.model.is_valid_var_id(var_id) {
+                    invalid_variables.push(var_id.to_string());
+                }
+            }
+            if !invalid_variables.is_empty() {
+                perturb_err_found = true;
+                let invalid_vars_str = invalid_variables.join(", ");
+                let err_inner =
+                    format!("Variables `{invalid_vars_str}` are not valid network variables.");
+                message = append_perturbation_issue(&err_inner, perturb_id.as_str(), message);
+            }
+        }
+
+        (!perturb_err_found, message, String::new())
     }
 
     /// Check if all fields of the static property are filled and have valid values.
@@ -460,6 +493,13 @@ impl Sketch {
 /// **(internal)** Simple internal utility to append issue message regarding a particular property.
 fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> String {
     let issue = format!("> ISSUE with property `{prop_id}`: {description}\n");
+    log += &issue;
+    log
+}
+
+/// **(internal)** Simple internal utility to append issue message regarding a particular perturbation.
+fn append_perturbation_issue(description: &str, perturb_id: &str, mut log: String) -> String {
+    let issue = format!("> ISSUE with perturbation `{perturb_id}`: {description}\n");
     log += &issue;
     log
 }

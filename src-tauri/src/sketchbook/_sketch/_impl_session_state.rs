@@ -10,53 +10,58 @@ use std::io::Read;
 
 /* Constants for event path segments for various events. */
 
-// events being delegated to `model` subcomponent
+// Path for events being delegated to `model` subcomponent
 const MODEL_PATH: &str = "model";
-// events being delegated to `observations` subcomponent
+// Path for events being delegated to `observations` subcomponent
 const OBSERVATIONS_PATH: &str = "observations";
-// events being delegated to `properties` subcomponent
+// Path for events being delegated to `properties` subcomponent
 const PROPERTIES_PATH: &str = "properties";
-// create new sketch and replace the current data
+// Path for events being delegated to `properties` subcomponent
+const PERTURBATIONS_PATH: &str = "perturbations";
+
+// Create new sketch and replace the current data
 const NEW_SKETCH_PATH: &str = "new_sketch";
-// export the current sketch to custom format
+// Export the current sketch to custom format
 const EXPORT_SKETCH_PATH: &str = "export_sketch";
-// export the current sketch to extended aeon format
+// Export the current sketch to extended aeon format
 const EXPORT_AEON_PATH: &str = "export_aeon";
-// export the provided network data into PNG
+// Export the provided network data into PNG
 const EXPORT_PNG_PATH: &str = "export_png";
-// import sketch from custom format and replace the current data
+// Import sketch from custom format and replace the current data
 const IMPORT_SKETCH_PATH: &str = "import_sketch";
-// import sketch from aeon format and replace the current data
+// Import sketch from aeon format and replace the current data
 const IMPORT_AEON_PATH: &str = "import_aeon";
-// import model from sbml format and replace the current data
+// Import model from sbml format and replace the current data
 const IMPORT_SBML_PATH: &str = "import_sbml";
-// check if various components of sketch are consistent together (and report issues)
+// Check if various components of sketch are consistent together (and report issues)
 const CHECK_CONSISTENCY_PATH: &str = "check_consistency";
-// get number of parameters of the PSBN
+// Get number of parameters of the PSBN
 const GET_NUM_PSBN_PARAMS_PATH: &str = "get_num_psbn_params";
-// assert that various components of sketch are consistent together
+// Assert that various components of sketch are consistent together
 const ASSERT_CONSISTENCY_PATH: &str = "assert_consistency";
-// set annotation for the sketch
+// Set annotation for the sketch
 const SET_ANNOTATION_PATH: &str = "set_annotation";
-// refresh the whole sketch
+// Refresh the whole sketch
 const GET_WHOLE_SKETCH_PATH: &str = "get_whole_sketch";
 
 impl SessionHelper for Sketch {}
 
 impl SessionState for Sketch {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
-        // just distribute the events one layer down, or answer some specific cases
+        // Just distribute the events one layer down, or answer some specific cases
         if let Some(at_path) = Self::starts_with(MODEL_PATH, at_path) {
             self.model.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with(OBSERVATIONS_PATH, at_path) {
             self.observations.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with(PROPERTIES_PATH, at_path) {
             self.properties.perform_event(event, at_path)
+        } else if let Some(at_path) = Self::starts_with(PERTURBATIONS_PATH, at_path) {
+            self.perturbations.perform_event(event, at_path)
         } else if Self::starts_with(NEW_SKETCH_PATH, at_path).is_some() {
             self.set_to_empty();
             let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
-            // this is probably one of the real irreversible changes
+            // This is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: true,
@@ -70,7 +75,7 @@ impl SessionState for Sketch {
             self.export_to_aeon(&path)?;
             Ok(Consumed::NoChange)
         } else if Self::starts_with(EXPORT_PNG_PATH, at_path).is_some() {
-            // get payload and parse the path and png data (base64 encoded)
+            // Get payload and parse the path and png data (base64 encoded)
             let payload = Self::clone_payload_str(event, "sketch")?;
             let payload_json: serde_json::Value = serde_json::from_str(&payload)?;
             let path = payload_json["path"]
@@ -79,60 +84,63 @@ impl SessionState for Sketch {
             let png_base64 = payload_json["png"]
                 .as_str()
                 .ok_or("Missing 'png' in payload")?;
-            // decode the base64 data and write it to the file
+            // Decode the base64 data and write it to the file
             let png_data = BASE64_STANDARD.decode(png_base64)?;
             std::fs::write(path, png_data)?;
             Ok(Consumed::NoChange)
         } else if Self::starts_with(IMPORT_SKETCH_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
-            // read the file contents
+
+            // Read the file contents
             let mut file = File::open(file_path)?;
             let mut contents = String::new();
             file.read_to_string(&mut contents)?;
 
-            // parse the SketchData, modify the sketch
+            // Parse the SketchData, modify the sketch
             let new_sketch = Sketch::from_custom_json(&contents)?;
             self.modify_from_sketch(&new_sketch);
 
             let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
-            // this is probably one of the real irreversible changes
+            // This is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: true,
             })
         } else if Self::starts_with(IMPORT_AEON_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
-            // read the file contents
+
+            // Read the file contents
             let mut file = File::open(file_path)?;
             let mut contents = String::new();
             file.read_to_string(&mut contents)?;
 
-            // parse AEON format (extended with custom annotations)
+            // Parse AEON format (extended with custom annotations)
             let new_sketch = Sketch::from_aeon(&contents)?;
             self.modify_from_sketch(&new_sketch);
 
             let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
-            // this is probably one of the real irreversible changes
+            // This is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: true,
             })
         } else if Self::starts_with(IMPORT_SBML_PATH, at_path).is_some() {
             let file_path = Self::clone_payload_str(event, "sketch")?;
-            // read the file contents
+
+            // Read the file contents
             let mut file = File::open(file_path)?;
             let mut contents = String::new();
             file.read_to_string(&mut contents)?;
 
-            // parse the SBML format (only psbn, no additional properties or datasets)
+            // Parse the SBML format (only psbn, no additional properties or datasets)
             let new_sketch = Sketch::from_sbml(&contents)?;
             self.modify_from_sketch(&new_sketch);
 
             let sketch_data = SketchData::new_from_sketch(self);
             let state_change = make_state_change(&["sketch", "set_all"], &sketch_data);
-            // this is probably one of the real irreversible changes
+            // This is probably one of the real irreversible changes
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: true,
@@ -168,7 +176,7 @@ impl SessionState for Sketch {
             let num_params = self.get_num_parameters();
             let payload = serde_json::to_string(&num_params).unwrap();
             let state_change = Event::build(&["sketch", "num_psbn_params"], Some(&payload));
-            // irreversible event that just bypasses the stack (but does not reset it)
+            // Irreversible event that just bypasses the stack but DOES NOT reset it
             Ok(Consumed::Irreversible {
                 state_change,
                 reset: false,
@@ -180,7 +188,7 @@ impl SessionState for Sketch {
                 return Ok(Consumed::NoChange);
             }
 
-            // set the annotation and prepare state-change + reverse events
+            // Set the annotation and prepare state-change + reverse events
             self.set_annotation(&new_annotation);
             let payload = serde_json::to_string(&new_annotation).unwrap();
             let state_change = Event::build(&["sketch", "set_annotation"], Some(&payload));
@@ -206,6 +214,8 @@ impl SessionState for Sketch {
             self.observations.refresh(full_path, at_path)
         } else if let Some(at_path) = Self::starts_with(PROPERTIES_PATH, at_path) {
             self.properties.refresh(full_path, at_path)
+        } else if let Some(at_path) = Self::starts_with(PERTURBATIONS_PATH, at_path) {
+            self.perturbations.refresh(full_path, at_path)
         } else if Self::starts_with(GET_WHOLE_SKETCH_PATH, at_path).is_some() {
             let sketch_data = SketchData::new_from_sketch(self);
             Ok(Event {
