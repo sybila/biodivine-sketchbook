@@ -39,7 +39,7 @@ export const tabList: TabData[] = [
     id: index++,
     name: 'Perturbations',
     content: (contentData) => html`<perturbations-editor .contentData=${contentData}></perturbations-editor>`,
-    icon: 'x'
+    icon: 'r'
   }),
   TabData.create({
     id: index++,

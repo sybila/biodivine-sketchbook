@@ -446,6 +446,7 @@ export default class RootComponent extends LitElement {
       variables,
       regulations,
       layout,
+      observations,
       staticProperties,
       dynamicProperties,
       perturbations,

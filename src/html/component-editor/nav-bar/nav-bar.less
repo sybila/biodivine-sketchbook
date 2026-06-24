@@ -4,9 +4,40 @@
   white-space: nowrap;
   z-index: 100;
   position: relative;
-  
+  width: 100%;
+  overflow: visible;
+}
+
+nav {
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.uk-navbar-left {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: visible;
+}
+
+.uk-navbar-right {
+  flex: 0 0 auto;
+}
+
+.tab-scroll-area {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+tab-bar {
+  display: block;
+  width: 100%;
 }
 
 .gap {
   gap: .7em;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }

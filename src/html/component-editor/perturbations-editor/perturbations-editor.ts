@@ -27,7 +27,13 @@ export class PerturbationsEditor extends LitElement {
     aeonState.sketch.perturbations.perturbationRemoved.addEventListener(this.#onPerturbationRemoved.bind(this))
     aeonState.sketch.perturbations.perturbationIdChanged.addEventListener(this.#onPerturbationIdChanged.bind(this))
     aeonState.sketch.perturbations.perturbationContentChanged.addEventListener(this.#onPerturbationContentChanged.bind(this))
+
     aeonState.sketch.perturbations.allPerturbationsUpdated.addEventListener(this.#onAllPerturbationsUpdated.bind(this))
+
+    // Events from perturbation-tile that need to be processed and sent above.
+    this.addEventListener('set-perturbation-content', (e) => { this.setPerturbationContent(e as CustomEvent) })
+    this.addEventListener('set-perturbation-id', (e) => { this.setPerturbationId(e as CustomEvent) })
+    this.addEventListener('remove-perturbation', (e) => { this.removePerturbation(e as CustomEvent) })
   }
 
   #onPerturbationsRefreshed (perturbations: PerturbationData[]): void {
@@ -90,6 +96,21 @@ export class PerturbationsEditor extends LitElement {
     aeonState.sketch.perturbations.addDefaultPerturbation()
   }
 
+  private removePerturbation (event: CustomEvent): void {
+    const detail = event.detail
+    aeonState.sketch.perturbations.removePerturbation(detail.id)
+  }
+
+  private setPerturbationContent (event: CustomEvent): void {
+    const detail = event.detail
+    aeonState.sketch.perturbations.setPerturbationContent(detail.id, detail.perturbation)
+  }
+
+  private setPerturbationId (event: CustomEvent): void {
+    const detail = event.detail
+    aeonState.sketch.perturbations.setPerturbationId(detail.oldId, detail.newId)
+  }
+
   render (): TemplateResult {
     return html`
       <!-- Single-section container to limit the max width of the tab content. -->
@@ -104,9 +125,9 @@ export class PerturbationsEditor extends LitElement {
             </div>
             ${this.contentData?.perturbations.length === 0 ? html`<div class="uk-text-center"><span class="uk-label uk-margin-bottom">No perturbations yet</span></div>` : ''}
             <div class="accordion-body">
-              <div class="accordion uk-margin-small-left uk-margin-small-right">
-                ${map(this.contentData.perturbations, perturbation => html`
-                  <perturbation-tile perturbation="${perturbation}"></perturbation-tile>`)}
+              <div class="accordion perturbations-list-container uk-margin-small-left uk-margin-small-right">
+                ${map(this.contentData.perturbations, (perturbation) => html`
+                  <perturbation-tile .perturbation="${perturbation}" .variables="${this.contentData.variables}"></perturbation-tile>`)}
               </div>
             </div>
           </div>

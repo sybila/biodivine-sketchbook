@@ -16,12 +16,38 @@
   height: 40px;
 }
 
+.property-nameplate {
+  gap: 0.5em;
+}
+
+.id-section {
+  flex: 0 0 8em;
+  min-width: 0;
+}
+
 .name-field {
   .uk-input;
   .uk-text-left;
+  height: 40px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:read-only {
+    cursor: default;
+    box-shadow: none;
+  }
 }
 
 .name-section {
+  flex: 1 1 12em;
+  min-width: 0;
+  max-width: 18em;
+}
+
+.property-id-field,
+.property-name-field {
   width: 100%;
 }
 
@@ -29,11 +55,10 @@
   width: 100%;
 }
 
-.static-name-field {
-  .uk-form-blank;
-  .uk-h4;
-  margin: 0;
-  padding: 0 15px 0 0;
+.uk-form-label {
+  font-weight: 500;
+  font-size: 0.85em;
+  margin-bottom: 0.3em;
 }
 
 .uk-button {
@@ -72,20 +97,22 @@
     color: @text-dark;
   }
 
-  .static-name-field {
+  .uk-form-label {
     color: @text-light;
   }
 
-  .uk-form-label {
-    color: @text-light;
+  .name-field:read-only {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: transparent;
+    color: fade(@text-light, 75%);
+  }
+
+  .name-field:not(:read-only):hover {
+    border-color: @separator-light;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  .static-name-field {
-    color: @text-dark;
-  }
-
   .uk-form-label {
     color: @text-dark;
   }
@@ -94,5 +121,15 @@
     // make tooltip for dark mode lighter color
     background-color: @background-light;
     color: @text-light;
+  }
+
+  .name-field:read-only {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: transparent;
+    color: fade(@text-dark, 75%);
+  }
+
+  .name-field:not(:read-only):hover {
+    border-color: @separator-dark;
   }
 }

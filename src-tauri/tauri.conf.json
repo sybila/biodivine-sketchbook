@@ -60,9 +60,9 @@
         "fullscreen": false,
         "resizable": true,
         "title": "Biodivine Sketchbook",
-        "width": 1125,
+        "width": 1100,
         "height": 666,
-        "minWidth": 1140,
+        "minWidth": 1000,
         "minHeight": 666,
         "url": "src/html/sketch-editor.html"
       }

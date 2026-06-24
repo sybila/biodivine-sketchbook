@@ -39,15 +39,25 @@ export default class abstractStaticProperty extends AbstractProperty {
    */
   renderNameplate (editable: boolean = true): TemplateResult {
     return html`
-      <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
-        <div class="uk-flex uk-flex-column">
+      <div class="property-nameplate uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
+        <div class="uk-flex uk-flex-column id-section">
           <label class="uk-form-label" for="id-field">ID</label>
-          <input id="id-field" class="name-field static-name-field" .value="${this.property.id}" readonly/>
+          <input id="id-field" class="name-field property-id-field" .value="${this.property.id}"
+                 title="${editable ? '' : 'Read-only'}"
+                 ?readonly=${!editable}
+                 @input="${(e: InputEvent) => {
+                   if (editable) this.idUpdated((e.target as HTMLInputElement).value)
+                 }}"/>
         </div>
 
         <div class="uk-flex uk-flex-column name-section">
           <label class="uk-form-label" for="name-field">NAME</label>
-          <input id="name-field" class="name-field static-name-field" .value="${this.property.name}" readonly/>
+          <input id="name-field" class="name-field property-name-field" .value="${this.property.name}"
+                 title="${editable ? '' : 'Read-only'}"
+                 ?readonly=${!editable}
+                 @input="${(e: InputEvent) => {
+                   if (editable) this.nameUpdated((e.target as HTMLInputElement).value)
+                 }}"/>
         </div>
         
         ${when(editable, () => html`

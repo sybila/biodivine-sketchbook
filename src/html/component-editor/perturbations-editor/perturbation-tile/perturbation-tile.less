@@ -1,0 +1,120 @@
+@import '/src/uikit-theme';
+
+.svg-inline--fa {
+  height: 1em;
+  margin-right: 0.3em;
+}
+
+.property-button {
+  width: 4em;
+  height: 40px;
+}
+
+.add-variable-row {
+  margin-top: 0.5em;
+}
+
+.perturbed-variables-list {
+  border-top: 1px solid rgba(128, 128, 128, 0.22);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.perturbed-variable-row {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.22);
+  margin-bottom: 0 !important;
+  padding: 0.35em 0;
+}
+
+.perturbed-variable-id {
+  line-height: 30px;
+  font-weight: bold;
+}
+
+.perturbation-value {
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+}
+
+.perturbation-value:hover {
+  text-decoration: underline;
+}
+
+.perturbation-value-true {
+  color: @monotonicity-activation;
+}
+
+.perturbation-value-false {
+  color: @monotonicity-inhibition;
+}
+
+.container {
+  padding: 0 0.5em;
+}
+
+.perturbation-nameplate {
+  gap: 0.5em;
+}
+
+.id-section {
+  flex: 0 0 8em;
+  min-width: 0;
+}
+
+.perturbation-annotation {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.name-section {
+  flex: 1 1 12em;
+  min-width: 0;
+  max-width: 18em;
+}
+
+.name-field {
+  .uk-input;
+  .uk-text-left;
+  height: 40px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.property-id-field,
+.property-name-field {
+  width: 100%;
+}
+
+.uk-form-label {
+  font-weight: 500;
+  font-size: 0.85em;
+  margin-bottom: 0.3em;
+}
+
+hr {
+  height: 1px;
+  border: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .perturbed-variable-row:hover {
+    background: rgba(0, 0, 0, 0.37);
+  }
+
+  hr {
+    background-color: @background-light;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .perturbed-variable-row:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  hr {
+    background-color: @background-dark;
+  }
+}
+

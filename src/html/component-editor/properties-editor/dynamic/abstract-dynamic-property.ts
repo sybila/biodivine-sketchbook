@@ -42,15 +42,15 @@ export default class AbstractDynamicProperty extends AbstractProperty {
           <span class="tooltiptext">${getTemplateHelpText(this.property.variant)}</span>
         </span>
       </div>
-      <div class="uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
-        <div class="uk-flex uk-flex-column">
+      <div class="property-nameplate uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
+        <div class="uk-flex uk-flex-column id-section">
           <label class="uk-form-label" for="id-field">ID</label>
-          <input id="id-field" class="uk-input" .value="${this.property.id}"
+          <input id="id-field" class="name-field property-id-field" .value="${this.property.id}"
                  @input="${(e: InputEvent) => this.idUpdated((e.target as HTMLInputElement).value)}"/>
         </div>
         <div class="uk-flex uk-flex-column name-section">
           <label class="uk-form-label" for="name-field">NAME</label>
-          <input id="name-field" class="name-field" .value="${this.property.name}"
+          <input id="name-field" class="name-field property-name-field" .value="${this.property.name}"
                  @input="${(e: InputEvent) => this.nameUpdated((e.target as HTMLInputElement).value)}"/>
         </div>
         <button class="property-button uk-button uk-button-secondary uk-button-small" @click="${this.editDynProperty}">
