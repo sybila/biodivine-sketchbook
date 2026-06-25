@@ -65,6 +65,16 @@ export class AnnotationsTab extends LitElement {
     return html`<div>${annotatedFns.map(func => this.renderAnnotationTile(func.id, func.annotation))}</div>`
   }
 
+  /** Helper function to format the perturbations annotation section. */
+  formatPertAnnotations (): TemplateResult<1> {
+    const annotatedPerts = this.contentData.perturbations
+      .filter(pert => pert.annotation.trim() !== '')
+    if (annotatedPerts.length === 0) {
+      return html`<div class="placeholder"><p>No annotations available for perturbations.</p></div>`
+    }
+    return html`<div>${annotatedPerts.map(pert => this.renderAnnotationTile(pert.id, pert.annotation))}</div>`
+  }
+
   /** Helper function to format the datasets annotation section. */
   formatDatasetAnnotations (): TemplateResult<1> {
     const annotatedDatasets = this.contentData.observations
@@ -130,6 +140,7 @@ export class AnnotationsTab extends LitElement {
           ${this.renderAnnotationsSection('datasets', 'Datasets', this.formatDatasetAnnotations.bind(this))}
           ${this.renderAnnotationsSection('static', 'Static properties', this.formatStatPropAnnotations.bind(this))}
           ${this.renderAnnotationsSection('dynamic', 'Dynamic properties', this.formatDynPropAnnotations.bind(this))}
+          ${this.renderAnnotationsSection('perturbations', 'Perturbations', this.formatPertAnnotations.bind(this))}
         </div> 
       </div>
     `

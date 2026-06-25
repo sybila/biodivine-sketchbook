@@ -160,9 +160,6 @@ export class PerturbationTile extends LitElement {
             ${icon(faTrash).node}
           </button>
         </div>
-        ${this.perturbation.annotation !== null && this.perturbation.annotation !== undefined && this.perturbation.annotation !== ''
-          ? html`<p class="perturbation-annotation uk-text-small uk-margin-small-top uk-margin-small-bottom">${this.perturbation.annotation}</p>`
-          : html``}
 
         <span class="uk-text-left uk-margin-small-top">Perturbed Variables:</span>
 
