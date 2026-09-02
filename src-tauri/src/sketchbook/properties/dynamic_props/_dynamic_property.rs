@@ -1,12 +1,15 @@
 use super::_wild_card_props::process_wild_card_props;
-use crate::sketchbook::ids::{DatasetId, ObservationId};
+use crate::sketchbook::ids::{DatasetId, ObservationId, PerturbationId};
 use crate::sketchbook::properties::dynamic_props::*;
 use crate::sketchbook::utils::assert_name_valid;
 use serde::{Deserialize, Serialize};
 
 /// A typesafe representation wrapping various kinds of dynamic properties.
+///
 /// Each property has a `name` and field `variant` encompassing inner data.
 /// It can also be annotated using a string `annotation` field.
+/// Field `applied_perturbation` is `None` for the wild-type system, or `Some(id)`
+/// when the property applies under a particular perturbation.
 ///
 /// Different kinds of properties can be evaluated using different algorithms. The
 /// standard way is to build an HCTL formula based on the property type and its data,
@@ -15,6 +18,8 @@ use serde::{Deserialize, Serialize};
 pub struct DynProperty {
     name: String,
     annotation: String,
+    #[serde(default)]
+    applied_perturbation: Option<PerturbationId>,
     variant: DynPropertyType,
 }
 
@@ -26,6 +31,7 @@ impl DynProperty {
         DynProperty {
             name: name.to_string(),
             annotation: String::new(),
+            applied_perturbation: None,
             variant,
         }
     }
@@ -33,6 +39,15 @@ impl DynProperty {
     /// Update the `annotation` property.
     pub fn with_annotation(mut self, annotation: &str) -> Self {
         self.annotation = annotation.to_string();
+        self
+    }
+
+    /// Set the applied perturbation (`None` = wild-type).
+    pub fn with_applied_perturbation(
+        mut self,
+        applied_perturbation: Option<PerturbationId>,
+    ) -> Self {
+        self.applied_perturbation = applied_perturbation;
         self
     }
 
@@ -192,6 +207,11 @@ impl DynProperty {
         self.annotation = annotation.to_string()
     }
 
+    /// Set the applied perturbation (`None` = wild-type).
+    pub fn set_applied_perturbation(&mut self, applied_perturbation: Option<PerturbationId>) {
+        self.applied_perturbation = applied_perturbation
+    }
+
     /// Update property's sub-field `dataset` where applicable. If not applicable, return `Err`.
     pub fn set_dataset(&mut self, new_dataset: DatasetId) -> Result<(), String> {
         let new_dataset = Some(new_dataset);
@@ -304,6 +324,11 @@ impl DynProperty {
     /// Get annotation string.
     pub fn get_annotation(&self) -> &str {
         &self.annotation
+    }
+
+    /// Get the applied perturbation (`None` = wild-type).
+    pub fn get_applied_perturbation(&self) -> Option<&PerturbationId> {
+        self.applied_perturbation.as_ref()
     }
 
     /// Get property's variant with all the underlying data.
