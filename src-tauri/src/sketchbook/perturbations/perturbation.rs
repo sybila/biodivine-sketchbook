@@ -2,7 +2,7 @@ use crate::sketchbook::ids::VarId;
 use std::collections::BTreeMap;
 
 /// A typesafe representation wrapping various kinds of perturbations.
-/// Each perturbation has a `name` field and perturbation map <varID> -> <value>.
+/// Each perturbation has a `name` field and perturbation map `varID` -> `value`.
 /// Variables not in the map are considered unperturbed.
 /// It can also be annotated using a string `annotation` field.
 #[derive(Clone, Debug, Eq, PartialEq)]

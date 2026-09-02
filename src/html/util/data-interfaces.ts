@@ -121,14 +121,20 @@ export interface IProperty {
   variant: PropertyType
 }
 
+/** Shared fields of all dynamic properties. */
+export interface IDynamicProperty extends IProperty {
+  /** Perturbation ID, or null for the wild-type system. */
+  applied_perturbation: string | null
+}
+
 /** Template dynamic property for fixed point existence. */
-export interface IFixedPointDynamicProperty extends IProperty {
+export interface IFixedPointDynamicProperty extends IDynamicProperty {
   dataset: string | null
   observation: string | null
 }
 
 /** Template dynamic property for trap space existence. */
-export interface ITrapSpaceDynamicProperty extends IProperty {
+export interface ITrapSpaceDynamicProperty extends IDynamicProperty {
   dataset: string | null
   observation: string | null
   minimal: boolean
@@ -136,24 +142,24 @@ export interface ITrapSpaceDynamicProperty extends IProperty {
 }
 
 /** Template dynamic property for trajectory existence. */
-export interface IExistsTrajectoryDynamicProperty extends IProperty {
+export interface IExistsTrajectoryDynamicProperty extends IDynamicProperty {
   dataset: string | null
 }
 
 /** Template dynamic property for attractor count. */
-export interface IAttractorCountDynamicProperty extends IProperty {
+export interface IAttractorCountDynamicProperty extends IDynamicProperty {
   minimal: number
   maximal: number
 }
 
 /** Template dynamic property for attractor existence. */
-export interface IHasAttractorDynamicProperty extends IProperty {
+export interface IHasAttractorDynamicProperty extends IDynamicProperty {
   dataset: string | null
   observation: string | null
 }
 
 /** Generic dynamic property given by an HCTL formula. */
-export interface IGenericDynamicProperty extends IProperty {
+export interface IGenericDynamicProperty extends IDynamicProperty {
   formula: string
 }
 

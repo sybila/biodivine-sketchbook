@@ -25,7 +25,7 @@ export default class abstractStaticProperty extends AbstractProperty {
     super.removeProperty(EVENT_PROPERTY_REMOVED)
   }
 
-  updateProperty (property: DynamicProperty | StaticProperty): void {
+  updateProperty (property: StaticProperty): void {
     super.updateProperty(property, EVENT_PROPERTY_CHANGED)
   }
 

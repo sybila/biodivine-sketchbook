@@ -384,7 +384,7 @@ export class RegulationsEditor extends LitElement {
     const pngBase64 = this.cy?.png({
       full: true,
       bg: '#ffffff',
-      //bg: '#fafafa',
+      // bg: '#fafafa',
       output: 'base64',
       scale: 2 // Increase the scale for highest resolution
     })

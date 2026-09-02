@@ -1,9 +1,11 @@
-import { type DynamicProperty, type StaticProperty } from '../../../util/data-interfaces'
+import { type DynamicProperty, type IPerturbationData } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
 import { faTrash, faEdit, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 import { html, type TemplateResult } from 'lit'
+import { property } from 'lit/decorators.js'
+import { map } from 'lit/directives/map.js'
 import { functionDebounceTimer } from '../../../util/config'
 import { formatTemplateName, getTemplateHelpText } from '../../../util/utilities'
 
@@ -13,6 +15,10 @@ const EVENT_PROPERTY_REMOVED = 'dynamic-property-removed'
 const EVENT_PROPERTY_EDITED = 'dynamic-property-edited'
 
 export default class AbstractDynamicProperty extends AbstractProperty {
+  @property() declare property: DynamicProperty
+  /** List of all perturbations defined in the content so that the user can select one. */
+  @property() perturbations: IPerturbationData[] = []
+
   nameUpdated = debounce((name: string) => {
     super.nameUpdated(name, EVENT_PROPERTY_CHANGED)
   }, functionDebounceTimer)
@@ -25,7 +31,7 @@ export default class AbstractDynamicProperty extends AbstractProperty {
     super.removeProperty(EVENT_PROPERTY_REMOVED)
   }
 
-  updateProperty (property: DynamicProperty | StaticProperty): void {
+  updateProperty (property: DynamicProperty): void {
     super.updateProperty(property, EVENT_PROPERTY_CHANGED)
   }
 
@@ -33,14 +39,51 @@ export default class AbstractDynamicProperty extends AbstractProperty {
     super.editProperty(this.property.id, EVENT_PROPERTY_EDITED)
   }
 
+  private perturbationChanged (event: Event): void {
+    const perturbationId = (event.target as HTMLSelectElement).value
+    this.updateProperty({
+      ...this.property,
+      applied_perturbation: perturbationId === '' ? null : perturbationId
+    })
+  }
+
+  protected renderTitleControls (): TemplateResult {
+    const selectedPerturbation = this.perturbations.some(
+      perturbation => perturbation.id === this.property.applied_perturbation
+    )
+      ? this.property.applied_perturbation ?? ''
+      : ''
+
+    return html`
+      <select
+        class="perturbation-selector uk-select"
+        aria-label="Applied perturbation"
+        @change=${this.perturbationChanged}
+      >
+        <option value="" ?selected=${selectedPerturbation === ''}>Wild-type</option>
+        ${map(this.perturbations, perturbation => html`
+          <option
+            value=${perturbation.id}
+            ?selected=${selectedPerturbation === perturbation.id}
+          >
+            ${perturbation.id}
+          </option>
+        `)}
+      </select>
+    `
+  }
+
   renderNameplate (): TemplateResult {
     return html`
-      <div class="uk-margin-bottom uk-margin-remove-bottom" style="font-size:large;">
-        ${formatTemplateName(this.property.variant)}
-        <span class="tooltip" style="font-size:medium;">
-          ${icon(faCircleInfo).node}
-          <span class="tooltiptext">${getTemplateHelpText(this.property.variant)}</span>
-        </span>
+      <div class="property-title-row uk-flex uk-flex-between uk-flex-middle">
+        <div class="uk-margin-bottom uk-margin-remove-bottom" style="font-size:large;">
+          ${formatTemplateName(this.property.variant)}
+          <span class="tooltip" style="font-size:medium;">
+            ${icon(faCircleInfo).node}
+            <span class="tooltiptext">${getTemplateHelpText(this.property.variant)}</span>
+          </span>
+        </div>
+        ${this.renderTitleControls()}
       </div>
       <div class="property-nameplate uk-flex uk-flex-row uk-flex-bottom uk-width-auto">
         <div class="uk-flex uk-flex-column id-section">
