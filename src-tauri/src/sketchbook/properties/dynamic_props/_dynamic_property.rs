@@ -212,6 +212,24 @@ impl DynProperty {
         self.applied_perturbation = applied_perturbation
     }
 
+    /// Update applied perturbation ID if it matches `original_id`.
+    pub fn set_applied_perturbation_id_if_present(
+        &mut self,
+        original_id: &PerturbationId,
+        new_id: PerturbationId,
+    ) {
+        if self.applied_perturbation.as_ref() == Some(original_id) {
+            self.applied_perturbation = Some(new_id);
+        }
+    }
+
+    /// Clear applied perturbation if it matches `perturbation_id`.
+    pub fn clear_applied_perturbation_if_present(&mut self, perturbation_id: &PerturbationId) {
+        if self.applied_perturbation.as_ref() == Some(perturbation_id) {
+            self.applied_perturbation = None;
+        }
+    }
+
     /// Update property's sub-field `dataset` where applicable. If not applicable, return `Err`.
     pub fn set_dataset(&mut self, new_dataset: DatasetId) -> Result<(), String> {
         let new_dataset = Some(new_dataset);

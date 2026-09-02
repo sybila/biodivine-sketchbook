@@ -1,4 +1,4 @@
-use crate::sketchbook::ids::{DatasetId, ObservationId, UninterpretedFnId, VarId};
+use crate::sketchbook::ids::{DatasetId, ObservationId, PerturbationId, UninterpretedFnId, VarId};
 use crate::sketchbook::properties::dynamic_props::{
     DynPropertyType, WildCardProposition, WildCardType,
 };
@@ -347,6 +347,11 @@ impl Sketch {
             }
             DynPropertyType::AttractorCount(_) => {} // no fields that can be invalid
         }
+
+        if let Some(pert_id) = prop.get_applied_perturbation() {
+            self.assert_perturbation_valid(pert_id)?;
+        }
+
         Ok(())
     }
 
@@ -473,6 +478,17 @@ impl Sketch {
             }
         }
         Ok(())
+    }
+
+    /// Check that perturbation is valid in this sketch. If not, return error with a proper message.
+    fn assert_perturbation_valid(&self, perturbation_id: &PerturbationId) -> Result<(), String> {
+        if self.perturbations.is_valid_perturbation_id(perturbation_id) {
+            Ok(())
+        } else {
+            Err(format!(
+                "Referenced perturbation `{perturbation_id}` is not a valid perturbation."
+            ))
+        }
     }
 
     /// Check if the given dataset is used within any of the dyn properties.
