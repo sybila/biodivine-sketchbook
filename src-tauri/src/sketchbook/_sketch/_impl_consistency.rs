@@ -522,8 +522,9 @@ fn append_perturbation_issue(description: &str, perturb_id: &str, mut log: Strin
 
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::ids::DatasetId;
+    use crate::sketchbook::ids::{DatasetId, PerturbationId};
     use crate::sketchbook::observations::{Dataset, Observation};
+    use crate::sketchbook::perturbations::Perturbation;
     use crate::sketchbook::properties::{DynProperty, StatProperty};
     use crate::sketchbook::Sketch;
     use std::fs::File;
@@ -603,6 +604,25 @@ mod tests {
             .add_static_by_str("p", stat_prop)
             .unwrap();
         assert!(sketch_copy.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Dynamic properties may reference an existing perturbation, but not an unknown one.
+    fn consistency_applied_perturbation_reference() {
+        let mut sketch = Sketch::from_aeon("A -> A\n").unwrap();
+        sketch
+            .perturbations
+            .add_perturbation_by_str("pert_1", Perturbation::new_empty("pert_1"))
+            .unwrap();
+
+        let mut property = DynProperty::try_mk_generic("wild", "true").unwrap();
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_ok());
+
+        property.set_applied_perturbation(Some(PerturbationId::new("pert_1").unwrap()));
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_ok());
+
+        property.set_applied_perturbation(Some(PerturbationId::new("missing").unwrap()));
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_err());
     }
 
     #[test]

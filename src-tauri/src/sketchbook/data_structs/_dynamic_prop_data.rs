@@ -193,3 +193,50 @@ impl DynPropertyData {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sketchbook::ids::PerturbationId;
+
+    #[test]
+    /// Legacy dynamic property JSON without `applied_perturbation` deserializes as wild-type.
+    fn perturbation_serialization_legacy_default() {
+        let legacy_json = r#"{
+            "id": "p1",
+            "name": "prop",
+            "annotation": "",
+            "variant": "GenericDynProp",
+            "formula": "true"
+        }"#;
+        let legacy = DynPropertyData::from_json_str(legacy_json).unwrap();
+        assert_eq!(legacy.applied_perturbation, None);
+        assert!(legacy
+            .to_property()
+            .unwrap()
+            .get_applied_perturbation()
+            .is_none());
+    }
+
+    #[test]
+    /// Dynamic property DTO round-trips `applied_perturbation` through domain and JSON.
+    fn perturbation_serialization_roundtrip() {
+        let mut property = DynProperty::try_mk_generic("prop", "true").unwrap();
+        property.set_applied_perturbation(Some(PerturbationId::new("pert_1").unwrap()));
+        let property_data =
+            DynPropertyData::from_property(&DynPropertyId::new("p1").unwrap(), &property);
+        assert_eq!(
+            property_data.applied_perturbation.as_deref(),
+            Some("pert_1")
+        );
+
+        let restored = property_data.to_property().unwrap();
+        assert_eq!(
+            restored.get_applied_perturbation().unwrap().as_str(),
+            "pert_1"
+        );
+
+        let parsed = DynPropertyData::from_json_str(&property_data.to_json_str()).unwrap();
+        assert_eq!(parsed, property_data);
+    }
+}
