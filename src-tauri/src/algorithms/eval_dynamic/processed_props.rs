@@ -1,5 +1,5 @@
 use crate::algorithms::eval_dynamic::encode::encode_dataset_hctl_str;
-use crate::sketchbook::ids::DynPropertyId;
+use crate::sketchbook::ids::{DynPropertyId, PerturbationId};
 use crate::sketchbook::observations::{Dataset, Observation};
 use crate::sketchbook::properties::dynamic_props::{
     DynPropertyType, WildCardProposition, WildCardType,
@@ -193,18 +193,32 @@ impl ProcessedDynProp {
     }
 }
 
+/// A processed dynamic property together with the perturbation context selected in the sketch.
+///
+/// Wild-card sub-properties inside `prop` inherit this context at evaluation time and do not
+/// carry their own `applied_perturbation` field.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProcessedDynPropWrapper {
+    pub prop: ProcessedDynProp,
+    pub applied_perturbation: Option<PerturbationId>,
+}
+
 /// Process dynamic properties in a sketch, converting them into one of the supported
 /// `ProcessedDynProp` variants. That usually means encoding them into HCTL, or doing
 /// some other preprocessing.
-pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynProp>, String> {
+pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynPropWrapper>, String> {
     let mut dynamic_props = sketch.properties.dyn_props().collect::<Vec<_>>();
     // sort properties by IDs for deterministic computation times (and get rid of the IDs)
     dynamic_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
 
     let mut processed_props = Vec::new();
     for (id, dyn_prop) in dynamic_props {
-        let dyn_prop_processed = process_dyn_prop_single(id, dyn_prop, sketch)?;
-        processed_props.push(dyn_prop_processed);
+        let applied_perturbation = dyn_prop.get_applied_perturbation().cloned();
+        let prop = process_dyn_prop_single(id, dyn_prop, sketch)?;
+        processed_props.push(ProcessedDynPropWrapper {
+            prop,
+            applied_perturbation,
+        });
     }
 
     Ok(processed_props)

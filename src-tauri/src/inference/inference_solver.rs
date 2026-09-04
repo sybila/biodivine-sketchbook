@@ -1,6 +1,8 @@
 use crate::algorithms::eval_dynamic::eval::eval_dyn_prop;
 use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic_hctl;
-use crate::algorithms::eval_dynamic::processed_props::{process_dynamic_props, ProcessedDynProp};
+use crate::algorithms::eval_dynamic::processed_props::{
+    process_dynamic_props, ProcessedDynPropWrapper,
+};
 use crate::algorithms::eval_static::eval::eval_static_prop;
 use crate::algorithms::eval_static::prepare_graph::prepare_graph_for_static_fol;
 use crate::algorithms::eval_static::processed_props::{process_static_props, ProcessedStatProp};
@@ -49,7 +51,7 @@ pub struct InferenceSolver {
     /// Static properties (once processed).
     static_props: Option<Vec<ProcessedStatProp>>,
     /// Dynamic properties (once processed).
-    dynamic_props: Option<Vec<ProcessedDynProp>>,
+    dynamic_props: Option<Vec<ProcessedDynPropWrapper>>,
     /// Set of final satisfying colors ((if computation finishes successfully).
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
@@ -129,7 +131,7 @@ impl InferenceSolver {
     }
 
     /// Reference getter for a vector of formulas for dynamic properties.
-    pub fn dyn_props(&self) -> Result<&Vec<ProcessedDynProp>, String> {
+    pub fn dyn_props(&self) -> Result<&Vec<ProcessedDynPropWrapper>, String> {
         if let Some(dyn_props) = &self.dynamic_props {
             Ok(dyn_props)
         } else {
@@ -531,7 +533,7 @@ impl InferenceSolver {
     fn eval_dynamic(&mut self) -> Result<(), String> {
         for dyn_property in self.dyn_props()?.clone() {
             self.check_cancellation()?; // check if cancellation flag was set during computation
-            let prop_id = dyn_property.id().to_string();
+            let prop_id = dyn_property.prop.id().to_string();
             self.update_status(InferenceStatus::StartedDynamic(prop_id.clone()));
 
             // prepare a callback that will be used to report progress of the underlying model-checking computation
@@ -547,7 +549,7 @@ impl InferenceSolver {
             };
 
             let inferred_colors: GraphColors =
-                eval_dyn_prop(&dyn_property, self.graph()?, &mut progress_callback)
+                eval_dyn_prop(&dyn_property.prop, self.graph()?, &mut progress_callback)
                     .map_err(|e| format!("Failed evaluating dynamic property {prop_id}: {e}."))?;
             let colored_vertices = GraphColoredVertices::new(
                 inferred_colors.into_bdd(),

@@ -1,4 +1,4 @@
-use crate::algorithms::eval_dynamic::processed_props::ProcessedDynProp;
+use crate::algorithms::eval_dynamic::processed_props::{ProcessedDynProp, ProcessedDynPropWrapper};
 
 use biodivine_hctl_model_checker::mc_utils::collect_unique_hctl_vars;
 use biodivine_hctl_model_checker::preprocessing::parser::parse_and_minimize_extended_formula;
@@ -30,15 +30,15 @@ use std::collections::HashMap;
 /// checking contexts.
 pub fn prepare_graph_for_dynamic_hctl(
     bn: &BooleanNetwork,
-    dyn_props: &Vec<ProcessedDynProp>,
+    dyn_props: &[ProcessedDynPropWrapper],
     unit: Option<(&Bdd, &SymbolicContext)>,
 ) -> Result<SymbolicAsyncGraph, String> {
     let mut num_hctl_vars = 0;
     // context needed to process formulas
     let plain_context = SymbolicContext::new(bn).unwrap();
 
-    for prop in dyn_props {
-        let num_vars_prop = count_num_hctl_vars_single(prop, &plain_context)?;
+    for entry in dyn_props {
+        let num_vars_prop = count_num_hctl_vars_single(&entry.prop, &plain_context)?;
         num_hctl_vars = max(num_hctl_vars, num_vars_prop)
     }
 
@@ -143,7 +143,9 @@ mod tests {
     use crate::algorithms::eval_dynamic::prepare_graph::{
         get_hctl_extended_symbolic_graph, prepare_graph_for_dynamic_hctl,
     };
-    use crate::algorithms::eval_dynamic::processed_props::ProcessedDynProp;
+    use crate::algorithms::eval_dynamic::processed_props::{
+        ProcessedDynProp, ProcessedDynPropWrapper,
+    };
 
     #[test]
     /// Test automatic generation of symbolic context for HCTL properties.
@@ -172,11 +174,10 @@ mod tests {
         assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
 
         // test deriving HCTL context automatically from property
-        let property_list = vec![ProcessedDynProp::mk_hctl(
-            "doesntmatter",
-            "3{x}: AX {x}",
-            Vec::new(),
-        )];
+        let property_list = vec![ProcessedDynPropWrapper {
+            prop: ProcessedDynProp::mk_hctl("doesntmatter", "3{x}: AX {x}", Vec::new()),
+            applied_perturbation: None,
+        }];
         let graph_hctl = prepare_graph_for_dynamic_hctl(&bn, &property_list, None).unwrap();
         assert_eq!(graph_hctl_expected.unit_colors(), graph_hctl.unit_colors());
     }
