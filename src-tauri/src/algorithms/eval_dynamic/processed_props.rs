@@ -209,7 +209,7 @@ pub struct ProcessedDynPropWrapper {
 pub fn process_dynamic_props(sketch: &Sketch) -> Result<Vec<ProcessedDynPropWrapper>, String> {
     let mut dynamic_props = sketch.properties.dyn_props().collect::<Vec<_>>();
     // sort properties by IDs for deterministic computation times (and get rid of the IDs)
-    dynamic_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
+    dynamic_props.sort_by_key(|(a_id, _)| *a_id);
 
     let mut processed_props = Vec::new();
     for (id, dyn_prop) in dynamic_props {

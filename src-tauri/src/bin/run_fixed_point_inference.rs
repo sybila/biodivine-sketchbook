@@ -96,5 +96,5 @@ fn main() {
         inference_results.num_sat_networks
     );
     println!("Computation time: {}ms", inference_results.comp_time);
-    println!("Exported results to {}\n", &args.results_path);
+    println!("Exported results to {}\n", args.results_path);
 }

@@ -80,7 +80,7 @@ impl SessionState for PropertyManager {
                     let new_var_id = VarId::new(&change_id_data.new_id)?;
 
                     // change values of all properties that reference this variable (ignoring the rest)
-                    for (_, prop) in self.stat_properties.iter_mut() {
+                    for prop in self.stat_properties.values_mut() {
                         let _ = prop.set_var_id_if_present(old_var_id.clone(), new_var_id.clone());
                     }
                     self.make_generated_reg_prop_ids_consistent().unwrap(); // this is okay to unwrap here
@@ -119,7 +119,7 @@ impl SessionState for PropertyManager {
                     let new_fn_id = UninterpretedFnId::new(&change_id_data.new_id)?;
 
                     // change values of all properties that reference this function (ignoring the rest)
-                    for (_, prop) in self.stat_properties.iter_mut() {
+                    for prop in self.stat_properties.values_mut() {
                         let _ = prop.set_fn_id_if_present(old_fn_id.clone(), new_fn_id.clone());
                     }
                     self.make_generated_fn_prop_ids_consistent().unwrap(); // this is okay to unwrap here

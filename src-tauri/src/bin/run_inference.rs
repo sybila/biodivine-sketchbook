@@ -120,7 +120,7 @@ fn main() {
     };
 
     // prepare sampling data if required
-    let sampling_data = if args.sampling_path.is_some() {
+    let sampling_data = if let Some(sampling_path) = args.sampling_path {
         if args.sampling_count.is_none() {
             panic!("Sampling path provided, but sampling count is not specified.");
         }
@@ -128,7 +128,7 @@ fn main() {
         Some(SamplingData {
             count: args.sampling_count.unwrap(),
             seed: args.sampling_seed,
-            path: args.sampling_path.unwrap(),
+            path: sampling_path,
         })
     } else {
         None

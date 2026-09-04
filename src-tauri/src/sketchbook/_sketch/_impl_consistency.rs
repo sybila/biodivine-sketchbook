@@ -271,7 +271,7 @@ impl Sketch {
                     .tree()
                     .collect_unique_fn_symbols()
                     .unwrap();
-                for (fn_id, _) in functions_referenced.iter() {
+                for fn_id in functions_referenced.keys() {
                     self.assert_fn_symbol_not_redundant(fn_id, &unused_functions)?;
                 }
             }

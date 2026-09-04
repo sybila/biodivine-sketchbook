@@ -50,7 +50,7 @@ impl SessionState for PerturbationManager {
             let new_var_id = VarId::new(&change_id_data.new_id)?;
 
             // Change values of all perturbations that reference this variable (ignoring the rest)
-            for (_, perturb) in self.perturbations.iter_mut() {
+            for perturb in self.perturbations.values_mut() {
                 perturb.set_var_id_if_present(&old_var_id, new_var_id.clone());
             }
 

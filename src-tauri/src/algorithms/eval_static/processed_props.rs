@@ -63,7 +63,7 @@ pub fn process_static_props(
 
     let mut static_props = sketch.properties.stat_props().collect::<Vec<_>>();
     // Sort properties by IDs for deterministic computation order (and get rid of the IDs)
-    static_props.sort_by(|(a_id, _), (b_id, _)| a_id.cmp(b_id));
+    static_props.sort_by_key(|(a_id, _)| *a_id);
 
     let mut processed_props = Vec::new();
     for (id, stat_prop) in static_props {
