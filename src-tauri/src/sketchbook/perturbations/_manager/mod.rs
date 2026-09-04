@@ -22,7 +22,7 @@ pub struct PerturbationManager {
 impl Manager for PerturbationManager {}
 
 impl Default for PerturbationManager {
-    /// Default manager instance with no datasets.
+    /// Default manager instance with no perturbations.
     fn default() -> PerturbationManager {
         PerturbationManager::new_empty()
     }

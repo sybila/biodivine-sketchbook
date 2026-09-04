@@ -1,4 +1,4 @@
-import { type DynamicProperty, type StaticProperty } from '../../../util/data-interfaces'
+import { type StaticProperty } from '../../../util/data-interfaces'
 import { debounce } from 'lodash'
 import AbstractProperty from '../abstract-property/abstract-property'
 import { html, type TemplateResult } from 'lit'

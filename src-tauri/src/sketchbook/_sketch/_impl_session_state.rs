@@ -1,8 +1,9 @@
 use crate::app::event::Event;
 use crate::app::state::{Consumed, SessionHelper, SessionState};
-use crate::app::DynError;
+use crate::app::{AeonError, DynError};
 use crate::sketchbook::data_structs::SketchData;
 use crate::sketchbook::event_utils::{make_reversible, make_state_change};
+use crate::sketchbook::ids::VarId;
 use crate::sketchbook::{JsonSerde, Sketch};
 use base64::prelude::*;
 use std::fs::File;
@@ -12,6 +13,8 @@ use std::io::Read;
 
 // Path for events being delegated to `model` subcomponent
 const MODEL_PATH: &str = "model";
+// Remove a network variable (event that needs special handling)
+const REMOVE_VAR_PATH: &str = "remove";
 // Path for events being delegated to `observations` subcomponent
 const OBSERVATIONS_PATH: &str = "observations";
 // Path for events being delegated to `properties` subcomponent
@@ -50,6 +53,23 @@ impl SessionState for Sketch {
     fn perform_event(&mut self, event: &Event, at_path: &[&str]) -> Result<Consumed, DynError> {
         // Just distribute the events one layer down, or answer some specific cases
         if let Some(at_path) = Self::starts_with(MODEL_PATH, at_path) {
+            // Special case: variable removal is blocked while it is listed in a perturbation.
+            // This needs special handling because it affects multiple sub-components.
+            if at_path.len() == 3 && at_path[0] == "variable" && at_path[2] == REMOVE_VAR_PATH {
+                let var_id_str = at_path[1];
+                let var_id = VarId::new(var_id_str)?;
+                let pert_ids = self.perturbations.perturbations_containing_var(&var_id);
+                if !pert_ids.is_empty() {
+                    let pert_list = pert_ids
+                        .iter()
+                        .map(|id| id.as_str())
+                        .collect::<Vec<_>>()
+                        .join("`, `");
+                    return AeonError::throw(format!(
+                        "Cannot remove variable `{var_id_str}`: it is referenced in perturbation(s) `{pert_list}`. Remove it from those perturbations first."
+                    ));
+                }
+            }
             self.model.perform_event(event, at_path)
         } else if let Some(at_path) = Self::starts_with(OBSERVATIONS_PATH, at_path) {
             self.observations.perform_event(event, at_path)
@@ -225,5 +245,48 @@ impl SessionState for Sketch {
         } else {
             Self::invalid_path_error_generic(at_path)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::app::state::SessionState;
+    use crate::sketchbook::event_utils::mk_model_event;
+    use crate::sketchbook::ids::PerturbationId;
+    use crate::sketchbook::perturbations::Perturbation;
+
+    #[test]
+    /// Variable removal is blocked while it is listed in a perturbation.
+    fn variable_remove_blocked_by_perturbation() {
+        let mut sketch = Sketch::from_aeon("A -> A\nB -> B\n").unwrap();
+        let var_a = sketch.model.get_var_id("A").unwrap();
+        let mut pert = Perturbation::new_empty("pert_1");
+        pert.set_var_value(&var_a, true);
+        sketch
+            .perturbations
+            .add_perturbation_by_str("pert_1", pert)
+            .unwrap();
+
+        let at_path = ["model", "variable", "A", "remove"];
+        let event = mk_model_event(&["variable", "A", "remove"], None);
+        let result = sketch.perform_event(&event, &at_path);
+        assert!(result.is_err());
+        assert!(format!("{result:?}").contains("pert_1"));
+
+        let pert_id = PerturbationId::new("pert_1").unwrap();
+        let mut pert = sketch
+            .perturbations
+            .get_perturbation(&pert_id)
+            .unwrap()
+            .clone();
+        pert.get_perturbed_vars_mut().remove(&var_a);
+        sketch
+            .perturbations
+            .swap_perturbation_content(&pert_id, pert)
+            .unwrap();
+
+        let result = sketch.perform_event(&event, &at_path);
+        assert!(result.is_ok());
     }
 }

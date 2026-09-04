@@ -216,8 +216,7 @@ impl Sketch {
     /// Returns bool (whether perturbations are consistent), a formated message with error issues,
     /// and a separate message with warnings.
     ///
-    /// The issues are only reported as warnings since they are handled automatically before
-    /// inference. We check that variables in perturbations are valid network variables.
+    /// We mainly check that variables in perturbations are valid network variables.
     fn check_perturbations(&self) -> (bool, String, String) {
         let mut message = String::new();
         message += "PERTURBATIONS:\n";

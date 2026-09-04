@@ -1,4 +1,4 @@
-use crate::sketchbook::ids::PerturbationId;
+use crate::sketchbook::ids::{PerturbationId, VarId};
 use crate::sketchbook::perturbations::{Perturbation, PerturbationIterator, PerturbationManager};
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -171,5 +171,49 @@ impl PerturbationManager {
             .get(id)
             .ok_or(format!("Perturbation with ID {id} does not exist."))?;
         Ok(perturbation)
+    }
+
+    /// Return IDs of all perturbations that list `var_id` among their perturbed variables.
+    pub fn perturbations_containing_var(&self, var_id: &VarId) -> Vec<PerturbationId> {
+        let mut pert_ids: Vec<PerturbationId> = self
+            .perturbations
+            .iter()
+            .filter(|(_, perturb)| perturb.get_perturbed_vars().contains_key(var_id))
+            .map(|(pert_id, _)| pert_id.clone())
+            .collect();
+        pert_ids.sort_by(|a, b| a.as_str().cmp(b.as_str()));
+        pert_ids
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn perturbations_containing_var() {
+        let var_a = VarId::new("A").unwrap();
+        let var_b = VarId::new("B").unwrap();
+        let mut perturbed_vars = BTreeMap::new();
+        perturbed_vars.insert(var_a.clone(), true);
+        let pert_with_a = Perturbation::new("pert_a", perturbed_vars);
+        let pert_empty = Perturbation::new_empty("pert_empty");
+
+        let manager = PerturbationManager::new_from_perturbations(vec![
+            ("pert_a", pert_with_a),
+            ("pert_empty", pert_empty),
+        ])
+        .unwrap();
+
+        assert_eq!(
+            manager
+                .perturbations_containing_var(&var_a)
+                .iter()
+                .map(|id| id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["pert_a"]
+        );
+        assert!(manager.perturbations_containing_var(&var_b).is_empty());
     }
 }

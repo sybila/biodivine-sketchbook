@@ -496,8 +496,6 @@ interface AeonState {
       perturbationCreated: Observable<PerturbationData>
       /** Create a new default perturbation. */
       addDefaultPerturbation: () => void
-      /** PerturbationData for a newly added perturbation (from explicit data). */
-      perturbationAdded: Observable<PerturbationData>
       /** Add a new perturbation with explicit data. */
       addPerturbation: (perturbationData: PerturbationData) => void
       /** PerturbationData of a removed perturbation. */
@@ -1084,7 +1082,6 @@ export const aeonState: AeonState = {
       },
 
       perturbationCreated: new Observable<PerturbationData>(['sketch', 'perturbations', 'add']),
-      perturbationAdded: new Observable<PerturbationData>(['sketch', 'perturbations', 'add']),
       perturbationRemoved: new Observable<PerturbationData>(['sketch', 'perturbations', 'remove']),
       perturbationIdChanged: new Observable<PerturbationIdUpdateData>(['sketch', 'perturbations', 'set_id']),
       perturbationContentChanged: new Observable<PerturbationData>(['sketch', 'perturbations', 'set_content']),

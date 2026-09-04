@@ -26,7 +26,6 @@ export class PerturbationsEditor extends LitElement {
     // Listen to changes in perturbations and update content data accordingly.
     aeonState.sketch.perturbations.perturbationsRefreshed.addEventListener(this.#onPerturbationsRefreshed.bind(this))
     aeonState.sketch.perturbations.perturbationCreated.addEventListener(this.#onPerturbationCreated.bind(this))
-    aeonState.sketch.perturbations.perturbationAdded.addEventListener(this.#onPerturbationAdded.bind(this))
     aeonState.sketch.perturbations.perturbationRemoved.addEventListener(this.#onPerturbationRemoved.bind(this))
     aeonState.sketch.perturbations.perturbationIdChanged.addEventListener(this.#onPerturbationIdChanged.bind(this))
     aeonState.sketch.perturbations.perturbationContentChanged.addEventListener(this.#onPerturbationContentChanged.bind(this))
@@ -46,11 +45,6 @@ export class PerturbationsEditor extends LitElement {
   }
 
   #onPerturbationCreated (perturbation: PerturbationData): void {
-    const iPerturbation = convertToIPerturbation(perturbation)
-    this.updatePerturbations(this.contentData.perturbations.concat(iPerturbation))
-  }
-
-  #onPerturbationAdded (perturbation: PerturbationData): void {
     const iPerturbation = convertToIPerturbation(perturbation)
     this.updatePerturbations(this.contentData.perturbations.concat(iPerturbation))
   }
@@ -96,7 +90,6 @@ export class PerturbationsEditor extends LitElement {
 
   /** Create empty perturbation (no perturbed variables). */
   private createPerturbation (): void {
-    console.log('Creating perturbation')
     aeonState.sketch.perturbations.addDefaultPerturbation()
   }
 
