@@ -99,7 +99,9 @@ This section describes the setup and instructions for static analysis tools, tes
 
 For format checking/fixing for the TypeScript part of the project, you can run `npx eslint "src/**/*.{js,jsx,ts,tsx}" --config .eslintrc.yml --fix`. You can use `cargo fmt` and `cargo clippy` for the Rust side.
 
-To run the full Rust test suite, use `cargo test`. The test suite contains both simple unit tests, as well as complex integration and inference tests. For instance, some tests regarding the inference computation pipeline are present in the module `src-tauri/src/inference/_test_inference`. Another important part of the tests for event processing are present in the module `src-tauri/src/sketchbook/_test_events`. Unit tests are present in all relevant modules, as is standard in Rust.
+To run the basic Rust test suite, use `cargo test`. These tests consist of both simple unit tests, as well as integration and inference tests (but only on very small examples). For instance, some tests regarding the inference computation pipeline are present in the module `src-tauri/src/inference/_test_inference`. Another important part of the tests for event processing are present in the module `src-tauri/src/sketchbook/_test_events`. Unit tests are present in all relevant modules, as is standard in Rust.
+
+To run more complex inference end-to-end tests using the Sketchbook's CLI interface, run `cargo test --release`. Apart from executing the base Rust test suite, it also runs inference tests on more complex models (that take just seconds in release mode but would take too long in debug mode). These end-to-end CLI tests are present in `src-tauri/tests`.
 
 To run the TypeScript tests, run `npx vitest --run` or `npm test`.
 
