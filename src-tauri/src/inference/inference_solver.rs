@@ -1,4 +1,5 @@
 use crate::algorithms::eval_dynamic::eval::eval_dyn_prop;
+use crate::algorithms::eval_dynamic::perturbation_encoding::BnWithPerturbations;
 use crate::algorithms::eval_dynamic::prepare_graph::prepare_graph_for_dynamic_hctl;
 use crate::algorithms::eval_dynamic::processed_props::{
     process_dynamic_props, ProcessedDynPropWrapper,
@@ -52,6 +53,8 @@ pub struct InferenceSolver {
     static_props: Option<Vec<ProcessedStatProp>>,
     /// Dynamic properties (once processed).
     dynamic_props: Option<Vec<ProcessedDynPropWrapper>>,
+    /// BN compiled with perturbation parameters.
+    bn_with_perturbations: Option<BnWithPerturbations>,
     /// Set of final satisfying colors ((if computation finishes successfully).
     raw_sat_colors: Option<GraphColors>,
     /// Vector with all time-stamped status updates. The last is the latest status.
@@ -94,6 +97,7 @@ impl InferenceSolver {
             start_time: None,
             static_props: None,
             dynamic_props: None,
+            bn_with_perturbations: None,
             raw_sat_colors: None,
             status_updates: vec![initial_status],
             should_stop: Arc::new(AtomicBool::new(false)),
@@ -136,6 +140,15 @@ impl InferenceSolver {
             Ok(dyn_props)
         } else {
             Err("Dynamic properties not yet processed.".to_string())
+        }
+    }
+
+    /// Reference getter for BN compiled with perturbation parameters.
+    pub fn bn_with_perturbations(&self) -> Result<&BnWithPerturbations, String> {
+        if let Some(bn_with_perturbations) = &self.bn_with_perturbations {
+            Ok(bn_with_perturbations)
+        } else {
+            Err("BN with perturbations encoding not yet processed.".to_string())
         }
     }
 
@@ -530,13 +543,20 @@ impl InferenceSolver {
     /// graph to the set of valid colors.
     ///
     /// If we discover that sketch is unsat early, skip the rest.
-    fn eval_dynamic(&mut self) -> Result<(), String> {
+    ///
+    /// The `dynamic_graph` is the symbolic transition graph for the system that already contains all
+    /// perturbation parameters and symbolic variables needed for the evaluation of dynamic properties.
+    /// and is restricted to the set of valid colors after each property is evaluated. The restriction
+    /// of valid colors is also immediately transferred to the `self.graph` to keep it synced.
+    fn eval_dynamic(&mut self, mut dynamic_graph: SymbolicAsyncGraph) -> Result<(), String> {
+        // Some properties may be perturbed, so we use the BN compiled with perturbation parameters
+        let bn_with_perturbations = self.bn_with_perturbations()?.clone();
         for dyn_property in self.dyn_props()?.clone() {
             self.check_cancellation()?; // check if cancellation flag was set during computation
             let prop_id = dyn_property.prop.id().to_string();
             self.update_status(InferenceStatus::StartedDynamic(prop_id.clone()));
 
-            // prepare a callback that will be used to report progress of the underlying model-checking computation
+            // Prepare a callback that will be used to report progress of the underlying model-checking computation
             let mut progress_callback = |colored_set: &GraphColoredVertices, msg: &str| {
                 // the progress message should contain BDD size info only when relevant
                 let msg = if colored_set.exact_cardinality() > BigUint::ZERO {
@@ -548,15 +568,49 @@ impl InferenceSolver {
                 self.update_internal_status(new_status);
             };
 
-            let inferred_colors: GraphColors =
-                eval_dyn_prop(&dyn_property.prop, self.graph()?, &mut progress_callback)
-                    .map_err(|e| format!("Failed evaluating dynamic property {prop_id}: {e}."))?;
-            let colored_vertices = GraphColoredVertices::new(
-                inferred_colors.into_bdd(),
-                self.graph()?.symbolic_context(),
+            // If the property is perturbed, restrict the graph to the set of valid colors for the selected perturbation
+            let selector_code = bn_with_perturbations
+                .code_for_applied_perturbation(dyn_property.applied_perturbation.as_ref())?;
+            let restricted_graph =
+                bn_with_perturbations.restrict_graph_to_perturbation(&dynamic_graph, selector_code);
+
+            let inferred_colors: GraphColors = eval_dyn_prop(
+                &dyn_property.prop,
+                &restricted_graph,
+                &mut progress_callback,
+            )
+            .map_err(|e| format!("Failed evaluating dynamic property {prop_id}: {e}."))?;
+
+            // Project out the perturbation selector parameters, so the next property can choose its own
+            // perturbation while retaining all non-perturbation restrictions.
+            let projected_colors = bn_with_perturbations.project_perturbation_selector_colors(
+                restricted_graph.symbolic_context(),
+                &inferred_colors,
             );
-            let new_graph: SymbolicAsyncGraph = self.graph()?.restrict(&colored_vertices);
+
+            // Restrict the unit colors of the dynamic graph to the set of valid colors
+            let candidate_vertices = GraphColoredVertices::new(
+                projected_colors.as_bdd().clone(),
+                dynamic_graph.symbolic_context(),
+            );
+            dynamic_graph = dynamic_graph.restrict(&candidate_vertices);
+
+            // Immediatelly propagate the restricted candidate set to the wild-type graph.
+            // This is not technically necessary after each iteration, but it is done for completeness so
+            // that `self.graph()` always returns the latest graph with the current restricted candidate set.
+            let wild_type_graph = self.graph()?;
+            let wild_type_context = wild_type_graph.symbolic_context();
+            let dynamic_context = restricted_graph.symbolic_context();
+            let transferred_bdd = wild_type_context
+                .transfer_from(projected_colors.as_bdd(), dynamic_context)
+                .ok_or(
+                    "Internal error transferring dynamic evaluation colors to wild-type context."
+                        .to_string(),
+                )?;
+            let colored_vertices = GraphColoredVertices::new(transferred_bdd, wild_type_context);
+            let new_graph: SymbolicAsyncGraph = wild_type_graph.restrict(&colored_vertices);
             self.graph = Some(new_graph);
+
             self.update_status(InferenceStatus::EvaluatedDynamic(prop_id));
             if self.check_if_finished_unsat(true)? {
                 return Ok(());
@@ -605,10 +659,14 @@ impl InferenceSolver {
         // Pre-process dynamic properties into a version more suitable for the computation
         let dynamic_props = process_dynamic_props(&sketch)
             .map_err(|e| format!("Failed pre-processing dynamic properties: {e}."))?;
+        // Compile BN with perturbation parameters (if any) for evaluation of dynamic properties
+        let bn_with_perturbations = BnWithPerturbations::new(&sketch.perturbations, &bn)
+            .map_err(|e| format!("Failed compiling BN with perturbations: {e}."))?;
 
         self.bn = Some(bn);
         self.static_props = Some(static_props);
         self.dynamic_props = Some(dynamic_props);
+        self.bn_with_perturbations = Some(bn_with_perturbations);
         self.update_status(InferenceStatus::ProcessedInputs);
 
         /* >> STEP 2: evaluation of static properties */
@@ -641,23 +699,28 @@ impl InferenceSolver {
 
         /* >> STEP 3: evaluation of dynamic properties */
         if use_dynamic && !finished_early {
+            if !use_static {
+                self.graph = Some(SymbolicAsyncGraph::new(self.bn()?).map_err(|e| {
+                    format!("Failed creating wild-type graph for dynamic-only inference: {e}.")
+                })?);
+            }
+
             /* >> STEP 3A: make symbolic transition graph for HCTL evaluation with restricted unit BDD */
             let old_unit_bdd = self.current_candidate_colors()?.into_bdd();
             let old_context = self.graph()?.symbolic_context();
-            self.graph = Some(
-                prepare_graph_for_dynamic_hctl(
-                    self.bn()?,
-                    self.dyn_props()?,
-                    Some((&old_unit_bdd, old_context)),
-                )
-                .map_err(|e| {
-                    format!("Failed preparing symbolic encoding for dynamic properties: {e}.")
-                })?,
-            );
+            // Create the STG for evaluation using the BN pre-compiled with perturbation parameters
+            let dynamic_graph = prepare_graph_for_dynamic_hctl(
+                &self.bn_with_perturbations()?.bn,
+                self.dyn_props()?,
+                Some((&old_unit_bdd, old_context)),
+            )
+            .map_err(|e| {
+                format!("Failed preparing symbolic encoding for dynamic properties: {e}.")
+            })?;
             self.update_status(InferenceStatus::GeneratedContextDynamic);
 
             /* >> STEP 3B: actually evaluate dynamic properties */
-            self.eval_dynamic()?; // proper error messages inside
+            self.eval_dynamic(dynamic_graph)?; // proper error messages inside
             let msg = format!(
                 "N. of candidates after evaluating dynamic props: {}\n",
                 self.current_candidate_colors()?.approx_cardinality()
