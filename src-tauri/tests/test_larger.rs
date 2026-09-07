@@ -1,40 +1,7 @@
 use assert_cmd::Command;
 use predicates::str::contains;
 
-// End-to-end tests that run the `run-inference` binary against sketch files in `data/`.
-// These mirror the integration test setup in biodivine-algo-smt-inference and are meant
-// to grow into broader coverage (including perturbation cases) over time.
-
-#[test]
-#[cfg_attr(debug_assertions, ignore = "release-only end-to-end test")]
-fn run_inference_test_sketch() {
-    Command::cargo_bin("run-inference")
-        .unwrap()
-        .arg("../data/test_data/test_sketch_1.json")
-        .assert()
-        .success()
-        .stdout(contains("Number of candidates: 32"))
-        .stdout(contains(
-            "N. of candidates after evaluating static props: 32",
-        ))
-        .stdout(contains(
-            "N. of candidates after evaluating dynamic props: 32",
-        ));
-}
-
-#[test]
-#[cfg_attr(debug_assertions, ignore = "release-only end-to-end test")]
-fn run_inference_small_example() {
-    Command::cargo_bin("run-inference")
-        .unwrap()
-        .arg("../data/small_example/small_example_sketch.json")
-        .assert()
-        .success()
-        .stdout(contains("Number of candidates: 1"))
-        .stdout(contains(
-            "N. of candidates after evaluating dynamic props: 1",
-        ));
-}
+// End-to-end tests that run the `run-inference` binary against larger sketch files in `data/`.
 
 #[test]
 #[cfg_attr(debug_assertions, ignore = "release-only end-to-end test")]
