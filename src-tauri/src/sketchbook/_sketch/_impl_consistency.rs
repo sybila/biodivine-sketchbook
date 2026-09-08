@@ -36,6 +36,7 @@ impl Sketch {
     /// - check that HCTL formulas only use valid variables as atomic propositions
     /// - check that FOL formulas only use valid function symbols
     /// - check that all perturbation variables are valid network variables
+    /// - check that perturbations are non-empty
     pub fn run_consistency_check(&self) -> (bool, String, String) {
         let mut all_consitent = true;
         let mut main_message = String::new();
@@ -216,13 +217,23 @@ impl Sketch {
     /// Returns bool (whether perturbations are consistent), a formated message with error issues,
     /// and a separate message with warnings.
     ///
-    /// We mainly check that variables in perturbations are valid network variables.
+    /// We mainly check that variables in perturbations are valid network variables,
+    /// and that perturbations are non-empty (similar to empty datasets used in properties).
     fn check_perturbations(&self) -> (bool, String, String) {
         let mut message = String::new();
         message += "PERTURBATIONS:\n";
 
         let mut perturb_err_found = false;
         for (perturb_id, perturb) in self.perturbations.perturbations_iter() {
+            if perturb.get_perturbed_vars().is_empty() {
+                perturb_err_found = true;
+                message = append_perturbation_issue(
+                    "Perturbation is empty (no perturbed variables).",
+                    perturb_id.as_str(),
+                    message,
+                );
+            }
+
             // Check that all perturbed variables are part of the network
             let mut invalid_variables = Vec::new();
             for var_id in perturb.get_perturbed_vars().keys() {
@@ -348,7 +359,7 @@ impl Sketch {
         }
 
         if let Some(pert_id) = prop.get_applied_perturbation() {
-            self.assert_perturbation_valid(pert_id)?;
+            self.assert_perturbation_valid_and_nonempty(pert_id)?;
         }
 
         Ok(())
@@ -479,6 +490,23 @@ impl Sketch {
         Ok(())
     }
 
+    /// Check that perturbation is valid in this sketch and lists at least one variable.
+    /// If not, return error with a proper message.
+    fn assert_perturbation_valid_and_nonempty(
+        &self,
+        perturbation_id: &PerturbationId,
+    ) -> Result<(), String> {
+        self.assert_perturbation_valid(perturbation_id)?;
+        let perturbation = self.perturbations.get_perturbation(perturbation_id)?;
+        if perturbation.get_perturbed_vars().is_empty() {
+            Err(format!(
+                "Referenced perturbation `{perturbation_id}` is empty."
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
     /// Check that perturbation is valid in this sketch. If not, return error with a proper message.
     fn assert_perturbation_valid(&self, perturbation_id: &PerturbationId) -> Result<(), String> {
         if self.perturbations.is_valid_perturbation_id(perturbation_id) {
@@ -606,12 +634,15 @@ mod tests {
     }
 
     #[test]
-    /// Dynamic properties may reference an existing perturbation, but not an unknown one.
+    /// Dynamic properties may reference an existing non-empty perturbation, but not an unknown one.
     fn consistency_applied_perturbation_reference() {
         let mut sketch = Sketch::from_aeon("A -> A\n").unwrap();
+        let var_a = sketch.model.get_var_id("A").unwrap();
+        let mut pert = Perturbation::new_empty("pert_1");
+        pert.set_var_value(&var_a, true);
         sketch
             .perturbations
-            .add_perturbation_by_str("pert_1", Perturbation::new_empty("pert_1"))
+            .add_perturbation_by_str("pert_1", pert)
             .unwrap();
 
         let mut property = DynProperty::try_mk_generic("wild", "true").unwrap();
@@ -621,6 +652,26 @@ mod tests {
         assert!(sketch.assert_dynamic_prop_valid(&property).is_ok());
 
         property.set_applied_perturbation(Some(PerturbationId::new("missing").unwrap()));
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_err());
+    }
+
+    #[test]
+    /// Empty perturbations (no perturbed variables) are a consistency error, including when
+    /// a dynamic property references them.
+    fn consistency_empty_perturbation() {
+        let mut sketch = Sketch::from_aeon("A -> A\n").unwrap();
+        sketch
+            .perturbations
+            .add_perturbation_by_str("pert_1", Perturbation::new_empty("pert_1"))
+            .unwrap();
+
+        assert!(sketch.assert_consistency().is_err());
+        let (_, message, _) = sketch.run_consistency_check();
+        assert!(message.contains("pert_1"));
+        assert!(message.contains("empty"));
+
+        let mut property = DynProperty::try_mk_generic("p", "true").unwrap();
+        property.set_applied_perturbation(Some(PerturbationId::new("pert_1").unwrap()));
         assert!(sketch.assert_dynamic_prop_valid(&property).is_err());
     }
 
