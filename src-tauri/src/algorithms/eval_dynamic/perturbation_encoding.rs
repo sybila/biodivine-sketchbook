@@ -178,18 +178,28 @@ impl BnWithPerturbations {
     }
 
     /// Restrict the unit colors of `graph` to a single perturbation (selector variable valuations).
+    /// 
+    /// Returns an error if the selector code is invalid (cant happen in inference but kept for 
+    /// completeness and for testing).
     pub fn restrict_graph_to_perturbation(
         &self,
         graph: &SymbolicAsyncGraph,
         code: SelectorCode,
-    ) -> SymbolicAsyncGraph {
+    ) -> Result<SymbolicAsyncGraph, String> {
+        let num_valid_codes = 1 + self.perturbation_codes.len();
+        if (code as usize) >= num_valid_codes {
+            return Err(format!(
+                "Selector code {code} is invalid (valid range: 0..{num_valid_codes})."
+            ));
+        }
+
         let ctx = graph.symbolic_context();
         let selector_bdd = self.perturbation_selector_bdd(ctx, code);
         let selector_colors = graph.mk_unit_colors().copy(selector_bdd);
         let restricted_unit = graph
             .unit_colored_vertices()
             .intersect_colors(&selector_colors);
-        graph.restrict(&restricted_unit)
+        Ok(graph.restrict(&restricted_unit))
     }
 
     /// Existentially project all perturbation selector parameter colors from `colors`.
@@ -441,7 +451,9 @@ mod tests {
         let ctx = graph.symbolic_context();
 
         let pert_code = encoding.perturbation_codes[&PerturbationId::new("pert_1").unwrap()];
-        let restricted = encoding.restrict_graph_to_perturbation(&graph, pert_code);
+        let restricted = encoding
+            .restrict_graph_to_perturbation(&graph, pert_code)
+            .unwrap();
         assert!(!restricted.mk_unit_colors().is_empty());
 
         let projected =
@@ -454,8 +466,38 @@ mod tests {
         let candidate_vertices = GraphColoredVertices::new(projected.into_bdd(), ctx);
         let synchronized_graph = graph.restrict(&candidate_vertices);
         let second_code = encoding.perturbation_codes[&PerturbationId::new("pert_2").unwrap()];
-        let second_restricted =
-            encoding.restrict_graph_to_perturbation(&synchronized_graph, second_code);
+        let second_restricted = encoding
+            .restrict_graph_to_perturbation(&synchronized_graph, second_code)
+            .unwrap();
         assert!(!second_restricted.mk_unit_colors().is_empty());
+    }
+
+    #[test]
+    fn rejects_invalid_selector_code() {
+        let mut perturbed_a = BTreeMap::new();
+        perturbed_a.insert(VarId::new("A").unwrap(), true);
+        let mut perturbed_b = BTreeMap::new();
+        perturbed_b.insert(VarId::new("B").unwrap(), false);
+        let manager = PerturbationManager::new_from_perturbations(vec![
+            ("pert_1", Perturbation::new("pert_1", perturbed_a)),
+            ("pert_2", Perturbation::new("pert_2", perturbed_b)),
+        ])
+        .unwrap();
+
+        let encoding = BnWithPerturbations::new(&manager, &simple_bn()).unwrap();
+        let graph = SymbolicAsyncGraph::new(&encoding.bn).unwrap();
+
+        // Two perturbations plus wild type => valid codes are 0, 1, 2; code 3 is unused padding.
+        let result = encoding.restrict_graph_to_perturbation(&graph, 3);
+        assert!(result.is_err());
+        let err = result.err().unwrap();
+        assert!(err.contains("Selector code 3 is invalid"));
+        assert!(err.contains("0..3"));
+
+        for code in 0..=2 {
+            assert!(encoding
+                .restrict_graph_to_perturbation(&graph, code)
+                .is_ok());
+        }
     }
 }

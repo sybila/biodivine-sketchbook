@@ -571,8 +571,9 @@ impl InferenceSolver {
             // If the property is perturbed, restrict the graph to the set of valid colors for the selected perturbation
             let selector_code = bn_with_perturbations
                 .code_for_applied_perturbation(dyn_property.applied_perturbation.as_ref())?;
-            let restricted_graph =
-                bn_with_perturbations.restrict_graph_to_perturbation(&dynamic_graph, selector_code);
+            let restricted_graph = bn_with_perturbations
+                .restrict_graph_to_perturbation(&dynamic_graph, selector_code)
+                .map_err(|e| format!("Failed evaluating dynamic property {prop_id}: {e}."))?;
 
             let inferred_colors: GraphColors = eval_dyn_prop(
                 &dyn_property.prop,
