@@ -56,6 +56,21 @@ pub fn run_inference(sketch: &Sketch, export_path: &str) -> InferenceResults {
     results
 }
 
+/// Run the same consistency check used by the GUI before inference.
+/// Warnings are printed to stderr; major issues abort the process.
+fn check_sketch_consistency(sketch: &Sketch) {
+    let (consistent, main_message, warn_message) = sketch.run_consistency_check();
+    if !warn_message.is_empty() {
+        eprintln!(
+            "The sketch has potential minor issues. Please review before running inference:\n\n{warn_message}"
+        );
+    }
+    if !consistent {
+        eprintln!("There are major issues with the sketch:\n\n{main_message}");
+        std::process::exit(1);
+    }
+}
+
 fn main() {
     logging::disable_logging();
     let args = Arguments::parse();
@@ -86,6 +101,8 @@ fn main() {
         .properties
         .add_dynamic_by_str(prop_id_str, property)
         .unwrap();
+
+    check_sketch_consistency(&sketch);
 
     // Run the actual inference procedure (including export)
     let inference_results = run_inference(&sketch, &args.results_path);
