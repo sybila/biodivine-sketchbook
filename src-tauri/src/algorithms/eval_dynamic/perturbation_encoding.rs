@@ -178,8 +178,8 @@ impl BnWithPerturbations {
     }
 
     /// Restrict the unit colors of `graph` to a single perturbation (selector variable valuations).
-    /// 
-    /// Returns an error if the selector code is invalid (cant happen in inference but kept for 
+    ///
+    /// Returns an error if the selector code is invalid (cant happen in inference but kept for
     /// completeness and for testing).
     pub fn restrict_graph_to_perturbation(
         &self,
