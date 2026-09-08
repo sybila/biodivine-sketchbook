@@ -42,3 +42,33 @@ fn run_inference_pertubation_2v_unsat() {
         .success()
         .stdout(contains("Number of candidates: 0"));
 }
+
+#[test]
+fn run_inference_myeloid_unperturbed() {
+    Command::cargo_bin("run-inference")
+        .unwrap()
+        .arg("../data/test_data/perturbations/example-myeloid-unperturbed.json")
+        .assert()
+        .success()
+        .stdout(contains("Number of candidates: 41"));
+}
+
+#[test]
+fn run_inference_myeloid_perturbed_only() {
+    Command::cargo_bin("run-inference")
+        .unwrap()
+        .arg("../data/test_data/perturbations/example-myeloid-perturbed-only.json")
+        .assert()
+        .success()
+        .stdout(contains("Number of candidates: 9"));
+}
+
+#[test]
+fn run_inference_myeloid_combined() {
+    Command::cargo_bin("run-inference")
+        .unwrap()
+        .arg("../data/test_data/perturbations/example-myeloid-combined.json")
+        .assert()
+        .success()
+        .stdout(contains("Number of candidates: 4"));
+}
