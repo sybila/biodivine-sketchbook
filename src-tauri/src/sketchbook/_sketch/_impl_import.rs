@@ -1,6 +1,6 @@
 use crate::sketchbook::data_structs::{
-    DatasetData, DynPropertyData, SketchData, StatPropertyData, StatPropertyTypeData,
-    UninterpretedFnData, VariableData,
+    DatasetData, DynPropertyData, PerturbationData, SketchData, StatPropertyData,
+    StatPropertyTypeData, UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::ids::StatPropertyId;
 use crate::sketchbook::model::{Essentiality, ModelState, Monotonicity};
@@ -71,6 +71,7 @@ impl Sketch {
         let datasets = Self::extract_entities(&aeon_annotations, "dataset")?;
         let stat_props = Self::extract_entities(&aeon_annotations, "static_property")?;
         let dyn_props = Self::extract_entities(&aeon_annotations, "dynamic_property")?;
+        let perturbations = Self::extract_entities(&aeon_annotations, "perturbation")?;
 
         // The annotations may contain some additional function symbols of the sketch (that
         // were not part of any update expressions). We must first add these function symbols
@@ -189,6 +190,14 @@ impl Sketch {
                     .properties
                     .add_dynamic_by_str(&id, prop_data.to_property()?)?;
             }
+        }
+
+        // Perturbations have to be added from scratch
+        for (id, perturb_str) in perturbations {
+            let perturb_data = PerturbationData::from_json_str(&perturb_str)?;
+            sketch
+                .perturbations
+                .add_perturbation_by_str(&id, perturb_data.to_perturbation()?)?;
         }
 
         // lastly, make sure that automatically generated static properties have standardized IDs

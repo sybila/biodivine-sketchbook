@@ -2,13 +2,14 @@ import {
   Essentiality, Monotonicity, type IFunctionData,
   type IObservationSet, type IObservation, type ILayoutData,
   type IRegulationData, type IVariableData,
-  type PropertyType,
+  type PropertyType, type IPerturbationMap, type IPerturbationData,
   StaticPropertyType,
   DynamicPropertyType
 } from './data-interfaces'
 import {
   type UninterpretedFnData, type VariableData, type ObservationData,
-  type DatasetData, type RegulationData, type LayoutNodeData
+  type DatasetData, type RegulationData, type LayoutNodeData,
+  type PerturbationData
 } from '../../aeon_state'
 
 /** Toggling essentiality. */
@@ -188,6 +189,40 @@ export function convertToIRegulation (regulation: RegulationData): IRegulationDa
     target: regulation.target,
     essential: regulation.essential,
     monotonicity: regulation.sign
+  }
+}
+
+/** Convert list of perturbed variables into internally used IPerturbationMap. */
+export function convertToIPerturbationMap (perturbationList: Array<[string, boolean]>): IPerturbationMap {
+  const perturbationMap: IPerturbationMap = new Map()
+  perturbationList.forEach(pertrturbedVar => {
+    perturbationMap.set(pertrturbedVar[0], pertrturbedVar[1])
+  })
+  return perturbationMap
+}
+
+/** Convert PerturbationData instance into internally used IPerturbationData. */
+export function convertToIPerturbation (perturbationData: PerturbationData): IPerturbationData {
+  const perturbationMap = convertToIPerturbationMap(perturbationData.perturbed_vars)
+  return {
+    id: perturbationData.id,
+    name: perturbationData.name,
+    annotation: perturbationData.annotation,
+    perturbedVars: perturbationMap
+  }
+}
+
+/** Convert internally used IPerturbationData instance into PerturbationData (used by backend). */
+export function convertFromIPerturbation (perturbation: IPerturbationData): PerturbationData {
+  const perturbationList: Array<[string, boolean]> = []
+  perturbation.perturbedVars.forEach((value, key) => {
+    perturbationList.push([key, value])
+  })
+  return {
+    id: perturbation.id,
+    name: perturbation.name,
+    annotation: perturbation.annotation,
+    perturbed_vars: perturbationList
   }
 }
 

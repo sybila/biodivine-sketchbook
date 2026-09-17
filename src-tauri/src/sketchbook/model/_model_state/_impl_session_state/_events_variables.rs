@@ -6,7 +6,7 @@ use crate::sketchbook::data_structs::{
     VariableWithLayoutData,
 };
 use crate::sketchbook::event_utils::{
-    make_reversible, mk_model_event, mk_model_state_change, mk_stat_prop_event,
+    make_reversible, mk_model_event, mk_model_state_change, mk_perturb_event, mk_stat_prop_event,
 };
 use crate::sketchbook::ids::VarId;
 use crate::sketchbook::layout::NodePosition;
@@ -289,6 +289,11 @@ impl ModelState {
             let id_change_data = ChangeIdData::new(var_id.as_str(), &new_id).to_json_str();
             let prop_event = mk_stat_prop_event(&["set_var_id_everywhere"], Some(&id_change_data));
             event_list.push(prop_event);
+
+            // event for modifying all affected perturbations (we do it via a single special event)
+            let perturb_event = mk_perturb_event(&["set_var_id_everywhere"], Some(&id_change_data));
+            event_list.push(perturb_event);
+
             event_list.reverse(); // has to be reversed
             Ok(Consumed::Restart(event_list))
         } else if Self::starts_with(SET_ID_RAW_PATH, at_path).is_some() {

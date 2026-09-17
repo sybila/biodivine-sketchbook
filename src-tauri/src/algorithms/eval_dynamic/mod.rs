@@ -2,6 +2,8 @@
 pub mod encode;
 /// Evaluate all kinds of dynamic properties.
 pub mod eval;
+/// Compile sketch perturbations into selector-controlled update functions.
+pub mod perturbation_encoding;
 /// Prepare graph and symbolic context to handle all dynamic properties.
 pub mod prepare_graph;
 /// Processed variants of dynamic properties for evaluation.

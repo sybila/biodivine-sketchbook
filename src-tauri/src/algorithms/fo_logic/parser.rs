@@ -78,7 +78,7 @@ fn parse_1_quantifiers(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
         if i > 0 && !matches!(&tokens[i - 1], FolToken::Quantifier(..)) {
             return Err(format!(
                 "Quantifier can't be directly preceded by '{}'.",
-                &tokens[i - 1]
+                tokens[i - 1]
             ));
         }
         match &tokens[i] {
@@ -172,7 +172,7 @@ fn parse_7_unary(tokens: &[FolToken]) -> Result<FolTreeNode, String> {
         if i > 0 && matches!(&tokens[i - 1], FolToken::Atomic(..)) {
             return Err(format!(
                 "Unary operator can't be directly preceded by '{:?}'.",
-                &tokens[i - 1]
+                tokens[i - 1]
             ));
         }
 

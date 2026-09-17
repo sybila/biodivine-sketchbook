@@ -31,6 +31,12 @@ export const tabList: TabData[] = [
   }),
   TabData.create({
     id: index++,
+    name: 'Perturbations',
+    content: (contentData) => html`<perturbations-editor .contentData=${contentData}></perturbations-editor>`,
+    icon: 'r'
+  }),
+  TabData.create({
+    id: index++,
     name: 'Properties',
     content: (contentData) => html`<properties-editor .contentData=${contentData}></properties-editor>`,
     icon: 'p'

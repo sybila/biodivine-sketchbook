@@ -97,6 +97,21 @@ pub fn run_inference(
     results
 }
 
+/// Run the same consistency check used by the GUI before inference.
+/// Warnings are printed to stderr; major issues abort the process.
+fn check_sketch_consistency(sketch: &Sketch) {
+    let (consistent, main_message, warn_message) = sketch.run_consistency_check();
+    if !warn_message.is_empty() {
+        eprintln!(
+            "The sketch has potential minor issues. Inference may be affected. Please review:\n\n{warn_message}"
+        );
+    }
+    if !consistent {
+        eprintln!("There are major issues with the sketch. Cannot run inference. Please review:\n\n{main_message}");
+        std::process::exit(1);
+    }
+}
+
 fn main() {
     let args = Arguments::parse();
     if !args.logging {
@@ -118,9 +133,10 @@ fn main() {
         "aeon" => Sketch::from_aeon(&file_contents).expect("Error parsing the sketch."),
         _ => panic!("Unsupported input format."),
     };
+    check_sketch_consistency(&sketch);
 
     // prepare sampling data if required
-    let sampling_data = if args.sampling_path.is_some() {
+    let sampling_data = if let Some(sampling_path) = args.sampling_path {
         if args.sampling_count.is_none() {
             panic!("Sampling path provided, but sampling count is not specified.");
         }
@@ -128,7 +144,7 @@ fn main() {
         Some(SamplingData {
             count: args.sampling_count.unwrap(),
             seed: args.sampling_seed,
-            path: args.sampling_path.unwrap(),
+            path: sampling_path,
         })
     } else {
         None

@@ -1,7 +1,7 @@
 # Biodivine Sketchbook
 
 Sketchbook is a multi-platform tool for inference of Boolean models from interaction networks combined with advanced static and dynamic properties.
-The symbolic inference is based on the recently published framework of [Boolean network sketches](https://doi.org/10.1093/bioinformatics/btad158).
+The symbolic inference method is based on the framework of [Boolean network sketches](https://doi.org/10.1093/bioinformatics/btad158). 
 
 Sketchbook offers an interactive graphical editor where users can specify regulatory interactions and partial update functions. It features a rich framework to describe expected model dynamics (e.g., attractors, oscillations, or transient patterns) and incorporates experimental data when available. The tool employs a high-performance symbolic inference engine to efficiently compute the set of all BN models consistent with the specification. Users can then sample candidate models or further process the results with libraries like [AEON.py](https://pypi.org/project/biodivine-aeon/).
 
@@ -26,9 +26,10 @@ The installation is also summarized below, with an additional development guide.
 If you used Sketchbook for some academic work, we'd be very happy if you could cite it using the following publication:
 
 ```
-Beneš, N., Brim, L., Huvar, O., Pastva, S., & Šafránek, D. (2023). 
-Boolean network sketches: a unifying framework for logical model inference.
-Bioinformatics, 39(4), https://doi.org/10.1093/bioinformatics/btad158.
+Ondřej Huvar, Nikola Beneš, Luboš Brim, Samuel Pastva, David Šafránek
+Sketchbook: logical model inference from Boolean network sketches 
+Bioinformatics Advances, Volume 6, Issue 1, 2026
+https://doi.org/10.1093/bioadv/vbag014
 ```
 
 ## Installation
@@ -42,6 +43,23 @@ If you need a different pre-built binary for a specific platform, let us know!
 > The binaries are not signed with official developer certificates, so macOS and Windows will most likely require you to grant special permissions to run the app. **On newer versions of macOS, the message is that the app is "corrupted". This is still the same issue regarding app certificates. You should run `xattr -c /path/to/biodivine-sketchbook.app` to ["enable" the app](https://discussions.apple.com/thread/253714860?sortBy=rank).**
 
 Alternatively, if you want to build the tool locally from the source code, the instructions are provided in the Development guide below. Note that the local build requires additional dependencies to be installed.
+
+## Using Sketchbook from the command line
+
+Although the main interface of the tool is its GUI, we provide the most important inference functionality through a library and CLI as well. If you want to use the CLI variant, you must prepare the sketch first. Once you have the sketch file, you can run the inference from the command line as described below. The program then computes all BN instances satisfying the sketch, and based on selected mode either prints a summary, exports symbolic results, or samples candidate BNs.
+
+First, compile the code in `src-tauri` with: `cargo build --release`.
+Then, you should find the binary `run-inference` (with an extension according to your system) in `src-tauri/target/release`. The binary has multiple options regarding results export, sampling or logging. See all the details and instructions by running `./run-inference --help`. 
+The example of use on Linux with results export would be:
+
+```
+./src-tauri/target/release/run-inference data/real_cases/tlgl/tlgl.json --results-path "results-tlgl.zip"
+```
+
+We also prepared a binary `run-fixed-point-inference` specifically for running inference with just a set of fixed-point properties. It takes a PSBN in `aeon` format and fixed-point data in the standard `csv` format (one fixed-point observation per row). It computes all instances of the PSBN that exhibit all the required fixed-point states. It exports the symbolic inference results to the given path. Use it as:
+```
+./src-tauri/target/release/run-fixed-point-inference <PSBN_PATH> <CSV_PATH> <RESULTS_PATH>
+```
 
 ## Development
 
@@ -81,7 +99,9 @@ This section describes the setup and instructions for static analysis tools, tes
 
 For format checking/fixing for the TypeScript part of the project, you can run `npx eslint "src/**/*.{js,jsx,ts,tsx}" --config .eslintrc.yml --fix`. You can use `cargo fmt` and `cargo clippy` for the Rust side.
 
-To run the full Rust test suite, use `cargo test`. The test suite contains both simple unit tests, as well as complex integration and inference tests. For instance, some tests regarding the inference computation pipeline are present in the module `src-tauri/src/inference/_test_inference`. Another important part of the tests for event processing are present in the module `src-tauri/src/sketchbook/_test_events`. Unit tests are present in all relevant modules, as is standard in Rust.
+To run the basic Rust test suite, use `cargo test`. These tests consist of both simple unit tests, as well as integration and inference tests (but only on very small examples). For instance, some tests regarding the inference computation pipeline are present in the module `src-tauri/src/inference/_test_inference`. Another important part of the tests for event processing are present in the module `src-tauri/src/sketchbook/_test_events`. Unit tests are present in all relevant modules, as is standard in Rust.
+
+To run more complex inference end-to-end tests using the Sketchbook's CLI interface, run `cargo test --release`. Apart from executing the base Rust test suite, it also runs inference tests on more complex models (that take just seconds in release mode but would take too long in debug mode). These end-to-end CLI tests are present in `src-tauri/tests`.
 
 To run the TypeScript tests, run `npx vitest --run` or `npm test`.
 
@@ -116,20 +136,3 @@ Tldr, to run the performance benchmarks, you can use python and execute them all
 Sketches and datasets relevant to cases studies on biological models and real datasets are in `data/real_cases`. There is also a README with further details.
 
 An example sketch used to introduce the framework is in `data/small_example`. Sketch is available in AEON and JSON format. We also provide results of the inference and the resulting sampled BN candidate.
-
-## Using Sketchbook from the command line
-
-Although the main interface of the tool is its GUI, we provide the most important inference functionality through a library and CLI as well. If you want to use the CLI variant, you must prepare the sketch first. Once you have the sketch file, you can run the inference from the command line as described below. The program then computes all BN instances satisfying the sketch, and based on selected mode either prints a summary, exports symbolic results, or samples candidate BNs.
-
-First, compile the code in `src-tauri` with: `cargo build --release`.
-Then, you should find the binary `run-inference` (with an extension according to your system) in `src-tauri/target/release`. The binary has multiple options regarding results export, sampling or logging. See all the details and instructions by running `run-inference --help`. 
-The example of use on Linux would be:
-
-```
-./src-tauri/target/release/run-inference data/real_cases/tlgl/tlgl.json --results-path "results-tlgl.zip"
-```
-
-We also prepared a binary `run-fixed-point-inference` specifically for running inference with just a set of fixed-point properties. It takes a PSBN in `aeon` format and fixed-point data in the standard `csv` format. It computes all instances of the PSBN that exhibit the required fixed-point states. It exports the symbolic inference results to the given path. Use it as:
-```
-./src-tauri/target/release/run-fixed-point-inference <PSBN_PATH> <CSV_PATH> <RESULTS_PATH>
-```

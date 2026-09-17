@@ -20,7 +20,9 @@ export default class NavBar extends LitElement {
           <div class="gap uk-navbar uk-flex-nowrap">
             <div class="uk-navbar-left uk-flex-nowrap">
               <hamburger-menu></hamburger-menu>
-              <tab-bar .tabs=${this.tabs}></tab-bar>
+              <div class="tab-scroll-area">
+                <tab-bar .tabs=${this.tabs}></tab-bar>
+              </div>
             </div>
 
             <div class="uk-navbar-right uk-flex-nowrap">

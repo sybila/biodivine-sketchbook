@@ -1,7 +1,8 @@
 use biodivine_lib_param_bn::ModelAnnotation;
 
 use crate::sketchbook::data_structs::{
-    DatasetData, DynPropertyData, SketchData, StatPropertyData, UninterpretedFnData, VariableData,
+    DatasetData, DynPropertyData, PerturbationData, SketchData, StatPropertyData,
+    UninterpretedFnData, VariableData,
 };
 use crate::sketchbook::{JsonSerde, Sketch};
 use std::fs::File;
@@ -22,7 +23,7 @@ impl Sketch {
     pub fn export_to_custom_json(&self, filepath: &str) -> Result<(), String> {
         let json_str = self.to_custom_json();
         let mut file = File::create(filepath).map_err(|e| e.to_string())?;
-        // write sketch in JSON to the file
+        // Write sketch in JSON to the file
         file.write_all(json_str.as_bytes())
             .map_err(|e| e.to_string())?;
         Ok(())
@@ -38,7 +39,7 @@ impl Sketch {
     /// cover all parts of the sketch. The remaining parts of the sketch are given
     /// via model annotations. Currently the annotations are given in json simply as
     ///   #!entity_type: ID: #`json_string`#
-    /// These entities can be variables, functions, static/dynamic properties, and datasets.
+    /// These entities can be variables, functions, static/dynamic properties, datasets, and perturbations.
     ///
     /// Note that Sketchbook supports more options for regulation monotonicity/essentiality
     /// than the standard AEON format allows. These specialized (e.g., dual) regulations are
@@ -76,6 +77,11 @@ impl Sketch {
             let dataset_data_json = DatasetData::from_dataset(id, dataset).to_json_str();
             annotation.ensure_value(&["dataset", id.as_str()], &dataset_data_json);
         }
+        // Annotations for perturbations
+        for (id, perturb) in self.perturbations.perturbations_iter() {
+            let perturb_data_json = PerturbationData::from_perturbation(id, perturb).to_json_str();
+            annotation.ensure_value(&["perturbation", id.as_str()], &perturb_data_json);
+        }
         // Annotations for variable details
         for (var_id, variable) in self.model.variables() {
             let update_fn = self.model.get_update_fn(var_id).unwrap();
@@ -100,7 +106,7 @@ impl Sketch {
     pub fn export_to_aeon(&self, filepath: &str) -> Result<(), String> {
         let aeon_str = self.to_aeon();
         let mut file = File::create(filepath).map_err(|e| e.to_string())?;
-        // write sketch in AEON to the file
+        // Write sketch in AEON to the file
         file.write_all(aeon_str.as_bytes())
             .map_err(|e| e.to_string())?;
         Ok(())

@@ -1,4 +1,4 @@
-use crate::sketchbook::ids::{DatasetId, ObservationId, UninterpretedFnId, VarId};
+use crate::sketchbook::ids::{DatasetId, ObservationId, PerturbationId, UninterpretedFnId, VarId};
 use crate::sketchbook::properties::dynamic_props::{
     DynPropertyType, WildCardProposition, WildCardType,
 };
@@ -35,6 +35,8 @@ impl Sketch {
     /// - check that various template properties reference valid variables and data
     /// - check that HCTL formulas only use valid variables as atomic propositions
     /// - check that FOL formulas only use valid function symbols
+    /// - check that all perturbation variables are valid network variables
+    /// - check that perturbations are non-empty
     pub fn run_consistency_check(&self) -> (bool, String, String) {
         let mut all_consitent = true;
         let mut main_message = String::new();
@@ -48,6 +50,7 @@ impl Sketch {
             self.check_datasets(),
             self.check_static(),
             self.check_dynamic(),
+            self.check_perturbations(),
         ];
 
         for (consistent, sub_err_message, sub_warn_message) in componets_results {
@@ -210,6 +213,46 @@ impl Sketch {
         (!dyn_err_found, message, String::new())
     }
 
+    /// Part of the consistency check responsible for the 'perturbations' component.
+    /// Returns bool (whether perturbations are consistent), a formated message with error issues,
+    /// and a separate message with warnings.
+    ///
+    /// We mainly check that variables in perturbations are valid network variables,
+    /// and that perturbations are non-empty (similar to empty datasets used in properties).
+    fn check_perturbations(&self) -> (bool, String, String) {
+        let mut message = String::new();
+        message += "PERTURBATIONS:\n";
+
+        let mut perturb_err_found = false;
+        for (perturb_id, perturb) in self.perturbations.perturbations_iter() {
+            if perturb.get_perturbed_vars().is_empty() {
+                perturb_err_found = true;
+                message = append_perturbation_issue(
+                    "Perturbation is empty (no perturbed variables).",
+                    perturb_id.as_str(),
+                    message,
+                );
+            }
+
+            // Check that all perturbed variables are part of the network
+            let mut invalid_variables = Vec::new();
+            for var_id in perturb.get_perturbed_vars().keys() {
+                if !self.model.is_valid_var_id(var_id) {
+                    invalid_variables.push(var_id.to_string());
+                }
+            }
+            if !invalid_variables.is_empty() {
+                perturb_err_found = true;
+                let invalid_vars_str = invalid_variables.join(", ");
+                let err_inner =
+                    format!("Variables `{invalid_vars_str}` are not valid network variables.");
+                message = append_perturbation_issue(&err_inner, perturb_id.as_str(), message);
+            }
+        }
+
+        (!perturb_err_found, message, String::new())
+    }
+
     /// Check if all fields of the static property are filled and have valid values.
     /// If not, return appropriate message.
     ///
@@ -239,7 +282,7 @@ impl Sketch {
                     .tree()
                     .collect_unique_fn_symbols()
                     .unwrap();
-                for (fn_id, _) in functions_referenced.iter() {
+                for fn_id in functions_referenced.keys() {
                     self.assert_fn_symbol_not_redundant(fn_id, &unused_functions)?;
                 }
             }
@@ -314,6 +357,11 @@ impl Sketch {
             }
             DynPropertyType::AttractorCount(_) => {} // no fields that can be invalid
         }
+
+        if let Some(pert_id) = prop.get_applied_perturbation() {
+            self.assert_perturbation_valid_and_nonempty(pert_id)?;
+        }
+
         Ok(())
     }
 
@@ -442,6 +490,34 @@ impl Sketch {
         Ok(())
     }
 
+    /// Check that perturbation is valid in this sketch and lists at least one variable.
+    /// If not, return error with a proper message.
+    fn assert_perturbation_valid_and_nonempty(
+        &self,
+        perturbation_id: &PerturbationId,
+    ) -> Result<(), String> {
+        self.assert_perturbation_valid(perturbation_id)?;
+        let perturbation = self.perturbations.get_perturbation(perturbation_id)?;
+        if perturbation.get_perturbed_vars().is_empty() {
+            Err(format!(
+                "Referenced perturbation `{perturbation_id}` is empty."
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Check that perturbation is valid in this sketch. If not, return error with a proper message.
+    fn assert_perturbation_valid(&self, perturbation_id: &PerturbationId) -> Result<(), String> {
+        if self.perturbations.is_valid_perturbation_id(perturbation_id) {
+            Ok(())
+        } else {
+            Err(format!(
+                "Referenced perturbation `{perturbation_id}` is not a valid perturbation."
+            ))
+        }
+    }
+
     /// Check if the given dataset is used within any of the dyn properties.
     /// We expect dataset ID is already checked as valid.
     fn is_dataset_used(&self, dataset_id: &DatasetId) -> bool {
@@ -464,10 +540,18 @@ fn append_property_issue(description: &str, prop_id: &str, mut log: String) -> S
     log
 }
 
+/// **(internal)** Simple internal utility to append issue message regarding a particular perturbation.
+fn append_perturbation_issue(description: &str, perturb_id: &str, mut log: String) -> String {
+    let issue = format!("> ISSUE with perturbation `{perturb_id}`: {description}\n");
+    log += &issue;
+    log
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::sketchbook::ids::DatasetId;
+    use crate::sketchbook::ids::{DatasetId, PerturbationId};
     use crate::sketchbook::observations::{Dataset, Observation};
+    use crate::sketchbook::perturbations::Perturbation;
     use crate::sketchbook::properties::{DynProperty, StatProperty};
     use crate::sketchbook::Sketch;
     use std::fs::File;
@@ -547,6 +631,48 @@ mod tests {
             .add_static_by_str("p", stat_prop)
             .unwrap();
         assert!(sketch_copy.assert_consistency().is_err());
+    }
+
+    #[test]
+    /// Dynamic properties may reference an existing non-empty perturbation, but not an unknown one.
+    fn consistency_applied_perturbation_reference() {
+        let mut sketch = Sketch::from_aeon("A -> A\n").unwrap();
+        let var_a = sketch.model.get_var_id("A").unwrap();
+        let mut pert = Perturbation::new_empty("pert_1");
+        pert.set_var_value(&var_a, true);
+        sketch
+            .perturbations
+            .add_perturbation_by_str("pert_1", pert)
+            .unwrap();
+
+        let mut property = DynProperty::try_mk_generic("wild", "true").unwrap();
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_ok());
+
+        property.set_applied_perturbation(Some(PerturbationId::new("pert_1").unwrap()));
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_ok());
+
+        property.set_applied_perturbation(Some(PerturbationId::new("missing").unwrap()));
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_err());
+    }
+
+    #[test]
+    /// Empty perturbations (no perturbed variables) are a consistency error, including when
+    /// a dynamic property references them.
+    fn consistency_empty_perturbation() {
+        let mut sketch = Sketch::from_aeon("A -> A\n").unwrap();
+        sketch
+            .perturbations
+            .add_perturbation_by_str("pert_1", Perturbation::new_empty("pert_1"))
+            .unwrap();
+
+        assert!(sketch.assert_consistency().is_err());
+        let (_, message, _) = sketch.run_consistency_check();
+        assert!(message.contains("pert_1"));
+        assert!(message.contains("empty"));
+
+        let mut property = DynProperty::try_mk_generic("p", "true").unwrap();
+        property.set_applied_perturbation(Some(PerturbationId::new("pert_1").unwrap()));
+        assert!(sketch.assert_dynamic_prop_valid(&property).is_err());
     }
 
     #[test]

@@ -1,4 +1,4 @@
-use crate::sketchbook::ids::{DatasetId, DynPropertyId, ObservationId};
+use crate::sketchbook::ids::{DatasetId, DynPropertyId, ObservationId, PerturbationId};
 use crate::sketchbook::properties::dynamic_props;
 use crate::sketchbook::JsonSerde;
 use dynamic_props::{DynProperty, DynPropertyType};
@@ -67,6 +67,10 @@ pub struct DynPropertyData {
     pub id: String,
     pub name: String,
     pub annotation: String,
+    /// ID of the applied perturbation, or `None` for wild-type.
+    /// Missing in older sketches; treated as wild-type.
+    #[serde(default)]
+    pub applied_perturbation: Option<String>,
     #[serde(flatten)]
     pub variant: DynPropertyTypeData,
 }
@@ -74,19 +78,11 @@ pub struct DynPropertyData {
 impl JsonSerde<'_> for DynPropertyData {}
 
 impl DynPropertyData {
-    /// Shorthand to create new generic `DynPropertyData` instance given a properties
-    /// `id`, `name`, `formula`, and `annotation`.
-    pub fn new_generic(id: &str, name: &str, formula: &str, annotation: &str) -> DynPropertyData {
-        let variant = DynPropertyTypeData::GenericDynProp(GenericDynPropData {
-            formula: formula.to_string(),
-        });
-        Self::new_raw(id, name, variant, annotation)
-    }
-
     /// Create new `DynPropertyData` object given a reference to a property and its `id`.
     pub fn from_property(id: &DynPropertyId, property: &DynProperty) -> DynPropertyData {
         let name = property.get_name();
         let annot = property.get_annotation();
+        let applied_perturbation = property.get_applied_perturbation().map(|id| id.to_string());
         let variant = match property.get_prop_data() {
             DynPropertyType::GenericDynProp(p) => {
                 // only need to save the raw formula (the input written by the user)
@@ -127,13 +123,18 @@ impl DynPropertyData {
                 })
             }
         };
-        Self::new_raw(id.as_str(), name, variant, annot)
+        Self::new_raw(id.as_str(), name, variant, annot, applied_perturbation)
     }
 
     /// Extract the corresponding `DynProperty` instance from this `DynPropertyData`.
     pub fn to_property(&self) -> Result<DynProperty, String> {
         let name = self.name.as_str();
         let annot = self.annotation.as_str();
+        let applied_perturbation = self
+            .applied_perturbation
+            .as_ref()
+            .map(|id| PerturbationId::new(id))
+            .transpose()?;
         let property = match &self.variant {
             DynPropertyTypeData::GenericDynProp(p) => {
                 DynProperty::try_mk_generic(name, &p.formula)?.with_annotation(annot)
@@ -172,7 +173,7 @@ impl DynPropertyData {
                     .with_annotation(annot)
             }
         };
-        Ok(property)
+        Ok(property.with_applied_perturbation(applied_perturbation))
     }
 
     /// **(internal)** Shorthand to create new `DynPropertyData` instance given all its fields.
@@ -181,12 +182,61 @@ impl DynPropertyData {
         name: &str,
         variant: DynPropertyTypeData,
         annotation: &str,
+        applied_perturbation: Option<String>,
     ) -> DynPropertyData {
         DynPropertyData {
             id: id.to_string(),
             name: name.to_string(),
             annotation: annotation.to_string(),
+            applied_perturbation,
             variant,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sketchbook::ids::PerturbationId;
+
+    #[test]
+    /// Legacy dynamic property JSON without `applied_perturbation` deserializes as wild-type.
+    fn perturbation_serialization_legacy_default() {
+        let legacy_json = r#"{
+            "id": "p1",
+            "name": "prop",
+            "annotation": "",
+            "variant": "GenericDynProp",
+            "formula": "true"
+        }"#;
+        let legacy = DynPropertyData::from_json_str(legacy_json).unwrap();
+        assert_eq!(legacy.applied_perturbation, None);
+        assert!(legacy
+            .to_property()
+            .unwrap()
+            .get_applied_perturbation()
+            .is_none());
+    }
+
+    #[test]
+    /// Dynamic property DTO round-trips `applied_perturbation` through domain and JSON.
+    fn perturbation_serialization_roundtrip() {
+        let mut property = DynProperty::try_mk_generic("prop", "true").unwrap();
+        property.set_applied_perturbation(Some(PerturbationId::new("pert_1").unwrap()));
+        let property_data =
+            DynPropertyData::from_property(&DynPropertyId::new("p1").unwrap(), &property);
+        assert_eq!(
+            property_data.applied_perturbation.as_deref(),
+            Some("pert_1")
+        );
+
+        let restored = property_data.to_property().unwrap();
+        assert_eq!(
+            restored.get_applied_perturbation().unwrap().as_str(),
+            "pert_1"
+        );
+
+        let parsed = DynPropertyData::from_json_str(&property_data.to_json_str()).unwrap();
+        assert_eq!(parsed, property_data);
     }
 }

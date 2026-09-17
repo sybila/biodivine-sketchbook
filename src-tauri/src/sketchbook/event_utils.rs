@@ -81,6 +81,18 @@ pub(crate) fn mk_stat_prop_state_change<'a, T: JsonSerde<'a>>(
     make_state_change(&full_path, payload)
 }
 
+/// Prepare "state-change" event for the `perturbations` component of the `sketch`, given
+/// `at_path` - a path suffix used at the perturbations level, and potential payload.
+/// Payload can be any struct that implements `JsonSerde`.
+pub(crate) fn mk_perturb_state_change<'a, T: JsonSerde<'a>>(
+    at_path: &[&str],
+    payload: &T,
+) -> Event {
+    let mut full_path = vec!["sketch", "perturbations"];
+    full_path.extend_from_slice(at_path);
+    make_state_change(&full_path, payload)
+}
+
 /// Prepare event for the `model` component of the `sketch`, given `at_path` - a path suffix
 /// used at the model level, and a `payload`.
 pub(crate) fn mk_model_event(at_path: &[&str], payload: Option<&str>) -> Event {
@@ -109,6 +121,14 @@ pub(crate) fn mk_dyn_prop_event(at_path: &[&str], payload: Option<&str>) -> Even
 /// path suffix used at the property manager level (after `static`), and a `payload`.
 pub(crate) fn mk_stat_prop_event(at_path: &[&str], payload: Option<&str>) -> Event {
     let mut full_path = vec!["sketch", "properties", "static"];
+    full_path.extend_from_slice(at_path);
+    Event::build(&full_path, payload)
+}
+
+/// Prepare event for the `perturbations` component of the `sketch`, given `at_path` - a
+/// path suffix used at the perturbation manager level, and a `payload`.
+pub(crate) fn mk_perturb_event(at_path: &[&str], payload: Option<&str>) -> Event {
+    let mut full_path = vec!["sketch", "perturbations"];
     full_path.extend_from_slice(at_path);
     Event::build(&full_path, payload)
 }

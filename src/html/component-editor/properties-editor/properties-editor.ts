@@ -586,19 +586,22 @@ export default class PropertiesEditor extends LitElement {
                     result = html`
                       <dynamic-obs-selection .index=${index}
                                            .property=${prop}
-                                           .observations=${this.contentData.observations}>
+                                           .observations=${this.contentData.observations}
+                                           .perturbations=${this.contentData.perturbations}>
                       </dynamic-obs-selection>`
                       break
                   case DynamicPropertyType.AttractorCount:
                     result = html`
                       <dynamic-attractor-count .index=${index}
-                                               .property=${prop}>
+                                               .property=${prop}
+                                               .perturbations=${this.contentData.perturbations}>
                       </dynamic-attractor-count>`
                       break
                   case DynamicPropertyType.Generic:
                     result = html`
                       <dynamic-generic .index=${index}
-                                       .property=${prop}>
+                                       .property=${prop}
+                                       .perturbations=${this.contentData.perturbations}>
                       </dynamic-generic>`
                       break
                 }
